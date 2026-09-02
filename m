@@ -1,63 +1,63 @@
-Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98328330B3F
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 14:03:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08BB147D474
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 14:03:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788357813; cv=none; b=L+kKyWy3JSetC2+SOJw9VJ3DVvyt8D3lUsfVlSifJSqrNWwyCsx7NCew2YeyRLbt6zJ6bH864koMMx7ZIcAVC1Xyvs6qAaMRIcHBU20rcNl00sZIBP5i+RdN3BQzbLxdO8DlEqIkLT5k8TOiNWEWilq4iqsZEoWK3ZrMIcz9/8Q=
+	t=1788357814; cv=none; b=roc+GI7OOOBWrNmVquozGqOwr2hX2TL3v/cAAA7ATRWYxYX7JJ5w2Yzx+Bmo01EL9/PezphQ2uCcSdQcGTZEKmQ8M12cJEclOM3vtEmf1rw2TDLAIbtiyTfU40qQCUdkfrwSB8puUtgYNHoM1U0/gTpcjYUBIIrcv/RzD1v8diM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788357813; c=relaxed/simple;
-	bh=d5fuBakyaqzqDLar6YCxEnQ2tbiq7ybf97QkXIdiBaM=;
+	s=arc-20240116; t=1788357814; c=relaxed/simple;
+	bh=5VUqqG7FzJiP60HZ8r/Ioo2Li8VvQEZTV2alJSgBaTI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RO/BKPs+fw0kwMFR93vRSNoeFadKYVPrjaD/iqMfcO8+v5VuEBzQCrAbelHzPmEUeqdF0aqEsjJkJwMGm/MSReV2KKSt9kvoELV9D0ESlMqohmLqM0i89yIOXC8DYzdyoas6Qs71SJiXSDlzzB8A6IR+Vbbd+IJBg8z0pqTpFf8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=stGgHiRO; arc=none smtp.client-ip=209.85.219.47
+	 MIME-Version; b=QW2OdneGI6q308jIp20RgyMtc6iSW0eGarY/YVfPDnKE3lX1T2jRqILwAdtNTivmOQJ7A0g/U+wxY3vqid7F+YxG0csrY1RKPi/st6p8yWlQbZ0AWVfP3YlKhg0Mon6dg/Lst/MaGLnqxNruu3H6EXeOCb1vbOKXRHae4XgM6Xs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lA8OMrtz; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="stGgHiRO"
-Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-910316a2fc9so2370836d6.2
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 07:03:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lA8OMrtz"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-90cbff85fa9so11906466d6.2
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 07:03:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788357810; x=1788962610; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788357812; x=1788962612; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=FZGnijxLP7Mz90y6X+LKXGNHor2z8eF8IWVM90PWIBU=;
-        b=stGgHiRObfZRJZWqZ4PTyhXmewJuvgHqdDbXfQ7s5WigLKCcEhy+uOWtPMm0EHE0qd
-         ncNkLlt4ioeHHUgSxFxrYdGbK1CFYeDtYm2VKAIDG2YIV5Tdc4dHbaxx0UKjVRT6G2h0
-         /jLcSOuLW2MsD+v6yx04HHfKRStFpMSXwUER9q42v2Y/kJxytSabkUZdGMedtwDEZpQu
-         aZ258um8nZdCWB5/hVzvFJqS3PEYhPVvBBId8SZJqW2qUDIR8VyvrWs1AEvZpjaNRVgH
-         7bsLepSDCJOT+RLbfFS3PHP44P/y+NT49hc95SLPwdzmJYsuwu9Njt57JRIBEGRtzV4U
-         RU2g==
+        bh=shC6xovgN3vgqKVLWc07H5vTk1UbbO2Ydttha3hTX3A=;
+        b=lA8OMrtz+eNAtUvSM9WdVddTAfEdveLZDiJQ9wSSzhy+aSzRHp7/QrLBPIR2n7Dfmr
+         SnoPGoZDuq6CyL7DEtwoyt+rf90a8VdrHtz2FVIJ2GQGJlCKDy86E35xzLGV5W6d6nDm
+         Z5M1GHOIJhyuJisKnHIXzghhXXrLceEGNE+CP+7r/5VqZZlWYzzWJxT8UGfunQB/rflq
+         j31ZYoAFqmp4T3YU1gG1+LL2ik8C7BMYb8sY98AQHYZ+6yNYutmSTsS7Y/ziq9R3w2us
+         OtqPAt+oerspyIDQgdUoDdql83VQDmUUyu5ekpot22Dnpm/XCaEbb7dq/XEX/6PvCUja
+         dEWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788357810; x=1788962610;
+        d=1e100.net; s=20251104; t=1788357812; x=1788962612;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FZGnijxLP7Mz90y6X+LKXGNHor2z8eF8IWVM90PWIBU=;
-        b=Odap5dwCPXLs2GCspzrD3r4/llre+dL/sC55m065ekO8xTG9q8Z2BTDaGhSRqucClD
-         ufu3ckSW/JOnETXx/2HLZCM9hlzc9TpiE00T4hrJi2NtAT2+ct0E6hI/Dw5bMMh0ugMK
-         cjZderph+GZXyfX/zuwXmXkXFcWB1kQaBHHbnj6LKTuke2f2A4UVWCTStBsxkwP56vzI
-         /1Rk1xKm063eUxAl1CQL3cwnvg/9woBj0Nvy1WsiUbWs9x7P84IPgL79/074U9oYjZ1c
-         ckIV1Lmt8o+IcUF0wK1DI7f2X5SJDS86IHxr6L2eXaZzFGgHsOvOiM6d0poklfbXzS31
-         2mVw==
-X-Gm-Message-State: AFuF++lYUqmIQUneOORp02PaDCC+gdJWSc9Fg6y97SgJCasY25LSdSMU
-	Jg71rtAUx2e7HexSVT3WM5cX6dLBMM9lXDm5dMa/m2utrhJk8rkDdCPgCY/qeQ==
-X-Gm-Gg: AYBFou1JnjJWSRqeZZ3XFv7NQz+8bjWfsgUp/WZX23ACXWNB9Yk1kA6dOO4UaBSMHZ0
-	2YaRdKVkHrEyPKja4/pWJgiTvAHeXstahav4mIYjp9e+lJ39V0dzGykGYRi6mI7RkBSioF9jBtx
-	2AjpkYTeAbEqbrIclKKNgEdlhlPtL/zUFKypICihE9L+zRhuapMP9MXgrTjEeacu0gZNGbqJvpj
-	QpXi/Kg95/Fo+zrnGHp6yGCSTbAbyTBTgRfTHVDgOhV9XVw2yXU5T6JUyeSL5esOx+/HE+8vQ13
-	1JZXS+AASLSXr1cOOUCF45/i0OVQYaZMXSOzUrTX4cLrUDYGnkqqlZsIeo1HxNAxtXIDqL9XX8m
-	ph4RmiYEQ7pgmXlJnFO2jcLx58S/KQmFxcQLZ6BJcDRWvc1SpeXHzUtVzFI1C1wP57VGOxTZIEZ
-	4bmUjeu5NakUalIfo11G6eAeTClUvYqfsqSrLv2tqNpLER2A9fFlCK5uDYpHfa5Xkx+Cj+hZ5de
-	n4wdOI4pZAJBGvMd9GpcW+QbPBI/lmuGdo0ihLMq1mRco4b5rc3CQVjBoOPOOyU
-X-Received: by 2002:a05:6214:460b:b0:90e:945e:61d2 with SMTP id 6a1803df08f44-90eb6c5e9a9mr68003476d6.15.1788357810068;
-        Wed, 02 Sep 2026 07:03:30 -0700 (PDT)
+        bh=shC6xovgN3vgqKVLWc07H5vTk1UbbO2Ydttha3hTX3A=;
+        b=q+nvvgcMzmokn7yfVuwR3cHwZp2k7SX1VnPs7Vlw6Kbqqr5A1IcaxH0r0YPAdYTgIK
+         tJsqcbbDdaX9bIYB98WGJsAltzaszfXEIP3b+zjvBiOeJvIrTC862z1blV1Oz5t7A9Wm
+         mFk191zNs6s8AxL2U9K3AgpDqpy16I6J0mYT76obbRP7eVncTqMMNJdAf3FJksK9mp2N
+         768gGUHc0s/9aBhUYTp9QvJPZCEBigMrQNChxGMOh4muvvPBjE8ORRY2YvqYPSyODnti
+         25AoWv7usPVtKuvr6EH7/oW2IY02f1/TWJN/KijMsZcr536vyyyh/yc8qGOr3eKehKzw
+         ywyA==
+X-Gm-Message-State: AFuF++lYax82jIE4YskQrqDrqjqkvziJS4TJarH6DDZhDw3h1kt5WYlV
+	MFeqPA4P7OB33LL0Z4k+m+DC6SNyYRlNO14pLPg9j2GBx0mrCIJZJG+DtGf0nw==
+X-Gm-Gg: AR+sD13XhOoNww6dPuHqWlZvtgDy8XepNLS/Dqq6KlUcYcOSIDWYR8XxRfK58qXoVBD
+	/JyKUPqx2VPvlI9mZUfojVZPXDV3cktNVS3g7EohdeQ3rMTD9E0VeJuExr4Ia5S8M+xFDjal4XG
+	qk8Cu1ieN0wNVfgrtAvzN+RhLS8lTmXTwrrWV3SjZ2tSdovnBRTXEGRiU5+Y4pDcjW2ZvkZ5zKE
+	+YlZxGmf2SbrNp4YEqnR5KIssyXFZzdW5vHJ3XhhZsIrqfT0xz7JvVw1t6HR933MpxXa01ZuOsD
+	nbUCWCf32/1OQScfyJoOk3Id4wcqcog10pj/NLaZOUMJHF9/23XAfISLWU4Kro7ULhwdNTjZIFJ
+	5Vt1axOV6ztpMZEfpnxhl3sRquvjKRLLDL7wiyQMFHYi3uCpIVRGJ3UXvMrt840OdaCarcQiQG6
+	MlgsO4r2QYRzSHnfO//tIKFwT55Fn8urbIOczapmDkbbrdPVoIzzWfoPxUSi6SDE/DRt4VOFBZt
+	KzzRIIHTt96wSZTyqT7azTHIucW/vyt99RKhm1d5db65daTSWdcB8V+PrUy+MPa
+X-Received: by 2002:a05:6214:2dc4:b0:8ef:e0d0:9fae with SMTP id 6a1803df08f44-90eca3e368cmr77173996d6.14.1788357811515;
+        Wed, 02 Sep 2026 07:03:31 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee316f7sm18790446d6.19.2026.09.02.07.03.29
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee316f7sm18790446d6.19.2026.09.02.07.03.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 07:03:29 -0700 (PDT)
+        Wed, 02 Sep 2026 07:03:31 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -65,9 +65,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 1/9] libsemanage: accept a list of read-only fallback store roots
-Date: Wed,  2 Sep 2026 10:02:03 -0400
-Message-ID: <20260902140211.53084-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 3/9] libsemanage: list modules across every store root
+Date: Wed,  2 Sep 2026 10:02:05 -0400
+Message-ID: <20260902140211.53084-5-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
 References: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
@@ -79,291 +79,388 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a semanage.conf option:
+semanage_direct_list_all() now scans the writable modules root (TMP in
+a transaction, ACTIVE otherwise) and each ro-store-root ACTIVE modules
+root, collecting every (priority, name) pair. The result is sorted by
+(priority descending, name ascending) so that
+semanage_get_active_modules() still picks the highest priority one,
+and adjacent duplicates are collapsed.
 
-    ro-store-root = /usr/lib/selinux[:/another/root...]
+For each unique pair, semanage_direct_get_module_info() reads lang_ext
+and the disabled marker via semanage_module_find_path(), so a module
+present only in a read-only root is fully described, and a writable-
+store copy at the same priority/name shadows a fallback.
 
-naming one or more read-only module-store roots to search after
-store-root when reading. Only the ACTIVE tree of a fallback root
-is used - TMP/PREVIOUS and both lock files stay in the writable
-store. With no ro-store-root the behavior is unchanged.
-
-New helper functions:
-
-    semanage_ro_root_count() - number of RO roots
-    semanage_ro_active_path(i, X) - <ro_root_i>/<type>/active/<X>
-    semanage_path_read(store, X) - for ACTIVE, first-existing across
-    			           [store-root, ro-store-root...];
-				   for TMP/PREVIOUS, semanage_path()
-
-The subsequent patches switch the ACTIVE readers to
-semanage_path_read(), teach module enumeration to union across the
-roots, and stop the sandbox from copying anything but the writable
-ACTIVE, so /var (or /etc, depending on store-root configuration) holds
-only the admin delta over a vendor /usr/lib store.
+An ENOENT from any root's modules directory is treated as an empty
+contribution rather than a hard error, so a fresh /var or /etc with no
+active/ tree does not break 'semodule -l'.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/conf-parse.y     | 57 +++++++++++++++++++++++-
- libsemanage/src/conf-scan.l      |  1 +
- libsemanage/src/semanage_conf.h  |  2 +
- libsemanage/src/semanage_store.c | 76 ++++++++++++++++++++++++++++++++
- libsemanage/src/semanage_store.h |  6 +++
- 5 files changed, 141 insertions(+), 1 deletion(-)
+ libsemanage/src/direct_api.c | 293 ++++++++++++++++++++---------------
+ 1 file changed, 168 insertions(+), 125 deletions(-)
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index dee17b2f..264ccf70 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -43,6 +43,7 @@ extern char *semanage_text;
- 
- static int parse_module_store(char *arg);
- static int parse_store_root_path(char *arg);
-+static int parse_ro_store_root_paths(char *arg);
- static int parse_compiler_path(char *arg);
- static void semanage_conf_external_prog_destroy(external_prog_t *ep);
- static int new_external_prog(external_prog_t **chain);
-@@ -62,7 +63,7 @@ static int parse_errors;
-         char *s;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index ded6bb9e..dae9d003 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -2622,6 +2622,105 @@ static int semanage_modules_filename_select(const struct dirent *d)
+ 	return 1;
  }
  
--%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
-+%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT RO_STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
- %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
- %token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
- %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
-@@ -85,6 +86,7 @@ single_opt:     module_store
-         |       version
-         |       target_platform
-         |       store_root
-+        |       ro_store_root
-         |       compiler_dir
-         |       ignore_module_cache
-         |       expand_check
-@@ -122,6 +124,15 @@ store_root:     STORE_ROOT '=' ARG  {
-                 }
-         ;
- 
-+ro_store_root:  RO_STORE_ROOT '=' ARG  {
-+                        if (parse_ro_store_root_paths($3) != 0) {
-+                                parse_errors++;
-+                                YYABORT;
-+                        }
-+                        free($3);
-+                }
-+        ;
++struct raw_module {
++	uint16_t priority;
++	char *name;
++};
 +
- compiler_dir:       COMPILER_DIR '=' ARG  {
-                         if (parse_compiler_path($3) != 0) {
-                                 parse_errors++;
-@@ -534,6 +545,9 @@ void semanage_conf_destroy(semanage_conf_t * conf)
- 		free(conf->store_path);
- 		free(conf->ignoredirs);
- 		free(conf->store_root_path);
-+		while (conf->n_ro_store_roots)
-+			free(conf->ro_store_root_paths[--conf->n_ro_store_roots]);
-+		free(conf->ro_store_root_paths);
- 		free(conf->compiler_directory_path);
- 		semanage_conf_external_prog_destroy(conf->load_policy);
- 		semanage_conf_external_prog_destroy(conf->setfiles);
-@@ -612,6 +626,47 @@ static int parse_store_root_path(char *arg)
- 	return 0;
- }
- 
-+/* ro-store-root = /usr/lib/selinux[:/another/root...] */
-+static int parse_ro_store_root_paths(char *arg)
++static int raw_module_cmp(const void *a, const void *b)
 +{
-+	char *p, *saveptr = NULL;
-+	unsigned int n = 0;
-+	char **v;
++	const struct raw_module *ra = a, *rb = b;
 +
-+	if (arg == NULL) {
-+		return -1;
-+	}
-+
-+	for (p = arg; *p; p++)
-+		if (*p == ':')
-+			n++;
-+	n++;
-+
-+	v = calloc(n, sizeof(*v));
-+	if (!v)
-+		return -1;
-+
-+	n = 0;
-+	for (p = strtok_r(arg, ":", &saveptr); p;
-+	     p = strtok_r(NULL, ":", &saveptr)) {
-+		v[n] = strdup(p);
-+		if (!v[n]) {
-+			while (n)
-+				free(v[--n]);
-+			free(v);
-+			return -1;
-+		}
-+		n++;
-+	}
-+
-+	while (current_conf->n_ro_store_roots)
-+		free(current_conf->ro_store_root_paths[--current_conf->n_ro_store_roots]);
-+	free(current_conf->ro_store_root_paths);
-+	current_conf->ro_store_root_paths = v;
-+	current_conf->n_ro_store_roots = n;
-+	return 0;
++	if (ra->priority != rb->priority)
++		return (int)rb->priority - (int)ra->priority;
++	return strcmp(ra->name, rb->name);
 +}
 +
- static int parse_compiler_path(char *arg)
- {
- 	if (arg == NULL) {
-diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-index c592fb63..d3f74b66 100644
---- a/libsemanage/src/conf-scan.l
-+++ b/libsemanage/src/conf-scan.l
-@@ -39,6 +39,7 @@ static char *my_qstrdup (char * s);
- #.*               /* ignore comments */
- module-store      return MODULE_STORE;
- store-root        return STORE_ROOT;
-+ro-store-root     return RO_STORE_ROOT;
- compiler-directory	return COMPILER_DIR;
- ignore-module-cache return IGNORE_MODULE_CACHE;
- policy-version    return VERSION;
-diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-index 5a24ea87..b2059962 100644
---- a/libsemanage/src/semanage_conf.h
-+++ b/libsemanage/src/semanage_conf.h
-@@ -57,6 +57,8 @@ typedef struct semanage_conf {
- 	struct external_prog *sefcontext_compile;
- 	struct external_prog *mod_prog, *linked_prog, *kernel_prog;
- 	char *store_root_path;
-+	char **ro_store_root_paths;
-+	unsigned int n_ro_store_roots;
- } semanage_conf_t;
- 
- /* A linked list of verification programs.  Each one is called in
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index f6ca1afb..187fd6b6 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -76,6 +76,9 @@ enum semanage_file_defs {
- 
- static char *semanage_paths[SEMANAGE_NUM_STORES][SEMANAGE_STORE_NUM_PATHS];
- static char *semanage_files[SEMANAGE_NUM_FILES] = { NULL };
-+
-+static char **semanage_ro_active_paths;
-+static unsigned int semanage_n_ro_roots;
- static int semanage_paths_initialized = 0;
- 
- /* These are paths relative to the bottom of the module store */
-@@ -203,6 +206,33 @@ static int semanage_init_store_paths(const char *root)
- 	return 0;
- }
- 
-+static int semanage_init_ro_store_paths(semanage_handle_t *sh)
++static void free_scandir_result(struct dirent **entries, int n)
 +{
-+	unsigned int i, j, n = sh->conf->n_ro_store_roots;
-+
-+	if (n == 0)
-+		return 0;
-+
-+	semanage_ro_active_paths = calloc((size_t)n * SEMANAGE_STORE_NUM_PATHS,
-+					  sizeof(*semanage_ro_active_paths));
-+	if (!semanage_ro_active_paths)
-+		return -1;
++	int i;
 +
 +	for (i = 0; i < n; i++)
-+		for (j = 0; j < SEMANAGE_STORE_NUM_PATHS; j++) {
-+			if (asprintf(&semanage_ro_active_paths
-+					     [i * SEMANAGE_STORE_NUM_PATHS + j],
-+				     "%s%s/%s%s%s", semanage_root(),
-+				     sh->conf->ro_store_root_paths[i],
-+				     sh->conf->store_path,
-+				     semanage_store_paths[SEMANAGE_ACTIVE],
-+				     semanage_sandbox_paths[j]) < 0)
-+				return -1;
-+		}
-+	semanage_n_ro_roots = n;
-+	return 0;
++		free(entries[i]);
++	free(entries);
 +}
 +
- static int semanage_init_final(semanage_handle_t *sh, const char *prefix)
- {
- 	assert(sh);
-@@ -410,6 +440,10 @@ int semanage_check_init(semanage_handle_t *sh, const char *prefix)
- 		if (rc)
- 			return rc;
- 
-+		rc = semanage_init_ro_store_paths(sh);
-+		if (rc)
-+			return rc;
-+
- 		rc = semanage_init_final(sh, prefix);
- 		if (rc)
- 			return rc;
-@@ -448,6 +482,48 @@ const char *semanage_path(enum semanage_store_defs store,
- 	return semanage_paths[store][path_name];
- }
- 
-+/* Number of read-only fallback store roots. */
-+unsigned int semanage_ro_root_count(void)
++static int semanage_scan_modules_root(semanage_handle_t *sh,
++				      const char *toplevel,
++				      struct raw_module **raw, int *raw_len)
 +{
-+	return semanage_n_ro_roots;
-+}
++	struct dirent **priorities = NULL, **modules = NULL;
++	int priorities_len, modules_len;
++	char priority_path[PATH_MAX];
++	uint16_t priority;
++	int i, j, status = 0;
++	void *tmp;
 +
-+/*
-+ * ACTIVE path in the @idx-th read-only fallback root (0-based).
-+ * Returns NULL if no such root; the caller must not alter the string.
-+ */
-+const char *semanage_ro_active_path(unsigned int idx,
-+				    enum semanage_sandbox_defs file)
-+{
-+	if (idx >= semanage_n_ro_roots)
-+		return NULL;
-+	return semanage_ro_active_paths[idx * SEMANAGE_STORE_NUM_PATHS + file];
-+}
-+
-+/*
-+ * First-existing of the writable ACTIVE path and each RO ACTIVE path,
-+ * for read-side lookups. For TMP/PREVIOUS, or when no fallback root
-+ * has the file, this is semanage_path(store, file) so callers that
-+ * then create the file use the writable store.
-+ */
-+const char *semanage_path_read(enum semanage_store_defs store,
-+			       enum semanage_sandbox_defs file)
-+{
-+	const char *path = semanage_path(store, file);
-+	unsigned int i;
-+
-+	if (store != SEMANAGE_ACTIVE || access(path, F_OK) == 0)
-+		return path;
-+
-+	for (i = 0; i < semanage_n_ro_roots; i++) {
-+		const char *ropath = semanage_ro_active_path(i, file);
-+
-+		if (ropath && access(ropath, F_OK) == 0)
-+			return ropath;
++	priorities_len = scandir(toplevel, &priorities,
++				 semanage_priorities_filename_select,
++				 versionsort);
++	if (priorities_len < 0) {
++		if (errno == ENOENT)
++			return 0;
++		ERR(sh, "Error while scanning directory %s.", toplevel);
++		return -1;
 +	}
-+	return path;
++
++	for (i = 0; i < priorities_len; i++) {
++		if (semanage_string_to_priority(priorities[i]->d_name,
++						&priority)) {
++			status = -1;
++			break;
++		}
++
++		snprintf(priority_path, sizeof(priority_path), "%s/%s",
++			 toplevel, priorities[i]->d_name);
++		modules_len = scandir(priority_path, &modules,
++				      semanage_modules_filename_select,
++				      versionsort);
++		if (modules_len < 0) {
++			ERR(sh, "Error while scanning directory %s.",
++			    priority_path);
++			status = -1;
++			break;
++		}
++		if (modules_len == 0) {
++			free(modules);
++			modules = NULL;
++			continue;
++		}
++
++		tmp = realloc(*raw,
++			      sizeof(**raw) * ((size_t)*raw_len + modules_len));
++		if (tmp == NULL) {
++			ERR(sh, "Error allocating memory for module list.");
++			free_scandir_result(modules, modules_len);
++			status = -1;
++			break;
++		}
++		*raw = tmp;
++
++		for (j = 0; j < modules_len; j++) {
++			(*raw)[*raw_len].priority = priority;
++			(*raw)[*raw_len].name = strdup(modules[j]->d_name);
++			if ((*raw)[*raw_len].name == NULL) {
++				ERR(sh, "Out of memory.");
++				status = -1;
++				break;
++			}
++			(*raw_len)++;
++		}
++
++		free_scandir_result(modules, modules_len);
++		modules = NULL;
++		if (status)
++			break;
++	}
++
++	free_scandir_result(priorities, priorities_len);
++	return status;
 +}
 +
- /* Given a store location (tmp or selinux) and a definition
-  * number, return a fully-qualified path to that file or directory.
-  * The caller must not alter the string returned (and hence why this
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 86ae0936..36cef62c 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -101,6 +101,12 @@ extern const char *semanage_fname(enum semanage_sandbox_defs file_enum);
- extern const char *semanage_path(enum semanage_store_defs store,
- 				 enum semanage_sandbox_defs file);
+ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 				    semanage_module_info_t **modinfos,
+ 				    int *modinfos_len)
+@@ -2634,22 +2733,13 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 	int ret = 0;
  
-+extern unsigned int semanage_ro_root_count(void);
-+extern const char *semanage_ro_active_path(unsigned int idx,
-+					   enum semanage_sandbox_defs file);
-+extern const char *semanage_path_read(enum semanage_store_defs store,
-+				      enum semanage_sandbox_defs file);
+ 	int i = 0;
+-	int j = 0;
++	unsigned int r;
 +
- extern const char *semanage_final_path(enum semanage_final_defs root,
- 				       enum semanage_final_path_defs suffix);
++	struct raw_module *raw = NULL;
++	int raw_len = 0;
  
+ 	*modinfos = NULL;
+ 	*modinfos_len = 0;
+-	void *tmp = NULL;
+-
+-	const char *toplevel = NULL;
+-
+-	struct dirent **priorities = NULL;
+-	int priorities_len = 0;
+-	char priority_path[PATH_MAX];
+-
+-	struct dirent **modules = NULL;
+-	int modules_len = 0;
+-
+-	uint16_t priority = 0;
+ 
+ 	semanage_module_info_t *modinfo_tmp = NULL;
+ 
+@@ -2660,158 +2750,111 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 		goto cleanup;
+ 	}
+ 
+-	if (sh->is_in_transaction) {
+-		toplevel = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
+-	} else {
+-		toplevel = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
++	/*
++	 * Collect (priority, name) from the writable store and every
++	 * read-only fallback root. A missing modules directory in
++	 * any root contributes nothing rather than failing the listing.
++	 */
++	status = semanage_scan_modules_root(
++		sh,
++		semanage_path(sh->is_in_transaction ? SEMANAGE_TMP :
++						      SEMANAGE_ACTIVE,
++			      SEMANAGE_MODULES),
++		&raw, &raw_len);
++	if (status)
++		goto cleanup;
++
++	for (r = 0; r < semanage_ro_root_count(); r++) {
++		status = semanage_scan_modules_root(
++			sh, semanage_ro_active_path(r, SEMANAGE_MODULES), &raw,
++			&raw_len);
++		if (status)
++			goto cleanup;
+ 	}
+ 
+-	/* find priorities */
+-	priorities_len = scandir(toplevel, &priorities,
+-				 semanage_priorities_filename_select,
+-				 versionsort);
+-	if (priorities_len == -1) {
+-		ERR(sh, "Error while scanning directory %s.", toplevel);
++	if (raw_len == 0)
++		goto cleanup;
++
++	/*
++	 * Sort by (priority descending, name ascending) so
++	 * semanage_get_active_modules() still sees the highest priority
++	 * first for each name. Duplicates are adjacent after the sort;
++	 * get_module_info() resolve them to the first-existing root via
++	 * semanage_module_find_path(), so which duplicate we keep is
++	 * immaterial.
++	 */
++	qsort(raw, raw_len, sizeof(*raw), raw_module_cmp);
++
++	*modinfos = calloc(raw_len, sizeof(**modinfos));
++	if (*modinfos == NULL) {
++		ERR(sh, "Error allocating memory for module array.");
+ 		status = -1;
+ 		goto cleanup;
+ 	}
+ 
+-	/* for each priority directory */
+-	/* loop through in reverse so that highest priority is first */
+-	for (i = priorities_len - 1; i >= 0; i--) {
+-		/* convert priority string to uint16_t */
+-		ret = semanage_string_to_priority(priorities[i]->d_name,
+-						  &priority);
++	for (i = 0; i < raw_len; i++) {
++		if (i > 0 && raw[i].priority == raw[i - 1].priority &&
++		    strcmp(raw[i].name, raw[i - 1].name) == 0)
++			continue;
++
++		ret = semanage_module_info_set_priority(sh, &modinfo,
++							raw[i].priority);
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		/* set our priority */
+-		ret = semanage_module_info_set_priority(sh, &modinfo, priority);
++		ret = semanage_module_info_set_name(sh, &modinfo, raw[i].name);
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		/* get the priority path */
+-		ret = semanage_module_get_path(sh, &modinfo,
+-					       SEMANAGE_MODULE_PATH_PRIORITY,
+-					       priority_path,
+-					       sizeof(priority_path));
++		ret = semanage_direct_get_module_info(
++			sh, (const semanage_module_key_t *)(&modinfo),
++			&modinfo_tmp);
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		/* cleanup old modules */
+-		if (modules != NULL) {
+-			for (j = 0; j < modules_len; j++) {
+-				free(modules[j]);
+-				modules[j] = NULL;
+-			}
+-			free(modules);
+-			modules = NULL;
+-			modules_len = 0;
+-		}
+-
+-		/* find modules at this priority */
+-		modules_len = scandir(priority_path, &modules,
+-				      semanage_modules_filename_select,
+-				      versionsort);
+-		if (modules_len == -1) {
+-			ERR(sh, "Error while scanning directory %s.",
+-			    priority_path);
++		ret = semanage_module_info_init(sh,
++						&((*modinfos)[*modinfos_len]));
++		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		if (modules_len == 0)
+-			continue;
+-
+-		/* add space for modules */
+-		tmp = realloc(*modinfos, sizeof(semanage_module_info_t) *
+-						 (*modinfos_len + modules_len));
+-		if (tmp == NULL) {
+-			ERR(sh, "Error allocating memory for module array.");
++		ret = semanage_module_info_clone(sh, modinfo_tmp,
++						 &((*modinfos)[*modinfos_len]));
++		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+-		*modinfos = tmp;
+ 
+-		/* for each module directory */
+-		for (j = 0; j < modules_len; j++) {
+-			/* set module name */
+-			ret = semanage_module_info_set_name(sh, &modinfo,
+-							    modules[j]->d_name);
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
++		semanage_module_info_destroy(sh, modinfo_tmp);
++		free(modinfo_tmp);
++		modinfo_tmp = NULL;
+ 
+-			/* get module values */
+-			ret = semanage_direct_get_module_info(
+-				sh, (const semanage_module_key_t *)(&modinfo),
+-				&modinfo_tmp);
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			/* copy into array */
+-			ret = semanage_module_info_init(
+-				sh, &((*modinfos)[*modinfos_len]));
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			ret = semanage_module_info_clone(
+-				sh, modinfo_tmp, &((*modinfos)[*modinfos_len]));
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			semanage_module_info_destroy(sh, modinfo_tmp);
+-			free(modinfo_tmp);
+-			modinfo_tmp = NULL;
+-
+-			*modinfos_len += 1;
+-		}
++		*modinfos_len += 1;
+ 	}
+ 
+ cleanup:
+ 	semanage_module_info_destroy(sh, &modinfo);
+ 
+-	if (priorities != NULL) {
+-		for (i = 0; i < priorities_len; i++) {
+-			free(priorities[i]);
+-		}
+-		free(priorities);
+-	}
+-
+-	if (modules != NULL) {
+-		for (i = 0; i < modules_len; i++) {
+-			free(modules[i]);
+-		}
+-		free(modules);
+-	}
++	for (i = 0; i < raw_len; i++)
++		free(raw[i].name);
++	free(raw);
+ 
+ 	semanage_module_info_destroy(sh, modinfo_tmp);
+ 	free(modinfo_tmp);
+-	modinfo_tmp = NULL;
+ 
+ 	if (status != 0) {
+-		if (modinfos != NULL) {
+-			for (i = 0; i < *modinfos_len; i++) {
+-				semanage_module_info_destroy(sh,
+-							     &(*modinfos)[i]);
+-			}
+-			free(*modinfos);
+-			*modinfos = NULL;
+-			*modinfos_len = 0;
+-		}
++		for (i = 0; i < *modinfos_len; i++)
++			semanage_module_info_destroy(sh, &(*modinfos)[i]);
++		free(*modinfos);
++		*modinfos = NULL;
++		*modinfos_len = 0;
+ 	}
+ 
+ 	return status;
 -- 
 2.55.0
 
