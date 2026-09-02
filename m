@@ -1,61 +1,61 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA7B4A99A9
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 17:29:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E66736CDE0
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 17:49:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788370174; cv=none; b=Z8tt4qyTVmqaW4R1waCdV4hMITG+n+ILUjGAs17Noiy1b27co8fnzIc39H0+wQziJtepd9rnFuPaggqzXrfqg1M5rC7lCxxrUFbQRbNCqRO2kJE+a/yS6jnwpdPwgK9PG76gSk0JG9IEobAX8lyBQ0WW93+jVTaduj/xwkCtfco=
+	t=1788371398; cv=none; b=ppeNb3X+xBft9V0eseIFXEs+0XEROyyjCvepRxjQWgTyvQsVtpzySmYoeqL39Zo8yrVPr6vPZy5do27oejr2eFl9A5evFhsVvwLTzqrmgiKQmOLZRn0HV+pguOMekbY40oeNmp2FkqzMU6hqj4j/qh5eVEPi01xfRXFKt0hw3JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788370174; c=relaxed/simple;
-	bh=qF/ECFOrvPwtKwCi+51aBIBTvBNtApZpVQA/3E/MciQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YHQUUuPYYMDYATXMUZXh7qbvqDiaEcv+gx71mXiV8vENUoGUAqAB7Xs60r5E09B4sezhaw6WfhbdeBHlK8cvPgA6gShNq8NR3oag62T+w6RRbmD4bRL0bzkOq390ZVwQDTGld8kf+6BfRWevpXKw7NhIqt8t5q4P4YHsZpt4Hlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eZfBXT5j; arc=none smtp.client-ip=209.85.222.174
+	s=arc-20240116; t=1788371398; c=relaxed/simple;
+	bh=KC1bdffKEm7Y9te216/pjpv/QGm8Hg29YLo1ddQc45A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=phelB96wLDhFA8IaTeXueTq79K8uezcN6FoFVc2S0HDnxWHUpgnJVjsdUeQjdL5OM2v3SQgwTjNR6UVM/0gO5gsr3Vcg6t19NJ75d9fgdJCTHzjX9PH8A9kgMpLTeqtJbUE8sbtQbXZSTcdLGV3HKS04sWvdIqbCDT2PN3tQsDU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IxTx8etj; arc=none smtp.client-ip=209.85.219.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eZfBXT5j"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-93900ed2925so130782185a.0
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 10:29:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxTx8etj"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-90e828b309eso16245466d6.1
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 10:49:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788370172; x=1788974972; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788371395; x=1788976195; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Dsr6JG0WrM+wjczwo/RSY7gn8CagJiZf0WgBTPMxAH4=;
-        b=eZfBXT5jqgM9EaARsxh7b6E6vK6REJn2ryuRVqeJfWRaRw+j51R8W4BCusMna/pSXH
-         udLSXk5IS2O7vQ53ooR26xX5pVhAeb6g2YeWt3IQmTgvQ+TSP/eDg1WDPd7ecYYvtxav
-         2oJQbkh2VJgtK5WsMnoBn2PfhCBsjBzwPvlJiLZdpp7vKtnh8S727NqLXxJbryVbjh5y
-         c1ic7sLP+vV5LYyya4XoNWXzijJ9qu9ikJIhctJ7rRLlUBS0vxZOH50d7S9XJbadrwRB
-         kK9adZLwVmJSsRPz81fmqnjJ1Xg5JndhjDm/V85CV8t6dD+fpIqD+kNs2SGi+6h7rI13
-         8hLg==
+        bh=9mqu+t3WBqe+1c33ZE/jdC2uRUd7SQO+IjHGC0K+PpU=;
+        b=IxTx8etjliW/N37zbQrZbSC434s0jMp7oEN+vbNWmc55DwEL88RifnF2u5nlJKcLXH
+         pHtNX+izJTD72aFY5l6zLAPH4PDiazNhE8JyZ8Ol7L00Gr3TYtVnjPsTOblrvXOwADu7
+         7yNPqzUS2YmQ/lA2dBa04s3kTcqwwbLYGJYOOBAvvDT4BxDWDxodn0vonFjZ4uQKu3Fx
+         UO2J9SMnjBn279Rq6g6DAe8iyl14BQ6unAcN7UUKwv5ibg/W5IIXxoTmjrwSUcRSE8yh
+         XoRunxHs3Y0Ps1UFD/yviwp7vQzC+RuhD/WiZXkO/LDhOrCzzVzZQhi2Uum6j6Qdj/Oj
+         6B+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788370172; x=1788974972;
+        d=1e100.net; s=20251104; t=1788371395; x=1788976195;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Dsr6JG0WrM+wjczwo/RSY7gn8CagJiZf0WgBTPMxAH4=;
-        b=dleJq13WioVukLneTX4knmC/856tpSnefbV1x6NV6Wy3Tdj4wN2BT6BBAh3ac/gd7o
-         QBHU6uP+kayDYPzUq1VDi3yO1s5pPxugppNUFMqsVW5GcgguR8yBJ8SqLIl5kCCwlgH4
-         7LFMjcpks8wYWUBDUsz7MNq/KHl+Qc9mBux/Ny+RPlNtq0DQcrb2qKC9Cy/FKxqXI9b3
-         3mOHyawP1qsSnarxBtjRbRqeHuwgX1q40gjhgsDTMyjtE4KjXwyEJa2QSGE92fwA64y1
-         MDgofAhvNMazW7a1qEnW2gwEHFPecskaie22endR5DjTg9/HQT+HeoGx+eVF6LP+gPrj
-         ssZg==
-X-Gm-Message-State: AFuF++lp/nvrnpBXddsS3MN+CW8lkdEJBqObhFqe1KMyRKGdGNGQ3tDG
-	ysg3vabfHMf0ybtPlTKAYRaaxPXH05IdCmQSubp76osLHf16bacbIelWjX9+Mg==
-X-Gm-Gg: AR+sD12eBpW6+bHWuYQRWYL+JM2tUBPV2px2Bu0y6IOISCZ1LRa7T8SAbnzmzQYPkkr
-	br5BrvGMAVpgEBByKtPaikF6FkbavF5UccKbCH7GauuXZinxeD4G3B9SPYHjgW9Y7gDke3aH8nX
-	fyIJfn5UHv//pHHObSyvMtwljrI0NFE6PYbEo+I7BS2vo+Nsk0qpzgbBnGFHhITe9vRmwJ8sP2l
-	4pGMLHwxmG2dwjlFR0JxwRwklu+/VeYCmTKlgDXW7hVjecl1QSr46fFmfni5gJg2bm0xsn23CAv
-	JHyeylPG09vQWyVk4zIFEk+Qi2OOr6lQVLohEa2e2CLSe1bHdyWRdOoKtvHmmFqUJHM46AgqUiR
-	rmmxeVMZ+Yj9CVzqlqWs7khV5Lf3z7wl3y4YCcxNpp5TGI1dH+c7BUT1r1QylMiH7wQEDZexoI1
-	DHQ1+1JGL0W+MuMK9ANPJhNBOg3NkJA+fz4XCSFi35Y/LSnPFyVQOco3JPetY7xen6pj78Fv30p
-	vQy5tK14LlOwkjoyNuUc2lSl/WHlSO3R9Ue/7Ky7ZXw878AKAVcLbJYoKrsrqSVSYb8TsyFzrk=
-X-Received: by 2002:a05:620a:2a07:b0:92b:5408:b6be with SMTP id af79cd13be357-93960ef5bd8mr695878185a.23.1788370167251;
-        Wed, 02 Sep 2026 10:29:27 -0700 (PDT)
+        bh=9mqu+t3WBqe+1c33ZE/jdC2uRUd7SQO+IjHGC0K+PpU=;
+        b=C981c2MnYbGIkXces+tFpY4Chis4Itz+x/SnbueCVstFG0dJCIz6rZ4SsazT2x2LPP
+         lI1QPAF5SkFNsaUSTayh+DI1OtWLJyy0wFYmwWUZfgAL4cKMOwKZkNJRNstKJSc6Ii0N
+         PDCkCxQdC5Z8U/PUB64JSesN0jHqd8mtpR6TCUbT0fPfA4F+NS2vZT8Agrx9h2PkDX4K
+         Y8PjwylqNWqvFjMmlS4r4NI+CGn5tzmToRk3uoZwvObiFLOu1y3xslPEluHXth0eNPNp
+         I4BuzLqtYO/UcZKRgUtMTcWlYC9ut7773yOsxaYk/ybpruKfadFMJKjcOI1gv0F3+sVi
+         Oi1Q==
+X-Gm-Message-State: AFuF++kQpiVTsfu2lfPomaeSe6W8L7Fnc9HXDXazM0IZKquynwBFmcG9
+	5k+JysOAZ0/z4wtVqutjvwqfAYId7vyo4ItUoRaIaSi3EpnHXT7m0i6wnuBn8A==
+X-Gm-Gg: AYBFou1Ewn0o4YYrQEH6XWP7H2M3CSHFOmt6dqS3cZKnlpkUeNA5Gyxx1EflvZiXzus
+	W7crZM8qoCCjLnnjZhPfnv9otnDfzl5jc6fJpI/MgmvEq90/VTnNQVDIh650HxCAr39xlYNvjmq
+	0Yv8o0oUvc/w4oQsht9ZR1En4dS1ZI+NKMnPxG9DD0bRUv0T24G0iRIf3NV7PI+bkgs44LAe9SZ
+	jedgIPpg7WplUvhIz7JR5oiUYZY9HGEin5eVB8EcymbZDWyyQr6yaZ2o1wwZAHLDJYj8uqmvrPo
+	pMrD+8FVSJMDo4c4FhfC42neZCCbQ43ufNs0G8HP1HojxgDh9+JqzDUxlp7yot92Z05IG0Q885e
+	CfmU/oULu6qIj6jkBcNB8YAxqOOeNfnyUDromsQWiG+h97d+yBlceZjg26T1ZJIsCYAU8pbfXn8
+	BJmrHom3hjHSCeNqxror5iWvI8rgr+8KRJsMDqWEQKYlIr8XUBXMy0LYc/rZBWnsWWpxczluj37
+	egOwfDA9I69G0CoB7CSj5fIXQ9l2V4rbyFdIQ5gcnM+72ZNID9f75WgyvHP+Jc4
+X-Received: by 2002:a05:6214:434a:b0:8cc:d29:9f73 with SMTP id 6a1803df08f44-90ebab8fb94mr103781106d6.21.1788371395004;
+        Wed, 02 Sep 2026 10:49:55 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee24af5sm22970526d6.12.2026.09.02.10.29.25
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee06d30sm23966626d6.6.2026.09.02.10.49.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 10:29:25 -0700 (PDT)
+        Wed, 02 Sep 2026 10:49:54 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +63,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsepol,checkpolicy: validate devicetree paths
-Date: Wed,  2 Sep 2026 13:29:14 -0400
-Message-ID: <20260902172914.4065-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] libsepol,checkpolicy: validate devicetree paths
+Date: Wed,  2 Sep 2026 13:49:11 -0400
+Message-ID: <20260902174910.7591-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -85,10 +85,12 @@ checkpolicy and libsepol to reject invalid devicetree paths.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- checkpolicy/policy_define.c              |  20 +++--
- libsepol/include/sepol/policydb/dtpath.h | 104 +++++++++++++++++++++++
- libsepol/src/policydb_validate.c         |   3 +-
- 3 files changed, 121 insertions(+), 6 deletions(-)
+v2 fixes an error in the validation logic.
+
+ checkpolicy/policy_define.c              | 20 +++--
+ libsepol/include/sepol/policydb/dtpath.h | 96 ++++++++++++++++++++++++
+ libsepol/src/policydb_validate.c         |  3 +-
+ 3 files changed, 113 insertions(+), 6 deletions(-)
  create mode 100644 libsepol/include/sepol/policydb/dtpath.h
 
 diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
@@ -144,10 +146,10 @@ index 1984c52f..b40acf64 100644
  		free(newc->u.name);
 diff --git a/libsepol/include/sepol/policydb/dtpath.h b/libsepol/include/sepol/policydb/dtpath.h
 new file mode 100644
-index 00000000..6b5f3d44
+index 00000000..862b345c
 --- /dev/null
 +++ b/libsepol/include/sepol/policydb/dtpath.h
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,96 @@
 +#ifndef _SEPOL_POLICYDB_DTPATH_H_
 +#define _SEPOL_POLICYDB_DTPATH_H_
 +
@@ -155,97 +157,89 @@ index 00000000..6b5f3d44
 +#include <ctype.h>
 +#include <string.h>
 +
++/*
++ * Allowed characters in a devicetree node-name / unit-address,
++ * per the Devicetree Specification: [0-9a-zA-Z,._+-]
++ */
 +static bool is_valid_dt_char(char c)
 +{
-+	return (isalnum((unsigned char)c) || c == ',' || c == '.' || c == '_' ||
-+		c == '+' || c == '-');
-+}
-+
-+static bool is_valid_dt_start_char(char c)
-+{
-+	return (isalpha((unsigned char)c) || c == '_');
++	return isalnum((unsigned char)c) || c == ',' || c == '.' || c == '_' ||
++	       c == '+' || c == '-';
 +}
 +
 +/*
-+ * Validates a devicetree pathname.
-+ * Returns true if valid, false otherwise.
++ * is_valid_devicetree_path - validate a devicetree node path
++ * @path: NUL-terminated path string, e.g. "/soc/uart@10000000"
++ *
++ * Rules enforced (per the Devicetree Specification):
++ *   - path must be non-NULL and non-empty
++ *   - path must start with '/'
++ *   - "/" (root) alone is valid
++ *   - path must not end with '/' unless it is exactly "/"
++ *   - no empty segments (i.e. "//" is invalid)
++ *   - each segment is "node-name" or "node-name@unit-address"
++ *   - node-name: 1-31 characters from [0-9a-zA-Z,._+-]
++ *   - unit-address (if present): 1+ characters from [0-9a-zA-Z,._+-]
++ *   - at most one '@' per segment
++ *
++ * Returns true if the path is well-formed, false otherwise.
 + */
 +static bool is_valid_dt_path(const char *path)
 +{
-+	const char *p = path;
++	if (path == NULL || path[0] == '\0')
++		return false;
 +
-+	while (*p != '\0') {
-+		const char *segment_end = p;
++	if (path[0] != '/')
++		return false;
 +
-+		if (*p == '/') {
-+			p++;
-+			/* Check for duplicate slashes (e.g., "//") or trailing slash */
-+			if (*p == '/' || *p == '\0')
-+				return false;
-+		}
++	/* Root node alone is valid */
++	if (strcmp(path, "/") == 0)
++		return true;
 +
-+		/* Locate the end of the current path segment (next '/' or end of string or optional ':') */
-+		while (*segment_end != '\0' && *segment_end != '/' &&
-+		       *segment_end != ':')
-+			segment_end++;
++	/* No trailing slash allowed (except for root, handled above) */
++	size_t len = strlen(path);
++	if (path[len - 1] == '/')
++		return false;
 +
-+		/* Handle the optional parameter/option suffix (e.g., ":115200") at the absolute end */
-+		if (*segment_end == ':') {
-+			/* Options are only valid on the very last segment of the path */
-+			if (strchr(segment_end + 1, '/') != NULL)
-+				return false;
++	const char *seg_start = path + 1; /* skip leading '/' */
 +
-+			/* Ensure there is actually an option string following the colon */
-+			if (*(segment_end + 1) == '\0')
-+				return false;
-+		}
++	while (*seg_start != '\0') {
++		const char *seg_end = strchr(seg_start, '/');
++		size_t seg_len = seg_end ? (size_t)(seg_end - seg_start) :
++					   strlen(seg_start);
 +
-+		/* Isolate node-name vs unit-address by looking for '@' */
-+		const char *at_sign = NULL;
-+		for (const char *i = p; i < segment_end; i++) {
-+			if (*i == '@') {
-+				at_sign = i;
-+				break;
-+			}
-+		}
++		if (seg_len == 0)
++			return false; /* empty segment, e.g. from "//" */
 +
-+		/* Determine boundaries for the node-name component */
-+		const char *name_end = (at_sign) ? at_sign : segment_end;
-+		size_t name_len = name_end - p;
++		const char *at = memchr(seg_start, '@', seg_len);
++		size_t name_len = at ? (size_t)(at - seg_start) : seg_len;
 +
-+		/* Devicetree Spec rule: Node-name must be 1 to 31 characters long */
-+		if (name_len < 1 || name_len > 31)
++		/* node-name must be 1-31 characters */
++		if (name_len == 0 || name_len > 31)
 +			return false;
 +
-+		/* Devicetree Spec rule: First character must be [a-zA-Z_] */
-+		if (!is_valid_dt_start_char(p[0]))
-+			return false;
-+
-+		/* Validate remaining characters of the node-name */
-+		for (size_t i = 1; i < name_len; i++) {
-+			if (!is_valid_dt_char(p[i]))
++		for (size_t i = 0; i < name_len; i++) {
++			if (!is_valid_dt_char(seg_start[i]))
 +				return false;
 +		}
 +
-+		/* Validate the unit-address section if '@' was present */
-+		if (at_sign) {
-+			const char *addr_start = at_sign + 1;
-+			/* Unit address cannot be empty (e.g., "node@") */
-+			if (addr_start == segment_end)
-+				return false;
-+			/* All characters in unit address must be valid DT characters */
-+			for (const char *i = addr_start; i < segment_end; i++) {
-+				if (!is_valid_dt_char(*i))
++		if (at) {
++			const char *addr_start = at + 1;
++			size_t addr_len = seg_len - name_len - 1;
++
++			if (addr_len == 0)
++				return false; /* '@' with nothing after it */
++
++			for (size_t i = 0; i < addr_len; i++) {
++				/* also rejects a second '@' in the same segment */
++				if (!is_valid_dt_char(addr_start[i]))
 +					return false;
 +			}
 +		}
 +
-+		/* Break early if we hit the trailing options section delimiter ':' */
-+		if (*segment_end == ':')
++		if (!seg_end)
 +			break;
-+
-+		/* Advance pointer to start of next segment or exit loop */
-+		p = segment_end;
++		seg_start = seg_end + 1;
 +	}
 +
 +	return true;
