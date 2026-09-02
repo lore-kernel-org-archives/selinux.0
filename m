@@ -1,63 +1,61 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543FA4A261C
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 14:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42855484251
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 15:15:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788357823; cv=none; b=o54v1/ZbfL0ASVWT09nLieZOuE3UqbLDdyxbXN72Guk1WEO+A5nRNoMt/plZnQ6qLeL4o78yQRT7PXaSLde4DQNOmzvtDhpiVrSMPo+3wtDqlbAku7slYJvzCWfX4jhjkH4REV6ejtOMTfg/MhOKF4ZKZmSyUtOWGfcVrNKMT6k=
+	t=1788362119; cv=none; b=uugY45ddizd+sfb2OmRy8T3WHoXpi6Rr84wXamhGuDFmSevsSUZ7M9iLMUCmcQhV5t/blWG9wRF+6i6n53GWaAp3xESxci2+0h2/5GoSd1TgO2nwATqH+/bVq4F+SrHQZGJtNB0FlU5EeT5bLtJb4dxdX2Tmgt00bYtvE1rQcbo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788357823; c=relaxed/simple;
-	bh=mgGMCweOihgkjTgLyAt4KmpnshDFU7m/OorMZ/SzVZY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=G95w1mVXi3yyYD/Bh215Sp1zDa2Dtlz5MxtSZTj4pIZR0dZFdUlc0NhNE+eTcUguhjsGMLGj053gpFNOP+QfzcWMoS+WtG9EEQMGxZchtfibxyoAkesLBL0kJz4Nv2uFI/rJteFc5aTtSQMbftw9wTtKXyNCbM0doFf43txS5io=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vs10h9QC; arc=none smtp.client-ip=209.85.219.45
+	s=arc-20240116; t=1788362119; c=relaxed/simple;
+	bh=jGJsUW6AVCHT0/6iGw/Q+hPZ7cWa4isIZ3BQwPFrp24=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oNGdsm4q24Pf5ETM8lDDf0re93MPgRVviZ8S7uo7JmYLPcP0DgHfeWRhDjRaGSb/1RNXkwwezcFa2UPTIcGnqsI9rYek7rDiJxyci35hvykC+LCwNgQlnCZ9T64Qgs+Wrw3Q5NF5Pru3VLNba1PQD3mxi7i/C2Q8L6lgYSadIu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UXeFjQrW; arc=none smtp.client-ip=209.85.222.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vs10h9QC"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-90cbff85fa9so11908126d6.2
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 07:03:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UXeFjQrW"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-934956bee57so177018685a.2
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 08:15:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788357821; x=1788962621; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZdWc6ke6l3KoUZNpCaYiCFjpDw+Znod+SWnlCK8CL6k=;
-        b=Vs10h9QCH57Ap1i+07Z7q/3I39QDQ1NWXXTsgfz+gg3FzVzOPN6ndmjq3YG7HUK7fB
-         o7mYRR2vLzEimBAh6vBXuFiB+A987XJa6pnCK/upNVQMr8iBvxVjS4/rGNad/pQ1AnOY
-         ZdNpKnhHV3kbs+G7LaAHAqXeEkl//CQvolm/NBRUqQdqXmrDRIp+/34AozwLZ+VN496r
-         CQf5xtS06+hGjK0r2FLWNwdAxeLltwDTzsh9jxYdkKSNFTgkumdJrhMcunPEbxQILmiM
-         StKQ0B/SZzSFTO+4JpCQJn/C5r1hiFFVYMmG48VVGyLEpkIQZrkqQZnawAxuRkaxAEuz
-         YT6w==
+        d=gmail.com; s=20251104; t=1788362116; x=1788966916; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7mAHVk3RRLEQ8YFSe7j6fRyScAQnVUsvzOFULezuuAw=;
+        b=UXeFjQrW2rG+XlcJFBX2RljjV4RMMzf//F0TN0bhgg/hSkEaXX2A+s/i/FveuZ4Hpr
+         uqD3ppy7rNAUXapPj1ABJ7e6qW9lUuVkYlN/M/rs0TQoHMFWM5LMuCI7mFMzBmtxr9Dd
+         AzAZ3rksq7oSqdzL2w/EIPaJJs+TBt/NlyHdP+WSxYUZPHeNhivNvjWstPbZetFDkQhS
+         0AgakATqHWJeAzlSPIzmSEpEhB3d6KK8MXZPAvX/bLFmZ2sPdJKdu4Fv3Q+ONL9LwSmC
+         jiKzvIUUdGoosjsLZsFBDpLHvr6P0NXGUDo6eW4S0H1ueKXD7Es1uBHMYTLgwpFeoBoo
+         IVIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788357821; x=1788962621;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZdWc6ke6l3KoUZNpCaYiCFjpDw+Znod+SWnlCK8CL6k=;
-        b=MbxMiwwE4KbaJEXU2v1GHCbroOMkR0ectd7Y40BMdwFg/TBUccZhuNytqdLNgoiPYr
-         gx0lzxrWqz3AaS90Bia8R5Y1MzsUFjiVUGNa8y15EzX2WTynHr7o2hhmW0Q2t4PO/RUa
-         JlxPEqJ/6BEUIbtLD/RjlbuRccR07PoSZ+pJtBoSI5W27f1RgQfY+NhyA2DEx8srFLxG
-         60mHeocQhxgz9cq9sBM9J7bFpQYLswnDdAGQZdgSoK9KxJQzCscLcz6n8W8FbMOCyTHr
-         oVECAz+Lel3yAseBrekMJ4mXdRiQ6jaLZ5CqZ6TMNStt/1Z7IDb3WE91b3yHNC+SgJK1
-         2cHQ==
-X-Gm-Message-State: AFuF++kTi3M27Hpf+X5JOAbb1yCUCNDXFrSgoyHlWNjfBzUJw8L4zkMd
-	SO+D3KjRZHbFMReDM0nepjjubqcnQsT6lN+EasXtVA4s0MQzj6NvVcB6FIztpg==
-X-Gm-Gg: AR+sD10x4QZ36RkcGZPdkVxtgv8JfQ+1MGE9tGh/DflbsQWnB4gfV8jmlNT7ErbdDgn
-	4ywf/iU8E3G9T0ZQL1ORufLLnDLuNFfrSGt38N2lG1LcGOkuLZc4Cn83vhJuNTlN+ekC7/nadRB
-	Ry/jIIb0+3YKKbMWQOgPkWoexzOMOzy0SRz3nuJCdTK0T7TtrXJkm00pwPD7Z18fy4hi/Ze3nak
-	FVcxJhUNo9w+J5SPzIBb+4MFQAGhIGlBi5xfPYwiv53fZWBfUoP4wC8yNIoUwaC84K8WFRrOeiC
-	F2dA9KxiXzHn2b6od0pX9o6HvrDgOexs3NUsEgjqybsHMYsQ8+DRi6If4zskxUxAzZieRHFOJpD
-	hDk55EEtEJ3Vfpe6n9yEQatzX/3iLsgSQqc6RVitVWjy8SJrNIfey/MWBb1WCcPPYEjXyML7we1
-	fWXhxoIwrAPGwEIyvNcZQ7ph+zVpTMkoE7dc1rB51oZZ2C25hveWgqI3KpHgxrRCdwx+geKwzD/
-	3uSAdxvyK0JCkLO4LukwF6O9kXF6aZJqVXbRub4Jg7tufdQThGNLh76sreU+m2k
-X-Received: by 2002:a05:6214:43c2:b0:90c:e3bd:dfe4 with SMTP id 6a1803df08f44-90eca403bf3mr66639066d6.21.1788357814206;
-        Wed, 02 Sep 2026 07:03:34 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788362116; x=1788966916;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7mAHVk3RRLEQ8YFSe7j6fRyScAQnVUsvzOFULezuuAw=;
+        b=n21VmjPikYOs5f0xHBjScsj6vXO93UB79RsK2FHEBcNmnG6M4BxLFGObf0jkFlIfVQ
+         onJM59f+/WNnQ9z5muOfWTg4ABiOsTOmLDLNx6eco9bJC9oc9HQjsJo7r2gFadIJf9nX
+         i96CzJPvuzgUVBtL6QHgRpzpX906cJ76iCpATP4pkBbpguKSe7kxoeuVy92TOqxA1bMj
+         qE4Kv5V1qfFQ29D3yO/7E1KYWXxQHvNEvM3UFziSGYiDYFsZ+bSk/2RE12iWpYTLUyv7
+         wifvWnGNwoBQQ7gzrKP55BnPiPh2Y5I87FqPP2prZdm+NfKgiaDsM91tL8Ockhl94pyv
+         yMeA==
+X-Gm-Message-State: AFuF++nJ1ZDX1PbliIJ5H++Hq4ueHLcffyE+cqNMaj3knRizW044o0ZT
+	fcU7fZssgi8PZuYrwtdfVaiSHRuxUUuGbjogMxXYuTsA/9Jrmj/JCL3MsLrWtg==
+X-Gm-Gg: AR+sD11xC542UxYeSVFqrrudr0YJ2X0PIBvAx66vtrdIy11ZUsrPttNsD/oCMHhYed4
+	nwFlKGX/qqJ+LDS7h6HHgV1yehNpyO7OxYnguegI0hnw9H5oTPBG5mECBh0D38gjKvNV62r/IYJ
+	PZ3Xxr+o8kohKcbrVrAgsHCu1RjoI1G8cd1WKqWSdEFTDnA7shnNdYk9rjfcf9JBo2LlEhs7tOP
+	cx4XmlgVOG3Tw5TpRbuc2q+D4s7I81o2AIklD2LuC8oTCMG4xMjZtlPUp0Y9jPSVI6tmU2pyYy3
+	HOsKL5vSMIOYQG68ZV/vRJXnlLJyuB7alzjz5Qq5hMYLD8OJ03VWrCd4GxbFRd79riVparkxkuL
+	aELeDjImfc1iSXSxtVbaoaoanKTwqaENBIC3NwTLA80YTqZPDqODGCfwJeSNn9RcchVmknzOFj5
+	HV9D9nkYRSUWjnIUrSx+ccYfm3Tp8lFyyPEhHVcAIEgWex11KJXKD2QJx7GUyyIpnSK0gDfvoG4
+	zG8vJWrz5m0y6nUMJyazed2vYuwwqjedZw8+TXDn7Vwe6KFCa/2qRqtebNUu13M
+X-Received: by 2002:a05:620a:630d:10b0:92b:8a7c:f71e with SMTP id af79cd13be357-93960df1bc4mr568570785a.15.1788362115789;
+        Wed, 02 Sep 2026 08:15:15 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee316f7sm18790446d6.19.2026.09.02.07.03.33
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9395f17eefdsm229299885a.11.2026.09.02.08.15.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 07:03:33 -0700 (PDT)
+        Wed, 02 Sep 2026 08:15:15 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -65,12 +63,10 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 6/9] libsemanage: create the store root when taking a lock
-Date: Wed,  2 Sep 2026 10:02:08 -0400
-Message-ID: <20260902140211.53084-8-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 0/9] libsemanage: add ro-store-root and configuration-root search list
+Date: Wed,  2 Sep 2026 11:13:57 -0400
+Message-ID: <20260902151406.54168-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
-References: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -79,85 +75,47 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Both semanage_get_active_lock() and semanage_get_trans_lock() open
-their lock file with O_CREAT, but that fails with ENOENT when the
-<store-root>/type>/ parent has not yet been created. Writers now
-create the whole skeleton in begintrans() but a reader reaches
-enter_ro() -> semanage_get_active_lock() with no transaction and
-no create_store.
+This series is the second half of addressing:
+https://github.com/SELinuxProject/selinux/issues/33
 
-On ENOENT, mkdir_recursive() the store root and retry the open once.
-A reader on a fresh /var/lib/selinux thus creates one directory and
-one empty lock file and can then serialize against a concurrent
-commit.
+The first half can be found at
+https://lore.kernel.org/selinux/20260901163513.43186-1-stephen.smalley.work@gmail.com/
 
-Update semanage_store_access_check() to predict this: when the read
-lock does not exist, walk up from the store root to the first existing
-ancestor and check W_OK|X_OK there instead of on the missing store
-root itself, so the seobject.py >= SEMANAGE_CAN_READ check passes on
-a fresh writable store.
+This series adds a ro-store-root option to semanage.conf for defining
+a search list of one or more read-only store roots that are then
+searched for all read operations when there is no corresponding file
+under the writable store-root. By default there is no change in
+behavior.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsemanage/src/semanage_store.c | 34 ++++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
+This series adds a configuration-root search list to libsemanage so
+that it searches an ordered list of configuration roots for
+semanage.conf.  This list can be overridden at build time via
+-DSEMANAGE_CONF_DIRS=. There is no change in behavior as long as
+semanage.conf is found in its default location under /etc/selinux; the
+fallbacks are only used when it is missing.
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 7f7cd7d2..cdf4cf17 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -759,12 +759,25 @@ int semanage_store_access_check(void)
- 	 */
- 	path = semanage_files[SEMANAGE_READ_LOCK];
- 	if (access(path, R_OK) != 0) {
-+		char anc[PATH_MAX], *slash;
-+
- 		if (access(path, F_OK) == 0) {
- 			goto out;
- 		}
- 
--		path = semanage_files[SEMANAGE_ROOT];
--		if (access(path, R_OK | W_OK | X_OK) != 0) {
-+		/*
-+		 * semanage_get_lock() will mkdir_recursive() the store
-+		 * root on demand, so predict success if any existing
-+		 * ancestor of <root>/<type> is writable.
-+		 */
-+		snprintf(anc, sizeof(anc), "%s", semanage_files[SEMANAGE_ROOT]);
-+		while (access(anc, F_OK) != 0 &&
-+		       (slash = strchr(anc, '/')) != NULL) {
-+			if (slash == anc)
-+				slash++;
-+			*slash = '\0';
-+		}
-+		if (access(anc, R_OK | W_OK | X_OK) != 0) {
- 			goto out;
- 		}
- 	}
-@@ -2023,8 +2036,21 @@ static int semanage_get_lock(semanage_handle_t *sh, const char *lock_name,
- 	int fd;
- 	int left;
- 
--	if ((fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
--		       S_IRUSR | S_IWUSR)) == -1) {
-+	fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC, S_IRUSR | S_IWUSR);
-+	if (fd == -1 && errno == ENOENT) {
-+		/*
-+		 * On a fresh writable store the <root>/<type>/ parent may
-+		 * not exist yet for a reader (writers create it in
-+		 * begintrans() via semanage_create_store()). Create it
-+		 * here so a pure read can still take the lock and
-+		 * serialize it against a concurrent commit.
-+		 */
-+		const char *root = semanage_files[SEMANAGE_ROOT];
-+		if (mkdir_recursive(root, 0755) == 0 && chmod(root, 0700) == 0)
-+			fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
-+				  S_IRUSR | S_IWUSR);
-+	}
-+	if (fd == -1) {
- 		ERR(sh, "Could not open direct %s at %s.", lock_name,
- 		    lock_file);
- 		return -1;
+Stephen Smalley (9):
+  libsemanage: accept a list of read-only fallback store roots
+  libsemanage: add semanage_module_find_path() and use it for reads
+  libsemanage: list modules across every store root
+  libsemanage: read the active store through the fallback list
+  libsemanage: create the writable store skeleton on first transaction
+  libsemanage: create the store root when taking a lock
+  libsemanage: refuse to remove or enable a module owned by a RO store
+  libsemanage: search /run and /usr/lib for semanage.conf
+  libsemanage: document semanage.conf search path and ro-store-root
+
+ libsemanage/man/man5/semanage.conf.5 |  36 ++-
+ libsemanage/src/conf-parse.y         |  57 +++-
+ libsemanage/src/conf-scan.l          |   1 +
+ libsemanage/src/direct_api.c         | 458 +++++++++++++++++----------
+ libsemanage/src/modules.c            |  63 +++-
+ libsemanage/src/modules.h            |  10 +
+ libsemanage/src/semanage_conf.h      |   2 +
+ libsemanage/src/semanage_store.c     | 185 +++++++++--
+ libsemanage/src/semanage_store.h     |   6 +
+ 9 files changed, 611 insertions(+), 207 deletions(-)
+
 -- 
 2.55.0
 
