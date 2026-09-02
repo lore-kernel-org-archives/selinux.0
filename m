@@ -1,63 +1,63 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B6B24A49BD
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 15:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EF274A64F6
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 15:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788362126; cv=none; b=keY5XI4e/KDJz4b1K5/E1EpsFOuwN5TwV7HoC367MhJUOIk52WnVxTgBk/SEy2i+9lfptNcQfrQri4/9pEvlkPzBqRHKMfWFJ1nCpu9btco4jyHLrqUfPRGpNVq8Ww3Kz2tX/naAtSqONkPeF8HX0C8v7Zj6y/hSfYEfhHFZIEs=
+	t=1788362129; cv=none; b=kAfjgvV1X2qO9CAT/Hz+E0w6nx745B4Kc/qZfYAfXjMBWn7pgbtmrwjsCy353rU0mPe6SzSYeqzzj2R2xE1zwvvgJbyfjexMI0grIyZW4lT59UOuTnycMdYfQluQJMig1Ge26EuBjDmueX4yEx3N6/JKAbHbz73T6c1iA8Olgyo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788362126; c=relaxed/simple;
-	bh=Za3Pm1c9xvF9/g+4ZjqMiUwDNNG2c+WrxK33XeENKLY=;
+	s=arc-20240116; t=1788362129; c=relaxed/simple;
+	bh=FoFyjPQ3UN2G2sLqDanOobObNYwfX3vwnmHCP7yoWmM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i1skMIlgZaPxh1QYzF/+I/7jbYr3/ZIQOqnWfzBDpGOK0J53r3CwU3mk8TmDzSHExp/lYHPGBfm6MaAeMAUcqULf/PkdgtFxkR/DsHUfFkKwjOpdmdOZOV8DU+AdDa5inoIvdvGRQP6+zBL6vPQCRB6j5r2ToNBis2eIPc6mOXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U2Cmf3Pe; arc=none smtp.client-ip=209.85.222.180
+	 MIME-Version; b=ZMdCoHSEW5JhVx9wDrDem43dSqZ3wbyLhDqG0LO0uTJ88eMZM6satUtnZUi5cejw3eQI3L4BVsOX6SSx8qg14+rLdu9ryKAokNJWv1hyaq1Jv8dT3u64zPXs6wwQ/DAhBxOWlbXd/E6SY0QVk0uEwMEWSkSCRB/HWIinlP9Tldo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oDU6qRGi; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2Cmf3Pe"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-92ed19f4d60so116815785a.0
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 08:15:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oDU6qRGi"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-936cda0e3fbso147813685a.3
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 08:15:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788362123; x=1788966923; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788362126; x=1788966926; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=UOBHURzAroS3rEr3maxAI2CZOiOoxkWCaR/nAi9sdAE=;
-        b=U2Cmf3Pew5KFO8iLFL80AoviPeP9Q2+T9WN6TynbP/iZiNXGJRYG2Zj9y40J8KOcwN
-         vrsTG5t1jX/pIB8LD1zT5J9pOlb+jyebGDQ+yagDk78x1hL7iyO652J5gwvD5Pw3H64y
-         56p9Cu3Q4vPvp5pJCSl5Cdu7WW+/VpdMIAGEJf7g7z4IJcHUVJYzixs87DiX5dbnErit
-         bBFi+YIXdI31tcBE+uADoAUsY0//i/+xO0ptdomZCrxsUe9skweTtqcpGVV1Sec/1NOP
-         X+qNdhFqTIR4ouKWHwIm4SJBKoDbB1L+5gqfw4vhuoDdBiCj3mnLcP6KC+15yku/Kcxm
-         1uYQ==
+        bh=aQ5is5BhdJ0SubSvcFyXrxZOlhACR088y9vfXVvVQVQ=;
+        b=oDU6qRGiuPDv52swwYZMwLd7w9NEbw5bfQSoNFcZqReoVTPYfidLtzQvZs3MQGAhW7
+         M7ssIPwAm+gV7bFZvh109OPLa/A8JsA3KZKiBTSuH23hSOrbofeWbxnCzoI9Zg6Dvog4
+         nGEIe7nqX/ojCJkqmqAhRhtIjOEBTQKByzgD3jBWA1tGRI4GuExF+/GNz6RLGxgd1VjO
+         z0AejXlTV1ucwATSDR7hTNWEEyOjgQIn15yedtARvB3vqgqCwiHpLk0iH91UMZ2fOGKH
+         HvYIatwTVWe45J8vpPOlzpdtCqUd+5tuZ+cKKJNx5Rfs/+tZylCf/6TUkzvnCLafahox
+         vHYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788362123; x=1788966923;
+        d=1e100.net; s=20251104; t=1788362126; x=1788966926;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UOBHURzAroS3rEr3maxAI2CZOiOoxkWCaR/nAi9sdAE=;
-        b=XKkcuQiXqa8QpDJLOEt9ElQaAFYvjXcIuLydLMbmjK4ZCsirU/fUmdi2dXbQPwUNX3
-         easEurFnTTZbbk6Vw9X6wDOB5W9iendL4QwV2HwyZ+DXN9oWXq8J6xTkipkZcROklVYy
-         418pA7Zg1UzLvN+MHuNZ43CkATBupquUheS4VYgDdHjhuFqyaHNOM/Zsp2QBsTH8tBQ9
-         7Sa1/gOMULJ8bKN/Z3Y9qzSuIOETNOVyTwZ8uOUePfKk+Zrfl3RVVaG/J+ZjTDmC6x0a
-         kVpO2Av8blOZ6QOwRTeZiMX68swDIK/fQ5FHlkuxg/KKwBbVSnEl2JpZUQn7zgMJ1yo0
-         Y7AA==
-X-Gm-Message-State: AFuF++lEk64lKrNiVp0Kg7EcQd0aVr7bCPJu1kfOoUL40mKgni2OGuam
-	m048tekxa4k17/lqgXuTtMwo7BaL0/fJyquYm4ae+i/dO9JfcQAzz4AIF0C9kA==
-X-Gm-Gg: AR+sD12+wzVcTlwIyL/O1FfJqUiBH7wP6cPIxldNQy5sH2EbKCyMnqMeiYbgxGyJ75s
-	MXavO2guOyMebvzuZkPUoSF2PL/hkXSu8z7BcdWqFS18Y7l3OtyiDXHacbl+J4i6NeNXSKbAwVQ
-	9O/lRdexjcLVUwp7stG5JZTTDeeB8kTB48Azb0FYMa6P/wAMjLJcLD+RTc6eZoyVe0elvc4KepC
-	P4X85ZTFcpv4Q6GhEsGpWeJknnLLV2D9Xw00qAmAA0qJQhwmhxAagkV5sq0bz3NeQvo8YwDBlSG
-	GjHucmgGmC2TQ/2j8O1EJzz6po1qfV/C9JwSJ2FITDqBfdJAevEBh/xxN1BqIi2VosHdIZXu9O2
-	vl6LJkDkxjqLeflHu1D8NaTwkCvFBOafDwu/9jxEZx194RlBMcQE7g7gE+Aw8adyU8x6+b6FukB
-	Hnzn0H3aXZOJ5DofwStaFgfxIS/OA1ADBO/O4rIg+Vm+N/i2FYhfM9bB6560+7OBfD1A0riTyBX
-	TH3GGLS8OBTKLk/xyI5N+bWXbtyletX6dMTpDR2im79nSt71a0VB1gXOGJA/eM4hw==
-X-Received: by 2002:a05:620a:470f:b0:92e:fed1:beba with SMTP id af79cd13be357-93965993c8dmr367600685a.3.1788362120741;
-        Wed, 02 Sep 2026 08:15:20 -0700 (PDT)
+        bh=aQ5is5BhdJ0SubSvcFyXrxZOlhACR088y9vfXVvVQVQ=;
+        b=ZiblqkQpoalUi5jW9lS6ZmO5f/fIuiJF6RGEaTfpAhKxx/79FPr0BO+OQOrsKZGGNk
+         8IU7In0XhOkflNWrLMKmCubn67UqF+IjdD04L1+O31tvad0NqJvpi9fA6aGCem1iRQlb
+         v62tI2W9AlxzODu44SP4iug0ITIbqT0i0Qw76xjqr3jZFoppqoXdih7dKZyq3QfRhQ6y
+         2BNAsDITOJ0q8QoZBPmx1Z6YPOfPQZuHylVea+i3afAOHBQCDr4Fw+xiuDUObPvDN3W8
+         D7HZo+DzX3O0CCHAcnjv0hWqKW9ujVOt92EaAN8CfxaSxGI6xQBTj71p6qqCsPyeuoA6
+         JuVg==
+X-Gm-Message-State: AFuF++m4UWrBKx++L+yMk3RpRED47PzOrfXt+to8M20aJL4WO4WoTryq
+	A3CcpCKY9ZqeP0OYM5t+IrA6VfVbex2p01nL1RidHddavQP3ldjbREH0Fc5egw==
+X-Gm-Gg: AR+sD12/h1e7246KFYWakbCaZcQB3wsiFDiEc53bXICDBPCq7xikmt3inGkL9pJ8Pm1
+	m+33iLGNRD8vChNMM13CuroqYhGOJ901wwgbGTY01wjLynFaSocmFU/aUgEDSFIAVb2g52aiOWu
+	jstm4bxQ1ga6oiS84F4MPLzl4x0zgN3tJsewCD2aHH1e7pJUAh9vB6h+dJYaPvuPIFR+FOz8NAr
+	FCT7MEcs62IIt9V87G64UpWVd/OxEmCnnyxtYr0SxuXeNjYSEPwM3CFZ34GSmjvZNxcPk+h4Cgy
+	1RFsjNX1dIyVXsRiEJkikdNtKRuLn1Jb97ibMeCCTnyS4fUQHyzeWMKP4nRc51vq2k3DEphnNiA
+	UyGZIXwbo/uQ1dhnThpxHjIobazgYrXTquuFWg7dmvKIVU17c0du+Fr90Wvm+MAdFjhBp7r/5g5
+	TP2TJRfiUnFmZ/PkDQveogFZU8/i6P++ULszVH+30HtV57IouMJEW3hh2vEU9DqDx+Q6/nGYFPb
+	cs4sT60640EGiJHOSsPjELuEdwYpqDLCaNS4fbZhQZPvE6uYmdNV+DSA4w5qrn9
+X-Received: by 2002:a05:620a:2943:b0:939:4abe:4517 with SMTP id af79cd13be357-93960e0553dmr703246685a.16.1788362123563;
+        Wed, 02 Sep 2026 08:15:23 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9395f17eefdsm229299885a.11.2026.09.02.08.15.19
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9395f17eefdsm229299885a.11.2026.09.02.08.15.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 08:15:19 -0700 (PDT)
+        Wed, 02 Sep 2026 08:15:23 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -65,9 +65,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 5/9] libsemanage: create the writable store skeleton on first transaction
-Date: Wed,  2 Sep 2026 11:14:02 -0400
-Message-ID: <20260902151406.54168-7-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 6/9] libsemanage: create the store root when taking a lock
+Date: Wed,  2 Sep 2026 11:14:03 -0400
+Message-ID: <20260902151406.54168-8-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260902151406.54168-2-stephen.smalley.work@gmail.com>
 References: <20260902151406.54168-2-stephen.smalley.work@gmail.com>
@@ -79,53 +79,85 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-semodule calls semanage_set_create_store(1) so the writable store is
-populated at connect time, but semanage does not, so a fresh system
-with only a ro-store-root the first 'semanage <object> -a' fails at
-the transaction-lock or the sandbox copy.
+Both semanage_get_active_lock() and semanage_get_trans_lock() open
+their lock file with O_CREAT, but that fails with ENOENT when the
+<store-root>/type>/ parent has not yet been created. Writers now
+create the whole skeleton in begintrans() but a reader reaches
+enter_ro() -> semanage_get_active_lock() with no transaction and
+no create_store.
 
-Any transaction needs the writable skeleton so create it at the top of
-semanage_direct_begintrans() rather than depending on the caller.
-semanage_create_store() is idempotent so semodule is unaffected.
+On ENOENT, mkdir_recursive() the store root and retry the open once.
+A reader on a fresh /var/lib/selinux thus creates one directory and
+one empty lock file and can then serialize against a concurrent
+commit.
 
-After this the sandbox copies an empty active/ (just modules/) the
-missing computed-file check in semanage_direct_commit() forces a full
-rebuild, list_all()/get_cil_paths() draw the module set from the
-read-only roots, and commit_sandbox() renames the freshly-created
-active/ to previous/ before installing the new one.
-
-Read-only callers that never begin a transaction still need the
-read lock; that is handled separately.
+Update semanage_store_access_check() to predict this: when the read
+lock does not exist, walk up from the store root to the first existing
+ancestor and check W_OK|X_OK there instead of on the missing store
+root itself, so the seobject.py >= SEMANAGE_CAN_READ check passes on
+a fresh writable store.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/direct_api.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ libsemanage/src/semanage_store.c | 34 ++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index a930dac1..5646d451 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -405,6 +405,19 @@ static int semanage_direct_disconnect(semanage_handle_t *sh)
- 
- static int semanage_direct_begintrans(semanage_handle_t *sh)
- {
-+	/*
-+	 * A caller that never calls semanage_set_create_store()
-+	 * may be running against a fresh writable store that has
-+	 * no active/ tree yet. Any transaction needs a writable
-+	 * skeleton - <root>/<type>/, active/, active/modules/ and
-+	 * the read lock - so create it here rather than failing at
-+	 * the trans-lock open or the sandbox copy.
-+	 * semanage_create_store() is idempotent.
-+	 */
-+	if (semanage_create_store(sh, 1) < 0) {
-+		return -1;
-+	}
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 7f7cd7d2..9bece5f2 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -759,12 +759,25 @@ int semanage_store_access_check(void)
+ 	 */
+ 	path = semanage_files[SEMANAGE_READ_LOCK];
+ 	if (access(path, R_OK) != 0) {
++		char anc[PATH_MAX], *slash;
 +
- 	if (semanage_get_trans_lock(sh) < 0) {
- 		return -1;
+ 		if (access(path, F_OK) == 0) {
+ 			goto out;
+ 		}
+ 
+-		path = semanage_files[SEMANAGE_ROOT];
+-		if (access(path, R_OK | W_OK | X_OK) != 0) {
++		/*
++		 * semanage_get_lock() will mkdir_recursive() the store
++		 * root on demand, so predict success if any existing
++		 * ancestor of <root>/<type> is writable.
++		 */
++		snprintf(anc, sizeof(anc), "%s", semanage_files[SEMANAGE_ROOT]);
++		while (access(anc, F_OK) != 0 &&
++		       (slash = strrchr(anc, '/')) != NULL) {
++			if (slash == anc)
++				slash++;
++			*slash = '\0';
++		}
++		if (access(anc, R_OK | W_OK | X_OK) != 0) {
+ 			goto out;
+ 		}
  	}
+@@ -2023,8 +2036,21 @@ static int semanage_get_lock(semanage_handle_t *sh, const char *lock_name,
+ 	int fd;
+ 	int left;
+ 
+-	if ((fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
+-		       S_IRUSR | S_IWUSR)) == -1) {
++	fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC, S_IRUSR | S_IWUSR);
++	if (fd == -1 && errno == ENOENT) {
++		/*
++		 * On a fresh writable store the <root>/<type>/ parent may
++		 * not exist yet for a reader (writers create it in
++		 * begintrans() via semanage_create_store()). Create it
++		 * here so a pure read can still take the lock and
++		 * serialize it against a concurrent commit.
++		 */
++		const char *root = semanage_files[SEMANAGE_ROOT];
++		if (mkdir_recursive(root, 0755) == 0 && chmod(root, 0700) == 0)
++			fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
++				  S_IRUSR | S_IWUSR);
++	}
++	if (fd == -1) {
+ 		ERR(sh, "Could not open direct %s at %s.", lock_name,
+ 		    lock_file);
+ 		return -1;
 -- 
 2.55.0
 
