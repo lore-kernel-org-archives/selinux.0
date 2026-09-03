@@ -1,206 +1,103 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EA90412C08
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 20:13:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9018C509EF0
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 20:24:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788466443; cv=none; b=jgGcacV+Lx1of2jfXkbJab6uuPsu73vOdTzuKYeyzc3AACAnedMLuI9IEtsDzDFIjQYewuTSFDXM+eGOpeO8fLSzmLqVMzpy0JJfhXA0MGKRzz0RKwd0LUT0k0WWvFXLqNeNfvHPY+QPamOBlEAMWTp63CEW2NnMPmDW07zIbfg=
+	t=1788467056; cv=none; b=tRlIFVpR6phP0G12K55LojriSEYnMzTddqHK0nfuJIJsVKZxXIGRokE4SdOKXu0jIm2wqdfZuGQFb0lVOFCPKBWX96VNHJwd4Z+KbVYfeYdMtNKppZsg9tn74vJLK5Kw0IhYG7EVh0QRUm6QwtAdkcEXoppF1tkNyx3+hsi4W7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788466443; c=relaxed/simple;
-	bh=4/3FkJsYd6TTjImedwiVQIeXt8bAJDQcjKvUv6eK+MM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pIDoHgUYAhYtdVi2hRQj7hExYKiqp+Rn5i5t8GjHDO5WawcIaDnk7uwSNqaqO7BTVvg2JRWDQ4ooq8B+aw5ZRJfP1wg1Cio4zaWa1zvHcRRSLasuXyE+jlyg8ECZvjS9cUbkJ/MZ5beke0Zcqy6UzTtRI1LxdtjPoGOwhRzgFkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jZMX1tzY; arc=none smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788467056; c=relaxed/simple;
+	bh=lovyBWo4HbHG9IAJc1682HSdnTeu5LyLU45uKHLvmeE=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=EWmOs/3kcfShRCacZpCxgxXKPcTnmPP4H+h+yDdWqY7d2tJdiYcnOzoL7YivGg75j0RELaCqrIPOrYLYya2GCZpMjeCVMKy6iRFtkkEK3gwOZR1gjg3NmAqyT5U1it8YG/2+Y8rbr5GNICvzbUlJz+9T2RKhLDGqNzF3y7RSq84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AdSsSsoN; arc=none smtp.client-ip=209.85.160.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jZMX1tzY"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-5304310b3e0so4017391cf.3
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 13:13:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AdSsSsoN"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-529a1ee0e62so4643881cf.2
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 13:24:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788466420; x=1789071220; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=HaPO9NqLuFsbvBSCXEUwl2HFO/NKPC9vPpxTIj+F8QA=;
-        b=jZMX1tzYHxzfwlxXmTNTJLviH37BCxVxRYVlw9F4dgE3zTqm+QE8QxlkeD+J7VY+Kq
-         rjG6hcJTEpP3hU00au7FcK4xtsNSlmMvEb3/Gbf45IBpOdcQXVDLSmVN7xhVfwPsiEFI
-         Oc36n5u0l3eunHKluPRC5N7Rl61Um8wJn7KgPHBwlQV3SbAnvgzD8y+M5MrmnDqfRWez
-         gYE3NF2C7wC0z+4vm2hJZWT1617zST3tRlmcCe6/34ymlAGeh4WHHi+abmUVfIa+aDuX
-         ojAvWDhW8VlzfusDiPuyp1bjSNZs+NwXBupom4AZtJX2o3kfWRi7ZaWCa0JVG30NAV5a
-         QDog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788466420; x=1789071220;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1788467045; x=1789071845; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=HaPO9NqLuFsbvBSCXEUwl2HFO/NKPC9vPpxTIj+F8QA=;
-        b=RcrGv+QfBdd6YveP2BqSBgiL501uO9vvUZxJe2Ekqmy3Z32+gB6R017JmhyECKyZQu
-         lCP1a7mNGxNlO6+DZOT/SSG+e2dHYqkQjZqeznrk11cjIXkSHtTGcjmGshDBLrt93vRI
-         J8bEk9MehDw7hSTtv/ZFu8SnBm64nctvByy7Brel0UU7o8AfPgh6ZJO6dfXnT+1ArJ4X
-         +Qsd/9b6OicrvJM0lAyjivywNmt/AeuX4T7G+qS/spoLQ9qDkFadgMJdCJ0WS245pl2n
-         QXacxvjGB1/AQl0Ik7ZB31AYSoorYHSX/wjUT+0KDDDLZi1kLMQFa6u4Tm6QvxRpAjjj
-         2nQw==
-X-Gm-Message-State: AFuF++nsEREPw27ryBvQA/ffFa40stLTGzocEfKSbeIBtQpXHIXxIrLq
-	1aqFuAaZWtI7IhJH8UOAlVvqtloI9UFWTSQuO4G/zsmaxmBcvnAq2dSXTVcw5Q==
-X-Gm-Gg: AYBFou2XLFUjEmvCS1BP53BcfIirjTdYP2fEp4zwMS0yAyw5onRll1fByuYov8Q9cTe
-	6fIovZ0jjiD3eqAS8qwM9oeUJHuPRE/b4a1K+nUdoqNFwoj/Q27UZrR6VwCJiT/roHYUSmZtXqA
-	LQGdVNehe3aILQDad5PwoJoME6F95RtEmam7noluAaIWUUQvHN8vN2g13gFP/3yf51PNv48SIHl
-	tthXcX622hu2jMfbmxg8H5t4CgzEYJxX29VWFy8ECFhrZOKYET2wiS2UhTgQ32Yrt1Aemw5bbQN
-	EcyJ2n/ipOeVH9VDMTC1xt3X7qKuafJCMZMxMlKJMv5jPT41X/W5wZM0juHzAQ/i0WsU2UUQZcB
-	nMoXOJ1krjuNIQIEZ3HXvgv7kJ38qo+IXA1+snsFeWa2w6X3c8CFG54FpFVy6ZKyebm35LmJKG0
-	hctn35EPeo7ZwKEmodyAhvwmcutt0NFJtwk5lThKdN0OKmQiL9jo+Le2hOzntVEIU/PLIFk4Xdq
-	rSRUJGWxqs=
-X-Received: by 2002:a05:622a:598e:b0:528:601:301e with SMTP id d75a77b69052e-53054944547mr15674021cf.26.1788466419457;
-        Thu, 03 Sep 2026 13:13:39 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5305413ce9dsm4855391cf.11.2026.09.03.13.13.38
+        bh=B8uOzk5kbNElpXD3JZXWiXWL8uLf97nPgxHodv2izOs=;
+        b=AdSsSsoNkR8xZ86VkSDiP/2Hb8TXf2szTrC7SOhbCflatvm+ErE3ngJLYkfJQgmkoJ
+         hHXhA14Oy796z0v4bq+KENmudoQ7O8YMHdyFx/g8NbphhGTy2h3/CNEuehe1UvSr8nL2
+         ckrcxWV6zC/QS/qcQ8XrJ4uJ4JVFhyvxxocxh2uHPSll4i2jCxVEKGenz0zFp+z9Adlt
+         /gp9WXivzjSo6CtxgpguO/HRBXrumfEZlMpXHvoBJR+v835Ze4FN5J2CLLSDvuU1EkoM
+         WTb6UgBRnsbZiWJ6XBfrS3XPxZ7VwLlEf4n4tHR+Dbjehs9xilepDZKYJmyVzDBrPL4o
+         klmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788467045; x=1789071845;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=B8uOzk5kbNElpXD3JZXWiXWL8uLf97nPgxHodv2izOs=;
+        b=CfwVxpt4bBU2pSeeBPW1SDplLzZlvTTwXcbN7/fDXsw3Vf/M9gZSTEzMIi+q7dKoXC
+         H1GuUnuLWHG3C7H0+h8iKeYd6PQmqa4RsNWHBu70C69Hh1aWjIiKi+/96MltNyM3ka3o
+         edN8RwNWCnyMgmQ5HkA+iIwjJAdtY0Ezvzw8C5O/uxNNdNn9ZLjbSdSEJ65Bi0Aem85v
+         j2r/mHi0x73MczH1Js9j347GcMdZv87PID1GRRYCAcPjdW9mSHW4nUCY06xhkM5Onz89
+         BhwMGMwatJQ0BcM4Raa7+LnXspaNNOn8VaZQMLmzHgQY+7KjPs4ucpO+mRp7cpt1ROCV
+         2cPg==
+X-Gm-Message-State: AFuF++naK9Anw+M8NDj6BVWGDqTEnyNu61cov0gpUV4kAPjUMvpjsnsA
+	zgxeoRwKUcdj0HyzTBvReQrqPDCnnNjYeGxFbhrmfVZsytMdmpRrNQJ0yLzQPaf6rw==
+X-Gm-Gg: AYBFou0xCaaIEZeLIGoQx/r96YyLAA87+H8F3BKF1aVYMmSHvqxQNRJ9BiubJrA5nkD
+	bj+MJL8bj4MVi4rnzr5srHao+41+NYer+EYTulCHAbRHe2WJzbJRNI8iFmWSdoTuHqoRCUrDvzK
+	HAJsDnRPAj+APaCmNracIYLoDPqte9Q6adPyIsLTN/OU9i+otq6nXnibpf91ERFdZ6hZZ+PX2Kd
+	tkeQgMsvK5Hec1QOaMRUHANHNokNe9r6Bh5Z4nyL5/7UdaikGpYMhAwD8g2YCnmJ76UU+RpTfjk
+	nb7dU3hNHAq19vTbUoPTio9LsW8xz8Mr5gPufYNj4TtQarCJ0Wj4a3q0YoT+Y7ByUa4pC/TDEq0
+	3LQ59gAhW+O3KqCjbTut9SqKJp+HehGkprlGzo/+MaM86NEsT9yQk29nBm+Pna0NEhnA6N9EDjQ
+	7dw7qzN/LCgfpUy9txI31lySfrfmZCAK23z5d/LjiVDFjuVC+tTIBag2XNM29/Gt9ggQVV5aO0A
+	NBDt4cKm6aMOcl/RnxN+ZsZpdys8hWrqQ==
+X-Received: by 2002:a05:622a:114:b0:530:42e5:f3a9 with SMTP id d75a77b69052e-53054a10750mr15915981cf.44.1788467044885;
+        Thu, 03 Sep 2026 13:24:04 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406871b6sm3176156d6.32.2026.09.03.13.24.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 13:13:38 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol: Improve validation of scopes
-Date: Thu,  3 Sep 2026 16:13:23 -0400
-Message-ID: <20260903201323.138212-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        Thu, 03 Sep 2026 13:24:04 -0700 (PDT)
+Date: Thu, 03 Sep 2026 16:24:03 -0400
+Message-ID: <763ef0523ed8e2e25ef5b902e21b0c53@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260903_1622/pstg-lib:20260903_1620/pstg-pwork:20260903_1622
+From: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MAINTAINERS, mailmap: update email address for Ondrej  Mosnáček
+References: <20260903155615.516010-1-omosnacek@gmail.com>
+In-Reply-To: <20260903155615.516010-1-omosnacek@gmail.com>
 
-The validation of scopes can be improved in several ways.
+On Sep  3, 2026 =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com> wrote:
+> 
+> I'm going to use my personal email for kernel contributions from now on.
+> Update MAINTAINERS and .mailmap to reflect this.
+> 
+> Also switch to use proper spelling with diacritics, since I normally use
+> the full Unicode name with my personal email address. I'm leaving
+> in-code occurences unchanged though, as that would be just unnecessary
+> churn.
+> 
+> Link: https://lore.kernel.org/lkml/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK8KuseMQS-9tNA@mail.gmail.com/
+> Signed-off-by: Ondrej Mosnáček <omosnacek@gmail.com>
+> ---
+> Hoping for this to get picked up via the SELinux tree, since the main
+> change is in the SELinux MAINTAINERS entry.
+> 
+>  .mailmap    | 1 +
+>  MAINTAINERS | 2 +-
+>  2 files changed, 2 insertions(+), 1 deletion(-)
 
-For non-kernel policies and excluding the commons scope table, every
-key found in a symbol table should also be in the correspondeing
-scope table and vice versa. To validate this, verify that symbol and
-scope tables with the same flavor have the same number of elements
-and then check that each key found in a scope table can also be found
-in the matching symbol table. The function scope_read() in policydb.c
-also checks that scope keys can be found in the symbol tables, so
-remove that check to consolidate validation.
+Merged to selinux/stable-7.3 and will be sent to Linus shortly.
 
-The commons scope table is always be empty for all policies, so fail
-validation if it is not.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/policydb.c          |  5 ----
- libsepol/src/policydb_validate.c | 39 ++++++++++++++++++++++++--------
- 2 files changed, 30 insertions(+), 14 deletions(-)
-
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 3dd3ac4f..81c8da82 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -3903,11 +3903,6 @@ static int scope_read(policydb_t *p, int symnum, struct policy_file *fp)
- 	if (rc < 0)
- 		goto cleanup;
- 
--	/* ensure that there already exists a symbol with this key */
--	if (hashtab_search(p->symtab[symnum].table, key) == NULL) {
--		goto cleanup;
--	}
--
- 	if ((scope = calloc(1, sizeof(*scope))) == NULL) {
- 		goto cleanup;
- 	}
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 34182e8e..5b2e94ea 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -38,6 +38,11 @@ typedef struct perm_arg {
- 	const uint32_t inherited_nprim;
- } perm_arg_t;
- 
-+typedef struct scope_arg {
-+	const symtab_t *symtab;
-+	uint32_t num_decls;
-+} scope_arg_t;
-+
- static int create_gap_ebitmap(char **val_to_name, uint32_t nprim,
- 			      ebitmap_t *gaps)
- {
-@@ -210,11 +215,10 @@ bad:
- 	return -1;
- }
- 
--static int validate_scope(__attribute__((unused)) hashtab_key_t k,
--			  hashtab_datum_t d, void *args)
-+static int validate_scope(hashtab_key_t k, hashtab_datum_t d, void *args)
- {
- 	const scope_datum_t *scope_datum = (scope_datum_t *)d;
--	const uint32_t *nprim = (uint32_t *)args;
-+	scope_arg_t *sargs = (scope_arg_t *)args;
- 	uint32_t i;
- 
- 	switch (scope_datum->scope) {
-@@ -226,10 +230,13 @@ static int validate_scope(__attribute__((unused)) hashtab_key_t k,
- 	}
- 
- 	for (i = 0; i < scope_datum->decl_ids_len; i++) {
--		if (!value_isvalid(scope_datum->decl_ids[i], *nprim))
-+		if (!value_isvalid(scope_datum->decl_ids[i], sargs->num_decls))
- 			goto bad;
- 	}
- 
-+	if (!hashtab_search(sargs->symtab->table, k))
-+		goto bad;
-+
- 	return 0;
- 
- bad:
-@@ -237,20 +244,34 @@ bad:
- }
- 
- static int validate_scopes(sepol_handle_t *handle, const symtab_t scopes[],
--			   const avrule_block_t *block)
-+			   const symtab_t symtabs[], const policydb_t *p)
- {
-+	scope_arg_t sargs;
-+	const avrule_block_t *block;
- 	const avrule_decl_t *decl;
- 	unsigned int i;
- 	uint32_t num_decls = 0;
- 
--	for (; block != NULL; block = block->next) {
-+	for (block = p->global; block != NULL; block = block->next) {
- 		for (decl = block->branch_list; decl; decl = decl->next) {
- 			num_decls++;
- 		}
- 	}
- 
--	for (i = 0; i < SYM_NUM; i++) {
--		if (hashtab_map(scopes[i].table, validate_scope, &num_decls))
-+	if (scopes[SYM_COMMONS].table->nel != 0)
-+		goto bad;
-+
-+	if (p->policy_type != POLICY_KERN) {
-+		for (i = 1; i < SYM_NUM; i++) {
-+			if (scopes[i].table->nel != symtabs[i].table->nel)
-+				goto bad;
-+		}
-+	}
-+
-+	sargs.num_decls = num_decls;
-+	for (i = 1; i < SYM_NUM; i++) {
-+		sargs.symtab = &symtabs[i];
-+		if (hashtab_map(scopes[i].table, validate_scope, &sargs))
- 			goto bad;
- 	}
- 
-@@ -2152,7 +2173,7 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
- 	if (validate_genfs(handle, p, flavors))
- 		goto bad;
- 
--	if (validate_scopes(handle, p->scope, p->global))
-+	if (validate_scopes(handle, p->scope, p->symtab, p))
- 		goto bad;
- 
- 	if (validate_datum_array_gaps(handle, p, flavors))
--- 
-2.55.0
-
+--
+paul-moore.com
