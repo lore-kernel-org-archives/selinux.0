@@ -1,63 +1,63 @@
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 926024BD0E3
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:42:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5063C4BB80C
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:43:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788446582; cv=none; b=cEyvUosG28hEF7glvnAaw6kDtG1DonbEVZ02KzWbNSIuMeCZ0qvzA7Co/ggU6aSvVK4ana8KGyp9w/TqGHiLjCegzY64ax04GxPauMzUIBzOJIqzos35vNvAtiymxt5gTQ/u7wPl1b+CIFIJTfjb1mqtCMWQR2UQdQqQb40NmiI=
+	t=1788446591; cv=none; b=RPrcWkzn/rZGooiQsecdy4/dGyvNsyuCo+D5mhrXsB2j7vwbvfyk20QgQuf4OO7gCi63aWzUG4z9WxmCUXq1ExTsmxZe5oUrthY2CyYKTJU99ZPstYjP/COdK07357qC/U1kv7655s1wKjosvXxNPSWYeSqd+0EJa42JVbNHfLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788446582; c=relaxed/simple;
-	bh=sM1tyqZ0wncPcacgMo6jjo6NPeCdhFok2AqkTjHwCcA=;
+	s=arc-20240116; t=1788446591; c=relaxed/simple;
+	bh=5VUqqG7FzJiP60HZ8r/Ioo2Li8VvQEZTV2alJSgBaTI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YbX7ihYMp58gnGcJk9rMlShhaEOm2E1gyicmDdnUIvexE9SfIHqhcrmdI6AxWHMKzadhPezAUuYGSTNbhCyp30B206PHRjCTB5ZgAeURssTX202zk0fYiHBaL9T+za/JXGVZLqHvBGeSoIyOm4WWkcK5/X9oK2k6McMS72AVexw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WHYTsFcz; arc=none smtp.client-ip=209.85.160.182
+	 MIME-Version; b=kMY+onkkacbn7QRU0LX6/eOpe6fphGaHTS4DvEcT0GRN8heKPlSv0nbZ7eSgRdY7+uf8lVuIktF0Ls2YZp2t66XWTyY/qJaIau7e0EQR7K4cMmcoxWIJ+a9w637shDtu4geJPpwcUOrBEKzIHS19OxLHgFJ0NA5uVgxwgzlHFLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d5ZOjlgB; arc=none smtp.client-ip=209.85.160.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WHYTsFcz"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5301a453186so20894571cf.2
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:42:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d5ZOjlgB"
+Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-52fa6005224so21765901cf.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:43:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788446574; x=1789051374; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788446582; x=1789051382; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=vJEhaBU2J3lkOqiO43JJDI6TMTka0Tzv8SqK/hDfJ/w=;
-        b=WHYTsFczn4RyNQSVXTYekT8WKj/eJZ/ZDjOitZCXSccB09FBm+9j7f9+Eehg4mUK5g
-         HHr1+QIuyEB5NBWFRh1TAr7OtfbuRm9jL4p4JLCObknU66gX+k6fHEAUqo+OmojwAcor
-         dI75LbNHJ0KGsT/llqGhCPIF54PWI9m6Z8v9gx7Gup9gC0xg4Kbm7vyplxcEEkgzfeDq
-         MqcdmaIPE8xlCI5qdeWjXo52hovLt89jek6cpDOJZh2upedCwfpaIXwvmMK+1xUGdkX0
-         bcFzrmyg2pzgEiTGiWNoBn0uaRo+qLZ0p6RW1+GEwz9lGZyfEYr/2BNPOFUAzRcX7cou
-         iFrQ==
+        bh=shC6xovgN3vgqKVLWc07H5vTk1UbbO2Ydttha3hTX3A=;
+        b=d5ZOjlgBmftjTPHhAufa4l2utd3LWrKV/krvVMGYTvDEI7Jc7ieG9zrrpdtFeQvJEA
+         95LGqefJ4sA+s2HsrzC1BKAVGFpMkXPudRFGErB49JTUep3sLGPHxSi+t8wmwVQt0FLc
+         M2BCf9o4PrsN+BCCM+ax25yIIDM2+y2WoadzsCab+fD3tPfJup1OObqpJ3CqiFZTOS/O
+         u3mEsKZDoYcRNXlCmyJkpa7r9o2lmcZenXJXzrnJA36IpkLEVSioxImidZ2aVWiWcXQv
+         +I9OGk9REoef+xbS5KFyDwJ7s/CxqWvipgI+/zvGHmlUjknbz2lM0DsZpzmI2iGXnW2W
+         4M5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788446574; x=1789051374;
+        d=1e100.net; s=20251104; t=1788446582; x=1789051382;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=vJEhaBU2J3lkOqiO43JJDI6TMTka0Tzv8SqK/hDfJ/w=;
-        b=ffHFqID47FCqJX90m0CYrox53xw0FYKvJtrdyX0e7SKMeO+e7D9yScXYE4LyLhFLi0
-         gTtPZmERQtD0nMxn2wMe5Kh7yTnaRDkUoSdQnQh+6zGfeouVyfdWwq50PzTcRTxiv/0g
-         uMOmH5Ah71xQXgfTdWNEqr2T3hh8jnZ+Z1lI7YXfT5q9/VMsBH9dsHswEJLPewLXW3p/
-         hOlsgSbgkBuJZ5llfVrXTFcqM0DuyHEHwTvjlEGbr7NgPzReH8u86Fv1xWtgB182KQTX
-         FOXjINZNk3uYLiz6hYEhCdbVzvKiYygE66nwAmyni0616C4NpYIH/7pAgt9vC8OFqh/k
-         DdYQ==
-X-Gm-Message-State: AFuF++lRSxicZiYn4fm38A+1XnM0JKKwWboIN2bYPlEdQK06hQ6cCD5w
-	sUC87IvN++9Z42TrDXlqogFzkrlp63YdNXO+22UQAYycj6BZIlWHaPbg0c03mA==
-X-Gm-Gg: AYBFou1XE7VHWk4f1hzuEJpk1/TjflUa65pht8PTmP8A4eZs1D45aYuaCgg4OZH360X
-	WDlaPCXr2lPQDumOBW55s7RnB+1tyHiJfm05InW/vxfeTkX03bTvtLdq2Re4CFOlk2UU3sbF6Pg
-	x9zL1qsekYhMMhIE0wjPEY8tJ50h+WCKZ/hNMMgbcrz4WHLLwVz+JvJd3Q5l7Qr/tmYnzqj5gUl
-	VArOmhqQuLeML8QQs6IBx/D2YmPDQYatDvpzt7sayGvqfG1XF3aZuM7AlWFbah4c4f3sDHKkKSk
-	eIXeDqC5QCQZHfPF0ftqgnsWURlPy3kUsj/6YmHsitsax4eyjXfAj64tUAUpnY8LXMsmLZgWXJy
-	Z+kvMFbjnQSzqvdnRcxE/+pP5NNTj8iV3qHjG8Y3iqmTjYMq0ggrCaCVgYqtMkXGWYORodz4Nzt
-	J/lZTS7ljJ6gM6hsj79+Vh440e2bSsRx5xaUKzDw1gSDWU9mRtWFREhfCW7zhIL2cRRFODwkVtb
-	g3KQyLW9ALTIpgvS/wgD0ineV2VrC047pLZJusB456w3Upy8w0PSvAtbzBJaAe2
-X-Received: by 2002:ac8:5912:0:b0:517:78c7:d93a with SMTP id d75a77b69052e-53036bca8f2mr141551431cf.16.1788446574366;
-        Thu, 03 Sep 2026 07:42:54 -0700 (PDT)
+        bh=shC6xovgN3vgqKVLWc07H5vTk1UbbO2Ydttha3hTX3A=;
+        b=om2aOsvaWbqAMr06j+1PkaMex6ptHiTkZnJjrA7g0MNC19lgRmJvkCn1hrTRTXuQBE
+         NVbpvCLpQ/up/L7Genmhj3uN2PW89KX4RL47DGan4mggdvbhEXqz3TDF5TEJRWBEX5t7
+         OosRGzO5MZQwbGbDG/yANsfhL48pEIugDONn5vgGYvIM6QTsBzW3izHr7jy6uD1Xr/ct
+         9JxBfdh3c2AERueQp8ZmhfDKHtKvf6pUOmbyb0UW6cnHz8y8UyzZ8teinrjwZct3ozWi
+         w/VH1Ps6r5zBUxLmBdOkrU4+J3Nf7AvQ/sICK6e7dPaU0IdjcI70QMqblSbBlUba7Ger
+         B6YQ==
+X-Gm-Message-State: AFuF++mWB2Hmg7TeJv0b9wFmFz/VXV8+SpJP4K00xB17qFR6RllMBc2Q
+	HFbi9NrTHDJjra6Er/w6MpVPZ+KxhMnqZN4dBjeAnQ33UaXcHaPpKp3jtgUDlg==
+X-Gm-Gg: AYBFou3EWgmKLaT2XPRB+bj4Kox4ukFK3Rizikn1QDh7eLg83Vt8EDTU+kMZXYvOXuH
+	F+FUf62WyRR0+jmD3cfhoKMAtLNGqSjL2/3tEBHx/QWYKaQoT7q6UtpkKDbsiTzWii2mW/ZUruM
+	IX7sqavKZNuLMEGvDBb7c2CKtJ3V42BIgrr4QakGbVXuWomblAwuW5wkjlQvyNrumk2cDbnoQ8B
+	OhwuJMSvWHmq/V3wSdU0sV4/igyTbzUJVsT02JeklkkspKEpTsg4HYpOa28XGKLvI4c7oXcWl3O
+	O5tb4GMHBFnv9j11I0FsktyZH9TDNCE03D2naHvzlY0CspTwbY2RsRDVteHmVKUzte8CkMmKIuL
+	t9JzM4qRkxDu5+Z/qN0jd4V4pK33OuJgjuOrtPZ57T2SRFuTRVwbER8Y+CkfF4FM6hUFqBBqXxF
+	ev9e+Ym1BinewWwSCRT+gtJTKnL8rlxvR3urETyPWkNoSUN5KgH7ukUhbQLzT4QvsswNiLifnRY
+	8B/moe5BiDtP+0MkFkfTDvLpwyA4qkYuzb+hAllNDfd53HBLVJZBX+Y2Hh3FPr/
+X-Received: by 2002:a05:622a:e407:10b0:530:42e5:f3a3 with SMTP id d75a77b69052e-5304321e972mr63576171cf.44.1788446581795;
+        Thu, 03 Sep 2026 07:43:01 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.42.53
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.43.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 07:42:54 -0700 (PDT)
+        Thu, 03 Sep 2026 07:43:01 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -68,9 +68,9 @@ Cc: jwcart2@gmail.com,
 	bigon@debian.org,
 	russell@coker.com.au,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 2/9] libsemanage: add semanage_module_find_path() and use it for reads
-Date: Thu,  3 Sep 2026 10:34:27 -0400
-Message-ID: <20260903143433.19810-5-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 3/9] libsemanage: list modules across every store root
+Date: Thu,  3 Sep 2026 10:34:28 -0400
+Message-ID: <20260903143433.19810-6-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
 References: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
@@ -82,265 +82,388 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a semanage_module_find_path() helper which tries the writable
-modules root (TMP in a transaction, ACTIVE otherwise) and then each
-ro-store-root ACTIVE modules root, filling @path with the first
-location that exists. If the file doesn't exist anywhere, leave the
-writable-root path in @path so error messages refer to the write
-target. semanage_module_get_path() itself is unchanged and remains the
-write-side accessor.
+semanage_direct_list_all() now scans the writable modules root (TMP in
+a transaction, ACTIVE otherwise) and each ro-store-root ACTIVE modules
+root, collecting every (priority, name) pair. The result is sorted by
+(priority descending, name ascending) so that
+semanage_get_active_modules() still picks the highest priority one,
+and adjacent duplicates are collapsed.
 
-Convert the read-side callers to use semanage_module_find_path().
-With no ro-store-root configured this is a single extra access()
-per call.
+For each unique pair, semanage_direct_get_module_info() reads lang_ext
+and the disabled marker via semanage_module_find_path(), so a module
+present only in a read-only root is fully described, and a writable-
+store copy at the same priority/name shadows a fallback.
 
-semanage_compile_module() may now read a HLL from a read-only root and
-write the compiled CIL into the writable sandbox; guard the remove-hll
-unlink so it only happens when the HLL actually lives in the sandbox.
+An ENOENT from any root's modules directory is treated as an empty
+contribution rather than a hard error, so a fresh /var or /etc with no
+active/ tree does not break 'semodule -l'.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/direct_api.c     | 53 ++++++++++++++++-----------
- libsemanage/src/modules.c        | 63 +++++++++++++++++++++++++++-----
- libsemanage/src/modules.h        | 10 +++++
- libsemanage/src/semanage_store.c |  6 +--
- 4 files changed, 99 insertions(+), 33 deletions(-)
+ libsemanage/src/direct_api.c | 293 ++++++++++++++++++++---------------
+ 1 file changed, 168 insertions(+), 125 deletions(-)
 
 diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 132e2a2a..ded6bb9e 100644
+index ded6bb9e..dae9d003 100644
 --- a/libsemanage/src/direct_api.c
 +++ b/libsemanage/src/direct_api.c
-@@ -998,8 +998,9 @@ static int semanage_compile_module(semanage_handle_t *sh,
- 		goto cleanup;
- 	}
- 
--	status = semanage_module_get_path(sh, modinfo, SEMANAGE_MODULE_PATH_HLL,
--					  hll_path, sizeof(hll_path));
-+	status = semanage_module_find_path(sh, modinfo,
-+					   SEMANAGE_MODULE_PATH_HLL, hll_path,
-+					   sizeof(hll_path));
- 	if (status != 0) {
- 		goto cleanup;
- 	}
-@@ -1050,15 +1051,25 @@ static int semanage_compile_module(semanage_handle_t *sh,
- 	}
- 
- 	if (sh->conf->remove_hll) {
--		status = unlink(hll_path);
--		if (status != 0) {
--			ERR(sh, "Error while removing HLL file %s.", hll_path);
--			goto cleanup;
--		}
-+		const char *rw = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
- 
--		status = semanage_direct_write_langext(sh, "cil", modinfo);
--		if (status != 0) {
--			goto cleanup;
-+		/*
-+		 * Only remove a HLL that lives in the writable sandbox;
-+		 * a ro-store-root vendor module keeps its HLL.
-+		 */
-+		if (strncmp(hll_path, rw, strlen(rw)) == 0) {
-+			status = unlink(hll_path);
-+			if (status != 0) {
-+				ERR(sh, "Error while removing HLL file %s.",
-+				    hll_path);
-+				goto cleanup;
-+			}
-+
-+			status = semanage_direct_write_langext(sh, "cil",
-+							       modinfo);
-+			if (status != 0) {
-+				goto cleanup;
-+			}
- 		}
- 	}
- 
-@@ -1118,9 +1129,9 @@ semanage_compile_hll_modules(semanage_handle_t *sh,
- 	/* prefix with module count to avoid collisions */
- 	update_checksum_with_len(&context, num_modinfos);
- 	for (i = 0; i < num_modinfos; i++) {
--		status = semanage_module_get_path(sh, &modinfos[i],
--						  SEMANAGE_MODULE_PATH_CIL,
--						  cil_path, sizeof(cil_path));
-+		status = semanage_module_find_path(sh, &modinfos[i],
-+						   SEMANAGE_MODULE_PATH_CIL,
-+						   cil_path, sizeof(cil_path));
- 		if (status != 0)
- 			return -1;
- 
-@@ -1932,10 +1943,10 @@ static int semanage_direct_extract(semanage_handle_t *sh,
- 	struct file_contents contents = {};
- 
- 	/* get path of module */
--	rc = semanage_module_get_path(sh,
--				      (const semanage_module_info_t *)modkey,
--				      SEMANAGE_MODULE_PATH_NAME, module_path,
--				      sizeof(module_path));
-+	rc = semanage_module_find_path(sh,
-+				       (const semanage_module_info_t *)modkey,
-+				       SEMANAGE_MODULE_PATH_NAME, module_path,
-+				       sizeof(module_path));
- 	if (rc != 0) {
- 		goto cleanup;
- 	}
-@@ -1958,8 +1969,8 @@ static int semanage_direct_extract(semanage_handle_t *sh,
- 	}
- 
- 	/* get path of what to extract */
--	rc = semanage_module_get_path(sh, _modinfo, file_type, input_file,
--				      sizeof(input_file));
-+	rc = semanage_module_find_path(sh, _modinfo, file_type, input_file,
-+				       sizeof(input_file));
- 	if (rc != 0) {
- 		goto cleanup;
- 	}
-@@ -2377,7 +2388,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
- 	}
- 
- 	/* lookup module ext */
--	ret = semanage_module_get_path(
-+	ret = semanage_module_find_path(
- 		sh, *modinfo, SEMANAGE_MODULE_PATH_LANG_EXT, fn, sizeof(fn));
- 	if (ret != 0) {
- 		status = -1;
-@@ -2420,7 +2431,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
- 	fp = NULL;
- 
- 	/* lookup enabled/disabled status */
--	ret = semanage_module_get_path(
-+	ret = semanage_module_find_path(
- 		sh, *modinfo, SEMANAGE_MODULE_PATH_DISABLED, fn, sizeof(fn));
- 	if (ret != 0) {
- 		status = -1;
-diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-index 55dfdd47..5e667b7d 100644
---- a/libsemanage/src/modules.c
-+++ b/libsemanage/src/modules.c
-@@ -408,10 +408,11 @@ int semanage_module_info_set_enabled(semanage_handle_t *sh,
- 	return 0;
+@@ -2622,6 +2622,105 @@ static int semanage_modules_filename_select(const struct dirent *d)
+ 	return 1;
  }
  
--int semanage_module_get_path(semanage_handle_t *sh,
--			     const semanage_module_info_t *modinfo,
--			     enum semanage_module_path_type type, char *path,
--			     size_t len)
-+static int semanage_module_build_path(semanage_handle_t *sh,
-+				      const char *modules_path,
-+				      const semanage_module_info_t *modinfo,
-+				      enum semanage_module_path_type type,
-+				      char *path, size_t len)
- {
- 	assert(sh);
- 	assert(modinfo);
-@@ -420,13 +421,8 @@ int semanage_module_get_path(semanage_handle_t *sh,
- 	int status = 0;
- 	int ret = 0;
- 
--	const char *modules_path = NULL;
- 	const char *file = NULL;
- 
--	modules_path = sh->is_in_transaction ?
--			       semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES) :
--			       semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
--
- 	switch (type) {
- 	case SEMANAGE_MODULE_PATH_PRIORITY:
- 		/* verify priority */
-@@ -537,6 +533,55 @@ cleanup:
- 	return status;
- }
- 
-+static const char *semanage_module_write_root(semanage_handle_t *sh)
++struct raw_module {
++	uint16_t priority;
++	char *name;
++};
++
++static int raw_module_cmp(const void *a, const void *b)
 +{
-+	return sh->is_in_transaction ?
-+		       semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES) :
-+		       semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
++	const struct raw_module *ra = a, *rb = b;
++
++	if (ra->priority != rb->priority)
++		return (int)rb->priority - (int)ra->priority;
++	return strcmp(ra->name, rb->name);
 +}
 +
-+int semanage_module_get_path(semanage_handle_t *sh,
-+			     const semanage_module_info_t *modinfo,
-+			     enum semanage_module_path_type type, char *path,
-+			     size_t len)
++static void free_scandir_result(struct dirent **entries, int n)
 +{
-+	return semanage_module_build_path(sh, semanage_module_write_root(sh),
-+					  modinfo, type, path, len);
++	int i;
++
++	for (i = 0; i < n; i++)
++		free(entries[i]);
++	free(entries);
 +}
 +
-+/*
-+ * Read-side variant: search the writable modules root (TMP when in
-+ * a transaction, ACTIVE otherwise) and then each ro-store-root's ACTIVE
-+ * modules root, filling @path with the first location that exists.
-+ * When the module exists nowhere, @path is left with the writable root
-+ * value so the caller's error message names the write target.
-+ */
-+int semanage_module_find_path(semanage_handle_t *sh,
-+			      const semanage_module_info_t *modinfo,
-+			      enum semanage_module_path_type type, char *path,
-+			      size_t len)
++static int semanage_scan_modules_root(semanage_handle_t *sh,
++				      const char *toplevel,
++				      struct raw_module **raw, int *raw_len)
 +{
-+	unsigned int i, n = semanage_ro_root_count();
-+	int ret;
++	struct dirent **priorities = NULL, **modules = NULL;
++	int priorities_len, modules_len;
++	char priority_path[PATH_MAX];
++	uint16_t priority;
++	int i, j, status = 0;
++	void *tmp;
 +
-+	ret = semanage_module_build_path(sh, semanage_module_write_root(sh),
-+					 modinfo, type, path, len);
-+	if (ret != 0 || n == 0 || access(path, F_OK) == 0)
-+		return ret;
-+
-+	for (i = 0; i < n; i++) {
-+		ret = semanage_module_build_path(
-+			sh, semanage_ro_active_path(i, SEMANAGE_MODULES),
-+			modinfo, type, path, len);
-+		if (ret != 0 || access(path, F_OK) == 0)
-+			return ret;
++	priorities_len = scandir(toplevel, &priorities,
++				 semanage_priorities_filename_select,
++				 versionsort);
++	if (priorities_len < 0) {
++		if (errno == ENOENT)
++			return 0;
++		ERR(sh, "Error while scanning directory %s.", toplevel);
++		return -1;
 +	}
 +
-+	/* Not found anywhere; restore the writable-root path */
-+	return semanage_module_build_path(sh, semanage_module_write_root(sh),
-+					  modinfo, type, path, len);
++	for (i = 0; i < priorities_len; i++) {
++		if (semanage_string_to_priority(priorities[i]->d_name,
++						&priority)) {
++			status = -1;
++			break;
++		}
++
++		snprintf(priority_path, sizeof(priority_path), "%s/%s",
++			 toplevel, priorities[i]->d_name);
++		modules_len = scandir(priority_path, &modules,
++				      semanage_modules_filename_select,
++				      versionsort);
++		if (modules_len < 0) {
++			ERR(sh, "Error while scanning directory %s.",
++			    priority_path);
++			status = -1;
++			break;
++		}
++		if (modules_len == 0) {
++			free(modules);
++			modules = NULL;
++			continue;
++		}
++
++		tmp = realloc(*raw,
++			      sizeof(**raw) * ((size_t)*raw_len + modules_len));
++		if (tmp == NULL) {
++			ERR(sh, "Error allocating memory for module list.");
++			free_scandir_result(modules, modules_len);
++			status = -1;
++			break;
++		}
++		*raw = tmp;
++
++		for (j = 0; j < modules_len; j++) {
++			(*raw)[*raw_len].priority = priority;
++			(*raw)[*raw_len].name = strdup(modules[j]->d_name);
++			if ((*raw)[*raw_len].name == NULL) {
++				ERR(sh, "Out of memory.");
++				status = -1;
++				break;
++			}
++			(*raw_len)++;
++		}
++
++		free_scandir_result(modules, modules_len);
++		modules = NULL;
++		if (status)
++			break;
++	}
++
++	free_scandir_result(priorities, priorities_len);
++	return status;
 +}
 +
- int semanage_module_key_create(semanage_handle_t *sh,
- 			       semanage_module_key_t **modkey)
- {
-diff --git a/libsemanage/src/modules.h b/libsemanage/src/modules.h
-index fdd771a4..22e6803e 100644
---- a/libsemanage/src/modules.h
-+++ b/libsemanage/src/modules.h
-@@ -100,6 +100,16 @@ int semanage_module_get_path(semanage_handle_t *sh,
- 			     enum semanage_module_path_type type, char *path,
- 			     size_t len);
+ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 				    semanage_module_info_t **modinfos,
+ 				    int *modinfos_len)
+@@ -2634,22 +2733,13 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 	int ret = 0;
  
-+/*
-+ * Read-side variant: fill @path with the first location that exists
-+ * across the writable and any ro-store-root modules roots. Falls back
-+ * to the writable-root path when the file is not found anywhere.
-+ */
-+int semanage_module_find_path(semanage_handle_t *sh,
-+			      const semanage_module_info_t *modinfo,
-+			      enum semanage_module_path_type type, char *path,
-+			      size_t len);
+ 	int i = 0;
+-	int j = 0;
++	unsigned int r;
 +
- extern const size_t CHECKSUM_CONTENT_SIZE;
- void semanage_hash_to_checksum_string(const uint8_t *hash, char *checksum);
++	struct raw_module *raw = NULL;
++	int raw_len = 0;
  
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 187fd6b6..a9b471a2 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -1195,9 +1195,9 @@ int semanage_get_cil_paths(semanage_handle_t *sh,
+ 	*modinfos = NULL;
+ 	*modinfos_len = 0;
+-	void *tmp = NULL;
+-
+-	const char *toplevel = NULL;
+-
+-	struct dirent **priorities = NULL;
+-	int priorities_len = 0;
+-	char priority_path[PATH_MAX];
+-
+-	struct dirent **modules = NULL;
+-	int modules_len = 0;
+-
+-	uint16_t priority = 0;
+ 
+ 	semanage_module_info_t *modinfo_tmp = NULL;
+ 
+@@ -2660,158 +2750,111 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
+ 		goto cleanup;
  	}
  
- 	for (i = 0; i < num_modinfos; i++) {
--		ret = semanage_module_get_path(sh, &modinfos[i],
--					       SEMANAGE_MODULE_PATH_CIL, path,
--					       sizeof(path));
-+		ret = semanage_module_find_path(sh, &modinfos[i],
-+						SEMANAGE_MODULE_PATH_CIL, path,
-+						sizeof(path));
+-	if (sh->is_in_transaction) {
+-		toplevel = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
+-	} else {
+-		toplevel = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
++	/*
++	 * Collect (priority, name) from the writable store and every
++	 * read-only fallback root. A missing modules directory in
++	 * any root contributes nothing rather than failing the listing.
++	 */
++	status = semanage_scan_modules_root(
++		sh,
++		semanage_path(sh->is_in_transaction ? SEMANAGE_TMP :
++						      SEMANAGE_ACTIVE,
++			      SEMANAGE_MODULES),
++		&raw, &raw_len);
++	if (status)
++		goto cleanup;
++
++	for (r = 0; r < semanage_ro_root_count(); r++) {
++		status = semanage_scan_modules_root(
++			sh, semanage_ro_active_path(r, SEMANAGE_MODULES), &raw,
++			&raw_len);
++		if (status)
++			goto cleanup;
+ 	}
+ 
+-	/* find priorities */
+-	priorities_len = scandir(toplevel, &priorities,
+-				 semanage_priorities_filename_select,
+-				 versionsort);
+-	if (priorities_len == -1) {
+-		ERR(sh, "Error while scanning directory %s.", toplevel);
++	if (raw_len == 0)
++		goto cleanup;
++
++	/*
++	 * Sort by (priority descending, name ascending) so
++	 * semanage_get_active_modules() still sees the highest priority
++	 * first for each name. Duplicates are adjacent after the sort;
++	 * get_module_info() resolve them to the first-existing root via
++	 * semanage_module_find_path(), so which duplicate we keep is
++	 * immaterial.
++	 */
++	qsort(raw, raw_len, sizeof(*raw), raw_module_cmp);
++
++	*modinfos = calloc(raw_len, sizeof(**modinfos));
++	if (*modinfos == NULL) {
++		ERR(sh, "Error allocating memory for module array.");
+ 		status = -1;
+ 		goto cleanup;
+ 	}
+ 
+-	/* for each priority directory */
+-	/* loop through in reverse so that highest priority is first */
+-	for (i = priorities_len - 1; i >= 0; i--) {
+-		/* convert priority string to uint16_t */
+-		ret = semanage_string_to_priority(priorities[i]->d_name,
+-						  &priority);
++	for (i = 0; i < raw_len; i++) {
++		if (i > 0 && raw[i].priority == raw[i - 1].priority &&
++		    strcmp(raw[i].name, raw[i - 1].name) == 0)
++			continue;
++
++		ret = semanage_module_info_set_priority(sh, &modinfo,
++							raw[i].priority);
  		if (ret != 0) {
  			status = -1;
  			goto cleanup;
+ 		}
+ 
+-		/* set our priority */
+-		ret = semanage_module_info_set_priority(sh, &modinfo, priority);
++		ret = semanage_module_info_set_name(sh, &modinfo, raw[i].name);
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		/* get the priority path */
+-		ret = semanage_module_get_path(sh, &modinfo,
+-					       SEMANAGE_MODULE_PATH_PRIORITY,
+-					       priority_path,
+-					       sizeof(priority_path));
++		ret = semanage_direct_get_module_info(
++			sh, (const semanage_module_key_t *)(&modinfo),
++			&modinfo_tmp);
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		/* cleanup old modules */
+-		if (modules != NULL) {
+-			for (j = 0; j < modules_len; j++) {
+-				free(modules[j]);
+-				modules[j] = NULL;
+-			}
+-			free(modules);
+-			modules = NULL;
+-			modules_len = 0;
+-		}
+-
+-		/* find modules at this priority */
+-		modules_len = scandir(priority_path, &modules,
+-				      semanage_modules_filename_select,
+-				      versionsort);
+-		if (modules_len == -1) {
+-			ERR(sh, "Error while scanning directory %s.",
+-			    priority_path);
++		ret = semanage_module_info_init(sh,
++						&((*modinfos)[*modinfos_len]));
++		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+ 
+-		if (modules_len == 0)
+-			continue;
+-
+-		/* add space for modules */
+-		tmp = realloc(*modinfos, sizeof(semanage_module_info_t) *
+-						 (*modinfos_len + modules_len));
+-		if (tmp == NULL) {
+-			ERR(sh, "Error allocating memory for module array.");
++		ret = semanage_module_info_clone(sh, modinfo_tmp,
++						 &((*modinfos)[*modinfos_len]));
++		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
+ 		}
+-		*modinfos = tmp;
+ 
+-		/* for each module directory */
+-		for (j = 0; j < modules_len; j++) {
+-			/* set module name */
+-			ret = semanage_module_info_set_name(sh, &modinfo,
+-							    modules[j]->d_name);
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
++		semanage_module_info_destroy(sh, modinfo_tmp);
++		free(modinfo_tmp);
++		modinfo_tmp = NULL;
+ 
+-			/* get module values */
+-			ret = semanage_direct_get_module_info(
+-				sh, (const semanage_module_key_t *)(&modinfo),
+-				&modinfo_tmp);
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			/* copy into array */
+-			ret = semanage_module_info_init(
+-				sh, &((*modinfos)[*modinfos_len]));
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			ret = semanage_module_info_clone(
+-				sh, modinfo_tmp, &((*modinfos)[*modinfos_len]));
+-			if (ret != 0) {
+-				status = -1;
+-				goto cleanup;
+-			}
+-
+-			semanage_module_info_destroy(sh, modinfo_tmp);
+-			free(modinfo_tmp);
+-			modinfo_tmp = NULL;
+-
+-			*modinfos_len += 1;
+-		}
++		*modinfos_len += 1;
+ 	}
+ 
+ cleanup:
+ 	semanage_module_info_destroy(sh, &modinfo);
+ 
+-	if (priorities != NULL) {
+-		for (i = 0; i < priorities_len; i++) {
+-			free(priorities[i]);
+-		}
+-		free(priorities);
+-	}
+-
+-	if (modules != NULL) {
+-		for (i = 0; i < modules_len; i++) {
+-			free(modules[i]);
+-		}
+-		free(modules);
+-	}
++	for (i = 0; i < raw_len; i++)
++		free(raw[i].name);
++	free(raw);
+ 
+ 	semanage_module_info_destroy(sh, modinfo_tmp);
+ 	free(modinfo_tmp);
+-	modinfo_tmp = NULL;
+ 
+ 	if (status != 0) {
+-		if (modinfos != NULL) {
+-			for (i = 0; i < *modinfos_len; i++) {
+-				semanage_module_info_destroy(sh,
+-							     &(*modinfos)[i]);
+-			}
+-			free(*modinfos);
+-			*modinfos = NULL;
+-			*modinfos_len = 0;
+-		}
++		for (i = 0; i < *modinfos_len; i++)
++			semanage_module_info_destroy(sh, &(*modinfos)[i]);
++		free(*modinfos);
++		*modinfos = NULL;
++		*modinfos_len = 0;
+ 	}
+ 
+ 	return status;
 -- 
 2.55.0
 
