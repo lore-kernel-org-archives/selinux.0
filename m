@@ -1,63 +1,63 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B1AF4BD0FC
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76ED24B7143
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:44:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788446608; cv=none; b=ERmT4KiSpp8K32AKDM0HmbH3ONDAmSuEuR3lpOeA7XzZfbCI9aJlpO8rrdIJiPsTMHcxpladHBuKoqgid2TTEBH+ADGuklrGs8acfG29UsW+vsB34xNrH7Ajkt+bwUAL0PMjCh3/FLwSjCs3WbAmdQjEnLreMtLYCh2nVYl0AbY=
+	t=1788446661; cv=none; b=fkX8NZjIkIMwJM5Q/8gFe6Cs9wEmVh36yjcMa8xXJXWL0zmHvLHU/8iweC+tfxVWJqvj/A/tNsy/IeiHVf1OUdygxTnw2y+jSdT+8u4+swG3hK5D/pLeBz8huTKwzC9+wBcjNAyOobM4v2FRA0MBBiK0CmWjSBU/qfcczVxM/Gk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788446608; c=relaxed/simple;
-	bh=VBluen8PTH9OI3TOhMnqdJPGM6k79/txMfe1pQgJLXY=;
+	s=arc-20240116; t=1788446661; c=relaxed/simple;
+	bh=Bmy4Hzc7TM5FSuZRBHrihgaxMJUpl6XiyTXNLTo4meE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=phPES2IXAoLulVbTW5RHNeIUOYKMGD+ApGUkuDCyxDVhvh7irNl+4RO7Ibm8kQnXM/u4Qx/Y7AuhrnrkBxCgYG7dAuQig58y6bTuGUmDihdvAAVJedHJYMRMIdCItZbFnv3uVDGEZiiBF1+U2CG+4pXnkFwhe1BgPOZfp0mdHAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kns3431U; arc=none smtp.client-ip=209.85.160.177
+	 MIME-Version; b=MlRmZ4I3Y5QCOG4Qyw5aGzsGq7WnxlRWbH0vELo4od/7H2A/o8TWTMowW7Uw38RQzwdtkcyVDK+/qxtcel4hNmjOxvVGoXcWLzX8RswieggE3o6kc5fXhDx6J6BvrCTzo9SzyKZADrEdDicAYPTBAPA1Y2+AUloBOde9UUbBuJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=scdF8txS; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kns3431U"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-52d8679c149so23254211cf.2
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:43:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="scdF8txS"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-51c2a449c57so30248721cf.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:44:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788446596; x=1789051396; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788446656; x=1789051456; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Xto/F87EUdIquy3X2DDuJ/tQwiZNjeUFhwI+goVREYk=;
-        b=Kns3431Uoze8+xNsmcyH2z/cO1h7qAR0L91fSabAii1+ViIhpFRBR0pjFHwVm/ZE1k
-         NfjI/JhFc+fJSstp0mgY6zt8gd0pofRr2Oz1z3/Vhipzf9l/MMs+251wIKHFusQKT/Pm
-         iSHZKRORkkk7SXBl3lzRNwpG802/pRbYAlq6hnLoIoIjMemTFdoLycmBSvUg+/e9I4gU
-         1StIICiLk5D/YhvNcWzwqjcO00PuSYvaHNSuf1EobCAtmE4EYR8ITbZXTycjYfjK9OYa
-         1kOLCR/7AW8TfTWt7/no2eEeKdkz5fcgNG+xx770QC1Eoj90rbpz5y9Wd63PLDdwFENE
-         1Vrw==
+        bh=UhaES9nLdb9pAAIvfeMf6ZrWLCPzlfVvYNmQFuzm0vs=;
+        b=scdF8txSHEnu10Snk2ahaVru0V3dI1TXrIs8KcE6xbr7eyH3s+kBzn69LECTv0mTqy
+         gOcNgr35kKz1PErPvdMUQN7a00xYLXMMo6f7jxo9g0BGhE/52EMg+YHusZ/Xxh/GqPPO
+         WDc9/tXi30XcuzCyWMLY/mMDzASbjYCreuzHyTjBxToDjXAqD+p+FIfmWwl+q1ZRqIR/
+         FT1aBp0Us/ii9nC8ER+gkSBNkHGl1Q4XahkR5LTk2MS6GEw3KijTCnCHvoIw62Ux2VDc
+         iiZkA5jgfmlHp54OBgjWKqWK0Oi0hxx/qeoov4K9ddbXhHiR3MGkr+1SS2CdWcEw0o+c
+         r5yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788446596; x=1789051396;
+        d=1e100.net; s=20251104; t=1788446656; x=1789051456;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Xto/F87EUdIquy3X2DDuJ/tQwiZNjeUFhwI+goVREYk=;
-        b=EdQIbsmX34MBv1T3aiDNk23o5UaUUc2C4CQsZXj4xg3kIIRjR1q79joFVEgztqhrCd
-         CBwLSm6N696oN7rSS2kmA+iMhVUsLKyfNVN/qp8+pd7fICK85ecOcovQpeKgCTi0gpLT
-         7+evGgiLEoeWB0a6AhIJLkp0giZOvnw0QoWZbyF3M8brG4jv09TgWthdk3QK3ZCXp3ip
-         kzYUbLtDExwbetM3JaLv9h93/eZFbYsuJY5jdvfkoUjsbEctYny2Wcgn5V95jRI7FsMG
-         GQ3Apgn340/plVtkeB4vFW6Yk3/vS52Soiy5NcNEJlbKj/RsH54lkfyz49L59A5NhzGD
-         J37A==
-X-Gm-Message-State: AFuF++kFGhaarnZsGfilnJx7o0FKGtYGludwc/NcO28hKFMu5h23exWY
-	92pmcwwBAZ420/WE6WF8DhecJ0rrp2teFFr4/DCATTjd5Vi4hTEj7aY8tCrTxA==
-X-Gm-Gg: AYBFou39nCfwGlcodnIYxxvRCMBUvGczTAs2bcjY0qs9CpP7wuKXrDt837MuvrvywXi
-	zq8c5p9B7QDWT7OkbHuRRNV0RZhM8XNmJPWB5Qbt/tvdhXJtKCbvn50ZrazJ9xaoCFvTm1rCDFX
-	zPDNCLdfdjpdLFhPkxWe7RD+RB/59K2KglB0iqLBa789Gy4H4i44AMVQoxHvUd52u47is5hs8fC
-	HTVXoYUaEy5UVplbbZq8gv4wH6GQSdytDCNkQq4Ryn6wjmO1vEQDm9HB6/VYC+GqzG/jqH70ZFp
-	Lng1CWUHIk9g/hGc4nvYpSMrXn8XzHbYRq1kR87U7kFVdj/Ha1p7B2hkK+rPfgRYR4cZkU8pvZ/
-	uec2TEyp6ZXOVgmpwv9Hg5trsUEq73orhSbG9wOjlJ2czVCvWIBnwbhTWQV6EoLvMHAzVn9nP9V
-	NlJaiksjScr/6Pu08Trflr4u/aeEKiJ3vOI+xvi0tJ2u9SCW+gwSwoyTUURG60ABydf9nedzXUW
-	q25MZu/O04mJzUADHgTLL7FQq2fHVwmoL2wPoP1am2UKlVAbM9t0Y80zl2BTRpfMpR5aGQxjWI=
-X-Received: by 2002:a05:622a:4085:b0:52d:7b6e:4986 with SMTP id d75a77b69052e-530524629a9mr10300701cf.23.1788446595660;
-        Thu, 03 Sep 2026 07:43:15 -0700 (PDT)
+        bh=UhaES9nLdb9pAAIvfeMf6ZrWLCPzlfVvYNmQFuzm0vs=;
+        b=s2dn7lEZsN7b56jMd3BArmcch3hoF7kVShYmZOTfE8V5zo8S07F6t1TVows8BzS72b
+         pPuuxm8twca29D0picABHi223u1jFuqdQxnygXXTnGOSI9Mx7lPYIp9FZ1UO8Q6O62ul
+         MkKwIVkbxfmRgVzGDRJasRZ8OxbgoJ16Ng2nXVyKG2GbpI3/yjtAZPxalFIDiPqZLjuS
+         hadJf+IV3v4+DctR7AU3+5Omgoawd5HcBRQeFlvNn3VkgY4i83E8AaiI9lLS0h5skRhX
+         07K8WXa2X4WZqaDFhCY6rgym5RC07pi1aEv7YDJRTBlcIgpdw0Nmxk8gANhc2qtnmpxQ
+         10lA==
+X-Gm-Message-State: AFuF++lzV8wB6u2Iv0vmAieqP0I/K8OEIcup0W+WSSYPxX/h8ZQaMwgs
+	xLCYRuBt55qRGx5UBVLmiDhoB3GvfE6XxhSZMD/9KCiB7DV0h/uicLe6pSBVnw==
+X-Gm-Gg: AYBFou1Xp5Pk+JKIb/zB1/MpcBghMTvBTFp8bRBD6JgDQ+RLJSnPWKycXF0NkRPRg9H
+	Vr9rza6LKM3vK4dZC2RXsSweVU+90Q5ux8OpdNWuJ/2rmE5AEYZiz84y1NVtKu1MlGfKoaJFgvq
+	DfVAnujc0A0/WD8RGnBUB5HtOLzOYPCTJ02TG8ybkNPtiRqWT3BF4pjTwtKW/iWuo8kbZS+Xtjy
+	CWvcbUEOrmfQKTEQ1OOeZ36rs571I4aQrer7/XWbPfbwORzixyVHXC97EFmDfBteYEXIb96i2i8
+	etWPyvhjfj7TuYTtPJxccTzbO7VJqFxXuROmbu4N+LIyZAI/fJZCUffiBozlCo4iFnDWnO27Dui
+	xnpmdXLHBwEEMtCfAL7xw4Ow0Vc1hYzBY3XUgmqFLXnZ6I01l2p5jHHFljIqlPZD0c69SI6CNvu
+	OAJaX120ixRhBTIKvMI8wEtH5VNr8r20maloRAsbTQKtOi2P9YI+kq/yHOcQwWCbH6YD211RyVO
+	wYQtP2QJu0oftVrwiXm5FQuP3NzP8C4Iil4wGHbCZLTjB/QrLuisPKAAdt6Aq28
+X-Received: by 2002:a05:622a:258f:b0:52f:aa6c:bc7d with SMTP id d75a77b69052e-53036cdae5bmr162638821cf.28.1788446651722;
+        Thu, 03 Sep 2026 07:44:11 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.43.15
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.44.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 07:43:15 -0700 (PDT)
+        Thu, 03 Sep 2026 07:44:11 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -68,9 +68,9 @@ Cc: jwcart2@gmail.com,
 	bigon@debian.org,
 	russell@coker.com.au,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 7/9] libsemanage: refuse to remove or enable a module owned by a RO store
-Date: Thu,  3 Sep 2026 10:34:32 -0400
-Message-ID: <20260903143433.19810-10-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 8/9] libsemanage: search /etc and /usr/lib for semanage.conf
+Date: Thu,  3 Sep 2026 10:34:34 -0400
+Message-ID: <20260903143433.19810-12-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
 References: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
@@ -82,82 +82,113 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-semodule -r <name> on a module that exists only in a read-only store
-has nothing to unlink in the writable one. Detect that case in
-semanage_direct_remove_key(), notify the user, and suggest using -d to
-disable it instead. Removing a writable-store copy that shadows a
-read-only one is still allowed and simply un-shadows the vendor
-module.
+semanage_conf_path() only tried
+<semanage_root()>/etc/selinux/semanage.conf and the un-rooted /etc
+fallback so the file that carries ro-store-root could not itself live
+in the read-only vendor tree.
 
-semodule -e <name> when a read-only store carries the disabled marker
-has no effect since get_module_info() reads the marker via
-semanage_module_find_path(). After removing any writable marker,
-re-probe; if a read-only marker remains, fail with an error message
-pointing to its path as the cause.
+Search the same configuration directories libselinux uses:
+    /etc/selinux/ /usr/lib/selinux/
+overridable via -DSEMANAGE_CONF_DIRS=, rooted first and then falling
+back to the host directories as before. When none exist the primary
+/etc-based path is returned so the caller's diagnostic message refers
+to the canonical location.
+
+With this a vendor image can ship /usr/lib/selinux/semanage.conf and
+leave /etc/selinux empty.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/direct_api.c | 40 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+v4 drops /run/selinux from the default semanage.conf search path and
+example ro-store-root config since it is not required for the 
+stateless use case and it introduces the risk that any domain that can
+write to var_run_t can inject files that will be used by
+libsemanage. Distros are free to re-add it using -DSEMANAGE_CONF_DIRS=
+but if you do so, be sure to create and label /run/selinux correctly.  
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 5646d451..3d203bd7 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -2276,6 +2276,23 @@ static int semanage_direct_set_enabled(semanage_handle_t *sh,
- 			}
- 		}
+ libsemanage/src/semanage_store.c | 60 +++++++++++++++++++++++---------
+ 1 file changed, 44 insertions(+), 16 deletions(-)
+
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 9bece5f2..1e30d24b 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -539,6 +539,16 @@ const char *semanage_final_path(enum semanage_final_defs store,
+ 	return semanage_final_paths[store][path_name];
+ }
  
-+		/*
-+		 * A read-only store may still carry a disabled marker for
-+		 * this module; the writable store cannot override it.
-+		 */
-+		if (semanage_ro_root_count() > 0 &&
-+		    semanage_module_find_path(sh, modinfo,
-+					      SEMANAGE_MODULE_PATH_DISABLED, fn,
-+					      sizeof(fn)) == 0 &&
-+		    access(fn, F_OK) == 0) {
-+			errno = 0;
-+			ERR(sh,
-+			    "Module %s is disabled by the read-only store at %s and cannot be enabled here.",
-+			    modkey->name, fn);
-+			status = -1;
-+			goto cleanup;
-+		}
++/*
++ * Directories under which semanage.conf is searched, in order. This
++ * mirrors the libselinux configuration-root search list so a vendor
++ * can ship semanage.conf (carrying ro-store-root=) alongside the
++ * read-only runtime tree. Overridable at build time.
++ */
++#ifndef SEMANAGE_CONF_DIRS
++#define SEMANAGE_CONF_DIRS "/etc/selinux/", "/usr/lib/selinux/"
++#endif
 +
- 		break;
- 	case -1: /* warn about ignored setting to default */
- 		WARN(sh, "Setting module %s to 'default' state has no effect",
-@@ -3058,6 +3075,29 @@ static int semanage_direct_remove_key(semanage_handle_t *sh,
- 		goto cleanup;
- 	}
+ /* Return a fully-qualified path + filename to the semanage
+  * configuration file. If semanage.conf file in the semanage
+  * root is cannot be read, use the default semanage.conf as a
+@@ -548,24 +558,42 @@ const char *semanage_final_path(enum semanage_final_defs store,
+  */
+ char *semanage_conf_path(void)
+ {
+-	char *semanage_conf = NULL;
+-	size_t len;
+-	struct stat sb;
++	static const char *dirs[] = { SEMANAGE_CONF_DIRS, NULL };
++	char *conf = NULL;
++	unsigned int i;
  
+-	len = strlen(semanage_root()) + strlen(selinux_path()) +
+-	      strlen(SEMANAGE_CONF_FILE);
+-	semanage_conf = calloc(len + 1, sizeof(char));
+-	if (!semanage_conf)
 +	/*
-+	 * A module that lives only in a read-only store has nothing to
-+	 * remove in the writable one; disabling is the closest equivalent.
-+	 * Removing a writable-store copy that shadows a read-only one is
-+	 * still allowed and simply un-shadows the vendor module.
++	 * Rooted at each configuration directory, then (for a chroot
++	 * build) fall back to the host directory.
 +	 */
-+	if (semanage_ro_root_count() > 0 && access(path, F_OK) != 0) {
-+		char ro_path[PATH_MAX];
-+
-+		if (semanage_module_find_path(
-+			    sh, (const semanage_module_info_t *)modkey,
-+			    SEMANAGE_MODULE_PATH_NAME, ro_path,
-+			    sizeof(ro_path)) == 0 &&
-+		    access(ro_path, F_OK) == 0) {
-+			errno = 0;
-+			ERR(sh,
-+			    "Module %s at priority %d is provided by the read-only store at %s and cannot be removed; use -d to disable it.",
-+			    modkey->name, modkey->priority, ro_path);
-+			status = -2;
-+			goto cleanup;
++	for (i = 0; dirs[i]; i++) {
++		free(conf);
++		if (asprintf(&conf, "%s%s%s", semanage_root(), dirs[i],
++			     SEMANAGE_CONF_FILE) < 0)
++			return NULL;
++		if (access(conf, F_OK) == 0)
++			return conf;
++	}
++	if (semanage_root()[0] != '\0') {
++		for (i = 0; dirs[i]; i++) {
++			free(conf);
++			if (asprintf(&conf, "%s%s", dirs[i],
++				     SEMANAGE_CONF_FILE) < 0)
++				return NULL;
++			if (access(conf, F_OK) == 0)
++				return conf;
 +		}
 +	}
 +
- 	/* remove directory */
- 	ret = semanage_remove_directory(path);
- 	if (ret != 0) {
++	/*
++	 * Nothing found; return the primary path so the caller's
++	 * error message includes the canonical location.
++	 */
++	free(conf);
++	if (asprintf(&conf, "%s%s%s", semanage_root(), dirs[0],
++		     SEMANAGE_CONF_FILE) < 0)
+ 		return NULL;
+-	snprintf(semanage_conf, len + 1, "%s%s%s", semanage_root(),
+-		 selinux_path(), SEMANAGE_CONF_FILE);
+-
+-	if (stat(semanage_conf, &sb) != 0 && errno == ENOENT) {
+-		snprintf(semanage_conf, len + 1, "%s%s", selinux_path(),
+-			 SEMANAGE_CONF_FILE);
+-	}
+-
+-	return semanage_conf;
++	return conf;
+ }
+ 
+ /* Recursively create a directory from a path string.
 -- 
 2.55.0
 
