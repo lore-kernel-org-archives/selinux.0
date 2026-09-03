@@ -1,63 +1,63 @@
 Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86A284BC016
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:42:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 926024BD0E3
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:42:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788446578; cv=none; b=e5SP4c6Xd/8/T6XukQuQ/6c//vy5ch0yjuohlUloEyyuvWdbeD7Ot3oh5/DnqPxh9FBffAHOMqD1cb7jCxxTC3PRhVbW2xhvS39GtcbYDc+B0wucjufDk4uDdvoCjEdH9w/xXPkc6qsZ852kHRyO2aX4UQIpEKB9V6MuwWf5OM0=
+	t=1788446582; cv=none; b=cEyvUosG28hEF7glvnAaw6kDtG1DonbEVZ02KzWbNSIuMeCZ0qvzA7Co/ggU6aSvVK4ana8KGyp9w/TqGHiLjCegzY64ax04GxPauMzUIBzOJIqzos35vNvAtiymxt5gTQ/u7wPl1b+CIFIJTfjb1mqtCMWQR2UQdQqQb40NmiI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788446578; c=relaxed/simple;
-	bh=d5fuBakyaqzqDLar6YCxEnQ2tbiq7ybf97QkXIdiBaM=;
+	s=arc-20240116; t=1788446582; c=relaxed/simple;
+	bh=sM1tyqZ0wncPcacgMo6jjo6NPeCdhFok2AqkTjHwCcA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lRKqatTw13wnOlVDGBhwG/VmJ8ugYODKsXnFPfwd/p3ZJpUJfOLZdAQYFWwbyWTVAVhpMPMd78VHMreLwjTOZJCPrfmY3nX/oKtFHcpg09zqU5RKwsYSN1AVEmXN248amHtC7bsx5Vyj9douDhYW0b5kjwNkqA1E8PWwohqCMNM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pMDS+0UR; arc=none smtp.client-ip=209.85.160.182
+	 MIME-Version; b=YbX7ihYMp58gnGcJk9rMlShhaEOm2E1gyicmDdnUIvexE9SfIHqhcrmdI6AxWHMKzadhPezAUuYGSTNbhCyp30B206PHRjCTB5ZgAeURssTX202zk0fYiHBaL9T+za/JXGVZLqHvBGeSoIyOm4WWkcK5/X9oK2k6McMS72AVexw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WHYTsFcz; arc=none smtp.client-ip=209.85.160.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pMDS+0UR"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5301a453186so20893221cf.2
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:42:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WHYTsFcz"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5301a453186so20894571cf.2
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:42:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788446569; x=1789051369; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788446574; x=1789051374; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=FZGnijxLP7Mz90y6X+LKXGNHor2z8eF8IWVM90PWIBU=;
-        b=pMDS+0URiHucXnmneRMo+wrhN16NgkmbsLa3aTdDV+B6HgnSMPMm8Sxtt0DSF5cj1j
-         YNFav7T5slGIoAXa6ChntaGMZ3HuavIsOwbhGyFw9byL3Vvks5B+0+/f626WYF9qeZUf
-         km8fp8xxgu2XnXod3M1BTOtxcdSC0HI7MMzc95iXwSLoHI+xMJZBI7wwLjwm14QrlsgF
-         6GUXz6gRwb/6KIGTUZtrgKZ3zgFc9uyOjjEqsdBbi8Wv/vapxWYG/66yqAj16GhZBBmv
-         06sKC3BHMftYF7VUjT0r2yc3PL52oKjfB4VFKtP/LBKSYPBk+fjCUtwULH2rOklnRVHe
-         76rw==
+        bh=vJEhaBU2J3lkOqiO43JJDI6TMTka0Tzv8SqK/hDfJ/w=;
+        b=WHYTsFczn4RyNQSVXTYekT8WKj/eJZ/ZDjOitZCXSccB09FBm+9j7f9+Eehg4mUK5g
+         HHr1+QIuyEB5NBWFRh1TAr7OtfbuRm9jL4p4JLCObknU66gX+k6fHEAUqo+OmojwAcor
+         dI75LbNHJ0KGsT/llqGhCPIF54PWI9m6Z8v9gx7Gup9gC0xg4Kbm7vyplxcEEkgzfeDq
+         MqcdmaIPE8xlCI5qdeWjXo52hovLt89jek6cpDOJZh2upedCwfpaIXwvmMK+1xUGdkX0
+         bcFzrmyg2pzgEiTGiWNoBn0uaRo+qLZ0p6RW1+GEwz9lGZyfEYr/2BNPOFUAzRcX7cou
+         iFrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788446569; x=1789051369;
+        d=1e100.net; s=20251104; t=1788446574; x=1789051374;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FZGnijxLP7Mz90y6X+LKXGNHor2z8eF8IWVM90PWIBU=;
-        b=OTXQT4OjnQ9VxDw1mei/yhpo0TaNn/9gI7MgTmXK8S/V9IYkCZEqsBXbSNdMz4yWpS
-         XhqhtIlDSCK3B7ogM/Pqkpg9CncEN9E8GKuL3W+0WHNPNgG2u8xpEzR1Y2vkZDyiM9c/
-         zHr5bxWed+2wtStvVMsKaWmt994pHBtQWA1pZlENOt8AQZymRdvelNEc2Vsjb4iWLLAH
-         nxFNFNjNJx4/BMXWk1S3rSPb09PQn39cH9TAiGSXR0+ZhB1A6sY55agEqVqI3KE0iYS0
-         7xRz2Q7RtNXwosuo4/vl5av+HtOPkdVKM6Y9fLgdoWISelP5cAK55mbqpBIhMR3WzN7b
-         UwjA==
-X-Gm-Message-State: AFuF++nmkt0NHJIWfAdENIRvARS2l7EGapO8upcJ/KIaVNvls0L/Td7z
-	+y0xBtUxwjVMNYQeiX8HbS1RXpyIuSYfLL5yeK3k5zDTq1c7sNT7PDlMIYVgGQ==
-X-Gm-Gg: AYBFou04Wqo0ys9aTsHvIS25dySwrN5VblHq4fcgQnuqHm7U6xIEAP+3n7JVBpZZzeu
-	uVb99p5AP5B9V36sdMMvkbpDGyJoHaM8a/Up/p6vOvPyZ6tWYLqQz7huFcVOtJNJ+DcA1WidMQQ
-	FKXKEu1pIF6zl4mDh6WpUTvj6+H1MBp4zqKYR5VKXiPulsttNGizxOg1NF3JM1S2gAzfvVXJYJB
-	LmVmIM4KQh+4yGBT5lpxl/7sXOfy/yv1362uZ7O7LK0P0khUZg7fGTw/sN1XA5voZg71hd1927s
-	WQdsu7f12c054kkmkyYMqK7XYE4KrpVZvqAzmpQl7N5PODxaaTI/ULM12msuWw3Vi2eswcdz1tQ
-	cu448rTSA7dLJaDKIs/G5DXK3Ur7nxDw+d02VesQPOmPi2SrgQON9OWt1F7GTC6fIziZpPg+i7n
-	fKeYNvokAJ6S/9Pv77VOsPtLkczH8reU3k41RUXOcgAl13JBBobCBccgWJSrDA9bIUvaFE27bo2
-	thXup0SwIEmLDzX+FI01NzSKAYzGXPs/ZsUy56KEfOisFRWbmgYFkBpq5LEuYsmKQ64LdfH1r0=
-X-Received: by 2002:a05:622a:10f:b0:530:3386:6648 with SMTP id d75a77b69052e-53036b92bbcmr135835521cf.10.1788446569003;
-        Thu, 03 Sep 2026 07:42:49 -0700 (PDT)
+        bh=vJEhaBU2J3lkOqiO43JJDI6TMTka0Tzv8SqK/hDfJ/w=;
+        b=ffHFqID47FCqJX90m0CYrox53xw0FYKvJtrdyX0e7SKMeO+e7D9yScXYE4LyLhFLi0
+         gTtPZmERQtD0nMxn2wMe5Kh7yTnaRDkUoSdQnQh+6zGfeouVyfdWwq50PzTcRTxiv/0g
+         uMOmH5Ah71xQXgfTdWNEqr2T3hh8jnZ+Z1lI7YXfT5q9/VMsBH9dsHswEJLPewLXW3p/
+         hOlsgSbgkBuJZ5llfVrXTFcqM0DuyHEHwTvjlEGbr7NgPzReH8u86Fv1xWtgB182KQTX
+         FOXjINZNk3uYLiz6hYEhCdbVzvKiYygE66nwAmyni0616C4NpYIH/7pAgt9vC8OFqh/k
+         DdYQ==
+X-Gm-Message-State: AFuF++lRSxicZiYn4fm38A+1XnM0JKKwWboIN2bYPlEdQK06hQ6cCD5w
+	sUC87IvN++9Z42TrDXlqogFzkrlp63YdNXO+22UQAYycj6BZIlWHaPbg0c03mA==
+X-Gm-Gg: AYBFou1XE7VHWk4f1hzuEJpk1/TjflUa65pht8PTmP8A4eZs1D45aYuaCgg4OZH360X
+	WDlaPCXr2lPQDumOBW55s7RnB+1tyHiJfm05InW/vxfeTkX03bTvtLdq2Re4CFOlk2UU3sbF6Pg
+	x9zL1qsekYhMMhIE0wjPEY8tJ50h+WCKZ/hNMMgbcrz4WHLLwVz+JvJd3Q5l7Qr/tmYnzqj5gUl
+	VArOmhqQuLeML8QQs6IBx/D2YmPDQYatDvpzt7sayGvqfG1XF3aZuM7AlWFbah4c4f3sDHKkKSk
+	eIXeDqC5QCQZHfPF0ftqgnsWURlPy3kUsj/6YmHsitsax4eyjXfAj64tUAUpnY8LXMsmLZgWXJy
+	Z+kvMFbjnQSzqvdnRcxE/+pP5NNTj8iV3qHjG8Y3iqmTjYMq0ggrCaCVgYqtMkXGWYORodz4Nzt
+	J/lZTS7ljJ6gM6hsj79+Vh440e2bSsRx5xaUKzDw1gSDWU9mRtWFREhfCW7zhIL2cRRFODwkVtb
+	g3KQyLW9ALTIpgvS/wgD0ineV2VrC047pLZJusB456w3Upy8w0PSvAtbzBJaAe2
+X-Received: by 2002:ac8:5912:0:b0:517:78c7:d93a with SMTP id d75a77b69052e-53036bca8f2mr141551431cf.16.1788446574366;
+        Thu, 03 Sep 2026 07:42:54 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.42.48
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53032ff0e44sm44115851cf.5.2026.09.03.07.42.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 07:42:48 -0700 (PDT)
+        Thu, 03 Sep 2026 07:42:54 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -68,9 +68,9 @@ Cc: jwcart2@gmail.com,
 	bigon@debian.org,
 	russell@coker.com.au,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 1/9] libsemanage: accept a list of read-only fallback store roots
-Date: Thu,  3 Sep 2026 10:34:26 -0400
-Message-ID: <20260903143433.19810-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 2/9] libsemanage: add semanage_module_find_path() and use it for reads
+Date: Thu,  3 Sep 2026 10:34:27 -0400
+Message-ID: <20260903143433.19810-5-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
 References: <20260903143433.19810-2-stephen.smalley.work@gmail.com>
@@ -82,291 +82,265 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a semanage.conf option:
+Add a semanage_module_find_path() helper which tries the writable
+modules root (TMP in a transaction, ACTIVE otherwise) and then each
+ro-store-root ACTIVE modules root, filling @path with the first
+location that exists. If the file doesn't exist anywhere, leave the
+writable-root path in @path so error messages refer to the write
+target. semanage_module_get_path() itself is unchanged and remains the
+write-side accessor.
 
-    ro-store-root = /usr/lib/selinux[:/another/root...]
+Convert the read-side callers to use semanage_module_find_path().
+With no ro-store-root configured this is a single extra access()
+per call.
 
-naming one or more read-only module-store roots to search after
-store-root when reading. Only the ACTIVE tree of a fallback root
-is used - TMP/PREVIOUS and both lock files stay in the writable
-store. With no ro-store-root the behavior is unchanged.
-
-New helper functions:
-
-    semanage_ro_root_count() - number of RO roots
-    semanage_ro_active_path(i, X) - <ro_root_i>/<type>/active/<X>
-    semanage_path_read(store, X) - for ACTIVE, first-existing across
-    			           [store-root, ro-store-root...];
-				   for TMP/PREVIOUS, semanage_path()
-
-The subsequent patches switch the ACTIVE readers to
-semanage_path_read(), teach module enumeration to union across the
-roots, and stop the sandbox from copying anything but the writable
-ACTIVE, so /var (or /etc, depending on store-root configuration) holds
-only the admin delta over a vendor /usr/lib store.
+semanage_compile_module() may now read a HLL from a read-only root and
+write the compiled CIL into the writable sandbox; guard the remove-hll
+unlink so it only happens when the HLL actually lives in the sandbox.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/conf-parse.y     | 57 +++++++++++++++++++++++-
- libsemanage/src/conf-scan.l      |  1 +
- libsemanage/src/semanage_conf.h  |  2 +
- libsemanage/src/semanage_store.c | 76 ++++++++++++++++++++++++++++++++
- libsemanage/src/semanage_store.h |  6 +++
- 5 files changed, 141 insertions(+), 1 deletion(-)
+ libsemanage/src/direct_api.c     | 53 ++++++++++++++++-----------
+ libsemanage/src/modules.c        | 63 +++++++++++++++++++++++++++-----
+ libsemanage/src/modules.h        | 10 +++++
+ libsemanage/src/semanage_store.c |  6 +--
+ 4 files changed, 99 insertions(+), 33 deletions(-)
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index dee17b2f..264ccf70 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -43,6 +43,7 @@ extern char *semanage_text;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 132e2a2a..ded6bb9e 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -998,8 +998,9 @@ static int semanage_compile_module(semanage_handle_t *sh,
+ 		goto cleanup;
+ 	}
  
- static int parse_module_store(char *arg);
- static int parse_store_root_path(char *arg);
-+static int parse_ro_store_root_paths(char *arg);
- static int parse_compiler_path(char *arg);
- static void semanage_conf_external_prog_destroy(external_prog_t *ep);
- static int new_external_prog(external_prog_t **chain);
-@@ -62,7 +63,7 @@ static int parse_errors;
-         char *s;
- }
+-	status = semanage_module_get_path(sh, modinfo, SEMANAGE_MODULE_PATH_HLL,
+-					  hll_path, sizeof(hll_path));
++	status = semanage_module_find_path(sh, modinfo,
++					   SEMANAGE_MODULE_PATH_HLL, hll_path,
++					   sizeof(hll_path));
+ 	if (status != 0) {
+ 		goto cleanup;
+ 	}
+@@ -1050,15 +1051,25 @@ static int semanage_compile_module(semanage_handle_t *sh,
+ 	}
  
--%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
-+%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT RO_STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
- %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
- %token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
- %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
-@@ -85,6 +86,7 @@ single_opt:     module_store
-         |       version
-         |       target_platform
-         |       store_root
-+        |       ro_store_root
-         |       compiler_dir
-         |       ignore_module_cache
-         |       expand_check
-@@ -122,6 +124,15 @@ store_root:     STORE_ROOT '=' ARG  {
-                 }
-         ;
+ 	if (sh->conf->remove_hll) {
+-		status = unlink(hll_path);
+-		if (status != 0) {
+-			ERR(sh, "Error while removing HLL file %s.", hll_path);
+-			goto cleanup;
+-		}
++		const char *rw = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
  
-+ro_store_root:  RO_STORE_ROOT '=' ARG  {
-+                        if (parse_ro_store_root_paths($3) != 0) {
-+                                parse_errors++;
-+                                YYABORT;
-+                        }
-+                        free($3);
-+                }
-+        ;
+-		status = semanage_direct_write_langext(sh, "cil", modinfo);
+-		if (status != 0) {
+-			goto cleanup;
++		/*
++		 * Only remove a HLL that lives in the writable sandbox;
++		 * a ro-store-root vendor module keeps its HLL.
++		 */
++		if (strncmp(hll_path, rw, strlen(rw)) == 0) {
++			status = unlink(hll_path);
++			if (status != 0) {
++				ERR(sh, "Error while removing HLL file %s.",
++				    hll_path);
++				goto cleanup;
++			}
 +
- compiler_dir:       COMPILER_DIR '=' ARG  {
-                         if (parse_compiler_path($3) != 0) {
-                                 parse_errors++;
-@@ -534,6 +545,9 @@ void semanage_conf_destroy(semanage_conf_t * conf)
- 		free(conf->store_path);
- 		free(conf->ignoredirs);
- 		free(conf->store_root_path);
-+		while (conf->n_ro_store_roots)
-+			free(conf->ro_store_root_paths[--conf->n_ro_store_roots]);
-+		free(conf->ro_store_root_paths);
- 		free(conf->compiler_directory_path);
- 		semanage_conf_external_prog_destroy(conf->load_policy);
- 		semanage_conf_external_prog_destroy(conf->setfiles);
-@@ -612,6 +626,47 @@ static int parse_store_root_path(char *arg)
++			status = semanage_direct_write_langext(sh, "cil",
++							       modinfo);
++			if (status != 0) {
++				goto cleanup;
++			}
+ 		}
+ 	}
+ 
+@@ -1118,9 +1129,9 @@ semanage_compile_hll_modules(semanage_handle_t *sh,
+ 	/* prefix with module count to avoid collisions */
+ 	update_checksum_with_len(&context, num_modinfos);
+ 	for (i = 0; i < num_modinfos; i++) {
+-		status = semanage_module_get_path(sh, &modinfos[i],
+-						  SEMANAGE_MODULE_PATH_CIL,
+-						  cil_path, sizeof(cil_path));
++		status = semanage_module_find_path(sh, &modinfos[i],
++						   SEMANAGE_MODULE_PATH_CIL,
++						   cil_path, sizeof(cil_path));
+ 		if (status != 0)
+ 			return -1;
+ 
+@@ -1932,10 +1943,10 @@ static int semanage_direct_extract(semanage_handle_t *sh,
+ 	struct file_contents contents = {};
+ 
+ 	/* get path of module */
+-	rc = semanage_module_get_path(sh,
+-				      (const semanage_module_info_t *)modkey,
+-				      SEMANAGE_MODULE_PATH_NAME, module_path,
+-				      sizeof(module_path));
++	rc = semanage_module_find_path(sh,
++				       (const semanage_module_info_t *)modkey,
++				       SEMANAGE_MODULE_PATH_NAME, module_path,
++				       sizeof(module_path));
+ 	if (rc != 0) {
+ 		goto cleanup;
+ 	}
+@@ -1958,8 +1969,8 @@ static int semanage_direct_extract(semanage_handle_t *sh,
+ 	}
+ 
+ 	/* get path of what to extract */
+-	rc = semanage_module_get_path(sh, _modinfo, file_type, input_file,
+-				      sizeof(input_file));
++	rc = semanage_module_find_path(sh, _modinfo, file_type, input_file,
++				       sizeof(input_file));
+ 	if (rc != 0) {
+ 		goto cleanup;
+ 	}
+@@ -2377,7 +2388,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+ 	}
+ 
+ 	/* lookup module ext */
+-	ret = semanage_module_get_path(
++	ret = semanage_module_find_path(
+ 		sh, *modinfo, SEMANAGE_MODULE_PATH_LANG_EXT, fn, sizeof(fn));
+ 	if (ret != 0) {
+ 		status = -1;
+@@ -2420,7 +2431,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+ 	fp = NULL;
+ 
+ 	/* lookup enabled/disabled status */
+-	ret = semanage_module_get_path(
++	ret = semanage_module_find_path(
+ 		sh, *modinfo, SEMANAGE_MODULE_PATH_DISABLED, fn, sizeof(fn));
+ 	if (ret != 0) {
+ 		status = -1;
+diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
+index 55dfdd47..5e667b7d 100644
+--- a/libsemanage/src/modules.c
++++ b/libsemanage/src/modules.c
+@@ -408,10 +408,11 @@ int semanage_module_info_set_enabled(semanage_handle_t *sh,
  	return 0;
  }
  
-+/* ro-store-root = /usr/lib/selinux[:/another/root...] */
-+static int parse_ro_store_root_paths(char *arg)
-+{
-+	char *p, *saveptr = NULL;
-+	unsigned int n = 0;
-+	char **v;
-+
-+	if (arg == NULL) {
-+		return -1;
-+	}
-+
-+	for (p = arg; *p; p++)
-+		if (*p == ':')
-+			n++;
-+	n++;
-+
-+	v = calloc(n, sizeof(*v));
-+	if (!v)
-+		return -1;
-+
-+	n = 0;
-+	for (p = strtok_r(arg, ":", &saveptr); p;
-+	     p = strtok_r(NULL, ":", &saveptr)) {
-+		v[n] = strdup(p);
-+		if (!v[n]) {
-+			while (n)
-+				free(v[--n]);
-+			free(v);
-+			return -1;
-+		}
-+		n++;
-+	}
-+
-+	while (current_conf->n_ro_store_roots)
-+		free(current_conf->ro_store_root_paths[--current_conf->n_ro_store_roots]);
-+	free(current_conf->ro_store_root_paths);
-+	current_conf->ro_store_root_paths = v;
-+	current_conf->n_ro_store_roots = n;
-+	return 0;
-+}
-+
- static int parse_compiler_path(char *arg)
- {
- 	if (arg == NULL) {
-diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-index c592fb63..d3f74b66 100644
---- a/libsemanage/src/conf-scan.l
-+++ b/libsemanage/src/conf-scan.l
-@@ -39,6 +39,7 @@ static char *my_qstrdup (char * s);
- #.*               /* ignore comments */
- module-store      return MODULE_STORE;
- store-root        return STORE_ROOT;
-+ro-store-root     return RO_STORE_ROOT;
- compiler-directory	return COMPILER_DIR;
- ignore-module-cache return IGNORE_MODULE_CACHE;
- policy-version    return VERSION;
-diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-index 5a24ea87..b2059962 100644
---- a/libsemanage/src/semanage_conf.h
-+++ b/libsemanage/src/semanage_conf.h
-@@ -57,6 +57,8 @@ typedef struct semanage_conf {
- 	struct external_prog *sefcontext_compile;
- 	struct external_prog *mod_prog, *linked_prog, *kernel_prog;
- 	char *store_root_path;
-+	char **ro_store_root_paths;
-+	unsigned int n_ro_store_roots;
- } semanage_conf_t;
- 
- /* A linked list of verification programs.  Each one is called in
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index f6ca1afb..187fd6b6 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -76,6 +76,9 @@ enum semanage_file_defs {
- 
- static char *semanage_paths[SEMANAGE_NUM_STORES][SEMANAGE_STORE_NUM_PATHS];
- static char *semanage_files[SEMANAGE_NUM_FILES] = { NULL };
-+
-+static char **semanage_ro_active_paths;
-+static unsigned int semanage_n_ro_roots;
- static int semanage_paths_initialized = 0;
- 
- /* These are paths relative to the bottom of the module store */
-@@ -203,6 +206,33 @@ static int semanage_init_store_paths(const char *root)
- 	return 0;
- }
- 
-+static int semanage_init_ro_store_paths(semanage_handle_t *sh)
-+{
-+	unsigned int i, j, n = sh->conf->n_ro_store_roots;
-+
-+	if (n == 0)
-+		return 0;
-+
-+	semanage_ro_active_paths = calloc((size_t)n * SEMANAGE_STORE_NUM_PATHS,
-+					  sizeof(*semanage_ro_active_paths));
-+	if (!semanage_ro_active_paths)
-+		return -1;
-+
-+	for (i = 0; i < n; i++)
-+		for (j = 0; j < SEMANAGE_STORE_NUM_PATHS; j++) {
-+			if (asprintf(&semanage_ro_active_paths
-+					     [i * SEMANAGE_STORE_NUM_PATHS + j],
-+				     "%s%s/%s%s%s", semanage_root(),
-+				     sh->conf->ro_store_root_paths[i],
-+				     sh->conf->store_path,
-+				     semanage_store_paths[SEMANAGE_ACTIVE],
-+				     semanage_sandbox_paths[j]) < 0)
-+				return -1;
-+		}
-+	semanage_n_ro_roots = n;
-+	return 0;
-+}
-+
- static int semanage_init_final(semanage_handle_t *sh, const char *prefix)
+-int semanage_module_get_path(semanage_handle_t *sh,
+-			     const semanage_module_info_t *modinfo,
+-			     enum semanage_module_path_type type, char *path,
+-			     size_t len)
++static int semanage_module_build_path(semanage_handle_t *sh,
++				      const char *modules_path,
++				      const semanage_module_info_t *modinfo,
++				      enum semanage_module_path_type type,
++				      char *path, size_t len)
  {
  	assert(sh);
-@@ -410,6 +440,10 @@ int semanage_check_init(semanage_handle_t *sh, const char *prefix)
- 		if (rc)
- 			return rc;
+ 	assert(modinfo);
+@@ -420,13 +421,8 @@ int semanage_module_get_path(semanage_handle_t *sh,
+ 	int status = 0;
+ 	int ret = 0;
  
-+		rc = semanage_init_ro_store_paths(sh);
-+		if (rc)
-+			return rc;
-+
- 		rc = semanage_init_final(sh, prefix);
- 		if (rc)
- 			return rc;
-@@ -448,6 +482,48 @@ const char *semanage_path(enum semanage_store_defs store,
- 	return semanage_paths[store][path_name];
+-	const char *modules_path = NULL;
+ 	const char *file = NULL;
+ 
+-	modules_path = sh->is_in_transaction ?
+-			       semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES) :
+-			       semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
+-
+ 	switch (type) {
+ 	case SEMANAGE_MODULE_PATH_PRIORITY:
+ 		/* verify priority */
+@@ -537,6 +533,55 @@ cleanup:
+ 	return status;
  }
  
-+/* Number of read-only fallback store roots. */
-+unsigned int semanage_ro_root_count(void)
++static const char *semanage_module_write_root(semanage_handle_t *sh)
 +{
-+	return semanage_n_ro_roots;
++	return sh->is_in_transaction ?
++		       semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES) :
++		       semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
++}
++
++int semanage_module_get_path(semanage_handle_t *sh,
++			     const semanage_module_info_t *modinfo,
++			     enum semanage_module_path_type type, char *path,
++			     size_t len)
++{
++	return semanage_module_build_path(sh, semanage_module_write_root(sh),
++					  modinfo, type, path, len);
 +}
 +
 +/*
-+ * ACTIVE path in the @idx-th read-only fallback root (0-based).
-+ * Returns NULL if no such root; the caller must not alter the string.
++ * Read-side variant: search the writable modules root (TMP when in
++ * a transaction, ACTIVE otherwise) and then each ro-store-root's ACTIVE
++ * modules root, filling @path with the first location that exists.
++ * When the module exists nowhere, @path is left with the writable root
++ * value so the caller's error message names the write target.
 + */
-+const char *semanage_ro_active_path(unsigned int idx,
-+				    enum semanage_sandbox_defs file)
++int semanage_module_find_path(semanage_handle_t *sh,
++			      const semanage_module_info_t *modinfo,
++			      enum semanage_module_path_type type, char *path,
++			      size_t len)
 +{
-+	if (idx >= semanage_n_ro_roots)
-+		return NULL;
-+	return semanage_ro_active_paths[idx * SEMANAGE_STORE_NUM_PATHS + file];
-+}
++	unsigned int i, n = semanage_ro_root_count();
++	int ret;
 +
-+/*
-+ * First-existing of the writable ACTIVE path and each RO ACTIVE path,
-+ * for read-side lookups. For TMP/PREVIOUS, or when no fallback root
-+ * has the file, this is semanage_path(store, file) so callers that
-+ * then create the file use the writable store.
-+ */
-+const char *semanage_path_read(enum semanage_store_defs store,
-+			       enum semanage_sandbox_defs file)
-+{
-+	const char *path = semanage_path(store, file);
-+	unsigned int i;
++	ret = semanage_module_build_path(sh, semanage_module_write_root(sh),
++					 modinfo, type, path, len);
++	if (ret != 0 || n == 0 || access(path, F_OK) == 0)
++		return ret;
 +
-+	if (store != SEMANAGE_ACTIVE || access(path, F_OK) == 0)
-+		return path;
-+
-+	for (i = 0; i < semanage_n_ro_roots; i++) {
-+		const char *ropath = semanage_ro_active_path(i, file);
-+
-+		if (ropath && access(ropath, F_OK) == 0)
-+			return ropath;
++	for (i = 0; i < n; i++) {
++		ret = semanage_module_build_path(
++			sh, semanage_ro_active_path(i, SEMANAGE_MODULES),
++			modinfo, type, path, len);
++		if (ret != 0 || access(path, F_OK) == 0)
++			return ret;
 +	}
-+	return path;
++
++	/* Not found anywhere; restore the writable-root path */
++	return semanage_module_build_path(sh, semanage_module_write_root(sh),
++					  modinfo, type, path, len);
 +}
 +
- /* Given a store location (tmp or selinux) and a definition
-  * number, return a fully-qualified path to that file or directory.
-  * The caller must not alter the string returned (and hence why this
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 86ae0936..36cef62c 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -101,6 +101,12 @@ extern const char *semanage_fname(enum semanage_sandbox_defs file_enum);
- extern const char *semanage_path(enum semanage_store_defs store,
- 				 enum semanage_sandbox_defs file);
+ int semanage_module_key_create(semanage_handle_t *sh,
+ 			       semanage_module_key_t **modkey)
+ {
+diff --git a/libsemanage/src/modules.h b/libsemanage/src/modules.h
+index fdd771a4..22e6803e 100644
+--- a/libsemanage/src/modules.h
++++ b/libsemanage/src/modules.h
+@@ -100,6 +100,16 @@ int semanage_module_get_path(semanage_handle_t *sh,
+ 			     enum semanage_module_path_type type, char *path,
+ 			     size_t len);
  
-+extern unsigned int semanage_ro_root_count(void);
-+extern const char *semanage_ro_active_path(unsigned int idx,
-+					   enum semanage_sandbox_defs file);
-+extern const char *semanage_path_read(enum semanage_store_defs store,
-+				      enum semanage_sandbox_defs file);
++/*
++ * Read-side variant: fill @path with the first location that exists
++ * across the writable and any ro-store-root modules roots. Falls back
++ * to the writable-root path when the file is not found anywhere.
++ */
++int semanage_module_find_path(semanage_handle_t *sh,
++			      const semanage_module_info_t *modinfo,
++			      enum semanage_module_path_type type, char *path,
++			      size_t len);
 +
- extern const char *semanage_final_path(enum semanage_final_defs root,
- 				       enum semanage_final_path_defs suffix);
+ extern const size_t CHECKSUM_CONTENT_SIZE;
+ void semanage_hash_to_checksum_string(const uint8_t *hash, char *checksum);
  
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 187fd6b6..a9b471a2 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1195,9 +1195,9 @@ int semanage_get_cil_paths(semanage_handle_t *sh,
+ 	}
+ 
+ 	for (i = 0; i < num_modinfos; i++) {
+-		ret = semanage_module_get_path(sh, &modinfos[i],
+-					       SEMANAGE_MODULE_PATH_CIL, path,
+-					       sizeof(path));
++		ret = semanage_module_find_path(sh, &modinfos[i],
++						SEMANAGE_MODULE_PATH_CIL, path,
++						sizeof(path));
+ 		if (ret != 0) {
+ 			status = -1;
+ 			goto cleanup;
 -- 
 2.55.0
 
