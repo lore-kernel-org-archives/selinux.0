@@ -1,225 +1,124 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A21A4E66AB
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 15:48:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788450495; cv=pass; b=dgVirjccLrcVnT5vw/Pb7niYbhaHYtaYBtz3/0DARmSLC5j4WdauTiap2Z87AOmnA75tfhzjEgS6V0o4suTHSii3/OSl1NYXfRILtGfcBR1BhQQiOMtEIaKE4E7nDz0HnLXV0gvKO2apXmxFc0DBiEtjVLpSrHUR48LhRLXZ9Lg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788450495; c=relaxed/simple;
-	bh=ysGWC46TVAgt8Kh/5/8QIzyhKkK3xHCTvCSqjeflq74=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rBVJuYqYXDhMtkbrDLEGoB5cuSTrednBHta6a0dBXZZn3CbLXe/UIiIoDsi7boJ2pOoKqn/eM9NOS/cTYk5VZ17pIcEytalTGH7UFBBJ6MnJ2Mr9wFQwFZLw1MyGJgaKW5joufleZAMZUkW+SLdKmlKk1EbLvCPGVpaM+V6j7FU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MTfOo6nK; arc=pass smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8664A4E8DEA
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 15:56:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788450984; cv=none; b=VyVUR3LDEX40maSW8vOY76t3bE6AnnIP9Ve6hudHW9RWTRJMLaDwXcoCEvNxqwi25Ect+bdZRoeGoC9sVR/rXmhLL0WMr4vusRS4WFHnC5t2YPr8YifB8JWZHYsq/P3h6SJqSuVnDnQ8hGcs2P1UtFpCZrKoY519XQiMN/3Y4nE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788450984; c=relaxed/simple;
+	bh=9BK1kyxk5Z0/CaDbriSQ++DzrreFQG+kLaclcVYwGN0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gsBH2wL62JZ1xKeiJwYdzz+iyf+BGcJLp5Gkqu4+b0Ix0mSNHB9cudDxCXqe5Huqz4FtaaxMy9DsSEGU8VpFKY+nYMueIRPRNOju841t5AL/9maKfAiGDyZjw2Ub+KwZ0k8zTxYd/5juSd0gZaDkgF2yOhwJktU5AQpu3g+XjDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=btkRkqlf; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MTfOo6nK"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-cbee846deecso86435a12.1
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 08:48:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788450493; cv=none;
-        d=google.com; s=arc-20260327;
-        b=magYMMqCPMPTmckJMh4FROz+j2D1cmPCi1fuxDvafiJiCkRY7NrPUJ0ySbhmI9KwBD
-         bnalh+1RyO1u7xd4vP/l6fKqYAzFn7xUVhtZcKe3tWZVyM2QD8JwA/1SDFLkU+nAJrC4
-         1gPgn+RcXlMi0bkMyZh62szHjlEy6qT7n9GzqFxZQDvv3hM6UnDPvIE0YUxWHvvoEDjG
-         QIuX4LHRbkGsApROF33NbYqz4PosbfoIWpvrkRRT+23e85RRNlf+TQjaY+YeaG3SFOJr
-         2rFclMmUCCutxNxK9EtL4J7KZkEUjgPDnXCegeeChnMEgXiiQVJSKWfzRRC5LOh3z2F5
-         YXjA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Zfz+px8BqAfZBHsH8Cz0nrkeyup7coS8NIva+kDPyM4=;
-        fh=fOYo6BgII72qJH3IG2TvTPho7MUmjvsMA74jWL2EpTs=;
-        b=osjxHQPhGr4mmKcMggCG8uN5O7InWdo3lF3HFfekCPVG78bL40DNpv8IEOq/op4LRQ
-         HQqsFhu0PIlTr2Fp+VZWFJv3G2yHt9msS7qHX8UvuorOjiQdyXCTFPmoBKgs+4EcRHUU
-         4uARqv31FPjzJkoiQo0vfTvq6j329aRRrj4dUJWEJWIWg5WPZRkEbCXWrn7RfETcqwCw
-         4YvFE3IL/cyRzKd3ffVeXkZwV8IG7sHIhu2kIqk8V9VaExe+5u99a76DY4Bm9VBTWho1
-         M7hzCgrtYW2LNIZxywCl4mHyScFfdcKVD3glg8bCmbBXS+4S6LZukUpK3xO+3ZPAlKpP
-         7N/w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="btkRkqlf"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48441fa5c37so9798f8f.3
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 08:56:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1788450493; x=1789055293; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Zfz+px8BqAfZBHsH8Cz0nrkeyup7coS8NIva+kDPyM4=;
-        b=MTfOo6nKPb7BfRabUf+KPJxm7CttX/6ZodV+LEtUZ6EcdM1msMddYfILWeUlVUI2xA
-         HTyYVlMvF/oh8MT3G8u/yHXatQA+quWaZBJFAcA+Ni5kFPc6ycRcu9TLHAr1yK+8BJuf
-         Q8KlLNlLcJNBEOuEKC9zEsg9EhBWAu9+5Fn6lL+5XEjAcDFVj77XFncslhZw7pmt08cL
-         kiCdV3MD0rsSfIrH7C7XcRL1mOb61SYkX5GHvGqEXkLfWOBfkoI2eUj5LKhD+Xc4bBje
-         dalVYw0QyosuRHi700gizrkoUfIQkNJntiN/VqFdnO93x/13/NlrtX+E7gb4q0JzvD6l
-         pnWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788450493; x=1789055293;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1788450979; x=1789055779; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Zfz+px8BqAfZBHsH8Cz0nrkeyup7coS8NIva+kDPyM4=;
-        b=a9GCr32VcnvIMD+q3mOC7uBo8Jmd5GN4ki7ODCWoqsh7xlY55AGdHVLWdnfg59E+e5
-         eHHIc26XPXmWTurAPFsuDDQQgQsJbYM/pgDST2PQXJi80IK1PAAOCRw7yTICri/ActhZ
-         enTFPfv5/P42PsBL8LOJVQa55IZxxeoAdqZr+5Q+FxXzgmeFNS0xssN9G7yN8QBwMHam
-         1HP7fZ/OigOQuhUCgBBQHSdy8LhrdOTGSiEUhy6sQGyoB0fbJium+GMkefDgKDuwpj9Z
-         lNFznXJz+NU6MNjCA6eSNM/XfknEbu3aWORQUUD0X/eJ5LuJyB+ZfzmQwM9Mne2cv0t1
-         q2fg==
-X-Forwarded-Encrypted: i=1; AKwUvBw5hqUyoZQHfhI4unU5RQ825nNNunzqoBGFr7x8+0/CbmVhZA7WPqXG+BegOLZTmDVajOiPHTt3@vger.kernel.org
-X-Gm-Message-State: AFuF++niRV5GqxahkfAq/UNPkWBLBsw4o8J6A8EHeoIG35zT5/qqJnUQ
-	bfjfNlSHsnyNwugUgq+42ZiCSas/7lM2xDH5+XBLG9KertWhAyDuvStDO+3nsql4JR3Nue5RwR2
-	ieXJUukhXCR4P6jVyW7LExFq4VR4J4aD6ok5YLYUU
-X-Gm-Gg: AYBFou0cMF49aK2jgWWs8ZCVnrpVcInjPnDoF1t9FpgV8OW47fMrimRJU4HFmh3F3u2
-	s0pBlQJBTUGIvnDpXFEweX5TKyxh0A7YWsi6Fb7zl/zCEpcZq+ixyrDWXRl6HTGZrgxKb8ce7rs
-	Nhlc0CDKxUO1mKrbTYxRmxuJA8OLZa9f6pDal0BBGQns1WHahw7sfl7XMQGQ9G5BixZGmQZHTRu
-	U4MV17GE8hDYy84GlnC4kDfhTl+HMZta/Agmw++ZyrK5M8WwLAwigjEaZv/ym+nb0zeA8LL8rGH
-	TqkIPj4gdCMZD6nPv1RdTiUYspWMGIoNSpQWmg9txyAC
-X-Received: by 2002:a05:6a20:938e:b0:3d3:ae50:97cd with SMTP id
- adf61e73a8af0-3da35fcdbe3mr1075867637.26.1788450493217; Thu, 03 Sep 2026
- 08:48:13 -0700 (PDT)
+        bh=Qf5A2iWXrze7f/WQGCmLESIXScEzdMF2bet/pRtY3Is=;
+        b=btkRkqlfotTbaNJJyaxS4LwL7rBuN8VRekBWvzMifhXVTv7st8iBwhg2et4/seMKtS
+         5kuo1D/4VmvPntokf67cJPDTL4LNAz+SGUysGEw3s5N98UdMU1ZtwhVAvhi+ugahidtT
+         jfSwJQ7pt+GVLsXUHRvvPtjmuMziLsx0F1yEEAC8PWrg/W1mpyacXoyLgZGqnQVA273r
+         n2i5GatRaL7j9G+lbpjzzjimD0AMbaXAu3o3KhOAfahyW52IJHcUxKg0SCr+TeVFtSYl
+         LGlpsCEQRtO0rJ3q7SZbTqvR4ugigRDWDeGnU0OgmVdqIfW8u//Ii3evKOY6AJACEg0S
+         DACw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788450979; x=1789055779;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Qf5A2iWXrze7f/WQGCmLESIXScEzdMF2bet/pRtY3Is=;
+        b=lRQr0UNURvYpBZhMDs9ifCRTyIpc884ngDQMxw7BSar9OOtbg/JQ8iaQhXGutnwGx6
+         TdPaO3wSVBS5Fm9fKcRSpX0gHsfICh6fdm9IxIu2wqajVgrzDFKns+NHBIoF8yL13/lY
+         LQL3PxQNck2fu0rRuIQnqFAx5TCU+Gilpl2iEI4HuV3Fp/GBdNyMcKyX8gegYKAc2nVX
+         Y1Gu+McUiEablRZUs5Xpx5eQMqLhmgNo6P4wGj4YDiiJe4LXat1mbczvEn4ko/qQjClk
+         0VQqMEcXwWaVEdRYnyWLk6D0cZ/dMaUw7MU7+VD/AKwOHJA5dVBEZMqjmQxORcT1ay+8
+         uOJg==
+X-Gm-Message-State: AFuF++kUetx1s9/f5+EFnAdhDy/clePnf09bEStL86yO/2FnL/gq6z7X
+	1tWiQ+RIAsJQki1MTQbrhKuJsMaBfpihdPUhHxAYksjq41W26+iXFYpH6gtqdfOCqYI=
+X-Gm-Gg: AYBFou3maPyD+BNOBsLV9aafKawGj9qVoqoEvYz3RaHTbX1+4lbP44+PIEJqbjr5EKp
+	klPST7+QBpE4IZHzxMb5kaeQPzURPQdtc0ZIxCKB+x2INKzjAOz8kgYHY2DuIWflTzOYjrv7VYW
+	oH0/iNm/cFjijFtKjuwcmCOQg8eTa6zF5qdgLKaCZgRrywZv9By8QyPJHdexS2bhGKmD9krWmxO
+	g4URTKP5Jxhi8wxBsaI15V6g30PM31ZuNT1GwYSXXSGa2d4E50f86uK7dG7F6+IAZxyjwmTfx14
+	OqDlT95XJDhO+ns9oUAsKm0l7R0ACsl61vKfsie31sZCrB3dS0mr7iEpwGsdqIgjIk0S3xXRNQL
+	NQW78tXFHlPcpr33SVRJslauXljVw8W7A3I3fWQXXXDh4KuvIiTtixwaCCKOKl5mtN36Nvwzsq1
+	9BjezBMbM2cHMJ18WYe7k/z2J2tyTk2UabPu2GmR0t3mHc+qr0CkK46wW/MWeQYQgcz86o7nzb7
+	D1FfxYELxMK9h18CDnsBXHgO8qcrRKy/TJsDg==
+X-Received: by 2002:a05:600c:354b:b0:49b:d03:8d3a with SMTP id 5b1f17b1804b1-49ce58180bbmr220232615e9.11.1788450978626;
+        Thu, 03 Sep 2026 08:56:18 -0700 (PDT)
+Received: from omos-acer (109-81-21-204.rct.o2.cz. [109.81.21.204])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee6024a8sm80527185e9.6.2026.09.03.08.56.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 08:56:17 -0700 (PDT)
+From: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] =?UTF-8?q?MAINTAINERS,=20mailmap:=20update=20email=20addr?= =?UTF-8?q?ess=20for=20Ondrej=20Mosn=C3=A1=C4=8Dek?=
+Date: Thu,  3 Sep 2026 17:56:15 +0200
+Message-ID: <20260903155615.516010-1-omosnacek@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260830201157.2084730-1-tristmd@gmail.com> <5be8f666e660371dbc964c2348422a25@paul-moore.com>
- <CAEjxPJ7b4nd7ak7HJ+AdZKyuE-kwfV_hpyx0r8Umz7ECAYVVEQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7b4nd7ak7HJ+AdZKyuE-kwfV_hpyx0r8Umz7ECAYVVEQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 3 Sep 2026 11:47:59 -0400
-X-Gm-Features: AcwNN1WRh6bIzS_5E7FQAMT0lE88uQHSPbMJnb8bd6pclmcyXC-IOtQe9nhwqy4
-Message-ID: <CAHC9VhTiBGMJWQ7JSn1yP97XcQQUvwjZG1LKAHjQRiQ+AG792Q@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: use socket SID for SCTP ASCONF permission checks
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Tristan Madani <tristmd@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org, 
-	stable@vger.kernel.org, Tristan Madani <tristan@talencesecurity.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 3, 2026 at 8:32=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Sep 2, 2026 at 10:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On Aug 30, 2026 Tristan Madani <tristmd@gmail.com> wrote:
-> > >
-> > > __selinux_socket_bind() and selinux_socket_connect_helper() call
-> > > sock_has_perm() which uses current_sid() as the AVC subject.  When
-> > > selinux_sctp_bind_connect() is invoked from the ASCONF processing
-> > > path (sctp_process_asconf), current refers to whichever task was
-> > > interrupted, so the permission check evaluates an unrelated subject.
-> > >
-> > > Fix by extracting the sock_has_perm() call out of
-> > > __selinux_socket_bind() and selinux_socket_connect_helper() into
-> > > their callers.  The process-context wrappers (selinux_socket_bind,
-> > > selinux_socket_connect) call sock_has_perm() directly.
-> > >
-> > > For selinux_sctp_bind_connect(), determine the caller SID based on
-> > > the optname: SCTP_PARAM_SET_PRIMARY and SCTP_PARAM_ADD_IP are ASCONF
-> > > chunk parameter types only passed from the softirq processing path,
-> > > so use the socket own SID (sksec->sid), consistent with other
-> > > softirq-context hooks such as selinux_socket_sock_rcv_skb() and
-> > > selinux_sctp_assoc_request().  All other optnames originate from
-> > > process-context syscalls and use current_sid().
-> > >
-> > > Factor out __sock_has_perm() with an explicit subject SID parameter
-> > > so that sock_has_perm() remains unchanged for all other callers.
-> > >
-> > > Fixes: d452930fd3b9 ("selinux: Add SCTP support")
-> > > Cc: stable@vger.kernel.org
-> > > Suggested-by: Paul Moore <paul@paul-moore.com>
-> > > Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
-> > > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> > > Changes in v2:
-> > >   - Do not use sksec->sid unconditionally; determine the caller SID
-> > >     based on the optname so that process-context callers (bind, conne=
-ct,
-> > >     connectx, sendmsg) still use current_sid()  [Paul Moore, Sashiko]
-> > >   - Factor out __sock_has_perm() with an explicit SID parameter and k=
-eep
-> > >     sock_has_perm() as a thin wrapper for all other callers
-> > >   - Move the sock_has_perm() call out of __selinux_socket_bind() and
-> > >     selinux_socket_connect_helper() into their respective callers
-> > >     (selinux_socket_bind, selinux_socket_connect, selinux_sctp_bind_c=
-onnect)
-> > >  security/selinux/hooks.c | 47 ++++++++++++++++++++++++++++++--------=
---
-> > >  1 file changed, 35 insertions(+), 12 deletions(-)
-> >
-> > Hi Tristan, this looks much better thank you for putting together this
-> > revised patch.  Unfortunately, while looking at it I did notice one thi=
-ng
-> > (below) which I think we need to change ...
-> >
-> > > @@ -5731,13 +5737,25 @@ static int selinux_sctp_bind_connect(struct s=
-ock *sk, int optname,
-> > >                                    struct sockaddr *address,
-> > >                                    int addrlen)
-> > >  {
-> > > +     struct sk_security_struct *sksec =3D selinux_sock(sk);
-> > >       int len, err =3D 0, walk_size =3D 0;
-> > >       void *addr_buf;
-> > >       struct sockaddr *addr;
-> > > +     u32 caller_sid;
-> > >
-> > >       if (!selinux_policycap_extsockclass())
-> > >               return 0;
-> > >
-> > > +     /* SCTP_PARAM_SET_PRIMARY and SCTP_PARAM_ADD_IP are ASCONF chun=
-k
-> > > +      * parameter types passed from sctp_process_asconf() in softirq
-> > > +      * context where current is not meaningful. Use the socket own
-> > > +      * SID for permission checks in that case; all other optnames
-> > > +      * originate from process-context syscalls.
-> > > +      */
-> > > +     caller_sid =3D (optname =3D=3D SCTP_PARAM_SET_PRIMARY ||
-> > > +                   optname =3D=3D SCTP_PARAM_ADD_IP) ?
-> > > +                  sksec->sid : current_sid();
-> >
-> > This should have caught my eye in the previous iteration, I'm sorry abo=
-ut
-> > that, but now that I'm looking at this it occurs to me that the sock's
-> > label isn't the subject in the ASCONF case, it's the label of the remot=
-e
-> > node (sksec->peer_sid).  After all, the ASCONF operation doesn't origin=
-ate
-> > with the local socket, as would be implied by sksec->sid, it comes from=
- the
-> > remote endpoint which is represented by sksec->peer_sid.
->
-> Are you sure that's the behavior you want?
+I'm going to use my personal email for kernel contributions from now on.
+Update MAINTAINERS and .mailmap to reflect this.
 
-Think about how the socket/connect check works for local operations:
-the task requesting the socket/connect operation is the subject and
-the socket is the object.  In the currently proposed patch, when an
-ASCONF socket/connect operation is requested, the subject is treated
-completely differently as the socket is used to represent both the
-subject and object.  Even if we consider the socket's label a proxy
-for the creating task, using the socket's label as the subject of an
-ASCONF permission check makes little sense as it is the remote
-endpoint that triggers the ASCONF operation, not a local entity.
+Also switch to use proper spelling with diacritics, since I normally use
+the full Unicode name with my personal email address. I'm leaving
+in-code occurences unchanged though, as that would be just unnecessary
+churn.
 
-> I don't think there is
-> precedent for performing the socket layer checks with the peer SID as
-> the subject rather than the local socket SID ...
+Link: https://lore.kernel.org/lkml/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK8KuseMQS-9tNA@mail.gmail.com/
+Signed-off-by: Ondrej Mosnáček <omosnacek@gmail.com>
+---
 
-I think that is because all (?) of the other socket layer checks are
-initiated by the local system.  The ASCONF operations are unique
-because a remote node initiates them, which is why the network peer
-label is used as the subject as that best represents the remote
-endpoint.
+Hoping for this to get picked up via the SELinux tree, since the main
+change is in the SELinux MAINTAINERS entry.
 
-Please feel free to put forth your own reasoning on this, a discussion
-would be good, but I think we do need to recognize that ASCONF
-operations are different from local socket operations.
+ .mailmap    | 1 +
+ MAINTAINERS | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-> ... and if using NetLabel,
-> that peer SID will be limited to the peer's MLS label and whatever
-> type was assigned via netlabelctl.
+diff --git a/.mailmap b/.mailmap
+index 6803f3bd2865..0e672a60afdc 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -699,6 +699,7 @@ Oliver Hartkopp <socketcan@hartkopp.net> <oliver.hartkopp@volkswagen.de>
+ Oliver Hartkopp <socketcan@hartkopp.net> <oliver@hartkopp.net>
+ Oliver Upton <oupton@kernel.org> <oupton@google.com>
+ Oliver Upton <oupton@kernel.org> <oliver.upton@linux.dev>
++Ondrej Mosnáček <omosnacek@gmail.com> <omosnace@redhat.com>
+ Ondřej Jirman <megi@xff.cz> <megous@megous.com>
+ Oza Pawandeep <quic_poza@quicinc.com> <poza@codeaurora.org>
+ Pali Rohár <pali@kernel.org> <pali.rohar@gmail.com>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fc320b373656..875d0baed8b9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -24772,7 +24772,7 @@ K:	\bsecurity_[a-z_0-9]\+\b
+ SELINUX SECURITY MODULE
+ M:	Paul Moore <paul@paul-moore.com>
+ M:	Stephen Smalley <stephen.smalley.work@gmail.com>
+-R:	Ondrej Mosnacek <omosnace@redhat.com>
++R:	Ondrej Mosnáček <omosnacek@gmail.com>
+ L:	selinux@vger.kernel.org
+ S:	Supported
+ W:	https://github.com/SELinuxProject
+-- 
+2.54.0
 
-Limitations in the peer label don't change that it is the remote note
-triggering the operation and not a local task.
-
---=20
-paul-moore.com
