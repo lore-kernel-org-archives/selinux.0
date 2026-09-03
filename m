@@ -1,63 +1,63 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014444B7151
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:31:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48B074BB80D
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:32:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788445932; cv=none; b=Ahppj0XBmEI/7Yz47CNEpBy9QWuBvTqORh+0yfBva1lFv8I/gFOCP9C2TItfi1WbGz/IPOC8qVwp+Wot9D5ljwBpPLnnQ1g4YkYeVZm8Vr/NZKZ3HENRtwhFQeAbOIseUSSkBmANznCykF4Pp5HAwenEnFujBEjPVtUlrConwlE=
+	t=1788445945; cv=none; b=qCo+F8TkE0Sf0vHW23SW/L/Goun9N0wP8XQs1gakc0cDa3hDYrwAhHcS5ZE19p7PCDTRdKGhMjBwumhlNMXF6PFlF5U4Jkm6eMVATt+305bxAtevatHIrnJW77ODP+ZOPhWXD/KwXHv+su+68vG08GGeWGMo28MNYMlxnVESacU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788445932; c=relaxed/simple;
-	bh=ruo+objDGMJAJ2S4cbL1hm+bbGiHYC4biwTzS4Z07yU=;
+	s=arc-20240116; t=1788445945; c=relaxed/simple;
+	bh=9QWwRrDUHUVUTt1OqVj98bYmBD4pEczbZ3ta3XDmDvk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mCJ4/Ar8ZFR+QniVBTsfHGEBNSVtA+MdlfpoNzAmQHZNLNGkyGq0hHpAlpBXjlUgH5DT5kAGrkiF2itQnc8xGr62O+KaujDuwqPoIrL3ijC2HF8rOmfeFuBYPRQ+igmvG3NyK//K7wyZBa9ONr/xtUNaGNlEcBYhpm5/CJZiP7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o3stDFBv; arc=none smtp.client-ip=209.85.160.170
+	 MIME-Version; b=qCR29ozVi5OhvEostIUMrb5Tm4s50eUS5R+i4STZoCJd6qc+DlbJeOa03rsefk9Dx6UDpgziPs0dmwFj1hXOOJxNHtJJXjJJYucHlj31cAeBhWUgmri1cCeTBJATE902KjWgTRvvn9QhUeGt4WXTIuMt8hbevobmPszlCkpJDTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XpuSrVW3; arc=none smtp.client-ip=209.85.160.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o3stDFBv"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-52fa9c055b5so15721511cf.1
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:31:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XpuSrVW3"
+Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-4563ac048f4so2048873fac.0
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:32:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788445915; x=1789050715; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788445936; x=1789050736; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hge6+qZUvaCoRlu9kAJMLD6sjbfMzhCXOHq7DYYnyeo=;
-        b=o3stDFBvXGVZTKMImSIyfY+QMdsqUe2zUKAbe9+Jaz3uoEyKpZQ3ufe7Ktm0DPOaA9
-         FpmOUlrRX4uo3aitPSZGVG2eA9dN5dlvhjWPze0gE7dVHfSu2JDSlbZnwSn/WEZUzj7T
-         ZWenBvE/Ye2VSlXCLq4C3jBIPzIA3wnyUc+NnUdcZfF8hggVjurBwO6mAUw+Gma0bof8
-         AdNP4kOcrMzFfQVigaQUD4auJQKye7EUUlq9hnPZxm1gitPnpqDjkqB3XoIl5SDyHv61
-         Al+fS2BoyLu9HZ86huCkVHp1tpFlTra6Scr3oSbffAV9Ik/QojTx7rhbndvzf9RWFhaH
-         hYPQ==
+        bh=sJlq5R9uiBwg963o4TVcJbhYR9TG97fx9LEsAokMnrU=;
+        b=XpuSrVW3olGQX58+3XYoaNONE0phXWvtnAHXFYx2tX3lNfk0ZzBD63NpdM5Qyc4M9b
+         wXptFLqNRQGGFCCqlxulFIs9gP8HeYKfnAyXZQpoiXTRmEgtnYrThBAdwac2SmcQBJul
+         Onx3bZgkniE6LFKM0zdQXb0tPY4H/kHE8KHXiT2/IEck2NMcTwlENI7YdBJbRNcNOErC
+         JeQqIVK6Ugd2u47ZH5TI3ycNtUCZtr0NP7dOGNvhBE/iD4dogHUs1j/77Mjv1I1tHLZ5
+         QUStx68PEKBlomIbAD5UHAVHtHixrCpfvg8f/IOy3UvWtvYepAoK5Z7N+1z7SC6c+vpr
+         KwnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788445915; x=1789050715;
+        d=1e100.net; s=20251104; t=1788445936; x=1789050736;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hge6+qZUvaCoRlu9kAJMLD6sjbfMzhCXOHq7DYYnyeo=;
-        b=SowYyO1KG02sWKmWgNNSk2AQa6Li0mhL/vazKqdTe7MBGweEaspvsnmOdNsKhpYy/4
-         xj9bfnjR3JvSCgU8wOt7psKoAMx1QLt4emQ7O0rSqi/QeBhhBPzDxJwFGthIL+ckF5ku
-         lnVv0ED8Do8zVJ1o7Y5uUsJA5XX8X6KLFp+yCFLPDxqCzZy+ug1O0N1OToRBPBo6/NYV
-         o5exqONL/HyesEpMo641xRQe4rPFGZzfLk6ys5LT2c7qP89XeelAdBirvg6FR6K62CNZ
-         s1ariZ8cQekMJU1aQ6/diXbO9xhw7Yd7Ligdt4z8nJvu8/ILmDzZY50BY4iyCHRzIjaL
-         ZGsw==
-X-Gm-Message-State: AFuF++nmIoON8OvARVhCgp39/8mreXUR1i/JbxvUo063lDYF/WyKSmXL
-	HJHtLDq0m471gLr9j7kT7tCS282vHykdEdbX4ram1TOx/hRg6J8f0tIZBOmI7Q==
-X-Gm-Gg: AYBFou3RFH5GnoUZkn/tUErvf+VpIpiUI/7S/ZUKC8LRhEIsPosLRhXV+wq/zYQT6vP
-	PXsNOqob3wFeC0EJ5coJ06Qdt+7KzKYZ+L1zVqPHyt/s7LlBQ2tlWgUeOvlcW1uS1z10CnOz8r8
-	Levd90yhmc8251fbkg2tl1FLdNKvygpfcn7bMLUeShAUDapzluWfxb+gnps92pHXydzFtXSB8qR
-	zRaKrLA0mx3EOT7fGTPmY6jTUCOT+3bMx0q63BBaEHh3JePu1Jvo9E1vuCOWGrryqayPaoIAjKV
-	mBW2GnnYu6RMw+L6EOaqp29BY42euPL7jWl+GiyyUtg96PWoUfKkReU+PohiJQ27dJJeS75HIOj
-	mCDkOYPon3bLkNjUmrPADs4jcQ6Du1+Jvy+VBNrpBINPqlI6BeeJIuZX9pcnrHful5Aa/BaZs5V
-	59goC1rbWx4gtRqTNqFsPLZ8n4uBBVTXVrp+oGqLqN2LjCMcFnnJUul9erZm0FeM1pXBT8aub5S
-	V0DnudbaiTVheddSWVESnBr6SrN6DU3/oYbmdXUuTOmCbSjm1jEgleSFZwTTDwt
-X-Received: by 2002:a05:622a:e31c:10b0:530:4c98:6301 with SMTP id d75a77b69052e-5304c9864d4mr13167401cf.2.1788445910648;
-        Thu, 03 Sep 2026 07:31:50 -0700 (PDT)
+        bh=sJlq5R9uiBwg963o4TVcJbhYR9TG97fx9LEsAokMnrU=;
+        b=WxJYBL9DixlnSazeuY84jNClzf0fgsCkJuiuA5GiRyPW+14OzVL3XqJW37dYt+VwBM
+         VFQqVLwLtnRo4kUBpmP2v99aBtQVgy+kWKpo0s6NA+/EXsWUdDA/NLOz/gmtprvTnNzz
+         kJGuTFd/7k/gqGj9dWdyvkCetBWHS1ddLeC2YD9UhmANVTuEwRexJ+Z/syCZ/APjun6Z
+         OCDXBl2P2UkJxPHe7iMZ65DHdNjc/nkNdvWDfL+xaH75ljIhkm+kq5qiWVW4mjImvPsl
+         Uzg3gJCCmfABo2/p/akrRkMSBRhnfVDNLpuDeWWplctFMjth1msSpYNTJEkhl/UxoYcG
+         f/+w==
+X-Gm-Message-State: AFuF++k8PVSFyxVkHCfa0zBN39PUbbXzsym8cF7PGASSxgiWyF4HW1L7
+	hlo82rH3h4dGKO8IFogyZZ8o+nOUds1mLdBw8vcB2Dt0Mhp+LL4yItgsRcHO3A==
+X-Gm-Gg: AYBFou0qXWzoci0sxSteR7a5qD01UdWIPsyUXMKaF6l2ps5Zj2IXpzRVC5QjmOvW2aW
+	TFC6nhjfoO3TTKlwKpL88Mj4Mk2UmtFEPaqSIsWJRqI6UchqjD37GNlFUlqSPamAcZZt17itdtt
+	dTbv8YwvCpPu6rKkLj7CAC4cpUzXAJkPAUC/aat1PdOkRH6pZRR0IvFRxlz0BiWJ4ClQgiYwiFJ
+	FyXtljq8RftCOavI82tlTVOdeum10/YAdKeDDeJ7h+S/snmH8MADfxxlLCK3ZlA62H0eoFmVHIh
+	L9rYIXw/kdEpoMBjLb95ReRpCiN/7ZFlxG2p+kFyY0qt8HGR125zKYzE6/KsDHI66YYGXBflJA9
+	TwNARuUNNTp31ClceVWC3iI28FBjMBREymdhjBvLup6+YL93PyrvaxSuyhNqmSk4Dka44AkqN8+
+	KMgxcGY7ia8D2zSNA9Csf2V8Ag+y/dCLNw7YmaRirft9oUnrDD8ViYRFWz6CSgxZN5r3qD1aeRw
+	zum4QYGiN6uzv6cGMvdK1n5wAqvCYKjab3XS7U6HGk6CZ5pXaE3Lz1uRYofWVos
+X-Received: by 2002:a05:622a:4c07:b0:52d:f700:6deb with SMTP id d75a77b69052e-530523bd186mr10608371cf.17.1788445916377;
+        Thu, 03 Sep 2026 07:31:56 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-530330282bfsm43110841cf.11.2026.09.03.07.31.49
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-530330282bfsm43110841cf.11.2026.09.03.07.31.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 07:31:50 -0700 (PDT)
+        Thu, 03 Sep 2026 07:31:55 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -68,9 +68,9 @@ Cc: jwcart2@gmail.com,
 	bigon@debian.org,
 	russell@coker.com.au,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 3/4] libselinux: fall back through configuration roots
-Date: Thu,  3 Sep 2026 10:26:00 -0400
-Message-ID: <20260903142600.19723-6-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 4/4] libselinux: search file_contexts files across configuration roots
+Date: Thu,  3 Sep 2026 10:26:01 -0400
+Message-ID: <20260903142600.19723-7-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260903142600.19723-2-stephen.smalley.work@gmail.com>
 References: <20260903142600.19723-2-stephen.smalley.work@gmail.com>
@@ -82,200 +82,164 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the internal readers of selinux_*_path() accessors from
-fopen() to selinux_policy_fopen() so that a missing file in
-/etc/selinux/<type> is retried under the other configuration roots.
+When no SELABEL_OPT_PATH is specified, resolve each of the
+file_contexts inputs (base, .homedirs, .local, .subs, .subs_dist)
+independently against the configuration-root list. On a stateless
+system these have different owners and land in different roots:
 
-selinux_policy_fopen() only remaps a path that starts with
-selinux_policy_root() so a caller-supplied path via SELABEL_OPT_PATH
-in the media/x/db backends still open the requested path.
+    - .subs_dist ships with the policy package and is never rewritten by
+    libsemanage, so it stays under the vendor root;
+    - .subs and a hand-edited .local are admin config under /etc;
+    - base, .homedirs, and a managed .local are regenerated by libsemanage
+    into whatever root SEMANAGE_FINAL_SELINUX points at.
 
-The label_file backend does its own text/.bin selection in open_file()
-and cannot go through selinux_policy_fopen(); it is handled in a
-following patch.
+open_file() already pairs a text file with its .bin sibling by mtime
+within one directory, so a compiled form under a lower-priority root
+never shadows a newer text file under a higher one; passing ".bin" as
+the sibling suffix to selinux_policy_resolve() lets a root that
+carries only the compiled form still satisfy the search.
+
+The SELABEL_OPT_PATH case keeps the existing behavior: everything is
+looked up relative to the caller-supplied path.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/booleans.c                        | 2 +-
- libselinux/src/get_context_list.c                | 6 +++---
- libselinux/src/get_default_type.c                | 5 +++--
- libselinux/src/is_customizable_type.c            | 2 +-
- libselinux/src/label_db.c                        | 2 +-
- libselinux/src/label_media.c                     | 2 +-
- libselinux/src/label_x.c                         | 2 +-
- libselinux/src/matchmediacon.c                   | 2 +-
- libselinux/src/selinux_check_securetty_context.c | 2 +-
- libselinux/src/seusers.c                         | 4 ++--
- 10 files changed, 15 insertions(+), 14 deletions(-)
+ libselinux/src/label_file.c       | 49 ++++++++++++++++++++++++++-----
+ libselinux/src/selinux_config.c   | 31 +++++++++++++++++++
+ libselinux/src/selinux_internal.h | 10 +++++++
+ 3 files changed, 83 insertions(+), 7 deletions(-)
 
-diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-index 9ec46ed1..ea9d2057 100644
---- a/libselinux/src/booleans.c
-+++ b/libselinux/src/booleans.c
-@@ -103,7 +103,7 @@ char *selinux_boolean_sub(const char *name)
- 	if (!name)
- 		return NULL;
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index ce14e63d..54c43419 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -1594,17 +1594,37 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 	char subs_file[PATH_MAX + 1];
+ 	/* Process local and distribution substitution files */
+ 	if (!path_provided) {
+-		rec->spec_files[0] = strdup(selinux_file_context_path());
++		char resolved[PATH_MAX + 1];
++
++		/*
++		 * Each file_contexts input is resolved independently
++		 * against the configuration-root list. The .local and
++		 * .subs files are admin config. The .homedirs file is
++		 * generated locally and .subs_dist ships with the policy
++		 * package and is not reinstalled by libsemanage, so on a
++		 * stateless system they will not share a directory with the
++		 * base file. Text/.bin pairing stays per-directory in
++		 * open_file(), so a lower-priority compiled form never
++		 * shadows a higher-priority text file.
++		 */
++		selinux_policy_resolve(selinux_file_context_path(), ".bin",
++				       resolved, sizeof(resolved));
++		rec->spec_files[0] = strdup(resolved);
+ 		if (rec->spec_files[0] == NULL)
+ 			goto finish;
+-		status = selabel_subs_init(
+-			selinux_file_context_subs_dist_path(), rec->digest,
+-			&data->dist_subs, &data->dist_subs_num,
+-			&data->dist_subs_alloc);
++
++		selinux_policy_resolve(selinux_file_context_subs_dist_path(),
++				       NULL, subs_file, sizeof(subs_file));
++		status = selabel_subs_init(subs_file, rec->digest,
++					   &data->dist_subs,
++					   &data->dist_subs_num,
++					   &data->dist_subs_alloc);
+ 		if (status)
+ 			goto finish;
+-		status = selabel_subs_init(selinux_file_context_subs_path(),
+-					   rec->digest, &data->subs,
++
++		selinux_policy_resolve(selinux_file_context_subs_path(), NULL,
++				       subs_file, sizeof(subs_file));
++		status = selabel_subs_init(subs_file, rec->digest, &data->subs,
+ 					   &data->subs_num, &data->subs_alloc);
+ 		if (status)
+ 			goto finish;
+@@ -1627,6 +1647,21 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ #endif
  
--	cfg = fopen(selinux_booleans_subs_path(), "re");
-+	cfg = selinux_policy_fopen(selinux_booleans_subs_path(), "re");
- 	if (!cfg)
- 		goto out;
+ 	for (i = 0; i < num_optional_paths; i++) {
++#if !defined(BUILD_HOST) && !defined(ANDROID)
++		if (!path_provided) {
++			char opt_path[PATH_MAX + 1], resolved[PATH_MAX + 1];
++
++			snprintf(opt_path, sizeof(opt_path), "%s.%s",
++				 selinux_file_context_path(), opt_suffixes[i]);
++			selinux_policy_resolve(opt_path, ".bin", resolved,
++					       sizeof(resolved));
++			rec->spec_files[num_required_paths + i] =
++				strdup(resolved);
++			if (rec->spec_files[num_required_paths + i] == NULL)
++				goto finish;
++			continue;
++		}
++#endif
+ 		if (asprintf(&rec->spec_files[num_required_paths + i], "%s.%s",
+ 			     rec->spec_files[0], opt_suffixes[i]) < 0) {
+ 			rec->spec_files[num_required_paths + i] = NULL;
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index ef03eea5..a4b5f463 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -595,3 +595,34 @@ int selinux_policy_open(const char *path, int flags)
+ 	errno = ENOENT;
+ 	return -1;
+ }
++
++int selinux_policy_resolve(const char *path, const char *sibling, char *out,
++			   size_t outlen)
++{
++	char probe[PATH_MAX];
++	unsigned int i;
++
++	__selinux_once(once, init_selinux_config);
++
++	if (strlcpy(out, path, outlen) >= outlen)
++		goto noent;
++	for (i = 0;; i++) {
++		if (access(out, F_OK) == 0)
++			return 0;
++		if (sibling) {
++			snprintf(probe, sizeof(probe), "%s%s", out, sibling);
++			if (access(probe, F_OK) == 0)
++				return 0;
++		}
++		if (!selinux_policyroots[i + 1] ||
++		    selinux_policy_remap(path, selinux_policyroots[i + 1], out,
++					 outlen))
++			break;
++	}
++
++	/* Nothing found: leave primary path in @out for diagnostics. */
++	strlcpy(out, path, outlen);
++noent:
++	errno = ENOENT;
++	return -1;
++}
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index d913a1b0..731826ad 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -122,6 +122,16 @@ const char *const *selinux_policy_roots(void);
+ FILE *selinux_policy_fopen(const char *path, const char *mode);
+ int selinux_policy_open(const char *path, int flags);
  
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index 39d169dd..289ef89e 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -297,7 +297,7 @@ static int get_failsafe_context(const char *user, char **newcon)
- 	size_t plen, nlen;
- 	int rc;
++/*
++ * Resolve @path against the configuration-root list: write into @out
++ * the first remapping under which @out (or @out concatenated with
++ * @sibling, when the base file is optional but a sibling such as .bin
++ * may exist alone is present. If no root has the file, @out receives
++ * @path unchanged and -1 is returned with errno ENOENT. Internal only.
++ */
++int selinux_policy_resolve(const char *path, const char *sibling, char *out,
++			   size_t outlen);
++
+ extern int has_selinux_config;
  
--	fp = fopen(selinux_failsafe_context_path(), "re");
-+	fp = selinux_policy_fopen(selinux_failsafe_context_path(), "re");
- 	if (!fp)
- 		return -1;
- 
-@@ -422,7 +422,7 @@ int get_ordered_context_list(const char *user, const char *fromcon,
- 	if (!fname)
- 		goto failsafe;
- 	snprintf(fname, fname_len, "%s%s", user_contexts_path, user);
--	fp = fopen(fname, "re");
-+	fp = selinux_policy_fopen(fname, "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 		rc = get_context_user(fp, con, user, &reachable, &nreachable);
-@@ -437,7 +437,7 @@ int get_ordered_context_list(const char *user, const char *fromcon,
- 		}
- 	}
- 	free(fname);
--	fp = fopen(selinux_default_context_path(), "re");
-+	fp = selinux_policy_fopen(selinux_default_context_path(), "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 		rc = get_context_user(fp, con, user, &reachable, &nreachable);
-diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_default_type.c
-index 2f8e4781..cd101030 100644
---- a/libselinux/src/get_default_type.c
-+++ b/libselinux/src/get_default_type.c
-@@ -2,8 +2,9 @@
- #include <stdlib.h>
- #include <string.h>
- #include <ctype.h>
--#include "get_default_type_internal.h"
- #include <errno.h>
-+#include "get_default_type_internal.h"
-+#include "selinux_internal.h"
- 
- static int find_default_type(FILE *fp, const char *role, char **type);
- 
-@@ -11,7 +12,7 @@ int get_default_type(const char *role, char **type)
- {
- 	FILE *fp = NULL;
- 
--	fp = fopen(selinux_default_type_path(), "re");
-+	fp = selinux_policy_fopen(selinux_default_type_path(), "re");
- 	if (!fp)
- 		return -1;
- 
-diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_customizable_type.c
-index 124ee38c..b39539bd 100644
---- a/libselinux/src/is_customizable_type.c
-+++ b/libselinux/src/is_customizable_type.c
-@@ -19,7 +19,7 @@ static void customizable_init(void)
- 	unsigned int ctr = 0, i;
- 	char **list = NULL;
- 
--	fp = fopen(selinux_customizable_types_path(), "re");
-+	fp = selinux_policy_fopen(selinux_customizable_types_path(), "re");
- 	if (!fp)
- 		return;
- 
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index bf18bb3d..8b339296 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -287,7 +287,7 @@ static catalog_t *db_init(const struct selinux_opt *opts, unsigned nopts,
- 	if (!path)
- 		path = selinux_sepgsql_context_path();
- 
--	if ((filp = fopen(path, "re")) == NULL) {
-+	if ((filp = selinux_policy_fopen(path, "re")) == NULL) {
- 		free(catalog);
- 		return NULL;
- 	}
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index f315abc3..9ac90562 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -99,7 +99,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	/* Open the specification file. */
- 	if (!path)
- 		path = selinux_media_context_path();
--	if ((fp = fopen(path, "re")) == NULL)
-+	if ((fp = selinux_policy_fopen(path, "re")) == NULL)
- 		return -1;
- 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index b528a019..8028097a 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -129,7 +129,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	/* Open the specification file. */
- 	if (!path)
- 		path = selinux_x_context_path();
--	if ((fp = fopen(path, "re")) == NULL)
-+	if ((fp = selinux_policy_fopen(path, "re")) == NULL)
- 		return -1;
- 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 
-diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
-index 2bc0932e..6ef3a217 100644
---- a/libselinux/src/matchmediacon.c
-+++ b/libselinux/src/matchmediacon.c
-@@ -18,7 +18,7 @@ int matchmediacon(const char *media, char **con)
- 	char *ptr, *ptr2 = NULL;
- 	int found = 0;
- 	char current_line[PATH_MAX];
--	if ((infile = fopen(path, "re")) == NULL)
-+	if ((infile = selinux_policy_fopen(path, "re")) == NULL)
- 		return -1;
- 	while (!feof_unlocked(infile)) {
- 		if (!fgets_unlocked(current_line, sizeof(current_line),
-diff --git a/libselinux/src/selinux_check_securetty_context.c b/libselinux/src/selinux_check_securetty_context.c
-index 9cc69ce6..b9fb9a4a 100644
---- a/libselinux/src/selinux_check_securetty_context.c
-+++ b/libselinux/src/selinux_check_securetty_context.c
-@@ -8,7 +8,7 @@
- 
- int selinux_check_securetty_context(const char *tty_context)
- {
--	FILE *fp = fopen(selinux_securetty_types_path(), "re");
-+	FILE *fp = selinux_policy_fopen(selinux_securetty_types_path(), "re");
- 	if (!fp)
- 		return -1;
- 
-diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
-index 0099b6eb..ea542392 100644
---- a/libselinux/src/seusers.c
-+++ b/libselinux/src/seusers.c
-@@ -201,7 +201,7 @@ int getseuserbyname(const char *name, char **r_seuser, char **r_level)
- 
- 	gid_t gid = get_default_gid(name);
- 
--	cfg = fopen(selinux_usersconf_path(), "re");
-+	cfg = selinux_policy_fopen(selinux_usersconf_path(), "re");
- 	if (!cfg)
- 		goto nomatch;
- 
-@@ -296,7 +296,7 @@ int getseuser(const char *username, const char *service, char **r_seuser,
- 	if (asprintf(&path, "%s/logins/%s", selinux_policy_root(), username) <
- 	    0)
- 		goto err;
--	fp = fopen(path, "re");
-+	fp = selinux_policy_fopen(path, "re");
- 	free(path);
- 	if (fp == NULL)
- 		goto err;
+ #ifndef HAVE_STRLCPY
 -- 
 2.55.0
 
