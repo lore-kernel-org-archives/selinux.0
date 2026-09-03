@@ -1,79 +1,79 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 476463C13F8
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 06:10:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DBD93D0900
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 06:15:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788415827; cv=none; b=R2Vl0Wvd5bYv7HHFv1Fn9CgxiPpTJ9W5TOeNxJE/9ACEKUJykGBiyDNC6A7wUCGJZ3/+1HmX421kDqv3eX76FNwoE+KhRxgCjTwzvrP3C/tDLvR9vsRKLZGzhWt1xesreGtQ/07+hDR/YMNBN2WxUgS+vcgsP4ZZPVZXXaWOzQI=
+	t=1788416156; cv=none; b=VTXBattdHn4eZ8mSBcGVGTuropB6u29JiFmRhALyP9aUtqKEU7nkA1G6YlsU4uelvL5tl+haFToubgJkIDwGX2iQiEeIQpS3F1+H+WP8nAEjgOMcHzTIe46zbc07S3ZdUnzl6yVvVMejrTTeG/zqjf1sOk/uLc1SAjcSWEUgnuo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788415827; c=relaxed/simple;
-	bh=2SedpaDSoAR1LvgCWs+DWL0IdG8bnTzoa636rx/f34w=;
+	s=arc-20240116; t=1788416156; c=relaxed/simple;
+	bh=wpl9wKkbJFGy3u71BuJLHaA4TN3RjLmyXn7wBnE/sZY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sBl/8eMwbVud0qpBBH5sHjMW9ZDwtJ7w6k81LegQHgFqfZGnx595oQcAVvYjt58gR4kR9qKChqzQw+9BLHU1n3/ykESIodofDGFVCuK/tgxBhCxAYQi8KBwAA88MIm0RXHTKfZ7/x9EIMQ57crnKK6d46YUq1ZoFX5BseSvBYdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=pN952jWH; arc=none smtp.client-ip=185.125.188.122
+	 In-Reply-To:Content-Type; b=tSs+RGGCduYU+CWw9ns89uLZAinHwLyO2yLjWM9DN01LLrCgyC0+6c13whZTWr2BPa89vlS+RxVVHRE6WGCgD4LzfpKfxEbyY2fkmfjxaFtdbbz5WJTXST6Nzh8/FB5bVyRKlCMuaTZhbcopLndZLi6pKRCQSVs+GGnsF9HcDq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=CWveD9Ei; arc=none smtp.client-ip=185.125.188.123
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="pN952jWH"
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
+	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="CWveD9Ei"
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id B44143FC36
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 06:10:23 +0000 (UTC)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 17A513F8B2
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 06:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20251003; t=1788415823;
-	bh=0SXt+zKg72aqt2co0Md7aOOy9tUWiA94GMNENg6+61g=;
+	s=20251003; t=1788416151;
+	bh=KUWZRyqFeEf4s3ueoyPuRgRthTlv7fXXCaa5u+oHG9Q=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
 	 In-Reply-To:Content-Type;
-	b=pN952jWHX0o+Su5RZOYvMoEtT6AgJ7dnSRgENfbA652dUmVSAhhpL57fP3byAGHCZ
-	 6GwPvwp/SEQnaAWT6qqGmr9wVtOsYWGAW06BrZ8UO5AOESylb+6KUmgt+qdhZm/7yc
-	 zh0fy1H85ulw0HEJ+StBQ9EumLORvg75DSU8cjrHktqtXItUiC/u7uizvjASAxgaSB
-	 XPlpBAc7Ty5eHM4ur5q7tWmqATsECgUe7NWV2lfR8pb7+SDklWNNkosRIywn7dLqPQ
-	 8O42O8r+GtFBeLlkWkhIKxrS/7A0+aMYayTRnaHRNIuiRqHMHB3if4WBsBBV5iTdEF
-	 ytta+jHLvcNlPqVYnNn0jvyyVAvhnR1CoWmoaZ3bREC21krufOouZ19S5e5h6h87S5
-	 NnpefH0gX9kYMbnzDhZPC+Xu8hCVxuBV2aU+DTowN7+LxnR0+L8oI/ihSoYYUD0+7H
-	 5BDlWY/V+ZCMHQaicN+pXVER9Gn/18eecLY5MJmCobCOgfzSU3Ed0uzk4ODY1BmeuP
-	 BpVxHqwBb2IvvpLx7tFKyQ2+hkntwoJw9lLkqKwPcwcs8jMhuBF/X8trMQsQoZHT7t
-	 3kqJJDvUaUzf6khK0OFUlcv7Z8PbgyorQivX37P14zXX4oVzWTAAQ92l9rwFwfaDXK
-	 oLsDiaOURRYr7a5Q3wqxp43w=
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2ce8a76df2dso37834835ad.2
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 23:10:23 -0700 (PDT)
+	b=CWveD9EiNBCrYyOTQYcrC4UhijWm+YW80NCPxVXFWm39SkItRMfgYMchzR/sELLjc
+	 yKFSVq3XT7e36B+8MckbWqjKOIWskX0iFR4GXS/Xheql0qhqEUu1y1uK6E6DPaavP9
+	 0OIe2Qs0Ffj32fdYs0e7jiaFM+IF/faPG+Ab/1yDMZSpXQJtHSDC3JKIcGlNtQ0Leg
+	 Ujym704xWrKyIv1IjcbCxiJuHV73jIeyzW1yMBZE89gp92jWItXlscDshx+trA9ybr
+	 X0nxzjv62AQkYVlE42eLtiUkDpIewBKqCmpNMhv4mQk7hX4eYpw/tGWTvplROwc831
+	 HuLNW2Ntrp4UJT/UIVCj8lVYiLtyiRLEBEo1EOsLElfZlmuJQmUDqJX0vyywi3+717
+	 vCXWf70VH+wUptCDxgfTwORZFHCaR1rXg2XevE/dgbG17HkkJBwx7gT4hzJkplajEx
+	 ECmijjTsJRLsJsjAOvWktHk6Hk12Bol9Zsio7QNOIorsGw4kesfvvysw0iJBnsz0un
+	 PtlSCSlh1R7v3GJRDQZnP4vVFfz3XXp/bm1/gsQSk+yIG3P5qy38dMyETk1uGVWEUt
+	 bYworYPJMRrn1nb0HkAPC7jeKnpz/GHYQoekHrVLe4dsfEnaSe6HjDcxRVrIuzHfYD
+	 htXKprw9MyofYCDrAOyaDDiM=
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cc1b8088203so2476598a12.3
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 23:15:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788415821; x=1789020621;
+        d=1e100.net; s=20251104; t=1788416149; x=1789020949;
         h=content-transfer-encoding:content-type:in-reply-to:organization
          :autocrypt:from:content-language:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=0SXt+zKg72aqt2co0Md7aOOy9tUWiA94GMNENg6+61g=;
-        b=sxshakuDQyQb0CFK1um50D+tDSdZolbZeKQpBLincwbJIajslD43qMXDMFo+QsEPtS
-         SnaseLtMQgsSjOXRnjJW33XC7jK8NioWbF2ewkMsLdxSGGOj4N2F55xExK2jxmIgs2FT
-         t1KHb3HiQoMBOVxbcfbFnunItVj3kupzulYvvdcIPHu4Vsr5ByiwdFrfB2utX67ENpMy
-         Odf7STc0H3giO9fLo+iFDF/qCcfWwFZKSBVHooFD+tIxEyWesFEvW0lbj6uO2CkDOtGh
-         el3B2hdLS+pzgjR4YrXwHUJMye/iQrWXlfHyxkCqF6BC5fDXcWSgQ7h1782/1aNA34nz
-         /Q6g==
-X-Forwarded-Encrypted: i=1; AKwUvBxwjlkvwdzCCl0yqW4YWXEQGXNpDL/MHKqq1uEileCkq5e3xcdgz7SRjEhBCi8Za/0fqmUH63tH@vger.kernel.org
-X-Gm-Message-State: AFuF++m907aP/hcwYjS75/BmXJB6U4IvHdoqH/ytLJhh0KaZZGbrpUQh
-	ycDd49VAvoe7Gr+98Mnjfv5O/YXbw10dDsQJbw7EDFNF4sSfoBtYH/ezyQoQa4PfTUGtIZ2XZ5F
-	22NlAG6XKk9624hJsaA8SBRolp6uhsp5VH7OgBOwp1deefHkNoJdzm1pGSRWvVpN4ogrNz39mKF
-	E=
-X-Gm-Gg: AYBFou0glJ5BV4mWozWXh8KSAVll+fNlSQe1vZIaYmtE2hQMnrxhqz5N3XesTw3c7b4
-	Kn3w7xQGxsZPdwFiB3tp0acz+sGraLsqPsgR5XOSOsND8QEaIRSvZZF2npAWPpk55caA6wS4gIr
-	fCJeMgnGAAKVWv6M797r5+gSQCnABPtKh95BiPHtfjtqLrye6nzrwFTyQFpEn6sH09Qy3swmOpq
-	U9qAdTvcn922EiTSWl0udBHb/wlFikYuACRCyg7467Qve6juH3w3PIsxLkyOS2fLF5hpDcYmXO0
-	ULtmdVZjFsmKmECC9pfOFsqTKWdfo7qf5Tkoo5UIORQtxALtmN3zBX93jrYJQram1GPCjQdQj9A
-	bOG/QkbB+oi42gTQ=
-X-Received: by 2002:a17:903:32c2:b0:2c9:bf82:dd11 with SMTP id d9443c01a7336-2daec646e99mr105324285ad.7.1788415821165;
-        Wed, 02 Sep 2026 23:10:21 -0700 (PDT)
-X-Received: by 2002:a17:903:32c2:b0:2c9:bf82:dd11 with SMTP id d9443c01a7336-2daec646e99mr105323705ad.7.1788415820747;
-        Wed, 02 Sep 2026 23:10:20 -0700 (PDT)
+        bh=KUWZRyqFeEf4s3ueoyPuRgRthTlv7fXXCaa5u+oHG9Q=;
+        b=mQqEqLsAz65f3DQksUUM4gSeGiObQMgUyqhByPc6LPX7ZL8jn299aOXoc8opo5jGei
+         zPwA0sVNAEssd5HidOx+4wCiDBhUOTmu4HikDuyeezBFxIRnuVJN1j2gSfsVZ6vah8nY
+         jPA/SFs0kqzGa34YKk6ttcD2FK/ynFI7Wu+CLwjGGL3yDd8RgbyK3drGGaUay2HtKckQ
+         GIEltZ7wkjVOa22vTjIYipb6uACdK/330vJjxJ/Gylr0vKl6Vi+7gjdRy91PK9Yo9KX9
+         iVeJyNbFltOXkb+gIx8CV+Cp/9ZaznRi81W4zX0PChaNvA7ENtEfXhbaP8pUSOK7cjus
+         nkug==
+X-Forwarded-Encrypted: i=1; AKwUvBwKzX2pWLmKQuCG+oNy0YE+0yn7Q1YoAskq42W+M9ahgYbpW3YE3y2V2zuo6TpybjYi3fDho+Kl@vger.kernel.org
+X-Gm-Message-State: AFuF++n9MHig/L4Abbs41fDo6SF6WYb/+tqC7Cj5lZYHw8575+K3lDz4
+	1Ff1YOHZaEyXG7nXxjGw2arqQj48ds/IeRt4uSiEWTUKb94L3A8JCN8MLulxzmDtR7lI2DNRHWt
+	SjEdpx+1tdFF3QDjKCiwcAU9mc7/MOD/6ZH3wacIiiIZ9qZgzIB+loUpzEMNbrHb74yxOtvNMey
+	Y=
+X-Gm-Gg: AYBFou01JdV5VbIu1f/opqsxf5M9DJzwnUVNT//lPTi2sgQggxYn8Zch3mjFmlqsYHj
+	cNwuImo7K+u5wp0uQV3GA+Js0XvUGeTD0SssUGadhN6S6q/0uDHPaozqXlmSwE4Zn4GN7Fyddnr
+	Niym3w4UQ7OtYjRxwkBQVpWUZwZs/LdwF/ClHAr7r6uuIam2kiV79TL1vYkU99Yi55msyiZXo2Q
+	n8uqVPTs9vi5Cptr4o0rYK8zLbBkJcWJ1MTr3fx0265zBvD6CeXp6B59RVReTg32i5nyeQ6I0NH
+	NfM+Znv31fTVqKfnwmt/bsuYbM2YqKkLoSHw296vW8E5j/YlZMCvdEMZZoQB7HJy4AslVDCSHZ7
+	UrV+w6iLuJy5J/ns=
+X-Received: by 2002:a05:6a00:e08:b0:82f:2b0:2809 with SMTP id d2e1a72fcca58-85ed7158030mr14968914b3a.1.1788416149450;
+        Wed, 02 Sep 2026 23:15:49 -0700 (PDT)
+X-Received: by 2002:a05:6a00:e08:b0:82f:2b0:2809 with SMTP id d2e1a72fcca58-85ed7158030mr14968878b3a.1.1788416149103;
+        Wed, 02 Sep 2026 23:15:49 -0700 (PDT)
 Received: from [192.168.192.72] ([50.47.147.90])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-2dafe0cf4d3sm4768265ad.3.2026.09.02.23.10.19
+        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-85dc003a7d6sm2259856b3a.34.2026.09.02.23.15.48
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2026 23:10:20 -0700 (PDT)
-Message-ID: <c7850811-c258-4684-b232-e25ddfb152dd@canonical.com>
-Date: Wed, 2 Sep 2026 23:10:19 -0700
+        Wed, 02 Sep 2026 23:15:48 -0700 (PDT)
+Message-ID: <ac628baf-3c8d-4f8b-b410-0c10990bdd1d@canonical.com>
+Date: Wed, 2 Sep 2026 23:15:47 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,7 +81,7 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/7] SELinux: hooks for secctx_to_lsmprop and
+Subject: Re: [PATCH v2 5/7] Smack: hooks for secctx_to_lsmprop and
  update_lsmprop
 To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
  linux-security-module@vger.kernel.org, pablo@netfilter.org, fw@strlen.de,
@@ -91,7 +91,7 @@ Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
  keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
  stephen.smalley.work@gmail.com, selinux@vger.kernel.org
 References: <20260902220150.18586-1-casey@schaufler-ca.com>
- <20260902220150.18586-5-casey@schaufler-ca.com>
+ <20260902220150.18586-6-casey@schaufler-ca.com>
 Content-Language: en-US
 From: John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; keydata=
@@ -137,72 +137,77 @@ Autocrypt: addr=john.johansen@canonical.com; keydata=
  +T7sv9+iY+e0Y+SolyJgTxMYeRnDWE6S77g6gzYYHmcQOWP7ZMX+MtD4SKlf0+Q8li/F9GUL
  p0rw8op9f0p1+YAhyAd+dXWNKf7zIfZ2ME+0qKpbQnr1oizLHuJX/Telo8KMmHter28DPJ03 lT9Q
 Organization: Canonical
-In-Reply-To: <20260902220150.18586-5-casey@schaufler-ca.com>
+In-Reply-To: <20260902220150.18586-6-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 9/2/26 15:01, Casey Schaufler wrote:
 > Implement these hooks.
 > 
-other than the question below, this is looking good
+beyond the question from the previous patch, wanting more in the
+description, and the quick double check question below.
+
+This is looks right
+
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->   security/selinux/hooks.c | 16 ++++++++++++++++
->   1 file changed, 16 insertions(+)
+>   security/smack/smack_lsm.c | 33 +++++++++++++++++++++++++++++++++
+>   1 file changed, 33 insertions(+)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 18dd28b2bb13..12614478b638 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6946,6 +6946,13 @@ static int selinux_ismaclabel(const char *name)
->   	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index ff115068c5c0..fcfadd5d9994 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4909,6 +4909,37 @@ static int smack_lsmprop_to_secctx(struct lsm_prop *prop,
+>   	return smack_to_secctx(prop->smack.skp, cp);
 >   }
 >   
-> +static void selinux_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
-> +				   int lsmid)
+> +/**
+> + * smack_secctx_to_lsmprop - add the smack label to an lsmprop
+> + * @secdata: smack label
+> + * @seclen: how long label is
+> + * @prop: where to put the result
+> + *
+> + * Exists for audit and networking code.
+> + */
+> +static int smack_secctx_to_lsmprop(const char *secdata, u32 seclen,
+> +				   struct lsm_prop *prop)
 > +{
-> +	if (lsmid == LSM_ID_SELINUX || lsmid == LSM_ID_UNDEF)
-you have added similar boiler plate to each of the LSMs using this hook. If
-all LSMs are going to do this, then shouldn't we just move this into the
-LSM similar to what is done with secctx_to_lsm_prop
+> +	prop->smack.skp = smk_find_entry(secdata);
 
-		if (lsmid != LSM_ID_UNDEF && lsmid != scall->hl->lsmid->id)
-			continue;
+just double checking a null value here, looks to be okay, but just double
+checking as I just did a quick skim of the code.
 
-> +		dest->selinux.secid = src->selinux.secid;
+
+> +
+> +	return 0;
 > +}
 > +
->   static int selinux_secid_to_secctx(u32 secid, struct lsm_context *cp)
->   {
->   	u32 seclen;
-> @@ -6964,6 +6971,13 @@ static int selinux_secid_to_secctx(u32 secid, struct lsm_context *cp)
->   	return seclen;
->   }
->   
-> +static int selinux_secctx_to_lsmprop(const char *secdata, u32 seclen,
-> +				     struct lsm_prop *prop)
+> +/**
+> + * smack_update_lsmprop - set the smack label in an lsmprop
+> + * @dest: destination properties
+> + * @src: source properties
+> + * @lsmid: which LSM is relevant.
+> + *
+> + * Set the Smack entry in the @dest if appropriate.
+> + */
+> +static void smack_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
+> +				 int lsmid)
 > +{
-> +	return security_context_to_sid(secdata, seclen, &prop->selinux.secid,
-> +				       GFP_KERNEL);
+> +	if (lsmid == LSM_ID_SMACK || lsmid == LSM_ID_UNDEF)
+> +		dest->smack.skp = src->smack.skp;
 > +}
 > +
->   static int selinux_lsmprop_to_secctx(struct lsm_prop *prop,
->   				     struct lsm_context *cp)
->   {
-> @@ -7694,6 +7708,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->   
->   	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
->   	LSM_HOOK_INIT(secctx_to_secid, selinux_secctx_to_secid),
-> +	LSM_HOOK_INIT(secctx_to_lsmprop, selinux_secctx_to_lsmprop),
->   	LSM_HOOK_INIT(release_secctx, selinux_release_secctx),
->   	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secctx),
->   	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
-> @@ -7812,6 +7827,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->   	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
->   	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
->   	LSM_HOOK_INIT(lsmprop_to_secctx, selinux_lsmprop_to_secctx),
-> +	LSM_HOOK_INIT(update_lsmprop, selinux_update_lsmprop),
->   	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
->   	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
->   	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
+>   /**
+>    * smack_secctx_to_secid - return the secid for a smack label
+>    * @secdata: smack label
+> @@ -5269,6 +5300,8 @@ static struct security_hook_list smack_hooks[] __ro_after_init = {
+>   	LSM_HOOK_INIT(secid_to_secctx, smack_secid_to_secctx),
+>   	LSM_HOOK_INIT(lsmprop_to_secctx, smack_lsmprop_to_secctx),
+>   	LSM_HOOK_INIT(secctx_to_secid, smack_secctx_to_secid),
+> +	LSM_HOOK_INIT(secctx_to_lsmprop, smack_secctx_to_lsmprop),
+> +	LSM_HOOK_INIT(update_lsmprop, smack_update_lsmprop),
+>   	LSM_HOOK_INIT(inode_notifysecctx, smack_inode_notifysecctx),
+>   	LSM_HOOK_INIT(inode_setsecctx, smack_inode_setsecctx),
+>   	LSM_HOOK_INIT(inode_getsecctx, smack_inode_getsecctx),
 
