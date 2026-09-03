@@ -1,201 +1,156 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A3446AF2D
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 16:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE054EE872
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 16:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.178
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788453148; cv=pass; b=JjGumg/RBak/ZEtV6lr2Feh2ZSfRrDUnKyrKc4oLSHfCP9BvrON8KyHX3OkWqzYcFEekJ12wlVR6oKWqOV28BuYhluV4CuJMb2rPtwQNoMHi3Vuzpa4mTdQXGY/zBVJhAYhR2wGP9QYB6l0uGVPoKS+FeADY0bCvQSK13k7q5P0=
+	t=1788454205; cv=pass; b=ru/44iCQ1qKXBqh2aXeQgCydtbLVSeHjW2z4xJ1P4EoMnljGurrVwLbo9/Ewh+ggieyiqZhmgI/einemWJXHE3Ru9gO0PJvsXxcMmMsn8w2Ue8QjEwbPCfsDZrnvd7mW5KlMSM2yAKM97aA/N2Hu/a3KkTRfHq/qg/kbPzvlsVc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788453148; c=relaxed/simple;
-	bh=3Y2aXfnJkBWlUeD18cPJ4yoZg6JRr3jC8fdriAznDsE=;
+	s=arc-20240116; t=1788454205; c=relaxed/simple;
+	bh=fIzJ2UzV1e1OhGgyxGwDuKbdIbdlV23EY1glTplhvE0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pwIiu2O+eHfdu2evpV44Mv7Fu+rMCFAhDub0dJc96IJ4EaUZLmyCVjJ8Oqf0HHnW4vIuPbceGF/OZODsPOObG+MBPCn9plFSxftVkjqeJ+wb6BDg51UkeYoayPhiK12bjTNmCkBZaCtxdwz9bPEfyDwlqPUBSlfQ7fwdz94za1Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eTa29NPe; arc=pass smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=fX+50fpjyGdX2HBe0xVwvgsSdVGwg03VL0mN01xbuT4jWBH8rWOqFqKpWuPyuBVV+OAOK+ZI77xcGjyVwIqUkNkcIQLUOT1oD7ISBPSow38HuWn5grBdhUQXdD3iMr6Zm7ZcbTYHP6gVVmuJVlhUjMgZcRP0gBqQXsVqPwcr1W8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=d5xJJ/s+; arc=pass smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eTa29NPe"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-90cd4631090so15673896d6.1
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 09:32:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788453144; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="d5xJJ/s+"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-85c9a79590aso2991846b3a.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 09:50:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788454203; cv=none;
         d=google.com; s=arc-20260327;
-        b=XsPi8ytPCnDo/8dlIk4xAWEdpmRSp6xN8p9pMhPqcVYBoZYItf5EhbjASCEQjzBSQq
-         +r6SwO2avCbWY/jFfAdiIme/gPVRjwTX1vIgStIY+pVJz8nrOlbt4SPLEkGoMTCnzcZ/
-         v17igOm8X7PF9taSkW00g0fR+hEHvq1YawwDXVLp9eFZEM4QlO1nYp3Ea2JgjK71233p
-         6VuBimUovtY38b277KmctUNSF8UMNO1wvx695mfNJqE89pmoBpmopdvyR0I+0RWpx553
-         kHcWh18CIRBrNUE3Yz3dBxgefOItEg5GRuoF3S6CKmRtYd1n8bY/I8Ef828LQzbviPen
-         va4g==
+        b=qdEcp3wlVGVnQIkx9niI1O7fyMJZUGQD5pggrRu40cUYiWCphPbk6RjqIyLh5USM8s
+         +jnvhO8R7+7sJtBvmZWTKC8VTUc8cDcG7yVL5WJ2EJAu6pgyqYiX3195Bf/8RI0yHidg
+         ZQXgy8t7Cb7kN8HzviBjZ5gixndfH0cDoF+eGhmo9Itco222YGWc/hAR/2lhUa1UvGpR
+         Q9+fHOpphQcSaNfDrrIXfjFqhz7rGShpvvSCRYlU8vKqIl56RPGXcTeL2bQQSLW1W7wn
+         dPYIlbdz953vcjP3y6hUz4+X1aUVDQLKwEAul8kLgWXBqjTpUwtTT0EJ6IduY7YlMPvl
+         hGdg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=gQOAwgWsioiU3+7iKmN86fBBXc/5mhH5Bi/DPqov8iU=;
-        fh=AQnnUcjcUYpWlp25yduSBOrX2TDQdvMOewmYwjwwoqA=;
-        b=iTAB1zClwjIdpO0zU6rM4xw5/wU7B4D40GHvU/VhJ7PHuRM/IggXjkgl00mNnuiRUa
-         QOdpEQLfw06Apjfgpncr+Knfh2zN4tQqHhvlJDeigd0/S0PSuZdjJehr1Q7nrnuP8X+G
-         5rozFnB7sKQe9u6YidzDhKDQeq9TrsJcsxF00f9fhCutAl139SkpsA9WM8CWxyVP8hoF
-         eqejqVFce1G/VIFmvUez8+W8mpnK0tVn6Lii5uEMhCPZ+iRLUNTDZEgPEFaNlXGZzgI6
-         aeDZGyf/Rwnp4tLqp4ZgjYETDklyMulrqFduNh4Jm3BgJMlXxs2/T/ILdoaDW6jaWRgZ
-         s9yQ==;
+        bh=2HQUVihfuH1EnVw3l99N8g3U4J8AO1suXuMcFxz4nu8=;
+        fh=q8fXXiEMmgMb+/T7Vaho4u9XGfdjI05CRC9PoO2L1pw=;
+        b=mZwymkAECx9c0dy812PBAF30N6tERmfOvSP/fHE/AL7+cjSM+qLPRTXTf1Ivq3GhEU
+         VCK89v+ibF6cV8IAuQsBUz6kB+H4XygSn5oixGrZjfqBfao/74jXqZbKGeXSMIVcOvpc
+         DGJpUc3dpsFxHVgppwIuT5kXOiDBB6OFHP0gbiobmWWhLr2y6WFwiI4xqNViofripe2k
+         5PIUZI6CjJZBFKu9IDQ4qKxv7/pXRjPnDnt3yjjbMgOehGeaR8hMHbnIkfiVA3lwlNG4
+         Z5FOcAsjGCmyFpZFu7DIT9BUQHEaAFDMcw+8FiHN829+aEU/MeKBL4XhrZm6SY4q5yjB
+         k0qw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788453144; x=1789057944; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1788454203; x=1789059003; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=gQOAwgWsioiU3+7iKmN86fBBXc/5mhH5Bi/DPqov8iU=;
-        b=eTa29NPeC6NqtzGiuW8zOa2kLQ0N3cTbvmwzZWPyo1HARqvYp+ZaOQLTugi9oneBxT
-         XYrAlEfWaVQLtkuJaINFYQp4ow7QzfWWvMfEXNuABe+0ktdPNJ+iJvPcIn8z0kWi+si1
-         tfLzUV4rC0qgr/zY0vClBiGGPrL6oXiy8xMwSisbzEBJhANYQrgHb2Tjz8rvrBkYdvN4
-         iH35g97ZeW2PCqkbz/2d6sPLyoIW8Nm0cs2fB48kIsLd4I9MrcvmVDTVIqEW0lvYdgOl
-         a7N0vsppaU5lMJi2VaTsLgjblou69+jRrpHtop/uIeVQE/OXVIHKsw0QVkYdGKo2592J
-         lUfA==
+        bh=2HQUVihfuH1EnVw3l99N8g3U4J8AO1suXuMcFxz4nu8=;
+        b=d5xJJ/s+bZ8G7cWlXDwnUBOPPL8SWcKkAjBqVEKf0k4KhYK9bAhQNuAshxxnm3oSNG
+         sSZ4BQmTBFCPFBAeebo/pK8zvQFpLzMgiimZ4O9PknbACOpudWvxED6ArnkbLWKw8FCh
+         +IBn3NHozxUwW8bvALGbsYnVz1LRE9zhT2AlS4w7wxnhBYzsac9vsY+tSgEsjkK4BN7v
+         MXWO3o4iMN4FJRYFXQqzayhQtzEFTv0XDbT/1HorIgjNqEk6eafAYALYShPQhbYda1wn
+         9T5654dscRfI8x4p3yFivJORk2SiIhsZpI7yhJq97hcCgl1rk25k4IAw3xdR7g9Vfd2w
+         XMYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788453144; x=1789057944;
+        d=1e100.net; s=20251104; t=1788454203; x=1789059003;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=gQOAwgWsioiU3+7iKmN86fBBXc/5mhH5Bi/DPqov8iU=;
-        b=Sn1aCefkgLq8ypKiMDlTFiPLD3Zinu0OYD1L5cOO9J6I6MuBAol0x9rZcJnf2IlpBj
-         VZSWYWCBiVaSFT2g5HFLfDs3+qAbEA1wF1Yo+KsKmZiAfWkZjuZ0XMm5WOEmO35uHQrp
-         e9sPjBZtMqZ+VtAJkM/oepGWPMEeGKcsZmh4/AZ7C+eLVrzutV4HzbFm2cIOl5uxLIwd
-         urQkkQ5NYmLxb4gMAmPOB4SRWLusXoZs5amedegejJptM0Q2TUjmoHj9tRvQmZWxdGD6
-         QdudymFgWcC4VpwwGEm34Y6cnht7wATXM/ZchBJldfhQkh8UQT3PHmk7shgSV64EChEP
-         BBow==
-X-Gm-Message-State: AFuF++ldqZASf94+VPHaj1i7RlXnq9/OBNjwbsoVch5M5ZFY85UKAs+X
-	GdY3QDoBlvBqKVCZPWKEggWaAdlJpxXRF5B7sNUq9BdvIZy+Qo65BGo4zia+TKm5uUPLSmWekIx
-	qmTdpgXgUUPI8PRHFocC6coiyPnHhbt8JFQ==
-X-Gm-Gg: AYBFou0cf2nvWy0YXDpytGaqlk5OWnxlYgIpch8apBxLZwhgpqQaanungT+cCPbMQgO
-	lqhfsu+si5P7EWuTbeZ2Sxf9J+m2zL/oHhTZDmrHpxbyOe0/MqfGKVV63n+wFS5wiRPMQkHFulK
-	AH0O5iL57ntiUxf35YWf+dXzhWAtgTKiQsxWid44cBTrp+MoE9oTyrbz4h1pn0KaIv2AprUK0rk
-	FfZhHnuwOEOMu5A9dEd2hbnktZNwkt1JrJT6wZz5jToxLJYscBWIqKGVovQ5Ojn6ePbfJo9+/J0
-	KuquN9oyZh/j2veY54WPCG3a3Zm3vnCcUAIswkP0mo/U
-X-Received: by 2002:ad4:5cec:0:b0:910:3923:cc7b with SMTP id
- 6a1803df08f44-9103923d189mr38066196d6.36.1788453144229; Thu, 03 Sep 2026
- 09:32:24 -0700 (PDT)
+        bh=2HQUVihfuH1EnVw3l99N8g3U4J8AO1suXuMcFxz4nu8=;
+        b=hKtxwiWvuqgbFP4Hm/cnHk/DPvEG/oUuJuu4Qy7+xog6uf9omN6NW9m+/jxczBrgVJ
+         RPWpuHliLXn+U0awYuwH823q6789BdNPkvtgx2kR2lFn6L0cwpEMg2j3FL2Kl+RP/Wyr
+         Twa/fPjPdomGYZc0GtfYHICjR8YHcNSom1yWdI7fQVu03/ghwA9bpu+UFBPm2OlGZ8qr
+         yFBquTSSGB5JHUSkaEG0Drte52OkHEaCsJBC6qF0tqGDH4D7vinNH0kpZOkep8p3HLX0
+         d0bP/L/GjvFgWqJRiHzAcblT9Ooyl3M0/RmQoWTE2R/lJ5TWExLJd5tor4iHSbvkBoxo
+         RqVw==
+X-Gm-Message-State: AFuF++mFNFAdqmjoWVMewCnnpRsa/EC9I0vrmer5H5PIFqDW+30XXWHT
+	boOVrN8KixsAlpjlxsr0RggNv3WhJfOcO1jJlubO+NzvcL7dUl54hnlCnWLh3yRbMHKznZWtxA5
+	tRAqR2bT43bwLh+qAY0Z8MTCmjTcw28UvrRzuvX32UgYjU6ArPllalQ==
+X-Gm-Gg: AYBFou2jpz1ZftyacOOqOmVliLHAo0TRr3bK4EF0F4op0pPoXTidEe58EukGqdAgBJv
+	5MmSPvoF2NKkt0Kuddoo7cMv6XOAu4cz0dxRuIgyZ2CwoWBTXzt/ze/j9UOgtLtf3H84Qi7I0PA
+	QDfB2FZ+b7XeXezg3rivsPAXEqdCQ2Gm/Ofqycr/WThhINX6jowYF3PnwZ3IC+3HTrVj6Y8JjAb
+	ijjyY+6Y/gYYnS5aOKNJGc/nhSItWAA6LefWjr19bZfwqiBTSgIgqidYUTp6hRpFxaxWvkqKihx
+	VNA9FgmE4BajRVnwbz6k1H5ZdfWlh6D428OJ5kYSoNlD
+X-Received: by 2002:a05:6a00:4c96:b0:857:7337:5db8 with SMTP id
+ d2e1a72fcca58-8616ae4e171mr356491b3a.22.1788454202717; Thu, 03 Sep 2026
+ 09:50:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260903151347.1513631-2-lautrbach@redhat.com> <CAEjxPJ7isYB2FekKMubJrDgdCuaRc27w6Rwfo9==BPe0GY4iyQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7isYB2FekKMubJrDgdCuaRc27w6Rwfo9==BPe0GY4iyQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 3 Sep 2026 12:32:12 -0400
-X-Gm-Features: AcwNN1XCeGmj-LyI7z_0Na4fIjrJQc7uTgTXi12LPV5oIy5eTDOstk5fDAPp2Bg
-Message-ID: <CAEjxPJ6MdgdzEbV4LZsDseuPgARBDJ0YZ7xMA5DaSrh5TO8-5g@mail.gmail.com>
-Subject: Re: [PATCH v3] Add support for UTF-8 in file context labels
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	=?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+References: <20260903155615.516010-1-omosnacek@gmail.com>
+In-Reply-To: <20260903155615.516010-1-omosnacek@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 3 Sep 2026 12:49:48 -0400
+X-Gm-Features: AcwNN1Vi1fFN8XgqNIFOZOP1XJFQC7hXS3V-fOBEGIFKC-xj0anHhARHzxX5Hmo
+Message-ID: <CAHC9VhQSoWBfWrf97Ch3ZZJXkOvhbwNOGmq8rMxLFzq+a-CkQg@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=5BPATCH=5D_MAINTAINERS=2C_mailmap=3A_update_email_addre?=
+	=?UTF-8?Q?ss_for_Ondrej_Mosn=C3=A1=C4=8Dek?=
+To: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 3, 2026 at 12:24=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, Sep 3, 2026 at 11:56=E2=80=AFAM Ondrej Mosn=C3=A1=C4=8Dek <omosnace=
+k@gmail.com> wrote:
 >
-> On Thu, Sep 3, 2026 at 12:00=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
-> >
-> > - libselinux to be able to read UTF-8 spec entries
-> > - libselinux to compile regexes with UTF strings
-> > - initialize locales in setfiles, sefcontext_compile, semodule
-> > - semanage_exec_prog to execute external programs with LC_CTYPE set to
-> > the current environment
-> > - disable UTF-8 support build time using DISABLE_UTF=3Dy environment
-> > variable
-> >
-> > Fixes:
-> >     # cat unicode.cil
-> >     (filecon "/opt/=C5=BElu=C5=A5ou=C4=8Dk=C3=BD(/.*)?" any (system_u o=
-bject_r user_home_t ((s0) (s0))))
-> >
-> >     # semodule -i unicode.cil
-> >     /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file=
-_contexts:  line 2145 error due to: Non-ASCII characters found
-> >     /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file=
-_contexts:  line 2145 error due to: Non-ASCII characters found
-> >     /var/lib/selinux/final/targeted/contexts/files/file_contexts: Inval=
-id argument
-> >     libsemanage.semanage_validate_and_compile_fcontexts: setfiles retur=
-ned error code 1.
-> >     semodule:  Failed!
-> >
-> >     # semanage fcontext --add -t user_home_t "/opt/=C5=BElu=C5=A5ou=C4=
-=8Dk=C3=BD(/.*)?"
-> >     /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file=
-_contexts.local:  line 4 error due to: Non-ASCII characters found
-> >     /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file=
-_contexts.local:  line 4 error due to: Non-ASCII characters found
-> >     /var/lib/selinux/final/targeted/contexts/files/file_contexts: Inval=
-id argument
-> >     libsemanage.semanage_validate_and_compile_fcontexts: setfiles retur=
-ned error code 1.
-> >     OSError: Error
-> >
-> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
-> > ---
+> I'm going to use my personal email for kernel contributions from now on.
+> Update MAINTAINERS and .mailmap to reflect this.
 >
-> > diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> > index d6b5bf0252ba..f632a87275d4 100644
-> > --- a/libselinux/src/regex.c
-> > +++ b/libselinux/src/regex.c
-> > @@ -96,7 +96,12 @@ int regex_prepare_data(struct regex_data **regex, ch=
-ar const *pattern_string,
-> >                 return -1;
-> >
-> >         (*regex)->regex =3D pcre2_compile((PCRE2_SPTR)pattern_string,
-> > -                                       PCRE2_ZERO_TERMINATED, PCRE2_DO=
-TALL,
-> > +                                       PCRE2_ZERO_TERMINATED,
-> > +#ifdef NO_UTF
-> > +                                       PCRE2_DOTALL,
-> > +#else
-> > +                                       PCRE2_DOTALL | PCRE2_UTF,
-> > +#endif
+> Also switch to use proper spelling with diacritics, since I normally use
+> the full Unicode name with my personal email address. I'm leaving
+> in-code occurences unchanged though, as that would be just unnecessary
+> churn.
 >
-> This causes pcre2_match() to validate the subject as UTF-8 on every
-> call, which in addition to incurring
-> overhead on every file would also cause regex_match() to return REGEX_ERR=
-OR and
-> label_file.c:lookup_check_node() to fail the whole lookup with errno
-> ENOENT. Thus, restorecon on a file
-> whose name isn't UTF-8 will error out instead of falling back to
-> matching /.* and labeling accordingly.
-> If you add PCRE2_MATCH_INVALD_UTF to the flags, then pcre2_match()
-> will instead treat invalid bytes
-> as "cannot match anything" but can still match literals and character
-> classes and will return REGEX_NO_MATCH
-> instead of REGEX_ERROR.
+> Link: https://lore.kernel.org/lkml/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK=
+8KuseMQS-9tNA@mail.gmail.com/
+> Signed-off-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+> ---
 >
-> > diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/s=
-efcontext_compile.c
-> > index e504b5084c8d..04c86053b2c8 100644
-> > --- a/libselinux/utils/sefcontext_compile.c
-> > +++ b/libselinux/utils/sefcontext_compile.c
-> > @@ -1,6 +1,7 @@
-> >  #include <endian.h>
-> >  #include <errno.h>
-> >  #include <getopt.h>
-> > +#include <locale.h>
-> >  #include <stdint.h>
-> >  #include <stdio.h>
-> >  #include <string.h>
-> > @@ -564,6 +565,10 @@ int main(int argc, char *argv[])
-> >         struct spec_node *root =3D NULL;
-> >         struct sidtab stab =3D {};
-> >
-> > +       /* Initialize locale for UTF-8 support */
-> > +       setlocale(LC_ALL, "");
-> > +
-> > +
+> Hoping for this to get picked up via the SELinux tree, since the main
+> change is in the SELinux MAINTAINERS entry.
 >
-> This shouldn't be necessary with the dropping of mbrtowc() and using
-> utf8_char_len(); what still needs locale to be set? Ditto for the other
-> setlocale() changes.
+>  .mailmap    | 1 +
+>  MAINTAINERS | 2 +-
+>  2 files changed, 2 insertions(+), 1 deletion(-)
 
-Also, you'll need to make format it - doesn't currently pass make check-for=
-mat.
+Of course, I'll take this via the SELinux tree.  Since I'm going to be
+sending up a pull request to Linus soon with a v7.3-rcX fix, do you
+have any objection to me sending this up with that fix, or would you
+prefer this to wait for the next merge window?
+
+> diff --git a/.mailmap b/.mailmap
+> index 6803f3bd2865..0e672a60afdc 100644
+> --- a/.mailmap
+> +++ b/.mailmap
+> @@ -699,6 +699,7 @@ Oliver Hartkopp <socketcan@hartkopp.net> <oliver.hart=
+kopp@volkswagen.de>
+>  Oliver Hartkopp <socketcan@hartkopp.net> <oliver@hartkopp.net>
+>  Oliver Upton <oupton@kernel.org> <oupton@google.com>
+>  Oliver Upton <oupton@kernel.org> <oliver.upton@linux.dev>
+> +Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com> <omosnace@redhat.com>
+>  Ond=C5=99ej Jirman <megi@xff.cz> <megous@megous.com>
+>  Oza Pawandeep <quic_poza@quicinc.com> <poza@codeaurora.org>
+>  Pali Roh=C3=A1r <pali@kernel.org> <pali.rohar@gmail.com>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index fc320b373656..875d0baed8b9 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -24772,7 +24772,7 @@ K:      \bsecurity_[a-z_0-9]\+\b
+>  SELINUX SECURITY MODULE
+>  M:     Paul Moore <paul@paul-moore.com>
+>  M:     Stephen Smalley <stephen.smalley.work@gmail.com>
+> -R:     Ondrej Mosnacek <omosnace@redhat.com>
+> +R:     Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+>  L:     selinux@vger.kernel.org
+>  S:     Supported
+>  W:     https://github.com/SELinuxProject
+> --
+> 2.54.0
+
+--=20
+paul-moore.com
