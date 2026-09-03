@@ -1,70 +1,68 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8664A4E8DEA
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 15:56:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E0F4AA401
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 15:59:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788450984; cv=none; b=VyVUR3LDEX40maSW8vOY76t3bE6AnnIP9Ve6hudHW9RWTRJMLaDwXcoCEvNxqwi25Ect+bdZRoeGoC9sVR/rXmhLL0WMr4vusRS4WFHnC5t2YPr8YifB8JWZHYsq/P3h6SJqSuVnDnQ8hGcs2P1UtFpCZrKoY519XQiMN/3Y4nE=
+	t=1788451157; cv=none; b=ezIRoSIkPChnbyJrk1DODFCORpjes1TgGVnxu+X3EAlU3csw1zQXwjEWlxuhz7h52yg/mLcRCOhdHk42EYDeUzkOpGLYgNPrinEmYK1u9W1spe9YQ9Isi16mwy0uF5vnUH4Je7TkBHUnB3LJojhvWSqjfGUEwfWv5NYVdejVzfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788450984; c=relaxed/simple;
-	bh=9BK1kyxk5Z0/CaDbriSQ++DzrreFQG+kLaclcVYwGN0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gsBH2wL62JZ1xKeiJwYdzz+iyf+BGcJLp5Gkqu4+b0Ix0mSNHB9cudDxCXqe5Huqz4FtaaxMy9DsSEGU8VpFKY+nYMueIRPRNOju841t5AL/9maKfAiGDyZjw2Ub+KwZ0k8zTxYd/5juSd0gZaDkgF2yOhwJktU5AQpu3g+XjDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=btkRkqlf; arc=none smtp.client-ip=209.85.221.48
+	s=arc-20240116; t=1788451157; c=relaxed/simple;
+	bh=fd4MMwlmSULOgNYzQ7ZD7KO/XIzA2vH5kwqU8JmDJa8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nLbQPQZAv1trTmYA4Tf5RB8kRvSQW4ilb3V8dLBORR3fVX5b2k1hD1m1lqUwi+1NUE2zRSJG7SHjf56PhS+E204R2nHyYpZFktmCVNJPItDgrOzTOfbS9iM9B1zC+H/BHjQwrmuqQRtf7s38dN/p5PolYtTzbxeuKTuUG3rjXwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qcqzFMX4; arc=none smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="btkRkqlf"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48441fa5c37so9798f8f.3
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 08:56:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qcqzFMX4"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b6031cbc6bso2404992e87.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 08:59:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788450979; x=1789055779; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788451154; x=1789055954; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :subject:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Qf5A2iWXrze7f/WQGCmLESIXScEzdMF2bet/pRtY3Is=;
-        b=btkRkqlfotTbaNJJyaxS4LwL7rBuN8VRekBWvzMifhXVTv7st8iBwhg2et4/seMKtS
-         5kuo1D/4VmvPntokf67cJPDTL4LNAz+SGUysGEw3s5N98UdMU1ZtwhVAvhi+ugahidtT
-         jfSwJQ7pt+GVLsXUHRvvPtjmuMziLsx0F1yEEAC8PWrg/W1mpyacXoyLgZGqnQVA273r
-         n2i5GatRaL7j9G+lbpjzzjimD0AMbaXAu3o3KhOAfahyW52IJHcUxKg0SCr+TeVFtSYl
-         LGlpsCEQRtO0rJ3q7SZbTqvR4ugigRDWDeGnU0OgmVdqIfW8u//Ii3evKOY6AJACEg0S
-         DACw==
+        bh=k+STmnpYxGVez5jnS5tz4D2/okYOxzFi+4LsfvlXF7w=;
+        b=qcqzFMX4/rBDnHhyqUergcLh9fLYswnBFJbe32oZCMw1dEAqOiV7PrXUPuyl/qKyvW
+         mxmL8aEeSGpHBnD/zWSFNdnHRiSGBCzeEYg7PJZuE49jQqVwXS8Jaq9XnBZ3j1P3w6Lr
+         9xJxuD0KdcmwSAxGaRPs42Eo7+AMuenySbCyzTHZ0B3Mp5v2gr+/ypgW2C+mo4txK7lN
+         FTsbIdviVCV1v7B5HXZt6ZF4gTilp4BltuFjvXm1C8JPPFDMcs2/mkBeGbO2z9t4MObU
+         jOiKuMPLkDkiwddlAj0dl1q9ChGokL0d9/ko8BW1ilR52KwQ/CjPbGMmJQSQBDCRn2qT
+         /Smg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788450979; x=1789055779;
+        d=1e100.net; s=20251104; t=1788451154; x=1789055954;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Qf5A2iWXrze7f/WQGCmLESIXScEzdMF2bet/pRtY3Is=;
-        b=lRQr0UNURvYpBZhMDs9ifCRTyIpc884ngDQMxw7BSar9OOtbg/JQ8iaQhXGutnwGx6
-         TdPaO3wSVBS5Fm9fKcRSpX0gHsfICh6fdm9IxIu2wqajVgrzDFKns+NHBIoF8yL13/lY
-         LQL3PxQNck2fu0rRuIQnqFAx5TCU+Gilpl2iEI4HuV3Fp/GBdNyMcKyX8gegYKAc2nVX
-         Y1Gu+McUiEablRZUs5Xpx5eQMqLhmgNo6P4wGj4YDiiJe4LXat1mbczvEn4ko/qQjClk
-         0VQqMEcXwWaVEdRYnyWLk6D0cZ/dMaUw7MU7+VD/AKwOHJA5dVBEZMqjmQxORcT1ay+8
-         uOJg==
-X-Gm-Message-State: AFuF++kUetx1s9/f5+EFnAdhDy/clePnf09bEStL86yO/2FnL/gq6z7X
-	1tWiQ+RIAsJQki1MTQbrhKuJsMaBfpihdPUhHxAYksjq41W26+iXFYpH6gtqdfOCqYI=
-X-Gm-Gg: AYBFou3maPyD+BNOBsLV9aafKawGj9qVoqoEvYz3RaHTbX1+4lbP44+PIEJqbjr5EKp
-	klPST7+QBpE4IZHzxMb5kaeQPzURPQdtc0ZIxCKB+x2INKzjAOz8kgYHY2DuIWflTzOYjrv7VYW
-	oH0/iNm/cFjijFtKjuwcmCOQg8eTa6zF5qdgLKaCZgRrywZv9By8QyPJHdexS2bhGKmD9krWmxO
-	g4URTKP5Jxhi8wxBsaI15V6g30PM31ZuNT1GwYSXXSGa2d4E50f86uK7dG7F6+IAZxyjwmTfx14
-	OqDlT95XJDhO+ns9oUAsKm0l7R0ACsl61vKfsie31sZCrB3dS0mr7iEpwGsdqIgjIk0S3xXRNQL
-	NQW78tXFHlPcpr33SVRJslauXljVw8W7A3I3fWQXXXDh4KuvIiTtixwaCCKOKl5mtN36Nvwzsq1
-	9BjezBMbM2cHMJ18WYe7k/z2J2tyTk2UabPu2GmR0t3mHc+qr0CkK46wW/MWeQYQgcz86o7nzb7
-	D1FfxYELxMK9h18CDnsBXHgO8qcrRKy/TJsDg==
-X-Received: by 2002:a05:600c:354b:b0:49b:d03:8d3a with SMTP id 5b1f17b1804b1-49ce58180bbmr220232615e9.11.1788450978626;
-        Thu, 03 Sep 2026 08:56:18 -0700 (PDT)
+         :subject:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=k+STmnpYxGVez5jnS5tz4D2/okYOxzFi+4LsfvlXF7w=;
+        b=E2E78SyQCiI4i9BlItdKRPQJPCUwyOlXhdoiagyBzpxZo0dj213+G/8h0dl41YnUkX
+         mW9MSbpx9T/QF2g/PUjxy13RwYM0UTHU0391EsfWtqxy8NB/cJk/tMc1S83XfqiC0CEj
+         +c5FsnyEOKwNTPka5BS4oAe0B29NkcT1rqTARHEUlBVheWHe1FQehCvoFtKBqOMVyg5r
+         K8YDJ4Zx9lrbEo7bxH3JxdtTr2WqY3lYQ9KBxNQPbd3Tt0/MRvgAMZROE1GxXLRat8tZ
+         ZeUsAQEy6oUJsWmJ3ILfT1L0e5rfu2D8csVRr7Seed02qxvRhkcnfz7H8he6rMqgZmm1
+         DDxQ==
+X-Gm-Message-State: AFuF++kDEVRKPNdSuXjSgZDV0gmXPb1ItrXdYo8fbkPlOIf6I3E4Jkk0
+	eupfBWkcG5WHv6z3ATDTKo+CE5g1HnFFsBp1QnLcl74O2N+EQDZ7ZTWenCc19BVg
+X-Gm-Gg: AYBFou3x0d7BUa/V24X8PmqtiMo/06Up2lhqOXSALozxZvx6paJRvoBEHXUzBygLzrf
+	S0OZM9lLg4sY4BkEVISyBi1OiLppzHUk/QYHCTHvFvhkG6ND57hKr0ec98BiiwkTpObZxv3pYoR
+	xYMEWzpTIfzdsPSQmvpriRMJHu7UFFIPgD+RRe3Ni1akYf/nF5Wbtu/bX8R940Xbrx0pTHiRLSd
+	RnIr0TJl8ZU0zQ6OS09z649LS89ztL6TsSWFQhQKZlDjJl4fAqZlKO7VNKP4c5kK0DpJiX7HJsf
+	ssfSZ1CYM4+4vL7CX3Tc/HDm7QFSTBbkQwt3O8dOoME/cgw+d5QrokcRf49cIhaMBrpfp7uNtSF
+	CCU7qFFRTpIMVPpURL65grxtjpD8JRCrvSnzwYggCNvBMCaTpddcR7NSIReFO36Vcr8iw/118rN
+	voCCWV4ise3p0gPCDlswUNdvWAwlVmdMUoWe85nALKEEbM/PIBQssjlUlC/ceBsMmvOJe4I7ld8
+	AWSEIzQFPItJVyfu8JrWZ0Gjf/kuu4rOxaloA==
+X-Received: by 2002:a05:600c:620e:b0:499:78b3:7b36 with SMTP id 5b1f17b1804b1-49cf5b9a6d3mr14530465e9.11.1788451119571;
+        Thu, 03 Sep 2026 08:58:39 -0700 (PDT)
 Received: from omos-acer (109-81-21-204.rct.o2.cz. [109.81.21.204])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee6024a8sm80527185e9.6.2026.09.03.08.56.16
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49ce55259ecsm98242275e9.2.2026.09.03.08.58.38
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 08:56:17 -0700 (PDT)
+        Thu, 03 Sep 2026 08:58:38 -0700 (PDT)
 From: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] =?UTF-8?q?MAINTAINERS,=20mailmap:=20update=20email=20addr?= =?UTF-8?q?ess=20for=20Ondrej=20Mosn=C3=A1=C4=8Dek?=
-Date: Thu,  3 Sep 2026 17:56:15 +0200
-Message-ID: <20260903155615.516010-1-omosnacek@gmail.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH userspace] SECURITY.md: update Ondrej's email address and add GPG fingerprint
+Date: Thu,  3 Sep 2026 17:58:37 +0200
+Message-ID: <20260903155837.516393-1-omosnacek@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -75,50 +73,36 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-I'm going to use my personal email for kernel contributions from now on.
-Update MAINTAINERS and .mailmap to reflect this.
+I'm going to use my personal email for upstream contributions from now
+on. Update SECURITY.md to reflect this.
 
-Also switch to use proper spelling with diacritics, since I normally use
-the full Unicode name with my personal email address. I'm leaving
-in-code occurences unchanged though, as that would be just unnecessary
-churn.
+Also add my GPG fingerpint. The key is not yet signed by other patries,
+but I've been using it to sign my git commits for a while now. It can be
+also found at:
+* https://github.com/WOnder93.gpg
+* https://gitlab.com/omos.gpg
+* https://keyserver.ubuntu.com/pks/lookup?search=CEEE4E9CF1676119&fingerprint=on&op=index
 
-Link: https://lore.kernel.org/lkml/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK8KuseMQS-9tNA@mail.gmail.com/
+Link: https://lore.kernel.org/selinux/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK8KuseMQS-9tNA@mail.gmail.com/
 Signed-off-by: Ondrej Mosnáček <omosnacek@gmail.com>
 ---
+ SECURITY.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Hoping for this to get picked up via the SELinux tree, since the main
-change is in the SELinux MAINTAINERS entry.
-
- .mailmap    | 1 +
- MAINTAINERS | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/.mailmap b/.mailmap
-index 6803f3bd2865..0e672a60afdc 100644
---- a/.mailmap
-+++ b/.mailmap
-@@ -699,6 +699,7 @@ Oliver Hartkopp <socketcan@hartkopp.net> <oliver.hartkopp@volkswagen.de>
- Oliver Hartkopp <socketcan@hartkopp.net> <oliver@hartkopp.net>
- Oliver Upton <oupton@kernel.org> <oupton@google.com>
- Oliver Upton <oupton@kernel.org> <oliver.upton@linux.dev>
-+Ondrej Mosnáček <omosnacek@gmail.com> <omosnace@redhat.com>
- Ondřej Jirman <megi@xff.cz> <megous@megous.com>
- Oza Pawandeep <quic_poza@quicinc.com> <poza@codeaurora.org>
- Pali Rohár <pali@kernel.org> <pali.rohar@gmail.com>
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fc320b373656..875d0baed8b9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -24772,7 +24772,7 @@ K:	\bsecurity_[a-z_0-9]\+\b
- SELINUX SECURITY MODULE
- M:	Paul Moore <paul@paul-moore.com>
- M:	Stephen Smalley <stephen.smalley.work@gmail.com>
--R:	Ondrej Mosnacek <omosnace@redhat.com>
-+R:	Ondrej Mosnáček <omosnacek@gmail.com>
- L:	selinux@vger.kernel.org
- S:	Supported
- W:	https://github.com/SELinuxProject
+diff --git a/SECURITY.md b/SECURITY.md
+index 52ab863c..1f255c81 100644
+--- a/SECURITY.md
++++ b/SECURITY.md
+@@ -40,7 +40,8 @@ window.
+   *  (GPG fingerprint) 578C 4211 832F 0A7E A2C5  A7C2 21A4 6E60 3F74 4ECF
+ * Jason Zaman, perfinion@gentoo.org
+   *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
+-* Ondrej Mosnacek, omosnace@redhat.com
++* Ondrej Mosnáček, omosnacek@gmail.com
++  *  (GPG fingerprint) 9F17 354B 2928 339C 5130  906D CEEE 4E9C F167 6119
+ 
+ If unsure about whether an issue is in kernel or userspace, feel free
+ to send it to both the kernel and userspace maintainers and the
 -- 
 2.54.0
 
