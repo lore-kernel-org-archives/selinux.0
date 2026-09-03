@@ -1,79 +1,79 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A04717A2E8
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 07:31:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF433F3283
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 09:39:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788420690; cv=none; b=OKaiw5B9ZwMzlkeOG1NZgu/1C+/l1YymhswBHx4XN6NNLlfKnYzAb3R9d3KaWnKNKKu//4ecgW1eVh0D67XOHap645vEsft8o97LxPNGqsCcjtyxaLa4ce70QV8D9S85OhC+R3yTf+W3c+oxPq+j/E1Bw6eNnDMPNYWq2oE76pE=
+	t=1788428375; cv=none; b=QTurXSafk5Qhe07sHx/Y+UvPneonKtRnn0/iEhJOM/LLTcBIr1oeGKk/ovQSAQ5YSJF81dxaKegPQecqUJbwBkoxU916CtguffLTPZg+W8P9OoheQl2aGczp+UkwyoTkb4UNsdvGmT7mMores5MmdIfsnnd1n/VVo9t/2I7V4Mc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788420690; c=relaxed/simple;
-	bh=t/AKO0tLHF9dGW+FB6Zo8bC8blJ274t1qMusFIsWLAs=;
+	s=arc-20240116; t=1788428375; c=relaxed/simple;
+	bh=eteUzrmkq8h8GgYq7AnBB8NLtsAMTQF/SAj+F1OBPTU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ukBNzkfyOB5xx3YdUBgA4CPhNkRD+Au0NSk7Gy1OoyaOQt/+GIxS0CHD3W5PP8B8zDJFsDsEd5Cv0F+CAVzFB13Z1DAW9w3t8GlhiwnDl7dishyIHIZ2PYmf83PpCnI/itt6ZFeTK8vRi3l9+VHiu9q4iImHhlzFtS0wvvIUogY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=tDaaDydH; arc=none smtp.client-ip=185.125.188.122
+	 In-Reply-To:Content-Type; b=hP5ZpenBqQvTNvv1e9qYXi5eLZl5mhjaAJ5Ki3Gu1ieEz++hdhmHfi9yMirL5+MIqANNxjAoeuIOU6rJh7v02w1XyguTX0TC24nwB7xPX6AaIxY+fWmXpRH1cNuM88O+eBO6GAwhPAr6ZU39OdLFooi4gHs8+hJRe6+4Z4uWxDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=ZvwxeX3l; arc=none smtp.client-ip=185.125.188.123
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="tDaaDydH"
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="ZvwxeX3l"
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 5D26F44B95
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 07:31:21 +0000 (UTC)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 18ECF42945
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 09:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20251003; t=1788420681;
-	bh=OwlZrVOYFz3WV0bGdbITbNQ4pLsWzVXi1TJiFeM+0OU=;
+	s=20251003; t=1788428369;
+	bh=KKkLnet/xNso2VgwykzycKd8FLUzbCAtDdRFW1K53Ic=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
 	 In-Reply-To:Content-Type;
-	b=tDaaDydHnkxrxMFkj7eJxKk4tzwJtyEpiqZYCyTUQYKazkI0cz0T63wfrVnkBSmIP
-	 nr6RQTG1jPaCA88iMkKP3NN3/QdUStCdMrWmQJY+Ei1WwXdpxKyJGEI9m2t7ePInlG
-	 +lsgPIahYiXtNkG4C3d7mJnielHjeKZWWFpvUkhG9jQpLTTC0chzplUSbgpxf2OJlG
-	 X4Abw1Vr6vJcCsrfOdCPNfPHTDgvqHzSmGRigqm8QBGUUZnIBdpPVw7IHLvqPY1CjK
-	 nDoV59f3DEgENw/HOX9/9+9Zdo4E6pFZ7MSP0enM/wHvuBi7QM2NrPr3BBjG8c3krN
-	 WmoN7e7ybUEIjR0NAglWnB71oli45DvaDPpp5oR6c9akfEaHGVKqn5KNW2hLhA81W7
-	 W15oY6RlV8zKG3Vy7I0fmo7dYYdplVQUOg4QDGp7sFpJzsm/ynZIF7HbJ/Tj4fRgWV
-	 LnZEQh2KlP2l+bkWkl3pDGyfTsQF4/wM8txFaG8bRtK7tdtFL7ENZsGohaenS/0pH+
-	 DjNB8+3z04d6EuR2p/+6yDEGl9QVB2Fvr+cqO0NlUXtO1V/FX3wymenRT+jU+UPO/U
-	 lQQQ1vHSm4yX0ywAN8W2Di8QiEErZUPelaWKNLa5EPp/bxv0FEJRmLJPioJH0N/umw
-	 k6m+N9/BlGweF1tL3/qZQ/5Y=
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2d7293f13c6so28010785ad.2
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 00:31:21 -0700 (PDT)
+	b=ZvwxeX3la+ukS5I5aysGjGnhc0dZ9tU3buK6XpFI6YQJsGY0Li1brx0iLXjDo5Wpq
+	 V7rkwlPtzO40UpY+LuJxoZ/EkhgPjqNFIPWBlIAcdEzgVYRKHKByPbqPwLL7EM/g/f
+	 Qy0fmDp4lCbxT8nDCQkUhERXpWkove9jguHBptFNLh3VzcfvBoOsAdDcQ5UlEI7ocb
+	 nwmRn4MXLpIdO5FjR+SSFBNh3+SQv4UAI74Ijc/2CwB0K+tHiRh5JvnTXxL/Y/JHqQ
+	 5WkEDjnW2Otap9O8nDDNRc4D95ILySo6/ZPQNeRIxHi34grscPz5lh67SbEwmqTnuN
+	 sq6cFZTsdsANy/dCOcQafyYLORmOVlRzjS5MfkVN8J57mQLCJI6wLWvz7TB/Uanf3N
+	 Ug0lEtCTFGfnhr4HKIIObr82iXmtbIFK3n41pUATx7//tGcmBqBrzpk+yLWmai7EJS
+	 C+EwYbhv/nYLzm0Ojpo/VlQUW6A+YEzakk527w/I5taxCBeR1ccxkxOeWpXg97Gk9q
+	 wcsE+DMAjkeeOupVUkRTJWQexrWZz8KGotHWmiUDDJhJYfKPDCgvXnqy4ORZ0kcs1z
+	 MiMvrTXpru/evX9FZ6P1xaFkyS47mfkkmKvuvDbz1RYIXIo0JMraQsY+kxgHrjiP+9
+	 HLnIlooLx4HSE16h/Tsva4sE=
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-398d0010cfaso3885003a91.3
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 02:39:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788420680; x=1789025480;
+        d=1e100.net; s=20251104; t=1788428367; x=1789033167;
         h=content-transfer-encoding:content-type:in-reply-to:organization
          :autocrypt:from:content-language:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=OwlZrVOYFz3WV0bGdbITbNQ4pLsWzVXi1TJiFeM+0OU=;
-        b=KXXKm7hqoXr7yQIm7OyKGy0Scl0yoRlWkNCu9miQqCNNrvm2dQuADhs/ONSExps398
-         JQ0aBIpv9hFihJN6e901ti7FhzDhfm39yVchqx4bLLwbcoUjE0w+8P+c/fygYcX/C6pl
-         K3RnmZR2uYDVX+JZJ8zWjnhBidnru4fbA1nghFues7k4KkioHSgEDWxU4c94wIuKFsOh
-         2Gsw6ZNwjrvPhLZ+ZUteMIHpI7fgDkFq9M6Z7Qf4pDTBiQUIFIyRqEUxMHYe7hKerIX2
-         z+VpUc3y2S3W1pfo3sbvtFb7uxpBVJOF1mEIfeigia3IjB+EhzUv/7FpALfW2tzgW5Vd
-         G5VA==
-X-Forwarded-Encrypted: i=1; AKwUvBxg4fJFTUqlX0pOrlOP39bZkAMBJ3xxkw7ne5zWyYhDmoXI7rubAjv4WR1zicq+ZUtyIrQDtMHl@vger.kernel.org
-X-Gm-Message-State: AFuF++msBSNEu8Di5Nw4WIBJ50aOCOK2A5/26XN5cpndMevsMYUAOts5
-	lwU+ii5I2RkZtYkEsuJPW0vt1Wg+1oDqw7C/gglmFeWSrixMsdHo7l2kMPqYP2ZthBlxa4VhHr6
-	Q4hiJYToKoWHsmWAu7Ww0cZo7vKAHsUlkEfCY3LPJroJOfoxHQD6d4fzu8+di84h/3QfWWupEIH
-	M=
-X-Gm-Gg: AYBFou0B8jvoVTOmM5rqR5F0qpNx5DGqRghO/OrxHtzLluNeBpO4XQEonCqDjBVSdJB
-	bEZPJ+i8q7bkaelFG/o8HFT5absiq5EEEYFqQIPuA2vxVZckLT+AkW/ast1KU/c50ZzIsb4rQn+
-	Oi4Vp97PRsRAjWTKvTiDJyWrVNZprGm901nnwEyJZgdpYPmmBJz1euPGAqNQjC0Y/b06KspHM5n
-	Y7Rjm+yUmL/34r9iT8+8tcGqwlX5AECfp7v8A3WrQAayahMvSNq9/JgkmFEDpZLM9RH0RXeqRvD
-	YppGGNw376Ujse7kUBFYnHbtnYiLCZRmBKFQOEIE5JWDlsA1bQ2C7j0ELUgcAlpzbIEPcvIGc8i
-	74KGhJuz3p2buOhY=
-X-Received: by 2002:a17:902:fc47:b0:2d9:33d4:a910 with SMTP id d9443c01a7336-2daec5f55a5mr153173065ad.4.1788420679677;
-        Thu, 03 Sep 2026 00:31:19 -0700 (PDT)
-X-Received: by 2002:a17:902:fc47:b0:2d9:33d4:a910 with SMTP id d9443c01a7336-2daec5f55a5mr153172425ad.4.1788420679114;
-        Thu, 03 Sep 2026 00:31:19 -0700 (PDT)
+        bh=KKkLnet/xNso2VgwykzycKd8FLUzbCAtDdRFW1K53Ic=;
+        b=DibnLuWGnALyWcPYRH04RW3Zy8+aHiNtM1TAk4PHo6mHJN6iUxvMjDUpbfqcS9Kj2c
+         cSawN4TORGGrv6AHXdLPhHnzIEvOsIsD3DsG1iGEO7VHL9E1swNcxFmzvb67xe7apOVx
+         bgL62a92Kah6iytlDZQaeXcX/SgDKUeFuj0t/3Ys6o5IgQkaRuH2DnwKAMfEME2m/VD/
+         wEVZyeMprpeFYDFxExTAb14UDm0z+OEXsj8Ehujh9o0/fUyX8BjU7vOhONEWPL9lWTeh
+         20OY4YpQztIIsDPxkUDWgqjIjGqDM/5pJG4dM1RnG232GjK9UpIxFMh6aMqoEEdbfIDd
+         LChw==
+X-Forwarded-Encrypted: i=1; AKwUvBxsLNKcKCPB+87Fk5lWl/emJgoRACSm8tF74OteQWgvYTPdN95vtcTDlhvndzeUhECjpD2uF5Ge@vger.kernel.org
+X-Gm-Message-State: AFuF++kk4sammrjTPUCYOJHt6HmZDW1yUsLQ8i9h27SpbAuv27ueNSaM
+	8Sxs6Q0TMxYXORAPUIeCOIuuEj1JxrOONn4rA9HIfNUgrbr4c2baGFc5CTNxr6E0/pqs3PB4aF3
+	tU9fNaw4CSST6wGsgqaLaOnPGMQPRgyob1u1/l2XzAUucd82FSNpk4u8FVsEmvaRpKOe3FtZxNf
+	E=
+X-Gm-Gg: AYBFou1xGBk5ArQZAxYrNmdQ6C510deuQJed+ppLR3cd26m/Y2YEbHs+u95UmrxHAUp
+	MUfCnSfaiaGUUCttJeJ8QheNrcQCum76M3k7fIyatXGTHdwsIGYJJBeHL+gNgUe+/nTUBodoeCB
+	QLRUIHo2O6Ohl3smsybTZkX78SWKYxlDhKi4hesyvEFluU6+j1Bd7xCZqVYmnGRcte6cm+/Hd2a
+	ESEC8VDS2qzmssC5zKZXEP5wend66SUXX8gK/aBkrNVdoOV/kpnJdW7+t23NSnv5+qFUAi9FUOJ
+	kh17enQSj98/0CRvyT8wiw32y6dxjC+Bh+TDOEEItPguhZ4i/jP/Uu48tvGb904hrjgg0X3mnOk
+	sDVkxdWmpCAX39xU=
+X-Received: by 2002:a17:90a:d604:b0:398:c9be:cca8 with SMTP id 98e67ed59e1d1-39aedf5e124mr17481264a91.2.1788428367516;
+        Thu, 03 Sep 2026 02:39:27 -0700 (PDT)
+X-Received: by 2002:a17:90a:d604:b0:398:c9be:cca8 with SMTP id 98e67ed59e1d1-39aedf5e124mr17481215a91.2.1788428367163;
+        Thu, 03 Sep 2026 02:39:27 -0700 (PDT)
 Received: from [192.168.192.72] ([50.47.147.90])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-2dafed49b93sm5727745ad.67.2026.09.03.00.31.18
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-39b08cacbb0sm4360801a91.13.2026.09.03.02.39.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Sep 2026 00:31:18 -0700 (PDT)
-Message-ID: <6965738d-75a6-4da6-8dba-6214d3e6a458@canonical.com>
-Date: Thu, 3 Sep 2026 00:31:17 -0700
+        Thu, 03 Sep 2026 02:39:26 -0700 (PDT)
+Message-ID: <231fbb7c-0b31-4379-b02a-a79e3b9c28ae@canonical.com>
+Date: Thu, 3 Sep 2026 02:39:24 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,7 +81,8 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/7] net, lsm: Change skb secmarks to x-array indexes
+Subject: Re: [PATCH v2 6/7] Apparmor: hooks for secctx_to_lsmprop and
+ update_lsmprop
 To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
  linux-security-module@vger.kernel.org, pablo@netfilter.org, fw@strlen.de,
  phil@nwl.cc
@@ -90,7 +91,7 @@ Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
  keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
  stephen.smalley.work@gmail.com, selinux@vger.kernel.org
 References: <20260902220150.18586-1-casey@schaufler-ca.com>
- <20260902220150.18586-8-casey@schaufler-ca.com>
+ <20260902220150.18586-7-casey@schaufler-ca.com>
 Content-Language: en-US
 From: John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; keydata=
@@ -136,514 +137,88 @@ Autocrypt: addr=john.johansen@canonical.com; keydata=
  +T7sv9+iY+e0Y+SolyJgTxMYeRnDWE6S77g6gzYYHmcQOWP7ZMX+MtD4SKlf0+Q8li/F9GUL
  p0rw8op9f0p1+YAhyAd+dXWNKf7zIfZ2ME+0qKpbQnr1oizLHuJX/Telo8KMmHter28DPJ03 lT9Q
 Organization: Canonical
-In-Reply-To: <20260902220150.18586-8-casey@schaufler-ca.com>
+In-Reply-To: <20260902220150.18586-7-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+
+the code itself looks right
+same nit on update_lsmprop as previous two patches.
+
+I know you are working within the insane constraints of the secid, but it really
+hurts that apparmor has a local xarray for secids, and now the LSM infra has
+one too. I know its a problem to be solved later, I am just griping about the
+current state of affairs.
+
+
 On 9/2/26 15:01, Casey Schaufler wrote:
-> Maintain a xarray of lsm_prop structures which represent the
-> LSM security information passed via skb->secmark. Pass the xarray
-> index of the appropriate lsm_prop (the secxa) instead of an LSM
-> specific secid. Allow multiple LSMs to specify their components
-> in xarray entries, or create new entries as necessary.
+> Implement these hooks.
 > 
-> Change uses of security_secctx_to_secid() to security_secctx_to_lsmprop()
-> in the netfilter and iptables code. Change security_secmark_relabel_packet()
-> to accept an lsm_prop pointer rather than a secid. Change secxa_set_secmark()
-> to update and create new entries as necessary.
-> 
-> Update the SELinux, Smack and AppArmor hooks that use secmarks to
-> expect a secxa xarray index instead of a secid.
-> 
-
-see comments below
-
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->   include/linux/lsm_hook_defs.h    |  2 +-
->   include/linux/lsm_secxa.h        |  2 +
->   include/linux/security.h         |  4 +-
->   net/netfilter/nfnetlink_queue.c  | 12 +++++-
->   net/netfilter/nft_meta.c         | 15 ++++---
->   net/netfilter/xt_SECMARK.c       | 16 +++++--
->   security/apparmor/net.c          |  8 +++-
->   security/lsm_secxa.c             | 20 ++++++
->   security/security.c              |  6 +--
->   security/selinux/hooks.c         | 71 +++++++++++++++++++++++++++-----
->   security/smack/smack_lsm.c       | 10 ++++-
->   security/smack/smack_netfilter.c | 10 +++--
->   12 files changed, 141 insertions(+), 35 deletions(-)
+>   security/apparmor/include/secid.h |  4 ++++
+>   security/apparmor/lsm.c           |  2 ++
+>   security/apparmor/secid.c         | 21 +++++++++++++++++++++
+>   3 files changed, 27 insertions(+)
 > 
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> index 679c40a8e127..8ecf07e0e3f0 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -371,7 +371,7 @@ LSM_HOOK(void, LSM_RET_VOID, inet_csk_clone, struct sock *newsk,
->   	 const struct request_sock *req)
->   LSM_HOOK(void, LSM_RET_VOID, inet_conn_established, struct sock *sk,
->   	 struct sk_buff *skb)
-> -LSM_HOOK(int, 0, secmark_relabel_packet, u32 secid)
-> +LSM_HOOK(int, 0, secmark_relabel_packet, struct lsm_prop *prop)
->   LSM_HOOK(void, LSM_RET_VOID, secmark_refcount_inc, void)
->   LSM_HOOK(void, LSM_RET_VOID, secmark_refcount_dec, void)
->   LSM_HOOK(void, LSM_RET_VOID, req_classify_flow, const struct request_sock *req,
-> diff --git a/include/linux/lsm_secxa.h b/include/linux/lsm_secxa.h
-> index 84b06c093460..5be9d64e67e4 100644
-> --- a/include/linux/lsm_secxa.h
-> +++ b/include/linux/lsm_secxa.h
-> @@ -7,6 +7,8 @@
->   #ifndef __LINUX_LSM_SECXA_H
->   #define __LINUX_LSM_SECXA_H
+> diff --git a/security/apparmor/include/secid.h b/security/apparmor/include/secid.h
+> index 6025d3849cf8..ba7adf2fc09e 100644
+> --- a/security/apparmor/include/secid.h
+> +++ b/security/apparmor/include/secid.h
+> @@ -28,6 +28,10 @@ struct aa_label *aa_secid_to_label(u32 secid);
+>   int apparmor_secid_to_secctx(u32 secid, struct lsm_context *cp);
+>   int apparmor_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp);
+>   int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+> +int apparmor_secctx_to_lsmprop(const char *secdata, u32 seclen,
+> +			       struct lsm_prop *prop);
+> +void apparmor_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
+> +			     int lsmid);
+>   void apparmor_release_secctx(struct lsm_context *cp);
 >   
-> +#include <linux/types.h>
-> +
->   #ifdef CONFIG_SECURITY
 >   
->   struct lsm_prop;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 19adc19eb9af..ffbd1708065f 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1715,7 +1715,7 @@ void security_inet_csk_clone(struct sock *newsk,
->   			const struct request_sock *req);
->   void security_inet_conn_established(struct sock *sk,
->   			struct sk_buff *skb);
-> -int security_secmark_relabel_packet(u32 secid);
-> +int security_secmark_relabel_packet(struct lsm_prop *prop);
->   void security_secmark_refcount_inc(void);
->   void security_secmark_refcount_dec(void);
->   int security_tun_dev_alloc_security(void **security);
-> @@ -1898,7 +1898,7 @@ static inline void security_inet_conn_established(struct sock *sk,
->   {
->   }
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 88d12e89d115..1f304b88eaf9 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -1766,6 +1766,8 @@ static struct security_hook_list apparmor_hooks[] __ro_after_init = {
+>   	LSM_HOOK_INIT(secid_to_secctx, apparmor_secid_to_secctx),
+>   	LSM_HOOK_INIT(lsmprop_to_secctx, apparmor_lsmprop_to_secctx),
+>   	LSM_HOOK_INIT(secctx_to_secid, apparmor_secctx_to_secid),
+> +	LSM_HOOK_INIT(secctx_to_lsmprop, apparmor_secctx_to_lsmprop),
+> +	LSM_HOOK_INIT(update_lsmprop, apparmor_update_lsmprop),
+>   	LSM_HOOK_INIT(release_secctx, apparmor_release_secctx),
 >   
-> -static inline int security_secmark_relabel_packet(u32 secid)
-> +static inline int security_secmark_relabel_packet(struct lsm_prop *prop)
->   {
->   	return 0;
->   }
-> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-> index b8aaf39cb4d8..ebab037edc6b 100644
-> --- a/net/netfilter/nfnetlink_queue.c
-> +++ b/net/netfilter/nfnetlink_queue.c
-> @@ -32,6 +32,7 @@
->   #include <linux/cgroup-defs.h>
->   #include <linux/rhashtable.h>
->   #include <linux/jhash.h>
-> +#include <linux/lsm_secxa.h>
->   #include <net/gso.h>
->   #include <net/sock.h>
->   #include <net/tcp_states.h>
-> @@ -606,8 +607,15 @@ static int nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsm_context *ctx)
->   {
->   	int seclen = 0;
->   #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
-> -	if (skb->secmark)
-> -		seclen = security_secid_to_secctx(skb->secmark, ctx);
-> +	struct lsm_prop *prop;
-> +	int rc;
-> +
-> +	if (skb->secmark) {
-> +		rc = secxa_get_lsmprop(&prop, skb->secmark);
-> +		if (rc)
-> +			return 0;
-> +		seclen = security_lsmprop_to_secctx(prop, ctx, LSM_ID_UNDEF);
-> +	}
->   #endif
->   	return seclen;
->   }
-> diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-> index bd0f7a0931f4..664191dfa4b2 100644
-> --- a/net/netfilter/nft_meta.c
-> +++ b/net/netfilter/nft_meta.c
-> @@ -927,21 +927,24 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
->   
->   static int nft_secmark_compute_secid(struct nft_secmark *priv)
->   {
-> -	u32 tmp_secid = 0;
-> +	struct lsm_prop tmp_prop;
-> +	u32 secxa = 0;
->   	int err;
->   
-> -	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
-> +	err = security_secctx_to_lsmprop(priv->ctx, strlen(priv->ctx),
-> +					 &tmp_prop, LSM_ID_UNDEF);
->   	if (err)
->   		return err;
->   
-> -	if (!tmp_secid)
-> -		return -ENOENT;
-> +	err = secxa_from_lsmprop(&tmp_prop, &secxa);
-> +	if (err)
-> +		return err;
->   
-> -	err = security_secmark_relabel_packet(tmp_secid);
-> +	err = security_secmark_relabel_packet(&tmp_prop);
->   	if (err)
->   		return err;
->   
-> -	priv->secid = tmp_secid;
-> +	priv->secid = secxa;
+>   #ifdef CONFIG_IO_URING
+> diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
+> index 28caf66b9033..d35fdbf074e0 100644
+> --- a/security/apparmor/secid.c
+> +++ b/security/apparmor/secid.c
+> @@ -106,6 +106,27 @@ int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
 >   	return 0;
 >   }
 >   
-> diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-> index ea67aa92ddc2..05b023a7c576 100644
-> --- a/net/netfilter/xt_SECMARK.c
-> +++ b/net/netfilter/xt_SECMARK.c
-> @@ -43,13 +43,15 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
->   
->   static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
+> +int apparmor_secctx_to_lsmprop(const char *secdata, u32 seclen,
+> +			       struct lsm_prop *prop)
+> +{
+> +	struct aa_label *label;
+> +
+> +	label = aa_label_strn_parse(&root_ns->unconfined->label, secdata,
+> +				    seclen, GFP_KERNEL, false, false);
+> +	if (IS_ERR(label))
+> +		return PTR_ERR(label);
+> +	prop->apparmor.label = label;
+> +
+> +	return 0;
+> +}
+> +
+> +void apparmor_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
+> +			     int lsmid)
+> +{
+> +	if (lsmid == LSM_ID_APPARMOR || lsmid == LSM_ID_UNDEF)
+> +		dest->apparmor.label = src->apparmor.label;
+> +}
+> +
+>   void apparmor_release_secctx(struct lsm_context *cp)
 >   {
-> +	struct lsm_prop prop;
->   	int err;
->   
->   	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
->   	info->secid = 0;
->   
-> -	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
-> -				       &info->secid);
-> +	err = security_secctx_to_lsmprop(info->secctx, strlen(info->secctx),
-> +					 &prop, LSM_ID_UNDEF);
-> +
->   	if (err) {
->   		if (err == -EINVAL)
->   			pr_info_ratelimited("invalid security context \'%s\'\n",
-> @@ -57,18 +59,24 @@ static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
->   		return err;
->   	}
->   
-> -	if (!info->secid) {
-> +	if (!lsmprop_is_set(&prop)) {
->   		pr_info_ratelimited("unable to map security context \'%s\'\n",
->   				    info->secctx);
->   		return -ENOENT;
->   	}
->   
-> -	err = security_secmark_relabel_packet(info->secid);
-> +	err = security_secmark_relabel_packet(&prop);
->   	if (err) {
->   		pr_info_ratelimited("unable to obtain relabeling permission\n");
->   		return err;
->   	}
->   
-> +	err = secxa_from_lsmprop(&prop, &info->secid);
-> +	if (err) {
-> +		pr_info_ratelimited("unable to obtain secmark\n");
-> +		return err;
-> +	}
-> +
->   	security_secmark_refcount_inc();
->   	return 0;
->   }
-> diff --git a/security/apparmor/net.c b/security/apparmor/net.c
-> index cf590dd08540..e26e15c2d947 100644
-> --- a/security/apparmor/net.c
-> +++ b/security/apparmor/net.c
-> @@ -8,6 +8,7 @@
->    * Copyright 2009-2017 Canonical Ltd.
->    */
->   
-> +#include <linux/lsm_secxa.h>
->   #include "include/af_unix.h"
->   #include "include/apparmor.h"
->   #include "include/audit.h"
-> @@ -365,12 +366,17 @@ static int aa_secmark_perm(struct aa_profile *profile, u32 request, u32 secid,
->   			   struct apparmor_audit_data *ad)
->   {
->   	int i, ret;
-> +	struct lsm_prop *prop;
->   	struct aa_perms perms = { };
->   	struct aa_ruleset *rules = profile->label.rules[0];
->   
->   	if (rules->secmark_count == 0)
->   		return 0;
->   
-> +	ret = secxa_get_lsmprop(&prop, secid);
-> +	if (ret)
-> +		return ret;
-> +
->   	for (i = 0; i < rules->secmark_count; i++) {
->   		if (!rules->secmark[i].secid) {
->   			ret = apparmor_secmark_init(&rules->secmark[i]);
-> @@ -378,7 +384,7 @@ static int aa_secmark_perm(struct aa_profile *profile, u32 request, u32 secid,
->   				return ret;
->   		}
->   
-> -		if (rules->secmark[i].secid == secid ||
-> +		if (rules->secmark[i].secid == prop->apparmor.label->secid ||
->   		    rules->secmark[i].secid == AA_SECID_WILDCARD) {
->   			if (rules->secmark[i].deny)
->   				perms.deny = ALL_PERMS_MASK;
-> diff --git a/security/lsm_secxa.c b/security/lsm_secxa.c
-> index ccbe78095d70..f0702ac5601d 100644
-> --- a/security/lsm_secxa.c
-> +++ b/security/lsm_secxa.c
-> @@ -103,7 +103,25 @@ EXPORT_SYMBOL(secxa_from_lsmprop);
->    */
->   void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
->   {
-> -	if (!skb->secmark)
-> +	struct lsm_prop *olp;
-> +	struct lsm_prop *nlp;
-> +	struct lsm_prop prop;
-> +	u32 tsecxa;
-> +	int rc;
-> +
-> +	if (!skb->secmark) {
->   		skb->secmark = secxa;
-> +		return;
-> +	}
-> +
-> +	olp = xa_load(&secxa_xa, skb->secmark);
-> +	nlp = xa_load(&secxa_xa, secxa);
-> +
-> +	prop = *olp;
-> +	security_update_lsmprop(&prop, nlp, LSM_ID_UNDEF);
-> +
-> +	rc = secxa_from_lsmprop(&prop, &tsecxa);
-> +	if (!rc)
-> +		skb->secmark = tsecxa;
->   }
->   EXPORT_SYMBOL(secxa_set_secmark);
-> diff --git a/security/security.c b/security/security.c
-> index 1dec0037370b..e80e7823ce14 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -4646,15 +4646,15 @@ EXPORT_SYMBOL(security_inet_conn_established);
->   
->   /**
->    * security_secmark_relabel_packet() - Check if setting a secmark is allowed
-> - * @secid: new secmark value
-> + * @lsmprop: new secmark value
->    *
->    * Check if the process should be allowed to relabel packets to @secid.
-change @secid to @lsmprop
-
->    *
->    * Return: Returns 0 if permission is granted.
->    */
-> -int security_secmark_relabel_packet(u32 secid)
-> +int security_secmark_relabel_packet(struct lsm_prop *prop)
->   {
-> -	return call_int_hook(secmark_relabel_packet, secid);
-> +	return call_int_hook(secmark_relabel_packet, prop);
->   }
->   EXPORT_SYMBOL(security_secmark_relabel_packet);
->   
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 12614478b638..bf832eff0b92 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -94,6 +94,7 @@
->   #include <linux/io_uring/cmd.h>
->   #include <uapi/linux/lsm.h>
->   #include <linux/memfd.h>
-> +#include <linux/lsm_secxa.h>
->   
->   #include "initcalls.h"
->   #include "avc.h"
-> @@ -5414,7 +5415,16 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
->   		return err;
->   
->   	if (selinux_secmark_enabled()) {
-> -		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
-> +		struct lsm_prop *prop;
-> +		u32 secmark = 0;
-> +
-> +		if (skb->secmark) {
-> +			err = secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark = prop->selinux.secid;
-> +		}
-> +
-> +		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
->   				   PACKET__RECV, &ad);
->   		if (err)
->   			return err;
-> @@ -5483,7 +5493,15 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
->   	}
->   
->   	if (secmark_active) {
-> -		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
-> +		struct lsm_prop *prop;
-> +		u32 secmark = 0;
-> +
-> +		if (skb->secmark) {
-> +			err = secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark = prop->selinux.secid;
-> +		}
-> +		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
->   				   PACKET__RECV, &ad);
->   		if (err)
->   			return err;
-> @@ -5885,10 +5903,10 @@ static void selinux_inet_conn_established(struct sock *sk, struct sk_buff *skb)
->   	selinux_skb_peerlbl_sid(skb, family, &sksec->peer_sid);
->   }
->   
-> -static int selinux_secmark_relabel_packet(u32 sid)
-> +static int selinux_secmark_relabel_packet(struct lsm_prop *lsmprop)
->   {
-> -	return avc_has_perm(current_sid(), sid, SECCLASS_PACKET, PACKET__RELABELTO,
-> -			    NULL);
-> +	return avc_has_perm(current_sid(), lsmprop->selinux.secid,
-> +			    SECCLASS_PACKET, PACKET__RELABELTO, NULL);
->   }
->   
->   static void selinux_secmark_refcount_inc(void)
-> @@ -6016,10 +6034,21 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
->   		}
->   	}
->   
-> -	if (secmark_active)
-> -		if (avc_has_perm(peer_sid, skb->secmark,
-> +	if (secmark_active) {
-> +		struct lsm_prop *prop;
-> +		u32 secmark = 0;
-> +		int err;
-> +
-> +		if (skb->secmark) {
-> +			err = secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark = prop->selinux.secid;
-> +		}
-> +
-> +		if (avc_has_perm(peer_sid, secmark,
->   				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
->   			return NF_DROP;
-> +	}
->   
->   	if (netlbl_enabled())
->   		/* we do this in the FORWARD path and not the POST_ROUTING
-> @@ -6093,10 +6122,20 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
->   	if (selinux_parse_skb(skb, &ad, NULL, 0, &proto))
->   		return NF_DROP;
->   
-> -	if (selinux_secmark_enabled())
-> -		if (avc_has_perm(sksec->sid, skb->secmark,
-> +	if (selinux_secmark_enabled()) {
-> +		struct lsm_prop *prop;
-> +		u32 secmark = 0;
-> +		int err;
-> +
-> +		if (skb->secmark) {
-> +			err = secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark = prop->selinux.secid;
-> +		}
-> +		if (avc_has_perm(sksec->sid, secmark,
->   				 SECCLASS_PACKET, PACKET__SEND, &ad))
->   			return NF_DROP_ERR(-ECONNREFUSED);
-> +	}
->   
->   	if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
->   		return NF_DROP_ERR(-ECONNREFUSED);
-> @@ -6215,10 +6254,20 @@ static unsigned int selinux_ip_postroute(void *priv,
->   	if (selinux_parse_skb(skb, &ad, &addrp, 0, NULL))
->   		return NF_DROP;
->   
-> -	if (secmark_active)
-> -		if (avc_has_perm(peer_sid, skb->secmark,
-> +	if (secmark_active) {
-> +		struct lsm_prop *prop;
-> +		u32 secmark = 0;
-> +		int err;
-> +
-> +		if (skb->secmark) {
-> +			err = secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark = prop->selinux.secid;
-> +		}
-> +		if (avc_has_perm(peer_sid, secmark,
->   				 SECCLASS_PACKET, secmark_perm, &ad))
->   			return NF_DROP_ERR(-ECONNREFUSED);
-> +	}
-
-
-doesn't
-
-   selinux_socket_getpeersec_dgram()
-   selinux_req_classify_flow()
-
-I haven't detangled yet whether the xfrm hooks, every grab the
-secmark of a packet directly. It looks to me so far to be only
-the skb->xfrm->security->ctx_sid. Paul?
-
-
-overall this conversion bothers me, in that we need to put this
-boiler plate into every hook, instead of having the infrastructure
-handle the conversion for the specific LSM.
-
-I know this is partly being done because of the
-   if (secmakr_active)
-check, but I think it would be far cleaner, and less prone to error
-if the infra could grab the per LSM property and pass that instead,
-and not expose the secid value that has to go through the mapping.
-At a minimum the API should identify this mapped secid is different
-from the secid being passed in some of the other hooks.
-
-Perhaps we could have a way to store if the LSM is using the secid
-so the LSM infra could do the secmark_active check before calling the
-hook?
-
->   
->   	if (peerlbl_active) {
->   		u32 if_sid;
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index fcfadd5d9994..79140e6829a4 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -42,6 +42,7 @@
->   #include <linux/fs_context.h>
->   #include <linux/fs_parser.h>
->   #include <linux/watch_queue.h>
-> +#include <linux/lsm_secxa.h>
->   #include <linux/io_uring/cmd.h>
->   #include <uapi/linux/lsm.h>
->   #include "smack.h"
-> @@ -4189,10 +4190,17 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
->   #ifdef CONFIG_NETWORK_SECMARK
->   static struct smack_known *smack_from_skb(struct sk_buff *skb)
->   {
-> +	struct lsm_prop *prop;
-> +	int rc;
-> +
->   	if (skb == NULL || skb->secmark == 0)
->   		return NULL;
->   
-> -	return smack_from_secid(skb->secmark);
-> +	rc = secxa_get_lsmprop(&prop, skb->secmark);
-> +	if (prop)
-> +		return prop->smack.skp;
-> +
-> +	return NULL;
->   }
->   #else
->   static inline struct smack_known *smack_from_skb(struct sk_buff *skb)
-> diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
-> index b363c42f252e..0378f74aa22b 100644
-> --- a/security/smack/smack_netfilter.c
-> +++ b/security/smack/smack_netfilter.c
-> @@ -24,13 +24,17 @@ static unsigned int smack_ip_output(void *priv,
->   				    const struct nf_hook_state *state)
->   {
->   	struct sock *sk = skb_to_full_sk(skb);
-> +	struct lsm_prop prop = { };
->   	struct socket_smack *ssp;
-> -	struct smack_known *skp;
-> +	u32 secxa;
-> +	int rc;
->   
->   	if (sk) {
->   		ssp = smack_sock(sk);
-> -		skp = ssp->smk_out;
-> -		secxa_set_secmark(skb, skp->smk_secid);
-> +		prop.smack.skp = ssp->smk_out;
-> +		rc = secxa_from_lsmprop(&prop, &secxa);
-> +		if (!rc)
-> +			secxa_set_secmark(skb, secxa);
->   	}
->   
->   	return NF_ACCEPT;
+>   	if (cp->id == LSM_ID_APPARMOR) {
 
