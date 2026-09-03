@@ -1,272 +1,134 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B363E402B8F
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 09:40:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788428423; cv=none; b=sSSgLXq1dIWs5kBVNysrZoBGS00KVK2H3Xieyxzue8xjxYPpfW4CeWWIuxfYApiHbI1ZTgkGQlcn2LXzTijZF1TVEyj8A4tv5EAkkcCue4Kc8mP4PZDmQD4MzQzOQRF/gQYJx2+mxOPNFoLOQm9ECFCuz6Cg7s/R1mCjKI/ZC6E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788428423; c=relaxed/simple;
-	bh=RVY5KRyKZZG2Y+gJh7LxXAAi3xdCkxmVkaTQ446fAwo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TR90RJyxgQTcYo5Zb4ADjgM5C4PGemlmaJKPkWujqs6BK+NSf//tQmsdDUPlw1BY4FNB/JRlkxrNZvbUVqA3WLEZ3HS6L7nxnl5yoiybqQiFklFA4csGIKDURrZiYDbnJa5RXcweh5VnRkTjOiSDF0wTfMMvz2aPJ/OuWzlknu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=NnRYiOAu; arc=none smtp.client-ip=185.125.188.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4A15468C0E
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 11:29:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788435001; cv=pass; b=uy0wFROSwPTLePDIz3olN3u1UVx/S9ysXocLmrZ3ZIsTZSdAvr410DDHBCR15QcmeWqDA9JODNT3RxXgNQVFw9Eqs5Xe68gU+4jVfLsTW2IMW/G0sZnByAA5YcM7iuP0WC7LJ5z8ey65B9lETjcBwRz6Ag+y9F4fMgzmKDRHm3A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788435001; c=relaxed/simple;
+	bh=zVxEUER+vovhITHpwOAeij4FL/yULLzNoKNM7GtRucg=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=KfKSy/xFYGQHEIu5PBmGELdv0QXURhcXX6cF/6LM+jAX3rWgPiZgYDH60nC5pvu+oPVSr3md6wJfIpePYOuqUgM4LSfDQa2s3OFmTokwZf0DKVZd6NrU5988XnNXk0DIgmwhjMGbF49RT2O0IbLt4NT6BLMpKzzTwOCHr6gwSN8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NsTtA8Y+; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=hzNLwE0p; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="NnRYiOAu"
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 286E044B97
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 09:40:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20251003; t=1788428418;
-	bh=UnqC0vVCveGL8BfKzx1mgmJlLA7UfcDCGVJE34qJcis=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type;
-	b=NnRYiOAuXVs6LhpWCvOWLJrBbVsxRoNOg7vP6ovVcsk2+3/xgnbwIsChB4ygUKSCh
-	 DWA7ub5zMoKCQPmeG9UZCfpBZ2o8IgaB0peccHwHvpoRExG+ZHdwuJp1rXQ0rACXWk
-	 1EXJkcvmbp/BP16cmmY7YOCnN8wOuF03qk4Jv0cCZI1GN0LkUkDJBaJLUu8nUBR+Vc
-	 d6nW7/+FT5Izq1w6aLj4a+kuHsueUbF2z2Od/hD9k3ZlVne/+tky3gnqDRrf4dRZ3r
-	 KZwvm1WgSEC0qERLzS3NQSKO0YJMq81x+FMkqHGFvnNryGalbGw5CDMR/oKcfbRvCY
-	 OD/wcg5VC9X91BSf0F+vn9AXHUKNWVTDnQvGeR0tNN24xQ89qFYy5FgNHPKbyvs56x
-	 K/5k9VA2WrJdAW5Shz7HAp55L6RylKo06dquDNuAuSlXrAOVInQRipOyh7bEVKahSu
-	 zjUKIgPSL1y6+07MQjBdKnaVQ5O3P8gcl6C/O58Lv/AZLCdt1gGYQ1e3FMT6S9LCf4
-	 72loptRoEQZwqpbsI6al7Q7WTAklN27ZjHowKEHhXJU1tIU75v2SOZ2iEid/BWKWo2
-	 79ATPPMPbJiMOOEBQQDXwDmwljkaP9k2daI86LfJbhGuRPqklxu8jbngRnEVrMBfnd
-	 sWVOomGJCGFTsmiZL3kKn3yU=
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-84a251c2e3eso1158538b3a.1
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 02:40:18 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NsTtA8Y+";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="hzNLwE0p"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788434989;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=XooQYKR9Puxgt0G9f+A4PYpT9G+l/snRHdODOQmPlVM=;
+	b=NsTtA8Y+iZ16l1mCXQY2hoUVWqV7b+0sDAEaIf3yA+b0CecOiEaJVQJ7flPsv0MDj9MkgJ
+	J8Md/G+MvyjcX94334bqqQqrjsqc9tsDaADOWSQRIJ13aFrFMWBZS/hYL6RGLvLKMwevTh
+	HJOr12jYY7DI1KHBCRZox/YIY2xM91g=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-322-CwsbLzg8MjGrKVdVitEC1w-1; Thu, 03 Sep 2026 07:29:47 -0400
+X-MC-Unique: CwsbLzg8MjGrKVdVitEC1w-1
+X-Mimecast-MFC-AGG-ID: CwsbLzg8MjGrKVdVitEC1w_1788434987
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e475f83a2so3833597a91.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 04:29:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788434987; cv=none;
+        d=google.com; s=arc-20260327;
+        b=VZ0FE48GloU9PJui5nNFlDtPd7ytYX1eY8mTLLqSfc1GDKP+qelcZZ0dyRH9KRNs7x
+         dUVKI66GNtoy1tjWOi6bZnTZFlV2p7sfna5FRAABFnlmbRGxRhY1JUWUDKuKovYxz8Gh
+         UKWhgXKW8uVCzLKSlhtmYPERywZmlOsxuUR8RaG773Yo5uIR+V05FH0LeTFerIIOE/Z5
+         W6fCWo1uXQd0uvPweHaZYcs4zR6J6eyE9Ay1fViu1SxUFYBCI1qUOWLWKFT0FHr2oy4d
+         7DyPL8L5bjj3KWPMiFoAW8T/wc63NnZTb6z8F9zCAVtOxx5CXf9lLIvXXdq8O7McPMY5
+         612A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=XooQYKR9Puxgt0G9f+A4PYpT9G+l/snRHdODOQmPlVM=;
+        fh=CK3yZ3XgEg9GX8bsZM6ooLtgoyPFwFMOgUHJlvA8oHw=;
+        b=ciPAmCrejQ7xEIRPxk2Q5zmdvhfardAV8Sazk1zKiUR/cHNbLw57MXl4ltHv10dRpn
+         FxLJXIBpKkawbU2MDwTCIM3hte6Q3sglVPbJCNfuJoF8JiiAZTFXs94UkTGunEixLfXk
+         2IePowNOIlQIXtTy2yKduZU19Na0UQVcMYwFKL2VVqu4tVSLLfDej0AuWqVlw/IyQ5/k
+         6y3eJviaqtCrSMzVIr4WjK8YW0CABjJQ9U2mbNF5n13Dw4G9Rda7Df7gYJ5RcDZZu/mi
+         gGwWsRb5AMBi6BEQoAJxYQzTb6+n5GMppYwkS2EdLlBdRCQj0Nf4BNBfs1Kldg33bBLt
+         Wx/Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1788434987; x=1789039787; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XooQYKR9Puxgt0G9f+A4PYpT9G+l/snRHdODOQmPlVM=;
+        b=hzNLwE0phY1SmJggT0ehhnelzeIyBxjsAp9ZHdbPEm7bVSayrU3vpFHmlclaqK6PXH
+         uECal8ggTtXofakmes+XWIYHF8XfycE8o5WpjWDp+MwHQCAYwuEQkDqBDGEnhhtNLEVc
+         WhBwQAfHkyr3ElimXJsuj8TQEkbKgesL5hbKEPiWN7ulxkSFwA9eI9MSV4xZo+fKnzaE
+         uL5GJRK1bdzqwoSeQgSQStSbGPS4gf+zNLow4jTxoEtvLeNl31vQswFYkkUZ1xy8YjnE
+         W0Gbapu+lFhex52OpEOE8SxpE79wDKnVG8jBuYh6zmWziNlQ7xIQnGSq3LmFqfJ8QfRi
+         jeAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788428416; x=1789033216;
-        h=content-transfer-encoding:content-type:in-reply-to:organization
-         :autocrypt:from:content-language:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=UnqC0vVCveGL8BfKzx1mgmJlLA7UfcDCGVJE34qJcis=;
-        b=hoQ3f2wIB9rm7xiPuA4XAC8jO37Mi787NoK+C2hqRrt08s/TsBZPmDtD4gM4bCZbTi
-         nzlP9Fw24NGl57uLanNS7tiWxAmLzMdiiQQBdfOU9vJjLStbtmWM3q/wNQdIr1foYTZW
-         0hr6LOfMbY78Tz0zQPpKRL0K+7TVsCBnKPoe/p/G6ameYe9Vov4w8obycMWDhgFDIBdR
-         y2oNzyjjS2d2TvuRsWlB9PT1j9dy5G0uWIglvp0tQw9cI51he8erlnnbeqza2r0gUI8f
-         Xn+AGwCbtS69TCtgcWQRbXhJLockCc3z1B/bXu2UNKcfVL3gYBhuw0yslJIs+TCJIzln
-         dXCQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzE7qgh5ZlXoXf1fyPlqGav7/hil4L9bD4BTqkBsEBhx+VqW8xJPJDgnKP50Qv6xyTVrLRjK8Fg@vger.kernel.org
-X-Gm-Message-State: AFuF++kHgSfl9Y/wV04zVUuIVVVVFRdnCfAs+fV86S7JSKS4fQwk57oX
-	0qu0toiT98yl29zzQVD+wrh99MpJ6XhEh/52QGEJpP9Tz9eNQcpnbbp/diRyZXqU8x1Bd3lU+NL
-	QoT+aKukddd4u6NoCdZ/HjzMdf+CP5YFoQIikHrkkwcNrKBu565swBy2m7/g/mvtc0k78Jlu/wn
-	9wbb4RjYI=
-X-Gm-Gg: AYBFou3NdkvD3HNN/YVyuaf04MsYZyslTSlu5WrrNvjBHeyHWle4wnxYU3X1zR+YQ1Z
-	ScgQw61ObDIyKOdT2tO0tTM50bIweNNyvaQ/tTupIpjHY2QyZPfjw6HFNc5qPcYou8Nw/qENZ00
-	j4MRVCv0kzwHf25wTIOqFrCjPr4ySkH0bDF2rnSTjbYmxqpihdJ/iQExtaFAlOmPuscgCmnKo3i
-	EILEkGAob1I3ssidqaFxw6aIngrQ/LmBO4miNKpa0dGJq8Kj7/SR29qZjlhA76MorZc+NLalMdg
-	evJmuTOTVKoMzPLVHLpmvJnKP8IByEVP9yws+BJowe3iDyUFuGbX0i8sizgLdq781snWEzFx+es
-	2Z0cZc7bNN2WKZJc=
-X-Received: by 2002:a05:6a00:6c8d:b0:848:48d0:934 with SMTP id d2e1a72fcca58-85ffe10a034mr4079632b3a.18.1788428416584;
-        Thu, 03 Sep 2026 02:40:16 -0700 (PDT)
-X-Received: by 2002:a05:6a00:6c8d:b0:848:48d0:934 with SMTP id d2e1a72fcca58-85ffe10a034mr4079592b3a.18.1788428416154;
-        Thu, 03 Sep 2026 02:40:16 -0700 (PDT)
-Received: from [192.168.192.72] ([50.47.147.90])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-85db24f20besm2739047b3a.7.2026.09.03.02.40.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Sep 2026 02:40:15 -0700 (PDT)
-Message-ID: <5502dfbf-29cb-4ed3-b635-44d3bda80d60@canonical.com>
-Date: Thu, 3 Sep 2026 02:40:14 -0700
+        d=1e100.net; s=20251104; t=1788434987; x=1789039787;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=XooQYKR9Puxgt0G9f+A4PYpT9G+l/snRHdODOQmPlVM=;
+        b=Z0BNGJyoC+9bnxWjBkyLeCUp04OLZBddxt5OQKNoGVgFzAm62w1P3v7I7ogODRkG1o
+         WqaZJc1kzGSaAq64f1fm03gODAOczczzVfl4W2eWBUP/nz8Fi4GZmf/JIZp1lZ095iIi
+         UH6UmiyGDB+FVnTVhi9dcn/ygHJMtoZ8MCXjjJdTJURmzsojUkVk26+aTFZtsG8hAtGl
+         khL+4mAHyw5StRsH66SdfjBW0+kW1B6ZXFD3KmWk20G/fW/JSskmaehVlMZvZueA8jx/
+         cqp8ME2Rq5Qq0X86leEVx4bLP7NY/i+q2hvSDsa16G7aSwSGYZZp7j/XGwswu2rxHOpd
+         REag==
+X-Gm-Message-State: AFuF++kVAvtGkA402a8dEXFtspWTPHJfpMtYWf3Ly6IuzWAI3xFPk5vy
+	j6atlbYTol/1fFf03lguD+w49Z5K1PtBaVMb+W/hCQWrTeHBjriU56rO7TEu/3RIGZtCapjqEAi
+	2l0oeEn3soHmzFnj9lAhmsalTtecrJ3+G/X2nNT5752kjoOEKZJO9xrFPEON9+d2/2phO1C/a9+
+	EZgU56O7ubfSvyK46vUSjoDrucloC5WD2LgCXqpoPBzjGw
+X-Gm-Gg: AYBFou2FFZPoqb1whXysBK+VjiKA3JlYacXeQb9lKyx8X/G6DreRdD8YiRTGyDZW8Ip
+	2J5Pd3RypF7c4sI4PrCNIbbvTdnOYFzwiqC1c/0iAxGWkNYA1Rf/ejr/+nawc0U5AFfBEEjgo8y
+	7WJ4kygIoxsFtlGt7Q9hIlLZaMlmCjPBi7S7sdZF3ygSYVh77zRdj+uH7A
+X-Received: by 2002:a17:90a:114f:b0:399:1b08:28de with SMTP id 98e67ed59e1d1-39b13247f46mr3961969a91.7.1788434986640;
+        Thu, 03 Sep 2026 04:29:46 -0700 (PDT)
+X-Received: by 2002:a17:90a:114f:b0:399:1b08:28de with SMTP id
+ 98e67ed59e1d1-39b13247f46mr3961904a91.7.1788434986124; Thu, 03 Sep 2026
+ 04:29:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/7] LSM: Two hooks for manipulating struct lsm_prop
-To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
- linux-security-module@vger.kernel.org, pablo@netfilter.org, fw@strlen.de,
- phil@nwl.cc
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, jmorris@namei.org, serge@hallyn.com,
- keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
- stephen.smalley.work@gmail.com, selinux@vger.kernel.org
-References: <20260902220150.18586-1-casey@schaufler-ca.com>
- <20260902220150.18586-4-casey@schaufler-ca.com>
-Content-Language: en-US
-From: John Johansen <john.johansen@canonical.com>
-Autocrypt: addr=john.johansen@canonical.com; keydata=
- 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 lT9Q
-Organization: Canonical
-In-Reply-To: <20260902220150.18586-4-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Thu, 3 Sep 2026 13:29:34 +0200
+X-Gm-Features: AcwNN1XauK1UHYRFaqFGM29UmCm7nNRZqtPbHkS3EwnXkUnjWmV2sSB-gTg8_vI
+Message-ID: <CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz7VYpK8KuseMQS-9tNA@mail.gmail.com>
+Subject: Heads up: Moving to a different email address for my Linux
+ kernel/SELinux contributions
+To: SElinux list <selinux@vger.kernel.org>, 
+	Linux Security Module list <linux-security-module@vger.kernel.org>, 
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Paul Moore <paul@paul-moore.com>, 
+	=?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 9/2/26 15:01, Casey Schaufler wrote:
-> security_update_lsmprop() updates the property of the
-> specified LSM in the @dest structure with that in the @src.
-> 
-> security_secctx_to_lsmprop() sets the @prop field associated
-> with the LSM specified to the value of the passed security
-> context.
-> 
-> LSM specific implementations of these hooks to follow.
-> 
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Due to certain upcoming changes to my employer's work laptop usage
+policy, I'm being forced to more strictly separate my work-internal
+vs. upstream/personal environments/identities and in relation to that
+I'd like to transition to using my personal email
+(omosnacek@gmail.com) for my future kernel/SELinux (or other upstream
+community) contributions.
 
-lgtm
+My work email address remains tied to me for the foreseeable future
+and nothing really changes in terms of its abuse potential or
+whatever, so nothing bad will happen if someone accidentally sends
+anything upstream-related to this address (or continues an existing
+thread), I'd just prefer to use the personal one as the default from
+now on.
 
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+I'll soon send patches to update .mailmap and MAINTAINERS in the
+kernel tree and SECURITY.md in the SELinux userspace repo accordingly.
+My future git commits (e.g. on SELinux GitHub repos) will also start
+to show my personal email address in the metadata + Signed-off-by.
 
-> ---
->   include/linux/lsm_hook_defs.h |  4 ++++
->   include/linux/security.h      | 16 ++++++++++++++++
->   security/security.c           | 32 ++++++++++++++++++++++++++++++++
->   3 files changed, 52 insertions(+)
-> 
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> index 65c9609ec207..679c40a8e127 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -305,7 +305,11 @@ LSM_HOOK(int, 0, ismaclabel, const char *name)
->   LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, struct lsm_context *cp)
->   LSM_HOOK(int, -EOPNOTSUPP, lsmprop_to_secctx, struct lsm_prop *prop,
->   	 struct lsm_context *cp)
-> +LSM_HOOK(void, LSM_RET_VOID, update_lsmprop, struct lsm_prop *dest,
-> +	 struct lsm_prop *src, int lsmid)
->   LSM_HOOK(int, 0, secctx_to_secid, const char *secdata, u32 seclen, u32 *secid)
-> +LSM_HOOK(int, -EINVAL, secctx_to_lsmprop, const char *secdata, u32 seclen,
-> +	 struct lsm_prop *prop)
->   LSM_HOOK(void, LSM_RET_VOID, release_secctx, struct lsm_context *cp)
->   LSM_HOOK(void, LSM_RET_VOID, inode_invalidate_secctx, struct inode *inode)
->   LSM_HOOK(int, 0, inode_notifysecctx, struct inode *inode, void *ctx, u32 ctxlen)
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 153e9043058f..19adc19eb9af 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -576,6 +576,11 @@ int security_secid_to_secctx(u32 secid, struct lsm_context *cp);
->   int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp,
->   			       int lsmid);
->   int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-> +int security_secctx_to_lsmprop(const char *secdata, u32 seclen,
-> +			       struct lsm_prop *prop, int lsmid);
-> +
-> +void security_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
-> +			     int lsmid);
->   void security_release_secctx(struct lsm_context *cp);
->   void security_inode_invalidate_secctx(struct inode *inode);
->   int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-> @@ -1581,6 +1586,11 @@ static inline int security_lsmprop_to_secctx(struct lsm_prop *prop,
->   	return -EOPNOTSUPP;
->   }
->   
-> +static inline void security_update_lsmprop(struct lsm_prop *dest,
-> +					   struct lsm_prop *src, int lsmid)
-> +{
-> +}
-> +
->   static inline int security_secctx_to_secid(const char *secdata,
->   					   u32 seclen,
->   					   u32 *secid)
-> @@ -1588,6 +1598,12 @@ static inline int security_secctx_to_secid(const char *secdata,
->   	return -EOPNOTSUPP;
->   }
->   
-> +static inline int security_secctx_to_lsmprop(const char *secdata, u32 seclen,
-> +					     struct lsm_prop *prop, int lsmid)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
->   static inline void security_release_secctx(struct lsm_context *cp)
->   {
->   }
-> diff --git a/security/security.c b/security/security.c
-> index 71aea8fdf014..1dec0037370b 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -3965,6 +3965,13 @@ int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp,
->   }
->   EXPORT_SYMBOL(security_lsmprop_to_secctx);
->   
-> +void security_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
-> +			     int lsmid)
-> +{
-> +	call_void_hook(update_lsmprop, dest, src, lsmid);
-> +}
-> +EXPORT_SYMBOL(security_update_lsmprop);
-> +
->   /**
->    * security_secctx_to_secid() - Convert a secctx to a secid
->    * @secdata: secctx
-> @@ -3982,6 +3989,31 @@ int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
->   }
->   EXPORT_SYMBOL(security_secctx_to_secid);
->   
-> +/**
-> + * security_secctx_to_lsmprop() - Convert a secctx to a lsmprop
-> + * @secdata: secctx
-> + * @seclen: length of secctx
-> + * @prop: prop
-> + * @lsmid: which LSM the context is appropriate to.
-> + *
-> + * Convert security context to an lsmprop.
-> + *
-> + * Return: Returns 0 on success, error on failure.
-> + */
-> +int security_secctx_to_lsmprop(const char *secdata, u32 seclen,
-> +			       struct lsm_prop *prop, int lsmid)
-> +{
-> +	struct lsm_static_call *scall;
-> +
-> +	lsm_for_each_hook(scall, secctx_to_lsmprop) {
-> +		if (lsmid != LSM_ID_UNDEF && lsmid != scall->hl->lsmid->id)
-> +			continue;
-> +		return scall->hl->hook.secctx_to_lsmprop(secdata, seclen, prop);
-> +	}
-> +	return LSM_RET_DEFAULT(secctx_to_lsmprop);
-> +}
-> +EXPORT_SYMBOL(security_secctx_to_lsmprop);
-> +
->   /**
->    * security_release_secctx() - Free a secctx buffer
->    * @cp: the security context
+Hopefully I didn't miss any important detail and the transition will be smooth.
+
+-- 
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
