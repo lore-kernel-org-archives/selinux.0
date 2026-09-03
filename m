@@ -1,128 +1,128 @@
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DA344B04B5
-	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 13:54:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788443668; cv=pass; b=uMGsKyPiiHtw45VumOWO3O52gvCnpIGEaUOfA4+jf2m7kRUaje0Ee5Il5JCHct7JnGUynKH0zKVrM1KZFzu/71gg7XZ+atUgHkIhb4AeTSZhEapyNQ07lv/wSieGokJ/tXIe9FLztIq9gjyGTyMgeIm8owHXOqvbWr5/cgmqycc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788443668; c=relaxed/simple;
-	bh=qOTpEDr3G4xwWOtkWFSRiXYIPGcJyDaJLx4xHsZgndQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UcrXKLa4XPlwVc2SCENU0GW60ejsrqcUdvpdQ4LufvdJ4j62kVTgeqTJE8WG7t+uWqJhf+zunbL/7OBVDr5JjghILVRJGEETiTWDU3p72a0WOcORWZOKASyNYDO3PiCw7gpZTlrcy5mITUQyhXZsVQ+rfvRFrJ5J7on+Y4/yVaU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U8lTmS1Z; arc=pass smtp.client-ip=209.85.210.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB984BA9E3
+	for <selinux@vger.kernel.org>; Thu,  3 Sep 2026 14:29:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788445805; cv=none; b=r3QRanYZpr5H30UKwm1/scaYGoZW+4BHDJUq0pKIQK14uu2BQs796UsBjCd/zka1Caeu6sgN0sTOEJyVcEAD7rdYstZKGDRTykNvm/Re7KHeXNJ3LIZyAQNtrR4PoCCPo3p6IQ2LsXeyQRNVlONrYchd0ilBfjPd6CuTB8tAfG0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788445805; c=relaxed/simple;
+	bh=477CFSHZ6R3hMYgI1pWSyWLx2QSberMQvkwqCRU4bTA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DCbvYUdk/G6VdHFQ+Ryaumb0wg3LKvtDkxIztf75j/TgSOpHt5IOsehtmtdNeASAwa2iaIW3OjGEIth1eBluMpZ5mmpHPdzGSeySm192WIzxeob1Nflfqja19KF1XfXlpXG0MPNdcMC7iC2yHWV+853yMZsya2D7/DZ4mn2f5ro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ourc6WjB; arc=none smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U8lTmS1Z"
-Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7e9fc3de7ceso1234431a34.1
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 06:54:07 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788443642; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VcK3Rcmg/anXIC5ThH0MglDg3DVQCH6DNPFLCiVVAmqaajhcJnQv5SUvrRIilxQk1l
-         fxmUjb/AP9tJ+ahu97pJsvcJqzQFuj6aJ5FJ73X0HsHkrQQy4XHn68U8C+jWnYmPUlcV
-         VF3PVZlHZ59jHR5iw82s6ld6qNw3B5B32tYIY1TiFSYjDE0Nixl6osAkgqXR7oD2F1ob
-         VUy+YisEPXvkF4hgJqsphZnB/x0P6AkT7rRjblVBC11yOQ1PPngaRZQftMzArhH6CHFP
-         WJxtkeUhddVJ2/R4EAi0HlvKyt4o1indlU/Xbn9n4zx9bTcqnp6e39Ia3pKtCkG3+96N
-         gMnw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=osIsv3l2WHNJU1uf9h9o+ZmsD0arEcO/c711UaKp81Q=;
-        fh=aUbqRQkq61ZAI0AgKTda9vTeDxp/LdA3hosIEHHauP8=;
-        b=kxr3dv0mN6T/vwG/bW2Zv7dQn6uCPUgFfxBgxr97JmdnbayHFEh07TRyn5eBzkdGMT
-         XE2a2Po1bet84K+M99O+K8W2u2WH3VV/Z3z837xSkZ0dxMV7FSC3WAAMEbdQiacyT05h
-         WUfBxG0oWWa08GuALQHYjYiWSx6re0FmCmtzQsYVa7L1vsTWE728FVm8ykFIJw0tgRMw
-         z9COnscQrHKQi4ACNxn/Qvfnu6lrVFNV0YQdHqboVhPj2bXHGsgZvm03GCBKtceyOrHr
-         VVuxAG/S+bIsxwkZQpCL0QSnJy8nV80c5tKVMaOdSzp4e1MtAX66NkBXA1lHM1d6BU/J
-         GF8g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ourc6WjB"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51c2a449c57so29911611cf.1
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2026 07:29:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788443642; x=1789048442; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=osIsv3l2WHNJU1uf9h9o+ZmsD0arEcO/c711UaKp81Q=;
-        b=U8lTmS1Zc6KCU6kmu1jxQfzb6+IyMLDC1qsjxWbcE0Y0zP4v6M8by+r1vkBUCWHWf/
-         lx+tSf3tRuccyYFu+DnUippelUIZRPFKfnG4Ct+swRs0nlexsF5JQnlJk+mZS9dtwqhE
-         HttyWH3/k9tbk8el/pKfNvGUsmQy07FLbx9zDUJknao5YUZBcJuZv9mGl9jhQM/Bpinu
-         Pwg0FUb5S/SLVFFqJlieCsXSU1yKIfosoMZ2/ZBtQHXxzDLTpipspJ/lt3fxdBcm04Vb
-         ErCfkZ6s0OKhob/t8fOaKIk1Idyfm4GewsRpYJYHpQXh5wKzt+0KUq/CAWlppb/ByGAp
-         cd8A==
+        d=gmail.com; s=20251104; t=1788445790; x=1789050590; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Am8zvnnxpm0dwiiMg6+jtMP6xfcmL3wbb6L2+VYL7S8=;
+        b=ourc6WjBOfIkzmAC4Ia25A+siWmCZK36DSFYvBRdPMptDgrB069R2S0UJqMgLVdFfQ
+         oldFcyrDqyC3DAY+fF/825A38BVnlHoHAZ8RGjD72wBosucXmbJHKt8D/WA7RIwKevhM
+         2ZPRAfxlXti4fJFCCmg2eslcUp6mJgaEtrTDcTNsv+T05AwWYUAw6i8iSu+bOoGrxhR2
+         i11kz9EZ0eGia/pj4KNQIOyZtpAsznAS5NDtxaLE5IJ2o6y9PfpoGWxGI4YywhVGGkvs
+         95doBNHf3nxNWHaU5Pm7Tnfm/ek7anhK2mQRi/vO2bRB2KX7ZTbTHjuNW2eA7qcfbQXL
+         0Jdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788443642; x=1789048442;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=osIsv3l2WHNJU1uf9h9o+ZmsD0arEcO/c711UaKp81Q=;
-        b=W6YCV+Nhjd1OgA/JI9KZ8tv25LvrlpHXkvQ7YklPR2Oy3d9x+ymBU4UYV5LQQXtair
-         ZbQZtFm2a974BRZtquj78RseWvrXePd6CS+clMBlx0GMuMNXf2uHwlAhRpt8N4fP7eY+
-         e3YsLNecvmLSbawuSdDXl7sUfxwv33ATblKt5QF9oaEoJs/jncTyc0OtfWDgazjfc8SW
-         mm3ohue6dqV+XhQZRgiGQ6yYTSUz1KHfkBM8jJgX4pakDVjETZxxkrvaPLdpYyWBBZlv
-         ju+nkoeEMPijnpwkUd+eoAiSL6n/e8RN5E6QYOro10S7z+kAJwcatjh7iWZGT1GDTEcN
-         V+eA==
-X-Gm-Message-State: AFuF++n1RE+1NXF1HK6dQ2NYicw2xjAe1eNGTHKet/E1ks8WkSXHrcb4
-	2e7tV0okBAdjUlrxGOtwB5oOO3+wfqK/qYdS9vSfHewlsRtTZit2Mum8x+9zPMKsAdqOFec/MU7
-	KGPlb+ik1IWhp/X0g3m6n4wcK/xEE0Zbyjr8A
-X-Gm-Gg: AYBFou2/5SYu8ZcH8nxV7rXCoXKkO2UZ7GhLWQgBmnhEKiUL0hS9FtrcqjG3KqEOa7l
-	1FwdWSzIbPcDvyDr3uzJ0dFdff3z7yOp6sj7xs6hNoXcOuIdyMdBq+2F6YtvTg1nyBlRhVymjO2
-	VcPc7lllzlMbZbrj0MBDgF9trUomKTgBbzF6cwMxDkkjUWk2wVcGpVEgApjwGsZPPc0b+13/Qi0
-	kFfFCdzeLK1lEpc4hWcX0nKh8k6IWL3pAxmi6WB1H3mZc0UHvqmZf7DVrFitAWXAQXYrY+VWnIN
-	KNU1gMOFfGvaU9olGh41SgY7RWzB1992XwHWplKvu5sU
-X-Received: by 2002:a05:6820:1791:b0:6b1:c679:7117 with SMTP id
- 006d021491bc7-6b47edd013cmr10260871eaf.4.1788443642510; Thu, 03 Sep 2026
- 06:54:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788445790; x=1789050590;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Am8zvnnxpm0dwiiMg6+jtMP6xfcmL3wbb6L2+VYL7S8=;
+        b=iBti71HXquwZSeSPKy1h+DliH0ch81abh/a762IeJ02Gn9BPak1/7mWTXuXZGzpq9w
+         oMd08oiA2p9ESFRUjNLTI0/p7qV15+5afAADPojiM5psKhWTOMEgB3GO8enB2gqGzArt
+         g2NSgrXCRWqEmAg7LxEcKdQsNMwhtxZwHQlLOs5wbTJ5kxl9yC2C+lCdNVL7BsSdSdyl
+         Ni6bf3bcyUdCYvXjZt2oA5mDhOrWFc7q52cV4ltEA/xolqgSkOn3S7DlVMVb1FSQOCbW
+         I6LqUQKvoK49ZeMXoTyf/SDmbAx+FmH28pptnYItxh5q5o5Zw56ZhYZA4mYTMmxN8FnY
+         fPPA==
+X-Gm-Message-State: AFuF++mL/VL1kQgXF/jnMfskKRm6WBkeizGy2v5ny4ZPK/BcziK6na/t
+	37r0KDv15k7CqnTg1hNA/Bx+hrkosoDdigdF0DYtCpgh4HOdBOVAKJlhEPJ1eA==
+X-Gm-Gg: AYBFou0yVv206syRdwq6pkJaf3pyh4IF8vd0OcvELRVQsf1l9XMgonZeIG8AkpYRgRR
+	xfU2Po8LUMJUsw42txrgbNBzjYEUbwfS6u+lEzYA4+HR2d+oLornzg8rx/MX3fWPrrmB5GVmjON
+	ZqZwIEwPLrA8rF4lZCtNp89nhm8N2TsAYKfsILdlsd/TCOhmo8mCaopU7e3jav8fuFsSuyQJqDO
+	auzO1fsnLbfVBoYm8Hvmk3o87RAIJmrYzJLG+jYFTKyBeWAsZgpwiYNPNz8fzQZx5hUIdE0MmFu
+	PwVKiMVs2QkbZ22cnrbm6C3GFtUg9tfZ5aNw9NNqm/d+ZRdYNtm/xi7pHLG8xJti1Tm65mUtjzS
+	ZSaGF9n5edA4fnJ6imlRtWLYXw8xBhhQkOXkHgGkbeIwwEoCjpt2oDWTwdQYpH7RNrc98ff1v9y
+	7X8t/UCeNBK0DR80K0DnOQ7jolsnD2+wDMiVTaOrs1mg2U+pBeznqjpzFouo/MdYh1lRTZpeNQm
+	zXiHhgkmdcK1d1n0pbQuwECPZOqZ9d+GBknydA9NV79t+J2MGcSMuEaJMmNkgODPfSGCy5MMGs=
+X-Received: by 2002:a05:622a:5519:b0:52f:b1b6:a4aa with SMTP id d75a77b69052e-53036b4f3c5mr167223611cf.4.1788445789115;
+        Thu, 03 Sep 2026 07:29:49 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-530330282bfsm43110841cf.11.2026.09.03.07.29.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 07:29:48 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	cahu@suse.de,
+	bigon@debian.org,
+	russell@coker.com.au,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 0/4] libselinux: add a configuration-root search list
+Date: Thu,  3 Sep 2026 10:25:56 -0400
+Message-ID: <20260903142600.19723-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260903113538.72942-1-cgoettsche@seltendoof.de> <20260903113538.72942-4-cgoettsche@seltendoof.de>
-In-Reply-To: <20260903113538.72942-4-cgoettsche@seltendoof.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 3 Sep 2026 09:53:50 -0400
-X-Gm-Features: AcwNN1V4OmkJr4DT61AHt9MYfIrPe2UDATwUTxrd4PYdCazePcVA-hhrZKNmLa4
-Message-ID: <CAEjxPJ7Vhr0KYaZaDbUMTv6p+zvneE5fPN8uDUegsVKEb+-_GQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] selinux: validate permissive and neveraudit map types
- at load
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 3, 2026 at 7:36=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> The permissive and neveraudit maps are read as ebitmaps and indexed by
-> type value, but their set bits are never checked. A bit that is not a
-> defined, non-attribute type is silently accepted. Validate every set bit
-> of both maps in policydb_index() with policydb_simpletype_isvalid().
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  security/selinux/ss/policydb.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
-b.c
-> index efa8df26791d..c901a0148034 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -892,6 +892,28 @@ static int policydb_index(struct policydb *p)
->         if (rc)
->                 goto out;
->
-> +       {
-> +               struct ebitmap_node *node;
-> +               u32 bit;
+This series is the first half of addressing
+https://github.com/SELinuxProject/selinux/issues/33
 
-I am not a fan of embedded { } blocks inside a function but defer to Paul.
-Otherwise,
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+It adds a configuration-root search list to libselinux so that it
+searches an ordered list of configuration roots for each configuration
+file. The list can be overridden at build time via
+-DSELINUXFALLBACKDIRS=.  There is no change in behavior as long as the
+files are found in their default locations under /etc/selinux; the
+fallbacks are only used when those files are missing, e.g. upon a
+factory reset.
+
+The second half of this series will address libsemanage but is not
+necessary to merge this half.
+
+v4 drops the /run/selinux directory from the default
+configuration-root search list since it is not required to support
+the stateless use case and it introduces a potential risk of
+any domain that can write to var_run_t being able to inject files
+that will be used by libselinux. Distros are still free to
+add it back using -DSELINUXFALLBACKDIRS= but if you do so, be
+sure to create and label /run/selinux appropriately.
+
+Stephen Smalley (4):
+  libselinux: add a configuration-root search list
+  libselinux: search for the binary policy across configuration roots
+  libselinux: fall back through configuration roots
+  libselinux: search file_contexts files across configuration roots
+
+ libselinux/src/booleans.c                     |   2 +-
+ libselinux/src/get_context_list.c             |   6 +-
+ libselinux/src/get_default_type.c             |   5 +-
+ libselinux/src/init.c                         |  12 +-
+ libselinux/src/is_customizable_type.c         |   2 +-
+ libselinux/src/label_db.c                     |   2 +-
+ libselinux/src/label_file.c                   |  49 ++++-
+ libselinux/src/label_media.c                  |   2 +-
+ libselinux/src/label_x.c                      |   2 +-
+ libselinux/src/load_policy.c                  |  24 ++-
+ libselinux/src/matchmediacon.c                |   2 +-
+ .../src/selinux_check_securetty_context.c     |   2 +-
+ libselinux/src/selinux_config.c               | 179 ++++++++++++++++--
+ libselinux/src/selinux_internal.h             |  40 ++++
+ libselinux/src/seusers.c                      |   4 +-
+ 15 files changed, 283 insertions(+), 50 deletions(-)
+
+-- 
+2.55.0
+
