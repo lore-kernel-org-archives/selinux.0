@@ -1,166 +1,169 @@
-Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+Received: from mail-oa1-f53.google.com (mail-oa1-f53.google.com [209.85.160.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91DA481666
-	for <selinux@vger.kernel.org>; Fri,  4 Sep 2026 12:50:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 371BA324B22
+	for <selinux@vger.kernel.org>; Fri,  4 Sep 2026 13:33:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788526252; cv=pass; b=FuvoKjrElo9GLk1Sgt8qHAavgZvNSx2Xdl/bYojFHkCap8vLKtxBxfrrT8ZRcUfe+cVJ3U8xGnBqA4mc9SNygXYHjxZLl/QmVz7OPSfX6EkZGWXxPaRFTbCC2z4ax/kZmQvt4tiGhP0wyxx610GgQ8IzZvMQVsmgjZ6yyoLvZ0g=
+	t=1788528813; cv=pass; b=SKlZziO9G3NhkYDXChPE2LKwv5I50ReuNC3tkHUY34VLf/WzIML7tOnVSFtn+WioQtP/rJtI1Bfw9NyzunwT5SV2qh+TO0dRX/B+gbbq5f6SOT9VCmvRrwS3YGWIDJo4t/UGIAE/HQx06/dKBc6qUfHq6WFqLqOqoPlyQGOV7vw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788526252; c=relaxed/simple;
-	bh=/zhN0MfZvN08DSisLYI/X0L4x1pd/g9nVyGnrVAvHEw=;
+	s=arc-20240116; t=1788528813; c=relaxed/simple;
+	bh=FBbepYATYWpEGSNNZnriLrCT16jPitRNU2On4CTNEf0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L516vKOt9YZVJASDsJk1LP3+RA9kD64YRMdMZXL/IgrdvZ0If/31lcwicuB/OUYYHzL6N6Jp7tt3XEIi4mglPQNmsgz6X7gmtNpgGF8DiEy0df6D1WAo2j2Eh8at1kVwqEushdauNGm+9sCkfJGneq+79NiM703FxKZN6velFUc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gssczFyf; arc=pass smtp.client-ip=209.85.160.44
+	 To:Cc:Content-Type; b=GdoqYJn2V2+z6z75DFZZ4iJHpakezuxs6kcaS+gNQjJi00tSfLsiOSPq1gw2ORiIeiVbbkEI8VU7X7fxd8zVTYQVBsMT+8HpLFaBJfZZjoeBIMV5+TZl+rAjEHX76zilmhYvFP4UY3kqp7fZRCAvbs1CaqoyF6rgQ0wehpLpzQo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eYti29Ff; arc=pass smtp.client-ip=209.85.160.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gssczFyf"
-Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-455ca262ccbso783983fac.1
-        for <selinux@vger.kernel.org>; Fri, 04 Sep 2026 05:50:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788526249; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eYti29Ff"
+Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-43b7e186a0cso537184fac.0
+        for <selinux@vger.kernel.org>; Fri, 04 Sep 2026 06:33:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788528811; cv=none;
         d=google.com; s=arc-20260327;
-        b=L7b3OegkHcHsfYpXvbjmv7wfLiQMb8dO3w1q6GJwmo6yL3EDsSh5ms9ibFVzGLkwdX
-         aQ+J8VXk74QWy1jigNniTEnlJviC6T/HyDtfTE48XTMKpdup13LY/4dC+VlOvDBU0aj0
-         5LQ9pDVRv1qXf9ChD3kE6OSHUkL8Rn8dxqO2u6nC8IXLnbrfieGIg2LRZbukjMd/YSED
-         LUccORiOAlIbUF3/luowPBQX7mf5EUkkf3pYNnGNyc93VFFzQDaagIxVS7qvQ4uJD6Xd
-         U2qENBnRP7etvQtmf9XSzhplpfHx+vh2Fm9XkD1J+01hw/x14qB93DoCFwK477mA0vcF
-         tnww==
+        b=Eo3t/eof/rHe0wFZPPVVCrf1AhKzozzLyiTWmh8OXk7rkpuVMv1vLgVChAlmm2mRoJ
+         XEMwQDQ5h7s0Mirz7kguZXpFvD3JErDyb1+HxaahRQM2hHFaJoH/a2/bIFnxb6NYuQkb
+         dCXIHG9QF0Sru2bkJbde8dlzKotOjednQrAR0afwdHordiErf45jBIjQynBn/BjXJCmH
+         mPQslkY6796OhQ5eJE+jyNEUz6f24v9seF7lkHowfaaDHZDPhNUJw0eJKvUFk93s/7MD
+         LltChmXwWT6HrZox1yo59LoL1gQ0E/x1UfQGppHrPHk76MSn9RWbzFSeieSmNLouCg/X
+         QGIg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=MBFn3QnPtK8nLKweJO+Nnf8PeL+sxam0hNj7RSxVxQU=;
-        fh=40fFx+4osaXBi4FGYYsgKfFijKTYE9TLFR69NZRmuVo=;
-        b=qcFx3ffHoGq1iyjM2TqvDJKqIgwF0/R9siORFbTTUR5bxFz6Y/GLhCYWSeCz5kRQa4
-         Aiq3dDlxQBJ5ItKgxdEoxIncMFyu0UuN68KSK2T4USdJ2itgYPuyTEA13/YYmUWrwkcb
-         +1mljWr97iudmXu7fFtTjUI0n6nE+K9I/PBZQH1Yj3VcfCNr5cEZlO38q34V103vm62H
-         TMqxvuohO+TbG2wq33iSugsKRfXce2BVTLOcQnTQuvaJy9dqDqVmDDiZVh1kIOkZgNR8
-         UJQechH7dUSfhRKwtNOXHDdUAmxDG1h6UcKHvKRB3HzzYIi5UViqaU7H3zAnVRP3KX7o
-         AugA==;
+        bh=jgBKg+yCKx/y1gQ4sA6E9GXrsA+pSTsQIMnFEB6HbmU=;
+        fh=4HNm7X278YR8zaPFoLc1rblFsq8AjOmWOhdz/GsW+5Q=;
+        b=d/L75GgdqiQkRpnm3Y5/5le8eHcKuo/oqKUOHWe3Ap9v/+3rbN3zNx44BEtCneuuh8
+         9iNUGAnG0c6tDK+VnATl3beH+kR/h3sVwVSPn3i//92U5UTnLS5kC9udb0k0xw80PSRH
+         MJSN9WKiMCrfXOpz7TKOVuLmEhS6GANkNR9v8f3RjuXYGJfdww5bzsHsVRXfHPTIPnjc
+         wEqRQ7Kab32S6s4nW2zGHVuY5LzWhAEy2hrzQ5+hojq0EpQPTgiTgcOMt05EDlbPiD4f
+         EHO+WsiRLU/LDkK7PwZFOBoxR2K7/DfGXUSc4Xfm053w/QEtLXU+YOHv9uw5u0znDPQc
+         MQ7w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788526249; x=1789131049; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788528811; x=1789133611; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=MBFn3QnPtK8nLKweJO+Nnf8PeL+sxam0hNj7RSxVxQU=;
-        b=gssczFyfJNxCDZUg9oL0agLMIDQMIi6XIhqNiaWOA5dI5qDyTc2tSiDLq9Mg7NrhSe
-         R4N199agThYv/YET2kIZ39jjlHe7dT8NHAzuXs4ebsi81Ngdc6U2fyibLveBhdPuczR/
-         RoE7T3w+bna/51dbEkCuteevtJXVs/G608JBh+UUubI4gkVaviC3n4TlNBA5lHW0AR67
-         J9iAiGKnMcRSkHobtO6gK83KJqv0g4BT/LHAAeV8eC96MdGoaDfT8ekm2HHkqSNbH0HJ
-         1xAdYqeDyxxUqcjpRfWCNrgfenqHS0TKwycyydD+CbpRHwlHioDPYRM3Kvfka68gRpRS
-         tFaQ==
+        bh=jgBKg+yCKx/y1gQ4sA6E9GXrsA+pSTsQIMnFEB6HbmU=;
+        b=eYti29FfJWKV/oHPGgwVjSGh40C1Xh6tP02WgZtH7xKu6HckEvunhp4wyPHOWGKhQo
+         biuy+1FkMMsiJ5TjqMFIk13fXRCp+aJQn6944740Myp07C2uEKa3ImOH0KCMtvmnbKSz
+         fEaZeYeO7u6mBcFlMCkV/DL9fk9QLxf9KikndBD0BRr+4H8OeM3MGzc8vJTutRkulgxE
+         s2+uWmIWqXvHX2xsR+fOe++stGv2KnJad57QzPF0I7P3+zxCuAOJjOrICJPp0LDLa9ws
+         0JYMnSNJZJQsK2JdtxOzDGdcxPWc8cvUtNuh0J4ySEX8kpASERfkSoNGemxM4bV6Afcy
+         hW5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788526249; x=1789131049;
+        d=1e100.net; s=20251104; t=1788528811; x=1789133611;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=MBFn3QnPtK8nLKweJO+Nnf8PeL+sxam0hNj7RSxVxQU=;
-        b=ACnvI2iAiIRuteDqm51lEwFiLYJeKsyTdyGD6cDRxddfSs0Ifn07TJcDB+GqCgSq9c
-         rNRj14wwaMapUM971qT6FXC96YFhQ8slySDjHt9dB2R7spsQDew4vy6C/epDpM600Mw+
-         0ElJoOiunetlavpigi7TTS8motkJ+jUY8MlaezA/fJtr3DLMEfr1GWHg0sA/yY0yWxB4
-         wW2lCULJ6Q3bUWP/j7derNg6tT15GLRCZEY96iT8uOJuPZJPIYk0dSEnN8zp2cyDT1xR
-         ZWfXT8xdalJrWlDaa9MTfFnM2LlHaTmN8Q+M/k+IAM14dp7Wuwvjx2eupuzeQ8uam0Yq
-         6LNw==
-X-Gm-Message-State: AFuF++msdNV4qj4Ns1ervsr4h4fyczrmoRtY3jr3IHwptDCzTBgscJON
-	T44Nej7AseCEnjOo/ji3XGVsBBej4rEjzlgoTTIi1/zgk599tuCpVgNbSRiH72FUWcgskz2xvo9
-	3lnA19LDRQzAqX9wPSNu3EpDoy5Jan8s=
-X-Gm-Gg: AYBFou1lL0TBAkQQgu4X74W7/JyAc9Zbty37OQTiQkZybZPpe3sduAZcVbOLVCj1ePy
-	C5fpNj/FZZUDsJ4XG+aZdO+u6Wsu+YscJKzmv+nQqeagCGCd39dhBm1+QkSHzyJDOPvIYP9cLP7
-	n3ADEo1NhoHRDwQgwJDZvodNmXwpXbBoU3nAX51dd20GV87WX+nsiz9uU1VG3L2iMhUvoIeu/CT
-	zqNS2l7jQeW6KV1neDgOsd7XHoekTM/OiguW8gmmZD5NWezbSFwbNCq0ucP2EYzfSb6D2uzKxPy
-	/l+o4SwEKD2dRbMPj4KsAahK5l3oZvhilV23HavGkiYfD4KwpRmNYTw=
-X-Received: by 2002:a05:6871:a861:b0:459:f9c0:995a with SMTP id
- 586e51a60fabf-47551709b76mr4535051fac.14.1788526249280; Fri, 04 Sep 2026
- 05:50:49 -0700 (PDT)
+        bh=jgBKg+yCKx/y1gQ4sA6E9GXrsA+pSTsQIMnFEB6HbmU=;
+        b=R2BbJ2Kyd13Yx1cZ41QR8gS0HAmAtNDcbsZLczEZbYacn7ntfUoD5j5j/W5jktVbqz
+         FNQ1R+s+7u2uJsBSb93gS2PpTxeVqGvrCBrosQwrV3x3LhpLZ0juPeadhDm+tuevCROp
+         oP6PD4d8mqYudqw9WuIw6WLBWCjwgjhxxMPy9oglHgodE7bPncTf9QPj4R2BZVgNlpqL
+         Yf7DmtWNbzrTYnhXDk2UqWeyEa1WVKTsNrCCi+EOm3ZfLDPdcPSfiAp/S7AY1lQeZ2Gq
+         VpTIPfto769HhADRyMAl0LBdqBanby9LYRaHdONkm3XJ/BB9VL3v7ZDuv+/gOHzTFS83
+         iJ6g==
+X-Forwarded-Encrypted: i=1; AKwUvBzr44+nYObbwngSGkTzvkpeesUGF4vgpI5SC3rvW1dqgCmjfLknXhHW5/mAvkgFNuQ0a6teegmR@vger.kernel.org
+X-Gm-Message-State: AFuF++nFC6suufnPJywd/0MTcMCcR2zI4tqK/QBEJoeYrGjUbtrVQqlQ
+	mdDEoF/tUxDA7yJW0nzulKVttZ2urmrpWwECOQ/5o8sRhUS1O4qXhTZ4dSnxscUPeavGGXIF0lQ
+	NxnK+xhy+PtVhSH0zN9Oln6Pqd6Mti84=
+X-Gm-Gg: AYBFou1VqeLg3jfmhz3H7lM17/igLtELRFFixp6EQvKVz64jt5RnxFyIqLqaK2ecCGe
+	HAiMqRt0LJpAxD3W7DbIEoJ4unYBYX6Sw8jeGHpFxz7Dol3GxtAxjPjLk59URLGpAjY+P8tDU5c
+	P5mrqZTVJE9XNlQFp6HlpjXJzOUzz36O9uVjunum5pLu+vpwsEkzgUol5N/GCoYFPnDp99BEvof
+	IT3OXC3BfMSWfbFX9a/2TMq7CIlPXaVQCvATMokq0H+D5Y6dCvIwWUyX7YP/Pmm5gs9cE3Qzj9S
+	2fpvyjVea6o66um37+ZeTXtm2ptqQ/IpVku2qlrMyB6qOBhqySEvlau3
+X-Received: by 2002:a05:6870:c204:b0:448:aaaa:6b93 with SMTP id
+ 586e51a60fabf-47551d53f9dmr4587669fac.17.1788528810890; Fri, 04 Sep 2026
+ 06:33:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260827125511.19408-2-stephen.smalley.work@gmail.com>
- <CAEjxPJ6rfWUxzBgdKcAw-s_hrwK_xo-CAzvcTO4vAr7buVA+8g@mail.gmail.com> <9b2939c5-7935-4d2a-b628-6c3ba961e16f@suse.de>
-In-Reply-To: <9b2939c5-7935-4d2a-b628-6c3ba961e16f@suse.de>
+References: <20260903155837.516393-1-omosnacek@gmail.com> <87ik4l18wm.fsf@redhat.com>
+In-Reply-To: <87ik4l18wm.fsf@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 4 Sep 2026 08:50:37 -0400
-X-Gm-Features: AcwNN1Vu9jpv3XPapEDmpAYNuTsptjmdvcXpMXKKvuAHBUNTzJ0o96tvPlnx0k8
-Message-ID: <CAEjxPJ43LV4CHSCLc9mxvBJEOAY=+hYMZ8+8-cRvpWDTPmqqRQ@mail.gmail.com>
-Subject: Re: [PATCH v5] libsepol: drop support for policy versions before xperms_ioctl/xen_devicetree
-To: Cathy Hu <cahu@suse.de>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
-	omosnace@redhat.com, jason@perfinion.com, paul@paul-moore.com, 
-	Johannes Segitz <jsegitz@suse.de>, Russell Coker <russell@coker.com.au>, 
-	Laurent Bigonville <bigon@debian.org>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	selinux@suse.de
+Date: Fri, 4 Sep 2026 09:33:19 -0400
+X-Gm-Features: AcwNN1W0a6EPJVfRfOsZMXRSR_bi2FmICQfSgka8R343nIfIyR22mIbm1lO44zs
+Message-ID: <CAEjxPJ5Rtvp8MOuaxUPduJ6Mi6NEW1OzOdyxTtBx_tfr-gwN3w@mail.gmail.com>
+Subject: Re: [PATCH userspace] SECURITY.md: update Ondrej's email address and
+ add GPG fingerprint
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 1, 2026 at 4:40=E2=80=AFAM Cathy Hu <cahu@suse.de> wrote:
+On Fri, Sep 4, 2026 at 9:15=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
+> wrote:
 >
-> On 8/31/26 8:01 PM, Stephen Smalley wrote:
-> > On Thu, Aug 27, 2026 at 9:49=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> >>
-> >> Drop support for kernel and module policy versions before the
-> >> xperms_ioctl support (SELinux kernel policy version 30, modular policy
-> >> version 18) and xen_devicetree support (Xen policy version 30). Kernel
-> >> policy version 30 was first supported in Linux v4.3, Xen 4.6, and
-> >> libsepol 2.5 (20160223). Modular policy version 18 was first supported
-> >> in libsepol 2.7 (20170804).
-> >>
-> >> RHEL >=3D 8, Debian >=3D 10, Ubuntu >=3D 18.04, and SUSE/SLES >=3D 15 =
-have
-> >> libsepol >=3D 2.7+.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA512
+>
+> Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com> writes:
+>
+> > I'm going to use my personal email for upstream contributions from now
+> > on. Update SECURITY.md to reflect this.
 > >
-> > Would appreciate any feedback from distro package maintainers on
-> > how/if this change would
-> > impact them. Link to the original patch for those who weren't cc'd on i=
-t:
-> > https://lore.kernel.org/selinux/20260827125511.19408-2-stephen.smalley.=
-work@gmail.com/T/#u
+> > Also add my GPG fingerpint. The key is not yet signed by other patries,
+> > but I've been using it to sign my git commits for a while now. It can b=
+e
+> > also found at:
+> > * https://github.com/WOnder93.gpg
+> > * https://gitlab.com/omos.gpg
+> > * https://keyserver.ubuntu.com/pks/lookup?search=3DCEEE4E9CF1676119&fin=
+gerprint=3Don&op=3Dindex
 > >
-> > This would break e.g. RHEL 7, Debian 9, Ubuntu 16.04, or SUSE/SLES 12
-> > if they ever updated to a version of libsepol with this change but I
-> > think that's unlikely.
->
-> SLES should be fine:
-> - SLES 12: version bumps are unlikely, only backporting of patches becaus=
-e everything else is too risky
-> - SLES 15: everything besides 15.0 has libsepol >2.7 and also unlikely th=
-at we bump the libsepol version in 15
->
-> > The greater risk is if you have any lingering binary modules compiled
-> > with versions < 18 inherited across multiple upgrades (e.g. RHEL-7 to
-> > RHEL-8), then those modules will break and probably in a not-very-nice
-> > way (libsepol suddenly won't be able to parse them and therefore any
-> > semodule/semanage operations will fail and you might have to delete
-> > them manually from the policy module store).
->
-> We did not support the policy that long, so I think it should be okay:
-> SLES:
-> - 12 -> 15 no policy update will happen because in SLES 15 there is no di=
-stro policy shipped or supported
-> - everything else has libsepol >2.7
-> It might be that 1 person drags their SLE12 policy to 16, but I think tha=
-t is not a supported use case
->
-> SLE Micro:
-> - started with libsepol >=3D3.1, so should be fine
->
-> But generally our built distro policies are unlikely to be inherited betw=
-een versions from SLE >=3D16 + SLE Micro >=3D6 on, on upgrade it will be mi=
-grated to the one that is built for the upgrade target
->
+> > Link: https://lore.kernel.org/selinux/CAFqZXNvOGbzy8-ZnJtKi94jfu2H173Tz=
+7VYpK8KuseMQS-9tNA@mail.gmail.com/
+> > Signed-off-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+> > ---
+> >  SECURITY.md | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
 > >
-> > I'm fine with deferring this change to a future libsepol release after
-> > 3.12 (e.g. 3.13 or later) if that would be safer for the distros.
+> > diff --git a/SECURITY.md b/SECURITY.md
+> > index 52ab863c..1f255c81 100644
+> > --- a/SECURITY.md
+> > +++ b/SECURITY.md
+> > @@ -40,7 +40,8 @@ window.
+> >    *  (GPG fingerprint) 578C 4211 832F 0A7E A2C5  A7C2 21A4 6E60 3F74 4=
+ECF
+> >  * Jason Zaman, perfinion@gentoo.org
+> >    *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0=
+EAF
+> > -* Ondrej Mosnacek, omosnace@redhat.com
+> > +* Ondrej Mosn=C3=A1=C4=8Dek, omosnacek@gmail.com
+> > +  *  (GPG fingerprint) 9F17 354B 2928 339C 5130  906D CEEE 4E9C F167 6=
+119
+> >
 >
-> I don't think it is necessary to delay from our side, thanks for the noti=
-fication.
+> I hereby verify that this is Ondrej's key
 >
-> Let me know in case I am misunderstanding something, thanks!
+> Petr Lautrbach
+> -----BEGIN PGP SIGNATURE-----
+>
+> iQIzBAEBCgAdFiEEcgDrLD9eSIRjwM6ezcroySfGvjEFAmqavYQACgkQzcroySfG
+> vjG7tg/+KTaC0uj3MQz4henqElcCjNsuhPhmQ/8mVGyzRGvCr3UaH1OBazvmM7Fb
+> 88vaDkV3A95ZLYZRk7X/aANlYB44f4I1ncIew9H+bOISaehCTO86xQXs0z8qNSol
+> 2bduHbDT22wWDvgxqhGnc9UEd7dPwLvf/jQ3lLabavfslK+G0PKxSaoBVX8Yz1ZH
+> /J1z5AxnIGIl5UQpYoIzXsmwK/fIcvGZ8q0+XPLEi7pz9fzpS+QE8Jp04U/QSdKo
+> 1TN9RtsLgCXIvlcXbEZjpBLBxI3lW1bLnq2tJlfj5YtT7RnI4TSzwaZ8HC5TsDU/
+> qhUEXzMAUmKcOvfvZJ8b6w/ehbN3BkcDyUDtdMEZXLyzZjNoJttOa0FoW9nfwoeU
+> wnLS7hTVdNnkVui1VWuq9GWtqhbgp6+KDYtBbE7GHzzvycMBJOIZakgwaOsc7pvQ
+> +vddPu75XwnzyJmC3/kEnGUsOyHyPfwJZ4/+Etos48KZHOE/2I6skmoRXhGasAe/
+> 9NTL1vM5eKWhZWZV2QMAgkgoB7oulPC+EZXKiBrE13uTACibUCKO/ZC1+XLlIIDE
+> kvUQEgfhct2WTunr/DBquqU/4AojIsNZdOa3SVAez+viFWf29v40edtKGVRUTZG9
+> dx0J1hK5KP92kErl4am8G088DHAnU5jeXbtrB8gGTmmhRqXxTIs=3D
+> =3D/OCL
+> -----END PGP SIGNATURE-----
 
-Having heard no objections,  I plan to re-base and merge this today.
+Thanks, for reference, something mangled the email which prevented
+directly verifying your signature - AI helped me by suggesting this:
+python3 -c "import quopri, sys;
+sys.stdout.buffer.write(quopri.decodestring(sys.stdin.buffer.read()))"
+< email.txt | gpg --verify
+
+So with that done,
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
