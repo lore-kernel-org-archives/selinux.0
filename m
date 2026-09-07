@@ -1,107 +1,98 @@
-Received: from smtp.sws.net.au (smtp.sws.net.au [144.76.186.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C14B23D34B1;
-	Sun,  6 Sep 2026 13:17:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.186.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A423D4123
+	for <selinux@vger.kernel.org>; Mon,  7 Sep 2026 14:40:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788700666; cv=none; b=VykHuMK1Pf8Rl1ZblJ92CzljNwkNoFfS0zJoUvrIgseXn0Dxdk8IQo7c+MGLKY+YFZ9doHCh/wd8GwUemc9d5k/NLUrqXcfhVwWH0HBIZWF3Gv8CMrKu17CutgVnvehFgrfvuFWjl5Xve3MJrLmnL/K9K4Eghw8+B3z0c8OVFUw=
+	t=1788792020; cv=none; b=mvnHl0+OfEdeARCUwSyHtDwV/Y/t9fM0LZv4a9aLoffoopzw8QcocWGs+nPnaMzFHeYD/92qOmm5p3z50a8WvgFATqFFT2U15b2eHJ5P/A763O8E1/OTDIDNyc0vAXWTIY0v0kqKF/qpCf6TRSAng/uKzQXsITvo7EWmVfor3mU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788700666; c=relaxed/simple;
-	bh=D0FaACf4q4n3r3gf7FXUFvBtcMrXr75njKBABaQ3R1k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G0+DP3lIQNX5gnfNaZn/PTg7gqzbQ26LliCDAPUsl5c6PDGk6U78eP693oU2BonchdFRTdTYrZAYRVQlC9EG6wSCPmq6vAZAfTWxtb8qVXzfjgp7GTlQJPzp57ChDtHApcwh3cB5iHHEXQoQe77yJyMQH9eDyFrXpybgM7ZBA00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=coker.com.au; spf=pass smtp.mailfrom=coker.com.au; dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b=yQsunP0/; arc=none smtp.client-ip=144.76.186.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=coker.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=coker.com.au
+	s=arc-20240116; t=1788792020; c=relaxed/simple;
+	bh=3riO5LF0LDQ75LkWbWV2i4SFadXEYv5vGvj8f2UtOgM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BbpMy5HEZTkNG6kOI+Tjs5aWfsnUoPoxsIV8P8i+l+v+OEg16Hj2VAQ7QRO6GUN7xdm4xRYnPiyUtDz3qF9o4BPtd/8ZHW49XwmO6pxdlRNEG6525k2xQtQpqDj84upCIeQeTB139SdzerYb5RFE9zufKUZoPGGHp73+jHAeH+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BqB14JF9; arc=none smtp.client-ip=209.85.208.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b="yQsunP0/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=coker.com.au;
-	s=2008; t=1788700655;
-	bh=3LkcXQtSzbrf3ko1AWwc7Rtqjxprv0a9LonbhhPuV3Y=; l=2288;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=yQsunP0/lzwfVSguS4jH5CqEwGB63LaVIxkhOi80AVV5uvZIEf09rmjOMLYJcH/81
-	 JNWJ1GxtNHFFL6OkG0NdpBEp5r6U8NrRGhk+C0f96NGZzsoB0iIJm0FB1znVEMM+c7
-	 LrVsNspjaV5DuVbSNISpsfeKPKxzEnsdxbijEe0I=
-Received: from liv.coker.com.au (unknown [IPv6:2001:4479:4303:3800:7ddc:5054:982c:268a])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: russell@coker.com.au)
-	by smtp.sws.net.au (Postfix) with ESMTPSA id 21112F0D9;
-	Sun, 06 Sep 2026 23:17:32 +1000 (AEST)
-From: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- Paul Moore <paul@paul-moore.com>
-Cc: SElinux list <selinux@vger.kernel.org>, selinux-refpolicy@vger.kernel.org,
- Chris PeBenito <pebenito@ieee.org>, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: Re: kernel oops on recent policy with older kernel.
-Date: Sun, 06 Sep 2026 23:17:23 +1000
-Message-ID: <RvCmRlQYQ3uewSzEeY0utQ@coker.com.au>
-In-Reply-To:
- <CAHC9VhT+k9qWsA40APOi4Q1hg8M+Ft_A7D3epdBW7P2QczPf6Q@mail.gmail.com>
-References:
- <L8sbFRgfQca4r8AaNEEfTw@coker.com.au>
- <CAEjxPJ6SQcdEDFfV3W7Bk5JKbAxRp+9tuvr2yhUdDePmeXNAKA@mail.gmail.com>
- <CAHC9VhT+k9qWsA40APOi4Q1hg8M+Ft_A7D3epdBW7P2QczPf6Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BqB14JF9"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6a6868f18aeso5274936a12.0
+        for <selinux@vger.kernel.org>; Mon, 07 Sep 2026 07:40:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788792017; x=1789396817; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=RuGYW3h9PJYNaiCjKHB/faSczvFn9W4fzqCSPNsruxY=;
+        b=BqB14JF9/W2J7fnwtvAf0q2KWeZfVojpXybY8rR6XB9tKuf+jf34UQVVi3/H1SFdjk
+         Rjqppb7y/tlBAcNLyAgBAGNI2w+YX3dlcR5L2PtXJk0t8EEQEp1n6HMt2gSFnsvIXaPq
+         E4CjgHoWIek3PPxn0ksEZmbbR+RlRQOKU39dzxn9wZunhhHd0nqUqxamjrzvxFal4uZL
+         6hAD1fpHeAzqyNUDA2enUDtK/VhmVtvqHAL9Ku3aMeuwELSilVzmpAYZa/Tu6nTs4q+3
+         BxEaB6nSFaKJzJGG2jtUci1YNQeqMqjDpF7YnzS81cPa5lCbHJVjER6rSD0FOBhbSPGh
+         jDsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788792017; x=1789396817;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=RuGYW3h9PJYNaiCjKHB/faSczvFn9W4fzqCSPNsruxY=;
+        b=IwLWjaqnHuscjASw/YKIEzNq9DfLnxT2G7wLMw+OCzdylFRpNxDpeOA2opzUO3tPOA
+         Ua6rt/BEigQxkwfrTUCtEFJkvR6efZr9vJ5zgedgPTak1lrPAZTIqiiCaYUjaf/XDG7H
+         QfmYVZu06Z7YaWS9pMIow9PeLuqMHWhO4Lz8VpVcTcjq+oQt74PVjLf4/vi/hqATEpgG
+         yBx83MEYp3ONeSrfDwDv1cLBn5052jwYPpNos832xu+iSlcqb694VCcYz6Axu/jp+CwO
+         cBGxKLzm4TNAK7RjyrN2v7wLXY1uGBRkAzyxdERsRBPensTlmwDlXG4Yr5oy2OvIPiH4
+         Od3g==
+X-Forwarded-Encrypted: i=1; AKwUvBxhEkEIrszn+DUrxqbPVd9BbN3LhBKF0mkgDJFG1k+oxyVC0mUBwuAee3TJp+dldbgbIlxEu8qp@vger.kernel.org
+X-Gm-Message-State: AFuF++m2JZIXEK9nediP2NnDznxtVsk9TnjCkrYSjNY3Ti/NnoHPbt4d
+	iAFs+PP0AZ1Z+w7tYraQ7ez9FKy0UyL+Mbw15ggZp/cfb9LELLxWGT5r
+X-Gm-Gg: AYBFou1VWy2B8zTWYD5XjC80PQaZbK9Fymk7ole6Di0eOTmW4QqHH5wfzxVvAMFVWBF
+	qlZk+QfQ4VCDAgWBgjKRBnQrF4qzmCumcu3ulv7EdTvGfWJT38pG2yqxLvjCso2EQ/F/YnCoNc7
+	RB2II0nscnVNYRdVQ3YqAaR/BJNfayBcftm7Z/kSQ8Pwa56w7NbHMMPMYzLRo6QnsZnNGaf4/sm
+	1UHdQneBJ3wTobaGYSvxrPI10b3f7fYdTII9t3cuRp0LaJ2pBY2eB/hyMPWBRPIy9McyUu8FFOt
+	pEJLRO07d/3XPNHjHt1PmCZ8hD1Q89C8ODxau0V42QR4QX3KKXlyIGkEwM3qujV11rvY0fOXFqq
+	LKworTt2+XcmRCTMe0YSwlTqENE+JKXTOZlzrWR53JjyBO7fU9R9rLndxJCsHK9d1rF5mjlwjx2
+	3pZnvqY+wpRUPfBFjVcAIzMw5CSe8QM0+0xny5gjluLkm5ensq285qQ/GNZqcgSGb7qJS7ER8=
+X-Received: by 2002:a05:6402:3706:b0:6a6:7818:b18 with SMTP id 4fb4d7f45d1cf-6a7e90a9981mr8187671a12.22.1788792016878;
+        Mon, 07 Sep 2026 07:40:16 -0700 (PDT)
+Received: from grower.astralinux.ru ([82.22.172.205])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a7e6c20a41sm4438279a12.31.2026.09.07.07.40.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 07:40:16 -0700 (PDT)
+From: Alexander Martyniuk <alexevgmart@gmail.com>
+To: stable@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Martyniuk <alexevgmart@gmail.com>,
+	lvc-project@linuxtesting.org,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Eric Paris <eparis@parisplace.org>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 5.10/5.15/6.1 0/2] selinux: reject an unclaimed class value in security_get_classes()
+Date: Mon,  7 Sep 2026 17:39:53 +0300
+Message-ID: <20260907144009.162239-1-alexevgmart@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wednesday, 2 September 2026 01:35:44 AEST Paul Moore wrote:
-> > Date: Wed, 22 Jul 2026 21:04:27 +1000
-> > Subject: kernel oops on recent policy with older kernel.
-> > I get the above when loading the latest git policy compiled with 3.11
-> > userspace on Debian kernel 6.12.74+deb13+1 and Debian kernel
-> > 6.12.86+deb13.
-> > The same policy on a 7.x kernel such as 7.0.13+deb14 works correctly.
+Backport fix for CVE-2026-80912.
 
-https://www.coker.com.au/w/
+Bryam Vargas (1):
+  selinux: reject an unclaimed class value in security_get_classes()
 
-Below is the kernel message log output with Debian kernel 6.12.107+deb13-
-amd64_6.12.107-1.  The above URL has the Debian kernel image and the policy 
-file.  The command "ar -x linux-image-6.12.107+deb13-
-amd64_6.12.107-1_amd64.deb" extracts the kernel if you want to use it on a 
-non-Debian VM.
+Christian Göttsche (1):
+  selinux: avoid implicit conversions in services code
 
-It's hanging not crashing which is an improvement.
-
-[   10.414520] audit: type=1404 audit(1788699747.392:2): enforcing=1 
-old_enforcing=0 auid=4294967295 ses=4294967295 enabled=1 old-enabled=1 
-lsm=selinux 1
-[   10.530653] SELinux: no sid found, defaulting to security isid for /
-booleans/aide_mmap_files
-[   10.535475] SELinux: no sid found, defaulting to security isid for /
-booleans/amavis_use_jit
-[   10.537368] SELinux: no sid found, defaulting to security isid for /
-booleans/allow_httpd_anon_write
-[   10.540012] SELinux: no sid found, defaulting to security isid for /
-booleans/allow_httpd_mod_auth_pam
-[   10.543230] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_builtin_scripting
-[   10.546402] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_can_check_spam
-[   10.549244] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_can_network_connect
-[   10.551298] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_can_network_connect_cobbler
-[   10.554654] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_can_network_connect_db
-[   10.556863] SELinux: no sid found, defaulting to security isid for /
-booleans/httpd_can_network_connect_ldap
-[   10.559776] SELinux: failed to initialize selinuxfs
-[   10.568734] systemd[1]: Failed to load SELinux policy.
-[!!!!!![   10.585074] systemd[1]: Freezing execution.
-] Failed to load SELinux policy.
+ security/selinux/include/security.h |  4 +--
+ security/selinux/selinuxfs.c        |  7 +++--
+ security/selinux/ss/services.c      | 45 +++++++++++++++++++----------
+ 3 files changed, 36 insertions(+), 20 deletions(-)
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
-
-
+2.43.0
 
