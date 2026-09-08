@@ -1,106 +1,106 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9299D256C8B
-	for <selinux@vger.kernel.org>; Tue,  8 Sep 2026 14:44:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0672955821D
+	for <selinux@vger.kernel.org>; Tue,  8 Sep 2026 15:00:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788878650; cv=none; b=skPMx5eL7WO/uncfWlncXioDBuQG5SqEQFWkRLKKBHrYhZ43tIhWdXgIC9HijXLfp9DnUAmqWkt0KveboeIAr9LdJEozPXrW7aw0K60jqFiSyRROMnwpjXrlwINu/W2cGKU05eov2P3FbjZ9Kvj9eh8Q10xXxhBmJUms18Pp33w=
+	t=1788879673; cv=none; b=IGLKzLTY3/mIvnlmDv9lQespUwyax4QaCqn2GWg6OG3wVW8KrvU+HYb5boh3T5ObJMa1zl9txSgqWse1A+BezibOLtYkG5ySIfQIGnuhmULU4ItNTqJd7qky+9J5s1lwk+EfFZArR+x0OBivY1gNT84Q5FaTD4Me39BeuR5ypAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788878650; c=relaxed/simple;
-	bh=rt8rj7s4OhQkV4Qi0yx3CmXqsCXkMzPZT2cISQHGyBU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tBfL/atVKG/xSVFyQlwCOhGxuT8iVyea/U4soN/DDzNbP0S/2pMLaU8l0VOX1/a/lfcXsW0jHbSI+tlLTZm8WYbMhZ/ljFLoYl/3wacq5e53fvWmyMwLuN7mRtHH3R/oxm0ZQnerIpIoabzBc6K0J6nkrCbcyWGhqR3EcJTUYLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ogl9O492; arc=none smtp.client-ip=209.85.219.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788879673; c=relaxed/simple;
+	bh=qUD0BSQcZdTP6VYmZ6X5wZrUHQm0KPjKaUitxw7fNn8=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ShZAtdmNwg9BS/UI1XOMkE8+hkGnrlM2WWiZly8XLWmMfxjwWqgZqgNVZw3PcWF01ZpAKFQHMR3C5IT6/qCpYfgVoqa+8U2U8GSBQGnxpKQUAeIwTGgKiDieza7G6W+zJmFSQ1ERnpDdzpEk6fXb71pkHb342Uv4t4opa9PhpvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TfFH7iVj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ogl9O492"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-90d7fa95a58so49337656d6.1
-        for <selinux@vger.kernel.org>; Tue, 08 Sep 2026 07:44:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788878636; x=1789483436; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=E4QNwCwpJjnreqi567dsZZUbvqZn9p33WU+5dLKDDNQ=;
-        b=Ogl9O492/H+4ugkj7gPY1xPbbtYpPQ0QlA9gnOjlATVyqI6X+ySL99iU40EbYQV45Q
-         KAPXxrvIVbzH/wHdrQl54hzkPpfSp5911hC6GqBf6bnNCH+ubpCiamiVs7bBtE0QR8cR
-         /TQ+EQKXY273/BQGw00A8m3JfaaTvYzx1jr2YbkzjdexT1Q8bLmpOAZ/ZyG5VP4rYjxc
-         9qWQ4OMa7wK/mAJ7VgOOpIYh3ooRH5RupRFqN6EXuLjCE06M21oLwb9TFq1f5wzjO+eL
-         6nARXwmnDnpM0COX48vkjEevmj9mH6YQu2C8VXfrGT6eYbYlqgi240shs2bLjhj1yd2J
-         MbRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788878636; x=1789483436;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=E4QNwCwpJjnreqi567dsZZUbvqZn9p33WU+5dLKDDNQ=;
-        b=HymX6RNU+AkFtofK5zM6+XEU9WIGM+zAmxBxfDjcd08zPz3dOrxEC6gp356eqQbmk/
-         uv27zkfjnuuSBAcwB8VFMKdNT89P8ArlLTrv/hWIyNXU5zbj8BhfzMKy+gVBnv4Nkuof
-         wpnLv8CB6KYrf8o4upickyuNeFYhngwpYJQMXs3DquX53iuCSVLD3N7zsqHgZ8MTX9Db
-         m/16YCGimR+5oHLzs1EhYcleRyR93Z15KppTPB3Xmid6aHcZG3Xx9xHjo7/q3955VsTa
-         Ry143PbG9yxp/9aHXm6b2wiu05VUjN7yz0PnbbmXC0QvKXZ5WHPHsIAGX39NiKTDM9Zr
-         RVbw==
-X-Gm-Message-State: AFuF++m/Ey5Yq9Z398zJExgkELAiNMKqZ0ZQzsiVKw22H0L03Bltq6lD
-	0XgH/MNK3zFSY2r758cP/KRlfjnh5FkcvDl/iIfyRf3g2Jk71TO3LBEvouXfnA==
-X-Gm-Gg: AYBFou2qiixOGpwTzYma+BNNwzl//I0RJiMEW7aouPVYDAZ49yJFV/ckd6+07VNL1Ev
-	AunUODF1XciVP/rr7PzylpmHwXXVW8MRhy1oAU1k3+hVM2sgmdyabXx8HX2HkBpNfzl3MiwDcTq
-	QbKFc1sprA3z3Twsc+X/B/A1Va939luPKgBhVAMr2YQj4Keyp1ancjKIrkWRA5qd+pWv75Y7HQQ
-	l0hYT1K2uPkd6TrtlXRDGI4n2j8vDNy4AYoJNW33IC1/4qAVC+dg7yhaOAo5AJDAUVwIrfAhuL1
-	5V4QXPTjh6/DCVfAMROaPtMCxM2K4ugg+KUVYUpXRD1JE3IZGtovtSTvw1pn2GKCXDUyWp3Mkkn
-	KRg6+Gw8AEqJHrtBTX4XfzFRgvYHCM9JXsLyStr1dOBxUXi8RFE8e7pFEkhQ8k67T8Yyg6Jb5AG
-	FvPXrIwi/CGTos9t8iKLLZrWCM8HqHOeUX6zDw7OnzJ668bNd38p1+QMI5UUN+uO3fBoqWbeu+B
-	HBDcwdqIK0vciBasAkWRITEHRK6DIyDMR0m2urjdc2XJXfs+oho8bO19Sw49jjODQ==
-X-Received: by 2002:a05:6214:62f:b0:910:3451:5801 with SMTP id 6a1803df08f44-9103f0adf64mr386601966d6.31.1788878635463;
-        Tue, 08 Sep 2026 07:43:55 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406b0f51sm118355486d6.42.2026.09.08.07.43.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 07:43:55 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnacek@gmail.com,
-	russell@coker.com.au,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] selinux: treat genfscon lookup failure as non-fatal for booleans
-Date: Tue,  8 Sep 2026 10:43:41 -0400
-Message-ID: <20260908144341.17206-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TfFH7iVj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 013DA1F00A3A
+	for <selinux@vger.kernel.org>; Tue,  8 Sep 2026 15:00:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788879654;
+	bh=KFjirTQ/8V0T1adDdY+3/jG7e2Q2QuxODRG8wjmk6Jk=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=TfFH7iVjTNJ8zv53zZyahfc0+/dUgcQo3YH5Tb/qcavl9Sq2ES/YgbrJNWOqcK/CV
+	 n7GdQfiXkWyVPsiCbDFJpxLP00tzhag6iVkRF9h0wdlqSx7RD2o/7fmn2vIIOBc9M6
+	 JNxqFJFdhBy+JV64f9IDEYKWYTpSKJOcLzqjBGYzTYp/F1+YBh6R3B+lFRFcFZ7A0g
+	 6rMGWsS9/PROZDTGYo3y/PJl5kn3CTcuDq46DPkj/XHY0LO2FHhsXhP9LRm02LxIGP
+	 bQMTHJ+U5maBxddTfxXNTLJoxSOJMJ+8uMD3RYrjVPVFEHr7TWlf+1GI98WAN6Uoqu
+	 g3r23rIdXhI6w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] selinux: treat genfscon lookup failure as non-fatal for
+ booleans
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260908144341.17206-1-stephen.smalley.work@gmail.com>
+References: <20260908144341.17206-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 15:00:53 +0000
+Message-Id: <20260908150054.013DA1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-selinuxfs.c:sel_make_bools() labels the inodes representing policy
-booleans based on genfscon rules in the policy. If there is no
-matching entry, we fall back to assigning the well-defined security
-initial SID but propagate the error back to the callers. This ends up
-producing a fatal error during policy load, which can halt the system
-on first policy load if enforcing. We do not treat similar genfscon
-lookup failures as fatal elsewhere in SELinux, so follow the same
-approach here.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] The patch adds `ret =3D 0;` to prevent an error code from propag=
+ating, but it is a dead store because `ret` is unconditionally overwritten =
+immediately afterward.
+--
+
+commit 56d806498916952baebbc4306bdac863b09cae9c
+Author: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+selinux: treat genfscon lookup failure as non-fatal for booleans
+
+This commit aims to make genfscon lookup failures non-fatal when labeling
+inodes for policy booleans. It resets the error code from
+selinux_policy_genfs_sid() to zero to prevent the error from propagating.
 
 Link: https://lore.kernel.org/selinux/RvCmRlQYQ3uewSzEeY0utQ@coker.com.au/
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- security/selinux/selinuxfs.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 292302eb60f3..7ff2ba6623b9 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1277,6 +1277,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
- 			pr_warn_ratelimited("SELinux: no sid found, defaulting to security isid for %s\n",
- 					   page);
- 			sid = SECINITSID_SECURITY;
-+			ret = 0;
- 		}
- 
- 		isec->sid = sid;
--- 
-2.55.0
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 5aaaf69410bb0..fb1d11e8fd371 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1278,6 +1278,7 @@ static int sel_make_bools(struct selinux_policy *ne=
+wpolicy, struct dentry *bool_
+>  			pr_warn_ratelimited("SELinux: no sid found, defaulting to security is=
+id for %s\n",
+>  					   page);
+>  			sid =3D SECINITSID_SECURITY;
+> +			ret =3D 0;
 
+[Severity: Medium]
+Is this assignment a dead store?
+
+Looking at sel_make_bools(), ret is unconditionally overwritten just a few
+lines later by the result of sel_attach_file():
+
+		isec->sid =3D sid;
+		isec->initialized =3D LABEL_INITIALIZED;
+		inode->i_fop =3D &sel_bool_ops;
+		inode->i_ino =3D i|SEL_BOOL_INO_OFFSET;
+
+		ret =3D sel_attach_file(bool_dir, names[i], inode);
+
+Because ret is overwritten regardless of the prior error state, the added
+assignment doesn't appear to change the functional behavior of the code.
+
+The error code from selinux_policy_genfs_sid() was already being discarded
+by the sel_attach_file() assignment before the loop condition could evaluate
+it.
+
+Does sel_attach_file() need to be skipped if selinux_policy_genfs_sid()
+initially failed, or is there another way the error was intended to be
+handled here?
+
+>  		}
+> =20
+>  		isec->sid =3D sid;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908144341.1720=
+6-1-stephen.smalley.work@gmail.com?part=3D1
