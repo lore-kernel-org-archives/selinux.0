@@ -1,241 +1,281 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6A11434998;
-	Tue,  8 Sep 2026 20:03:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0207339E18F
+	for <selinux@vger.kernel.org>; Tue,  8 Sep 2026 20:03:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788897807; cv=none; b=Cu6gSK13DqnvfVrQJay/G38I11rZrihzOJ0y324TLBR5fVd6ujqWWOB0ueC8QYylmXDq4tdf9lsD+fSe3Z7H/YVhP1FSVO+mrugUE5YRjkyv4u8V39g+uKrZUn840qCfuIh/qiMg+2/Xf/vICBXKR5IkRF8z/CWa5YI3DUiMb30=
+	t=1788897829; cv=none; b=mwN/WtMhxk9CHBjxHogOmwDA/fLLWoDKmabjWNQg7Y+HughdZrMtB1LOugQBjkirP/JaCdL2l5AVZKjKlKR9rFlBxYwwCsC1NC49+UgPQT3RA5VRRnH514MFlCp/8i2sr2Q35K9XFVDtq0EtYAZqQ5WG1fo0l0TWOLFmw3TduSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788897807; c=relaxed/simple;
-	bh=0UU6lGSovOVzdqVhnWVD0ARbEiD8RROdurC1mTuwfD8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=USPZdnZYKeSgZc2oSQaevgGAixJKCFGWonhAlLPz/DK/5ERwTFuXd7ikPY1gTLYw99EhQpzTVjDz1l3pupbWD6CQTRqiwmVM9hdgTzraNrk7KlpBAi09UwBtDIUmJ9vcYT1nbGwgIIlgiGMow3sb8H0oCQq3G9KelCZtsDhubyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ku2gwpBF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788897829; c=relaxed/simple;
+	bh=qiJ9nNVK0xNpbaqbb2v3KIQvQoaMtMCbB0DV4fnjl50=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pa9P1r1ve5taCSsAzCgueiN2zZyp5P+ZSWuz54P0x5UbScD5AqjFoDrvwC7fpNB1QbAjPZ/ELz2ToALrMtyKn2uX8pvWQ3OMn055QLY3Kp6qGvuJWbOO5VydmVXxSiv+4pcl96sdTM9O8XRUPaLwkdQY0tV9agJVDPYC1nXXUJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D8A9DSLQ; arc=none smtp.client-ip=74.125.224.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ku2gwpBF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57BCA1F00A3D;
-	Tue,  8 Sep 2026 20:02:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788897805;
-	bh=N/5irUa19/BDN2FcWAIdugpCz9h2TSbkek/eDpHMNwo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ku2gwpBFwbzAQ9WpRHCfTbmHrqoxH1O79eE6GJgUgEmxCzV2zSbqhIvZn3z1K/LOW
-	 jQtxKcljhwwX6BHLOw0jrP1qLbw9bq481GXnBDTftZNwaufIQ2FNDR4wdA7+QSL/+n
-	 bOnrpLTwrkyLBdXeZokkp60zx/ExmXt6G3L40ulIFvnIVT8Ju5kOVZ9/vbmWVJIL8j
-	 V+DXIhJB16u11Zkd92DE8Mm/4GX5O1l4UCk/gk8xTOuqXTcGQ655Gwv90CaCup9Eoi
-	 Ml/J+p32Cy5gI6XpNafasUy7A7/vLiCxm1MjWPRev15TMj9H5pIh/hgmbhtufTj48M
-	 Et/8nwZmluVdg==
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Tue, 08 Sep 2026 21:01:06 +0100
-Subject: [PATCH 02/39] mm/vma: introduce and use vma_[flags_]can_merge()
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D8A9DSLQ"
+Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-66f883abfdcso4715035d50.0
+        for <selinux@vger.kernel.org>; Tue, 08 Sep 2026 13:03:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788897827; x=1789502627; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=v1vPMXOB+b/Ya6s+k/39aIG/f6O2YXe4k+bdy31Wr8w=;
+        b=D8A9DSLQ2IRtzBDvlvC0HrknB+gDP7iMs8E6kj6cIh0snL6JWBPEEgTqwyEu7SO7Vg
+         9QWEpW+WztAnLkmbxKokIA3ZgxCivaVKnKQt2Gc2eI8nCcxaYy2GxiW9p9WbKSGEijmL
+         Bd+y41EFKMS9AbXyVUmUcPpixx1XnjPO1X1/HhOQvli0jmUPBboA+TttxNa18HpSdL8P
+         p7W4heEhb1bt1HurqVw2t5cTHfC/QEd1h1AWma5c1mbE7ZTNk6UEyTlCoZfyVXyezJRh
+         3CULRKfPPuv2YuMs/neuOVrydZZOWRCwV1vtx820PeluneKEuloG/RHkcB1+A9MSRKa2
+         hzrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788897827; x=1789502627;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=v1vPMXOB+b/Ya6s+k/39aIG/f6O2YXe4k+bdy31Wr8w=;
+        b=VnorBP8ObYvMfvXnSnSdc2iND/shPdYboXrbTBZGEBjyJ/qRAs9Jj7cuPtMspSN/Rq
+         qH6hepCMfec1LqFZjhgcDhAa2Rp4guMPItfTUt6q8CL9UcLynxETGnzHU+wsN1kKk5u4
+         15OqpYZLSPsDIw4RzJ0aSvP++WY8mc909mngebZhPtk5T3/bHILjgEYlYiuKP3oiaZCD
+         FFQNBEljO2cQVGSiF8mJlXj37Fd4o6dEqD5eUehN8JPSfUjizxjBkT3q4ez08xsewATx
+         NFksY9O8m95MyZ2ELi49VE5WvV/0Oqk/BUtRt0hpq9NSv1XaakL8RnyI1h220LKT4THc
+         LiVg==
+X-Gm-Message-State: AFuF++n3SLIVJj2+Njk6ma0j/eXIbKBsvgPP8m0VduOR9lzdZJkFxKCe
+	p5qvQK66c6MlwTBmZZIuAG+C/EZxUJt+Gi95DuTw73kgNEcpIp/UpBUzDrYujw==
+X-Gm-Gg: AYBFou0+LvMO3FFQ+jm2TR+6LnbSdKpQFtbXbmDSmQimVtCx5sl2ILj5gBbNq8nWqio
+	yDRMBDZ6PJ795QGTaKbSMVe9+loR/KkCqg/IHC7HPaB3pb58I5NsvFQ9bV+/j4aiz/v7OLPYI6c
+	kUy6eQEOD6e5Kta1aGn739xefbtp5NiwqmckfqTkoRaa9nqyfwpAJoM+ONn27VwElo6HKn3mRoB
+	RyQMLFoDsGyImqQT1lkhjpLJALzE1qPZxSsqRZcEQt9JntF8551c6jYMze6+gilExn41N2U8Ljn
+	CpP033fxhvQYYbZ8Kl4bNS8XoOe5GG53toVITXdmHDRsD+CKVo7Sk0z2ouo5CKPJWRLImRCSFb+
+	87O4PNirpqRCw+jb7sLVaMnJvBVllH8/9tkq1t7t2MCUNISFNx+vxIZHmPq9COvuCnI9S6JVD+d
+	yVYDbBlQ1x4bIrOnxIse2adeOLpqibxwnxCipuiUQbodWDuItENkIt6kuE2tRCTr3CroEjb/N+g
+	Zh1zaPu/KFxl9EEFEOSMkRSyIliLZbGEi+PHKhzQKLMy/rwp68La7rfBrIyyIsZ
+X-Received: by 2002:a05:690e:1689:b0:66e:542c:cb48 with SMTP id 956f58d0204a3-66fb5ab57demr9936864d50.48.1788897826783;
+        Tue, 08 Sep 2026 13:03:46 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406afe48sm124542456d6.43.2026.09.08.13.03.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 13:03:46 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/2] libsepol,checkpolicy,secilc: split min/max policydb versions between SELinux and Xen
+Date: Tue,  8 Sep 2026 16:03:30 -0400
+Message-ID: <20260908200332.23630-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-2-dacf19cce22b@kernel.org>
-References: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org>
-In-Reply-To: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
- David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
- Paul Moore <paul@paul-moore.com>, 
- Stephen Smalley <stephen.smalley.work@gmail.com>, 
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
- Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
- Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, 
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
- Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, 
- Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
- Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, 
- Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
- Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
- Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
- Juri Lelli <juri.lelli@redhat.com>, 
- Vincent Guittot <vincent.guittot@linaro.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
- Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
- "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
- Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
- Catalin Marinas <catalin.marinas@arm.com>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Janosch Frank <frankja@linux.ibm.com>, 
- Claudio Imbrenda <imbrenda@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, 
- Alexander Viro <viro@zeniv.linux.org.uk>, 
- Christian Brauner <brauner@kernel.org>, 
- Matthew Brost <matthew.brost@intel.com>, 
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
- Ying Huang <ying.huang@linux.alibaba.com>, 
- Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, 
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
- Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
- Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
- Wei Xu <weixugc@google.com>, Xu Xin <xu.xin16@zte.com.cn>, 
- Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
- Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
- linux-rdma@vger.kernel.org, selinux@vger.kernel.org, 
- linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
- linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
- linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
- linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
- fuse-devel@lists.linux.dev, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3665; i=ljs@kernel.org;
- h=from:subject:message-id; bh=0UU6lGSovOVzdqVhnWVD0ARbEiD8RROdurC1mTuwfD8=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLIWZG64vd1F9WqzdKTnan0Lh2BNLUnLtmu8U8UdzksrM
- Z+OE1zVUcrCIMbFICumyPL8i/j+IJGweZ0X/N1g5rAygQxh4OIUgIncn8zI8CNQ+Oi6+/Y7/5sd
- f1oxhWPnFNGGvybMWvt5247edb5wxYzhf37AUbvU9ayqj7YzrBEPP1yw45fFhkwVTbkIIT35+q1
- /2AE=
-X-Developer-Key: i=ljs@kernel.org; a=openpgp;
- fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
+Content-Transfer-Encoding: 8bit
 
-Replace the open-coded VMA_SPECIAL_FLAGS check in the VMA merge logic with
-two new functions vma_flags_can_merge() and vma_can_merge() and update the
-merge logic to use the former.
+checkpolicy and secilc default the output policy version to
+POLICYDB_VERSION_MAX (currently 35) regardless of the target platform,
+and check any manually specified policy version against the
+POLICYDB_VERSION_MIN/MAX again regardless of the target platform.  As
+a consequence, checkpolicy or secilc with -t xen and no -c 30 option
+produces a version 35 policy for the Xen target that cannot be used by
+Xen.
 
-This abstracts the check and expresses it in terms of the desired behaviour
-rather than an arbitrary and confusing VMA flag.
+Add POLICYDB_XEN_VERSION_{MIN,MAX} to policydb.h and, in both front
+ends, resolve the default policyvers and any -c checks against the
+range for the selected target after option parsing (so option order
+does not matter).
 
-This also lays the groundwork for making further improvements in VMA flag
-usage.
-
-Also update the userland VMA tests to reflect the change.
-
-No functional change intended.
-
-Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Fixes: https://github.com/SELinuxProject/selinux/issues/537
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- include/linux/mm.h              | 21 +++++++++++++++++++++
- mm/vma.c                        | 19 +++++++++++--------
- tools/testing/vma/include/dup.h |  5 +++++
- 3 files changed, 37 insertions(+), 8 deletions(-)
+ checkpolicy/checkpolicy.c                  | 41 ++++++++++++----------
+ libsepol/include/sepol/policydb/policydb.h |  8 ++++-
+ secilc/secilc.c                            | 28 +++++++++------
+ 3 files changed, 47 insertions(+), 30 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index c49ef99b4413..83979ec28f5c 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1612,6 +1612,27 @@ static inline bool vma_is_shared_maywrite(const struct vm_area_struct *vma)
- 	return is_shared_maywrite(&vma->flags);
- }
+diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+index b5a6da3a..1ab9598b 100644
+--- a/checkpolicy/checkpolicy.c
++++ b/checkpolicy/checkpolicy.c
+@@ -60,6 +60,7 @@
  
-+/**
-+ * vma_flags_can_merge() - Do the specified VMA flags permit the VMA to be
-+ * merged with another?
-+ * @flags: The VMA flags to test.
-+ * Returns: true if the flags permit merging, false otherwise.
+ #include <ctype.h>
+ #include <getopt.h>
++#include <limits.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <sys/types.h>
+@@ -393,6 +394,8 @@ int main(int argc, char **argv)
+ 	struct val_to_name v;
+ 	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
+ 	unsigned int policyvers = 0;
++	unsigned int policyvers_min = POLICYDB_VERSION_MIN;
++	unsigned int policyvers_max = POLICYDB_VERSION_MAX;
+ 	unsigned int nel, uret;
+ 	struct stat sb;
+ 	void *map;
+@@ -488,22 +491,13 @@ int main(int argc, char **argv)
+ 			long int n;
+ 			errno = 0;
+ 			n = strtol(optarg, NULL, 10);
+-			if (errno) {
++			if (errno || n < 1 || n > INT_MAX) {
+ 				fprintf(stderr,
+ 					"Invalid policyvers specified: %s\n",
+ 					optarg);
+ 				usage(argv[0]);
+ 				exit(1);
+ 			}
+-			if (n < POLICYDB_VERSION_MIN ||
+-			    n > POLICYDB_VERSION_MAX) {
+-				fprintf(stderr,
+-					"policyvers value %ld not in range %d-%d\n",
+-					n, POLICYDB_VERSION_MIN,
+-					POLICYDB_VERSION_MAX);
+-				usage(argv[0]);
+-				exit(1);
+-			}
+ 			policyvers = n;
+ 			break;
+ 		}
+@@ -519,10 +513,22 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
++	if (target == SEPOL_TARGET_XEN) {
++		policyvers_min = POLICYDB_XEN_VERSION_MIN;
++		policyvers_max = POLICYDB_XEN_VERSION_MAX;
++	}
++
++	if (!policyvers)
++		policyvers = policyvers_max;
++	else if (policyvers < policyvers_min || policyvers > policyvers_max) {
++		fprintf(stderr, "policyvers value %u not in range %u-%u\n",
++			policyvers, policyvers_min, policyvers_max);
++		usage(argv[0]);
++	}
++
+ 	if (show_version) {
+-		printf("%d (compatibility range %d-%d)\n",
+-		       policyvers ? policyvers : POLICYDB_VERSION_MAX,
+-		       POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
++		printf("%u (compatibility range %u-%u)\n", policyvers,
++		       policyvers_max, policyvers_min);
+ 		exit(0);
+ 	}
+ 
+@@ -605,8 +611,7 @@ int main(int argc, char **argv)
+ 			}
+ 		}
+ 
+-		policydbp->policyvers = policyvers ? policyvers :
+-						     POLICYDB_VERSION_MAX;
++		policydbp->policyvers = policyvers;
+ 	} else {
+ 		if (conf) {
+ 			fprintf(stderr,
+@@ -622,8 +627,7 @@ int main(int argc, char **argv)
+ 		/* Let sepol know if we are dealing with MLS support */
+ 		parse_policy.mls = mlspol;
+ 		parse_policy.handle_unknown = handle_unknown;
+-		parse_policy.policyvers = policyvers ? policyvers :
+-						       POLICYDB_VERSION_MAX;
++		parse_policy.policyvers = policyvers;
+ 
+ 		policydbp = &parse_policy;
+ 
+@@ -651,8 +655,7 @@ int main(int argc, char **argv)
+ 					"Error while expanding policy\n");
+ 				exit(1);
+ 			}
+-			policydb.policyvers = policyvers ? policyvers :
+-							   POLICYDB_VERSION_MAX;
++			policydb.policyvers = policyvers;
+ 			policydb_destroy(policydbp);
+ 			policydbp = &policydb;
+ 		}
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 03831fc2..e116188c 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -760,10 +760,16 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ 	34 /* extended permissions in conditional policies */
+ #define POLICYDB_VERSION_NEVERAUDIT 35 /* neveraudit domains */
+ 
+-/* Range of policy versions we understand*/
++/* Range of SELinux policy versions we understand*/
+ #define POLICYDB_VERSION_MIN POLICYDB_VERSION_XPERMS_IOCTL
+ #define POLICYDB_VERSION_MAX POLICYDB_VERSION_NEVERAUDIT
+ 
++/*
++ * Range of Xen policy versions we understand.
 + */
-+static inline bool vma_flags_can_merge(const vma_flags_t *flags)
-+{
-+	return !vma_flags_test_any_mask(flags, VMA_SPECIAL_FLAGS);
-+}
++#define POLICYDB_XEN_VERSION_MIN POLICYDB_VERSION_XEN_DEVICETREE
++#define POLICYDB_XEN_VERSION_MAX POLICYDB_VERSION_XEN_DEVICETREE
 +
-+/**
-+ * vma_can_merge() - Do @vma's flags permit it to be merged with another VMA?
-+ * @vma: The VMA to test.
-+ * Returns: true if the flags permit merging, otherwise false.
-+ */
-+static inline bool vma_can_merge(const struct vm_area_struct *vma)
-+{
-+	return vma_flags_can_merge(&vma->flags);
-+}
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_XPERMS_IOCTL 18
+ #define MOD_POLICYDB_VERSION_INFINIBAND 19
+diff --git a/secilc/secilc.c b/secilc/secilc.c
+index 54a15767..cc528432 100644
+--- a/secilc/secilc.c
++++ b/secilc/secilc.c
+@@ -100,7 +100,9 @@ int main(int argc, char *argv[])
+ 	int preserve_tunables = 0;
+ 	int qualified_names = 0;
+ 	int handle_unknown = -1;
+-	int policyvers = POLICYDB_VERSION_MAX;
++	int policyvers = 0;
++	int policyvers_min = POLICYDB_VERSION_MIN;
++	int policyvers_max = POLICYDB_VERSION_MAX;
+ 	int attrs_expand_generated = 0;
+ 	int attrs_expand_size = -1;
+ 	int optimize = 0;
+@@ -165,19 +167,12 @@ int main(int argc, char *argv[])
+ 			char *endptr = NULL;
+ 			errno = 0;
+ 			policyvers = strtol(optarg, &endptr, 10);
+-			if (errno != 0 || endptr == optarg || *endptr != '\0') {
++			if (errno != 0 || endptr == optarg || *endptr != '\0' ||
++			    policyvers < 1) {
+ 				fprintf(stderr, "Bad policy version: %s\n",
+ 					optarg);
+ 				usage(argv[0]);
+ 			}
+-			if (policyvers > POLICYDB_VERSION_MAX ||
+-			    policyvers < POLICYDB_VERSION_MIN) {
+-				fprintf(stderr,
+-					"Policy version must be between %d and %d\n",
+-					POLICYDB_VERSION_MIN,
+-					POLICYDB_VERSION_MAX);
+-				usage(argv[0]);
+-			}
+ 			break;
+ 		}
+ 		case 'U':
+@@ -252,6 +247,19 @@ int main(int argc, char *argv[])
+ 		usage(argv[0]);
+ 	}
+ 
++	if (target == SEPOL_TARGET_XEN) {
++		policyvers_min = POLICYDB_XEN_VERSION_MIN;
++		policyvers_max = POLICYDB_XEN_VERSION_MAX;
++	}
 +
- /**
-  * vma_kernel_pagesize - Default page size granularity for this VMA.
-  * @vma: The user mapping.
-diff --git a/mm/vma.c b/mm/vma.c
-index 2a90c509bb31..0db2fc306993 100644
---- a/mm/vma.c
-+++ b/mm/vma.c
-@@ -924,13 +924,14 @@ static __must_check struct vm_area_struct *vma_merge_existing_range(
- 
- 	vmg->state = VMA_MERGE_NOMERGE;
- 
-+	if (!vma_flags_can_merge(&vmg->vma_flags))
-+		return NULL;
- 	/*
--	 * If a special mapping or if the range being modified is neither at the
--	 * furthermost left or right side of the VMA, then we have no chance of
--	 * merging and should abort.
-+	 * If the range being modified is neither at the furthermost left or
-+	 * right side of the VMA, then we have no chance of merging and should
-+	 * abort.
- 	 */
--	if (vma_flags_test_any_mask(&vmg->vma_flags, VMA_SPECIAL_FLAGS) ||
--	    (!left_side && !right_side))
-+	if (!left_side && !right_side)
- 		return NULL;
- 
- 	if (left_side)
-@@ -1152,9 +1153,11 @@ struct vm_area_struct *vma_merge_new_range(struct vma_merge_struct *vmg)
- 
- 	vmg->state = VMA_MERGE_NOMERGE;
- 
--	/* Special VMAs are unmergeable, also if no prev/next. */
--	if (vma_flags_test_any_mask(&vmg->vma_flags, VMA_SPECIAL_FLAGS) ||
--	    (!prev && !next))
-+	if (!vma_flags_can_merge(&vmg->vma_flags))
-+		return NULL;
++	if (!policyvers)
++		policyvers = policyvers_max;
++	else if (policyvers < policyvers_min || policyvers > policyvers_max) {
++		fprintf(stderr, "Policy version must be between %d and %d\n",
++			policyvers_min, policyvers_max);
++		usage(argv[0]);
++	}
 +
-+	/* VMAs with no prev/next are unmergeable. */
-+	if (!prev && !next)
- 		return NULL;
+ 	cil_set_log_level(log_level);
  
- 	can_merge_left = can_vma_merge_left(vmg);
-diff --git a/tools/testing/vma/include/dup.h b/tools/testing/vma/include/dup.h
-index 16c09dac59d9..2fd422789717 100644
---- a/tools/testing/vma/include/dup.h
-+++ b/tools/testing/vma/include/dup.h
-@@ -1647,3 +1647,8 @@ static inline bool file_is_dev_zero(const struct file *file)
- {
- 	return file && file->f_op == &zero_fops;
- }
-+
-+static inline bool vma_flags_can_merge(const vma_flags_t *flags)
-+{
-+	return !vma_flags_test_any_mask(flags, VMA_SPECIAL_FLAGS);
-+}
-
+ 	cil_db_init(&db);
 -- 
 2.55.0
 
