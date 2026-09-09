@@ -1,247 +1,260 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B613154529E;
-	Wed,  9 Sep 2026 12:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B5215427E6
+	for <selinux@vger.kernel.org>; Wed,  9 Sep 2026 13:29:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788955741; cv=none; b=KLz8pHbYvCDCMZRab5KuwIwHeEyYsJlj0w00jBJgrQhWnAPpeKI6oOtrpGz4nxhPOGHV/pQgSe5xYnJc0+SoH+qyVuBwuMGtJV9EMqyc/2Y+2liB7VNXQ7mrMZ20RGpm+CyxDDQpH9DB5PSWVvqysKNNGgpYeB88zydbYPsZVTc=
+	t=1788960557; cv=none; b=FAeeq13tNUT8ay4CjeSXk9BHA+tiYrbCeQ5NyCJRzWnfu/L7u2QV5O9iArMwK6dvwGLqq4x938OejIv6Ya/Xe/mSsV9M9dfcGPl048ZdRj18z+awOb0zK3tu+UYTt46j3OI1wfawWVnW0SJt4mSZDsFOZVHCD3LjDk3Nj3b7kG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788955741; c=relaxed/simple;
-	bh=Tr7NeP1XAHfJ7HqrKKBxhlWmTq0V2hBOX4MjlUrY6wo=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sqMLKM8J5IWYEAJnG86qNukqnCpAebe15zIsiE9vuONNxw4cu1jUP4egA13BMjfD7Kn6QDx2DIgbfaGxr8TDbPfulDQVJii7NrDw6hr3qWn9kRSL21Gfv+nDhBNX0FPf+ZiPCKEnP/sCntgEminfaJaZDYDgBwvvObRFFw+kbZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QSBO7XfB; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788960557; c=relaxed/simple;
+	bh=ZYwQns9CPqOpGHnDqt4WLAffj9c/rEc3LuRgh08uruY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mWvXLQBIsnNfh+Lz9fO3b2H1hZnrxDlYGPBzLC/wHn4JOhYXtrzbn9d8wNfJMOWiKJdxa3mA0phIc/IJ6zPorxcHBXAQ50a0u/z3DNdQkkpb3WZYrBnBPu0KENL1Hha0ILHRc/FLadWS7/aE4tHKlLcj2AvnzEozSPwlQ0R8uIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gYImH/v0; arc=none smtp.client-ip=209.85.167.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QSBO7XfB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC671F00A3E;
-	Wed,  9 Sep 2026 12:08:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788955739;
-	bh=+vl7JXesMvOyLvN4TqdpRFvW5tHWQV0Z6fTfMaOZcos=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=QSBO7XfB9eJuCgdZw4woX9h6hLVv1DAAKEMcqqTtIlfNGaiMpuLvQbzhC/HsUDqDy
-	 15tzsyERcKb/dCy0KrTkU176RhbTCcy21TSs/XRVe0a2CeHrpUDlqlX+4eqWNdQmSP
-	 ZwfdXLWGjYgxyEXXB+UjA+lgDSAN24eS4K+Y/at+9+bmLKnF2sQtudlKc4XZf2yWBT
-	 GWiqoV+03Qgq8XKU5kEPlMdYwMF4DBOmSD8P6FFdNW88ziMwb+5x2tUJ7KBFC2OEkv
-	 y0F1ASE9ljvI2KQ6gM2g9pgM4YchyP5SgcvLLQZd8YcLUPlszfpfiqg7ho1AxZsTq8
-	 3yCEIs6vu9sRQ==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1x4H6m-00000006flL-2cBD;
-	Wed, 09 Sep 2026 12:08:56 +0000
-Date: Wed, 09 Sep 2026 13:08:55 +0100
-Message-ID: <86wlsu39uw.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	David Hildenbrand <david@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Leon Romanovsky <leon@kernel.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-	Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <nico.pache@linux.dev>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>,
-	Usama Arif <usama.arif@linux.dev>,
-	Kiryl Shutsemau <kas@kernel.org>,
-	Doug Gilbert <dgilbert@interlog.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>,
-	Jaya Kumar <jayalk@intworks.biz>,
-	Simona Vetter <simona@ffwll.ch>,
-	Helge Deller <deller@gmx.de>,
-	Sebastian Reichel <sre@kernel.org>,
-	John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Oleg Nesterov <oleg@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Rik van Riel <riel@surriel.com>,
-	Harry Yoo <harry@kernel.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Jan Kara <jack@suse.cz>,
-	Oliver Upton <oupton@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Anup Patel <anup@brainfault.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>,
-	Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Chris Li <chrisl@kernel.org>,
-	Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>,
-	Baoquan He <baoquan.he@linux.dev>,
-	Youngjun Park <youngjun.park@lge.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Qi Zheng <qi.zheng@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>,
-	Wei Xu <weixugc@google.com>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Michal Hocko <mhocko@kernel.org>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	bpf@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-fbdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm@vger.kernel.org,
-	kvm-riscv@lists.infradead.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	fuse-devel@lists.linux.dev
-Subject: Re: [PATCH 28/39] mm: drop some redundant checks around hugetlb VMAs
-In-Reply-To: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-28-dacf19cce22b@kernel.org>
-References: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org>
-	<20260908-b4-mmap-prepare-vma-flag-sanify-v1-28-dacf19cce22b@kernel.org>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gYImH/v0"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b76679c0f2so712625e87.1
+        for <selinux@vger.kernel.org>; Wed, 09 Sep 2026 06:29:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788960553; x=1789565353; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=g6bXDwJKyuBIZqr6lEDNKLv0XxsOWvUxd04fImb1ALQ=;
+        b=gYImH/v0ocem84InZ+UMXFfPIWEfVSt+y6Q67vgHgH4JPtl/AEcxm1U4UDLqeFFDSj
+         Y8T5JuBY0hUEXRJswyB0BrFUdOOmTrwl5HeDyi9psrDjRlqDUIU8vNpWHiBOwPERVvQc
+         35Pyho79KEXyTXqLHvgMjtwUvZOHqb8P4Y8y9MXePvG/WIbbSsQ3l12L6JBjQGXKUL/q
+         hLf9icIG2aH6k8sxU/2+VWkxtQbOiXpsemz15tv9E6YGzD3zpavKfNGYaTYd86MiyRJH
+         aZBv2S6kH/El0Iz9nb5glkAphb0iuTaPYqkiFbKPsGOyO+QvSXWF2gjubE8sbYOOI+jY
+         KjnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788960553; x=1789565353;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=g6bXDwJKyuBIZqr6lEDNKLv0XxsOWvUxd04fImb1ALQ=;
+        b=FQ6EPFPqv3oUoswCbW7an8eSVHtVOKkZuIcg2xQctkOUB0gdg11aZ2kdzcF7Eh4zEY
+         LfnICbYeO0WukqRwXcGoFGJmjXuuZb5kMg+48DM7IonK+YofuLxgagDBMC0E9dOdXcZ9
+         M2sidHcFAjICyKWLZPN0+JSIte115BteBz1qY2ejWzYr+0Zae4/q7FhucADA2TsRxcuK
+         t0sqDEzqZolfTvEy1nWmWbD2sk4+0n3ADTH+P2VrgZ/knLR31Mkq9P1aN1sCYMucMdX8
+         Zmxg+HQgeRZWZso7bIen0ItoL9X2eWSnQwnAiZDkUwCntVZB95Q8llhzz7qr5k0N4Q9L
+         SPQw==
+X-Gm-Message-State: AFuF++mZFsZhvVRdG/qS7PvkLC/TbF1d8RWc017bDe2NBgoPnCapbYhi
+	hEvNaXjFZAqYd9EPm9Zjw+aROXEectWGNX90alXKQyBQUrvvOfKhvad0er2t7A==
+X-Gm-Gg: AYBFou17NPSKbv8rIOV4F5f2h731JY6fAEkhXnhaqhZVDepf2vn6vT2ZIaG+i4SgoJD
+	cQR0E3ghEkQnVVbSj1DZpNHoc/51YZjOp4DJZp+Dqtz7LTV7bdF/X5uqG7d+thEaTZOJLCaETzV
+	W0hV+7bdtXThO7344NTd38IB2chPHuWRyGOIC4m+CGffecrNqNxwAygP4Y+gOQnLID3fn4rsgoB
+	pVwU7CyxeJevP9CjoUl4V82RslW9La24L1rybLso1Ln0UwWqyo+I8JonThRdzMRHrakcWHR/zIl
+	/gkm/EHvRrmmH9LRbBfI1BLO7IHWAX22pa0v+uwF5joWl5T3qrLEFcvjponuefMNisZf5AeQB4j
+	Fcxf9RBLB9aD6440qa4Q8dNfrEs2hi4UW44zA16b2PoF4UKjtHwKKf87Nc4e4eSWZoVxpWiBNUC
+	ZTzL7vnZB/dXwEfG4W5Kx9qP3PNAsCcheoK1iN03Cpq4fD/xenJn74U1fI5iK9AabyOpxY6e6DM
+	oGkQEPWgS4WwzlXDZldZwGDBkKmDXIU+YiEk/aqExy1abD/RmKf5hXZ2unq3Tz0/ozMPXUjZIA=
+X-Received: by 2002:a05:6512:304d:b0:5b7:674f:caba with SMTP id 2adb3069b0e04-5b7674fcbe8mr809064e87.13.1788960552514;
+        Wed, 09 Sep 2026 06:29:12 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b7e99b0125sm351185e87.61.2026.09.09.06.29.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2026 06:29:11 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/2] libselinux: fall through on EACCES when searching configuration roots
+Date: Wed,  9 Sep 2026 09:28:53 -0400
+Message-ID: <20260909132855.29732-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: ljs@kernel.org, akpm@linux-foundation.org, liam@infradead.org, vbabka@kernel.org, jannh@google.com, pfalcato@suse.de, david@kernel.org, rppt@kernel.org, surenb@google.com, mhocko@suse.com, corbet@lwn.net, gregkh@linuxfoundation.org, dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca, leon@kernel.org, paul@paul-moore.com, stephen.smalley.work@gmail.com, perex@perex.cz, tiwai@suse.com, ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, eddyz87@gmail.com, memxor@gmail.com, ziy@nvidia.com, baolin.wang@linux.alibaba.com, nico.pache@linux.dev, ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, usama.arif@linux.dev, kas@kernel.org, dgilbert@interlog.com, James.Bottomley@HansenPartnership.com, mkp@kernel.org, jayalk@intworks.biz, simona@ffwll.ch, deller@gmx.de, sre@kernel.org, jhubbard@nvidia.com, peterx@redhat.com, mhiramat@kernel.org, oleg@redhat.com, peterz@infradead.org, tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen
- @linux.intel.com, x86@kernel.org, acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com, riel@surriel.com, harry@kernel.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de, airlied@gmail.com, will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com, arnd@arndb.de, muchun.song@linux.dev, osalvador@suse.de, willy@infradead.org, jack@suse.cz, oupton@kernel.org, catalin.marinas@arm.com, maddy@linux.ibm.com, anup@brainfault.org, pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com, viro@zeniv.linux.org.uk, brauner@kernel.org, matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, apopple@nvidia.com, chrisl@kernel.
- org, kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com, baoquan.he@linux.dev, youngjun.park@lge.com, hannes@cmpxchg.org, qi.zheng@linux.dev, shakeel.butt@linux.dev, axelrasmussen@google.com, yuanchu@google.com, weixugc@google.com, xu.xin16@zte.com.cn, chengming.zhou@linux.dev, mhocko@kernel.org, miklos@szeredi.hu, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-d
- evel@lists.linux.dev
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Tue, 08 Sep 2026 21:01:32 +0100,
-"Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
-> 
-> Adjust code which inadvertently perform redundant checks on hugetlb VMAs
-> and clean them up:
-> 
-> * hugetlb VMAs have VMA_DONTEXPAND_BIT set so a VMA_SPECIAL_FLAGS check
->   suffices. (migrate_vma_setup() regains an explicit hugetlb test later in
->   the series, once VMA_SPECIAL_FLAGS is removed.)
-> 
-> * hugetlb VMAs unconditionally set vma->vm_ops, so they are never
->   anonymous.
-> 
-> * hugetlb VMAs do not set VMA_PFNMAP_BIT so checking for this is redundant.
-> 
-> While we're here also drop a VM_BUG_ON() which the simplified check above
-> makes unreachable, and use the new VMA flag API.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  arch/arm64/kvm/mmu.c         | 4 +---
->  drivers/gpu/drm/drm_gpusvm.c | 3 +--
->  mm/migrate_device.c          | 4 ++--
->  3 files changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-> index a7968f8d24bf..3c1240ffc38d 100644
-> --- a/arch/arm64/kvm/mmu.c
-> +++ b/arch/arm64/kvm/mmu.c
-> @@ -1463,14 +1463,12 @@ static int get_vma_page_shift(struct vm_area_struct *vma, unsigned long hva)
->  {
->  	unsigned long pa;
->  
-> -	if (vma_is_hugetlb(vma) && !(vma->vm_flags & VM_PFNMAP))
-> +	if (vma_is_hugetlb(vma))
->  		return huge_page_shift(hstate_vma(vma));
->  
->  	if (!(vma->vm_flags & VM_PFNMAP))
->  		return PAGE_SHIFT;
->  
-> -	VM_BUG_ON(vma_is_hugetlb(vma));
-> -
->  	pa = (vma->vm_pgoff << PAGE_SHIFT) + (hva - vma->vm_start);
->  
->  #ifndef __PAGETABLE_PMD_FOLDED
+When searching the configuration roots for a given configuration file,
+rather than failing immediately on EACCES, continue searching
+lower-priority roots for the file and succeed if we find one that is
+readable.
 
-Acked-by: Marc Zyngier <maz@kernel.org>
+This prevents an unreadable file under /etc from hiding a readable one
+under /usr/lib.
 
-	M.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/load_policy.c      | 19 +++++++++++++---
+ libselinux/src/selinux_config.c   | 36 ++++++++++++++++++++++++-------
+ libselinux/src/selinux_internal.h |  9 +++++---
+ 3 files changed, 50 insertions(+), 14 deletions(-)
 
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index a64bde89..8992200c 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -137,18 +137,31 @@ search:
+ 	 * For each version, try each policy root in turn: an admin-supplied
+ 	 * /etc copy at version N shadows a vendor /usr/lib copy at the same
+ 	 * version, but a newer vendor policy still beats an older admin one.
++	 * EACCESS is treated as absent so an unreadable file in a writable
++	 * root cannot block the search from reaching a readable vendor copy.
+ 	 */
+ 	fd = -1;
+-	errno = ENOENT;
+-	for (; fd < 0 && errno == ENOENT && vers >= minvers; vers--) {
++	for (; fd < 0 && vers >= minvers; vers--) {
+ 		const char *const *roots = selinux_policy_roots();
+ 		for (; *roots; roots++) {
+ 			snprintf(path, sizeof(path), "%s/policy/policy.%d",
+ 				 *roots, vers);
+ 			fd = open(path, O_RDONLY | O_CLOEXEC);
+-			if (fd >= 0 || errno != ENOENT)
++			if (fd >= 0)
+ 				break;
++			if (errno == ENOENT)
++				continue;
++			if (errno == EACCES) {
++				selinux_log(
++					SELINUX_WARNING,
++					"SELinux: Skipping unreadable policy file %s: %m\n",
++					path);
++				continue;
++			}
++			break;
+ 		}
++		if (fd < 0 && errno != ENOENT && errno != EACCES)
++			break;
+ 	}
+ 	if (fd < 0) {
+ 		selinux_log(
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index a4b5f463..272e4473 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -90,6 +90,13 @@ static const uint16_t file_path_suffixes_idx[NEL] = {
+ #undef L1
+ #undef L2
+ 
++/*
++ * Open the SELinux configuration file, trying each confdir in turn.
++ * ENOENT and EACCESS fall through: an unreadable copy in a
++ * higher-priority root must not mask a readable one in a
++ * lower-priority root. Any other error is reported against the
++ * location that produced it.
++ */
+ static FILE *open_selinux_config(void)
+ {
+ 	char path[PATH_MAX];
+@@ -99,9 +106,10 @@ static FILE *open_selinux_config(void)
+ 	for (i = 0; selinux_confdirs[i]; i++) {
+ 		snprintf(path, sizeof(path), "%sconfig", selinux_confdirs[i]);
+ 		fp = fopen(path, "re");
+-		if (fp || errno != ENOENT)
++		if (fp || (errno != ENOENT && errno != EACCES))
+ 			return fp;
+ 	}
++	errno = ENOENT;
+ 	return NULL;
+ }
+ 
+@@ -550,15 +558,24 @@ static int selinux_policy_remap(const char *path, const char *root, char *out,
+ 	return 0;
+ }
+ 
++/*
++ * ENOENT and EACCESS fall through to the next configuration root.
++ * EACCES is treated the same as ENOENT so that a file the caller cannot
++ * read cannot mask a readable copy in a lower-priority root; any other
++ * error is returned against the root that produced it. If nothing was
++ * readable, errno is EACCESS if any root refused, otherwise ENOENT.
++ */
+ FILE *selinux_policy_fopen(const char *path, const char *mode)
+ {
+ 	char alt[PATH_MAX];
+ 	unsigned int i;
++	int refused = 0;
+ 	FILE *fp;
+ 
+ 	fp = fopen(path, mode);
+-	if (fp || errno != ENOENT)
++	if (fp || (errno != ENOENT && errno != EACCES))
+ 		return fp;
++	refused |= (errno == EACCES);
+ 
+ 	__selinux_once(once, init_selinux_config);
+ 	for (i = 1; selinux_policyroots[i]; i++) {
+@@ -566,10 +583,11 @@ FILE *selinux_policy_fopen(const char *path, const char *mode)
+ 					 sizeof(alt)))
+ 			break;
+ 		fp = fopen(alt, mode);
+-		if (fp || errno != ENOENT)
++		if (fp || (errno != ENOENT && errno != EACCES))
+ 			return fp;
++		refused |= (errno == EACCES);
+ 	}
+-	errno = ENOENT;
++	errno = refused ? EACCES : ENOENT;
+ 	return NULL;
+ }
+ 
+@@ -577,11 +595,12 @@ int selinux_policy_open(const char *path, int flags)
+ {
+ 	char alt[PATH_MAX];
+ 	unsigned int i;
+-	int fd;
++	int fd, refused = 0;
+ 
+ 	fd = open(path, flags);
+-	if (fd >= 0 || errno != ENOENT)
++	if (fd >= 0 || (errno != ENOENT && errno != EACCES))
+ 		return fd;
++	refused |= (errno == EACCES);
+ 
+ 	__selinux_once(once, init_selinux_config);
+ 	for (i = 1; selinux_policyroots[i]; i++) {
+@@ -589,10 +608,11 @@ int selinux_policy_open(const char *path, int flags)
+ 					 sizeof(alt)))
+ 			break;
+ 		fd = open(alt, flags);
+-		if (fd >= 0 || errno != ENOENT)
++		if (fd >= 0 || (errno != ENOENT && errno != EACCES))
+ 			return fd;
++		refused |= (errno == EACCES);
+ 	}
+-	errno = ENOENT;
++	errno = refused ? EACCES : ENOENT;
+ 	return -1;
+ }
+ 
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 731826ad..718beb6e 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -117,7 +117,7 @@ const char *const *selinux_policy_roots(void);
+ /*
+  * Open @path (as returned by one of the selinux_*_path() accessors),
+  * falling back through selinux_policy_roots() when the primary path
+- * yields ENOENT. Internal-only.
++ * yields ENOENT or EACCES. Internal-only.
+  */
+ FILE *selinux_policy_fopen(const char *path, const char *mode);
+ int selinux_policy_open(const char *path, int flags);
+@@ -126,8 +126,11 @@ int selinux_policy_open(const char *path, int flags);
+  * Resolve @path against the configuration-root list: write into @out
+  * the first remapping under which @out (or @out concatenated with
+  * @sibling, when the base file is optional but a sibling such as .bin
+- * may exist alone is present. If no root has the file, @out receives
+- * @path unchanged and -1 is returned with errno ENOENT. Internal only.
++ * may exist alone) is present. If no root has the file, @out receives
++ * @path unchanged and -1 is returned with errno ENOENT, or if a root
++ * contains the file but it is un-readable and there is no readable
++ * fallback, @out receives @path unchanged and -1 is returned with errno
++ * EACCES. Internal only.
+  */
+ int selinux_policy_resolve(const char *path, const char *sibling, char *out,
+ 			   size_t outlen);
 -- 
-Without deviation from the norm, progress is not possible.
+2.55.0
+
