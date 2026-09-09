@@ -1,61 +1,61 @@
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 939485678EC
-	for <selinux@vger.kernel.org>; Wed,  9 Sep 2026 14:00:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A88E25B084
+	for <selinux@vger.kernel.org>; Wed,  9 Sep 2026 17:56:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788962421; cv=none; b=JZOCm8aZrlDFRYM3HUOUYLeBBg4+x+wSrtcLESX23iijUicvS4CHlZ1i4joObGE/NwSK9OVQ5EZZooUgYvvIyJocgSRFitJjlRFQUoZTCStPA142AOL0ZnKV7x3ZMTy2aY5Cy+cQQMbBs4Nofj492xh9AortCi0ElBYXyERUua8=
+	t=1788976572; cv=none; b=BQBDDW8S/+2LaMuVCCXfv0ixzPSDP2TJzhj8whgXX2YQtzkb18MBt2JxW3p8K6cudZH1MEamMuja+NihhcTRPLPFWjM5UZaBmlgrmJAEOnMbInCltqAmk8/FSnLmtSmil4psOpuGOVqDa3rsp+JfMyx0k8QtGe2ju08ng6qiONc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788962421; c=relaxed/simple;
-	bh=10Tqbsy3zVBsrj40CPMdaciFOnkXBKR4UEtNNJgsvAk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UaLoS/Xou614Ph0QuvfG9OQjpIb0CncJjlZ28eEBhAEMnRDh8XTXvisU4R9PCrZjeDOCu2nniEgS1nZ8yOH8XyfKS2/SwNhyTcIDJYGfNQfGwvzGJU3wv3Y8OnSF6uFKpNHURyXEzMkeGAAtBbLaTe/skr0/UJHhbRCGYsndmys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iRaKwGgr; arc=none smtp.client-ip=209.85.128.173
+	s=arc-20240116; t=1788976572; c=relaxed/simple;
+	bh=YwfXj9tElL22aMODrc4w94ijaSUIEhkKsynPiqmbT5U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AOIT9xTIWjK5/LF8to33yCPs3a2VdlBNyyy65c+P+wAtruR3y+ZbhTAuDCKQ23c2sXYJWIAnGqG3EUcHIyfnwZMIwZyOMn0mZujiiSeVZVgnxFDUG67mv6dzzGXwj7bm34wFyv1H/U0jeP4NECcWPtgJwDmLsspwmUCknQVlfjs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hP/WdeTz; arc=none smtp.client-ip=74.125.230.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iRaKwGgr"
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-871c8a36fe3so66040617b3.1
-        for <selinux@vger.kernel.org>; Wed, 09 Sep 2026 07:00:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hP/WdeTz"
+Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-52fb766bfd6so6316531cf.1
+        for <selinux@vger.kernel.org>; Wed, 09 Sep 2026 10:56:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788962418; x=1789567218; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788976570; x=1789581370; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xTAc/GyzFLdr+77lwVn7KRXkUhtVNKP1Wg6+w0+XbJk=;
-        b=iRaKwGgrZu3VYUR+cNgsJu6xmdvq9MuJYM1xzaC9jGX7weAi6PAxrgnRT+PKtvZaMn
-         Gx7cp0l+KzFXdv9yq906Hbcbd+9oeLYTOsGq4JgRXaeaoG9FZSCJexdQdP+famIjIpFc
-         FYOzCsi0YVMzfHX9TT6x7mtfhZM8I5xjiyL3av9l5q7GPHKM90HMCdgWN4uXJxyV2tK/
-         o5eHDJ0UQq8rignbjhPJXReiNSi7u47EZvE/l8ost+k4OCUhl0ShPbDJ0dJoJu/fxQ/v
-         Z6XBNAgyqi0wuE0bJT+EnUgRXQHTNCmIuP3oG8IKDi+SqkImzatSbT5+ls8xmMxx3qwK
-         GWTw==
+        bh=KoTa9BYIXF2d+ssSl5GBWicgD1LELT/XGqIvLWRZNEg=;
+        b=hP/WdeTzakgRrj2ot5VM9W1aPRay/knWXdp5gGIbkChpnSQ4OBuec6mE6AGhHNL+tX
+         Dxx+fkL5mN1z7cqRHfiP9NpVykazJcsRPiyvIFGnvYz7W+2FwRcSxQevIVhyBLzFTmG6
+         ziqDyWjSx+ochYLVIQ27YrZtVhPyL4u6cLspNHvZyCpskgMNzB4oI08dZs2L7ePbWxZm
+         oDFQRd4LfFdxjS22du4SniUH6VLQebH43AKUVvD3v2ej3hTvtCQ7A6hF72Tocu+p9T39
+         DsEYux78Xh8mQop2/lo2c1nrHKvY1JAHgGVx6Gayi37Zt8H2AmM6TmNFHLXTgd5u1x+j
+         XK4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788962418; x=1789567218;
+        d=1e100.net; s=20251104; t=1788976570; x=1789581370;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xTAc/GyzFLdr+77lwVn7KRXkUhtVNKP1Wg6+w0+XbJk=;
-        b=Pjf3tIruXts49Rg8IB0WUAyGjUmFsjSzxtJgLq7ngrTM+sY1VQbcYtVPTxTc+2eQMH
-         JIKmpJYJi3pCEIqpEQ6OrU9OqqzL1AouPgGHa8IB/8oA11WdNSpnSUxXLOPsgzpUN0k+
-         VvFta2/kSkEk1/81OnPvfjeDsUXUvheoBSZxc0hgYcjS9n2Nzo2dx4gttHHKvWkrrKTM
-         Z+xld0YkzgRVKEe7QKRP8Fm/HYm/q0OPk8yBXfphec9tKENl0Pj9sXkU1+HqD0TQ+BB0
-         KiSSFiGEQA8CjKxlTOfmJKlpOqOfX04bPaISKBPyWg0F3MM/t6BY0W1RmMtGQbW7+mbQ
-         SEyw==
-X-Gm-Message-State: AFuF++mmop1+L8A+ixf+5ZhD31/MLAth9skxOFdcFrQDHv3hKN1tt7eU
-	5mOTkcccnfaiMmobzIAiZAMq+KDW4cUR3O9ZChECFUZfM+jk12bezw5JF7nGng==
-X-Gm-Gg: AYBFou1Cqo0cjMyMaD9sbHwizMOkFNI5wxtYS36EpjV1inTM5r4g4W0nAx5wET9vgoR
-	D3+bTMnB0ZJmVZcJNME9WK7MSpmHZb6HQX8IO0BAjjTbiHk554GlEmk+HdaAv7vD/ZxYgB6l9zY
-	ttiVNUlwTcNypz4RmTNkJZxwd3qOQxN4bmhcGcf+LHxQJQxTNAY435FhVcvl39ZOFjae7r61Bum
-	tYeSqMIMSJ+1GWsQCB/Z9nRNawkgQU1hs4Q+nNerM5bhC2E/ue7cwQlSqp1ItdS5sD6Bo7CsEV1
-	wki3SCWrykF+17UvBBklZKQc/Pfd0ucRXdQyvRK6BQSi8nFRWcgBQ+0Jmjz14R89RUSx0hcaUcK
-	emh04h0wATxbeJSo5rTbCkV4SG7bF+Huqit7DU8SbJR+9IqanJ8QzmtmPTg4K1V0HeASQ6TJCoV
-	0jNVh/cF4Owi2zgMfzwOzGCB/aJ1Bv53qO76r11+NeDH8WR2/V6wPfauAq0xg4rw7U2l60P75hO
-	bHztuccR7/Jv8f1tHnkCsY3zbmgvBnHgPoKldbfNXOydPkIBFaO3/3m2sdbXAAS6GOHHyUOIIs=
-X-Received: by 2002:a05:690c:c:b0:873:5bb2:6c22 with SMTP id 00721157ae682-8735bb26d12mr105268407b3.41.1788962413243;
-        Wed, 09 Sep 2026 07:00:13 -0700 (PDT)
+        bh=KoTa9BYIXF2d+ssSl5GBWicgD1LELT/XGqIvLWRZNEg=;
+        b=kx7B5iotG9b67l5GZvUpAbXBy/LJuloPClO0bOMzHj7ptUzXeC/WPdhjiC4xZWxH88
+         gginEIFd60t+6La/eloF5TuoPz8lkg5bMKibM1DCJMzWxo0neeAGUzsvwDBnl/Gy6aid
+         njx4GcDTPERxw5CYo3p0x5JRbUmIJhg202Y8S4YCxoYuu5XtGaOvAfsatCzlrqBHpvde
+         OFaeSWe8YlPDvRZcZxtz6X3sJij0tNNdKNevdfwplp65Ax676DkEIqo6tDO/9xZ/gyDS
+         3TEEB/jiYHtkCFnwTrlMgqHYDgjDRsVcmyvkIxmV/7F70EaRLnbbjMze6h20XKv2XrH3
+         RJdA==
+X-Gm-Message-State: AFuF++nM9ZE07rkiepebuDdrxYQMvF792eoBvg4WsxJFQmqry0Am66+3
+	ntLoaZho8F+cXwMWVFjkJ3CWlaNUzZDS4VsfgEAIkLkdUdlsuYMDkjuBJTCcbw==
+X-Gm-Gg: AYBFou38AIatcTHQ7zNSbk4YJ1a2RcDIrcSD7t+FqtloSbFQRDeiv2afesLuCH6k1hS
+	oM4O+B7F3R9+1BVm7+VUfOChCpt+ANnewpkMm7qjVfZqX/x/eGmpEo00PSl4UbuKvp2iPWfl7hb
+	LvO/f/aQxrFiDSPt+PQCSqUI5RHV/wum4Ocp05sLF191lGuq7dhqnUdVxACXXbm7Cx5AC+0R2US
+	mSyeJxdI+Xo6v3Py/VC6Epwu76snrPLfSlI2zSgbvtJHziMHMNRCxyc6pQrwVfQi20soNvXC/bU
+	izWduZe9I/0YXkB3OGfz2YBpnJnCAh/mcRuG0DWrpcZZCa6AYUQb3RFcbP6E+LK30BA7Eujhze8
+	DAiEGHFTG+PavTnafxQI9h/AcIxQIf9kg5vXf9n9Tt7sIdghYn7VD5w8vyqujmuFadyiW8K+tXU
+	hMcT0PBsMxoM3dCLM17JjdeUfLds45DE7zRx9P9zi7UqkVcfkQZdaNvOtSnJbB1yM9cPj4kd+e9
+	r/wekiCr7ITr/zJgh4T8S4XhEepp/S2MKrEEL0+4nzM3tycPT4VXJ2BohVxw/go3jhVtkOrIMU=
+X-Received: by 2002:ac8:5fcb:0:b0:530:b2e3:86c5 with SMTP id d75a77b69052e-530b2e38954mr10500141cf.55.1788976569904;
+        Wed, 09 Sep 2026 10:56:09 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406afe48sm143593906d6.43.2026.09.09.07.00.12
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53093295584sm58144791cf.13.2026.09.09.10.56.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 07:00:12 -0700 (PDT)
+        Wed, 09 Sep 2026 10:56:09 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +63,9 @@ Cc: jwcart2@gmail.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 1/2] libselinux: fall through on EACCES when searching configuration roots
-Date: Wed,  9 Sep 2026 09:59:17 -0400
-Message-ID: <20260909135918.29943-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol,checkpolicy: update remaining policyvers comparisons to correctly handle Xen policies
+Date: Wed,  9 Sep 2026 13:54:49 -0400
+Message-ID: <20260909175448.32721-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -75,188 +75,159 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When searching the configuration roots for a given configuration file,
-rather than failing immediately on EACCES, continue searching
-lower-priority roots for the file and succeed if we find one that is
-readable.
-
-This prevents an unreadable file under /etc from hiding a readable one
-under /usr/lib.
+Even after the previous two patches there were several residual policy
+version comparisons that failed to properly account for the difference
+between SELinux and Xen policies. These differences will only matter
+if/when Xen policy versions > 30 are introduced or if/when the minimum
+SELinux policy version is raised above 30 but we should go ahead and
+fix them now. The remaining policyvers comparisons that do not check
+target platform are only for modular policies, which are unused by
+Xen.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 removes the double S from EACCES in the comments.
+This patch depends on the previous two that introduce the split min/max
+policydb versions between SELinux and Xen.
 
- libselinux/src/load_policy.c      | 19 +++++++++++++---
- libselinux/src/selinux_config.c   | 36 ++++++++++++++++++++++++-------
- libselinux/src/selinux_internal.h |  9 +++++---
- 3 files changed, 50 insertions(+), 14 deletions(-)
+ checkpolicy/fuzz/checkpolicy-fuzzer.c      |  8 +++++---
+ libsepol/include/sepol/policydb/policydb.h | 11 ++++++-----
+ libsepol/src/policydb.c                    | 18 +++++++++++++-----
+ libsepol/src/policydb_validate.c           |  9 +++++++--
+ libsepol/src/write.c                       | 12 +++++++-----
+ 5 files changed, 38 insertions(+), 20 deletions(-)
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index a64bde89..ab6743fa 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -137,18 +137,31 @@ search:
- 	 * For each version, try each policy root in turn: an admin-supplied
- 	 * /etc copy at version N shadows a vendor /usr/lib copy at the same
- 	 * version, but a newer vendor policy still beats an older admin one.
-+	 * EACCES is treated as absent so an unreadable file in a writable
-+	 * root cannot block the search from reaching a readable vendor copy.
- 	 */
- 	fd = -1;
--	errno = ENOENT;
--	for (; fd < 0 && errno == ENOENT && vers >= minvers; vers--) {
-+	for (; fd < 0 && vers >= minvers; vers--) {
- 		const char *const *roots = selinux_policy_roots();
- 		for (; *roots; roots++) {
- 			snprintf(path, sizeof(path), "%s/policy/policy.%d",
- 				 *roots, vers);
- 			fd = open(path, O_RDONLY | O_CLOEXEC);
--			if (fd >= 0 || errno != ENOENT)
-+			if (fd >= 0)
- 				break;
-+			if (errno == ENOENT)
-+				continue;
-+			if (errno == EACCES) {
-+				selinux_log(
-+					SELINUX_WARNING,
-+					"SELinux: Skipping unreadable policy file %s: %m\n",
-+					path);
-+				continue;
-+			}
-+			break;
+diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+index f816d7b7..3465c28e 100644
+--- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
++++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+@@ -197,11 +197,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	static_assert(0x7F - 'A' >= POLICYDB_VERSION_MAX,
+ 		      "Max policy version should be representable");
+ 	policyvers = data[2] - 'A';
+-	if (policyvers < POLICYDB_VERSION_MIN ||
+-	    policyvers > POLICYDB_VERSION_MAX)
++	if (platform == SEPOL_TARGET_SELINUX &&
++	    (policyvers < POLICYDB_VERSION_MIN ||
++	     policyvers > POLICYDB_VERSION_MAX))
+ 		return 0;
+ 	if (platform == SEPOL_TARGET_XEN &&
+-	    policyvers != POLICYDB_VERSION_XEN_DEVICETREE)
++	    (policyvers < POLICYDB_XEN_VERSION_MIN ||
++	     policyvers > POLICYDB_XEN_VERSION_MAX))
+ 		return 0;
+ #if VERBOSE
+ 	printf("policyvers=%d\n", policyvers);
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index e116188c..bf948d90 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -788,11 +788,12 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ 
+ /* TODO: add other features here */
+ 
+-#define policydb_has_cond_xperms_feature(p)                   \
+-	(((p)->policy_type == POLICY_KERN &&                  \
+-	  (p)->policyvers >= POLICYDB_VERSION_COND_XPERMS) || \
+-	 ((p)->policy_type != POLICY_KERN &&                  \
+-	  (p)->policyvers >= MOD_POLICYDB_VERSION_COND_XPERMS))
++#define policydb_has_cond_xperms_feature(p)                    \
++	((p)->target_platform == SEPOL_TARGET_SELINUX &&       \
++	 (((p)->policy_type == POLICY_KERN &&                  \
++	   (p)->policyvers >= POLICYDB_VERSION_COND_XPERMS) || \
++	  ((p)->policy_type != POLICY_KERN &&                  \
++	   (p)->policyvers >= MOD_POLICYDB_VERSION_COND_XPERMS)))
+ 
+ /* the config flags related to unknown classes/perms are bits 2 and 3 */
+ #define DENY_UNKNOWN SEPOL_DENY_UNKNOWN
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index bd52a107..551bdad9 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -2517,7 +2517,8 @@ static int filename_trans_read(policydb_t *p, struct policy_file *fp)
+ 		return -1;
+ 	nel = le32_to_cpu(buf[0]);
+ 
+-	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++	if (p->target_platform == SEPOL_TARGET_SELINUX &&
++	    p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
+ 		for (i = 0; i < nel; i++) {
+ 			rc = filename_trans_read_one_compat(p, fp);
+ 			if (rc < 0)
+@@ -3868,13 +3869,20 @@ int policydb_read(policydb_t *p, struct policy_file *fp, unsigned verbose)
+ 
+ 	r_policyvers = buf[bufindex];
+ 	if (policy_type == POLICY_KERN) {
+-		if (r_policyvers < POLICYDB_VERSION_MIN ||
+-		    r_policyvers > POLICYDB_VERSION_MAX) {
++		unsigned int policyvers_min = POLICYDB_VERSION_MIN;
++		unsigned int policyvers_max = POLICYDB_VERSION_MAX;
++
++		if (p->target_platform == SEPOL_TARGET_XEN) {
++			policyvers_min = POLICYDB_XEN_VERSION_MIN;
++			policyvers_max = POLICYDB_XEN_VERSION_MAX;
++		}
++
++		if (r_policyvers < policyvers_min ||
++		    r_policyvers > policyvers_max) {
+ 			ERR(fp->handle,
+ 			    "policydb version %d does not match "
+ 			    "my version range %d-%d",
+-			    buf[bufindex], POLICYDB_VERSION_MIN,
+-			    POLICYDB_VERSION_MAX);
++			    buf[bufindex], policyvers_min, policyvers_max);
+ 			return POLICYDB_ERROR;
  		}
-+		if (fd < 0 && errno != ENOENT && errno != EACCES)
-+			break;
- 	}
- 	if (fd < 0) {
- 		selinux_log(
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index a4b5f463..297a33b0 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -90,6 +90,13 @@ static const uint16_t file_path_suffixes_idx[NEL] = {
- #undef L1
- #undef L2
- 
-+/*
-+ * Open the SELinux configuration file, trying each confdir in turn.
-+ * ENOENT and EACCES fall through: an unreadable copy in a
-+ * higher-priority root must not mask a readable one in a
-+ * lower-priority root. Any other error is reported against the
-+ * location that produced it.
-+ */
- static FILE *open_selinux_config(void)
+ 	} else if (policy_type == POLICY_BASE || policy_type == POLICY_MOD) {
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index be2cab05..8fe168f6 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -2080,8 +2080,13 @@ static int validate_properties(sepol_handle_t *handle, const policydb_t *p)
  {
- 	char path[PATH_MAX];
-@@ -99,9 +106,10 @@ static FILE *open_selinux_config(void)
- 	for (i = 0; selinux_confdirs[i]; i++) {
- 		snprintf(path, sizeof(path), "%sconfig", selinux_confdirs[i]);
- 		fp = fopen(path, "re");
--		if (fp || errno != ENOENT)
-+		if (fp || (errno != ENOENT && errno != EACCES))
- 			return fp;
- 	}
-+	errno = ENOENT;
- 	return NULL;
- }
+ 	switch (p->policy_type) {
+ 	case POLICY_KERN:
+-		if (p->policyvers < POLICYDB_VERSION_MIN ||
+-		    p->policyvers > POLICYDB_VERSION_MAX)
++		if (p->target_platform == SEPOL_TARGET_SELINUX &&
++		    (p->policyvers < POLICYDB_VERSION_MIN ||
++		     p->policyvers > POLICYDB_VERSION_MAX))
++			goto bad;
++		if (p->target_platform == SEPOL_TARGET_XEN &&
++		    (p->policyvers < POLICYDB_XEN_VERSION_MIN ||
++		     p->policyvers > POLICYDB_XEN_VERSION_MAX))
+ 			goto bad;
+ 		break;
+ 	case POLICY_BASE:
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index e08fd7a7..f2a7463a 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -45,10 +45,11 @@
+ #include "private.h"
+ #include "mls.h"
  
-@@ -550,15 +558,24 @@ static int selinux_policy_remap(const char *path, const char *root, char *out,
- 	return 0;
- }
+-#define glblub_version                                 \
+-	((p->policy_type == POLICY_KERN &&             \
+-	  p->policyvers >= POLICYDB_VERSION_GLBLUB) || \
+-	 (p->policy_type == POLICY_BASE &&             \
++#define glblub_version                                  \
++	((p->target_platform == SEPOL_TARGET_SELINUX && \
++	  p->policy_type == POLICY_KERN &&              \
++	  p->policyvers >= POLICYDB_VERSION_GLBLUB) ||  \
++	 (p->policy_type == POLICY_BASE &&              \
+ 	  p->policyvers >= MOD_POLICYDB_VERSION_GLBLUB))
  
-+/*
-+ * ENOENT and EACCES fall through to the next configuration root.
-+ * EACCES is treated the same as ENOENT so that a file the caller cannot
-+ * read cannot mask a readable copy in a lower-priority root; any other
-+ * error is returned against the root that produced it. If nothing was
-+ * readable, errno is EACCES if any root refused, otherwise ENOENT.
-+ */
- FILE *selinux_policy_fopen(const char *path, const char *mode)
- {
- 	char alt[PATH_MAX];
- 	unsigned int i;
-+	int refused = 0;
- 	FILE *fp;
+ struct policy_data {
+@@ -477,7 +478,8 @@ static int filename_trans_write(struct policydb *p, void *fp)
+ 	uint32_t buf[1];
+ 	int rc;
  
- 	fp = fopen(path, mode);
--	if (fp || errno != ENOENT)
-+	if (fp || (errno != ENOENT && errno != EACCES))
- 		return fp;
-+	refused |= (errno == EACCES);
- 
- 	__selinux_once(once, init_selinux_config);
- 	for (i = 1; selinux_policyroots[i]; i++) {
-@@ -566,10 +583,11 @@ FILE *selinux_policy_fopen(const char *path, const char *mode)
- 					 sizeof(alt)))
- 			break;
- 		fp = fopen(alt, mode);
--		if (fp || errno != ENOENT)
-+		if (fp || (errno != ENOENT && errno != EACCES))
- 			return fp;
-+		refused |= (errno == EACCES);
- 	}
--	errno = ENOENT;
-+	errno = refused ? EACCES : ENOENT;
- 	return NULL;
- }
- 
-@@ -577,11 +595,12 @@ int selinux_policy_open(const char *path, int flags)
- {
- 	char alt[PATH_MAX];
- 	unsigned int i;
--	int fd;
-+	int fd, refused = 0;
- 
- 	fd = open(path, flags);
--	if (fd >= 0 || errno != ENOENT)
-+	if (fd >= 0 || (errno != ENOENT && errno != EACCES))
- 		return fd;
-+	refused |= (errno == EACCES);
- 
- 	__selinux_once(once, init_selinux_config);
- 	for (i = 1; selinux_policyroots[i]; i++) {
-@@ -589,10 +608,11 @@ int selinux_policy_open(const char *path, int flags)
- 					 sizeof(alt)))
- 			break;
- 		fd = open(alt, flags);
--		if (fd >= 0 || errno != ENOENT)
-+		if (fd >= 0 || (errno != ENOENT && errno != EACCES))
- 			return fd;
-+		refused |= (errno == EACCES);
- 	}
--	errno = ENOENT;
-+	errno = refused ? EACCES : ENOENT;
- 	return -1;
- }
- 
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 731826ad..718beb6e 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -117,7 +117,7 @@ const char *const *selinux_policy_roots(void);
- /*
-  * Open @path (as returned by one of the selinux_*_path() accessors),
-  * falling back through selinux_policy_roots() when the primary path
-- * yields ENOENT. Internal-only.
-+ * yields ENOENT or EACCES. Internal-only.
-  */
- FILE *selinux_policy_fopen(const char *path, const char *mode);
- int selinux_policy_open(const char *path, int flags);
-@@ -126,8 +126,11 @@ int selinux_policy_open(const char *path, int flags);
-  * Resolve @path against the configuration-root list: write into @out
-  * the first remapping under which @out (or @out concatenated with
-  * @sibling, when the base file is optional but a sibling such as .bin
-- * may exist alone is present. If no root has the file, @out receives
-- * @path unchanged and -1 is returned with errno ENOENT. Internal only.
-+ * may exist alone) is present. If no root has the file, @out receives
-+ * @path unchanged and -1 is returned with errno ENOENT, or if a root
-+ * contains the file but it is un-readable and there is no readable
-+ * fallback, @out receives @path unchanged and -1 is returned with errno
-+ * EACCES. Internal only.
-  */
- int selinux_policy_resolve(const char *path, const char *sibling, char *out,
- 			   size_t outlen);
+-	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++	if (p->target_platform == SEPOL_TARGET_SELINUX &&
++	    p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
+ 		buf[0] = cpu_to_le32(p->filename_trans_count);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
 -- 
 2.55.0
 
