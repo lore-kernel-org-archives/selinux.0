@@ -1,122 +1,69 @@
-Received: from smtp-bc09.mail.infomaniak.ch (smtp-bc09.mail.infomaniak.ch [45.157.188.9])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3E04A093C
-	for <selinux@vger.kernel.org>; Thu, 10 Sep 2026 14:48:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.157.188.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A384A5C46;
+	Thu, 10 Sep 2026 14:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789051740; cv=none; b=WSvlqPZhhZjGVZw3vK0Ajpxlm3Rh0X0k+KLjcEBrYtTpYFoc0re0KzoRdQxPuW0/241JqABAuEkRQWxFHLZT8s8ffXqoYf0vJLNDbHKjZ0nHtbyWwwAGe2HnrFIWcGCmbe7+aKEFD8OJxkrmZJInzatwUtyfcy+Z9GwUtemxjD8=
+	t=1789052190; cv=none; b=KfdwoNdsocUwAznotIjj7uJ8LBc5zgamXyJ6iK0UWcEZPN7dKkZOhzsq+qX4W2f413tiNurpadblei4Hra7LAFXjiw1FLA29KOPCxVGo7E3XRoD5AxltHKQpIn1dtBnk6SR4IOrxoNLYFZpF9DPjL2KKqgNF91Bdmc/ydP5l9Ik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789051740; c=relaxed/simple;
-	bh=K8GKWHG18DKGFQUXIWqsjvzQONV3ZlsJjG0SvT8K/sA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aJNukZx6pb5SHuJwJO3MdxeXa/8tCBHq/9IY3alG8/2UNFfHwACa0EQ3G6Q65wKxKX9LN+I0HN4ZC/vCKQ6vAbFn+vAcs+IZdmABgq2nekIJ5OTFSZJocqfLx3XwzT73UrV0sA4CbxjZ4g4fkah4+amj8vdq+xVyLxjb5kcL8ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=h+ONieHS; arc=none smtp.client-ip=45.157.188.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	s=arc-20240116; t=1789052190; c=relaxed/simple;
+	bh=0pUYtRp+pM18dDAxa4bQ2fRwlyVlsEFL2je8jUJCxys=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ljwGddMFeUiArWFOLxVP5wh/LMUifHH9aib+l3i+8w2Mo9HUu4epdiEVggNFy2GSwfDIRX8GWZVSoURnlUUWjIm16/7HTcOqiW5QPc8QSvA9tpV7eNvWJw1rXshpFX4EqmLDIQ+Ja2XvX4Tvt1Yx2N3iwoom5PS6nISRMD2wFcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QNlDZ922; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="h+ONieHS"
-Received: from smtp-4-0001.mail.infomaniak.ch (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4hggXx70dZz2VV;
-	Thu, 10 Sep 2026 16:48:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1789051729;
-	bh=Zf70hVp7hFNa/7hbnAOEkncpDexz1CIpuhb71zACocM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=h+ONieHSiVxrgzBmZHaf2eHrziCQ9sSTpbdw6yp3FPzGhUpgaNsUgb+0E8PZIrlph
-	 TQO95qg745l2DPq6hpIsUsNHnoMmp2D9ygwQIDsJaWt8Ak02Hcp/TjZVEVBT/iDwu6
-	 YVH1wKtRuxCaOfyetRtusqh9Z6gFvpzxZj9c+iUU=
-Received: from unknown by smtp-4-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4hggXx0HrzzXXG;
-	Thu, 10 Sep 2026 16:48:49 +0200 (CEST)
-From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
-	Jeff Vander Stoep <jeffv@google.com>,
-	Nick Kralevich <nnk@google.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	"Serge E . Hallyn" <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	audit@vger.kernel.org,
-	kernel-team@cloudflare.com,
-	linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [PATCH v1 2/2] selftests/landlock: Check full ioctl commands in audit records
-Date: Thu, 10 Sep 2026 16:48:34 +0200
-Message-ID: <20260910144837.381855-3-mic@digikod.net>
-In-Reply-To: <20260910144837.381855-1-mic@digikod.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QNlDZ922"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04EC1F000FF;
+	Thu, 10 Sep 2026 14:56:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789052189;
+	bh=MvNHyev7SRTvBYUJxdzf/DazxihAQ73jeT0XMNLGSJA=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=QNlDZ922+QtY45wce6OD7aQlS6Kowh7fMjCOfYDMKTh/+LBkE4oTErcFBeVONrBWK
+	 Xf75ZCWWUkrp61T3lKkDwLrVIVhrpxfDDy1F2iQFKd0Aw8i3CrEJwm27kWJYZ/Qiq4
+	 ww4xuMu7ph8BLRyRnu3mv1twRlVMKLuuQm79zB1cAh9RhvPrLkU1rnm1lbxiR/gCd+
+	 +FqElqjsvj4CEPAos46YzrsP2g8Cz7HnG3Kg6dRhUVI42rXu+9wBoIzrh3v2pqhjDb
+	 Rh8421UnynJlXE7VDPH23BJ7V3j8rF1yPHAY4d+fp1EpvZddRf2zijUuC7idLkYAgM
+	 gkIk3BxNvebKw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1 1/2] lsm: Preserve full ioctl commands in audit
+ records
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org, audit@vger.kernel.org
+In-Reply-To: <20260910144837.381855-2-mic@digikod.net>
 References: <20260910144837.381855-1-mic@digikod.net>
+ <20260910144837.381855-2-mic@digikod.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 10 Sep 2026 14:56:28 +0000
+Message-Id: <20260910145628.F04EC1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Infomaniak-Routing: alpha
 
-The ioctl audit test uses FIONREAD, whose command value fits in 16 bits.
-It therefore cannot detect truncation of encoded direction and size
-bits.
+> Ioctl commands are unsigned int values, with their encoded direction and
+> size in the upper 16 bits.  However, struct lsm_ioctlop_audit keeps only
+> a u16, and the common audit formatter uses %hx.  This logs 0xc00ffeee as
+> 0xfeee and makes distinct commands with matching low 16 bits
+> indistinguishable.
+>=20
+> Change cmd to unsigned int and use %x.  Pass the full command through
+> ioctl_has_perm() as well.  Its driver and xperm values remain u8 values
+> derived from the same low 16 bits, so SELinux enforcement does not
+> change.  Commands that fit in 16 bits keep the same audit text.
+>=20
+> Cc: Jeff Vander Stoep <jeffv@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 671a2781ff01 ("security: add ioctl specific auditing to lsm_audit")
+> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
 
-Use an architecture-independent unknown command with set upper bits and
-require its complete value in the audit record.  Landlock rejects the
-command before the device handles it, and the existing ioctl enforcement
-test already exercises the same request.  The new expectation fails with
-ioctlcmd=0xfeee on an unfixed kernel and passes with ioctlcmd=0xc00ffeee
-after the shared audit field is widened.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
----
- tools/testing/selftests/landlock/fs_test.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/tools/testing/selftests/landlock/fs_test.c b/tools/testing/selftests/landlock/fs_test.c
-index 18dbdb99aeba..1abdcc9ee784 100644
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -4146,6 +4146,9 @@ TEST_F_FORK(layout1, o_path_ftruncate_and_ioctl)
- 	ASSERT_EQ(0, close(fd));
- }
- 
-+/* Arbitrary command with nonzero bits in both 16-bit halves. */
-+static const unsigned int unknown_ioctl_cmd = 0xc00ffeee;
-+
- /*
-  * ioctl_error - generically call the given ioctl with a pointer to a
-  * sufficiently large zeroed-out memory region.
-@@ -4249,7 +4252,7 @@ TEST_F_FORK(layout1, blanket_permitted_ioctls)
- 	EXPECT_EQ(EACCES, ioctl_error(_metadata, fd, FS_IOC_ZERO_RANGE));
- 
- 	/* Default case is also blocked. */
--	EXPECT_EQ(EACCES, ioctl_error(_metadata, fd, 0xc00ffeee));
-+	EXPECT_EQ(EACCES, ioctl_error(_metadata, fd, unknown_ioctl_cmd));
- 
- 	ASSERT_EQ(0, close(fd));
- }
-@@ -7943,6 +7946,7 @@ TEST_F(audit_layout1, truncate)
- 	EXPECT_EQ(1, records.domain);
- }
- 
-+/* Checks that audit records preserve every ioctl command bit. */
- TEST_F(audit_layout1, ioctl_dev)
- {
- 	struct audit_records records;
-@@ -7952,10 +7956,10 @@ TEST_F(audit_layout1, ioctl_dev)
- 
- 	fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
- 	ASSERT_LE(0, fd);
--	EXPECT_EQ(EACCES, ioctl_error(_metadata, fd, FIONREAD));
-+	EXPECT_EQ(EACCES, ioctl_error(_metadata, fd, unknown_ioctl_cmd));
- 	EXPECT_EQ(0, matches_log_fs_extra(_metadata, self->audit_fd,
- 					  "fs\\.ioctl_dev", "/dev/null",
--					  " ioctlcmd=0x541b"));
-+					  " ioctlcmd=0xc00ffeee"));
- 
- 	EXPECT_EQ(0, audit_count_records(self->audit_fd, &records));
- 	EXPECT_EQ(0, records.access);
--- 
-2.55.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910144837.3818=
+55-1-mic@digikod.net?part=3D1
 
