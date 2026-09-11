@@ -1,202 +1,67 @@
-Received: from mail-oo2-f43.google.com (mail-oo2-f43.google.com [74.125.231.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56A537417B
-	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 15:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789139171; cv=pass; b=LQbf+DIhS2kjTIMzfTR25ffPlwjiHlVnRGnK1Rz8Rpm8/W1F7EtmAoARg5ygyuXlqtvB3SGghbYNxI16UXyvh0VFnx0iysnELQlkf2JxctS5bKdfC9msJGRn6+E8sIn9RqDSgECHsF609mcGLnsdW+EyN4ioTjdC2h3QkZpB/tc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789139171; c=relaxed/simple;
-	bh=31WGPI9CsS8AEb1QmZigfY8oBbhGb6+EPuGPGJKusUg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KfXRe5i9D+a+NM8wy3Qo9yLwraHEXmU5p09oGte36MpD0G1hLtTq9CICsfR9/8AANZVfHNWqW8s1Vza8EYSrKrnq0CbwUC8C5HLhQiNB1DlStVVxp5p9lQiFrrj/VTw6TqNbe8nEosC8kmLUo4MN0bugjrNrhYZ64m5H0fw32Hc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qUJmVijz; arc=pass smtp.client-ip=74.125.231.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB35E35675C
+	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 15:08:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789139307; cv=none; b=PZwPWYJfrjUsLItr54nMX0P43JMWZfkUJlGd7Rxar+IzhBT75IRn0rTeQBD+A5xan9yWWVg9u3WOns72xX5YM2gB/+uJcxkJFEKw5hRuNlruTxaW79hVV9hCsWja9eJXEZUHdP9kD08yXgPr6xd2RCLopSpVFjaFmEvvXOHhK9A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789139307; c=relaxed/simple;
+	bh=Nii9oBxuPS/XQ8tzKM4SwnM0FsSKwCN/5cc9R6gFJ7U=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=fhdHFmUXTjriTNxHRSB/UHr6gRIHgyQbtfusD3CMuBPlpNccN3IGfj/ahyzLIE0nslJHlBJxs+o29p//nTBYYpvII73s4UycNXMdkdOVFN4lRePQhOV6JzDZ5+si9xdAgZLUtCTWWWb7ypXD3AoxBDu5JWxWAt3kYzsWq8ZZmYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GU8sgby0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qUJmVijz"
-Received: by mail-oo2-f43.google.com with SMTP id 006d021491bc7-6b1ae6f5fc7so647608eaf.3
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 08:06:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789139169; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bmm0PfqwBThIlKStc+sx/IQueLvz9btlMLRUJ0Kb2w43Vjm/JBVPqGL8l0RewARpBO
-         paAWjnDoAHOH3cHZmuQMB84L3heOoE3DuTAyN7IFyx2q+5NSqCA6ThV47Dy1JjEEeroZ
-         dpk6HKL8ZvaxeoB3sFpyRniZVdvlyhEJyR9Y3KKhDsQgv4vp7E8pk0IZcdjasmFX9fVh
-         4rFZR11vp9/qYSkxkODkAgS5ltLv/7ERk9q3pKfo4s5QQoKLPyp24b2F/3bWdjdkrw+l
-         Ea/gFrIdy7J/C+bvB0tmF5JLDH/9R0ShoyxJbtL89223i/rAmUGmUK3A3C/kgUtiQvcF
-         IYLw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=31WGPI9CsS8AEb1QmZigfY8oBbhGb6+EPuGPGJKusUg=;
-        fh=pGx7txMxv99ILkRBIKFHt7lq5XjqhVhwJlnEASY0LNM=;
-        b=dEEz1oSlXUB49jU55TWSUJuUM/2UTxzX6LEiomp4Bhcsy77Q+lmw4FuADa6Mk50oBJ
-         bODbW7ZAFR53AoT/lDZwcbjgVrL+SpiYLhtYJekg/BgsZk4zKPHowM2USiCvlnl9c770
-         qWTHOM+mF3C0o5V7rpbOwOTwLlTAJUXdqKdAbCz/fViNgIif+VkA0Mp/FPYtMtbqa1mJ
-         KLXX16KnLFRlm9fFzaOGJVPILlBXhvLHYGk3pTNMvCcSQH2wN4jJBYdxHsFLCUW42P/z
-         5HoWa9ab5PEZLa10aVAZibfJuMkdDLhbEDR+E+4fpsbGzfSK9+ZqPrG1NvLxHxegbQDl
-         pb6g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789139169; x=1789743969; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=31WGPI9CsS8AEb1QmZigfY8oBbhGb6+EPuGPGJKusUg=;
-        b=qUJmVijzNEk2CFd/2JKrWKzj5OmgEMFOKvrh0RGm0n62p5d07lbv7bYFKZ4eoKjugP
-         QYSUcrsAA+c0AC27+gjFGpBkZ1a1c9ABcQ1Fl8BDYr6h86r5AUW0twP+0XWZRX7zfazr
-         WEe6kAFGuCoQJNfIOrlZ1Y4cXE0+DuMMuYG5O6jqgitmJVAWNdT6ULGieq+wSEvSt+GR
-         VLr9QgoNO08ZRPxx3H1SiOPsijt847d48Y5SbIVoEaG8wcJJK23s+hXBs0U+z63F9Nr0
-         c/S7CJ9EFmUrGuwhSykK1cuReZLfisdthyJt0xRBaUYoDFWgwq9cl6gQg/hPBAD3m+j/
-         rUvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789139169; x=1789743969;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=31WGPI9CsS8AEb1QmZigfY8oBbhGb6+EPuGPGJKusUg=;
-        b=kaNLNWkG9ALOd8g0TfWRmSEgems6VeQBN6kMnrIBw3pESRKdBF+tZsEjlG+ylEC/1u
-         ZFkapCi86IUqiUo8gsMxyYqzeaVQR+0yJ40LfFKTM4/Mo+h1ZY4BdvlqB0RJC5t9dyEN
-         qa4FObiVih3XSdzIlJnVpu1u/ZI17kezO9I+hoP9tExKU5JvKtZs2Hz1oSIEWBx6aTKy
-         9GQDF2iIDrdoffCj4fzF/10O+9iBSWWUtpxoQExnlKIQoQV7XiG7iWG7ca38l3U38KAW
-         TMJUV3tJgQJeVq9kUkajVPg3UCwMIjcVMeQyS9kdNyU9xpcYkZDXdxCFg1WSQ/fpfGrZ
-         ie7g==
-X-Forwarded-Encrypted: i=1; AKwUvBy2eNIveWXNGX92Sr1gettFx5vTToVL/iTUK9B3DIsGo28vcT9aSf572ny3IcKfraKzFIVB0ilP@vger.kernel.org
-X-Gm-Message-State: AFuF++k3SRCKjqFtOcOSziT5vM7k555/DImyrgyJYXiXAqaE30eXvsEF
-	brBYlkj4eNr9FYi2GHX6yqGc+uphqePhO9In5RhHlPPQdOsXlHThD7MZmC1FldiPXfjgpJJxl1N
-	g9C2qXQMFDaJz0yWR5QvhccmRXXKzPlM=
-X-Gm-Gg: AYBFou3Bn4o0Oz3D21FtfFZffsO2jhX6OUFTcWrWN4cjfBBUlcXMvuYPOlV+tPFhFFV
-	6h6zUF2ppVS+GMpnckk46fLLMZRFljxNBxRjIFhVUVbWlJLabunQBNgAcSbX6NbKn19g92H0RZD
-	bZUrvRgoW7ys3cgU0s1fNeutyAZu1fTvSnEpwYZ1Hgi1GDez1/pCUF9EC7Laogj3fDX5GHzkSe8
-	A4qbYf1rzEYCSsZq5ySwZ2IdxeQUaaV0RuO0fbebwX8rU2Wzwo9oi25OxyK3IwG597ie8ukAQg9
-	x6+QwszStQPXa4gkygobN0qE2lAzVE4aULAG5u5NgjXS+DX+ZQzvVlM=
-X-Received: by 2002:a05:6820:8585:20b0:6b1:be9f:ce6c with SMTP id
- 006d021491bc7-6c0b9d4e35dmr4967721eaf.4.1789139168581; Fri, 11 Sep 2026
- 08:06:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GU8sgby0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A24DE1F000FF
+	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 15:08:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789139305;
+	bh=Nii9oBxuPS/XQ8tzKM4SwnM0FsSKwCN/5cc9R6gFJ7U=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=GU8sgby0vLnDaV9Piz5THn1DFgV61aM7++bVcnsCxIGqek1u5aNkgvruklZsO8KLt
+	 ExJvbR/lcJoPUEWP5Epjhnwslm4s5OjKFYFGRH8vt5UkAtbJkKMhS+jXluHGNHxOQY
+	 ivffHdeN6KUv5krodrxd0eG7i8YjrLKeKzf7oyNtMbOSnyK6hYXse7EqOlvZRS1lAu
+	 3Qxldwz4EMrqwDLVj3/qSepri58mVMRyfoWFdcqMGL7u2veS/t3prCVpuO/mmYBbju
+	 8TiyRRl+81B1h7u9QA28OG/K9xdWUg+H0Bq9pHG1tBlcyABYJ6GEBdXOvV/QJKhezK
+	 jRuedlwWRotWw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] selinux: reject writable opens of status file, drop
+ mmap write checks
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260911145840.19039-2-stephen.smalley.work@gmail.com>
+References: <20260911145840.19039-2-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 15:08:25 +0000
+Message-Id: <20260911150825.A24DE1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org>
- <20260908-b4-mmap-prepare-vma-flag-sanify-v1-11-dacf19cce22b@kernel.org>
- <CAEjxPJ7hXSi=oLtQPV+7GEvN+txfYwZ-u-v_EysNHM0gSGNrCw@mail.gmail.com> <aqPUqU3eZeFrykj3@gremlin>
-In-Reply-To: <aqPUqU3eZeFrykj3@gremlin>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 11 Sep 2026 11:05:57 -0400
-X-Gm-Features: AcwNN1UL9TCHStClpz4OqpdpVCOHFGRlTtL1ELl-GfcxGBMtPjfBSuHNlaSY27Y
-Message-ID: <CAEjxPJ6P19eKF-c+mm2BSr5_WpmhMTZjjUfSamv3SfOPO4SGVw@mail.gmail.com>
-Subject: Re: [PATCH 11/39] selinux: reject writable opens of policy file, drop
- mmap shared/write check
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
-	Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Takashi Iwai <tiwai@suse.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, 
-	Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, 
-	Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
-	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
-	Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
-	Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, 
-	Baoquan He <baoquan.he@linux.dev>, Youngjun Park <youngjun.park@lge.com>, 
-	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Xu Xin <xu.xin16@zte.com.cn>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-sound@vger.kernel.org, bpf@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	fuse-devel@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 11, 2026 at 6:16=E2=80=AFAM Lorenzo Stoakes (ARM) <ljs@kernel.o=
-rg> wrote:
->
-> On Thu, Sep 10, 2026 at 02:11:18PM -0400, Stephen Smalley wrote:
-> > On Tue, Sep 8, 2026 at 4:07=E2=80=AFPM Lorenzo Stoakes (ARM) <ljs@kerne=
-l.org> wrote:
-> > >
-> > > The policy file has no write method and is exposed read-only (S_IRUGO=
- in
-> > > selinux_files[]), yet sel_open_policy() performs no open mode check, =
-so a
-> > > CAP_DAC_OVERRIDE caller can open it O_RDWR. Reject FMODE_WRITE at ope=
-n, as
-> > > kernfs does.
-> > >
-> > > The file can then never be mapped with FMODE_WRITE, so do_mmap() alwa=
-ys
-> > > clears VM_MAYWRITE and VM_SHARED for MAP_SHARED mappings and the VM_S=
-HARED
-> > > check in sel_mmap_policy() cannot be reached. Remove it.
-> > >
-> > > This also stops sel_mmap_policy() clearing VM_MAYWRITE on a mapping t=
-hat is
-> > > neither a PFN map nor a mixed map, ahead of the core enforcing that o=
-nly
-> > > such mappings may do so.
-> > >
-> > > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> >
-> > We should likely do something similar for the other sel_open_*() and
-> > sel_mmap_*() functions too.
-> > In particular, truncation of the status file can bring down systemd
-> > since it is mapped by libselinux.
->
-> Yeah I think there's definitely more that can be done there.
->
-> Though I think obviously that kind of stuff is better as a follow up as t=
-his
-> patch is focused on eliminating a case where VMA_MAYWRITE_BIT is cleared
-> incorrectly.
+> Similar to what
+> https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/ does for the
+> policy file, update the .open handler for the status file to reject
+> writable opens, and update the .mmap handler to stop clearing
+> VM_MAYWRITE and checking for VM_WRITE. This does NOT prevent
+> truncation via open(O_RDONLY|O_TRUNC) or truncate(), which is
+> left to another patch.
+>=20
+> Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
+> cc: ljs@kernel.org
+> cc: jannh@google.com
+> cc: jack@suse.cz
+> cc: cgzones@googlemail.com
+> cc: brauner@kernel.org
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Agreed, posted one for the status handlers at:
-https://lore.kernel.org/selinux/20260911145840.19039-2-stephen.smalley.work=
-@gmail.com/
+Sashiko has reviewed this patch and found no issues. It looks great!
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911145840.1903=
+9-2-stephen.smalley.work@gmail.com?part=3D1
+
