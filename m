@@ -1,76 +1,75 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9CE3603E0
-	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 14:34:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5494833F383
+	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 15:00:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789137248; cv=none; b=CcFeUkmZsyYnpjDB9oGB24OMf7qpStybk/YpFhfH+bOO0U5E8tY7R7pOeLdpJ0ccwJQeX4QOZgbWTgCNG+Rc0WM0z2WI0hSr1pcJy9a5n51iC8Lihq//WzLzABSl/kn5xBn8heHoHw2I1rUkHsGyRLBQwtVaY4XGUomjYIE7Di4=
+	t=1789138828; cv=none; b=BTsEKeKLYA01sKZXej9LtCRMy7pZQV5uy6GnLzjT12S0iiY6PWSxgp3dYx3tK/NQWKd7yWWTmrP9fzJvQdIFgKAboEaycvUgOuka4EdsM98liIOxkXjuaLlpajYgNrEe9wcxUlf/PNKr+typWxn0f2ucR/Hgx3obMjfHA/lXhdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789137248; c=relaxed/simple;
-	bh=r6qkHCLoAfjQdrB5Fr0+AbbfWFePPjBXt+9S/Y1BxT8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jSSklbb+3wbbDvc/i59kI8NuruekUquk8xWyCj5l2sH7KiNV2z2gFntG3iHrPQ/E+DrqH0PaApCfVGE8RE1lzcOXPC/vmiHkTuy5zXYTpOoZyp9emDgPkv2l+MvKPx6E+6XQgAjeTrHr/UsLAiSYqPMGEoQMYiz+wVqFFS8QNBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i5JseOPw; arc=none smtp.client-ip=209.85.222.181
+	s=arc-20240116; t=1789138828; c=relaxed/simple;
+	bh=1iccaAk2DpMcFPOeIA50EvR9Vr76A2gD/VEB4kdHJM0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WhwATwQtR98QBYS2TocAw5/YI1QlQNT0WJ4sNQ3Xm4AnrabPEaqhlPXerAcGbwk6WgoJTo6uPmNtKlZFXCVcC6incDIxtrwOFYijh4k465Qdc+dx+uYOx3B1B+8IZu7N/WBRLIrcXd+N7D6Ci93bdMESqT+vi69qY5/fORwX+IY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lut2e3CQ; arc=none smtp.client-ip=74.125.230.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i5JseOPw"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-939f5f82829so36142585a.1
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 07:34:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lut2e3CQ"
+Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-52fb769ca17so11763591cf.2
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 08:00:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789137246; x=1789742046; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6vq2fy3RvootsmOwnoOtlkkb6arb+NlBEA12iUo+pYI=;
-        b=i5JseOPwgY/g3Q742xR2L0AeHXyh9XlR5kAgdWAGHKQt8mhb7xZ2sWJY8/3admI1eh
-         4AGtoG7q59eTGxEYiXzQUHCMkS4TtEnm7F4DBYRXUWaS53ehxgXFnSkL1AwT1mnfADGB
-         SvU9xv8o/mYI+AnqZkMITPEfgmrUYROZWiLi0TJ/51/sQI/Ywwyr+Fg/anea/2zMo5Rk
-         OFRUl9zjTHcjYU0GxdauUwbmUGfiruHOtosTK02WErPG9NzI+RZFL4dbUKXNTKbdQfFO
-         SLcUbV+MNtnwvo1oqZHVi7tR38Zx3fV8zr9Iz5OGYOnnP38aYDjk2JCI1ZNh7zWxbOxS
-         na+A==
+        d=gmail.com; s=20251104; t=1789138826; x=1789743626; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6ezzsRFIPAETPhnq8POn3G2w8BscJ1bGp2nfA7Ef4a4=;
+        b=lut2e3CQ4AqfJUCtAo0tv1Nx8CKEdf7p427Gj+pqOxG1QQapLKzU6qyV4VgkIUvPXj
+         y457DB8WPzEKeW+8/YyCz5haWVsB498YEOG7ckC8rvugUEPeIPtedZzQY9f+WJ5n+Xck
+         bdi6E3dHAs5HgnxHOqMG8nV9/B06gYF2GxLTRzs+Enu6ZAlIxhwMKgGD1u/CNjOsUw/M
+         l271tE5qvo22aSU9uRPZMz/okMcjhdxbHMBffupXS1fn8IhhauXX0V3fuYU3k1Bk8/M+
+         ii2BILE7KhiVIDxyNtDcSSO/G2jO5ZA+fbIsW0ICdTW1Yi+0ZPrALb8UcW4lNfOmOm2G
+         RetA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789137246; x=1789742046;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6vq2fy3RvootsmOwnoOtlkkb6arb+NlBEA12iUo+pYI=;
-        b=qwwQdeb6gs3135CVHAIE3t50KWcFNdO3HR0NZYEiUN+HpVJq0Quvs5gOXmdt33gsM5
-         2PlGv+lTz7yxhvAQvN9TWqTr05wzCAmQjcLF8ulAP9Swac0K1UAL+F8SBCy6PJWkO3PT
-         ITnSvsgk8TE8Q6oiZeXuXqa/QvuzVz54bTDUx2PgUGl9aLTzHyHERoeBs+sGyEUtvXbY
-         yPD4l49jH/P9GR+IpBLw1E1D2LoD41glcogvR/sdIaq/I5q5dz9HDhRwvgbD6Icey1ek
-         +V8Vziau2QwQGamPoaQKV8OcqwXMDSaGpV3FN1Y86OJa36Wd5Hruh4jMPcNB9ytsUO7F
-         Rzkw==
-X-Gm-Message-State: AFuF++lMWPKgFntuknLAtgOgVxj6rkVL4Ua1g0EkqX5NLowmtKt2jYxA
-	nBbyhJYBygUly17Idbb0Jj6mu5b3v3h+NN+jiFYhtICDhTpHRJCM0JEujl7VDIT2
-X-Gm-Gg: AYBFou3tUy6ynJHDB0+ACZ9URHi+en7jvem6LTosDKNYZ7lLzuUAsEV32LObG8/wdaC
-	NhLaPok2C/r2RwAR6kAVK12KKKuNKu4CPV8e8ZCCi2BVhOrLydaEqszMGHSeSs/SuuggkaDUrip
-	xt52F89i7+HpoDb3HsDDLeb88qygxifvm6rOstHZqvk+CDZ0yICgvOjj1Mv1GYPgMY4zzoXiVBx
-	hNBLWsiFs7XYKRFpjlxNCNxdH5iKmXlQs8Dgw0WWcKxdFNu9SEUu5qVWHfVv6N/aZ8vyWRlYhLX
-	mucjtEDQKL+z52jgQnEMvB8EJiyfqMdHbWPJh3+eZujp8nm1RHQzZ2R8YIZzIVSCiwfD4Yl86m1
-	8NBLExXOTp+wzaR86jmn9HEjLJ5xNxfPfL5grqQEtqgGLNvep4WPcY4nKopPvG4oo4luM+vWcof
-	r3tDH6BmN99W2XHOr5BqjYUJyfGyEg63Buj6ws8i5fyHtdHbFuHCripXfir/l9PxrUA39mnvIuC
-	ad9T0d3B8u7j1WomyMIG0ToV5kcsumzBVgCcLEklx/h1Bkn2yaQhep7CE1tjgH+KbUOpmgH4+Y=
-X-Received: by 2002:a05:620a:4453:b0:939:af12:f5a0 with SMTP id af79cd13be357-939d7f8bd55mr1151584285a.23.1789137240950;
-        Fri, 11 Sep 2026 07:34:00 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1789138826; x=1789743626;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6ezzsRFIPAETPhnq8POn3G2w8BscJ1bGp2nfA7Ef4a4=;
+        b=eEvoaWMqwzwoe1mMLlU1N6gYFoRhmznU8K/bF25i+ApJPBT2+vRGRq1x2yJTfByjqG
+         L2ozaQ8fzYZRtQb8/TYUcGgzj8jq6HnWXmcQ7lhBrUvUJfRzPAGD4Ms5wc5BcOIjhHeX
+         92byOkcNCbsh4boXuG88gxlJrsUFQtcgxU3GVEIPVMK7uOWvuNDQn0az+ckB8OAukMAX
+         UlEKS/IwLHpsvuZ72CAKXEYuwU0Hz+wsF/a91eEhJuKdHLx0iUT30KnjsWQ0xZuKU9lr
+         zh8IYhoNSO7SEnAFLYgpCHPQpF0kM7OhJN5xWvhidmCKNsNRFR4cm7DTcb1jy65Bw8kj
+         LT/g==
+X-Gm-Message-State: AFuF++nux9iBbnCV5ZeuOoFq383IKgfMLI7jHds+AxdVUwcQjI9S4Wj2
+	fQAcK+h5qyUVi5Ok8Eru+zWf8y4inQjm+DBaUrKbl3nXioNtcVhxMNDTmQRRENcA
+X-Gm-Gg: AYBFou2e/yXN+k3S/BvwJqCWlfpX1BaP7y3WJ35om98e4JGexgi7nBtYNGpo5N3UgGJ
+	QFo4g6VSkiUO5R0P+rCO+GAmTjR/tEfIb6Mn1ZUclti+q9mSI4vblIrXSalX6bd3Qav0W8r25UR
+	MO8JgKef2Gr/7+XOB7snAkwQrVV/uyvVx16bCjHsiYYsNjeNqGVrr6mtim53s2n1BVwM28S3gqn
+	9kW3qklDiT+nVWbbfJIFQT2ITZRO6WptLQWFjnjMNnskdDg6CVti+LLyFyLnTih+90+9CJ0leVN
+	E8VHxwA8wXONOyndmC1bHpZ3hBNzV2Vt01IUBXMf7AjGgfJLfCjR4Vsosf/Bky4oVPZBwLCAg5v
+	bKMawfXTBebFln+/PiP0zcjcaHmVVedOxIumwYzHodNXb52UB6ZhVo9j5dwfWISugcNy1IXT9xQ
+	pkmOBsCvvmW1GO/V3/+xqZz+RLs+7lhbNNfXrUOlr9Rkenijy92GnBfuUvLKwgbxCIkH/pZD0Md
+	KV+oN8vYzH/Rn34Scg+okRdyt6xODVm3mxIpjtIfQquk+cGpdDaYYIngr9+UpfQTXVnar8qo8Y=
+X-Received: by 2002:ac8:59d6:0:b0:530:39f3:6c7f with SMTP id d75a77b69052e-530c86d506fmr81542311cf.29.1789138825218;
+        Fri, 11 Sep 2026 08:00:25 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9120f4d35a9sm22029506d6.41.2026.09.11.07.34.00
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-530ca47efa2sm21814061cf.11.2026.09.11.08.00.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 07:34:00 -0700 (PDT)
+        Fri, 11 Sep 2026 08:00:24 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
+Cc: paul@paul-moore.com,
 	omosnacek@gmail.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 3/3] libsepol/fuzz: link a trailing module into a base policy
-Date: Fri, 11 Sep 2026 10:32:29 -0400
-Message-ID: <20260911143226.17807-6-stephen.smalley.work@gmail.com>
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	ljs@kernel.org,
+	jannh@google.com,
+	jack@suse.cz,
+	cgzones@googlemail.com,
+	brauner@kernel.org
+Subject: [PATCH v2] selinux: reject writable opens of status file, drop mmap write checks
+Date: Fri, 11 Sep 2026 10:58:41 -0400
+Message-ID: <20260911145840.19039-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260911143226.17807-3-stephen.smalley.work@gmail.com>
-References: <20260911143226.17807-3-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -79,79 +78,60 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-link_modules() is currently invoked with mods=NULL, so all of link.c's
-per-module remapping and copy paths (copy_module, *_copy_callback,
-copy_scope_index, ebitmap_convert) are unreachable from the fuzzer.
-Two of the recent link.c hardening fixes (d7a298a7) sit exactly in
-that dead subtree.
+Similar to what
+https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/ does for the
+policy file, update the .open handler for the status file to reject
+writable opens, and update the .mmap handler to stop clearing
+VM_MAYWRITE and checking for VM_WRITE. This does NOT prevent
+truncation via open(O_RDONLY|O_TRUNC) or truncate(), which is
+left to another patch.
 
-If a POLICY_BASE input carries a second concatenated policydb and it
-reads/validates as a matching-MLS POLICY_MOD, hand it to link_modules()
-as a single-element module array.  Existing single-policy corpus
-entries have pf.len == 0 after the first read and behave exactly as
-before; a trailing blob that fails to parse as a module is discarded
-and the base is still linked and expanded on its own.
-
-Ship a base+module concatenation (the test-deps pair from 34610ea2,
-which link together by design) as a seed so the new path is covered
-from the first iteration.
-
+Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
+cc: ljs@kernel.org
+cc: jannh@google.com
+cc: jack@suse.cz
+cc: cgzones@googlemail.com
+cc: brauner@kernel.org
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsepol/fuzz/binpolicy-fuzzer.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+v2 corrects my previous incorrect claim re preventing truncation,
+deferring that to a separate patch like the still-pending one
+from cgzones, and also moves the FMODE_WRITE check before the
+status page allocation.
 
-diff --git a/libsepol/fuzz/binpolicy-fuzzer.c b/libsepol/fuzz/binpolicy-fuzzer.c
-index c75d0106..977fcfb4 100644
---- a/libsepol/fuzz/binpolicy-fuzzer.c
-+++ b/libsepol/fuzz/binpolicy-fuzzer.c
-@@ -28,7 +28,9 @@ static int write_binary_policy(policydb_t *p, FILE *outfp)
+ security/selinux/selinuxfs.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 292302eb60f3..835594d221fc 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -214,8 +214,12 @@ static const struct file_operations sel_handle_unknown_ops = {
  
- int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ static int sel_open_handle_status(struct inode *inode, struct file *filp)
  {
--	policydb_t policydb = {}, out = {};
-+	policydb_t policydb = {}, out = {}, modpol = {};
-+	policydb_t *mods[] = { &modpol };
-+	int nmods = 0;
- 	sidtab_t sidtab = {};
- 	struct policy_file pf;
- 	FILE *devnull = NULL;
-@@ -80,7 +82,26 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
- 			abort();
+-	struct page    *status = selinux_kernel_status_page();
++	struct page    *status;
  
- 		if (policydb.policy_type == POLICY_BASE) {
--			if (link_modules(NULL, &policydb, NULL, 0, VERBOSE))
-+			/*
-+			 * If the input carries a second concatenated policydb after
-+			 * the base and it is a POLICY_MOD, feed it to link_modules()
-+			 * so that link.c's per-module remapping and copy paths are
-+			 * exercised (with mods=NULL that whole subtree is dead).
-+			 * Trailing junk that fails to read/validate is ignored.
-+			 */
-+			if (pf.len > 0 && policydb_init(&modpol) == 0) {
-+				if (policydb_read(&modpol, &pf, VERBOSE) == 0 &&
-+				    modpol.policy_type == POLICY_MOD &&
-+				    modpol.mls == policydb.mls) {
-+					nmods = 1;
-+				} else {
-+					policydb_destroy(&modpol);
-+					memset(&modpol, 0, sizeof(modpol));
-+				}
-+			}
++	if (filp->f_mode & FMODE_WRITE)
++		return -EACCES;
 +
-+			if (link_modules(NULL, &policydb, nmods ? mods : NULL,
-+					 nmods, VERBOSE))
- 				goto exit;
++	status = selinux_kernel_status_page();
+ 	if (!status)
+ 		return -ENOMEM;
  
- 			if (policydb_init(&out))
-@@ -113,6 +134,7 @@ exit:
- 		fclose(devnull);
+@@ -247,11 +251,6 @@ static int sel_mmap_handle_status(struct file *filp,
+ 	/* only allows one page from the head */
+ 	if (vma->vm_pgoff > 0 || size != PAGE_SIZE)
+ 		return -EIO;
+-	/* disallow writable mapping */
+-	if (vma->vm_flags & VM_WRITE)
+-		return -EPERM;
+-	/* disallow mprotect() turns it into writable */
+-	vm_flags_clear(vma, VM_MAYWRITE);
  
- 	policydb_destroy(&out);
-+	policydb_destroy(&modpol);
- 	policydb_destroy(&policydb);
- 	sepol_sidtab_destroy(&sidtab);
- 
+ 	return remap_pfn_range(vma, vma->vm_start,
+ 			       page_to_pfn(status),
 -- 
 2.55.0
 
