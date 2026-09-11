@@ -1,77 +1,75 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A242476043
-	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 12:33:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D9A46A608
+	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 13:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789130012; cv=none; b=U7RrqrBnIBHe7rX8jl46dMHKR5Bn1Mbx2wEWE2KFVHQcCX80GJxPG1EzHGCmWlRYlYxnsiuDdlsBBF5RRA4PQ62Px0cu0XTG7O2GtEw/uicdeIpZBNOQSIGN1DZxM/hCwcgohUxc9b+1YH444L+j4H3f3gN7NC4VvPZAXGmXvZc=
+	t=1789134726; cv=none; b=Z8esUsaamDzPqmfzAimDGkMIevAgB56MeJUKgS8V7QmTgwXibmurQixvYelh0aHxSowG4LFU3Ptdl2aa3I6h964+NWvPj/H95MK8rfxVs9omYnOTgpVxO8VM768xaGEu7TYt10MuU9ypIxq/0EOxhA2Zu8jbuFlkRctTUbwsoG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789130012; c=relaxed/simple;
-	bh=NreY9AN2Tfg1Es4vT2X2Sl+N+MAawoSCiI4HfV2wOkU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=juAUOofa9uVu9bscFba2TyT9U+f7N8Ou3PRtxOI9X/OW2nhyrLGWlbWUc9NpS10/i7chA0yNs75Ls+DL+bxS8Lh+E07+CAAjzY5D6hfq3YxnzTcGjK1YX2bYFYWIIlr6AenN+bTejHkmGYizivb4P4XoL36noumKrtTlB3NIS+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IO8Ucy32; arc=none smtp.client-ip=209.85.222.170
+	s=arc-20240116; t=1789134726; c=relaxed/simple;
+	bh=C7i7DkhgUWtIVDPCdGl/PZGRmdglROd2FY+t1LQlSpw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ko+l4q73HSV71xuXBZyLmbNlooJRjpkqCqeoBt/xr4cBcNouLxj3n5jQzvyG7MiP9Q77W6a5rs+7canhVRb5HB6033al3EyUK4DidMRS1RmdY8MKzz6BswEjNCE4g92c/UJHtTSN9EwpvOoawrdgD6IClGGbVJmuNUex4qK3SQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=npVBS2OF; arc=none smtp.client-ip=74.125.230.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IO8Ucy32"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-939e028b3aeso116297585a.0
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 05:33:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="npVBS2OF"
+Received: by mail-qk2-f12.google.com with SMTP id af79cd13be357-939695b5741so96458885a.1
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 06:52:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789130004; x=1789734804; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=bdVOwfZEMtYJwjDgmILFCEtEHE9qb/Oa2KVtHRZ1J2c=;
-        b=IO8Ucy32Iy8gLuyM4pDJAGaLIqtClPFAHRffFchaLedXD+ov9pGvw2yC0D6Buqw6SV
-         Y6ddD8g3LUoV4a/L0ySlz2uDAY2uIOFf20r4JWinAl/29wkLQ7nz3ioiFCgFLUilJzu7
-         o2QbFeI31JAH/JempvINquJzLtj9lvItqxPJ9YUP6yEtoF6HxTdiOApsVbhAbUNgdTEP
-         3M7FiGn8aayq6WUzS7ImkU6G5lrBrWjyk4V64nbWPFGnqnlpXXYemwJ5gIRqn1Bb2pMB
-         LhdtK0eHu11KoTzzbwUYjxo3RY29SvkGwaAnKa2Dd+HvssKY0sEWAgGTVoqi0jKF/mFs
-         ZebQ==
+        d=gmail.com; s=20251104; t=1789134723; x=1789739523; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=mNcqn50VnErH2t2c6SQSD7y0Ze92yI9r0uKX8OUwQ8s=;
+        b=npVBS2OFVhthU5fNc0hXeoMgSbMVC+6mni130kiqe5aKcM3EUOi1nyij/BoLkzQZLq
+         b5ngwrf4hE7iJ1JYdyABRzykos2fiJc4+47143XItawg4Gwhm884rlB3qXcK04zu942W
+         SC0j16JTkbkKQq973GKmexJPH8t0jxqImbBoW55PFDc3zZ/u1Xp/W6aSlkO/oi2s14RP
+         +VeRbc0trdyvRX3avGPRo7I6qg8T5Vrds0AgLmQJYgNyFwlHYqHZs2vMPD6OkC+1rRnE
+         fr+pR7rwF+Zo3rp1szDXDYV3Azhvvmcerf+UDcLxeF43eJOSugzn1bnQS16JrLUs5uga
+         B1QQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789130004; x=1789734804;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bdVOwfZEMtYJwjDgmILFCEtEHE9qb/Oa2KVtHRZ1J2c=;
-        b=H3eFmv8U99m/pM/iJZf1xzBMnCgpPlo44lvxYHtsStVoNRg4I8leMe0j7p5t7QaRP6
-         gNxgdtKARzP+w657k/BSgz4yhXieo4DKHJwfvkkj1YWTjvJYPPmNwMUP0ZvvD4sRS3Oc
-         x6VkzZy4G7vnt2Nfwj2ST8YgHK05sxqv60OzcKvm7D6HvgSM450plP5rWqICCgkxusCL
-         CMd1Lhb/U05vpFYnOJ4EcnUVKxPQEcOhcWm+kxBckZHU5R1jHfDjlNm098p3BToszptD
-         TNzbKv3G1bILAxUeTkteuxVOr5lUQLEOQWfg2PgcFOKyI3C7m53mLGzeWuNKWFvdnfve
-         Iyww==
-X-Gm-Message-State: AFuF++n/4ROYeX4Ak+oD7Ju4+qkScVAB7HhCL9v+Op4JD7KBbGzSjhha
-	rL9WwMOpmEEpaPpM84183liBsalBYXDWH/mGt+KENDF1P6vQrdX+r2BTC6ubFrYv
-X-Gm-Gg: AYBFou1f8xEDzWnI5xr87+6YmpIbvUFNLu95wcEi3/y2fBz+hvEIYHEgT+ZdqjECTuS
-	zxmM6XwsHMFdHASfhp7kSfsnVBaGN7/OxY0WdrxmcRxzlP5zBMPIl1BTOWc75Lf8Bw+0GF/VLKK
-	3bJ4SVdcCIHjiq2hSvReN/9zVgEgqVcfPM71V8TbXqzTECQyXph52k6lFq5NjZR2Blptuxxc40S
-	JOXJsFKPo9JZvhS3lesCnkpaW/+k+/fL2rIj4pFoW3WuOu5C9Tcwsp33aSRRYOdGs299LLkU3YC
-	AIwnIaZBmkQ18LPleK8qLc3+igFCJiqB3MyMGAC6TQw4ejVV8ZCAx/9SiikkEa2MNKAFlTmWNNS
-	qs2dnS8uupNI1dK9QkXH+Vd4k1Qnlps4LVH164fWIDaOxsFGQSwdO24/YqevyFCbYwM3LNu2A1Q
-	cdZuBFCLoAnuSPndI8qK0OTSAWM826fZTRa+JrO01m7ru+cTdK7AiwgiXPoIRQqGS9UfGxz5bKe
-	eBBBGpSEFR8km31Zi4rKwjuceV+sWBQWz7PdMVzXv/AE8PUoCSiUajga9wiIkR5X+x5VpXvAR7c
-	FKM7+CmCzw==
-X-Received: by 2002:a05:620a:880f:b0:937:6c0a:9b65 with SMTP id af79cd13be357-939ea01d322mr454387885a.7.1789130003838;
-        Fri, 11 Sep 2026 05:33:23 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1789134723; x=1789739523;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mNcqn50VnErH2t2c6SQSD7y0Ze92yI9r0uKX8OUwQ8s=;
+        b=HpYE/HXtQOi/sQ8vuPWJOAmavscg17sQnzYDDKmSUI59vGAHn7lG3m+GG5aVQ/8iAq
+         hXalW1B0nnT58gnayAgcvKTihpJKS0Kq5pkDyrCDhJlKce5l3WNTZwu/N7UxhpyvuykD
+         CsdvEo2XJUQNYmaywHZVcs9CwtPuZhxOhLYokF9WOvk7ZZ1IzX6iBeFqfZlUSan13FGr
+         PaE4zKayCS8UPp9H1llZygi5vEcZy0M7yw5yjHLgmTH8WgtgwOaKKV2sGIWgRIgAq0Op
+         nztmhBRta/L6EaMUyJzT2HLjaMJzGteDy53Joko3/h3VjrEcrYv+3g0VLwnVyZkNgZnR
+         gBzQ==
+X-Gm-Message-State: AFuF++m3pjTfst9TGFqNoK9YInAzDVu4/Om1UpEOvRuKjM61SEIZ6DPf
+	T7UMnyJIc0cAa79fmMJXwJfudcKLtLD5NW3m2JqgWnSX4LnGlzD2l7OcCsV7NJSN
+X-Gm-Gg: AYBFou2VdUkhs5UsG93LzzRPFKU/C/nnwVr29B7pNxXvOR5BaRuEIdpo95AK5jAHBSQ
+	WEbaKhP04pGCQQsmTVD5eJwOacqaH6upOMCJ3Cb4VzGRscV91IEF/SPBCZqETm1gX3I7cW5d8na
+	oiHVeTfZ1LarLMewoKS4FAMghaAkB21C8QmWG8GnEL//31YxUg9SJl4coIkVtcQaO45EqdytCgS
+	+bc9EC70sWCQYu8QGO/78DnXHQhXvhVtSfrdErTlQN/LBRJbcLBueJ7eUIrBq571An4VUO2euVm
+	TjffFtt1YXJuwRJl4lv/lAHtthOIrFwEZoiBaN3QKvSp2TBOzMn0fltjAx1Ph7n8BvOdLF7nSe0
+	Mh2o7XNeWmp7BRU4upws/TbJCMX28SkM28WjwbbuanTLyv16wZ1XPf7JqaVMKKVln4mgfnaRF08
+	CSNk/3oegfr362f5yoh0nM5ImVTxe4wIVdbxv8E0vmpgcaGLdw45eVkP0Uv2eaHZ8AKcY4s3Wzd
+	lRSgT9z0ApYZTaDjmIR05gpPkM1y0AsGFHh81/KBfunuFuPn5FNdknuJ7mnaDkXJh3PD56r14k=
+X-Received: by 2002:a05:620a:2b43:b0:939:6dfc:8abd with SMTP id af79cd13be357-939ea21022dmr518641785a.52.1789134722850;
+        Fri, 11 Sep 2026 06:52:02 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-939e7f18628sm231391485a.13.2026.09.11.05.33.23
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-939e8047a4dsm251932085a.23.2026.09.11.06.52.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 05:33:23 -0700 (PDT)
+        Fri, 11 Sep 2026 06:52:02 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
+Cc: paul@paul-moore.com,
 	omosnacek@gmail.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/3] libsepol/fuzz: add Xen, v30 kernel and v18 module seed corpus entries
-Date: Fri, 11 Sep 2026 08:33:00 -0400
-Message-ID: <20260911123301.69171-2-stephen.smalley.work@gmail.com>
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	ljs@kernel.org,
+	jannh@google.com,
+	jack@suse.cz,
+	cgzones@googlemail.com,
+	brauner@kernel.org
+Subject: [PATCH] selinux: reject writable opens of status file, drop mmap write checks
+Date: Fri, 11 Sep 2026 09:51:47 -0400
+Message-ID: <20260911135147.15355-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260911123301.69171-1-stephen.smalley.work@gmail.com>
-References: <20260911123301.69171-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -80,178 +78,53 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The binpolicy fuzzer had no seed for the Xen target platform, so
-ocontext_read_xen() was effectively unreachable (the fuzzer would have
-to mutate the full "SE Linux" target string into "XenFlask" unaided).
-Similarly the oldest supported kernel format (v30) and the module/base
-format (v18) have version-specific read paths that the existing
-v32/v24 seeds cannot reach without also mutating the coordinated
-sym_num/ocon_num header fields to match the compat table.
+Similar to what
+https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/ does for the
+policy file, update the .open handler for the status file to reject
+writable opens, and update the .mmap handler to stop clearing
+VM_MAYWRITE and checking for VM_WRITE. As a side effect, I believe
+this will also prevent the issue previously reported with libselinux
+users like systemd seg-faulting on the mmap'd status file if it is
+truncated.
 
-Add small seed policies for each of these and switch the seed-corpus
-zip to a glob so future additions do not need to touch the script.
-
-Generated with:
-  checkpolicy -t Xen -c 30 checkpolicy/tests/policy_allonce_xen.conf
-  checkpolicy -c 30 checkpolicy/tests/policy_minimal.conf
-  checkpolicy -M -c 30 checkpolicy/tests/policy_minimal_mls.conf
-  checkmodule -b -M -c 18 libsepol/fuzz/policy-base.bin
-  checkmodule -b -M -c 18 libsepol/fuzz/policy-mod.bin
-
+Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
+Link: https://lore.kernel.org/selinux/CAJ2a_Df6GOirF8TnNWTqNMpdWLHgjT9_v7G-PiL4e7LU2nr1PA@mail.gmail.com/
+cc: ljs@kernel.org
+cc: jannh@google.com
+cc: jack@suse.cz
+cc: cgzones@googlemail.com
+cc: brauner@kernel.org
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsepol/fuzz/policy-base-v18.bin     | Bin 0 -> 10772 bytes
- libsepol/fuzz/policy-kern-mls-v30.bin | Bin 0 -> 618 bytes
- libsepol/fuzz/policy-kern-v30.bin     | Bin 0 -> 518 bytes
- libsepol/fuzz/policy-mod-v18.bin      | Bin 0 -> 1034 bytes
- libsepol/fuzz/policy-xen.bin          | Bin 0 -> 2085 bytes
- scripts/oss-fuzz.sh                   |   3 +--
- 6 files changed, 1 insertion(+), 2 deletions(-)
- create mode 100644 libsepol/fuzz/policy-base-v18.bin
- create mode 100644 libsepol/fuzz/policy-kern-mls-v30.bin
- create mode 100644 libsepol/fuzz/policy-kern-v30.bin
- create mode 100644 libsepol/fuzz/policy-mod-v18.bin
- create mode 100644 libsepol/fuzz/policy-xen.bin
+ security/selinux/selinuxfs.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/libsepol/fuzz/policy-base-v18.bin b/libsepol/fuzz/policy-base-v18.bin
-new file mode 100644
-index 0000000000000000000000000000000000000000..4057e406a2768a660050daec0069c0d5557df175
-GIT binary patch
-literal 10772
-zcmeI1$&%y75kO1c_kEWa{ei_EE!IW$#o>#6@&_Q$g(8V*0EIynyN3~uuztY*q@VFe
-z_|%S<K#~cd$r)MWlbsROjmpYBvsV7&@o)e7u5<3Me|+c9b$59A&R=46Xu@00xgR*^
-z`2RKM+*h4*e{g5`qI1%|;+*?}bM7ZoOVQtj4E2|tbGwksoCk=$<ec+ED04vEkDPNu
-z@b^WVcHf*-452A+L$e)X3&Rhcb18IHj<7;>TXz*B-*L{B-iJQZ`v$$f598RkopVi{
-za_AWQp2*0t&nW#qz5O9q@u5Q|RyNV!ecd@nn+(ViVw}f9%z+SbX><o(d>%q6_7J|E
-zXu)S9R!5&3I)v$AsB=KXw+KP(y5KYF2w7LQp};Rx{&@13pr8Xu*i75jjmWqd)hD8e
-z40JYicZYuDwDHj8D8V@g?rJb_91qh&*~e}X3I+-J5b(qX=6WbdVR#w*VT=rUdU1%k
-z94*6_Lx<T~W}2e9_gDbh)E0pnYYRF;dFbkw1^I!RTvZ|EAs+D=8X1?w(1WN<Df+q`
-z?ZFX~Y<xi&|M6HDf90H`;R;Afnv^PZA>%<Y&WQ1^j#+@0h8)ZPI(z`Jz-1bcjwy#0
-zN0FM2sfoLyjTMyuZMRKT;bWJF*x)$6-d5Y@koJg>^6h<5ciV_bkW4~+>{4u`(ul-_
-z)mZ>@?f0p!&`r$Cdtc<Z+cjY_Z3ftbg;b^Wdnh03{*_U~Y8nz)DbR=M%o7?F#T1^3
-ztmtBqhq6o927T!AaO`8<<$r!Wav}{8#ONu&KWLDE%?f@$6slEm7DVo34Z)-VU94m&
-z#PaO>g0&9WQfv|fmLJu6s74B+hJ?^<<KRO<T|<M_(7=Nf;xa`tjH?ULK@Sv@2{V8T
-zKtJEw$G5Sj(2F<I%wv{{vFCN0E_!5@K>#cg_d3_H!%(m?)ptQwK{0fckfToD*<=*g
-zIuVHgXhc98PqTXnGCX-O1HucyifJ@pTOpU;Aw8Kl48=HV)7Ix*IKHwvv5`oTEn6$h
-z=~osDcD+4CO08|v?!~nBVOQv09KzvAv$eeNn@K<e`XTy|62oLE)w`5qkAuweUC6%d
-z83dE+U3X|?1A{&7%i*+v?LzK%wd_}TxeGb@eK^hebF#6M5`iM5RF6wLY3TD%df6;+
-zZySd@l*%4+GK1))dUsbhvPcn=RPX%0ksTL9F|w3FHlTDi3&m+NYjS=Dm;j(07id5V
-z{xH<}$T$jiAs4BxWXS;M_hq*Wpoo}ETUHdQY_OOyg`_y7Fr1h%z76f|h{8Nn``Gq}
-z9E$RuC=r1smQ~TmruIiPkS5mY@G=)Us@^d$6_{yoGJgiBr2TSHM`_>Iy+;OSaQK<A
-zO~4ocoo;i0FZ=SgZt8r*PfCNGB0h9sAYd5Xg<K5f1LG{e>6qx&a*9CQR;UT*&!*w7
-z_EKE1kVRkic#h@mT^B3V5FsRUQYumy?rSd_x15-cspw1ZGvWy&HN(UsLsjXEcprwL
-zt^&B9t4$%r!!QaVZwN1|ww5J|O2je3gFwvLrjY9j8(9m`DdY@GF^0SwH$FMG9#i4>
-zLyVb_ygf1Gd?aPtdPjUYE{N$e83@QvC(Lb(ve5lP`RX=cf)vd@KFG{sRe`;g(>gBT
-zp2TQ~W#!8xhf%WEgfazul9Y4CFY2~E<np!=G<8Cp*vN|%%E9k(3zJgFhx+0qBH%>C
-zu5e9veSyOffH0wj26Q3UTU5%tdhP8H4($JYTOXB*A!L9GK_Vch#FU3nwzDN4r=gt=
-z^Enb(7{^<QUKyzHE<8Xr37i2*Ln}pWH<-TU3N=$W<C}n}!;TiqE=E_oVPUhfS-@;W
-zP#o58iN9Rr#=mdIUvfpsFqv)1+&0%shHSvcJi}2fp{gD@o6rS4v{fzlk?|Tu8KZH$
-zY4+t1x{PKDkK@99D7dmfLi)?9lD-X(0`6k~3A2W8>utQcn`<30lc{SO(54;E&>eyg
-z_5Eox<ghjo%>YR>vV=JbDX^Yv&w}Qb<#SdZ93)L{Esug~WA(7w>fT?_MiOXf)%*;x
-z3B?dz6ax<jG*&PGn*jTuV80bCPOAq<$5dABS}rsId^FXkfw%G$ERMOLIg=fHWjSR4
-ztTarjtTY9S!$P$x-aZdLk2(}At^HQ8IAm!>jR*9#y*dsbO?7`VIb!80SRAv3hAwgo
-zzsj(5Q%2;>Pj)ZS<zqkAL}t>l?p&h0EmJ6VO}s6eq6)q#WEIl*U9h3p##qQSXRcln
-z&8kswF)ZW(iH-9rsZcQwE>TIX2o>>$N~?$%(ZB(pP-0^R=g{H}YtkjTQ&wdshw++Z
-zom6sNLp>Q@GAMM17JpcTF6rhdA<@K0rt}qA5=``Q+_@xhn~JOp%TksN(Wg^sZlfF;
-zRotbBiW8h*Vq4Z76-B)&7hvmDsw(zeM$4wS!8ca)r9BEfUb2KCmV$jfu^V+${{zos
-zSQf+Nr~r}y)xdvtcExMq15;TXmhyD6s~r8WGOavxD?JC*r7R|eg4&>R_-|!VN;*9N
-zY`u-KA#(K9PpYGAn)o2~vJYji)JP=8r_2cZhGDHyhR@6?m*dq1y}+9L2DHvc+!?u#
-zJ(mc^w5VAs&XU{EGC0lC<zN&}twrXp+!_Pta5+0@j5N0CT`<e&K0ZF8M50I}5lDRj
-ze)Az+J!tsN2XuAI^qcqT;_gWN9$g|kcAwGZ1SH*?cj@AwbT>D2^)%pbq);`}ej{DZ
-zwL*L&#JDKkjflcn>E4JU4p-9Me1v3X-q`&e{*yZCen5|^klu&%^pN1+qo>jK@6$t+
-zP~Onf>haI$5ltC;mmW=e8@{v_yl7{;lCh7JPjds<?`3vWEO-kmx+y73I%MO~pWYd5
-zr@!P?uYl#4M#_TK@!$C7y1lgH5yPLtkHx#DpA25fd3^lMlX9j+FX^=&*7%Q~v}ZC?
-z=oR2q_)os!QMt~2DxcTnSo*(Diosd@?+sqzb!C258*~mWZLqa%ZL@fVCGVv?{(53q
-z(~l8c;&okE;xE;k=3zyzh4=;l9lDwT^e^dEO6;+)v`^QrB^`2EA9U5TU}>*?Gp6>b
-zq-*pFmgfI+{tU!r9@GEbIj>-A<@0>MDbQbA=fAAl-JKaVK5neA@~f!Da_+IeHQF(D
-zXD(6}$F8iu^;tZ${FY~NoIT_sw$cjKwp!Aje^as}oM-Sx-k9tFD)~jo;#gFt-*_w<
-ztM!Ksi)VjG`&mFR+MizdEipp$Vb|h0#L2_0MRJZ^Kb%?$&ZDzOPCLlCclCs62{7~g
-zKxs!XQy&v89$%|^uqZ-%dcLy*(6(u}M5V9_)%hW9NnH2dqKFbkpWnmms3d55&$4(*
-zd3=MiSg7^gXo;V$g)_Xq-RS#_<&i+1-ec?tDO|t5SPCi4<MiHQ2e>bo_Z2&YM>4d+
-zj_)T++V$j_VwFQXmqCPOx>*rqvOCPuhSjHc4NHsQ?l8V%SiGzQX|4>p+ZZhwo{jGh
-z7Rw!N@!p`P3dqo@?+e%2HkJ+bwC8bFw<a_PD-930-&-7EfL`zDc5Hn|x1;M@wp_f_
-zK8DXXX}P0c=avheaxd@bmUVSUzcLtSoQpfU<wG(3BzH+QL+|5$BNtUg6LY_jo9rAV
-zSJpX7?zD5%>GBF%WZlfPj^bzW7^!9f9;w!-n>FKRE&gV0#AbFm9>vS;S*<5N<NbYx
-znT1AZW<CpM78t?ItQ5@5BEihe7R=0D!K^KuxuKTwA9`wCarPXu1l)%X`XSUQ4BMo9
-u_GQz`V4OJ?Ugl??f%dc#T$8(iw;mUu`t*s6{!_MbEKu6tB2+t<0`qU7^{q4j
-
-literal 0
-HcmV?d00001
-
-diff --git a/libsepol/fuzz/policy-kern-mls-v30.bin b/libsepol/fuzz/policy-kern-mls-v30.bin
-new file mode 100644
-index 0000000000000000000000000000000000000000..22748058bb1f76701a5c0c7682e6a4c2a0be8654
-GIT binary patch
-literal 618
-zcmZ`!%L>9U5S)syuaJI%{R2gEi&zppcoHlg^q}AaJopLzuqS0orUq>$ESc=iZf2kF
-z$7=|{o80b?xBCb{27tK%fC;{cxj-$W9};@&p4qAQMK7pI<K~4*T>yC~w4npk!De#8
-zEvzZ%gTX<Biobc)xr_K|d)QUi%{ksB<}xS8>RYZ$(>Pa=Sb5`;j_6Di<6lxvsf~4l
-iW@yvPSW2qNiTEbh??hF1WX<^pI~3~FyUkMysog#d@)sBY
-
-literal 0
-HcmV?d00001
-
-diff --git a/libsepol/fuzz/policy-kern-v30.bin b/libsepol/fuzz/policy-kern-v30.bin
-new file mode 100644
-index 0000000000000000000000000000000000000000..9bd8662127e38184a21ae3861b1590156ec368c6
-GIT binary patch
-literal 518
-zcma)&O$x#=6ojXOKc^^OAvaJYyGTo-3s-{TLKg}}!G%Zg!mgBQGZ3SKUwOR$yrK8!
-z?J)un?AYy(mura*)`kEkF(+v(3ZS(?EGVZZGdB&v^y5@*{oKUP8$F;k4l*Xba@O!B
-zP4B6h*VU(P#iz|-w>__$RCgM4jwW^5TdZnp@+MgZ>whZJc6x#2`8T>_Mf^UI7<&Ez
-O<>a6D1!rm8C-N^iAQYwm
-
-literal 0
-HcmV?d00001
-
-diff --git a/libsepol/fuzz/policy-mod-v18.bin b/libsepol/fuzz/policy-mod-v18.bin
-new file mode 100644
-index 0000000000000000000000000000000000000000..6906ec42c36ff35b5aa780960dfde36006f436f5
-GIT binary patch
-literal 1034
-zcmb_bOA5j;6nuX01A^cQJc=84y7B;_pD0RepiM!+D|ld6%4kL&Efoa^9toN0WJ;&k
-z`{gzjk<D_x+8?XaeC^UIvmFtci3rw_hzvz!Ax(hC^a6!_Hw;kPd=Ml_VIyy01VL&`
-zU$}GA@#V*Ru>vkW*u<McXK33Knnym&IIQrcx7Ot@HE~oJ4<T}X5^kL{exgKej=Rjo
-zQD!`owSkw>2jCfiq!{uD$a9Ult{+JKrU1S9^)$4$?#KJ<8sgV;_|@-Vrf<EVV=j~o
-q`1aX<138etv^lnV@H4T@x?e2kyMUTR89_V?rwNn~1Pi9QU-1Ay`Z&=5
-
-literal 0
-HcmV?d00001
-
-diff --git a/libsepol/fuzz/policy-xen.bin b/libsepol/fuzz/policy-xen.bin
-new file mode 100644
-index 0000000000000000000000000000000000000000..6e7dec3adb1d4b4a7f79e748e3992f877a2f5204
-GIT binary patch
-literal 2085
-zcmb7_QEyT~5QT^Kf>vYfLlfV$kG>JWAJAKJn>4xfHb4{mWGcNzw2=mgPyGr0VUs49
-zZ`p(6ZGn24&F;>eIWs#0^w;9<_j5D*SpGP<xte`{YfE5jnAuTWwP@dod)2-l?eJL7
-z;;wtQ==F-T7Lu5{=UKlOZdj5ST#vi(WqecW?14BS*5h_M8I`k{HwjP)+cgVspa{^-
-z)4`w<t0O-T48=vl3PeZ+k`zEtX-5?~NX5&zvrs>X=W6@j$23*DZ?}i+g1@UP%BwvT
-z8QzE`yisNOGCAvgoaOT=c$x<~9`Y0GaXp^;t3YR<s{f#0<XLM|JMbwlpH_f?awE{G
-z3aB9Lg0cgG+SMSb`ygz}KKcBu9L+yXz2Bc1$cwmC02p4LXK8+#4qA9s_dlKw6h|I;
-z)8Vk+R-e2v3>Jf`LOq0&(i;QQ>%#0{pis|jzl=Q<Ruy;B^{!(iSjqt|23ddYIF-{k
-z4fwl6wIhC96#0Yi>0Wq9-D<WI$cZ&<*Aly5EEb6+RttZ8;2Ku5{WyNkhoJ#W`%$!e
-zog^qyKw|ZkrV8>qSn~en<NL#692$wgtNGr>r|jf3&(6|bMvUgm+53oH=Yy+BJQnAD
-z<d%-=;2q$xVQk~PihbC`!w2sv+&5<S?msjEx`20Vssn9+KG?>`|CE~Hy*9Jv?bZBi
-ob3SQamp{j&a+|zB+gb2|c0Z0PhmnG+-T#nzP5tw(@(-iVA0|Oz2><{9
-
-literal 0
-HcmV?d00001
-
-diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
-index 3e3532c9..c8ab9ee1 100755
---- a/scripts/oss-fuzz.sh
-+++ b/scripts/oss-fuzz.sh
-@@ -72,8 +72,7 @@ $CC $CFLAGS -c -o binpolicy-fuzzer.o libsepol/fuzz/binpolicy-fuzzer.c
- # shellcheck disable=SC2086
- $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.o "$DESTDIR/usr/lib/libsepol.a" -o "$OUT/binpolicy-fuzzer"
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 292302eb60f3..3657778de82d 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -219,6 +219,9 @@ static int sel_open_handle_status(struct inode *inode, struct file *filp)
+ 	if (!status)
+ 		return -ENOMEM;
  
--zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bin \
--	libsepol/fuzz/policy-base.bin libsepol/fuzz/policy-mod.bin
-+zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/*.bin
++	if (filp->f_mode & FMODE_WRITE)
++		return -EACCES;
++
+ 	filp->private_data = status;
  
- ## module package fuzzer ##
+ 	return 0;
+@@ -247,11 +250,6 @@ static int sel_mmap_handle_status(struct file *filp,
+ 	/* only allows one page from the head */
+ 	if (vma->vm_pgoff > 0 || size != PAGE_SIZE)
+ 		return -EIO;
+-	/* disallow writable mapping */
+-	if (vma->vm_flags & VM_WRITE)
+-		return -EPERM;
+-	/* disallow mprotect() turns it into writable */
+-	vm_flags_clear(vma, VM_MAYWRITE);
  
+ 	return remap_pfn_range(vma, vma->vm_start,
+ 			       page_to_pfn(status),
 -- 
 2.55.0
 
