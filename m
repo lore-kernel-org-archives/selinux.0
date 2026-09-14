@@ -1,77 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9254415B76;
-	Mon, 14 Sep 2026 21:09:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789420144; cv=none; b=McuZqfmgoc3NVwgjgl5nSbJxIgwhVUfQvDuJpG9GmodEzKaZUhqhG6YNcGh0giHCdytth+pn0Sjrywx3+JCWSdh4wsqlj/hoh+mx2Zh3iuHeEuvxEXYeeWoGo+910DnD0OAzqZdDLKpyHnyaiLMt20MIgi89VpOw22mrKNLQCD0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789420144; c=relaxed/simple;
-	bh=QNKiHNVVQITS2ZEMsnVYihCQciysFQAVe9ZcKtFzzs8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nhskfEaj40oNOqZpTiFeZtl7Q6wSMs5v7l0zgzbYD5vEYHOKNrN3+x6ErbTLRJblXyYiAzOinw48hhtAT3W0et5E+JavVJb3/P0tOctEFkW/Y7oymp4gtJyRmH+pj/MyOzLEVxvdqHMdBS+F7LuFJMMFyeFwwJ2oNbPMm01nn1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nA4osmvt; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72A4633936F
+	for <selinux@vger.kernel.org>; Mon, 14 Sep 2026 21:17:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.140
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789420674; cv=pass; b=pdyUGCzwRLIOOTSCenexOXjsnQMwMAlwc9S04C2Ye20yqX/B9eHPjFmHawpRNv+slaYbLCbiVff+aRGbywgN6Mf9moM+yS6Q6hCpoZeAdE8bEuF3mtEb1/s0kFILjSAAawGF0Uy075S2cKEWqo0c7PURhdmL7U0ccD4rxOUyVnU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789420674; c=relaxed/simple;
+	bh=+FCHW/GBcwXs5DdDpurcPXompfdIhdbkQIV9mZ6twmM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AIOyiS7RrmdRpken4vOtETsT17LZi9wpDmr9cLPBmGLRb+TIRHVb52CUMVaSVyCnFSd1MohtnEx+i6XGQakfoQkv3ce1XGk3DErLoi3Cxsj1wcU6YhcDZxaQ5YATmpBcxVBnvawsfLaLFuJvy1WAIN16fNXjsE+2+hZQIEBdz4Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=F+NnC8DC; arc=pass smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nA4osmvt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD02F1F000FF;
-	Mon, 14 Sep 2026 21:09:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789420143;
-	bh=QNKiHNVVQITS2ZEMsnVYihCQciysFQAVe9ZcKtFzzs8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nA4osmvt+3w2NX7xPPnlIGpN/7wQ/mMwDj4YJIz1fLA9C6hm2m5WCMN4Ok0ZGUe7T
-	 aV0ebLen3kqvvcsMfRkLpWDzRi8Nhr1V58kpnVXc9EtxLIkrhsJVg0V9j88mTpWgKE
-	 dFNp8LYZQyige5E8unVZ1kI06p3hcagR5LU4Abch7PopNvmCAKAXwzADbaOQ2c92is
-	 i2VXn2hig+Q2RBbpaYY4atRjmwA4wkD0FxeQBV1VUT+jEtEU+2RGUsLxgVt4g9BP9v
-	 weFmhlhM8qNO3b56CJlgO0oY+1lFqL+dRIdOGvWXLFJlck+DxhFXFPILGXCVyAjeWn
-	 /rANuoit+rUEg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 23/40] mm/mlock: clear VMA_LOCKED_MASK over mmap
- callback
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, bpf@vger.kernel.org, kvmarm@lists.linux.dev, linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-scsi@vger.kernel.org, "Marc
- Zyngier" <maz@kernel.org>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, selinux@vger.kernel.org, linux-rdma@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, dri-devel@lists.freedesktop.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Oliver Upton" <oupton@kernel.org>, kvm@vger.kernel.org
-In-Reply-To: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-23-7d9781ed5361@kernel.org>
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914-b4-mmap-prepare-vma-flag-sanify-v2-23-7d9781ed5361@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 21:09:02 +0000
-Message-Id: <20260914210902.BD02F1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="F+NnC8DC"
+Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2db18fe459dso12760395ad.3
+        for <selinux@vger.kernel.org>; Mon, 14 Sep 2026 14:17:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789420672; cv=none;
+        d=google.com; s=arc-20260327;
+        b=byXy5b3ZWmJ1b72CwpgjGJREWKXg7Bl7pNAoy1OCeh8tLkZSCWYXWzNRWNCD8UC2Hy
+         QoC4SR/UbapBdm0mqf0vGlDoi6opYEBOzZkcOwalmMtF2Do6PQut7Fsu9JaMBysELSRr
+         ucC7iFwWuRxqwd7OZte8UUCNdsv0PVFnsfNEoPKhX/BoCeS0ReNYTistw4AbDuOQSQJa
+         znXFFqbU22Wg6wgEF9oqpYsvNIlxZuhUSboHT72CsXkoCVZn4nP9VtmdP40gjjeQtxUU
+         YEc208Ghy1YPBThQ4k/wVTFizgJApIHdxoj5sGZ7i2rZtarLJ+D/emT5RwxKgivUSoRj
+         acEg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=buWBOJymswd9WOrNmDO/TIK6tbSPth7vWhXrMk4QpPI=;
+        fh=muAA4xKdA59SzN9mnfVhhvZ2aFRvTwzkN0pLxtmQvzU=;
+        b=Nvv7m29plouizzcyQuiKQnrR37AO31gmCHva3/UtC59DM/9ZzGxEvHzOhvLOfpGpDA
+         RxsE1dbrabn6JVCAMGu/FnJRRL+AGqOzjbkotJ+tiyes5i4lwHbMfKwKq/ZJqMbPlZtO
+         6i6+lD9veF7AERdjt3Dkc+BsovNa3WAWGFWLflNhJrBYkSvEDT8jD0f1XV2pCCVfYTms
+         HiMlzQjW8ET/cqyIb0B6OB0UwF2gFZogo1uIo/3lbgLsgD7J477We7iYU7rFxIONPLbk
+         EZT7Az+H8q7hn3Fr6sOifXwhZb9H0LTRVxTKETBLnHP87yWlDIvRPWigZ2OLqsFchBTl
+         hUTw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1789420672; x=1790025472; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=buWBOJymswd9WOrNmDO/TIK6tbSPth7vWhXrMk4QpPI=;
+        b=F+NnC8DCSv/bCZ2yumuwBjSQVIB4j9Npn72sZa/2svnkisAAGOdYb75ZF/3qzoyYCC
+         XHmhsXKPfP9M45+04NXDZPqvTlak8c8hpnHNb3ASkM3SHSZua2WhkT7G+OzlgESN7o2B
+         1cfj1VEtnVzpWvLG271v7Bu7eP4TpOSRWuI9kQaYbBobr9QAeiMB3k+UP++3iBix1Fkh
+         ee9g/+zhkG3azQUDAKcMN3yB7ijb1XiN/zCrvqLRWgaTZm6uFvYpqikCrdfJ+3qT0179
+         4xu64wYqid22rH5HVKaGVJu25y41iPzMLnGu0XsBJbbxFsaElfFhBIYzs2IoBnnLe8Lh
+         msww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789420672; x=1790025472;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=buWBOJymswd9WOrNmDO/TIK6tbSPth7vWhXrMk4QpPI=;
+        b=cCH8/l9Tt/HlGfI0J/AIaQ/aX0ZNkAGhu1jXCZKZd1tH1BoUP6j1CwW41/cmTN2RKc
+         DXxnBjRZxxsoAeQgwNX+QnBN0dQTP/qpEe8lOKIcJGgxcEGwJ+wmjLXCGxsVI3K8dhVM
+         igcAXDrNtLHjFLtr3vik3XksEpZne4ZWqS9h2++dmBCff9SBvZsxhHFARREB1smC1O/X
+         c9Rub0q/ZqHtTUBchNzicjWGKBNzPk9vMupkMp7GDhZWIz3d7XhKTyh0HuCtS57hDUcf
+         WcDe3UpVe8oa0norNWWamdpRi3ljf3dhtnl8AS/nFjG0allSukodRZwKlBodbh+0u2oC
+         vGvg==
+X-Gm-Message-State: AFuF++lmcn2SCjE9+Fsfm1dK6jcU1T+kGALXRQZseuYxZDrBCFJAYxkG
+	OtrQztQUxy3gPz/pEc0J+csGiXHnvTZAh70B3xhBI9gYHZeixrfHzJRsJ3YNnUmvvVIQkp0T3yb
+	tx/Fsze/SGpeV3nkR5M4m1el6T5xSbPTUCMOfqYNkkwV8QfXWJ0UHnh0k
+X-Gm-Gg: AYBFou3h+yXhUSAaWYMcVehgSfChPpm/YN50Z1q/aNRHArrO6NlXrXSXiIZ3uQ1xBl2
+	LSyw/L9es9Mq7viphInYivCq+s986OKnts15IvrQVZp1EZMzG3+s08DL2pdETNuVZanPio27T2F
+	TK9OM9RvzQvCG4nt5fCXSGS6pFc9aES041dTfV8+gNKS7Z3cZbq/kYs/RZw/SWsZvk5uRs9PK8p
+	1T2+Rkp4EZMGX3T6SK6gxZn8zFBmAfaFl5jFxTtmxC3/sm9eXlQGMeTDQuxV/GPVpQqLbj4e3o+
+	HGnjIh3wSTFgqHzYN6lSFue5MOSSqO1w44v3x/EfofsknDJzajVKwihK9LkVG50nRoIKbu4O0/x
+	cftv3A7aul8Jy5XL/pdK35Q==
+X-Received: by 2002:a17:903:19e8:b0:2d9:32ee:7b83 with SMTP id
+ d9443c01a7336-2dd6c5f4ed7mr86854005ad.8.1789420671750; Mon, 14 Sep 2026
+ 14:17:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260911163734.22981-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260911163734.22981-2-stephen.smalley.work@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 14 Sep 2026 17:17:39 -0400
+X-Gm-Features: AcwNN1W1UJxR8ESm2eaui4XRUxITVbbNIYFNbevb2tR4Y3-WbmqS95-vW0-JrJI
+Message-ID: <CAHC9VhS-TiBkOZWR7xgCrPnpxozjzM+y5vpgbPU9=R_C3Ta2WQ@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: mark status and policy inodes as immutable,
+ drop status mmap write checks
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnacek@gmail.com, ljs@kernel.org, 
+	jannh@google.com, jack@suse.cz, cgzones@googlemail.com, brauner@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> Currently there's a confusing mess around VMA_LOCKED_BIT and
-> VMA_LOCKONFAULT_BIT.
->=20
-> It is permitted for drivers to set any flags they like, with the VMA
-> already possessing lock flags.
->=20
-> This results in the absurd situation of a VMA possessing both
-> VMA_SPECIAL_FLAGS and VMA_LOCKED_MASK flags, which is not permitted.
->=20
-> This has resulted in mlock_vma_folio() having a very silly check for this
-> scenario to work around it.
->=20
-> There is no need for this - just clear the flags before invoking the hook
-> and reinstate them afterwards if they are required.
->=20
-> Nothing relies upon this being set during the mmap operation.
->=20
-> mmap_prepare is unaffected by this so requires no fix.
->=20
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+On Fri, Sep 11, 2026 at 12:38=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> The selinuxfs "status" and "policy" files are read-only interfaces
+> that are also mmap'd by userspace. They are created 0444 by
+> simple_fill_super() but a CAP_DAC_OVERRIDE caller can still open them
+> O_WRONLY/O_RDWR, open(O_RDONLY|O_TRUNC) them, or truncate(2) them.
+>
+> Mark both inodes S_IMMUTABLE at fill_super time. inode_permission()
+> tests IS_IMMUTABLE before the DAC / capability checks, so all of the
+> above are rejected at the VFS layer without ever reaching the file
+> operations. Since a writable file can no longer exist, do_mmap() clear
+> VM_MAYWRITE for MAP_SHARED mappings on its own, and the
+> sel_mmap_handle_status() write/mprotect guards are dead; drop them.
+> MAP_PRIVATE writable mappings become permitted (they were previously
+> -EPERM) and CoW harmlessly to a private page, matching how
+> sel_mmap_policy() has always treated the private case.
+>
+> The sel_mmap_policy() VM_SHARED guard becomes redundant for the same
+> reason; leave dropping it to the pending "selinux: reject writable
+> opens of policy file, drop mmap shared/write check" patch so that the
+> patches do not conflict.
+>
+> Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
+> cc: ljs@kernel.org
+> cc: jannh@google.com
+> cc: jack@suse.cz
+> cc: cgzones@googlemail.com
+> cc: brauner@kernel.org
+> Suggested-by: Jan Kara <jack@suse.cz>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v3 implements Jan's suggestion to mark the inodes immutable rather than
+> implementing open-time checks.
+>
+>  security/selinux/selinuxfs.c | 19 ++++++++++++++-----
+>  1 file changed, 14 insertions(+), 5 deletions(-)
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+I'm mildly concerned about marking these files as immutable when
+neither of them is actually immutable.  Yes, userspace shouldn't be
+able to write to either, but the contents of these files *do* change.
+While it doesn't look S_IMMUTABLE should currently pose any real
+problems, I do worry about the future and an innocent looking VFS
+change causing problems with one of these files because it was assumed
+the contents of a S_IMMUTABLE file wouldn't change.
+
+Unless someone can promise me that would never happen, I think I would
+prefer the !FMODE_WRITE approach taken in v2.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914-b4-mmap-pr=
-epare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org?part=3D23
-
+paul-moore.com
