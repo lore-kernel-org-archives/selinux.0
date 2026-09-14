@@ -1,112 +1,161 @@
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0213B4AF9FA
-	for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 18:32:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789151527; cv=pass; b=l2/t3NlPfQbRdggWWgrQ5Np1MFJkiYrVbTLqpzloepf+8+575xN+wGWM6OlrR6YtBsvItl+Fiby1KpaHxVyjoxw12kSlLhhkryHiF1F0sEqUvk5aqFdQVASJ3qXGHZqUDK0/9D8UD97uUJ16jhQ/5F3WcxIIFUXZmJjtsuTgrHk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789151527; c=relaxed/simple;
-	bh=jRbhfFBcwrpLHj4cXRbLVm91f5kIHrwbcTOUEIa+FA4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sfVnaggpm8+YZLj0NBD3EFm/9oyB53ax+Rg9E+x8F+pujMXwelAA53aR1Bu6XnaU/6M9gF3OpFYxdx9OrApeRKIush9HahhfOgQSPKMaeY2vRfXL6k2dTpmEb0UlShAzi+Nc5Ao6xUW2vvxxhCId8fmcE2P0YjWAb+wfGGl4pgw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=datkSsuS; arc=pass smtp.client-ip=209.85.210.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FD02401A21
+	for <selinux@vger.kernel.org>; Mon, 14 Sep 2026 07:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789371982; cv=none; b=buJX9ZECOkWSWN8or/OcVJbzg8oYfq+SpHXr1IuXjvZJLjqWgm9VssD6DpZriJpLmJfwSPM5X0G+Evfmcy88Uiup9pL7+XchhvtdbFmtwAfrRrPZ3mUbfctmxvHQCHpQyCzxSuvs+guRTTU9NabU0Z9EJ7B5CyIV4eS18jN8Zfc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789371982; c=relaxed/simple;
+	bh=HuMgLxKxoSt+qp7C94ikOA+zZYRkp7Gdi4aEQNJnmf0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GK4Ibq14ARn2EB9cYLYOAmDmgt/Ye4E1a81PQQzhCfp5gmyNJh7a2cjJNSzqo16UwJkFKT7QtAF+3LJv/DTNIqvMATs+suFYDNVOkVFDJVp1zCR9SgHX8H7KOkRn5OlTeqGQNzkmHDqZcVAhivF/FNqn6yz2JX9uUnh3HVHLGtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=cPoQpYYb; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=o3IRDB6P; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Jj2Lzp3G; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=w3oydmxh; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="datkSsuS"
-Received: by mail-ot1-f49.google.com with SMTP id 46e09a7af769-7ee4399c3abso1503161a34.2
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2026 11:32:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789151525; cv=none;
-        d=google.com; s=arc-20260327;
-        b=OCwK5y+jjqom/ySUcX7NKJT4x+ipB+HhBeqy/rkLIdCpgBZfeM8Zsrivd7gI54OBm6
-         8br/GpHsIdqv+mevqGq7gNh7WhIH5n7+VCimbSSyfhALVPvuK9Vn8MRWCF7Sghehw/I2
-         F/weF3FFgkNr0/CmvP1gTOcLNPx5M7g2xU1zK+5mbhCpujaN9qLejeLFG4K7eWjEh7SU
-         8pFuhrryKusUTUZr9MwjbTokx7EKbwVtEAn/5N2yL8UAl0H3klwAEb5KXcA6wVtQW65E
-         hqpx0IjueggoGTwl5R+5j/CTSHOuQTOgqEZlQA8xbybE80p+wEywhExqCqsT/EGv3NTt
-         +Esg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=FzS/LM/HOeDqjMLfEw5g+XD+fjjKfmr3CKzQelI5ASk=;
-        fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
-        b=DzuYOvkof6H7FNCk626ksMgPUR8Hxfbvu4Gb26wYlwFGEmGdHNt74ea2FvMAupFXhC
-         oCJf8qgDH52b52cdeEoL2Z+F4k/L5L6dx2rWZANJNJgO/oryB7H6EUN05L2nDYTLHSGe
-         AjNTV6OohRvSvWDtp2qaNLLnDVJrE5oNLr3rPELE18SKfr3LJ8uJMNWmQrhQ4s/U8pw+
-         /ZcBVLzrKVjFis3LLzdXmaJNhE4Iz8nVqGszPlJdt7srRu63UQwcdXHRVROq+mfITfRx
-         zwWfj5dLKYtrzM8n2R2rofig/dJItJf1gv6Wrc0BZNd8HH8AnLLeYhW2zzg5CCWQxNCB
-         4FWA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789151525; x=1789756325; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=FzS/LM/HOeDqjMLfEw5g+XD+fjjKfmr3CKzQelI5ASk=;
-        b=datkSsuSLiMSoNBUDGQa8iyqyJm/bu48BPvg0RnVZMRYyjknfp8OvsV3wb4V2uECfE
-         XBvYv4v2+0gcljiA/HqB7Y3OjimuEWXBbO+mjwG4VJf19eDHQAfFPcXT+l8tX/Ypn/mR
-         hMu4ymICbwXUiY5U3cw4hwJsRS2rKNpe3DPhgEia1FTAgq+aFKp9IYOgSZt61+8WxtxP
-         /hyhKbYJi0pZLSFNFnbLsnr2dJrvpCH6RklOwXrbpcoUJsFrz3mVudK081f6FqcbOPS1
-         0traXAmkp12ARpVvtYRwjc4R6DFJv+3jO8HsDom8GVjEgTncTPgGtir/bBgEQHTKA2zj
-         n26A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789151525; x=1789756325;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FzS/LM/HOeDqjMLfEw5g+XD+fjjKfmr3CKzQelI5ASk=;
-        b=SGL9qklwHj0Y/UDpWawR2CzskBfALbiWa5iXJyHrteAhVny2UFVGB5LtYKgBzfAm+I
-         ZVDpwJCaKWnJhFcFeanAIpIYDJUXOQOfera8z8m7V+okpnPgEZJriFDAd++kO7zYdZ/H
-         1Hrgu6GHfZLWToPbpaT29hAw3Om9Sd6ER+EMTpSwYBvZyvgzV+MIh7TCb8k78TT6oyBY
-         od9cgGXe10Yd8slJoncbvFfbl29+8/J5GMwcSbmz8Xgs63Tl0qsZbeI15XsvEHevPGTz
-         +CHoPRlOhiDftedLNbzHjfsB9w/a5Zl3UheTfVfeUwh/7r958jNyBkQhwc2iDNjcgfkK
-         7n3w==
-X-Gm-Message-State: AFuF++kt/UI9yZS08NcArIBNrpWd8i9q7goRNr+ez5JgTvTLkOcY9zTT
-	PxYw6sFAZHtDacZvIwrRYihZUenfEcZtSrw947OIfGyTrZRpONIhuUs8r3HpUZ6wvl2TTw2TYb6
-	ax4BDaHV6W6O042ryoRoMuxaGCtEk0T51tMfm
-X-Gm-Gg: AYBFou2NGoGemGnylncRGim0M5l7aJJS5dUKPt0AEiqB6qyWgLIL9zQWqOvmjXuesgq
-	afMzZ0LZ1+nv3lee12r+MSU9raTVQxZcVE/tgK02+9PCYQLnUKQycvUQauW1onm52CBv9erXAYm
-	8yZbyH62mxwfXZu4AQSadtHI9I/pPWgw4x3UoFjcdHTbk8ie8r8VUImuu2Wzkczvtr+OE1onM/+
-	2ogLmrTOV/rMX9rBRBYrSFvlzdpcHMIs3MJnR6STT57ZnfeOQrPxmgpcw8b2IHB7V5E+zmURcHV
-	oxlrk9F8nmRiJmd3yLgFnnu3y3YCDUKm1+bkSuJtE0WNplKom8Ur1To=
-X-Received: by 2002:a05:6820:a29c:10b0:6b7:83c5:fdf8 with SMTP id
- 006d021491bc7-6c0bc8bf79fmr3223806eaf.57.1789151524678; Fri, 11 Sep 2026
- 11:32:04 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="cPoQpYYb";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="o3IRDB6P";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Jj2Lzp3G";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="w3oydmxh"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 4DF301F84A;
+	Mon, 14 Sep 2026 07:46:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1789371974; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oo4Nmn9o776zf4KZxF/pwevUhzOvOEdTIRU4UHF65IY=;
+	b=cPoQpYYbYSgFvoKWtpSXKiue9klzRPlEaO/Wv5zvknKZ0+1MaOtP2pVh1xaEaacy8JmpNK
+	vroOpWm8MH29JrFxK8CltriRc7FVv9TNRaFJz5X/ty8oBMzT2pcIqCS0foXZCTvkXgVrl9
+	3yNVKRDBRYtXkz2uG5m2wKodnXk5QPU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1789371974;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oo4Nmn9o776zf4KZxF/pwevUhzOvOEdTIRU4UHF65IY=;
+	b=o3IRDB6PdqJvXdC4mAPga6osZrxIUxk4t1+jvgeS4KaqfpiH9Mr9pSHRptcUaNGEt59CfV
+	YxQhbC0+mOE4/5Bg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1789371970; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oo4Nmn9o776zf4KZxF/pwevUhzOvOEdTIRU4UHF65IY=;
+	b=Jj2Lzp3G35/4qMp8zfxJFiUJNXHlquXC+YC+aU2mHhDr86wC6USHE6muDn5e/731eNnNT+
+	fK2wb9r2y623eK2abyVcefAOQiYETTcZHzSk2IqKOYRnZBIOp/LXe6UIuH9w1HL08EYG4B
+	3qsxirVN5k6xPjVUGXJ9//lpOchFw+w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1789371970;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oo4Nmn9o776zf4KZxF/pwevUhzOvOEdTIRU4UHF65IY=;
+	b=w3oydmxhJhQphg5t22ijOMhPVkD7sBjj6dPG4L1HXpqPaTzUdtZaVuJSZLNUuDs31iXKcC
+	3KHOZNa/Zu1QxYBg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 23D23136A1;
+	Mon, 14 Sep 2026 07:46:10 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id jfa4CEKmp2qqZwAAD6G6ig
+	(envelope-from <jack@suse.cz>); Mon, 14 Sep 2026 07:46:10 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id A30D6A079B; Mon, 14 Sep 2026 09:46:05 +0200 (CEST)
+Date: Mon, 14 Sep 2026 09:46:05 +0200
+From: Jan Kara <jack@suse.cz>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Jan Kara <jack@suse.cz>, selinux@vger.kernel.org, paul@paul-moore.com, 
+	omosnacek@gmail.com, ljs@kernel.org, jannh@google.com, cgzones@googlemail.com, 
+	brauner@kernel.org
+Subject: Re: [PATCH v2] selinux: reject writable opens of status file, drop
+ mmap write checks
+Message-ID: <5cibrfvazvri57fwmyja6yn2av7rhwmkahhtt5c3pkvmdqi3dr@xsgh3rk3nurw>
+References: <20260911145840.19039-2-stephen.smalley.work@gmail.com>
+ <vacb35v2k5omae7ad5hcvtnzkciib4zcdb2kbokgd5gt377vc4@mdqmy6namwrn>
+ <CAEjxPJ7nfLR2jp6DQkvxhGcNFD+=tUWvniU_MWqnBfPGUw58PA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260911143226.17807-3-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260911143226.17807-3-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 11 Sep 2026 14:31:53 -0400
-X-Gm-Features: AcwNN1UcUIGK7CO5Eand3yROCG9yu0w__-pGIgUNAgR8IDgHecP-Ppu8iXSWVI0
-Message-ID: <CAEjxPJ4DwW2dKKAd9b7Yi-D+TrpT42B8HhvagZNQYP-AHH7n_Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] libsepol/fuzz: add POLICY_BASE and POLICY_MOD seed
- corpus entries
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ7nfLR2jp6DQkvxhGcNFD+=tUWvniU_MWqnBfPGUw58PA@mail.gmail.com>
+X-Spam-Score: -2.30
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	TAGGED_RCPT(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	FREEMAIL_TO(0.00)[gmail.com];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_DN_SOME(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[suse.cz,vger.kernel.org,paul-moore.com,gmail.com,kernel.org,google.com,googlemail.com];
+	RCVD_COUNT_THREE(0.00)[3];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_TLS_LAST(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,imap1.dmz-prg2.suse.org:helo,suse.cz:email]
+X-Spam-Flag: NO
 
-On Fri, Sep 11, 2026 at 10:33=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> The shipped binpolicy-fuzzer seed is a POLICY_KERN policy, so
-> link_modules() and sepol_module_policydb_to_cil() only get exercised
-> once the fuzzer happens to mutate the magic and type fields into a
-> valid module header.  Ship a small base and module policy (compiled
-> from libsepol/tests/policies/test-deps/) so those paths are covered
-> from the first iteration.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2 only changed patch 2/3, not this one.
+On Fri 11-09-26 12:14:55, Stephen Smalley wrote:
+> On Fri, Sep 11, 2026 at 11:23 AM Jan Kara <jack@suse.cz> wrote:
+> >
+> > On Fri 11-09-26 10:58:41, Stephen Smalley wrote:
+> > > Similar to what
+> > > https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/ does for the
+> > > policy file, update the .open handler for the status file to reject
+> > > writable opens, and update the .mmap handler to stop clearing
+> > > VM_MAYWRITE and checking for VM_WRITE. This does NOT prevent
+> > > truncation via open(O_RDONLY|O_TRUNC) or truncate(), which is
+> > > left to another patch.
+> > >
+> > > Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
+> > > cc: ljs@kernel.org
+> > > cc: jannh@google.com
+> > > cc: jack@suse.cz
+> > > cc: cgzones@googlemail.com
+> > > cc: brauner@kernel.org
+> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >
+> > Hum, so rather than having special checks in ->open, why don't you set
+> > S_IMMUTABLE bit for the inodes which you really don't want anybody to
+> > modify? That will block both writeable opens as well as truncate...
+> 
+> Great idea. I will do that in v3, drop the .open checking, but still
+> remove the .mmap checking that will then be obsoleted, unless someone
+> objects?
 
-This series has been merged.
+That sounds good to me.
+
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
