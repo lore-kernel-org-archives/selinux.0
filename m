@@ -1,179 +1,355 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6AE6448BAA
-	for <selinux@vger.kernel.org>; Mon, 14 Sep 2026 12:45:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 013E2481238;
+	Mon, 14 Sep 2026 14:59:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789389928; cv=none; b=hEbTm+r+xoGjghZ9t2DTPOozWTgvPv+o1fkw7yjnMJ6VV38bV1xmLtvLlJsRTqcseU8zBsRC5j1RbmhD4VSVU03Rp/8XMYU/1F0oqQ8VrqigqxO+SShssBSafqO+yWwcf9d8FzG5Tceq9dLvZrWreaGt2cdH6m0PJRqSAaoI+bg=
+	t=1789397971; cv=none; b=cEHuAPqjh1ZGoiTsAFBTkc2ttOgIPtvjwwilZz5b1qx1IMqBF3exQBe68lcBC70YcsAHhfnYNvlwVC2KoxBcfxPTdjoXiGSN18h5xvXVPPg30wiVvAPmsN1mlB5XQlREA+RH6878ZOsVMf46cHIZxRwHyq7MEksQSITHOWOTsE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789389928; c=relaxed/simple;
-	bh=zHl+VKqDu28nyc5UYDFkdMiqDfkheZGqD9R+Qgfv84c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o+jVARXHlG1k4moQoEMCD4Ubbg/lddAnyuBdWkxs3XvO2fJ9Q9zGHwPpD0OgNduRZRsC8PJp4Z68XyijR4lL5hx45XjH5YqhWrMUnhxo9zm6CBZd2i9v/zF6sfxpV3XGnTWcQ9HoArwmUIQjj46QEZyq/YqKKs482pc36nj0pF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QuILa+Nx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789397971; c=relaxed/simple;
+	bh=/iHtXWh2MpE1FcqpEZH17raLB5B9Z+qJUnN+hdbqOgg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=jsBn3a8tPpqIKd9idln2rXvdskipSiSSlVnyH+TQyHSDnXUeFxXlLIOrw/slZlajUM19U0qt9VKhld6Upgeu73zb++jA+Q27CqQykYKxpixR3JT01SFwAFmJvAqgUAAr506jC8iHDEU23BJQtnc+N73Shp25GAr6l29tN9Bq7FI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HnW+2Aaz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QuILa+Nx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF6E1F000FF;
-	Mon, 14 Sep 2026 12:45:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HnW+2Aaz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06AFC1F000FF;
+	Mon, 14 Sep 2026 14:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789389926;
-	bh=uVRWN5Ir8U8oTFxDvnT+EMpHUuRdRif8XEN0rLZMKTw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=QuILa+NxZ8KGTT/yJ8X8hCj1mbHbTTtEfvC5vMWZyLvIcic1IMJX7VRjPIsHshTL7
-	 PWAmv7sD5+IzwaSECb+NxeGwUBRcj/cUbPg47kjLoSjOSbT5LBAy8AMVVd4qWlHOYz
-	 dw+MiwKa0TYgi0/YNGT5kuXWHTI5ifa2/ZEBEiZHRry5M6WkRZ6Olte2D5YEUSQ6QQ
-	 CoNdwPIUgLh41yS2Kdgj/JRx0pga+NA7Bfc1gh8oFO6GRBpuHSc8QYpiXARpvMsNAp
-	 NoXM+B1MIxywSm+3A9JjRFVvUeyuppx1b/JRQu0cML4y7V1mIDJqCc33+QGK3G/xwL
-	 +OgDpcoCfG0xA==
-Date: Mon, 14 Sep 2026 13:45:21 +0100
+	s=k20260515; t=1789397968;
+	bh=pZW21joDRBUaKxwzUQh3KFT5Y8Es/1y/2DJwB/njVeQ=;
+	h=From:Subject:Date:To:Cc;
+	b=HnW+2AazavyexVIo74Bg73UujoM3Z012DSayATOnNZjl3MfSJ9xBJTZPAKFmN3VMc
+	 th+xjTSVfkLbR67we5Uq6HLQ+xbzrQTuTNvW9vch0D5psiEOKLV4/GOvkp5NRH8/yV
+	 EEJvpi5ikwPDh6/KO06ZApgPjfDMDJmR8V86Y5C2DTCSLtZQiWt7CVOfK425a7xmGT
+	 0ci+yJUOLZm6UcvOrHB1KP1uQzos+nofIZogXA3/FIwFgWJ3bE14JuJSuMOyoFwg9T
+	 KvihyX7WrmnibVw2JjFcYJxMDk3El2hL8Vu1n/hEnnLut51kaxSRQrKXFS4Y0eV8M1
+	 SGBaiAfHmO3Cw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnacek@gmail.com, 
-	jannh@google.com, jack@suse.cz, cgzones@googlemail.com, brauner@kernel.org
-Subject: Re: [PATCH v3] selinux: mark status and policy inodes as immutable,
- drop status mmap write checks
-Message-ID: <aqfsKocaLL6O7grQ@gremlin>
-References: <20260911163734.22981-2-stephen.smalley.work@gmail.com>
- <aqe6QA7Gn7B_7EhB@gremlin>
- <CAEjxPJ6UebQZtOU475T0tvqnjLEY3auXcr4+QMchEa05F=73vg@mail.gmail.com>
+Subject: [PATCH v2 00/40] mm: make VMA flag semantics explicit, eliminate
+ VM_SPECIAL
+Date: Mon, 14 Sep 2026 15:57:20 +0100
+Message-Id: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEjxPJ6UebQZtOU475T0tvqnjLEY3auXcr4+QMchEa05F=73vg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WOTQ6CMBBGr0K6dkw7ARVX3sOwGMoUqlBIi42Ec
+ Hf5OYDLl7x875tFYG85iHsyC8/RBtu7FfCUCN2QqxlstbJAiRd5RQVlCl1HAwyeB/IMsSMwLdU
+ QyFkzASopU8wqkxGJdWX1jP3uhWdxcPiUL9bjNrsZjQ1j76f9QlSbd9RyeftbiwokVKSNyrVmx
+ PLxZu+4Pfe+FsWyLD+cr45z4QAAAA==
+X-Change-ID: 20260721-b4-mmap-prepare-vma-flag-sanify-2100425df5aa
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+ David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, 
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+ Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, 
+ Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+ Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, 
+ Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
+ Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+ Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Janosch Frank <frankja@linux.ibm.com>, 
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, 
+ Matthew Brost <matthew.brost@intel.com>, 
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
+ Ying Huang <ying.huang@linux.alibaba.com>, 
+ Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, 
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+ Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+ Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+ Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>, 
+ Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, 
+ Xu Xin <xu.xin@linux.dev>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org, 
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
+ fuse-devel@lists.linux.dev, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, 
+ Takashi Iwai <tiwai@suse.de>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10931; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=/iHtXWh2MpE1FcqpEZH17raLB5B9Z+qJUnN+hdbqOgg=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJWcK86yWWxTubsZhvd2UHr5/qWHZmV5jPttUBLdqzon
+ oVnMxae6yhlYRDjYpAVU2R5/kV8f5BI2LzOC/5uMHNYmUCGMHBxCsBEWNgYGR7uS1Wx895+UU0z
+ RnrFixMlzk93rt9zb7OVCveTfKGpd/kYGV6+S34fsYVN1nDZmqvtnt46LZzOacqfl/rWFWm8P+5
+ 6khEA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On Mon, Sep 14, 2026 at 08:39:53AM -0400, Stephen Smalley wrote:
-> On Mon, Sep 14, 2026 at 5:18 AM Lorenzo Stoakes (ARM) <ljs@kernel.org> wrote:
-> >
-> > On Fri, Sep 11, 2026 at 12:37:35PM -0400, Stephen Smalley wrote:
-> > > The selinuxfs "status" and "policy" files are read-only interfaces
-> > > that are also mmap'd by userspace. They are created 0444 by
-> > > simple_fill_super() but a CAP_DAC_OVERRIDE caller can still open them
-> > > O_WRONLY/O_RDWR, open(O_RDONLY|O_TRUNC) them, or truncate(2) them.
-> > >
-> > > Mark both inodes S_IMMUTABLE at fill_super time. inode_permission()
-> > > tests IS_IMMUTABLE before the DAC / capability checks, so all of the
-> > > above are rejected at the VFS layer without ever reaching the file
-> > > operations. Since a writable file can no longer exist, do_mmap() clear
-> >
-> > Micro nit: clear -> clears.
->
-> Thanks, will fix if Paul requests a re-spin.
->
-> >
-> > > VM_MAYWRITE for MAP_SHARED mappings on its own, and the
-> > > sel_mmap_handle_status() write/mprotect guards are dead; drop them.
-> > > MAP_PRIVATE writable mappings become permitted (they were previously
-> > > -EPERM) and CoW harmlessly to a private page, matching how
-> > > sel_mmap_policy() has always treated the private case.
-> > >
-> > > The sel_mmap_policy() VM_SHARED guard becomes redundant for the same
-> > > reason; leave dropping it to the pending "selinux: reject writable
-> > > opens of policy file, drop mmap shared/write check" patch so that the
-> > > patches do not conflict.
-> > >
-> > > Link: https://lore.kernel.org/selinux/aqPUqU3eZeFrykj3@gremlin/
-> > > cc: ljs@kernel.org
-> > > cc: jannh@google.com
-> > > cc: jack@suse.cz
-> > > cc: cgzones@googlemail.com
-> > > cc: brauner@kernel.org
-> > > Suggested-by: Jan Kara <jack@suse.cz>
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >
-> > With nits addressed, LGTM so:
+The VM_SPECIAL / VMA_SPECIAL_FLAGS mask conflates several unrelated
+properties:
 
-You can keep my tag without these 2 nits addressed actually, they are so minor
-as to not matter really!
+* Is this kernel-owned, whether MMIO, kernel-allocated pages, or ordinary
+  pages a driver maps itself?
+* Can it be expanded or merged?
+* Is this a 'weird' case like mlock where migration might race and we
+  'have' to set invalid flags to notify?
+* Is it another 'weird' case where we just want to stop GUP from touching
+  it?
 
-> >
-> > Acked-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> >
-> > > ---
-> > > v3 implements Jan's suggestion to mark the inodes immutable rather than
-> > > implementing open-time checks.
-> > >
-> > >  security/selinux/selinuxfs.c | 19 ++++++++++++++-----
-> > >  1 file changed, 14 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> > > index 292302eb60f3..0941ce79ea0b 100644
-> > > --- a/security/selinux/selinuxfs.c
-> > > +++ b/security/selinux/selinuxfs.c
-> > > @@ -247,11 +247,6 @@ static int sel_mmap_handle_status(struct file *filp,
-> > >       /* only allows one page from the head */
-> > >       if (vma->vm_pgoff > 0 || size != PAGE_SIZE)
-> > >               return -EIO;
-> > > -     /* disallow writable mapping */
-> > > -     if (vma->vm_flags & VM_WRITE)
-> > > -             return -EPERM;
-> > > -     /* disallow mprotect() turns it into writable */
-> > > -     vm_flags_clear(vma, VM_MAYWRITE);
-> > >
-> > >       return remap_pfn_range(vma, vma->vm_start,
-> > >                              page_to_pfn(status),
-> > > @@ -1818,6 +1813,17 @@ static struct dentry *sel_make_swapover_dir(struct super_block *sb, u64 *ino)
-> > >
-> > >  #define NULL_FILE_NAME "null"
-> > >
-> > > +static void sel_mark_immutable(struct dentry *root, const char *name)
-> > > +{
-> > > +     struct qstr q = QSTR(name);
-> > > +     struct dentry *dentry = try_lookup_noperm(&q, root);
-> > > +
-> > > +     if (!IS_ERR_OR_NULL(dentry)) {
-> > > +             d_inode(dentry)->i_flags |= S_IMMUTABLE;
-> > > +             dput(dentry);
-> > > +     }
-> > > +}
-> >
-> > Hmm, maybe worth returning an error here on lookup failure? I think probably it
-> > can't happen in reality right now but that'd make it consistent with the other
-> > functions here.
->
-> I don't think so - 1. It can't fail, and 2. if by some happenstance it
-> did fail, we would
-> NOT want to stop populating selinuxfs and return the error to the
-> caller because that
-> would turn something that is non-fatal into a fatal policy load/reload
-> error and halt
-> the system if this is the initial policy load and SELinux is
-> configured to be enforcing.
-> At most maybe a pr_err() or similar here, defer to Paul on whether that warrants
-> a re-spin. Thanks.
+Driver writers have often been confused about this, and who can blame them?
 
-Yup not a big deal!
+It also interacts badly with the eternal edgecase known as hugetlb - which
+sets VMA_DONTEXPAND_BIT but doesn't also want to be treated like a
+'special' flag.
 
-As above, you can keep the tag regardless of these nits being addressed :)
+Another issue is that we cannot make sensible assumptions about flag
+use. It's not possible to assume VMA_IO_BIT means iommu because drivers
+abuse it and mlock abuses it.
 
->
-> >
-> > > +
-> > >  static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
-> > >  {
-> > >       struct selinux_fs_info *fsi;
-> > > @@ -1857,6 +1863,9 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
-> > >       if (ret)
-> > >               goto err;
-> > >
-> > > +     sel_mark_immutable(sb->s_root, "status");
-> > > +     sel_mark_immutable(sb->s_root, "policy");
-> > > +
-> > >       fsi = sb->s_fs_info;
-> > >       fsi->bool_dir = sel_make_dir(sb->s_root, BOOL_DIR_NAME, &fsi->last_ino);
-> > >       if (IS_ERR(fsi->bool_dir)) {
-> > > --
-> > > 2.55.0
-> > >
-> >
-> > --
-> > Cheers, Lorenzo
+Special is also an overloaded term in mm. VDSO and VVAR mappings are also
+called 'special' but they're special in a... special way.
 
---
-Cheers, Lorenzo
+Sometimes things are called special that are a subset of
+VMA_SPECIAL_FLAGS (VMA_PFNMAP_BIT and VMA_MIXEDMAP_BIT for instance when it
+comes to zapping or vm_normal_folio()).
+
+There's a specific kind of special for THP too, which considers
+PFN map, mixed map 'special' but DAX not.
+
+It's all rather a mess.
+
+This series brings some order to things by both limiting what drivers can
+do with VMA flags and switching to using predicates that describe
+behaviour, not arbitrary flags.
+
+It establishes the invariant that only kernel-owned mappings may set
+VMA_IO_BIT or clear VMA_MAYWRITE_BIT in an mmap hook, enforcing this by
+validating VMA state after every mmap and mmap_prepare hook.
+
+It updates usbmon and sg to mmap_prepare in order to do so, adding a new
+mmap action for mapping discontiguous kernel pages, and has hfi1 and the
+ALSA PCM status page map their pages eagerly instead.
+
+It also establishes the invariant that VMA_MIXEDMAP_BIT be set when mapping
+kernel memory, something that is usually the case but happens not to be for
+some users - specifically defio, cmt_speech, uprobes and the bpf arena, all
+of which are updated to do the right thing.
+
+It replaces VM_SPECIAL and arbitrary flag tests with predicates that say
+what is actually being tested:
+
+   vma_is_kernel_owned()   Does a driver or kernel code manage a VMA's
+                           life cycle?
+
+  vma_is_fixed_mapping()   Is the VMA not permitted to be expanded or
+                           merged?
+
+     vma_is_persistent()   Do bytes written to the VMA stay written, and
+                           bytes read stay the same unless userland changes
+                           them?
+
+         vma_can_merge()   Can the VMA be merged with a compatible
+                           neighbour?
+
+           vma_can_gup()   Can GUP obtain pages from the VMA, i.e. is it
+                           neither a PFN map nor memory-mapped I/O?
+
+Remaining raw VMA_IO_BIT, VMA_PFNMAP_BIT and VMA_MIXEDMAP_BIT tests
+scattered across mm are also converted to predicates where it makes sense
+to do so.
+
+And also the opportunity is taken to eliminate THP's vma_is_special_huge()
+which was an existing source of confusion.
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+v2:
+* Rebased on mm-unstable.
+* Introduced new patch to fix various mmap_prepare and file interactions
+  that weren't quite right as per Sashiko. None impact anything upstream
+  yet so it doesn't need to be a fix.
+* Restore vma->vm_start if an mmap hook has moved it before tearing the
+  VMA down, so we unmap the range we established rather than the one the
+  hook invented, as per Sashiko.
+* Reject a discontiguous kernel page batch of zero pages rather than
+  looping forever, and bound batches by the pages remaining in the VMA,
+  as per Sashiko.
+* Add the missing map_kernel_discontig member to the userland VMA tests'
+  copy of struct mmap_action as per Sashiko.
+* Set VM_DONTEXPAND on hfi1's RCV_HDRQ, RCV_EGRBUF and RTAIL mappings, as
+  dma_mmap_coherent() doesn't on the IOMMU-DMA path, as per Sashiko.
+* Recompute vma->vm_page_prot in snd_pcm_mmap_status() after clearing
+  VM_WRITE, as vm_insert_page() uses it immediately rather than at fault
+  time, as per Sashiko.
+* munlock_vma_folio() now tests VMA_LOCKED_MASK so an unmap racing the
+  mlock walk still munlocks folios the walk has already counted, as per
+  Sashiko.
+
+v1:
+https://lore.kernel.org/r/20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org
+
+---
+Lorenzo Stoakes (ARM) (40):
+      mm/vma: fix mmap_prepare file handling, remove file_doesnt_need_get
+      mm/vma: predicate setting mmap_prepare VMA fields on new vma alloc
+      mm/vma: introduce and use vma_[flags_]can_merge()
+      mm: consistently validate VMA state after mmap[_prepare] hooks
+      mm/vma: ensure mmap_prepare doesn't set actions on a mergeable vma
+      mm: make map_kernel_pages_[prepare,complete] internal and unexported
+      mm/vma: tidy up map kernel pages enum values
+      mm: add mmap action for discontiguous kernel page mapping
+      docs: filesystems: update mmap_prepare docs for discontig kernel pgs
+      drivers/usb/mon: update to use mmap_prepare + map kernel pages
+      infiniband: update hfi1 to use remap_vmalloc_range()
+      selinux: reject writable opens of policy file, drop mmap shared/write check
+      ALSA: pcm: use vm_insert_page() to map PCM status page
+      bpf: arena: mark arena_map_mmap() mappings VM_MIXEDMAP
+      mm/vma: add vma[_flags]_is_kernel_owned() predicates
+      mm/vma: only allow mmap to clear VMA_MAYWRITE_BIT if kernel-owned
+      mm/vma: add and use vma_[flags]_is_fixed_mapping
+      scsi: sg: convert mmap hook to mmap_prepare and rework
+      fbdev: defio: assert FBINFO_VIRTFB, drop VM_IO, add VM_MIXEDMAP
+      HSI: cmt_speech: convert mmap hook to mmap_prepare, refactor
+      mm/gup: error out early on !VMA_MAYREAD_BIT VMAs
+      uprobes: remove VM_IO, set VM_MIXEDMAP for mapped kernel pages
+      mm/mlock: clear VMA_LOCKED_MASK over mmap callback
+      mm/mlock: eliminate weird VMA_IO_BIT abuse and simplify
+      mm/vma: enforce that only kernel-owned mappings may set VMA_IO_BIT
+      mm: remove VMA_IO_BIT check in vma[_flags]_is_kernel_owned()
+      mm: remove hugetlb_inline.h
+      mm: rename is_vm_hugetlb_page() to vma_is_hugetlb()
+      mm: drop some redundant checks around hugetlb VMAs
+      mm/madvise: update is_valid_guard_vma() to use vma_can_merge()
+      mm/vma: introduce vma[_flags]_is_persistent()
+      mm/uffd: use predicates for userfaultfd checks
+      mm/madvise: use predicates for madvise(..., MADV_DOFORK)
+      mm: eliminate VMA_SPECIAL_FLAGS usage when hugetlb explicitly tested
+      mm: eliminate VMA_SPECIAL_FLAGS check in lru_gen_look_around()
+      mm: avoid use of VMA_SPECIAL_FLAGS in migrate_vma_setup()
+      mm: eliminate VM_SPECIAL, VMA_SPECIAL_FLAGS
+      fuse: dax: do not set VM_MIXEDMAP
+      mm/huge_memory: remove vma_is_special_huge()
+      mm/vma: introduce and use vma[_flags]_can_gup()
+
+ Documentation/filesystems/mmap_prepare.rst |  81 +++++++++
+ arch/arm64/kvm/mmu.c                       |   4 +-
+ arch/powerpc/mm/book3s64/radix_tlb.c       |   6 +-
+ arch/powerpc/mm/nohash/e500_hugetlbpage.c  |   2 +-
+ arch/powerpc/mm/nohash/tlb.c               |   2 +-
+ arch/riscv/kvm/mmu.c                       |   2 +-
+ arch/riscv/mm/tlbflush.c                   |   2 +-
+ arch/s390/mm/gmap_helpers.c                |   6 +-
+ arch/sparc/mm/init_64.c                    |   2 +-
+ arch/x86/kernel/uprobes.c                  |   2 +-
+ drivers/gpu/drm/drm_gpusvm.c               |   5 +-
+ drivers/hsi/clients/cmt_speech.c           |  33 +---
+ drivers/infiniband/hw/hfi1/file_ops.c      |  83 +++------
+ drivers/scsi/sg.c                          | 115 ++++++-------
+ drivers/usb/mon/mon_bin.c                  |  82 +++++----
+ drivers/video/fbdev/core/fb_defio.c        |   6 +-
+ drivers/video/fbdev/ssd1307fb.c            |   2 +
+ fs/coredump.c                              |   6 +-
+ fs/fuse/dax.c                              |   2 +-
+ fs/hugetlbfs/inode.c                       |   2 +-
+ fs/proc/task_mmu.c                         |   8 +-
+ include/asm-generic/tlb.h                  |   4 +-
+ include/linux/hugetlb.h                    |   5 +-
+ include/linux/hugetlb_inline.h             |  28 ---
+ include/linux/mm.h                         | 266 +++++++++++++++++++++++++++--
+ include/linux/mm_types.h                   |  50 +++++-
+ include/linux/pagemap.h                    |   1 -
+ include/linux/rmap.h                       |   2 +-
+ include/linux/userfaultfd_k.h              |   1 -
+ kernel/bpf/arena.c                         |   3 +-
+ kernel/events/core.c                       |   2 +-
+ kernel/events/uprobes.c                    |   4 +-
+ kernel/sched/fair.c                        |   3 +-
+ mm/folio.c                                 |   2 +-
+ mm/gup.c                                   |  15 +-
+ mm/hmm.c                                   |   3 +-
+ mm/huge_memory.c                           |  31 ++--
+ mm/hugetlb.c                               |  14 +-
+ mm/internal.h                              |  79 +++++----
+ mm/ksm.c                                   |   4 +-
+ mm/madvise.c                               |  28 +--
+ mm/memory.c                                | 142 ++++++++++++---
+ mm/mempolicy.c                             |   5 +-
+ mm/migrate_device.c                        |  12 +-
+ mm/mlock.c                                 |  51 +++---
+ mm/mmap.c                                  |   2 +-
+ mm/mmu_gather.c                            |   2 +-
+ mm/mprotect.c                              |   5 +-
+ mm/mremap.c                                |  11 +-
+ mm/page_vma_mapped.c                       |   4 +-
+ mm/pagewalk.c                              |   2 +-
+ mm/rmap.c                                  |   4 +-
+ mm/swapfile.c                              |   2 +-
+ mm/userfaultfd.c                           |  45 +++--
+ mm/util.c                                  |  29 +++-
+ mm/vma.c                                   | 254 +++++++++++++++++++--------
+ mm/vma.h                                   |  30 +++-
+ mm/vma_internal.h                          |   1 -
+ mm/vmscan.c                                |   9 +-
+ security/selinux/selinuxfs.c               |  11 +-
+ sound/core/pcm_native.c                    |  38 ++---
+ tools/testing/vma/include/dup.h            |  66 +++++--
+ tools/testing/vma/include/stubs.h          |   2 +-
+ tools/testing/vma/tests/merge.c            |  10 +-
+ 64 files changed, 1153 insertions(+), 582 deletions(-)
+---
+base-commit: 6b41451631cabf9ea3b384c2a099088e1598f963
+change-id: 20260721-b4-mmap-prepare-vma-flag-sanify-2100425df5aa
+
+Best regards,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
