@@ -1,141 +1,216 @@
-Received: from mail-oa2-f12.google.com (mail-oa2-f12.google.com [74.125.231.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32095395AE2
-	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 17:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.76
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789494667; cv=pass; b=J2zFDmQ5Ff8wcvkW7O1vUsrTk9NM0S4emF8FOdN4TPg5h5O5J65urHq0PiKPV95515kqwzqyY3GBlbHBGVkjoxW4y1UGS64N+5DTvdGRDObbGwsKz0s+4uaJofhHMGP3BJCLahPVuYtrOT5ohpAJhj0LM2BGi98dcV1K7ODx+uA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789494667; c=relaxed/simple;
-	bh=9p84IvVNZBpVKZbDNVo0m+TkBGC1O+GyEod/XJ3sras=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bFzLyF/F6kNdmiPGSWHjSdO8Jz1K9JZfgIq3XT71NEES6sVRwN+8idsTxXosvpEmlm5/PEzgcq3HLZvx16/f1Q02rppFfsxv6spju5bns0c9cv1iwZJtTdGv/0B61ZGxIjhzUgKZpixUY39kR630vLWiozLcB8/JyUgrszwfehM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rQAUaHDi; arc=pass smtp.client-ip=74.125.231.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55F5243E48B;
+	Tue, 15 Sep 2026 17:54:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789494873; cv=none; b=Kc6B/v3/QQ16b3Ir3sHO81Iauyq6LDq6A/n0Jg9pLgdh6Y0LOC5+GIFaA39h4JYRZq+d+c64WrjZQt2LMbIZ++JRsgwr47OAE5h53ng4Q3sQP58iYjzdrT82Z8UqQyv5QPs2Of+7dAGa5LQUgO4PuZYu9rjqlEkwbOpwoXBhcbE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789494873; c=relaxed/simple;
+	bh=v63FY1fnrEkx7QXoR+GSQJrHmBwDUBI7qUvyhgXbjJs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CLM3JaSuf92L3BJGp4iRYllH6psad6XOH7xwNB2xyDtJCY18HU+xKWW9AqXdpvKf3FVAdNy08jWIaEysqSkbIXoQJbQqfwJvzo0SdkZJzviaKGm9sG1OMNs0kMIPiJxsGRgByGcNxf1zypeST5Z0DfDgyX7mvYP4p6thqKclKgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com; spf=unknown smtp.mailfrom=hallyn.com; dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b=PmIGImVV; arc=none smtp.client-ip=178.63.66.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=tempfail smtp.mailfrom=hallyn.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rQAUaHDi"
-Received: by mail-oa2-f12.google.com with SMTP id 586e51a60fabf-466ccab774cso51221fac.1
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 10:51:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789494665; cv=none;
-        d=google.com; s=arc-20260327;
-        b=luUWEkK4gvDvSjcgD2H7aNsIuhdJkxTViVpV7e44I41vCwXj043oyst2t5vl/Rknz7
-         ZnJCViN7dubGmkwQuwXgsYHCIv7q5pQHFmViHOhYtEA/1p/TmZjYwtuh4sZBGigaT/ZV
-         RnHCVKoiW3usJMSJbJaTXFtpICO0CWXEUhidpEqWaEEOSj/nSXwUl1GkwK2R4J1kdh/N
-         Es/t4CF7W9wgE1E9LpNLzp5xZ3zNBclETwP+XlNPHsz0JE8QRQXNXDmri7hdjAdtbDtq
-         uws2BVr4BOMuHkNnZc7q7JALLkEVU2I8ktXw3mKPNHNLwq4BqamIW7UBi+PsBVxorrwd
-         MXJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9p84IvVNZBpVKZbDNVo0m+TkBGC1O+GyEod/XJ3sras=;
-        fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
-        b=Ff24jkvMMm0wYGrUojOPfKG4FJoalHw7GUUQzYss7R+cTa2/BCmAP/ziBNhatwequO
-         9/30j0yCPbW4eaQp/6KRtUTK5MYpqELcv8EekK9jTapzWvQIgJr9fNQPK+K0GKOpoC6x
-         f+kkVHsteKWjvnzNNgZWHb2I2i9fLGgMbdkWfSQuVjbtxxqWjeFuYmcs5TmhsQcs0bd5
-         yADgrNY6PfT+MEv6+EDW8v/fulBBeURgowXPFsNkvcI7A4ZrLlR18OfjiXnB/UEW+5Os
-         2P6RxCEwzrtA16yy9KNQKHgazpaH0P8LUM8GlyEvB22q8nvQyLFW2nzp0ZBJHTwz+YGa
-         ZOKw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789494665; x=1790099465; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9p84IvVNZBpVKZbDNVo0m+TkBGC1O+GyEod/XJ3sras=;
-        b=rQAUaHDiTSGa5DUyfOBXc7Vmm0asQ1iaJuU6WcSHQSJMOacm4OWz4O4KiAZCudJ5sh
-         niw8paKiG5WmNqh4c98rpTaD/bmWQZoWoaDCiBxW0ftumWJFSt/ZSVF/faV3xOcFWzLG
-         cUMfNMJqFPX3HwGbqLrHX7W4X//aLd89ZvrNnBZCf2Ejo13Lg5B3BrXm+fIlJbEFGHum
-         89He4bh0s8gFB2iGOab3A4+KXgKFgUz/EMCsr3+xl3Kgz5XZE3w4v2aYIwHL/djNR4Rg
-         jjOTkudpgtKFusiu4nyn/m7ShY/UvIeRxZfrmzJwui62tOSnrCNshgQG/cfj5QMeLcvN
-         mGsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789494665; x=1790099465;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9p84IvVNZBpVKZbDNVo0m+TkBGC1O+GyEod/XJ3sras=;
-        b=mjUuh4aS2EwKWc9DGJvCv2Br3x7Zl6w3PNDj4HXM34nz1b6SYZEA0pZ393r5ZY8oAI
-         e8SM9HDHraskqWfb9jzJFlOoPSyVbizL/kVJ35pykPgP3qmyIg8FksOYvW3JauzijsXF
-         H3qzGEqPLngcbsxzSSHcV3AUamez4yI1XHVf2BEMIRnAVRUh5BhbNtPrhRnwd5C9V6yr
-         XVWWCMKWV7WP+buy11Ax9kIrww8ALdxjOpEpMUiNtufIqk91mZA7xJxqE+q103sjyJTA
-         j6kqHKx/CJoqLoAvPwhUhqH1+GbI5zZuU6qg2EpWJJCcFCOqU8hDB2GHMAGHG7/L8QFF
-         vyXg==
-X-Gm-Message-State: AFuF++mjPg0IYYwTbARPudBNZJ88iea9RXPovCwKAVDB/7m3syDz4n0u
-	Z7Z5BW3TiTCWK0gLDsKCzkjj7TpgvnxnwxYY3oZMoCddV4xp2L7rbPsoDgGo/YnM8yrpDfQqiJc
-	GUlmnYv8gAJnPg129iS5hod1y3cd1exJ2WXiH
-X-Gm-Gg: AYBFou0lNyUFO7zibZbjGAK8lWhc8dEr4r/FGG8EoWQdheEVXhf7jKqx6KtcYOzpIQu
-	BXAyxmgTvK2TVr2Sm18uNdd7eqLoRhvafUVQNRmWgIc+o4wEcpdwzKYxoYdwLbz0/VGN+9uEgva
-	Ose8fPsLWqJzJOGONvmedXa+TQYoJZCsd4V4OudqJjtZIWSrJrJwLyCuSJc+ADgj9fDf3Cv11jz
-	1vPHVlmXkHDWjhsxnp3AiPAGkIe6n2ngNVfmPCxF93aR9gNTAOLuPYVAab2Z7MsFgF2p6iM9LnT
-	F1RYd3o0q+c8rgcRIZ4NIJlO5yAy/FNL7D26eSwRwwNx38WFoWHqsIw=
-X-Received: by 2002:a05:6871:620e:b0:47d:f10:686f with SMTP id
- 586e51a60fabf-483d336218bmr2150402fac.23.1789494665041; Tue, 15 Sep 2026
- 10:51:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b="PmIGImVV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hallyn.com; s=mail;
+	t=1789494867; bh=v63FY1fnrEkx7QXoR+GSQJrHmBwDUBI7qUvyhgXbjJs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=PmIGImVVPLzOWAumb6PW4gmlneVv+6xM1ssscap9T86yUWBljn+p2Oe4CIeuTNomy
+	 R4XRJJzbs/FHPhGufWGaj99v8F+0jNMEZR9RzNk06ts81sf+zoQMwDJY+zcgm8G6cG
+	 gABgIEWhRHDeodGimlEH6KvdGSxsw/csqozdOy8UBNUlPxB1dBOb4nzjGcuQT6kEJc
+	 UjwPqdVsqPdB/CKRGB4hODB73ZpqHpi+SpHqg2xATLd6qEeXP2LjMeqajlTf/Jzmzi
+	 fiL8M2Q3os1jyaxpNS+cBkHGFPtj4pzkCY7a0M5IfkU9ChBuWtkG8io1mgHQ6xOC81
+	 O8SwtEMelSm0w==
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id 080F9D83; Tue, 15 Sep 2026 12:54:27 -0500 (CDT)
+Date: Tue, 15 Sep 2026 12:54:27 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: "Serge Hallyn (AMD)" <sergeh@kernel.org>, Jann Horn <jannh@google.com>,
+	James Morris <jmorris@namei.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Jeff Xu <jeffxu@google.com>,
+	=?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+	linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Pedro Falcato <pfalcato@suse.de>,
+	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH v3 2/3] proc: query LSMs for introspective mem access (if
+ PROC_MEM_FORCE_ALWAYS)
+Message-ID: <aqmGU4rylUsH9LqA@hallyn.com>
+References: <20260907-selinux-pokemem-v3-0-0bafbaeafe50@google.com>
+ <20260907-selinux-pokemem-v3-2-0bafbaeafe50@google.com>
+ <aql6gyQJoxEjx0xY@shallyn-amd>
+ <CAHC9VhTjo+znkxBmvseCH1K3aJN18ZO7+6QGE-a+Sy6XN=uaMQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260915150422.41797-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260915150422.41797-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 15 Sep 2026 13:50:54 -0400
-X-Gm-Features: AcwNN1VLqxSjVyeW8_D5kt2S_DO6JryYwqAIX42ytwBMngC7JK2nmWrb9KlpGCQ
-Message-ID: <CAEjxPJ6i_OXATMRMZSMLWKGz+e7Wkrrk9womFb6OmWFP-KYR6A@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: fix incorrect regexp anchoring
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhTjo+znkxBmvseCH1K3aJN18ZO7+6QGE-a+Sy6XN=uaMQ@mail.gmail.com>
 
-On Tue, Sep 15, 2026 at 11:08=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> As identified in #544, libselinux anchors the pathname regexes by
-> prepending a ^ and appending a $, which will produce the wrong result
-> for a regexp like /foo|/bar. #544 also notes that we should be using
-> PCRE2_DOLLAR_ENDONLY/PCRE_DOLLAR_ENDONLY when compiling the regexp to
-> avoid matching a pathname with a trailing newline.
->
-> Wrap the input in \A(?:...\E)\z instead: the non-capturing group keeps
-> a top-level | inside the anchors without shifting user backreference
-> numbers, and \z (unlike $) never matches before a trailing newline.
-> The \E before the closing ) is a no-op unless the input ends inside an
-> open \Q, in which case it closes the quoting so the added ) and \z are
-> not swallowed. PCRE2_DOLLAR_ENDONLY is set as well so that any $
-> inside the input pattern is tightened the same way.
->
-> Because the added (?: and ) can pair with an unmatched ) or ( in the
-> input, an entry that used to fail pcre2_compile() with "unmatched
-> closing parenthesis" would now compile as a different pattern. Compile
-> the un-anchored input once first and report any error from that; this
-> also gives error offsets that point into what the user wrote rather
-> than into the wrapped string. On a validating open of a
-> refpolicy-sized file_contexts (~5800 entries) the extra compile costs
-> ~3-4ms.
->
-> PCRE2_ANCHORED|PCRE2_ENDANCHORED at compile time would avoid the
-> wrapping entirely, but a pattern compiled with PCRE2_ENDANCHORED
-> returns PCRE2_ERROR_BADOPTION for PCRE2_PARTIAL_SOFT and passing
-> PCRE2_ENDANCHORED at match time bypasses JIT, so neither is usable
-> here given selabel_partial_match().
->
-> Fixes: https://github.com/SELinuxProject/selinux/issues/544
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v3 drops the custom regex parenthesis matching function and just
-> performs a regex_prepare_data() on the original regex string before
-> anchoring to provide full validation and accurate error reporting,
-> and adds a \E before the closing ) to prevents a \Q in the input
-> from swallowing the suffix.
+On Tue, Sep 15, 2026 at 01:24:27PM -0400, Paul Moore wrote:
+> On Tue, Sep 15, 2026 at 1:04 PM Serge Hallyn (AMD) <sergeh@kernel.org> wrote:
+> > On Mon, Sep 07, 2026 at 11:00:17PM +0200, Jann Horn wrote:
+> > > If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently have no
+> > > good opportunity to block a process from overwriting read-only code in its
+> > > own address space through FOLL_FORCE writes via /proc/self/mem.
+> > > The security_ptrace_access_check() LSM hook is bypassed when a process
+> > > opens /proc/self/mem because this is considered "introspection".
+> > >
+> > > This causes a hole in SELinux EXECMEM enforcement, which tries to ensure
+> > > that a process cannot create executable anonymous pages.
+> > >
+> > > PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
+> > > accesses are only possible when the LSM allows ptrace() attachment; but it
+> > > is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
+> > > environments running lots of third-party code, such as Android.
+> > >
+> > > So, introduce a new LSM hook that can forbid FOLL_FORCE specifically for
+> > > such "introspective" accesses.
+> > >
+> > > Acked-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> > > Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+> > > Signed-off-by: Jann Horn <jannh@google.com>
+> > > ---
+> > >  fs/proc/base.c                | 14 ++++++++++++--
+> > >  include/linux/lsm_hook_defs.h |  1 +
+> > >  include/linux/security.h      |  7 +++++++
+> > >  security/security.c           | 25 +++++++++++++++++++++++++
+> > >  4 files changed, 45 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/fs/proc/base.c b/fs/proc/base.c
+> > > index bec6197329dc..295b21203c7f 100644
+> > > --- a/fs/proc/base.c
+> > > +++ b/fs/proc/base.c
+> > > @@ -851,6 +851,11 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
+> > >  /* private_data for proc_mem_operations */
+> > >  struct mem_private {
+> > >       struct mm_struct *mm;
+> > > +     /*
+> > > +      * Was the ptrace access check on open bypassed because the opener used
+> > > +      * the same MM (introspection)?
+> > > +      */
+> > > +     bool opened_by_owner;
+> > >  };
+> > >
+> > >  static int mem_open(struct inode *inode, struct file *file)
+> > > @@ -864,12 +869,14 @@ static int mem_open(struct inode *inode, struct file *file)
+> > >       priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
+> > >       if (IS_ERR_OR_NULL(priv->mm))
+> > >               return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
+> > > +     priv->opened_by_owner = priv->mm == current->mm;
+> > >       file->private_data = no_free_ptr(priv);
+> > >       return 0;
+> > >  }
+> > >
+> > >  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+> > >  {
+> > > +     struct mem_private *priv = file->private_data;
+> > >       struct task_struct *task;
+> > >       bool ptrace_active = false;
+> > >
+> > > @@ -884,10 +891,13 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+> > >                                       READ_ONCE(task->parent) == current;
+> > >                       put_task_struct(task);
+> > >               }
+> > > -             return ptrace_active;
+> > > +             if (!ptrace_active)
+> > > +                     return false;
+> > > +             break;
+> > >       default:
+> > > -             return true;
+> > > +             break;
+> > >       }
+> > > +     return security_mem_foll_force(file->f_cred, priv->opened_by_owner) == 0;
+> > >  }
+> > >
+> > >  static ssize_t mem_rw(struct file *file, char __user *buf,
+> > > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> > > index 65c9609ec207..12f84a1e6fab 100644
+> > > --- a/include/linux/lsm_hook_defs.h
+> > > +++ b/include/linux/lsm_hook_defs.h
+> > > @@ -36,6 +36,7 @@ LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
+> > >  LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
+> > >        unsigned int mode)
+> > >  LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
+> > > +LSM_HOOK(int, 0, mem_foll_force, const struct cred *subject, bool opened_by_owner)
+> > >  LSM_HOOK(int, 0, capget, const struct task_struct *target, kernel_cap_t *effective,
+> > >        kernel_cap_t *inheritable, kernel_cap_t *permitted)
+> > >  LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
+> > > diff --git a/include/linux/security.h b/include/linux/security.h
+> > > index 153e9043058f..e8bc2e644241 100644
+> > > --- a/include/linux/security.h
+> > > +++ b/include/linux/security.h
+> > > @@ -338,6 +338,7 @@ int security_binder_transfer_file(const struct cred *from,
+> > >                                 const struct cred *to, const struct file *file);
+> > >  int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
+> > >  int security_ptrace_traceme(struct task_struct *parent);
+> > > +int security_mem_foll_force(const struct cred *subject, bool opened_by_owner);
+> > >  int security_capget(const struct task_struct *target,
+> > >                   kernel_cap_t *effective,
+> > >                   kernel_cap_t *inheritable,
+> > > @@ -676,6 +677,12 @@ static inline int security_ptrace_traceme(struct task_struct *parent)
+> > >       return cap_ptrace_traceme(parent);
+> > >  }
+> > >
+> > > +static inline int security_mem_foll_force(const struct cred *subject,
+> > > +                                       bool opened_by_owner)
+> > > +{
+> > > +     return 0;
+> > > +}
+> > > +
+> > >  static inline int security_capget(const struct task_struct *target,
+> > >                                  kernel_cap_t *effective,
+> > >                                  kernel_cap_t *inheritable,
+> > > diff --git a/security/security.c b/security/security.c
+> > > index 71aea8fdf014..2cde1efdb7a6 100644
+> > > --- a/security/security.c
+> > > +++ b/security/security.c
+> > > @@ -595,6 +595,31 @@ int security_ptrace_traceme(struct task_struct *parent)
+> > >       return call_int_hook(ptrace_traceme, parent);
+> > >  }
+> > >
+> > > +/**
+> > > + * security_mem_foll_force() - Check if FOLL_FORCE is allowed
+> > > + * @subject: credentials using which /proc/$pid/mem was opened
+> > > + * @opened_by_owner: whether checks on open() were bypassed because the opener
+> > > + *                   has the same MM as the target
+> > > + *
+> > > + * Check if FOLL_FORCE is allowed for accessing process memory through
+> > > + * /proc/$pid/mem. opened_by_owner signals whether the opener's MM was the same
+> > > + * as the target MM, meaning the security_ptrace_access_check() hook was
+> > > + * bypassed on open().
+> > > + * (Current current->mm does not matter for this; for example, if write() is
+> > > + * called on an FD that was received from another process which obtained it with
+> > > + * open("/proc/self/mem"), @opened_by_owner is still true.)
+> > > + *
+> > > + * Note that this hook is only designed to be useful in the opened_by_owner
+> > > + * case, where the subject credentials effectively also describe the object.
+> >
+> > Given this, would it make more sense to call the hook something
+> > like `security_mem_foll_force_self()` and only call it in the
+> > opened_by_owner==true case?
+> 
+> Sometimes we can't avoid it, but in general I'd like to see us avoid
+> calling LSM hooks conditionally, I'd much prefer the hook
+> implementation (either at the LSM framework level or the individual
+> LSM) do the conditional check.  See my comments on the previous
+> revision.
 
-The reporter suggested using
-pcre2_set_compile_extra_options(PCRE2_EXTRA_MATCH_LINE) as used by GNU
-grep -Px and pcre2grep -x instead so I will follow up with a v4 after
-further research and experimentation.
+Ah.  Sorry, I had missed that.  +1.
