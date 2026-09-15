@@ -1,108 +1,115 @@
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa2-f12.google.com (mail-oa2-f12.google.com [74.125.231.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 439CC4A6CDF;
-	Tue, 15 Sep 2026 18:01:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789495271; cv=none; b=i0KA0rULC7F5shvm9I0NjaBicSpNvO1EQFT+hhST6uhL5e/lWhpIMwHG/6bFaZR3O6LymMTxPI0W+cxKhI94bdPypdNF0x9MTWhwjgOi3uUeUUkO9g2GEO5gdcSaTUiCzZy2I/sjn6Kp1Bv/chifkiBgm7FKOVwS7plUwV+I7FA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789495271; c=relaxed/simple;
-	bh=iIZLoDqXxMktAMEBaIDCQ5iIRG2C1WV6/eMK4NZLDg0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V11z88kWRpGW22UeWd7vbOhgRuCyK9nYea2XGva94WIKkX1s2SDTR44LkzRFyLLB9o5iQqURZLem7dBChj5jOly+LnjsnDiZM1fy8dc1Wsd4SEPmNFSNzf1HZhcitgNVaVHorc1FZhax5S/xSqY/Lr0tGU2DTMfGY5hQ3WsW9pY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=hallyn.com; dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b=dscaF1NX; arc=none smtp.client-ip=178.63.66.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hallyn.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C2CC4C8C48
+	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 18:48:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.76
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789498115; cv=pass; b=FUkJFnQIOL/mTqEAx4Tkxo1mwzikehTKAqzVsMIxs1Rnku21al7iyiMN9CYG3zYs+rGW+08aU/NpOdLn0E78yShQFHbz+A1Lj1OFHzbqA9ROlwq3MQsMjDPi0eDewTDITGNhW2RiABjC2ACLL8FeDSkHociOAmQQPlA9Fb/HL2U=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789498115; c=relaxed/simple;
+	bh=C/Qwt20N49G1mc6jza2TBfOTrkg32Aej2iVvXUZXR1g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PlfeyC4ft0pPRbfntsKBAAVAMqmXgAqX6zd4O2H5EFc1Z6GcUT8fyLNVFHLJkkDPlZ0fF3rvAFldk/9EN6RscJJNM+Cb8yT/QnxeuKyaj27s71AiEYwP1kVunvNsJZevGUIKZ2yFcewF9YryIU9z7yYUhDhokhtftwGbAIRvcMM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jfc1WeB8; arc=pass smtp.client-ip=74.125.231.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b="dscaF1NX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hallyn.com; s=mail;
-	t=1789494834; bh=iIZLoDqXxMktAMEBaIDCQ5iIRG2C1WV6/eMK4NZLDg0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=dscaF1NX2NbXq+YtHK3AUKzHpTOJgr3cDN1KoC28VPzOGgJnIOEkdSWsE/FZj9Tip
-	 TC6/m4mLqKLIzClBUmNnCvhwU9U3DbOUHJCXmPVjHCazP80EFfz3WnOlHZYpR0EwLn
-	 Xsd63CX8GVUcnxt31CLdzzQ3tbY3lL4HzSRSQLgXG0uxaPX5VrTHZgLeVFp63+gNFV
-	 nSJGT/TbBZr+nHBcCjmGy6DQDDAHtN6hpDlHfozn9VzePQP6hPzqbvclSK1pqTFiBg
-	 By2ADcD6C5yaFnZhO7u7lGM99HoZ2RO3vgIAGG7+CU30ZDPGOOkGOCNWcK632EynYY
-	 5paIVEPOdY0fg==
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-	id B602B5FC; Tue, 15 Sep 2026 12:53:54 -0500 (CDT)
-Date: Tue, 15 Sep 2026 12:53:54 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Jann Horn <jannh@google.com>
-Cc: "Serge Hallyn (AMD)" <sergeh@kernel.org>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Jeff Xu <jeffxu@google.com>,
-	=?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Pedro Falcato <pfalcato@suse.de>,
-	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH v3 2/3] proc: query LSMs for introspective mem access (if
- PROC_MEM_FORCE_ALWAYS)
-Message-ID: <aqmGMv8CtkCVmyNu@hallyn.com>
-References: <20260907-selinux-pokemem-v3-0-0bafbaeafe50@google.com>
- <20260907-selinux-pokemem-v3-2-0bafbaeafe50@google.com>
- <aql6gyQJoxEjx0xY@shallyn-amd>
- <CAG48ez3THXFA=jF_R-wRNsEA=BfD8X1=pHm7dtVnbOto+rXW3w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfc1WeB8"
+Received: by mail-oa2-f12.google.com with SMTP id 586e51a60fabf-466cc9b2f1dso72113fac.0
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 11:48:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789498113; cv=none;
+        d=google.com; s=arc-20260327;
+        b=a3usSWZgmi0o6CN7A7HnzPlwBsJQwhuHMsCCH3ViJpliC6L0bMQUggaKy1UMoSL4kX
+         dyXcXbnauXnpGDA10Z9XimXaJKd17Gf+LwOEH0HrSfD/WveEXgavcY7LEmN5qnk6RqIE
+         VQBimzBUntrz1LUM5fwE+k2VSZpqwY/C4F09SjefP/4Z0uRawNUfUNy+zA8wDuoq4C9F
+         npUWUygZ9yQHIKfl0ofQqLtjP16o7pVcXthsolgG5jj9ZXIgtf+/DG6LlhD4IlSyx2NR
+         vt5jJzrIrFObYw8M8On5dlv7NilhQlidBNJzBOjxLbGxwc3GPM5aATZyA+K3y3Z3iku3
+         DAMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=C/Qwt20N49G1mc6jza2TBfOTrkg32Aej2iVvXUZXR1g=;
+        fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
+        b=qOxHu8H2xTiWxnalQGrYEFh0qCGicqprmUwvinq7zD7tynCl3KqP9h4OCP93gjBv8V
+         Kw4QzNn7cHwcHrcZbd6WA3aETGqqYHmhEks0NgrPGBXbodQXE6djSf1t84DeviBTCzb1
+         PeLGzL5NCR2mCo4mDSCY5krHq7zRiIdYraawb43MfFrHVlneUthhTxOHDD3H0M1JGXIl
+         LPsgTq6dhfJdZRy2vUTZGfaVaHcxmqJtcRr3M18Zw0byzBghAWzYqZS2DgxLfi1wvVXE
+         BxRXsimDPCwttR6+ccIhs/3ZQLGBImaoFUxt5AiarlUIxGpSa3Q5fjU7Ka1v8e86ytwO
+         8LCg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789498113; x=1790102913; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=C/Qwt20N49G1mc6jza2TBfOTrkg32Aej2iVvXUZXR1g=;
+        b=jfc1WeB8OXJpD6H1kQ3iCnuW6Vz5+2meGlfDw071h2JDnDCz8cRfGmyU69yaZ4r10q
+         WlLyr7PiVVfohFIrsoqVJbt/Y+ZhNj21SbbwMKR7TJFkondgaRWUoZca7TUZDf2pt+yx
+         zg+h5cbpLlzjLFq33z3TFr1fWcycj8gejRIk94LZNQqXVh/Sfeuxva6DOHXYHAY4XzmI
+         KFvlz7ffBMYvxVVhGyGyI4W9vYgobg00jFR56/o2dmpzPwtUu9XNwRrcZxUXm7m/w6+O
+         rQYMTbrAezamY4nEnTMt7A048GTL9y8G4EIwKor2wYPvrqECWrWZoiGtPnEoDcVfOHTc
+         TeLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789498113; x=1790102913;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=C/Qwt20N49G1mc6jza2TBfOTrkg32Aej2iVvXUZXR1g=;
+        b=D2ezbALxH5gpwX1OUvSp11hgDgptSVFoXxSJhbDUcLbAm6sH42PysBZbJo8gjCjttW
+         5or4ZSAYKjE+XJnhEhHZRm7HBxAsjyIYUqIXBOMIVYcG6lYPZQ1KoC2++t4cYlMGj8Da
+         sbLzI7dBjHrxLnIM7jUdn+OPOmECkaWoSWGEXUToh5jHoQBOBc4TswoSE0Qt1Cf8gCvh
+         DfWtk4smOQ6otZHNo33LIy1hB0e//5HjMFaRJI2x9kzxnoCgAeJeTes7DUzQ8yKZnsmU
+         IRd4x4tmcGSqI940nwZvgf491gaE88CMoJOvhjqkF7uDXIGyH4N8lzkIe4TuSyalv4N2
+         /2iQ==
+X-Gm-Message-State: AFuF++lGvVMe5NSLeBeRzELDpWa2T1WihadoyvQBEnDlQLBHzCBBnMZP
+	r8QLLydyGgVhZwEo7PEIiZLqwdSh11GvKBIHctO4EOFlXJZf5RIaWbTHpqhHEvtxBk+neCyHBa+
+	hR31YD9K4e+nuffLHQ/pBFCnHd6Mws+OQDA==
+X-Gm-Gg: AYBFou0r+VXZaKtAxKDJqfvXNJpy0s3tR+Ytiz222PtXPvPqHgb3GG1s4TPWVeQJBow
+	3TsCF+QTss3FYrn5sCUP0eWaQyeP2ReluAdCERcrfUzvg0kasUwd6U86UDWyz5UDhKY8DtpQpXG
+	lAoiFiQKcMZkpTe0HmLEbPxnxa0y/WDraJ2w3/g420k8rrhs4ogTaJ9DJ8UD8pvTp/j68vtoevs
+	JSP2nZz8wSihEOOIdFs7zolZTgu9w6tF53DtVMzMdA4V8i0Z7jBtmVl+2IxN/c3IRc/0zdh78wb
+	Ig75Y0XLlmmj482x8W9WxPsgiRZBu3gKlVwE9PkiHgLr6GRiVPWmSe4=
+X-Received: by 2002:a05:6870:7309:b0:470:e96b:43e1 with SMTP id
+ 586e51a60fabf-482e50c8e28mr3217580fac.13.1789498113339; Tue, 15 Sep 2026
+ 11:48:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAG48ez3THXFA=jF_R-wRNsEA=BfD8X1=pHm7dtVnbOto+rXW3w@mail.gmail.com>
+References: <20260915160738.46723-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260915160738.46723-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 15 Sep 2026 14:48:22 -0400
+X-Gm-Features: AcwNN1V0ruwnuvVcCPFVD-BtYk1H_DnB5q02UnnS7t7D1SKIwaFPDekIYrEmXvw
+Message-ID: <CAEjxPJ4prs_nvyq1WjC8WPvCL5B0v1pqApn=SxSgazYsYPOBoA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libsepol: reject out-of-range OCON_PORT field at read time
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
+	jason@perfinion.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 15, 2026 at 07:44:23PM +0200, Jann Horn wrote:
-> On Tue, Sep 15, 2026 at 7:04 PM Serge Hallyn (AMD) <sergeh@kernel.org> wrote:
-> > On Mon, Sep 07, 2026 at 11:00:17PM +0200, Jann Horn wrote:
-> > > +/**
-> > > + * security_mem_foll_force() - Check if FOLL_FORCE is allowed
-> > > + * @subject: credentials using which /proc/$pid/mem was opened
-> > > + * @opened_by_owner: whether checks on open() were bypassed because the opener
-> > > + *                   has the same MM as the target
-> > > + *
-> > > + * Check if FOLL_FORCE is allowed for accessing process memory through
-> > > + * /proc/$pid/mem. opened_by_owner signals whether the opener's MM was the same
-> > > + * as the target MM, meaning the security_ptrace_access_check() hook was
-> > > + * bypassed on open().
-> > > + * (Current current->mm does not matter for this; for example, if write() is
-> > > + * called on an FD that was received from another process which obtained it with
-> > > + * open("/proc/self/mem"), @opened_by_owner is still true.)
-> > > + *
-> > > + * Note that this hook is only designed to be useful in the opened_by_owner
-> > > + * case, where the subject credentials effectively also describe the object.
-> >
-> > Given this, would it make more sense to call the hook something
-> > like `security_mem_foll_force_self()` and only call it in the
-> > opened_by_owner==true case?
-> >
-> > I only suggest it because it seems to lower the cognitive load
-> > when looking at this code, so it might make it easier to maintain.
-> 
-> I agree with you, and that is what I did in the previous versions. :P
-> 
-> But given that two relevant maintainers disagreed with me, I changed
-> it in this version.
+On Tue, Sep 15, 2026 at 12:08=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> The on-disk portcon record encodes protocol, low_port, and high_port
+> as 32-bit values, but ocontext_t stores them as uint8_t / uint_16_t.
+> ocontext_read_selinux() currently narrows without a range check, so a
+> crafted or corrupt policy with e.g. protocol 0x106 is silently read as
+> IPPROTO_TCP. policydb_validate() then sees only the truncated values
+> and accepts the entry, and checkpolicy -b re-emits it as protocol 6,
+> changing a binary the kernel would have rejected into one that will
+> load with a different meaning.
+>
+> The kernel reader already bounds all three fields (U8_MAX / U16_MAX)
+> before the narrowing store, and OCON_IBPKEY / OCON_IBENDPORT do the
+> same in this function. Apply the same pattern to OCON_PORT.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Ah, I'm sorry.  Didn't mean to dispute a prior decision.
-
-Sounds good.
-
-IIUC it's already in a tree, but for the record
-
-Reviewed-by: Serge Hallyn <sergeh@kernel.org>
-
-thanks,
--serge
+This series has been merged.
