@@ -1,108 +1,205 @@
-Received: from mail-oi2-f13.google.com (mail-oi2-f13.google.com [74.125.231.205])
+Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1AD36A36B
-	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 14:11:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.205
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789481496; cv=pass; b=nZD+Xd6u7bJPsudFaUiVEGsNapHy3z4Z6Lnq+xtnsQimLVYAt7mFH9Cn+9k7S0BErBbqCnz/12yzu0sAHuVjxCy5X/gJ0Y2866xCVY/teuKsXJdGkrxaEvvDTyA+U4Uct2fKdgra5wdOOxCv2HedE6YPIP2Hz0t62InwWteL6RU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789481496; c=relaxed/simple;
-	bh=L7W0eCmIcbqMAjZYALeFsk3pGsZm8TfYpR1pdm9IF44=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MZGuPZbz64ea0fwqYJexzCXaV46fQ09ERM0Nf2G+9PN3jGMskous9VxCMW+LeyNJgkU2+e4VIyveKF4CYVJpqdFvo5rT29wEVtENiQu5NOfLVPT4XvUrfB6s1MMcOt6q6t8PyYM5+jZX71+vBhw7MV6uyO0DEEWUOCm+KyN4Tqc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqF6E8Bm; arc=pass smtp.client-ip=74.125.231.205
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4C5039EF0B
+	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 15:08:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789484902; cv=none; b=HdFxGGKv3Q1XrZv3NAmq2BptIpmLFCF5KAYXT24EtsP0yZq6E7tjWQo+AKnPTPoa31bemb5lVd1g9CUq4ggjEMxpIORIuso0bULli99P+xUor3n9jo01EqpSJkiuy7oRYH8M0I3i0ev/AZSCyEN/iLT/hYSrfxzbIkLyEVtuFhA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789484902; c=relaxed/simple;
+	bh=GEcszAonAs5PAxDlnbXNrFO5UnrZ/I9Hmig05ASP6U0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FLwDcx8aJDwFUG54Y3CnoS78FujYMq9kpMkp5G+mFMigFuUlteFfT7NS1M4v27ZbLDHgAR/sIayrdwWKx4m+e0ARGlEJE2N4LcrdXZQAduPjcqIy3s3L3DCh/45yWknn1wRqzdOBSItYEMflam73OtMMtFxWCXdDwlS2mxGvrpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hsYimA/I; arc=none smtp.client-ip=74.125.230.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqF6E8Bm"
-Received: by mail-oi2-f13.google.com with SMTP id 5614622812f47-4c0776592e3so206601b6e.1
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 07:11:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789481493; cv=none;
-        d=google.com; s=arc-20260327;
-        b=d6E1oMdKC6Dn3C/D61Bkje1VLBMvTnvDEAhOKKWRi1yO1FstH1Cl7uIy5UtgP3Wv17
-         RW0QSy1ZibA3zyw/5/TgYUJKugoK3iEvms7QNlmmu1+JU1UT9xcyEtOxSsB4IITlYkQM
-         FjexLVQi1XQaR59w0gFyrOXURmSMCh2dzrvPO80pQWD0K9/eKHKT6HfBuRdzcEBXHfK8
-         vstU4rcJiY3Gka/sa9m2N3mjrXncsMpuARAOF/osa0HDl914puuo0Jp68t9OGZZ0csbb
-         VWDo5TdoWxKlX9JB7ly42GbVKgk0BdoGUhjICQYVscRVbK9mN4C+s9XxOvrqqqpyFLWr
-         FC4w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=L7W0eCmIcbqMAjZYALeFsk3pGsZm8TfYpR1pdm9IF44=;
-        fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
-        b=nagp9pVN1gY7+hfUKuwV5n5ECKWsk8tzS/UF5A7cNe9O83HdnHadYHwRPnNgUFqjiI
-         eeTvDP1ElW/1SZpJpfGdtS7HRr6uuQYOFSEFViJES8jj4GGcbopzIyu4ocThanMFnTw5
-         Oqoq++fLzKqFJw0UoWgVbAXP3IOiTFDyJH4Am7xYUiTlKqaXy7YR3VF8qATStYP0zt1X
-         BeWkPkoz+2+F0MjfA4a8RpdxzHxuPaiW+iLIKImO8oo0Za+RjSrOTJDUzRByn7OBJb5c
-         GUTix88BZKYPY/w6HdLBJAPsaheoUHa04SsK9dg05pGlPUh0JFZBFz5L/LAb83MpG/8q
-         3lag==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hsYimA/I"
+Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfcbe20aso40337086d6.2
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 08:08:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789481493; x=1790086293; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=L7W0eCmIcbqMAjZYALeFsk3pGsZm8TfYpR1pdm9IF44=;
-        b=cqF6E8BmCtKVY2BWgGCG1FmTPUNs7ykBCw09bZRrscPhznk0vutKvDa4MJ4qqLxLBL
-         +10SaEqmnlFqaMdyILNEdhSoO1/NvdnRLMlrzruX5sY3QTqTh6d8byTNU/ot2wfTEhtY
-         odmKorP6tE9A6slkr1yaV95Hd6iKzQ62MMDoGx2AfskfLg2hRqGXOK5LHjWeG0+QuxYP
-         ISt2whdJTMehceRjkDIIXxvM/ogvUMj7UhNbmTdRKQVXgBrcbCoVYVq3oXuzIKMcFAU5
-         SSWPTIt4w9YJ9tTJW58D8EO15kUhnE7I3RvcNcVYrj1Je6a9WYc95dvGuxg6OSdgEZxm
-         TmJw==
+        d=gmail.com; s=20251104; t=1789484899; x=1790089699; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+cWeYWx/gboxtOfMLvGCFyeMy0MyP5mCvu6LNzSEinA=;
+        b=hsYimA/IcUhntwr/6c0oLoBNpEUQ0GWAXZtrghJIlEI4QqMzqKjsBx1udKaJKsBtJW
+         BcTQTyey3RiZsq6EelzSe5RJhveuCG40Z27lc3pPF7Ygq7ounRH8HcsV5Wy4WGim38EF
+         Ds8IM3esYjslsiYOvRdI7OvnWl59JPiaUhnScnvVNd41jL113PYxHMxP7l5AqLF1fvYL
+         cFHo4fQmQqtrGmsOBjN8zDRkPr62D6v3TSw/cwiKTR76xiqzGUojJTWP+nIDk5yJzAUs
+         SHBRJJsH9yddnwkiEqSNb01OG8H62npP6LcTEY9CtUZ+jJzD5nb8HvCEbjWWz96sFC7m
+         OHog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789481493; x=1790086293;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=L7W0eCmIcbqMAjZYALeFsk3pGsZm8TfYpR1pdm9IF44=;
-        b=Qi8nx+L+ird8J4oVrOk1hIL4F79frYYF0/Tb2ElKJoU1NN5xu69RtZk8kMmu7riOei
-         9SVMur2D35hepPOGqEAvnTzerekiKlDjW79yZtphv/M87ONFVYpou6Ekj47/BbV1JdXy
-         B3rkvFklceVpwreYWd/eiC050LxhM3VBDHf+sXHyudVJRVekwnuscnBl2FqeMvkynoK3
-         5l7ha8+kf3xR8rEamEbQr2GOYmvbLwAx6SP4XEth/Zw7Xdp3Fz3WmkS50EScb7xDLfU2
-         Jg4w4HGvM7RN4B8SYswjdLbeej0EAe/bkqiXe+l48qo9MExvudTMvO2XKT1Xr4QZ+PeQ
-         /rxg==
-X-Gm-Message-State: AFuF++mRSKVN50FccGhzBmi56Hf3LBQbrrH6DmuJ3bg/sZkBrb20HUJ2
-	wRDqlwFQ3WoL03qoN6goi9kO5ViNMPsi385pL3jSobKNK/VePepXqxp4QbyNJgpO68woGvveZRt
-	F2NR1Z61eXbCi4bY1RkaH94YC02yZISHvhecP
-X-Gm-Gg: AYBFou2jf2jdeVDvuNtbY5WeN0QFhin4Yfw6qprPJLizoUl4N6E2OngfKcJ28WUx/JX
-	XmEUJY9Rfdh1/05UN6KECg9l169xYnZ+gmcDDR3M28388+FoXlp95C82JTGc4cj/vXv1HQZd19S
-	aciNi7qryL0zDBfkiMPMtcJtZuPOlty2GHloQMnhoGdncwzalbWSWb0/93fWD/tP+3C1+62Giv3
-	zWINRBW2ePQB623ELvyFH97QH/0l5+oVnrZVdPA9Pm9b+NE5aeu+A4AoegU5aiZ75ERHrSTajYI
-	pobtEbtF+jYui/LGrCBxvdKn7wUvGMw++P8uQE+QPjQurxmsYQIFo0A=
-X-Received: by 2002:a05:6808:4f5f:b0:496:892:c58f with SMTP id
- 5614622812f47-4c9aa8b76d0mr1018554b6e.2.1789481493202; Tue, 15 Sep 2026
- 07:11:33 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789484899; x=1790089699;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+cWeYWx/gboxtOfMLvGCFyeMy0MyP5mCvu6LNzSEinA=;
+        b=rcdviuPt465phcpjt0VHuWNfCxm5wrM01laoIYYhGzx4BV8mtt5KenGjhNKQKyPZc/
+         SRIxXXEBx/b3Bx8yn0pnppIim0EzE6mvL5L23YbDb63+VEhSeAPZE5mIBi64YRTkQJYq
+         jyK/uKc4R6nTSynm3UyDxTLuz0vV4UrrbWtPsOGGOxJMPrfQkaZ9NhN+iWYOS7otNIAV
+         DFlud2EpPMjZN2ZfLQMt5YDD9Vw3wHXKHoc9UbXrVsGyQw8OlkxHKkOJD6G+AcfR8or3
+         SR4X1H6nwWcd7O2mootEiNh6sTdn9+EZ2ymg4HJhr5rsPu0Cr2vktn3C8RPpLe/gb4oZ
+         gAWQ==
+X-Gm-Message-State: AFuF++mC9tFrS0AjxtFc+oShp/Mz4ph2uH73uQ1BQsQ+5K08H6yF3X75
+	Xdxxp+Kl+X5Mqu4Ps/coyVuHgHsVTb7FDyycUtjuMtevP9prS5zl2eQpeiI0cw==
+X-Gm-Gg: AYBFou0TmcjnmZVV4UCJPcLwUHQUj1F5HvvSlAc63hW6Uzez7kLUxjtEQcNLkf+PS4O
+	/OG4FT4xDgQhB5+e4qgTmgTc1i65GdXfOjIAjrZqfPa13rdouGGEWHHakdgluIlhy4tpuirM9ky
+	3CD6jh6OzGPsCwd1ErAuz3YOzWUM52DuJKPNOJor+yRx4CgC82iELUb/nfaA8Xfyz8lnACC/jMO
+	UrgMZc/+vo04mwUMlBfaiS17M36uU+tpXA5U9g4NBDu7SeSRCiejY5CcNlAITUYovwZ+dBFXW4/
+	oH1+bFCUTR89EfJImrx7AzppK2UY+MqfA4VO9+QR5pH9F2hCj8kIGS9fOmJdjorJTb/avYX2ePc
+	zdWRRa84gyMXbP5IF/14gX+TalDt9jfkjdJAKmY1pxhkeCZKjNatiEM5DbJEqDKEHEn1aMsYrwD
+	GQKKGkGEH3q66/zNIHlmSJGUdJYnXx8UDZiF6uqN0mzJ0HCQMhZ8M9uI8gSjbVhrVChKL07xBfP
+	j1NN826U1W+7NDUU1WrhjQvd1evv924nD7Td3a5QkfLOE9osY1EL4bLLjjalNDoRcgPR+AiJY4=
+X-Received: by 2002:a05:6214:8613:b0:90e:8424:4068 with SMTP id 6a1803df08f44-9122e55cee9mr124676086d6.24.1789484899252;
+        Tue, 15 Sep 2026 08:08:19 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9123be7c885sm642396d6.21.2026.09.15.08.08.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2026 08:08:18 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] libselinux: fix incorrect regexp anchoring
+Date: Tue, 15 Sep 2026 11:04:23 -0400
+Message-ID: <20260915150422.41797-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260914181511.31960-1-stephen.smalley.work@gmail.com> <20260914181511.31960-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260914181511.31960-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 15 Sep 2026 10:11:22 -0400
-X-Gm-Features: AcwNN1W_9R9mEW147VfFkzRRn3XXHwZWB_RQA37A6IVZMyoeu57xpem8vUs0RUg
-Message-ID: <CAEjxPJ65wDTJgxKRQarYDFJL3kXo7XpwhHhOKbPPBcPyUUFRzA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libsepol/fuzz/Makefile: drop -I../cil/include from CFLAGS
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 14, 2026 at 2:15=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Nothing under libsepol/fuzz includes <cil/*.h> directly and since
-> commit efd1aa51 ("libsepol: add include/sepol/cil symlink for in-tree
-> builds"), the existing include <sepol/cil/cil.h> resolves via the
-> ../include/sepol/cil symlink to the in-tree copy. Hence, we can drop
-> the -I../cil/include flag from CFLAGS when building the fuzzers.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+As identified in #544, libselinux anchors the pathname regexes by
+prepending a ^ and appending a $, which will produce the wrong result
+for a regexp like /foo|/bar. #544 also notes that we should be using
+PCRE2_DOLLAR_ENDONLY/PCRE_DOLLAR_ENDONLY when compiling the regexp to
+avoid matching a pathname with a trailing newline.
 
-This patch has been merged.
+Wrap the input in \A(?:...\E)\z instead: the non-capturing group keeps
+a top-level | inside the anchors without shifting user backreference
+numbers, and \z (unlike $) never matches before a trailing newline.
+The \E before the closing ) is a no-op unless the input ends inside an
+open \Q, in which case it closes the quoting so the added ) and \z are
+not swallowed. PCRE2_DOLLAR_ENDONLY is set as well so that any $
+inside the input pattern is tightened the same way.
+
+Because the added (?: and ) can pair with an unmatched ) or ( in the
+input, an entry that used to fail pcre2_compile() with "unmatched
+closing parenthesis" would now compile as a different pattern. Compile
+the un-anchored input once first and report any error from that; this
+also gives error offsets that point into what the user wrote rather
+than into the wrapped string. On a validating open of a
+refpolicy-sized file_contexts (~5800 entries) the extra compile costs
+~3-4ms.
+
+PCRE2_ANCHORED|PCRE2_ENDANCHORED at compile time would avoid the
+wrapping entirely, but a pattern compiled with PCRE2_ENDANCHORED
+returns PCRE2_ERROR_BADOPTION for PCRE2_PARTIAL_SOFT and passing
+PCRE2_ENDANCHORED at match time bypasses JIT, so neither is usable
+here given selabel_partial_match().
+
+Fixes: https://github.com/SELinuxProject/selinux/issues/544
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v3 drops the custom regex parenthesis matching function and just
+performs a regex_prepare_data() on the original regex string before
+anchoring to provide full validation and accurate error reporting,
+and adds a \E before the closing ) to prevents a \Q in the input
+from swallowing the suffix.
+
+ libselinux/src/label_file.h | 34 ++++++++++++++++++++++++++++------
+ libselinux/src/regex.c      |  6 ++++--
+ 2 files changed, 32 insertions(+), 8 deletions(-)
+
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index a42e2aef..01f53238 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -405,6 +405,7 @@ static int compile_regex(struct regex_spec *spec, char *errbuf,
+ 	const char *reg_buf;
+ 	char *anchored_regex, *cp;
+ 	struct regex_error_data error_data;
++	struct regex_data *tmp_regex;
+ 	size_t len;
+ 	int rc;
+ 	bool regex_compiled;
+@@ -460,19 +461,40 @@ static int compile_regex(struct regex_spec *spec, char *errbuf,
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+-	cp = anchored_regex = malloc(len + 3);
++
++	/*
++	 * Compile the input as-is once, so an entry that is invalid on its
++	 * own (e.g. unmatched ')') is rejected here rather than being
++	 * silently made valid by the (?:...) added below. Report the error
++	 * against the unanchored string so the offset points into what the
++	 * user wrote.
++	 */
++	rc = regex_prepare_data(&tmp_regex, reg_buf, &error_data, false);
++	if (rc < 0) {
++		regex_format_error(&error_data, errbuf, errbuf_size);
++		__pthread_mutex_unlock(&spec->regex_lock);
++		errno = EINVAL;
++		return -1;
++	}
++	regex_data_free(tmp_regex);
++
++#define REPREFIX "\\A(?:"
++#define RESUFFIX "\\E)\\z"
++	cp = anchored_regex =
++		malloc(len + strlen(REPREFIX) + strlen(RESUFFIX) + 1);
+ 	if (!anchored_regex) {
+ 		__pthread_mutex_unlock(&spec->regex_lock);
+ 		snprintf(errbuf, errbuf_size, "out of memory");
+ 		return -1;
+ 	}
+ 
+-	/* Create ^...$ regexp.  */
+-	*cp++ = '^';
+-	memcpy(cp, reg_buf, len);
+-	cp += len;
+-	*cp++ = '$';
++	/* Create anchored regexp.  */
++	cp = mempcpy(cp, REPREFIX, strlen(REPREFIX));
++	cp = mempcpy(cp, reg_buf, len);
++	cp = mempcpy(cp, RESUFFIX, strlen(RESUFFIX));
+ 	*cp = '\0';
++#undef REPREFIX
++#undef RESUFFIX
+ 
+ 	/* Compile the regular expression. */
+ 	rc = regex_prepare_data(&spec->regex, anchored_regex, &error_data, jit);
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index d6b5bf02..a76f29ce 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -96,7 +96,8 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+ 		return -1;
+ 
+ 	(*regex)->regex = pcre2_compile((PCRE2_SPTR)pattern_string,
+-					PCRE2_ZERO_TERMINATED, PCRE2_DOTALL,
++					PCRE2_ZERO_TERMINATED,
++					PCRE2_DOTALL | PCRE2_DOLLAR_ENDONLY,
+ 					&errordata->error_code,
+ 					&errordata->error_offset, NULL);
+ 	if (!(*regex)->regex) {
+@@ -379,7 +380,8 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+ 	if (!(*regex))
+ 		return -1;
+ 
+-	(*regex)->regex = pcre_compile(pattern_string, PCRE_DOTALL,
++	(*regex)->regex = pcre_compile(pattern_string,
++				       PCRE_DOTALL | PCRE_DOLLAR_ENDONLY,
+ 				       &errordata->error_buffer,
+ 				       &errordata->error_offset, NULL);
+ 	if (!(*regex)->regex)
+-- 
+2.55.0
+
