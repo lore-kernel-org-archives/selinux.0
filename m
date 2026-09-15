@@ -1,130 +1,131 @@
 Received: from mail-oa2-f12.google.com (mail-oa2-f12.google.com [74.125.231.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C45363C63
-	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 14:09:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05E4B36308D
+	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 14:10:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.76
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789481382; cv=pass; b=K8z9+CBoPb5sJnls2REiq7W0xDyfhAdggwmZdg3b6cAsqR3gKrTH8aRmjwBTf+5Jy4uCUWeYBbRZ0+DRdEKVXzAQiGF2xeairgTJZSwqorwPMm4/+dp92Qs5Nkj1y6rc2481wxSaL9XYb1OBI9hDCgLEuPCPm6ylYyGdPlNlbbQ=
+	t=1789481427; cv=pass; b=fci5GZz+tqytLGYG6hFPd669bjMP/ShCezwrblr0FREqbi/k9OgUWmN7WnlKVRmhY1Ip83vYqEj9EKr2yTuYbEBgIf69YLHeVjEDNMEAoqlYc5BqJWqEkXwau8jS9xjGngDRIP+8Wsv1/Vv0L4QdMPNDNM9cHIsJiJ8qmDRz0uM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789481382; c=relaxed/simple;
-	bh=H2HjJw984dleXMExl7nFobFLh4B5odmkPXC0iKA6vCI=;
+	s=arc-20240116; t=1789481427; c=relaxed/simple;
+	bh=njNsomCt3jTWyGvcHXaEVlAdM+ORj7UOlzjxJlCHA6g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g5DGdKCq2fuCvy9SukucqD1cFZWZSp+lEym5SzGjaWNsoEV9DBWsQzjAn9SpfmtArNTFWrH4SL56IEflXi/KqmKFWzP34nZh5zif+8M72Vykou1ZG5OXlFs5JcclGxXx9Q8uZglvjk7QaL1Nc00/L+lG4+n593ASTahR56Nnaa8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I670SeVx; arc=pass smtp.client-ip=74.125.231.76
+	 To:Cc:Content-Type; b=VEmPLoGMPVghlIOiijepoZSo3E7cEZIu+VUCAPzb+xMe1ie5luqYuSLGoMcLTGAqsOgp40HoYyLKUCqvBKoyzRBj7iMi6jZQ3Um9fD9M5sDHPmshWKgxLqmqtHhHGhj2kxoGvAgJhxwv0bJQvsYh4AU3V3w3E+zTtOLreWQXI98=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gAm7rFY4; arc=pass smtp.client-ip=74.125.231.76
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I670SeVx"
-Received: by mail-oa2-f12.google.com with SMTP id 586e51a60fabf-4788fe5736eso302985fac.2
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 07:09:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789481379; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gAm7rFY4"
+Received: by mail-oa2-f12.google.com with SMTP id 586e51a60fabf-466cc88a9baso258695fac.1
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 07:10:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789481425; cv=none;
         d=google.com; s=arc-20260327;
-        b=gss0r+Thdk32eYlSbXj4QUiSEeYgFoO054EMcZ9z+AB9oT0r2j3JD9AIMP9eALf3HP
-         phHhYmWUHpBwi6hWBTqFjjPpnkG5zJBHY9Fhav5QKlj2iHa1m0r3Y6/FfSOJGKWkKp6R
-         Swv6SRIqQRYErnaorBV//A7YzDP9ga291keg7SO7CN1e7lPP0Kc+oP+zTCe1mEPgds4a
-         ru1sTTiI/ZusFjMGWrDklHwHWfztconK7Ovlkf4NyYsh7c13epH/0WeD7LaC3d7ym2Yw
-         BnJODRdTvAJLSaBSJt4cH5wlWhZpXc8nfVJdEXHijkGqTaTIhzmN/WEqVtgKD4/o3o0q
-         hKgA==
+        b=QH43R8Y1Pc1m8mSymJ7rXZpj+joI6qEVETSX/HQDntkxW89sW3hVH1lpaSLOtyVtew
+         Gyw8CVbaA5gQ+oDdZBkwyvsTUwI27iT6AFULc5XSzGi1RFHeSRHu7O6eHaJ2gighyoFQ
+         6Sta8MmZ92Qmxyznu2ZLwYgwKmfYqTa1zO9FOBLsJpFOYJTlc2Sjzv5mDp2621A/LpKS
+         I/5lQAYm7cpliGP8lCHpt/JGzBSE0Ni4FHo8NYDQRBnITxzXxtfoK+GSns8DQ241gd0F
+         Gjlzfdu+5SBaHyD+8AjC6xChKQuEDP7MJ2KzYh5uwa6u5c5Oq3uUkW3ukgymkBLVifcD
+         261g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=T341kkHvymDWq3UfC3WpKeDRzkxTOVtWO+50P5CEv2o=;
+        bh=oYKnJayXClFk/872V9nUCohueVb1da4bs2+ahGF9OxI=;
         fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
-        b=CxCcfVV06QTQhHQPQ2GYa0eZffqkN7fwytcIGl6zoppxGQwI4dlrh7JhUQwyvuj9P7
-         GG7dbVxJPM2gvgD7mKYtVBQeqlb/O7h3yXKOTx0HUuQVnM0kccrUfzc5mb8oDhjqKk/r
-         pKxui+P64McXxB0j+mfRgXQnz6/N3SrlCyY4LRiqqUvkQCEezFMce6fIkNKAnqCsHjva
-         D3sO4Mjkq7zNuHt9pxViNpd+bCTV0B9ZWmfcRF/U2j38UU35cEpn+QTdPONyeonLo8y/
-         9HH1WIu1kSvXlKVrcAMsDPEmXjCY820AdVH/LznwtZxcU+cvaA2VrdjvTyZadNoqzcHS
-         xlwA==;
+        b=cLEGCNe7te+dVdsXWDm3GWy5vS88NzJZHyb66iorDt3suk0boIa7NSBckekVeihXUW
+         eKOBQpjvBrIs/Mz99zow18gLr8yRowYUtVeAZaqa+SMQnW9MS9KLX61YcOxWqvoqpXqq
+         zkrh9Va8WLuJFTTXDIYr/jhNqC0s6kwccB6pljglMXolZuYXZlJ+S5ko667hXO5CTQ59
+         zaGgJrR58zT3hOXWVk11+wL2qii/GW3fvCul4g7MCrq9ZJFo09geIFec2ZsBIc2tS3gq
+         eQPj+/Vlas14K7jVhOrQz95V9e/ahGq9dREP5uyGjCX7zPS0ehNC4BVfu4+Kybm0x9Mx
+         +H+A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789481379; x=1790086179; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789481425; x=1790086225; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=T341kkHvymDWq3UfC3WpKeDRzkxTOVtWO+50P5CEv2o=;
-        b=I670SeVxMNQDhI0vs6cKH96OyeMs4g/XxWw8r5/i+18b+4lc3nWOwFDT+dXuuySBmL
-         jyRX2ZO38O/HPaGYEnbAoUa7m5Kh2uLoQcQgRodc8NWo6KEIMlCo9fcTro1hoaRW5OKk
-         W7MIpLg2D/8p0I34QaSsG1qrpnB6xQN5qAeynliwByWd2w/zFNiZEdpiVqVpCOSZnSSx
-         Z3jzoGPrEHwbnDW/Sy/NA3lnEl4PoZAAPVZD4eEWBWyMNVxDZZDOFg6TUMmidcUUFmM8
-         SGTNDnDFKDcJXNayematcFs3datnKkc9U81d2S4ew8NpMladMGgc6BerFVNGQh8T0Byr
-         CcCg==
+        bh=oYKnJayXClFk/872V9nUCohueVb1da4bs2+ahGF9OxI=;
+        b=gAm7rFY4CWw+qyclzdTBvjRy2GT1nfZDEw/yg8GtcLjOx5Ete07mVUDrCFFFScxv9c
+         Ne4+5Cp1kAfn/HnzDfYwQj7TqF/Ps+zT4UmJS44IMoSZXv6ptVJMBnKIJGfXsL7z5Gnl
+         nd9MX0wiOuc3eHAlSfoKlRT4HubPB/kg0/usQSyuXTz59DB5X4YswaDxMCQqCmXssM8m
+         fQsGAhLE5w2S8agNGIFB7ZHH/qi1jIDX7y93eoqtYER5slOgzhGzoJKodNIwe/AbJ65e
+         0Gjy/xFs1KezpiSp8LOtidWxMNpKIsKAKDKBCl5UC2UPz1HObr+PVnxAKRMUnMgwDy9Q
+         8nMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789481379; x=1790086179;
+        d=1e100.net; s=20260707; t=1789481425; x=1790086225;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=T341kkHvymDWq3UfC3WpKeDRzkxTOVtWO+50P5CEv2o=;
-        b=KKDPGGitd/uQRXzSbwiSa9Y9W1luFie1AXc7+6Vc117PZ2umfURCtz+H22OV8pdKLK
-         TKtYdB/Q8yoZqIToqQqi1LfaF/kkA7IwL4XtdFC3gAV9/7dakXDWX+7MitFIqAy5e+Qb
-         4CXdoGoVzGsQmNJ7gYDpEP6q3FiDPjv28OWsxk6a4Uq80q7/N9RnkiXMSVAgBjL1F2wC
-         vn8t8q262q/XMGzRu6RgblSIlxxIi8T016DFWOBnrhRcjLTpK9qOuH+YcS8DOKVajnwB
-         3xkkJ5R/5hlwtHrbqpGduLSk2URYLQeqaBMoQDSjxDwiO2AGyBegcMs+Iv0JJHxM2C9G
-         UzeQ==
-X-Gm-Message-State: AFuF++kNZ6t6r4h6/LGIxajX08NWSeZYD+VlVpxTK9uuoTMAp6LJ8NNu
-	+zhe+8D2mzoqyy8/8DQVUdbUB5jeREjmmRV7uzAT8+wevmLqNLV/wsqsxCQbiq6vBVQjS/gSwY0
-	r521h7qLhh3Cp8h94IHbEc7Z0D6bV+eiuLA==
-X-Gm-Gg: AYBFou3ToCWIRZG4IiSqOtOP1UlWroy7NE2FksDSsMQN3L54S8HkhC/YAeE0mvAs/qM
-	zCnEmeTW40SDUPtkGhBexpPodooylxeSOZHXKQEj/Bp2PKFHdfAnIK+22NncKVcG3VGjCkjWtO0
-	99FzYuk3gbZVQ453QdX/TQy91zhFYRQb7D0RVDpYU/5W+TxGdgnXVlufK4R348hcqGLEmoppCUs
-	wRTQhMK+F/hJ/Vzb9TndRYXmiN2bAXYHfvi3GZeOSi+wbuTWmGD0/pkMdWogmKrLhpu7BNyGGv/
-	oRho4oyqTcK6KEUp8zeAv41ZN7mQd3oZmYAv6vlZXE1uzh/MKSa4S+Y=
-X-Received: by 2002:a05:6870:3e08:b0:475:e066:7717 with SMTP id
- 586e51a60fabf-483d38aca5emr880718fac.30.1789481378899; Tue, 15 Sep 2026
- 07:09:38 -0700 (PDT)
+        bh=oYKnJayXClFk/872V9nUCohueVb1da4bs2+ahGF9OxI=;
+        b=BV4Pox4eNtb5UYtcqJKtrLHzxLvAI/yj40KJvpvs2UejW2VMMsFXiwoFn17ogqicJS
+         tB0S1IQZcJsP2gKlABHMw2729ZrN7Vim5L2V07iCcxFoqGEvLaQTT8/kp+5a782mXlji
+         Iw4ctqhHwKZzvFFl71uUvMH/sd7hYREQD2EDM73V4BLs1YUA82JNvlvygd3n2DAVGWi+
+         QiqV1gHCdKdgoHdR6HKek4delxFwwq+XQStP8iPfQTw0KovZSonbP4MPezUdXF5N8hXV
+         D3k8Tv92dfOM2Bw5tceatMhue5i4UXUlJHbL4OaFjCCIH2BZmVjqtPYxc9eYmzd5zcs3
+         sjzA==
+X-Gm-Message-State: AFuF++n4uLd6nlbMSsK/EFkMyI/TaYd/Fe/lag2Njy+vc3wBizJw9r2q
+	XogFTNr1mzoAPUNRWxpSG3wyo+e7B/cjyq/QRu5y0GIKwesk0/Ahh9mWBPqUDAswfkezXG6uJQs
+	bqcpUhiVD2g4lJRmfm5NC8n5RkDx2lDSulQ==
+X-Gm-Gg: AYBFou0BBUo+cw+c5D7QSa+q+F4Jxl77nDhpIjzPL8M/ll41G8ERtfPn5DCJ6ANRkwE
+	hbxQwWhcPYlO71gNQb+ptwmFEjunghldLbdKGR/Yr9Yqi89x6rfaocMPJwIMU9bETf58g+jWbwm
+	f5QcYcY4MIFlKhZLNy8NvJ1GtBT8LXC0EK/6qYLZ9aYqgCF2uIdBarOcfK47YZ/l8/s1g4Vxj41
+	YPQSkc/2eIw/sDZcYHGF9QKzsZwaluyvgr34YWrob/t4rAWoHxzuF8Puo3u4PXW4Fh3fk8d1DId
+	QQq0rT3cYYGbnFfH+u7F2zHmCeyLykmY1u355YcAtt92mumh0wa6nPU=
+X-Received: by 2002:a05:6870:b3d4:b0:475:e235:906 with SMTP id
+ 586e51a60fabf-483d480da04mr840763fac.36.1789481424643; Tue, 15 Sep 2026
+ 07:10:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260914153822.26027-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260914153822.26027-1-stephen.smalley.work@gmail.com>
+References: <20260914155751.27077-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260914155751.27077-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 15 Sep 2026 10:09:27 -0400
-X-Gm-Features: AcwNN1XAygtfAcusQx67LP8472SBwSgrBiSzQLJNcvE2jpr40eif3vQ50Ujrb-o
-Message-ID: <CAEjxPJ7xjbUpHcTMLr=1fP4g1rpjqKJg=5MrWwKRkBc65S9knQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: use the correct value in validate_type_datum()
- for TYPE_ALIAS
+Date: Tue, 15 Sep 2026 10:10:12 -0400
+X-Gm-Features: AcwNN1WYK3pTa3kzUPVeTazd9BRGnv7OX1YxuQnXWcQtA51AkU2IBme6F59ABJQ
+Message-ID: <CAEjxPJ60Y98=LVbQY2BWFO9obtT5E9xxP4ytrTpOB6SRbh1k2A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: module_to_cil: warn and drop non-trivial -self neverallows
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
 	jason@perfinion.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 14, 2026 at 11:38=E2=80=AFAM Stephen Smalley
+On Mon, Sep 14, 2026 at 11:58=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> The alias-chain walk in validate_type_datum() picks the aliased type
-> value with
+> CIL has no target syntax for a neverallow whose target is an arbitrary
+> type set with self subtracted. The (notself) syntax is the universe
+> minus self and the (other) syntax is the source set minus
+> self. module_to_cil emits (notself) for the trivial ~self case but
+> fails any other notself rule with a target set.
 >
->     v =3D (t->primary) ? t->primary : t->s.value;
+> That construct is legal in the source language and checkmodule emits
+> it into POLICY_BASE/MOD binaries; the assertion checker handles it,
+> and semodule_link/expand accept and preserve it. So a validated module
+> carrying
 >
-> which falls back to s.value whenever primary is zero. For a compat
-> alias (flavor=3D=3DTYPE_TYPE, primary=3D=3D0) that is correct: the alias
-> shares the value of its primary type and s.value is that value. For a
-> TYPE_ALIAS (which owns its own s.value) it is not: primary is the only
-> field that names the aliased type, and every consumer reads it
-> unconditionally in {link.c,expand.c}:alias_copy_callback(), and
-> module_to_cil.c:typealiases_to_cil().
+>     neverallow SRC { TGT -self } : CLASS PERM;
 >
-> A crafted module with {flavor=3DTYPE_ALIAS,primary=3D0} whose s.value
-> resolves to a real primary type therefore validates, and then any of
-> those consumers indexes p_type_val_to_name[-1]. No compiler emits such
-> a datum: checkmodule (policy_define.c) and link.c both set primary=3D
-> target->s.value >=3D 1 whenever they set flavor=3DTYPE_ALIAS.
+> reads and validates but fails hll/pp, and now also aborts the fuzz
+> harness that treats a validated module failing module_to_cil() as an
+> invariant break.
 >
-> Match the walk to the consumers: for TYPE_ALIAS follow primary (which
-> validate_value() then rejects when zero); for a compat alias follow
-> s.value.
+> There is no valid CIL translation and refusing the module in the
+> validator would break the tools that do handle it. Downgrade to a
+> warning and skip the rule instead of failing. The dropped rule is a
+> neverallow assertion, not an enforcement rule, so the emitted CIL
+> produces a policy that is no more permissive than the input; the
+> assertion is simply not rechecked at CIL compile time.
+>
+> Hoist the check to the top of the loop so that the lmx/lme line
+> markers stay paired for the rules that are emitted.
 >
 > Reported-by: oss-fuzz
-> Fixes: 7ddf99ae ("libsepol: validate alias chains resolve to a primary ty=
-pe")
-> Fixes: https://issues.oss-fuzz.com/issues/560970829
+> Fixes: https://issues.oss-fuzz.com/issues/561210454
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 This patch has been merged.
