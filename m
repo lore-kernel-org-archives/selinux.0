@@ -1,61 +1,63 @@
-Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 811E6408612
-	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 16:08:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E3B3E6381
+	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 16:08:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789488488; cv=none; b=rBRdt0nb/WCtvf7HOLYA+6/WMTXVzvCG5O3O7y5BPCZC6zz+BCMZ2U2Iz/HN/RYashZGu4CsJvF3CSCZamYVEUVoI1p71EHqJNHqxoEA9VmS7+RlxNQik0VWlMCcK5G8e0gs06wziAx6s68v+ih0IhVQNN3qtKrRNzDwrOQuSHw=
+	t=1789488489; cv=none; b=Ds2cCkamlYqLcUsY74ucACDJVsWTUdgRbu6CG/nEANMM4Q8eAA+c2znJMUehPNbtju2LZVVeCp4yqhOZz+9zqgtq88jRfDBK7qleQaSTW0jxejIORTJyj4BJJ/DjTkJdraN5/HT5Re0U9KsQoWuyN3fitstQDPVO9nwd6h46WLg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789488488; c=relaxed/simple;
-	bh=SWscl4vaDMQdBVIdc2szP9ILxLCGmILSdvP0BOawJkw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l62xTAH/he/LQnj5bozMv3VuXjWBQoW/r0YkU6mn4IXlNA2iMNFpfMnv8mZtvROPkmpXDyDca3fQqlzqGs11Yh3LdAwF0+Jca7eFv5/AmCiV87lqrKL+KyJ2rorKeEmwcdC66W3XhW4Op17C+FGbUs53uZdWu+TLbConmDFsLVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VsbXcZEB; arc=none smtp.client-ip=74.125.230.140
+	s=arc-20240116; t=1789488489; c=relaxed/simple;
+	bh=o9TYWB5keZ54P16PTUOXFhmUzogutickXKN5a0IPAQk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=J6ObB9KYhMsNN9OmyT8X3rQVq/GHOt2f/sye4UTHdSNNDUTp16fmvwP0Xpvoy+RBE03BM/gWvENGsvh4IsS2ShZqroMroXMj/Efb1tZkzmaCQUBJtrMxfUHdkpFwBUVLjVWoDtibc7/CEoYNrmWozsZ1/zrJoYiQ97+2JToHZgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZDmkuOHJ; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VsbXcZEB"
-Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfc6db0aso41677276d6.1
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 09:08:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZDmkuOHJ"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-93a0fb2f9efso77364085a.1
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 09:08:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789488485; x=1790093285; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EnQ2stnK9rv3zs7Ac8wbxM1DKTt7wqJKC3dydQNCdj4=;
-        b=VsbXcZEB8COCDMTw9tyuh1citZTdBBiSm3+AD+vDzY7b7+MMVu01cjxQOci8OFKBYV
-         v11ttjTutO4uoD67a/nUdbJeyhoY8CTSlwJ0LG7JS8EMI7BV2blNhQ8uy2elXqBXBDiK
-         yGqzWjuRl9kOB7dT3hYYtAPXFVp8yvnxSOHMVL4J8RES85N4EMWLvD73fCPvZ5FfyFRU
-         VjcLzqc1SXcy3vkuUly2SXJBjc5VIrd1r5+SkflK5JG1Riaz1hUqRnhbG39brOpYH0d6
-         4EecjwxHtsGaoSzFs0EHp46eflvvTk/1jTkMCGoqoKYHLlgPmFo6Iu4AS5ZWjnO8TBkP
-         d9Ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789488485; x=1790093285;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1789488487; x=1790093287; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=EnQ2stnK9rv3zs7Ac8wbxM1DKTt7wqJKC3dydQNCdj4=;
-        b=bPwjnYeEQvwuRzdY2tblWo+h58pXX/kI59pfZ1IW3buefioLZQIsLsjglU5GYeGDp2
-         XmONRCLKGpyRsbZrkhqrTQjHB4gQ3YSM4u3S88Gvfuf36Af9tEaWhZhKTxVvPgofuSPQ
-         vqz7DFlv55dounUqaDlF3Qeskl1FnabtxgwX6to4iYfufeRcgKSoimFTeJxnpFEWGodH
-         Z5LsX58Jz4qA5A+CJsCqr4W8UZ1xqiDL2CftjWqmUyIwfzCs//QdfgOaRyLSfK0CiZOr
-         rZ86PSwpRtxM1TqwcjjS01HCqulSP+FFAiLLXViQMPTjPUw9efhXTybriTTKg5GzcRDI
-         5Tcw==
-X-Gm-Message-State: AFuF++mmHkp8v9llTgC0ZpUGr9whhh2HZKAPIYRb7P7oxviSb9536aaZ
-	7cqS5/foXF1IrtpW8nX8ckHasezl17gZ6mqC4fa2Bd9P9KXlIW1J+dol9TvZGg==
-X-Gm-Gg: AYBFou3MBLBJxmOVwRQg+e86rMtk1XnWbnXv4ax9Aj8PsDkAGDt4DdDaUGWOUTS7opL
-	TbHZgIBElw9ooEmGmsAX9PEZGdpi6AGkcu2ovC/BBE3w1jGPO6pnY/zYi64I9n0aFJ1+nQiHglu
-	nRunTIZM8f7sQVMJJbV6kwNMKiZk7nFDT7ODO/gZM1wTuwGyg/coRERu+vePIC7ur2u8Ybn7EgV
-	T/XPwDT8Z7Ij7O2dz3J7bAKrX/wnOqQTGpXbN6zX/tOnACdyLEZeyWxQUEfQd9PGgKT3ucA+wUt
-	kA2O0CVrkYQ2yjTl+0MNtvv0fb24rNxuemCPNonH7r3Y0BrTsBz1pOp7SANuoH3Z77jjLSV8MBT
-	G5vdp+7lPoCglD3f5ov8lZ3Xv0jYghuvHs1lGyl/qKeMpvm2E7LsNJ52EbVdvBJ5FSyHjCxoQXG
-	CW034DtJcmM96uks73SPx9rhmlz5CKdiNA1Mvzx81UK+Np8jU+s8bpij3mwtTu0sazLa/c+Rqrt
-	PfaUdX9SxngjUbb67h3WlQ7ZU1B/eW26W9Xrr0/S87zADSojZo/7vp4qUV1nm/8o9RtF0e+FME=
-X-Received: by 2002:a05:6214:406:b0:910:3452:d57f with SMTP id 6a1803df08f44-9122e664618mr142775926d6.31.1789488485094;
-        Tue, 15 Sep 2026 09:08:05 -0700 (PDT)
+        bh=VcV5yWZFRhIp6J+hvAucLAMrQZgz5vrlStfxf9MgG2I=;
+        b=ZDmkuOHJUaNdzF7vzzz5t0oZvjyWvfmikpErhDJftgaH9o7osuql0cnKFWK+gzaq3B
+         XICXIEfsT0SPRTJtT1NV5ctSWa2d0aObpsgBfyX33m0ODQxM44a2bAL8QdcJUWlbYOUF
+         fKcW3Oh1vepkBE2qr8KeVXwAOpqDZp0nbRjStyw8jyOAna7Ud84myH+PK99HTieE+rdz
+         khiVgCeZRq4DLbDZWkmdFfAsmxdd2eOjelfJDCmcKlG6AA/Hw2aJU+e4LKNMPsWaaNN/
+         XX7IsKWKmNEyarc9pjxTeD/3gazTCCIZIYZgQ2/HwGLf1OioOTgQ7AfLIqonKLPa8jwe
+         0OtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789488487; x=1790093287;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VcV5yWZFRhIp6J+hvAucLAMrQZgz5vrlStfxf9MgG2I=;
+        b=gh3qHbkhZP0IQ1dk7JP7z0URcGeWx/iXGQSsnyRi6tJkX7hEV6knxiJFr1D7RCsedR
+         s9TeOYJXBbLP/ki1R3qVsnDWViTMwjVZY9j/1Hx31AjUy85T0mXkuvvH7hMqdntaMT6q
+         LtD4CLqbPREVFQW0axWRFT4Si7rjBHuma1vJJJBqAdg1g9D3fTXSiEXWlyi56ngm228V
+         345WH0cZGYsuyVNZ6y9vgEdxs/xp8Y8eAtQ5q+CmTJ4vSj4yuGmRhGUKitQxxBj40LsR
+         pnVWtSKU0Kqe/9pcB4aA0CI5YOYL0MvG7DmMJeE4GpO9mnK2PKoZUHtnKdWbyQzmW5y6
+         Yo/g==
+X-Gm-Message-State: AFuF++l5V8ByIppZNzhfAt4xOTmUHyjCiJ+ao/CIfUebrIKTAzb6ash+
+	B3yVaxNMk9Xu/HDrm0uj23qvP9H42evf7yE/drLAhVsu/O4ERK8PQX0ctUqGog==
+X-Gm-Gg: AYBFou1x5s3ZOO+/ZXz/aigqRdVwlW1iAZAViIqW1QX0G32x5FLyHLwd/bKVo5aHT0q
+	L34KMcwkC3NEL9EQmy4JeyEAtr6tG9jQRr3wU2tfHqKIL1AYxpcnix0waEjAcNOPDaQ2a8DCGFI
+	/pKWQ6OvfyohQyR/r+Novhs+G869ifpX7+aMbW4Vv0YNcmd3UxVHwpK9lZEzhJd3xENW59lwWmb
+	ODuaD+Bb+MPMxW0flfAHWc10wZhmMmky+3pb01vHv+4r+xc7XS5QUzsgI5PxwaW5TmqVIxLeiW6
+	mT3+k4fBq8a7QRkAWvmLtwwDz3NZmQR3b43iXxZr9Q1YFSOpmXZ7KazbP0gd3EkMi6pZ7G0hIG6
+	w4RMd87JmomzSIrB8d3bSda7f4jP+gnhZ/Fz4sCMh+n4Yvsxrx04H8Tag0yOx6Ow3UBaYm0kLBA
+	lvNwHY22FwpX/MdNlCzGO+9mHR+3+XKg4BJ6p5K3UJTPCq3C9sr3Y1BfAt3ThJyF2ltxqfd2CB/
+	wy0dwj5gC380CQLIwR7hJ4+Fjn6xRwwu04qhiyCl7LayopQnMx6irDUEr4FwQi5W8n3t86Q0rg=
+X-Received: by 2002:a05:620a:2909:b0:939:af12:f5a0 with SMTP id af79cd13be357-93a346fa5d6mr590132585a.23.1789488486623;
+        Tue, 15 Sep 2026 09:08:06 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9123be7c885sm1961696d6.21.2026.09.15.09.08.04
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9123be7c885sm1961696d6.21.2026.09.15.09.08.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2026 09:08:04 -0700 (PDT)
+        Tue, 15 Sep 2026 09:08:06 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,10 +65,12 @@ Cc: jwcart2@gmail.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/4] libsepol: reject out-of-range OCON_PORT field at read time
-Date: Tue, 15 Sep 2026 12:07:36 -0400
-Message-ID: <20260915160738.46723-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH 2/4] libsepol,checkpolicy: reject out-of-range pirqcon values
+Date: Tue, 15 Sep 2026 12:07:37 -0400
+Message-ID: <20260915160738.46723-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260915160738.46723-2-stephen.smalley.work@gmail.com>
+References: <20260915160738.46723-2-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,60 +79,83 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The on-disk portcon record encodes protocol, low_port, and high_port
-as 32-bit values, but ocontext_t stores them as uint8_t / uint_16_t.
-ocontext_read_selinux() currently narrows without a range check, so a
-crafted or corrupt policy with e.g. protocol 0x106 is silently read as
-IPPROTO_TCP. policydb_validate() then sees only the truncated values
-and accepts the entry, and checkpolicy -b re-emits it as protocol 6,
-changing a binary the kernel would have rejected into one that will
-load with a different meaning.
+ocontext_t stores u.pirq as uint16_t, matching the Xen Flask security
+server, but the on-disk field is 32 bits and both policy compilers
+accept a full 32-bit integer for pirqcon. A source policy with
+"pirqcon 65537" is silently emitted as pirq 1, and reading a crafted
+Xen policy binary with a 32-bit pirq truncates likewise.
 
-The kernel reader already bounds all three fields (U8_MAX / U16_MAX)
-before the narrowing store, and OCON_IBPKEY / OCON_IBENDPORT do the
-same in this function. Apply the same pattern to OCON_PORT.
+Bound the value to UINT16_MAX in the binary reader and in both
+compilers before the narrowing store, mirroring the OCON_IBPKEY /
+OCON_IBENDPORT pattern.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsepol/src/policydb.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ checkpolicy/policy_define.c      |  5 +++++
+ libsepol/cil/src/cil_build_ast.c |  6 ++++++
+ libsepol/src/policydb.c          | 10 +++++++++-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 726060c7..fbacdaf4 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -4923,6 +4923,11 @@ int define_pirq_context(unsigned int pirq)
+ 		return 0;
+ 	}
+ 
++	if (pirq > 0xffff) {
++		yyerror2("pirq %u out of range", pirq);
++		return -1;
++	}
++
+ 	newc = calloc(1, sizeof(ocontext_t));
+ 	if (!newc) {
+ 		yyerror("out of memory");
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index e4f6af7b..4cc9ccf1 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -4859,6 +4859,12 @@ int cil_gen_pirqcon(struct cil_db *db, struct cil_tree_node *parse_current,
+ 		goto exit;
+ 	}
+ 
++	if (pirqcon->pirq > 0xffff) {
++		cil_log(CIL_ERR, "Invalid pirq %u\n", pirqcon->pirq);
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
+ 	if (parse_current->next->next->cl_head == NULL) {
+ 		pirqcon->context_str = parse_current->next->next->data;
+ 	} else {
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 551bdad9..6a9254f3 100644
+index 6a9254f3..60707fb4 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
-@@ -2741,17 +2741,29 @@ static int ocontext_read_selinux(const struct policydb_compat_info *info,
+@@ -2571,15 +2571,23 @@ static int ocontext_read_xen(const struct policydb_compat_info *info,
+ 							      fp))
  					return -1;
  				break;
- 			}
--			case OCON_PORT:
-+			case OCON_PORT: {
-+				uint32_t proto, port_lo, port_hi;
+-			case OCON_XEN_PIRQ:
++			case OCON_XEN_PIRQ: {
++				uint32_t pirq;
 +
- 				rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
+ 				rc = next_entry(buf, fp, sizeof(uint32_t));
  				if (rc < 0)
  					return -1;
--				c->u.port.protocol = le32_to_cpu(buf[0]);
--				c->u.port.low_port = le32_to_cpu(buf[1]);
--				c->u.port.high_port = le32_to_cpu(buf[2]);
 +
-+				proto = le32_to_cpu(buf[0]);
-+				port_lo = le32_to_cpu(buf[1]);
-+				port_hi = le32_to_cpu(buf[2]);
-+
-+				if (proto > UINT8_MAX || port_lo > UINT16_MAX ||
-+				    port_hi > UINT16_MAX)
++				pirq = le32_to_cpu(buf[0]);
++				if (pirq > UINT16_MAX)
 +					return -1;
-+
-+				c->u.port.protocol = proto;
-+				c->u.port.low_port = port_lo;
-+				c->u.port.high_port = port_hi;
++				c->u.pirq = pirq;
+ 				c->u.pirq = le32_to_cpu(buf[0]);
  				if (context_read_and_validate(&c->context[0], p,
  							      fp))
  					return -1;
  				break;
 +			}
- 			case OCON_NODE:
+ 			case OCON_XEN_IOPORT:
  				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
  				if (rc < 0)
 -- 
