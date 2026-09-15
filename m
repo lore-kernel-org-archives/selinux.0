@@ -1,130 +1,104 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-oa2-f12.google.com (mail-oa2-f12.google.com [74.125.231.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D0BB4749C2
-	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 09:15:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789463756; cv=none; b=G7iY/P64h9wiBVMhAfYHqASZubnsEM6v+H3NqH43TREIHNzG+8vItBnpbLSIx+DxchDG2Axb+KOVcLu+UmfWmdyNBlM17s2I0V1RJsH9JtzCzYQVUxLDVtkVemXUjswuyX0dPL+4yjnxLWhYI6GwAGFPiIzS0DKwRknR7McKj0A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789463756; c=relaxed/simple;
-	bh=FHx95X8qSVZPauwcRY8d4B9LCJY3YFZuX5TPZGtPQdU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K22DfBBnlTPNhYGt5pMAMS6HdKEWM9eLxdGQCQPKDpN7An2XJZ2WCmfwo8gi/O4WpeL0TYzGPP+AAQATJ0g2SOV3TNG0I15nf/B3w1NsM5iqgW+8TSywizFP7qIKuXdKH6nTwfUt3rX1j7txklwaBOI2ythkLh0V7zvfcETE5Yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=PNnmPB79; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=+A7fav2r; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ylVAH9c2; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=wsQr+tZl; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 813E93C279B
+	for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 12:41:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.76
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789476108; cv=pass; b=PbjMq2Hi4hAnAazbgzSopMRgq19V/GdM5RwNQA8jNeb47IIiWC3e5ZsANQU5hVkwjQyQ6Fk9/yTHHHj1qBlmWW3JygtEmuIvNu/ARpzZBwHckmkb7OSBOdybI+zMjXj+d1sC/wydq38hrri7FWLPT1U9l0WtlIdd/phyOr+E2/E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789476108; c=relaxed/simple;
+	bh=He54cgTLgqkFyHWqJe50PtA5ZnxIzuEm3hOTydN12uE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SZrQ14nGk39Xa0s2T6wpKbYcd2DbA3jVtbaDTiKY9TZrfDyUx+WygTZzCuAODG7VhLD/XGwF6+SSFwK/cT1B7UpQGGMy2ETzMsq2XR16cqkPnn60LFbifafqKCW8GfArElwLdnOW4R6SJhr/MHXFw5rd7X+ZSFe6WVjMkd1+QR8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JiErBplQ; arc=pass smtp.client-ip=74.125.231.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="PNnmPB79";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="+A7fav2r";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ylVAH9c2";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="wsQr+tZl"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 157121FD2F;
-	Tue, 15 Sep 2026 09:15:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1789463748; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HoKVSPsuFIZYqAHpm3BZyK5GWcnzvTTKer+B4zsmH08=;
-	b=PNnmPB792gwfrW/ic7Bc4lnBVUsyngpsxzxqqFhcV/cjMSO47m9rlfXyzwYNJYzgO72fzt
-	gEiKccg0mN/NfTfKX7sW18DNAiWqd3HVxO3dqK/4VHlCg9TB4bIIBN5bfr3GpvfDjNTnfC
-	jishFoqPRzyFe22AExbZXKh997sip7E=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1789463748;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HoKVSPsuFIZYqAHpm3BZyK5GWcnzvTTKer+B4zsmH08=;
-	b=+A7fav2r8LVqxYPqp5BXzwqfve06yAKyuvEJl/hCbArBSfdqsDfooBMfH0BCB6Z/mtPD3s
-	1mgXgXv9jN8iWJDA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1789463744; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HoKVSPsuFIZYqAHpm3BZyK5GWcnzvTTKer+B4zsmH08=;
-	b=ylVAH9c2AUOle+m8pr06xJ2txvzWCX5TgyQJCbAZuDHS5h68uGt6s0DSFtN+SF/fUJ6AaE
-	d1jKnJIDGfzhX7os1SmszyRtNXedSdLWgYW1LX7+KiFTUjgu+1htPTTjEPnz85YeVmdzY1
-	6ckM9/YQ4STGBdRxkrLEhBQixqFBrys=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1789463744;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HoKVSPsuFIZYqAHpm3BZyK5GWcnzvTTKer+B4zsmH08=;
-	b=wsQr+tZl3hNy3nACw2+RKWnrXiX2FrUZBjRD7wOVq5O7F6dp4WTacxz17kY8w/uYX4XvPz
-	UXtRgNeWRtR7TcDw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E20BE13693;
-	Tue, 15 Sep 2026 09:15:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 8vZhL78MqWoLXAAAD6G6ig
-	(envelope-from <jack@suse.cz>); Tue, 15 Sep 2026 09:15:43 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 47BA8A13D6; Tue, 15 Sep 2026 11:15:43 +0200 (CEST)
-Date: Tue, 15 Sep 2026 11:15:43 +0200
-From: Jan Kara <jack@suse.cz>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, omosnacek@gmail.com, ljs@kernel.org, jannh@google.com, 
-	jack@suse.cz, cgzones@googlemail.com, brauner@kernel.org
-Subject: Re: [PATCH v3] selinux: mark status and policy inodes as immutable,
- drop status mmap write checks
-Message-ID: <j4p63tm4s6ipdlphfo7u4zg7dirgp2o2wfsxvicbdxwwdkxfit@6lyk76wfnysl>
-References: <20260911163734.22981-2-stephen.smalley.work@gmail.com>
- <CAHC9VhS-TiBkOZWR7xgCrPnpxozjzM+y5vpgbPU9=R_C3Ta2WQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JiErBplQ"
+Received: by mail-oa2-f12.google.com with SMTP id 586e51a60fabf-4693691fde7so148258fac.3
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 05:41:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789476105; cv=none;
+        d=google.com; s=arc-20260327;
+        b=qRARkPLA4DyOFf01zGNyysso1b0hamDjrgdMiCYyrDeSazwBpSOvkV9P1WTii7ryP1
+         RgAaq27ZdeGoMrGGczkq+VRrfN1Z/mCfvo+lFhsxU1TNasiUMlTZF4QbBHYWTsBtorGp
+         TjACznWP8gx6eUgIRPgDaVjNYS6WzeVEP/OBNWoCNJGlEj8Duq++3Nirew0+BASSUEDx
+         J2FWAGjjPP7UV6VWUUn08w+aN3C1brytvOyEf+Ez9v4Xc7jAO3XCgfATz0TS7ov27Unu
+         o6N+xEm0EnRaa8fKcyDw5Gyf+Lz6EzKpJm1VhzdjeweLr9NVRw9wkB4WKJ2F4MDJnuxo
+         +tjg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=+OJ35cUa1X8ziXMvL2Wy+FHSIwiFsEwIuS4sxo488pQ=;
+        fh=09wTTs468RLOGZvYknrwEwy4FkKGkG4RXXpns0EUDYs=;
+        b=skVjOVpNswZu8LmYe9khlnj3ndPQd/CUdHLtiNByeYsX5Je2jdJMgaw/41gD881lzK
+         QBZuRf36PKsJn3vKmYZ6uTmDu3Dha1VkVquSuVUY3xQaArYN7mnug2+GPqnwf6t+fy1p
+         UpYUjvSJbgNKHn2nnHaf+ABzbA52FMoGpG445J7weqcECIhF+ZlHdptnTMfwt97bcCnT
+         j7YRqRr+l5CJzL51WST0zfB/Dlw21Gm0obhY2cF2oyk4gV8KSZ+GdsiLdSVBhn59my8c
+         r1izOIzLLJiCFyp4KAlaGICKTa0Ec87xJ5npFPI7uetrXcxZEV4ges+InK9EK9kT7jc2
+         Azbw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789476105; x=1790080905; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=+OJ35cUa1X8ziXMvL2Wy+FHSIwiFsEwIuS4sxo488pQ=;
+        b=JiErBplQeT/bRepddsX6CkrrXOBUxz+patIpoQTj/MibvoL6wY+snzA2NFEB/2iFku
+         Ao6HHKAwaZH7R9Ah3ysVYw/XgYHk4iY8ykYaCOGIXir5X04w6IDPUTLehTbo6lBQ18yV
+         /3btHLPOQ9ayHCRJEjfT58HWBqKsJvRSbb1KnHRpYJpBKsrIEIgPzUWGQzytAr1tD0dW
+         w+hHuQszyqZuUL2GUYz5Ngr8S9ELJiFKfX7z8P0WtyhN671yUNw14WZMmEugumDxXQXP
+         2GxnSuUylicKYytk86dLJsaR28HzbvncYk1WEFiLz3YU5JXJ47nCIbEDgDH6G9Zzw/z1
+         xdTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789476105; x=1790080905;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+OJ35cUa1X8ziXMvL2Wy+FHSIwiFsEwIuS4sxo488pQ=;
+        b=ZMQY5uNVq0eogzouVHm8SBhyaIloKNmw24aU21823RQ/GQVgfxdSFiEouY22EiW7cF
+         WtnZfoRUIWasyjGHKGHPqfFsHjsVbrxsQCb8087zjjjzk/vzy3rBcRYNnynyl+SjzCGA
+         7KSkECmiFZIDx6ZqrZcNCIAuZUHq/+9cQlMnnBSEkVzsuGYHVrCbZpVQjO8AG3m4cMpR
+         eZaS54TBTtMh2n2ZYPQHE3c1R9DEfqzC6Kds4UM5A6STHUpWvUlX05wKZ2svRUN6VWV6
+         z3n+XxLT9QEqgQicNAQWvC6tP5V7tK9FvcYPpZbvJyn4WXfxuipIU5BXr4qsmCrSKBkk
+         JsMw==
+X-Gm-Message-State: AFuF++lFZs7J/QaXOl73s6pEbtD1qLYJ8ePuFnWM79ZXcXGaWLpZ9eJ8
+	SoQ4c3psgbiHkF/UFdCX95jf3MHylTE0Rsgfe5tNBYAb2QLM6YXYQT/QHpCCDTkXEzD6kEVtls8
+	uSNKeBc4aLNeWcv8gm7s730drp9qtrAE=
+X-Gm-Gg: AYBFou1vew4gnjzDLn3DfnBaAxOYXlLAHY/mlTDKUIp91aU/F8BrTL2opLWXoQGgHMg
+	sUGjPmfV1my1vGuwgL58Drbn4SqNsPVytdKnosbxdSgPjTnSAsah2VpFOBDhQRuvfFxQfBZNnDI
+	iGFDpTEM+inlCRDVxw7ADASxlOx6RyZceVfUi5PRCMLeJ1qOO0SX8ei1ilRQDHwoWguYOCGpnXJ
+	u3GpVBUXn4E0SNQsKEEriGlA/VM/lLB3IXZvKz15ELXv6i6vWa8WJx4+TGmfEDGqrIr8XsAMV0K
+	4gtSCFyspW7wPmj80h6wPDvbMeItNPsDBQJPMJ3QbTDSp9K1Hh46BrdzWLOkw9Ry2Q==
+X-Received: by 2002:a05:6820:906:b0:6c0:c954:e534 with SMTP id
+ 006d021491bc7-6c738db61c8mr481645eaf.38.1789476104190; Tue, 15 Sep 2026
+ 05:41:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20260911163734.22981-2-stephen.smalley.work@gmail.com> <CAHC9VhS-TiBkOZWR7xgCrPnpxozjzM+y5vpgbPU9=R_C3Ta2WQ@mail.gmail.com>
 In-Reply-To: <CAHC9VhS-TiBkOZWR7xgCrPnpxozjzM+y5vpgbPU9=R_C3Ta2WQ@mail.gmail.com>
-X-Spam-Score: -2.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_SEVEN(0.00)[9];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	TO_DN_SOME(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[gmail.com,vger.kernel.org,kernel.org,google.com,suse.cz,googlemail.com];
-	RCVD_COUNT_THREE(0.00)[3];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 15 Sep 2026 08:41:31 -0400
+X-Gm-Features: AcwNN1VUjukzO97fF4XHpasDDcMDUHTX0ooEZae-il7LNB4U2Ajt5LLY6En3IeU
+Message-ID: <CAEjxPJ6oAKu61Y3NeOJuFSqwSGd+XTwipTx2LSwwBSLJTf9Fyw@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: mark status and policy inodes as immutable,
+ drop status mmap write checks
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, omosnacek@gmail.com, ljs@kernel.org, 
+	jannh@google.com, jack@suse.cz, cgzones@googlemail.com, brauner@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon 14-09-26 17:17:39, Paul Moore wrote:
-> On Fri, Sep 11, 2026 at 12:38 PM Stephen Smalley
+On Mon, Sep 14, 2026 at 5:17=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Fri, Sep 11, 2026 at 12:38=E2=80=AFPM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
 > >
 > > The selinuxfs "status" and "policy" files are read-only interfaces
@@ -161,7 +135,7 @@ On Mon 14-09-26 17:17:39, Paul Moore wrote:
 > >
 > >  security/selinux/selinuxfs.c | 19 ++++++++++++++-----
 > >  1 file changed, 14 insertions(+), 5 deletions(-)
-> 
+>
 > I'm mildly concerned about marking these files as immutable when
 > neither of them is actually immutable.  Yes, userspace shouldn't be
 > able to write to either, but the contents of these files *do* change.
@@ -169,19 +143,11 @@ On Mon 14-09-26 17:17:39, Paul Moore wrote:
 > problems, I do worry about the future and an innocent looking VFS
 > change causing problems with one of these files because it was assumed
 > the contents of a S_IMMUTABLE file wouldn't change.
-
-S_IMMUTABLE bit is about permission checks. I have hard time imagining
-some VFS code would do some assumptions regarding data based on that. But
-maybe my imagination is just lacking :).
-
+>
 > Unless someone can promise me that would never happen, I think I would
 > prefer the !FMODE_WRITE approach taken in v2.
 
-If you feel better that way, then sure, go for it. It works as well but
-you have to separately handle truncate(2). Overall I wouldn't consider this
-less fragile than using S_IMMUTABLE but it's reasonably robust as well.
-
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+In that case, we would still need to separately address truncate(2) in
+some manner, which requires something like cgzones' earlier patch. Up
+to you but the immutable flag seems cleaner to me and I don't think
+the concern above is likely to be a real issue.
