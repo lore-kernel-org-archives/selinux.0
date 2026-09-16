@@ -1,128 +1,125 @@
-Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
+Received: from mail-pz2-f41.google.com (mail-pz2-f41.google.com [74.125.228.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB07836EABE
-	for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 03:30:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789529410; cv=none; b=edwCNUqfqMKohE3eZigW83qlgf+RSik6VhgDKB9BleYc358a78FjRTWOfLTkBxA87OzpURf8y1nJtzNW7NxXpsXMK3rtqtXqayLBfmzJEGCTPLyToLCwYv6WrGAxq29BxM7H1kC9414ovdwRiiA+tAd1kjsb1o8bkgJBcXKcCGY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789529410; c=relaxed/simple;
-	bh=lADoJEvJwLqad1Os9IZPoKdohrwVmSPNwKLow4aYg5Q=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=r0OBkfh1DZaZOyI9ToS3Z87FQRixQA6eiGqQKCreZKPUsDdkvEeBROValz/oj678nXCjWHoX00JAKVcV/k16YOift+wbvvkFfquxl+k1kXlklAXHd3iLmJoN8emQr/KM1z0xxdmq3xbvJmhO5FOV8jUur9Z24qaOnvdPF9/3eLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OH7+hthr; arc=none smtp.client-ip=74.125.230.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A57352021
+	for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 03:32:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789529557; cv=pass; b=Mx0DOpbYU2BbHDIVsXsJ435w4Y9YemG/O35evlp3YoUXB3/h/TqoDTgXrKMD2QJIGJXTiT6qa8padsG8Baj2e+G2nubwPYGVnBKigeM+vJoNpWmaPSsk7z2DtMUnbjr6Myh3OTLxk9e8nbee0RBR/BlyzT0ZWnv6e3ZCzwQeMIk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789529557; c=relaxed/simple;
+	bh=awJZqiJlCs7vKgMBdkjB6ZA/qV1jULtIkmNIcL1+2pY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=swBgN2Bxkg0jHpWltWGIb5pBTPTi3I35irOlBt8UpYvA0iSZJo6vKdSGnlWGV6+V3WTiCDMIRZeqs89q0qP6wO8fF0vRJm3NmBTcoaIx3nQiXtjUbFPNEm0MylstOcTJQeDx1V7pCHv0ukVTxG9egLvdBBkQdZlxR3fS6GjxY1A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=KdRMNQ6h; arc=pass smtp.client-ip=74.125.228.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OH7+hthr"
-Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-5309ce58730so6769881cf.2
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 20:30:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="KdRMNQ6h"
+Received: by mail-pz2-f41.google.com with SMTP id d2e1a72fcca58-8692a8568e9so344126b3a.3
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2026 20:32:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789529555; cv=none;
+        d=google.com; s=arc-20260327;
+        b=HMSoNRg6Kui0pSHf0aU3WRrcTlVLoCFN4MHtSw8ypNrgLCMXJ7gO3pmuvrvYcZR2CS
+         i6V/Mbh1XNgvSGOrfHpOVemZZlm5h+Um7qgYRi+6DymWS7hV73uhDodUqybwbH/6KyC2
+         kvOJw5aGxLum5El9MzBKG6A/8YMe6awNbGO3WFBHDVgCXBvUXl0QUFGLxXCdlsgMJt9N
+         7deCDrxr13z+LjhlihHyOY83ETle7RwIiDVJMV9WtUzDxc/8arlq2oI8Nl4tPWJu8tiG
+         o4GY6aCIPqyXlTgmlw1rWUw4UhW7XRcrmU7vH5hbAHntWZYdz/7BtoQZ7fk0rNxDou7C
+         JjaA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZZGiDKwj2R3jFYZKWyR0Etbc/+MS14NnG4Mrli250L8=;
+        fh=HNsrhB71fdoO+juJHXjXQATtTqTaFBGmy52C25/oqkw=;
+        b=QmkSKMiXkoDHEIqc+2syD5Yi6/bSX7vwqpiSNeEWZfRkPyjxgRhhbY9IKy4ROP3dlF
+         qJdmQLCVoIuRv4tmNmCUxlPHU9LO+t9WLN0wl8r9tydS/J1ed2by3RkTXQ5Gb/jqjwrO
+         R5IfxxlrLn9sTlyIf2u9aJfYUCwwinUoAk8dbMofzd06LF26dvc46yJIo9Zt5u2XSk0H
+         5Sjjpl104M8g4TXiarLhkMe1VJgQ0d5DJn1lF7g5CIeXX6QVGT6NTHkOMc145dPCFhEU
+         AgxAGddcsUixbgooAcRQIl08poERYdwq9evjbDm/sdNoLRJX8HuCsg3hmDPsDc4FNNbj
+         yh/w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1789529407; x=1790134207; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=2bm31ePa7WsV8qeFRceTtEGTceD7Q/MB+XojEjfCZKc=;
-        b=OH7+hthrzUpNeHKYeYOdtaWhni6Isql8vs2c0NKuX2NCWCbAI5wCrK2wt8OT8DqDHh
-         8Gi53QBJ/6Zo9Tw8M4+KwkjWgeNIQpLoTKmQuom/wd0+/NLAG8ltlBrwcwddIlmxTg6Z
-         8RtoohipTkW00LsL/fcLpylbxVHXJxkcSn4gOsfE2p4633GUSiJJ5+f+aGqLU0Y85tYR
-         c6/TAle8X2TbiqyNNhhKIfFjq0Yh5Nu8DxIjXwLWWwP/us9kBevxJ1n0hwG1x/igfytA
-         35UzFKqsCGhJiGCgOYjunMhQOpgSgeiMpFkGSJKeyFmeC0N9A2P/Sacij/ZqWZO9xLX+
-         u9dw==
+        d=paul-moore.com; s=google; t=1789529555; x=1790134355; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZZGiDKwj2R3jFYZKWyR0Etbc/+MS14NnG4Mrli250L8=;
+        b=KdRMNQ6hHyyXrlh0N8voX7qGWCFZRfzOw/gKfGskbBMm6ZPVfv4fPRqF4UEide5m1L
+         fujVYiu6CAr1gA7E24MSve17C3uQ6ZAKj333epL1AQb7XBGDMyLLFJE6rPly6js9UAaG
+         GAbovCrhkOIEFvmcj4aihQRlyKPT5FknK1+FNglipR2J3BOwWjDiwtCX9qqmF25ZDCms
+         QoojN5+JzqoYyFx+wjDsRKwzVRbdthv3OdnPhj6Bqw/owlhUbI+V4NubH0LrrD+BRttb
+         OMRN1IpOphyd2P4sRoYJdDYDlHxlA4rR3Z8mhJCrayYH1Vz28eKdaT7M6rMFp/EgYc9O
+         cTAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789529407; x=1790134207;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1789529555; x=1790134355;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=2bm31ePa7WsV8qeFRceTtEGTceD7Q/MB+XojEjfCZKc=;
-        b=lSFD+8sbK2aXadyRyTwGsC9VsWBBOT52abtWXomqMzFwFJB2dFGoHJmRPucFq+pD/O
-         Ddh+tnpZH9tuULog73/kej1nMDCqorSJSEcpXbke7XQzXAwHKg5g4VgiFJ/nOvK1sy5w
-         FgZC5M/dEG+btreHd4txAmW7MzVvk1O4LIQ/KZ8APfqcqYUYxDyL/VynEvU981bjDAtk
-         nv3KBKEkpYeTPcTPwzEGhF743KF5j0psP7cLPgB96aahF7M+WuVM2xMAP2huqLSuDQKP
-         YJyoTLStcTvp2myfxNxtrZoBtufLiBuE5qSIGR2CEqNja+CcZYw3UhNES20Un0SzLtWj
-         01lQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwNfsMl+ZgFgj4sF1UJva9FWDXL9aeyHOONtgGwzE30DiCDKZKNGe3n1BIdaO5lDl7ZBOr9RCk8@vger.kernel.org
-X-Gm-Message-State: AFuF++niU29wmU0da15pCXgVXnIn30FMeaiqoAtGLkD7BV2lHDHbPyHR
-	/ADWoKym0ol1El0SSGQwBd1WvqnAQkwBJxzqZtlhtY2u9RS/TCl+9GvnnGx9DfbTQQ==
-X-Gm-Gg: AYBFou1QvFfB5JJS9n+N/QT3rL8tRa1E8utL6vfRagu9xowJlnue47EUEMHbkrS6/Ru
-	YWtsHwbfjxMBbWq3+Dvufh5hgtrPfhwZePBeNcffgSxa9XpcpArH2xQn/r4LIt//yAbIBMkFoFu
-	hegHPN+Vwcwp/oACwl8+CCVujqmfQRBLRTE58e+q/g3ymU/1PrerrU/cjKZMkZmzC7eTOdVNrKw
-	w6geHSeuIFDqmG/6oFho5wZOVpZYGSJTzg14Wcb16EQ05z7N1LKyZW3CGeLKZsr6E+F8u43dU0X
-	rWvajGyFc7GCt6JhZMIs+SXcdhUF0v2z54cmjRKtuEsy3I/rkWcMYu1wBCeWjmwg9V9/MGdyhl9
-	yNZVbIs1GByx1+rrywhxIgVXv4TxYuN8QLGXdWHonIy9Xg3xbkllSSDdVrAa2H0Y2ihQRoB/ItT
-	xjMkCcZckqTtbCjil8dQAzCjh97h0T54m9WsphiNXq8YG4U5zlsa+cvX7xGzJeSwx5+WprfhxmP
-	rUrFrV5vdEpr17L6vg7IGs55jsCIaJvExqqbjB2dK0X1X1jrSUEuaW7mOX53RaC0ixfCMjU5Ozc
-X-Received: by 2002:ac8:6543:0:b0:530:b2e1:2f3d with SMTP id d75a77b69052e-5327f5a6abfmr16520821cf.52.1789529406632;
-        Tue, 15 Sep 2026 20:30:06 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5326201c60bsm11362971cf.13.2026.09.15.20.30.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2026 20:30:05 -0700 (PDT)
-Date: Tue, 15 Sep 2026 23:30:04 -0400
-Message-ID: <44bb4aac4a7957bc4c2418967eaae790@paul-moore.com>
+        bh=ZZGiDKwj2R3jFYZKWyR0Etbc/+MS14NnG4Mrli250L8=;
+        b=WkljVdMewAxZQ2bBWIQohnPPLyUOJwkIdKcpzJ+1I9qoa1K+vMmsgHQwZjPT8ULshb
+         RsIrT+THiBmhMGFj/76izYcWXHrDL9oOctg3KkZ5jUCVpHCE8tq5SOtAoGDrRLXu/5UC
+         fObEJV2tROvRUwv7s8nsNO77Jh+QJQhVe6jkO++BqkbB+Da7DN8cBcqLZeIROMmEveDb
+         u/sUzRVbL06oMscosrebcjundXLMxMZytFuVAcFrEdkZsqc2HdxOG1dAqjqakf1REMAz
+         OSKg0XD5iomVu+LoHdM6jff1u722jTuDhcwb/Ra+INUivqCZo6XK3Z0WnH2XXb+q/aLx
+         WcLA==
+X-Gm-Message-State: AFuF++mWkDks4oSVWpJz3Muc+FKILlhPZsijlf0DTa6PilZDCZKgdJHh
+	+FjxVW5SkBBY+ui5HgAqAe0vmdgnLk94DSMpxzecrC8bBainWMUnT9dMTmnL4Ev3u7VZZVTjPoq
+	bUeZ3JgKH3s52YugjktGGe2R8zvtCeirZFM5WBcTIqE51Wsxo6bwxVA==
+X-Gm-Gg: AYBFou2CCgxUhHBmRo4OfOxi6vI1zuHfHctpqQk35FrdLoX1hC7BoxjhDEIvbyl4hcy
+	+XmYTJf3Gc3faOGuhacTV1rBje5jS77KIE3otIJpr34XXSuuXcjYAnGCJT5Zrln8Lxsq9OjsFlT
+	Hdx/dKIzrUBEagrKRKElaDsOH1nRiVvEfB1hwa/jjOweup98noG/DJsM4NcfbRlLhdSDoU2pci5
+	9fk1LUcm4c5h///eMqeILSGKowSQigNMa2NjSK/I3MTsyL/+/Lo/YsIfwIXAs0JY/Mf9sa8WyJ0
+	2bMQZgi59FIbclbssjbSTPSZQT897C4ZCn1rvs1XiE0D2pF+7oVxluFtHGm3XGSYxMYbMH+2Wmy
+	R4Letm79wgfU=
+X-Received: by 2002:a05:6a20:9395:b0:3d3:ae40:51e5 with SMTP id
+ adf61e73a8af0-3dd5f77cae9mr2526254637.25.1789529555224; Tue, 15 Sep 2026
+ 20:32:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260915_1728/pstg-lib:20260915_1318/pstg-pwork:20260915_1728
+MIME-Version: 1.0
+References: <20260915213807.481355-2-paul@paul-moore.com>
+In-Reply-To: <20260915213807.481355-2-paul@paul-moore.com>
 From: Paul Moore <paul@paul-moore.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>, selinux@vger.kernel.org
-Cc: Karl Mehltretter <kmehltretter@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, Christian Brauner <brauner@kernel.org>, Baokun Li <libaokun@linux.alibaba.com>, linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] selinux: recheck intermediate backing files on  mprotect
-References: <20260829213256.51527-3-kmehltretter@gmail.com>
-In-Reply-To: <20260829213256.51527-3-kmehltretter@gmail.com>
+Date: Tue, 15 Sep 2026 23:32:23 -0400
+X-Gm-Features: AcwNN1VVqfDQOzfm-hfdN2akteHJA3g95E2MYQYciOQiBcrWfXRJHfJdbeAmFww
+Message-ID: <CAHC9VhQsSMCZUH-LvmMoCK_7t-bdCDcp2YhYjzKt5YbsJnqXFw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: avoid 64-bit division of inode numbers
+To: selinux@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Aug 29, 2026 Karl Mehltretter <kmehltretter@gmail.com> wrote:
-> 
-> mprotect() can be used to bypass the SELinux checks that mmap() performs
-> against the intermediate layers of a stacked filesystem.
-> 
-> mmap() checks every backing layer as the request descends through the
-> stack.  mprotect() only has the lowest backing file in vma->vm_file, so it
-> rechecks the top-level user and the lowest mounter, but skips the mounters
-> of every layer in between.  With two nested overlayfs mounts and a policy
-> denying mounter_t -> middle_file_t:file { execute }, a direct
-> mmap(PROT_EXEC) is denied:
-> 
->   avc:  denied  { execute } for  pid=71 comm="nested_exec"
->     path="/payload" dev="overlay" ino=9
->     scontext=user_u:base_r:mounter_t
->     tcontext=user_u:object_r:middle_file_t tclass=file permissive=0
-> 
-> while mmap(PROT_NONE) followed by mprotect(PROT_EXEC) succeeds.
-> 
-> Preserve each intermediate path, mounter SID and file-description SID in
-> the backing-file security blob, copying the saved entries when another
-> backing layer is opened.  Allocate the array only for nested backing files,
-> and release it and the path references in the backing_file_free hook.
-> 
-> During mprotect(), recheck fd { use } and the requested inode permissions
-> for every saved mounter, and include the intermediate layers in the execmod
-> checks.  Policy for nested stacking may then need to grant intermediate
-> mounters what a direct mmap() already requires, and execmod on intermediate
-> labels for binaries using text relocations.
-> 
-> Tested on arm64 QEMU with a small BusyBox initramfs and a purpose-built
-> SELinux policy, on a mainline tree containing
-> commit f2381b546e7e ("fs: fix user path of nested backing files").
-> 
-> Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access checks")
-> Cc: stable@vger.kernel.org
-> Assisted-by: LLM
-> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Tue, Sep 15, 2026 at 5:38=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> As reported by Arnd, a previous change to convert the selinuxfs inode
+> numbers to u64 to match the rest of the kernel caused a problem on 32-bit
+> systems:
+>
+>   arm-linux-gnueabi-ld: .../selinuxfs.o: in function `sel_read_class':
+>    selinuxfs.c:(.text+0xdcc): undefined reference to `__aeabi_uldivmod'
+>   arm-linux-gnueabi-ld: .../selinuxfs.o: in function `sel_read_perm':
+>    selinuxfs.c:(.text+0xed0): undefined reference to `__aeabi_uldivmod'
+>
+> Since we don't currently use more than 24-bits in the selinuxfs inodes
+> (see SEL_INO_MASK), fix this by applying the SEL_INO_MASK to the
+> selinuxfs inode numbers and casting to a u32 before performing any
+> division operations.
+>
+> Fixes: fc68b6a45f16 ("selinux: convert selinuxfs inode numbers from unsig=
+ned long to u64")
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  security/selinux/hooks.c          | 141 ++++++++++++++++++++++++++----
->  security/selinux/include/objsec.h |   8 ++
->  2 files changed, 133 insertions(+), 16 deletions(-)
+>  security/selinux/selinuxfs.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 
-Merged into selinux/stable-7.3, thanks!
+Merged into selinux/dev.
 
---
+--=20
 paul-moore.com
