@@ -1,104 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE69A48EBEA;
-	Wed, 16 Sep 2026 09:02:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789549356; cv=none; b=S0IHWFPyX2AtiYnMESpWQjd+zB0p2Ou6fSt+9+kNHelEjiCm+VD4NRIonqTWZRw4/qcpc7iFuqtX22KLAlJ15JSLKT3DUrpKJoqjH2iiWHJacYD7JLE0lrRka4NcN5l7HeOB2BOSABvSJq5+BXADRL9s1t7wJRKAPhfE7IlwItU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789549356; c=relaxed/simple;
-	bh=8vauvep3m4UJB6lx3WfhIXSt5pAt3GydhtesLfAT/Ak=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t1EF8WWuV97uh7/+SjR2UBDBw0KQ8jhvGGeqR68xXIZZHD4/NbxPU7V2K6xNn108R7Xbs4QqkuM7Pw9di4AcjAaGue/rYR4B4CtBEyCLZAo/nhQ+fFXP90eh9JkBXVcN5p0uDdp25k4TDdpc/ocTm9pQXJlcdi8in8ETqKUJjPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wu0pWfdD; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772203403F2
+	for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 14:33:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.141
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789569240; cv=pass; b=nbDM6iL4HKgLsLnV4DrsFtX8h0SnkUOtiKs8ZLLuIC7yW0SRLjjy/fNrddYJdq/So5rzalUDqvtuEqfyTzrOVad0GPyL+TedI2AyuoxZp7X2L89p22OamHajUemFqRbhAugxgC5LRSAGGS/gA7Wni/MhZ8rmJ20VnPItIkDwDdQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789569240; c=relaxed/simple;
+	bh=K7XcWTAG9pLSnk29MAn2WD3gdRS8+vQtAmNxqtasz3M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gds+SY4TP1rWWy5zqxnenSxZOrANUgzsycO+grvenlymRomelLU3j12mlvLY2kOWN1dV+YDKBfIcMYZ77G/kssiSjwe+IxwX8VJi82uKd44b8uzB9Z/7l1/+gBlmwbl6QrvPgKVfQFBBoBPkkHSGldlXp+Aa5O6SZvDIeTV0wKU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=enlP9BVP; arc=pass smtp.client-ip=74.125.227.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wu0pWfdD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DE81F000FF;
-	Wed, 16 Sep 2026 09:01:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789549318;
-	bh=ztMMMMv7bxzK6KlzZ8FgpSfa4Wm0mxmludXZFP2zroQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Wu0pWfdD20WkmcJlHU0fRgfxFv5iUvN0ccfoP7F0VMVMYwoHsEoDYfn+nZMvEzV1m
-	 KgsAJCb4zn+2o0fvKGnbBgVbre5Es7my0jYMg1cdlyvgH0yxuNUuZnAuZrzuEwSaZF
-	 1yXsXOcY+4mY1yMSu//HjBM/KuFq2cuIsI8Ci83ETN+356JpDar6y/fUY4GlCRgC0N
-	 +o1s2o/YNhIVKXnP5KjUeBL1NTnQNOaFH1DEQN2ZwHIrNc+TnmM6Ln6fgymfBBoCWZ
-	 IGr8qm2BKp7AH7SO5nZrhRqHVCpNWTmOdiwF6Ins4wLxpoEYYHgWxPfMkHNfAg+wWW
-	 nENUQt62KGCVA==
-Date: Wed, 16 Sep 2026 11:01:51 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Jann Horn <jannh@google.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeff Xu <jeffxu@google.com>, =?utf-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Pedro Falcato <pfalcato@suse.de>, David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH v3 0/3] proc,security,selinux: let SELinux block
- FOLL_FORCE for /proc/self/mem
-Message-ID: <20260916-begossen-tischbein-abgemacht-e7dada3d1e56@brauner>
-References: <20260907-selinux-pokemem-v3-0-0bafbaeafe50@google.com>
- <20260910-wohnbau-bezwangen-wegziehen-7a32dcf237b1@brauner>
- <CAHC9VhTE82bRRSXSUuMOdrfoMh=xOb5hDvqiKWzBKD1urab3hA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="enlP9BVP"
+Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d6ff3aca06so115045ad.0
+        for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 07:33:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789569238; cv=none;
+        d=google.com; s=arc-20260327;
+        b=EyIODsGxv4OiU/AC6c5EAOn0QCFhvs9hvYUk0znOOa387nksXGBqbZJ2tJYL6PuBqH
+         ML79AdxzAFpx7kz+aTXrX0nnS8XpanwSScMZT+u02MzXfCw4KMJpXvzP7G5WZSq7jEn7
+         kw3IyiMsuM+fcb9goHht9dNQnjT0/0b58BqJ68CeeKQRwvoKeKBpXWkVOLq8HzIUHWdk
+         tBRgWdlQPDfboZHa8NrzCY5yccx7CzzY6IdLxCKxguqTSjsxhdFI1F6KJmS9GbCwVBM3
+         6jq3DxeDh16WLQQ2BXO+fjsgBMM8sYnFPgjUq/F55IHbe7dB6JRIn2PGITL5l0NIhsUT
+         0sFw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=K7XcWTAG9pLSnk29MAn2WD3gdRS8+vQtAmNxqtasz3M=;
+        fh=VE+y090F/kzZlP13qecU6B8p7JYxaEi87TW2mRUpCmo=;
+        b=FD6KPN/9fBr89tilIYof6ZB60X5HR3DXAZDZWrZ2tAUV6+984msv1zBPIGeJFnwWAD
+         tN5UxeN6J1ABwXHkqj1JkLzFUEa0F04Ngg1cEibVEDGF8E6UrUevfeeDDaFQCUazP/CG
+         nw2fxP8cgh9cDQmwmJ2zM35N5t5E6g+5lEt09Eu1r85Fpv8KWZ5jRZLBEFuJzaS1vRE/
+         U07mwWaSCsd/kNq9BD3d6vwz0Xqk+9M5DMeV5PA90hEM9li8RNIVNv87Wfo7Ts4VtlWZ
+         8XwQfUrtVVN825McQ23r47BHdJU8oMBGqFTItxVU3H0tILhpC0gs5PBjIM5gSpC7H+Ca
+         a0BA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1789569238; x=1790174038; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=K7XcWTAG9pLSnk29MAn2WD3gdRS8+vQtAmNxqtasz3M=;
+        b=enlP9BVPCseMCloxPgKpmFrxpdvmDWfyw0wlrGMj5nishBaaJ++qgTLDrXA9Ls06di
+         gRT8tck0R+uTqB/pfBhSFKpHY9Kkqo8WK22itILYNg2HPfwiLEh3J4cKiCmw1kVSNAkr
+         aF+NAV8RWhfzoPcKayF6UJToDx4ykr10POgjLyAkuremzJuaGQRAr3/P5XbpraMeBGQC
+         po1cw+Bi09jpVJhjja6omm4xsJ86Jo7TyBvb/aqYzXz4ld0q13dEJKANC9CxeaZdFFYi
+         Hi1I8tlvYVmwYKDvQYayGmadLQDwtrlMNckw0PFBlVKM5R3qPNlBHXSMJ8iIT4gakwce
+         uYEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789569238; x=1790174038;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=K7XcWTAG9pLSnk29MAn2WD3gdRS8+vQtAmNxqtasz3M=;
+        b=RAUZ9Vlxvtm8dh3y1edUqXby0AEXj1otSVT6afAokGBFqv18AYMH8c7R/2veIOXkFZ
+         drLBT6PPxAdswpdwpNbsqu5xrOC4vDJlXIoU9H5o1KA54QoP0sJ3TL4Ch/tKNzdKvdZS
+         bMgiVWUBH2dnL9PhAhlHOHEuSyYl1IOQLZcpIIzXzF1oMsW6FH1Wfe5RafmJVKkI/nM6
+         J+23TdCJ+3fl9lr/vgZ/Y3tT0BCRj9grz7xXJgL0d2N9b+EaB+cyFJ1avmh2SZAJ+iVC
+         /z2WNUJXEz6iUhLa53AdojnTLGm2D2KW5TIvDWu4uERDrUx5URPPN+o2Qj9KoPhsK5nj
+         lGIQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzeKQ3nHypbUie9J5XulmmhCEc3h992Q2BqX3/CjCi7ZUNQJ7Mauu3aW9WbtN8RgEy3nQzS/R5p@vger.kernel.org
+X-Gm-Message-State: AFuF++lOAO3EjNkjMVP6WIb4r5pZ889pRuQNGDR1Bh774R+CR+ncNA0K
+	NJIb+Ppl1gJLtLZ2/fVYqmBvpTJyLQTCTX3y9HKc1h+e8HyTLdpTI2C1QZYQ1J8jnYzPQffMy7Y
+	Y9a9QKBDrrd7INHf8zxXWxeJiZOUVV0H9hRfccdHE
+X-Gm-Gg: AYBFou3gfZef4NuKdiCaAbmZhHeVNOlKew9uir7WvACQyap4PVPw5LtgV5EmWvvQaJ8
+	P/tF9RP+5QGXgaqR8tRu9OA2KAqjx6Juo9U/SC2TN97zZNS8vy1PpCTm9DBxBe1I3yYzOtOCXxA
+	UHqJBlepLN3qafjvE27M2/tdCPYzKlB7AwYVcvbWJ2ipDJyciXdjS4K6LbtIitMWD8uereZ/WVG
+	wdnfV7QsK3OIXsegaJ+3ZQ+zRiFeeSeWzkQXalW6u+HfaUTwypKiKhVlD4RUptEx07LiWVNeAAy
+	omv1QOu5G/7QvEhlI5DkdmSDmBgD4C+IkZ2zmxmDsX0hgLaIOTsmnh+qoqjLeB4ZJVTjbHkhXfn
+	8wUVJwf88KqB0bysidw7hIRki0h0j3PYmD145efDPyw==
+X-Received: by 2002:a17:903:1b70:b0:2d7:2a35:d14 with SMTP id
+ d9443c01a7336-2dd8e92caefmr4932795ad.11.1789569237830; Wed, 16 Sep 2026
+ 07:33:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhTE82bRRSXSUuMOdrfoMh=xOb5hDvqiKWzBKD1urab3hA@mail.gmail.com>
+References: <20260907-selinux-pokemem-v3-0-0bafbaeafe50@google.com>
+ <20260910-wohnbau-bezwangen-wegziehen-7a32dcf237b1@brauner>
+ <CAHC9VhTE82bRRSXSUuMOdrfoMh=xOb5hDvqiKWzBKD1urab3hA@mail.gmail.com> <20260916-begossen-tischbein-abgemacht-e7dada3d1e56@brauner>
+In-Reply-To: <20260916-begossen-tischbein-abgemacht-e7dada3d1e56@brauner>
+From: Jann Horn <jannh@google.com>
+Date: Wed, 16 Sep 2026 16:33:20 +0200
+X-Gm-Features: AcwNN1VHcCpN0atD-cxO0BibJJcgM5o-LVFXYygCh_MGPfeRHWgz6O_0BmL4XXc
+Message-ID: <CAG48ez3DRgU7eQtF71EEQw72+xV5kWv0nQn==9uVd=YPyGhJUg@mail.gmail.com>
+Subject: Re: [PATCH v3 0/3] proc,security,selinux: let SELinux block
+ FOLL_FORCE for /proc/self/mem
+To: Christian Brauner <brauner@kernel.org>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeff Xu <jeffxu@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, 
+	selinux@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Pedro Falcato <pfalcato@suse.de>, David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 14, 2026 at 01:05:39PM -0400, Paul Moore wrote:
-> On Thu, Sep 10, 2026 at 3:48 AM Christian Brauner <brauner@kernel.org> wrote:
-> > On Mon, 07 Sep 2026 23:00:15 +0200, Jann Horn wrote:
-> > > proc,security,selinux: let SELinux block FOLL_FORCE for /proc/self/mem
-> > >
-> > > The goal of this series is to let SELinux prevent the use of FOLL_FORCE
-> > > when a process writes into /proc/self/mem and the system is configured
-> > > with PROC_MEM_FORCE_ALWAYS (which used to be the default behavior, and
-> > > is still used by current Android devices).
-> > >
-> > > [...]
-> >
-> > Let's move this on a shared branch that both the vfs tree and the lsm
-> > tree pull. That's the standard way of handling dependencies between two
-> > subsystems that want to route code that touches both of them. Branch is
-> > stable.
-> 
-> For some reason (/me looks at gmail) your email never hit my inbox, I
-> only noticed it now while reviewing Jann's patchset.
+On Wed, Sep 16, 2026 at 11:02=E2=80=AFAM Christian Brauner <brauner@kernel.=
+org> wrote:
+> On Mon, Sep 14, 2026 at 01:05:39PM -0400, Paul Moore wrote:
+> > For some reason (/me looks at gmail) your email never hit my inbox, I
+> > only noticed it now while reviewing Jann's patchset.
+>
+> Oh weird?
 
-Oh weird?
-
-> Christian, can you explain why you merged LSM code that I haven't
-> ACK'd?  We've talked about this in the past and I think I've been
-> fairly clear about it; I wouldn't merge VFS code without an
-> ACK/Reviewed-by/etc. from you or Al, I've been expecting the same
-> consideration from you.
-> 
-> While I don't have a problem with a topic branch for this, can you
-> also explain why this topic branch should live in the VFS tree?  There
-> are more changes under security/ than fs/, and unless I've misread
-> Jann's cover letter, this entire patchset is focused around enabling
-> LSM/SELinux controls and not necessarily anything really new from a
-> VFS perspective.
-
-See the reply on the bpf thread. I think this just a misunderstanding. I
-was under the impression that with minor tweaks v2 was already acked by
-lsm people.
-
-In general, if a subsystems hooks into the vfs layer and filesystems
-that are directly maintained by the vfs layer then the vfs tree provides
-the shared branch. This is not at all specific to security. It's just
-more pronounced for notify or security because hooks are accepted
-layering violations that place constraints on how vfs code itself is
-organized.
-
-I think this is just a misunderstanding that would've been easy to
-clarify without the kerfuffle.
+(Same for me, I don't see that mail from Christian on this thread.)
