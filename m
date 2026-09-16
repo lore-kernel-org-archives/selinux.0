@@ -1,61 +1,62 @@
-Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
+Received: from mail-qv2-f17.google.com (mail-qv2-f17.google.com [74.125.230.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D6C4DD3CA
-	for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 17:06:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425D04C6522
+	for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 17:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789578408; cv=none; b=PUTGh7o8FHKM7Xypdp65eqyr400Ts34jVA19AdXgTgtDFE33XtaSIKvgHmzaTWQwR7/FKyQSULcjzGItcmYEm84cZpJz5qKz1LXMDXHGN2apfAMCdT7mlRvGm1trt9lZVvGFqKob5MtX1wCr0PjtImHTJ6VV46GA3nC9VCG1nH8=
+	t=1789579712; cv=none; b=VAfljxAmoZTxOSNNBPAjhwi09GC4N4WeRitBpReYo5Kp7hq7t34PrrtWousRZN5spOOdgymwPvaSdMGtnMZNH/bY4CZzB42GtE762j3rwKmv14NjnVpzONKFRhz9mFGYy5e7v8cO0xTslrQxcRTvtoctH8U0nrKgAhh+mgKTdEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789578408; c=relaxed/simple;
-	bh=Pulv4bJ954GUQIFKJ0zpYxlvWxApRjBpVSiUGAxl/mU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=juS6a5OHrBSz+WPWvHmXBazCpMgJurUTSE5TtzA/t7qURhbe88Fhquijf2RcdWmXmzXV2/lYTFljurdnt+Udw+zG3npkxj2qz/TlK9uUZY4hSuoEwYPHpR/jwsEhZmkrxBAeZD+/jF8h4neuPvywo2ZsOli5sETTcKai8kw+9+I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=auN+YW8x; arc=none smtp.client-ip=74.125.224.141
+	s=arc-20240116; t=1789579712; c=relaxed/simple;
+	bh=IdE31JSQKHKiez4ZILBytPo32IQY5+Ub3KmtCJD6lxM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C0yJcbz7A4T9nxrFjMv5MnINVs9X3fDBQ53GvHP3hpgffzZrv2HEuZdFvHzHHp4a4VFqxndOP1aXEFFheGUl1RqRaijLZ7fFUlznHaY6vTgVwfK6NBrKAl/6/PeMtYZZoRs++Fg0fZklvB6jb3N8avq8FYDFRwHxVszcAf38+Pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KGkM2KJk; arc=none smtp.client-ip=74.125.230.145
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="auN+YW8x"
-Received: by mail-yx2-f13.google.com with SMTP id 956f58d0204a3-6713d20d375so1219492d50.0
-        for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 10:06:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KGkM2KJk"
+Received: by mail-qv2-f17.google.com with SMTP id 6a1803df08f44-90cdfe57a3aso10774546d6.2
+        for <selinux@vger.kernel.org>; Wed, 16 Sep 2026 10:28:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789578398; x=1790183198; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789579709; x=1790184509; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BYHti5DAfFe/X89dipb7vtBrEiFX7oG3Rr3u/txsyN4=;
-        b=auN+YW8x61UVgpcq5Fm/f5oi6c3Wx6qeNrQT11Q1P+MnADc7DZICdx28AnJYEErD/U
-         SXa+g1yJHCtTy+Dx0X8lFUj4Y6CsJMf1JU+EUwZoMkTsRBEb0nTdFD4cZt7FKWR9hEeW
-         qIwB5yhj34Hed+g6gL/KoETgZoPfc9jyYf7Xwuvmh1e4j1ZcNP2slJ7svht0YCj6gcy0
-         CtKfIx653vlbbAyOBr73L0dBjMNRQ93OBxdb3OYBI4zb5ZA035aeAMik6xbDHMM6PuoE
-         Vq0tBwZGaMTIG1pUx8U4BigcrZ163ZkKwhqoPmLMrh8aG5QTw8r7pQwRZpwFgylCY/hb
-         QZnA==
+        bh=+KOyDsfqM5x6DJlFrdxgAJXjJvgXSc6uXiN3kJOMNyg=;
+        b=KGkM2KJkJ15ypHCW+ZAdavzZAjafKV4Z9ww9qHAqNaJXGlYXD7V/FNvYBvmwsnMfq/
+         Zo7+oXOSROYWBECrHXYysX6ramUCsOAnlsVGhzSeLJDQPJwdYjRXMKB+i6b2Xft5RjJn
+         NLz0w+GYpsTZe+I3kW/TaF8HoL0lRoRWTG3dsPHcRDU9bAIyx0PKwJqiwG1NA+VdV4RV
+         qmqITzC4HFlOTNd7uZ9lbVRm96fcOZ+CEOfu5g3mG8xo7MS0yi/D9sh9SG2ZvJBYj6yE
+         zs/loZI/amPku4WK3oP96cFI5ckJCfH3hRRiZ6BHgt8wIWFH8zTgGlN2XD9e1Dc9PP/m
+         7odg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789578398; x=1790183198;
+        d=1e100.net; s=20260707; t=1789579709; x=1790184509;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=BYHti5DAfFe/X89dipb7vtBrEiFX7oG3Rr3u/txsyN4=;
-        b=hHhK706q1S2IS78UmiQ1Fx5f6BJxpFF2V+05pzjZedelnBhM5VrJDJrUA2VPsF8YQZ
-         1NmKKmLRhocWav/4MonzEhzSsaS1O9SP1odUIw9wLC9eFfTMV3ciQE4oVpJ2aazaBlw2
-         1Y3PpsbU3ykNHJ13iqV3B9k1bKzTgEUIjUpu6vehWVnYewgiGM8I7tKkWQ0icqwTou+h
-         wSRFBnb8ovTyIPvyM3mqkPQAun7T7baC2TG5m3lSP+pMxRreCHyQsmM8l/WhFzJSjFRd
-         nggqLRB+XQJwig+9jO8b6QMWAtZ1KKrvSWjSiQSroZ8PsaOZVT/ZHAGfGyQvPCLEmZHp
-         DUZQ==
-X-Gm-Message-State: AFuF++mx90oN1xBRNZjNXsSZo6ew5RvhENZI5MnK+I7HP0vROGeI/LrR
-	tTQvEMI1iiA6PhW+sibFNyeAxU/opCfKhlHeuljQ7WPcOGpyCQBGcyX+3p1vjw==
-X-Gm-Gg: AYBFou0HHnRkoB4lRXeViF2HG63qLzhIWy9RcO3joqIgdbJwp7WjtWzPgeOjQ2YPAtA
-	51YVUf6UBUq7WwN3qvSGS/hHATvnR3lZsXQ3yx7KsqZ12J+hirvSxVh8hCHG0X91j84zZHd8jtr
-	ctjompo4u0+3fxqU9mqi6RQqMd0atpMh/eDgWdFwU73fchmbIcQKi9gtejHRpCqS72naZrGkOLT
-	20h+/rrsYCmsODi4Z72aPBRQ2MUCLLm0dL1f2xcZOx+ACxT1sdCulblY6QsRXjcFqgj88dP7DNO
-	yJEFfbt8g04qIUdzrmt+tjjUOLpnnIHWrzEjePo+t74ly8kl6oNXwkLa0Y2e7XoPzLo2Vugd2d2
-	XzP6IXkk77Vjal/2pbugsJlgXKLuglOs4APMu2XXGcQcZkBvKsluPTUSzCe8P33vgcurNeSDXMB
-	8hgP3j7TCW5tFjWymWRRmMUlI2cbR5ZaQtZyR5kwSBeX4EmClajMSQOXIP5Q6q1fQ5VsHA1gqbC
-	NFvl4ceOf8gSAX+uW+vqDoejtizBMk3c8XTz+rYU7p1xWc68ZP1Z5bEt6R9IOxWbbVrMLIvrR4=
-X-Received: by 2002:a05:690e:bcf:b0:670:f743:6eb0 with SMTP id 956f58d0204a3-67163308531mr1104854d50.98.1789578397657;
-        Wed, 16 Sep 2026 10:06:37 -0700 (PDT)
+        bh=+KOyDsfqM5x6DJlFrdxgAJXjJvgXSc6uXiN3kJOMNyg=;
+        b=kzQdcBknmxzHVQ0QWI5iIuNkDJFEZlVJmdfu2+3/MGG83wGHNTYNKK4pfJp2B25Nr/
+         4qpHOZn9xNDswcH2wkw1+ZpLVkAfGEvkZsUtb2TMiU1a55nQttClsCZGZTzyxUTcPHGI
+         NiFX7d+H2G1/L1AnCWw1egkxELVjCx8ucUvuNP+j9ZgtT/o0iExZhULdLZEhT8XJXDG9
+         qwS5gQCaEQzFUA/lmw68sjyuu7ldS88uEi7Mre4DiFOnTzqgu0xufhV8vJcU9Wkcv903
+         gzrEV9FKWUf0x8nounyd/MQW0KsW597k6yxNE0b5uCvCaA756vZm5pA6X4dUHutk+CtX
+         YlUg==
+X-Gm-Message-State: AFuF++kMCabUqGO/2BiVSuQDdH1dah83+tySvQ6lj9+4q1fbrpJgtOZa
+	j1eRWsIkYHDBdAE/lmTMCzn75wo30Y8swHPaYkOx9LVFQ9h1LOoJqpcPaUB3PQ==
+X-Gm-Gg: AYBFou25+XPusF9Nibd94oLig4ySAuf5soxGrIhpnnkRNxoq21yK4ClUWtH5/JC0An0
+	0KZNwjwqzziQMZ+jMfThxQjal1EHpcFru3GmQ1xj7MO4f6SdomEcXTJgj4XIFipG6WPRGEliCb/
+	AQTNX2jOo7KVOxd37ingC8sMijmwAoJ8+1e+edyGlGIM8Yn+J7COLeki+4FSiegLfIQ57AnfYHe
+	pqHiztLbOLAuvSsAprXnxnGK4j3weO2wkvWNvyl3lPQmUcPQlcWghysH0qz2MFY4r3Rm/hDp3lj
+	N/LLgVC5BhNRskcXYA+LRDAmaYvwXyuOEzOeLTKcG+KeBOT/jqYowL0Tuc4CKUJ4gviVHNht3o5
+	89J0cBh7l6k+3KEdR0U+tCv/8VSHzjfznrIsj72FvrDzERi6pM+q4cr8R8dRnHUDM2VAR+Yn3N7
+	7MhgsUcy1mGFj+3mafAvO2iEvS0BfEtbhvsDj3jeioVRuATEsbmjR9T0XvjgDcCDr6sIa48SPId
+	QgnVajWHXAhhN73ouK+IMUYilMCtmRuvZg2SekHUgr5/sNMgkTllepie510VWKGjThMcCMf3RFs
+	B8i4BqynIg==
+X-Received: by 2002:a05:6214:529c:b0:910:44e8:e643 with SMTP id 6a1803df08f44-9123d754448mr58958336d6.15.1789579708994;
+        Wed, 16 Sep 2026 10:28:28 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91240419385sm18155266d6.10.2026.09.16.10.06.36
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9123be9ca82sm30053746d6.32.2026.09.16.10.28.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 10:06:37 -0700 (PDT)
+        Wed, 16 Sep 2026 10:28:28 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +64,9 @@ Cc: jwcart2@gmail.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4] libselinux: fix incorrect regexp anchoring
-Date: Wed, 16 Sep 2026 13:02:28 -0400
-Message-ID: <20260916170227.74181-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH v5] libselinux: fix incorrect regexp anchoring
+Date: Wed, 16 Sep 2026 13:26:03 -0400
+Message-ID: <20260916172602.74725-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -90,9 +91,14 @@ input, and mode changes like (?x)#... or an unterminated \Q inside the
 input cannot swallow the appended anchor. Set PCRE2_DOLLAR_ENDONLY so
 the injected $ matches only at the end of the
 subject. PCRE2_EXTRA_MATCH_LINE composes with PCRE2_PARTIAL_SOFT and
-with JIT compilation, so selabel_partial_match() is unaffected. For
-the legacy PCRE1 back end, anchor with ^(?:...)$ around the input
-string.
+with JIT compilation, so selabel_partial_match() is unaffected.
+
+For the legacy PCRE1 back end, anchor as \A(?:...\E)\z so a top-level
+| stays inside the anchors, a trailing newline in the subject is not
+matched, and a pattern ending inside \Q does not swallow the closing
+group and anchor. PCRE1 has no equivalent of PCRE2_EXTRA_MATCH_LINE,
+so an (?x)#... comment at the end of the pattern will still consume
+the suffix; that case is left unhandled on this legacy path.
 
 compile_regex() no longer needs to build an anchored copy of the
 string.
@@ -102,18 +108,15 @@ Suggested-by: Stephane Chazelas (@stephane-chazelas)
 Fixes: https://github.com/SELinuxProject/selinux/issues/544
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v4 follows further suggestions from the issue reporter to use
-PCRE2_EXTRA_MATCH_LINE, thereby obviating the need for building
-an anchored copy of the regex string in the PCRE2 case. It
-therefore moves the anchoring into the regex backend where we
-can handle it differently for PCRE1 vs PCRE2. It also updates
-the selabel_file.5 man page accordingly.
+v5 fixes a mixup about the anchoring prefix/suffix to use for
+the legacy PCRE1 case; use \A(?:...\E)\z instead as the safer
+and more precise expression.
 
- libselinux/man/man5/selabel_file.5 |  8 +++-
- libselinux/src/label_file.h        | 23 ++--------
- libselinux/src/regex.c             | 73 ++++++++++++++++++++++++++++--
+ libselinux/man/man5/selabel_file.5 |  8 ++-
+ libselinux/src/label_file.h        | 23 ++-------
+ libselinux/src/regex.c             | 78 ++++++++++++++++++++++++++++--
  libselinux/src/regex.h             |  3 ++
- 4 files changed, 83 insertions(+), 24 deletions(-)
+ 4 files changed, 88 insertions(+), 24 deletions(-)
 
 diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
 index 679a3f0e..34a17351 100644
@@ -184,7 +187,7 @@ index a42e2aef..a4f1d4b5 100644
  		regex_format_error(&error_data, errbuf, errbuf_size);
  		__pthread_mutex_unlock(&spec->regex_lock);
 diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-index d6b5bf02..9e3b2bb3 100644
+index d6b5bf02..483f92e6 100644
 --- a/libselinux/src/regex.c
 +++ b/libselinux/src/regex.c
 @@ -41,7 +41,9 @@ static pthread_once_t match_data_key_once = PTHREAD_ONCE_INIT;
@@ -271,7 +274,7 @@ index d6b5bf02..9e3b2bb3 100644
  	regex_data_free(*regex);
  	*regex = NULL;
  	return -1;
-@@ -373,15 +416,37 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+@@ -373,15 +416,42 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
  		       struct regex_error_data *errordata,
  		       bool jit __attribute__((unused)))
  {
@@ -285,12 +288,17 @@ index d6b5bf02..9e3b2bb3 100644
  		return -1;
  
 -	(*regex)->regex = pcre_compile(pattern_string, PCRE_DOTALL,
-+	/* Anchor as ^(?:...)$ so a top-level | stays inside the anchors. */
++	/*
++	 * Anchor as \A(?:...\E)\z so a top-level | stays inside the anchors,
++	 * a trailing newline in the subject is not matched, and a pattern
++	 * ending inside \Q does not swallow the closing group and anchor.
++	 * PCRE1 has no equivalent of PCRE2_EXTRA_MATCH_LINE, so an (?x)#...
++	 * comment at the end of the pattern will still consume the suffix;
++	 * that case is left unhandled on this legacy path.
++	 */
 +	len = strlen(pattern_string);
 +#define REPREFIX "\\A(?:"
 +#define RESUFFIX "\\E)\\z"
-+#define REPREFIX "^(?:"
-+#define RESUFFIX ")$"
 +	anchored = malloc(len + strlen(REPREFIX) + strlen(RESUFFIX) + 1);
 +	if (!anchored)
 +		goto err;
