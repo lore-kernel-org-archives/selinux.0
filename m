@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA315908A3
-	for <selinux@vger.kernel.org>; Thu, 17 Sep 2026 14:26:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3D558B6D6
+	for <selinux@vger.kernel.org>; Thu, 17 Sep 2026 14:26:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789655185; cv=none; b=Y2XZ2yatpCNQw+bxq9k8EgMRbsA3AaekfSenDCgk4S9JBLiPJsAeCF62PjUCK6slUKOtDBAYwDVDuInv62HOZWgifHZJ2M5Qi5mS82eLj6ULJtzK7G//jXXQ9n7QomZPT8DEN/UJmso3977PqK0atG8KYZc17ReY/SxswkqXIaw=
+	t=1789655210; cv=none; b=V9D+sda0TglUlv4cgYHmPHr3Vei+/2O/gdW3FD39MMITMstLDnbmOecWPPoLbQRk4Wx34Zb7wv4Vtm9flvOn9djt0Mis+S010n/cBN2zW1B8VUbSGa6o4+E9E3+qjReriS0kME3lc1poUzpDf4AOaHTDxH97un9R+zzNTeNsq3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789655185; c=relaxed/simple;
-	bh=Xq/rrMQ6b2hTZ2wDFQY+m/8VPJ2whrnvtdmCbKVjd/o=;
+	s=arc-20240116; t=1789655210; c=relaxed/simple;
+	bh=WlX3wdTaw0GBCFfyP+iuD4dxHv/5HM439qaR5Gug4ys=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=sQNDKwtD4qNVkmG+MtIX5HKIA/c0MJoCAqFfwvXpui/9EwW3QGXb0PdtKhlni6c1XlGYbNr41ayQY5O5lKQ6DvspFdxlGthKTNnHtKd2CH09whAM8Nm/AcFhO7Bg6adBZzZ58vOwC+sr715RgYvkQIp5wVXVcwFaifFR4Px8ggc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZgtY5qkb; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=A0umyzEgE6aD4FP64u6P+NgphiMEPZqKOTCszH/6RApWzlY3AiOZ+r51bbjdI1hYq1c7V3FibXl5HPoPPcBxDJ/uMKDV0jftwb485VMbk1/jdNSDkFT9fUjGDVll65B58waGEg7LVOo3NQzZXW+WynRkRkXOvWKnaFrbsL559qM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JDNHpSvX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZgtY5qkb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9626A1F00893
-	for <selinux@vger.kernel.org>; Thu, 17 Sep 2026 14:26:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JDNHpSvX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D6F1F00893
+	for <selinux@vger.kernel.org>; Thu, 17 Sep 2026 14:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789655183;
-	bh=Xq/rrMQ6b2hTZ2wDFQY+m/8VPJ2whrnvtdmCbKVjd/o=;
+	s=k20260515; t=1789655209;
+	bh=WlX3wdTaw0GBCFfyP+iuD4dxHv/5HM439qaR5Gug4ys=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=ZgtY5qkbLp6GyTzNB7EVsv7VBjE6YyxCuj/wovexo6vJFwwa34sT/p1/Xx7pQbQ5a
-	 QhTP1yYh/pdc4d8gl+FbzLfEICAm5iPBbW9xQ5jwqp8cgwVoa4521JmsXSjwrOafHv
-	 QQCcBBKx9psGeLarwjXg7pi9ZoufUKzR5JDXtNoESxKnJPv3RKzjJvQDknbHecARa9
-	 bO5KUoJZ13dM4/OA5R/WH5ihEm1YicB2wsA6EOu1QIBsBIsZ3/hSBA0Q8AcK4EcVqX
-	 3r8/UIa89fu0uxLduduZY9oS5Z1SP6EGtxKTeKD12pjgazHqoS3OHQe4hwDEaC1YOh
-	 J8d016C0UQ96A==
+	b=JDNHpSvXyGRJ5CNtnF5YmoFu6Z/usYrwAHExJ0WtJSD7Y+F8cef320MsoQcKrG6zu
+	 O+owZbCGYvkNu8+kKgxw/p1fMt0hNH7hOXse4lyUdLYbFgZT070oux9+/R9kubZreK
+	 mlz4+IcahLLqd/3s+4HIb07dNDLW0dHyiMyo/sa6kPd516cWjlING+Npzkdp13T7Yi
+	 ghxcgzj2RPp5KEaAANMmqCaE30hy4/6BXmuoJMyCBS8FkDOi0XdMbt4c8Cj//Fq43Y
+	 E58hG0oFpuuarlDHIwG7keBJSEXzf3Z6V2y2mMXevVkdEqXe9DhUBxacqYbbt5XSUI
+	 TcOBkyUpPXniQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] selinux: reject a policy that both rejects and allows
- unknown classes
+Subject: Re: [PATCH] selinux: constify avc function parameters
 Reply-To: sashiko-reviews@lists.linux.dev
 Cc: selinux@vger.kernel.org
-In-Reply-To: <20260917142038.60637-1-cgoettsche@seltendoof.de>
-References: <20260917142038.60637-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20260917141317.54719-1-cgoettsche@seltendoof.de>
+References: <20260917141317.54719-1-cgoettsche@seltendoof.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 14:26:23 +0000
-Message-Id: <20260917142623.9626A1F00893@smtp.kernel.org>
+Date: Thu, 17 Sep 2026 14:26:49 +0000
+Message-Id: <20260917142649.76D6F1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -45,19 +44,14 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >=20
-> handle-unknown is a single three-valued choice - deny, reject or allow -
-> but the policydb header spells it as two independent bits and
-> policydb_read() takes any combination of them.
->=20
-> libsepol writes exactly one of the three values
-> (POLICYDB_CONFIG_UNKNOWN_MASK & p->handle_unknown), so no policy built by
-> the reference toolchain carries this combination.
+> Constify read-only decision structs to ease reasoning where decisions
+> are actually modified, and where only processed.
 >=20
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917142038.6063=
-7-1-cgoettsche@seltendoof.de?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917141317.5471=
+9-1-cgoettsche@seltendoof.de?part=3D1
 
