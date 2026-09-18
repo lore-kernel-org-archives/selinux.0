@@ -1,81 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f12.google.com (mail-yx2-f12.google.com [74.125.224.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F4593CB2D2;
-	Fri, 18 Sep 2026 14:47:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E23233F8CA
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 15:31:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789742843; cv=none; b=GqCGTt1Ia1UX2GMxPqOXnblFrrwDX1Ld/9ZHJS0hHC14me4S30MTQkYd0DFYVFSA2TrBy9+9uJy0rD3XuDuRvC7fg6BleuPxFdmzYLKKcq89lMq7XZvjtUCVb7dAO6RTPA9Bo0W/t0uA0ml4wR6LgMBt5fHXcgQQp83hgfSUmDM=
+	t=1789745495; cv=none; b=GRovJTlr5R0uAvvTB8xw1oAyn97m4IUVfO5QrcjD7CANpu11tY17k8gfyFMaRTBgHIvial21i14Q9UqabtN/XlsttzQYPvQPddlxirg8p2BPN5/VNkAqdIJKuZkuqJoJfhhOLrjbRomaGbRb9H3o3oAaQ5zrIQzKloY6YtZgnAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789742843; c=relaxed/simple;
-	bh=QpwRiPmHlhJ9ahZI4XZjKSrKRbstyNAq1TwlXU8jVT8=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lDIxWI1GfM+Y5Ngbb+D8hw4qH+tftrhp8wNPp69mn4WAo1DDsopfzWdVOx+1pcD5OxReItdHXc+FhSKfZRa4P4W86mV+fjPkmuW9za9b3tOCCtOnhOg9q2qSiyCr3cg62rW5V880oGArcOyQDatvKGJ5uZ8fOc4sYk1JHoiC3gM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hoGv+A8q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789745495; c=relaxed/simple;
+	bh=5W6k7FIPTyj3IZaUoZsHZPFsN26osd8sFKwW/UIUE7Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rvex6eJSenx7V/zS2YTuv6A55xTNDwatj18aBINI/0eEVu08QxAC062OjiD4Ciw8QNf4duoCZxA0H9/LWaOnJcC0TzMefW51jtrpxx9auO6vUDZROya6b4ywXeHxSnofgGrxc+5x71Qcd59Obupn8MSsV1th1DF3qRJkrVnozno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oXg9DDEQ; arc=none smtp.client-ip=74.125.224.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hoGv+A8q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D46E1F000FF;
-	Fri, 18 Sep 2026 14:47:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789742841;
-	bh=QpwRiPmHlhJ9ahZI4XZjKSrKRbstyNAq1TwlXU8jVT8=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=hoGv+A8qf5e//fKyDSmlvt0TLXIAlkonKBZ/bwpFikVjAzaZDLOMzXWTJJlR6OyJk
-	 2pPET3CzNb5188h+zHuYFfUDzzXxvFCPO/BOlg59V0uriSVre4o9P5dJoiQIYKNr91
-	 PprDMqKx08Jq6GIc6tfTwYfQl2rtmhmGo7vGPYvpMH8ZOtHBScmnIwOmbsd4u+bYCl
-	 2SMsFYugmIEEyzo1a/8bzDPereP2t49345PV1+SiJHhVyqC5Nnx39OQwP77ug/562J
-	 bAlIRVO5lp/z3EtB1c+YbFWz9cKNMqYEhe2t9e2ylOhkieUX32aBXk9zxzyTmDOwoO
-	 mcZWAfhgs0/Kw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] lsm,nscommon: initialize the security blob for the
- initial namespaces
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <20260918143142.19435-2-stephen.smalley.work@gmail.com>
-References: <20260918143142.19435-2-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 14:47:21 +0000
-Message-Id: <20260918144721.9D46E1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oXg9DDEQ"
+Received: by mail-yx2-f12.google.com with SMTP id 956f58d0204a3-66f943b286fso859119d50.2
+        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 08:31:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789745493; x=1790350293; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=r8Ju7O1RIdZXgcYNcfQZVpLQPvL+6I7hgPAFEv9aBIQ=;
+        b=oXg9DDEQz5EspUjhsN8kovFamkkYCpg+Zy2UnqgcrIl9w/OGYDoQ2DEXlkV6OigdXH
+         oAR82BTsqDZLe8l2yjUB8Gb5nqqcvnYgAMp8QzLdPYOlm2DepskgQFCgy24c0MpaHxFy
+         sztRYVHy6xHy1VdKHPwyr26ya92Lo8BOlno8th0LMbhVchLVmbR9fk/BjmFFiUK+Pe4X
+         cIwUhWiXYIkf621tTyo1RZsjLnuPdx6Pig81aSvK6D9Q6Z5H5NAixdqNJDFO54QvPEoC
+         0yHJ8GZSBiAKiaYhQRJCweaHIRQcK6QkIvByqUAFiGA1Tqrf8TLxHuc3jsLshYy9eIfY
+         l2ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789745493; x=1790350293;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=r8Ju7O1RIdZXgcYNcfQZVpLQPvL+6I7hgPAFEv9aBIQ=;
+        b=c5PjglNXBle2wKDlInpDvGBakI9AyXRbbKxWjTxXrvVudMYBEJGAlILViAB26O49nr
+         piRAJD1h1l3JAgI+DoNxyrTl7s2ounR5lTAeh1MqWSY6LNwhYOHljRUjJVtBOSxXRKcO
+         FSu7QPadjhdvdd2D2kCArlu8d0790su4TgoX3JiKmIsIGPnkCXZR6CLNgJ4Jh674Jky2
+         ocVcVvqUPsRcyMNS2/qOi8Fqey5E4glHQXU8KBF+/I6cdEZ4mpsSFWuR8BgIp4WsG5EM
+         p3aVGHR6lvaNxlpjaSzCmpxOmjv7/LQK8WIBJvyQMMDgDRXK1zMv9BUshsKBOc8qom+Q
+         hIxA==
+X-Gm-Message-State: AFuF++mw8VKE1/C1L1M5WdZ/+qjRnWR8/TMlHKnIAKafRjGzuFpJ6S7w
+	9qq4ki+3Da509XnqJzkY1cAtTUywTASLlsLAh4XcPdgQW5Ov3qxtACSUK7ZsiQ==
+X-Gm-Gg: AYBFou1eC4QDDwACdDzzESRS5Tc7RDQXkM4JO1G3RgQ1/s0dDqa8+sHvHDNDLmfmGs8
+	mq4DCj7wVn1SC0njTISGjZ9BEzJ601FTsXX0SKhLWkug0/hPIgjdTeYw2qoevDA2L76rBvbTMuE
+	t+MCBEhNj67PzeMogE/6rgs/yeT4j6kXmhkoGI4LITfjEOZwQlqGJH2oN8S3hMErpjGOvH6yHQN
+	+9tq3rnC2vrgx6Hm2HsVc5k0hZRyix+EkBpVtTAdpDdCKlM4pE7S8xYEvfolIDWI4gy5SddWvC1
+	C/AKrNfdjA+xbEImyPYucLY06OO/1v/ZToAC/3a0jHTlTclnYRX3Yw7g/Yj/BoMTLEYDmK5IVFy
+	dvNnHeOpHgPI1a7TK5Laq1glzGIMrrsRrnaxq4RQvNe74S1P0+IlgNtw6BpeldqiCa1I+8o3KeZ
+	zRcZI8JScwX7JqjsbvlX+VeW31eYpQtf1P6P1FQLmJTP7kVsQXtMZ37fo1Rl0Y3JkvkUBSt5UUn
+	+tzIC2V1fwrQaAhOM+ACNLv3HJPUF8WK2HB5KdCu9+g6/L46mjrGCng/eY7Mn8NWgniSJmLMKum
+	jLN5Ln33Mw==
+X-Received: by 2002:a05:690e:e88:b0:670:ff3d:e71a with SMTP id 956f58d0204a3-6717fdf0ccdmr1007534d50.76.1789745492723;
+        Fri, 18 Sep 2026 08:31:32 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9125800e368sm15410776d6.8.2026.09.18.08.31.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Sep 2026 08:31:32 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol: skip unrequired class slots in is_decl_requires_met()
+Date: Fri, 18 Sep 2026 11:31:18 -0400
+Message-ID: <20260918153118.20298-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> Commit f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> added a security blob to struct ns_common and allocates it from
-> __ns_common_init(). Most initial namespaces (init_user_ns,
-> init_uts_ns, init_pid_ns, init_mnt_ns, and, depending on
-> configuration, init_ipc_ns, init_cgroup_ns and init_time_ns) are
-> however set up statically via NS_COMMON_INIT() and never pass through
-> __ns_common_init(), so their ns_security pointer is left NULL for the
-> lifetime of the system. Any LSM that registers an lbs_ns blob and
-> dereferences its slice on one of those namespaces (for example from
-> the namespace_install hook when a task setns()'s back into an initial
-> namespace) will fault.
->=20
-> Allocate the blob and run the namespace_init hook for each of these
-> namespaces at the end of security_init(), after all ordered LSMs have
-> registered their hooks, so every LSM sees the initial namespaces the
-> same way it sees init_net (which is initialized at runtime via
-> ns_common_init(&init_net) from net_ns_init() immediately after
-> security_init()) and does not need to special-case them in its own
-> ->init() callback.
->=20
-> Provide a ns_common_init_security() helper in kernel/nscommon.c so
-> that the list of statically-defined initial namespaces and their
-> Kconfig guards live next to the rest of the ns_common
-> infrastructure. init_net is intentionally excluded: pre-initializing
-> it here would leak once __ns_common_init() clears ns_security and
-> re-allocates.
->=20
-> Fixes: f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+copy_scope_index() sets a linked-in decl's required.class_perms_len to
+the largest mapped class value seen in that decl's required class
+scope, and allocates class_perms_map[] out to that length; the
+intermediate slots not present in required.scope[SYM_CLASSES] are left
+as empty ebitmaps. is_decl_requires_met() then iterates every slot
+0..len-1 and looks up p_class_val_to_name[i] / class_val_to_struct[i]
+for each.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+If the base has undefined class values below that high-water mark
+(which policydb_validate() permits via the gaps bitmap, and which
+arises when a module requires a class not in the base so
+class_copy_callback() creates it at ++nprim), those array entries are
+NULL and is_id_enabled() derefs a NULL key in symhash().
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918143142.1943=
-5-2-stephen.smalley.work@gmail.com?part=3D1
+Only examine slots the decl actually requires. For decls that came
+from the base itself, validate already guarantees every i <
+class_perms_len is a defined class, so this changes nothing there; for
+linked-in decls it skips the padding.
+
+Reported-by: oss-fuzz (issue 562655132)
+Fixes: https://issues.oss-fuzz.com/issues/562655132
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsepol/src/link.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index 868e0a7a..ac9a4f2c 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -2007,9 +2007,13 @@ static int is_decl_requires_met(link_state_t *state, const avrule_decl_t *decl,
+ 	}
+ 	/* check that all classes and permissions have been satisfied */
+ 	for (i = 0; i < decl->required.class_perms_len; i++) {
+-		const class_datum_t *cladatum = pol->class_val_to_struct[i];
++		const class_datum_t *cladatum;
+ 		const scope_datum_t *scope;
+ 
++		if (!ebitmap_get_bit(&decl->required.scope[SYM_CLASSES], i))
++			continue;
++
++		cladatum = pol->class_val_to_struct[i];
+ 		bitmap = &decl->required.class_perms_map[i];
+ 		id = pol->p_class_val_to_name[i];
+ 
+-- 
+2.55.0
 
