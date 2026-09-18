@@ -1,212 +1,230 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE1A2ED16D;
-	Fri, 18 Sep 2026 14:30:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8715C385D97
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 14:32:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789741824; cv=none; b=Q6/GFD5YBVHoqHR+rgtyeJ6Q/KfqjF5SzXDqRtF5WEjsnC5RFzXOVB9Fckl5N2XeI8/zyQKmnIpPY2G/SaXEqJgL4EFtZN+PyqSeFon3PwYCgpDB9A8JXP1jRcZFjj/UPk8f6YtBS3sfBDvgfDpjThvVPToZyBgeg69+EhI+fQo=
+	t=1789741961; cv=none; b=iSDTG7I3p6Dzb+i/AXTLeyne8uf+o5WT3hV9z9oa+tyA20ITLhwFqrU0ZtkiFx9proB/XtJ9nw+Sx69dG2+6QS5EKNdYcbcvAX3QEUL+LGhLQwzR1Iqpbavx/tYWepy7dNU56wQNnPW/KmmhdlXb6vzbgeDMd+D7cSVb+rpVlc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789741824; c=relaxed/simple;
-	bh=5OmomeRB+LD60RpaKuchulaB8gm1HL/uXNHI8PnXFlg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nh7QxUIPSD3n3M5khRT+IaAJvQfkjtgQqgGvEPzZSRTOIWBAOxxl/I4S2x8KtGG3pAn3Feczc6jdUnmQeRjyxnTiHmldnrMK15wK1E32mL8qVDl85cU6VIPpoCBOVsu9r7GQBkuU1Vw40YdHh3xBoduKLVSFs0oHBGC0FjWyoy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=clSyf51X; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1789741961; c=relaxed/simple;
+	bh=zqo6m8LjrfG7bSesx2T9EZa4xizDQh3mdGp3cS7tnOo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n+nsE58qlENJCYRsqJEWFomd67eoMMohAAW1xoOz3qfc55BiWMYMcHC6wn7iMDaOoJmmrsTaHbM4j1IXay3RcDgL3BVJNVQafAxbLFKKqFCsjB9w0B9jyNgTgaX9A6wRv3wCLG1e0ypFXgi1bcPsWryqb0sK84mZtukMdQDL16E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U4lwY70u; arc=none smtp.client-ip=74.125.230.235
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="clSyf51X"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=z8DxBDctfQle4qPyCLsPEBU1oRIWLoRdyUpwbsFqYLE=; b=clSyf51XrV8aRcbTvneX3p6wBa
-	n2dJgPOcz894gpJOnZdCOcF3UEXESwNBxWownSVKd57lnJYBBwn8UK22mY+Uu9cTVCm4bYkkLdbb9
-	zwnoTjkKMM6lYQMFHN/pynLhjEOj2/5EEiCk+CstXFpuvTmB28MRP3Fdyl1b9KhwvkjSzoEaggt5r
-	4zu+cgayQfsFLqmqeLGe7kyw0337RIawLytCxdWbLSsC8OhbmfdiwFeLxFGinxIHnQj3tRZJIvubH
-	Z5p2yU1Pjs4x4ZBAOVPASiIaB3Jla/kGk5xR5Btk7PaRjSjDUhmPE8iOfBuqPX68vAPFbXjRIpG5J
-	q2qapdRg==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <leitao@debian.org>)
-	id 1x7Za9-006nCZ-3B;
-	Fri, 18 Sep 2026 14:28:54 +0000
-Date: Fri, 18 Sep 2026 07:28:33 -0700
-From: Breno Leitao <leitao@debian.org>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v2 01/40] mm/vma: fix mmap_prepare file handling, remove
- file_doesnt_need_get
-Message-ID: <aq1KeFmXBIEd2YhQ@gmail.com>
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914-b4-mmap-prepare-vma-flag-sanify-v2-1-7d9781ed5361@kernel.org>
- <aquz9Z9JrK_H_E0g@kernel.org>
- <aq01JFp8hRReyY-O@gmail.com>
- <aq06hcheI4OGi_3A@gremlin>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U4lwY70u"
+Received: by mail-qk2-f43.google.com with SMTP id af79cd13be357-93910ad20d4so91945185a.3
+        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 07:32:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789741958; x=1790346758; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NjYyNGnoF+SuebSoqm6hERY788R/htkIW/64XrSsiYA=;
+        b=U4lwY70u6yQBiRsyow5Yaus7B0psbXhmBU7EAcSIuIDoCPSVKdTukLli3YcZq1H8oe
+         IeXJuUwFVFeNgyDUH8iz5vw8CH9q0dC/856TDnz2nurDPfnyQAyhhQ/oz615kRNkWhxr
+         gJsZr8WQD1rP8J7yOr03O1zLZq+IwySZIDOSLqhGoMgmTZ1c6zemhKnxxVjJrVWvLrGr
+         oX4RmNv9qOdvqxdPQ19jXR2RavvluFBTHNIl6gJU1AUsQacIaNCTadyMh9tgnJ28NvxM
+         3oXm3J0ntWIc/SHLpAqGwdYt5uN/gYpGkhNObMDzg2xFPM8HSr69CPV8QwHTq/pLGcY1
+         iCRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789741958; x=1790346758;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NjYyNGnoF+SuebSoqm6hERY788R/htkIW/64XrSsiYA=;
+        b=xANKjmRvjd0RzjwgldDZKsCWNFaNezxrx20lTGWpwB6Vpvfr989FLfRwBbDQ1icy1w
+         +x47ie3jxqVUqO2dPbbxWExdfRP2/DZqbbygev6qFhmCGphCKs9t/78828D6xVHBhjJg
+         fNkv8TLovmhK+A0NJWcgFaOTTfgrTGEeE9JbjtvyHZqatdkHbmg+jbh9NScPA8HLydK1
+         q8tdM7mNz+vboLG0+Up4jZqQDJbLUI7ymgIHgMPyjUXX4Wo4MfGXNo8wb7sFwbm/dzBn
+         RCjPb4GWPhZ5fX7Ulj5hnLWX+MxdG8Q+pCX0e8V2qHlxgxhm8eWO75el6qpnqTEUXQBB
+         fddA==
+X-Forwarded-Encrypted: i=1; AKwUvBzoaAkB47eGT97Kc9/WExYroDfAxw08djK9QWWe7t1qXEtQC23LyvZmiPwqrt+TEzWFJD6KW7ms@vger.kernel.org
+X-Gm-Message-State: AFuF++lrFfKmkGUVzUEkSEz6qW1CXwPLvGumjlSr4vHT9yOibBu6bebi
+	wWvl7l9rsJCJNrxm9xsAgpOpTs4Px/Ebi0hM2Ul9vEsiYtySFmJm6K13
+X-Gm-Gg: AYBFou3RAXbf8ZAbYplLV1rwKyuHPRQD++2Z6bfxDkUgXHnNvKN0ga9uWTcN6XQw3hW
+	QZr2/UPyTX+0aRR700g+yQrQKdK0qmr3D6QwaRaUrSSgRjIuRw1MFYbvU8l5CIe8CZH7YRoQ5eX
+	qW2jrYNzvOibGUy5HII/LHmwSco5EDbD7EO+lSa4LDpYNjJqohe0jV4crrs0uoBaMnfbDBp3zxG
+	Xv8Al3KD3C2NDyEd/e2BEzRnkrRPK+I9q/9W1wwfVs1a9/SgW0eyrZ+xvwGxnLFcnvdYYMY3K6v
+	/rEkNGfv3hnrndK9FfjjAwrX2kOIzDg7INnvHuQA9T8tGv+3Jmy/zljx50nBJYqubdB9CW6sU44
+	TvJ4b8Qg79AmXY0/9FRZ9PRbvhcJjQEzyKDng5bZ7p8b8VKCSnP6odGYazUCIfzJbpXWY1llknP
+	qJSig4eSGrl/DG4331BkB3u9PkIk6T3aq93IzDzVbd98E9F4Eb2vojgxm+tnVrtpWsN+LdNup1n
+	lvAV7FlPAm2IZ3trkbF1jeVksvL3PQnxe7RRUycuJ+HlQ6NUxBEw3be973FX43cZsySSJCBg2o=
+X-Received: by 2002:a05:620a:4487:b0:939:a834:98f2 with SMTP id af79cd13be357-93bdc6d5b8fmr392605785a.15.1789741958163;
+        Fri, 18 Sep 2026 07:32:38 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93be0f234ccsm149180385a.44.2026.09.18.07.32.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Sep 2026 07:32:37 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: linux-security-module@vger.kernel.org
+Cc: paul@paul-moore.com,
+	brauner@kernel.org,
+	mic@digikod.net,
+	serge@hallyn.com,
+	jack@suse.cz,
+	jmorris@namei.org,
+	omosnacek@gmail.com,
+	selinux@vger.kernel.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] lsm,nscommon: initialize the security blob for the initial namespaces
+Date: Fri, 18 Sep 2026 10:31:43 -0400
+Message-ID: <20260918143142.19435-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aq06hcheI4OGi_3A@gremlin>
-X-Debian-User: leitao
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 18, 2026 at 02:20:34PM +0100, Lorenzo Stoakes (ARM) wrote:
-> On Fri, Sep 18, 2026 at 05:57:51AM -0700, Breno Leitao wrote:
-> > On Thu, Sep 17, 2026 at 12:33:41PM +0300, Mike Rapoport wrote:
-> > > On Mon, Sep 14, 2026 at 03:57:21PM +0100, Lorenzo Stoakes (ARM) wrote:
-> > > > The map->file_doesnt_need_get flag is confusing and the existing
-> > > > implementation has holes.
-> > > >
-> > > > Drivers are permitted to change the owning file of a mapping. If they do
-> > > > so, they are required to take a reference on that file.
-> > > >
-> > > > The mmap() operation which ultimately invokes __mmap_region() is guaranteed
-> > > > to drop the refcount for the original file the mapping was made under, but
-> > > > this is not true for the replaced file.
-> > > >
-> > > > This has been addressed so far by tracking map->file_doesnt_need_get, which
-> > > > is rather poorly named and unfortunately fails to correctly track whether
-> > > > or not an additional put were needed in a number of cases.
-> > > >
-> > > > Make life easier by removing this flag, and instead drop the reference for
-> > > > both mmap_prepare and the deprecated mmap callback in a new function
-> > > > put_map().
-> > > >
-> > > > Track whether this needs to be done by aligning mmap_state with
-> > > > vm_area_desc and store the original file in the map->file field, keeping
-> > > > the updated file in map->vm_file.
-> > > >
-> > > > In order to have the same behaviour for both types of hooks, only drop the
-> > > > reference __mmap_new_file_vma() itself took in its error path, deferring
-> > > > the replaced file's reference to put_map().
-> > > >
-> > > > To make this work correctly, map->vm_file has to be updated before any
-> > > > error handling, so update __mmap_new_file_vma() and call_mmap_prepare() to
-> > > > set this field first.
-> > > >
-> > > > Also when mmap_prepare() changes the file and is then merged, the reference
-> > > > count also must be decremented, so update the logic to call put_map() in
-> > > > this case too.
-> > > >
-> > > > Also update __compat_vma_mmap() to manually perform this step for stacked
-> > > > file systems using the compatibility layer, and update
-> > > > compat_set_vma_from_desc() to replace vma_set_file() with a correct
-> > > > refcount/file update.
-> > > >
-> > > > No in-tree driver is impacted by the incorrect implementation of this
-> > > > currently (no driver that does this is mergeable for one), so this does not
-> > > > need to be a fix.
-> > >
-> > > But the patch iteslf needs to be fixed :)
-> > >
-> > > It seems to be the change that broke the CI.
-> > >
-> > > The rest is from LLM, take it with a grain of salt :)
-> > >
-> > > mm-ci mm-unstable red build - bisect analysis
-> > > ==============================================
-> > >
-> > > Bad commit: 2a937a04babf1 "mm/vma: fix mmap_prepare file handling, remove
-> > > file_doesnt_need_get" - first patch of Lorenzo Stoakes' 40-patch series
-> > > "mm: make VMA flag semantics explicit, eliminate VM_SPECIAL" (v2).
-> > > https://lore.kernel.org/all/20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org
-> > >
-> > > Symptom: tools/testing/selftests/mm/pfnmap.c triggers
-> > > "BUG: Bad page map in process pfnmap" during __zap_vma_range()/vm_normal_page(),
-> > > seen on process exit/munmap. CI's run-mm-selftests.sh greps guest dmesg for
-> > > BUG|WARNING and fails the job regardless of the test's own exit code.
-> >
-> > I am seeing something similar here and stress-ng can reproduce it:
-> >
-> >       WARNING: mm/memory.c:3225 at do_remap_pfn_range+0x9b4/0x9f0, CPU#25: stress-ng-dev/354858
-> >       Call trace:
-> >        do_remap_pfn_range+0x9b4/0x9f0 (P)
-> >        remap_pfn_range_complete+0xac/0xd0
-> >        mmap_action_complete+0xcc/0x3d8
-> >        mmap_region+0xb54/0x1978
-> >        do_mmap+0x588/0xb18
-> >        vm_mmap_pgoff+0x1e4/0x320
-> >        ksys_mmap_pgoff+0x2d8/0x510
-> >        __arm64_sys_mmap+0x100/0x128
-> >
-> >       BUG: Bad page map in process stress-ng-dev  pte:0160000000000fcf
-> >       addr:0000ffe8d9080000 vm_flags:00000071 anon_vma:0000000000000000 mapping:ffff0000a0c4ea98 index:0 (file) ffe8d9080 (anon)
-> >       file:mem fault:0x0 mmap:0x0 mmap_prepare: mmap_mem_prepare read_folio:0x0
-> >       Call trace:
-> >        print_bad_page_map+0x63c/0x740
-> >        vm_normal_page+0x228/0x240
-> >        __zap_vma_range+0xbe0/0x34a0
-> >        unmap_vmas+0x240/0x318
-> >        unmap_region+0x12c/0x238
-> >        vms_complete_munmap_vmas+0x318/0x958
-> >        do_vmi_align_munmap+0x254/0x2f8
-> >        do_vmi_munmap+0xc4/0xf8
-> >        __vm_munmap+0x174/0x288
-> >        __arm64_sys_munmap+0x70/0x90
-> 
-> Yup I already fixed it and respun the series :)
-> 
-> https://lore.kernel.org/all/20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org/
+Commit f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
+added a security blob to struct ns_common and allocates it from
+__ns_common_init(). Most initial namespaces (init_user_ns,
+init_uts_ns, init_pid_ns, init_mnt_ns, and, depending on
+configuration, init_ipc_ns, init_cgroup_ns and init_time_ns) are
+however set up statically via NS_COMMON_INIT() and never pass through
+__ns_common_init(), so their ns_security pointer is left NULL for the
+lifetime of the system. Any LSM that registers an lbs_ns blob and
+dereferences its slice on one of those namespaces (for example from
+the namespace_install hook when a task setns()'s back into an initial
+namespace) will fault.
 
-Very nice, thanks. I will give it a try!
+Allocate the blob and run the namespace_init hook for each of these
+namespaces at the end of security_init(), after all ordered LSMs have
+registered their hooks, so every LSM sees the initial namespaces the
+same way it sees init_net (which is initialized at runtime via
+ns_common_init(&init_net) from net_ns_init() immediately after
+security_init()) and does not need to special-case them in its own
+->init() callback.
+
+Provide a ns_common_init_security() helper in kernel/nscommon.c so
+that the list of statically-defined initial namespaces and their
+Kconfig guards live next to the rest of the ns_common
+infrastructure. init_net is intentionally excluded: pre-initializing
+it here would leak once __ns_common_init() clears ns_security and
+re-allocates.
+
+Fixes: f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v3 adds a Return: line in the kerneldoc for ns_common_init_security().
+
+ include/linux/ns_common.h |  3 +++
+ kernel/nscommon.c         | 49 +++++++++++++++++++++++++++++++++++++++
+ security/lsm_init.c       |  4 ++++
+ 3 files changed, 56 insertions(+)
+
+diff --git a/include/linux/ns_common.h b/include/linux/ns_common.h
+index c8e227a3f9e2..9321db8b82a1 100644
+--- a/include/linux/ns_common.h
++++ b/include/linux/ns_common.h
+@@ -11,6 +11,9 @@
+ bool is_current_namespace(struct ns_common *ns);
+ int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_operations *ops, int inum);
+ void __ns_common_free(struct ns_common *ns);
++#ifdef CONFIG_SECURITY
++int ns_common_init_security(void);
++#endif
+ struct ns_common *__must_check ns_owner(struct ns_common *ns);
+ 
+ static __always_inline bool is_ns_init_inum(const struct ns_common *ns)
+diff --git a/kernel/nscommon.c b/kernel/nscommon.c
+index e72426bba29a..57e5074b97e3 100644
+--- a/kernel/nscommon.c
++++ b/kernel/nscommon.c
+@@ -1,11 +1,17 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /* Copyright (c) 2025 Christian Brauner <brauner@kernel.org> */
+ 
++#include <linux/cgroup.h>
++#include <linux/ipc_namespace.h>
++#include <linux/mnt_namespace.h>
+ #include <linux/ns_common.h>
+ #include <linux/nstree.h>
++#include <linux/pid_namespace.h>
+ #include <linux/proc_ns.h>
+ #include <linux/security.h>
++#include <linux/time_namespace.h>
+ #include <linux/user_namespace.h>
++#include <linux/uts_namespace.h>
+ #include <linux/vfsdebug.h>
+ 
+ #ifdef CONFIG_DEBUG_VFS
+@@ -101,6 +107,49 @@ int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_ope
+ 	return 0;
+ }
+ 
++/**
++ * ns_common_init_security - allocate LSM state for the initial namespaces
++ *
++ * The initial namespaces are set up statically via NS_COMMON_INIT() at compile
++ * time and therefore never pass through __ns_common_init(), so their LSM blob
++ * is left unallocated. Called from security_init() once all ordered LSMs are
++ * registered so every LSM's namespace_init hook fires on them the same way it
++ * does for init_net (which is initialized at runtime via
++ * ns_common_init(&init_net) from net_ns_init() and is therefore excluded
++ * here).
++ *
++ * Return: the first non-zero return from security_namespace_init(), or 0.
++ */
++#ifdef CONFIG_SECURITY
++int __init ns_common_init_security(void)
++{
++	struct ns_common *set[] = {
++		to_ns_common(&init_user_ns),
++		to_ns_common(&init_uts_ns),
++		to_ns_common(&init_pid_ns),
++		from_mnt_ns(&init_mnt_ns),
++#if defined(CONFIG_POSIX_MQUEUE) || defined(CONFIG_SYSVIPC)
++		to_ns_common(&init_ipc_ns),
++#endif
++#ifdef CONFIG_CGROUPS
++		to_ns_common(&init_cgroup_ns),
++#endif
++#ifdef CONFIG_TIME_NS
++		to_ns_common(&init_time_ns),
++#endif
++	};
++	unsigned int i;
++	int ret;
++
++	for (i = 0; i < ARRAY_SIZE(set); i++) {
++		ret = security_namespace_init(set[i]);
++		if (ret)
++			return ret;
++	}
++	return 0;
++}
++#endif
++
+ void __ns_common_free(struct ns_common *ns)
+ {
+ 	security_namespace_free(ns);
+diff --git a/security/lsm_init.c b/security/lsm_init.c
+index dbda7771013b..7cc2975b287a 100644
+--- a/security/lsm_init.c
++++ b/security/lsm_init.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/lsm_hooks.h>
++#include <linux/ns_common.h>
+ 
+ #include "lsm.h"
+ 
+@@ -490,6 +491,9 @@ int __init security_init(void)
+ 		lsm_init_single(*lsm);
+ 	}
+ 
++	if (ns_common_init_security())
++		panic("initial LSM ns alloc failed\n");
++
+ 	return 0;
+ }
+ 
+-- 
+2.55.0
+
