@@ -1,126 +1,134 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390C84CDDF4
-	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 10:18:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789726712; cv=none; b=YFmL9Xm22nUhm7BRmz4uivujMFaDMSloZFaioPu1uIAM9XXct7TJW4QRke/nef/DodsEzoZ6Ee7qCRfUAz8U+MDFQaN/c8MlSsGbPaTsOOdXggnuzF9hf56TTRAeMFIehwq2KpjoXRKwiK1s44T1RrUDGVojr2cPv9FbTgzw5/g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789726712; c=relaxed/simple;
-	bh=QnCX+k7uhi+6bQ9NVm1lq2ICegqDMGduXvBqJMCzwPo=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=X9YK8XvGZywrptL0t2RKDaN0YPEwvKZ7v6cyPqdUT4YCNvWRlTZ4ATrr8LzPntikPG3RirJaRwHzzQF5DM0wrCfgrz/1awIaxBOtlFT4QDHJ5ebmVGmhFdp+ZEB3Co9PgnvNGLjW8oHgyvkjYbKWdTqDmFUoAZAclHzzMKye42I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=kfK7c143; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 396E830B53E
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 12:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789735071; cv=pass; b=bjZ1NaArutnGRFWOXp9v3TnnwHqYfYx0ZMft29g8DBqGOtsffuZzu2NKg68l/QpvdVVhtP4xKvR04c6flxje7QfQ3QJj0z8GHeyB13TtZZ+GfRsDN60tJJRmAwLsBxevdQ2GpBZoGo7RU5/ygTzkzo0mPUsmTtYyTwbEVV6xSBs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789735071; c=relaxed/simple;
+	bh=MvBE9yZRuJVfjtjuzWbVJX4E5mFlmwdUJBfoQq94hqk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dqJBCILFctWRghQcg+EbiASggasiJbLD61DqXuNyt9B98bcb8MGQokWnzc6teFYeHuuQbKsuRIK0wQ4LYU3lwA9jtrFq2AJXIvPnYuacJd5/dIGRmywAfhx8vmyeWLxUzFRGE5oE0VJpkkGIlISN99lfqC1xOt3soZvreKzGsi4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F6fi2SvX; arc=pass smtp.client-ip=209.85.160.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="kfK7c143"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:Content-Type
-	:To:Subject:From:MIME-Version:Date:Message-ID:Reply-To:Cc:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=3yvzT7RSobImpb1GeaVhZKFvIP8Sm/Kpk4mFzciCgcI=; b=kfK7c143Do75teAKwbQtexL1Dn
-	viQn8RckhM71YCwIE5BkeXqyFYrCMWXR1sAhog02zL0jVQjPHawPKODrRiqVZl9xASWTqh3Z8AypD
-	FO3e1TFabshKLsiXde0C0gRS5BFUzD7gaibeehqB7AEIP7qy2tLrRxXoqjOQDi06XGywErZ2W3Zb1
-	ZsEjJfLimswuLqaLhpEvhjgGeXMuVL8TH2jhRX6RisZpM7f3Uob34v0ze4bAwslJX2Is9QjnyG+Kz
-	xC/BPuvXOu0y1HW8Y5rA7onxlrZQoT2HgXkZ1l15SiWmtobL/T2GCBNvCiNHOUt6hPcR/mpwhZaaB
-	6CH/FaYA==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
-	(Exim 4.96)
-	(envelope-from <bigon@debian.org>)
-	id 1x7Vfj-006eGZ-1U
-	for selinux@vger.kernel.org;
-	Fri, 18 Sep 2026 10:18:23 +0000
-Message-ID: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
-Date: Fri, 18 Sep 2026 12:18:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F6fi2SvX"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-46ad7304688so1524717fac.0
+        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 05:37:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789735069; cv=none;
+        d=google.com; s=arc-20260327;
+        b=SLlw8QNTqJRLi2TdvnvkSTYKToq8ZEZqw7Lfe2sw/Dx0sMiE5+tcw8S03jEKBJz3vL
+         SPWjAhGO58eW+dOfDegClDeAR4byBZo3YWEIF/sZo6H2m5xEofb9YUOxTawJ6cevDD42
+         /Kf6B+uA/zmf5Vw0CggV3AF/g/5RrZYtz3bwnA85tt2Ge9FU/aVqKY4MjXWR7ZXc1+Ao
+         Q5XB3+XmvOihAYhqa2lnOl5RenN7BFK5ELwH8d36hcvN6P0Nf9/9OsyObdyvteerIthE
+         /69SObXIUYRgM2SPWhZwAp8gj1cfsDmu0okxtoEE/WxlX1qNZ1AmXKuJXT+UVc8VzYo+
+         pjvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=MvBE9yZRuJVfjtjuzWbVJX4E5mFlmwdUJBfoQq94hqk=;
+        fh=N+TNwIyB4OftVo6xWZyGDxf9PNoaOqAOuhaF+GgJBDs=;
+        b=bbse3V4mfEy5gjwWy9beKqrMRmxL9fVV+/SxI5/H/ubHToZneZBTudp+9UXA5sE9uM
+         lUQlwlPlEHILSenWnEdhL6FR4XLpiLsHR2I3I+TgoVpjfDBQ2grBq/7UBp+UCU2A6xL4
+         ul3TabRuqcFnD8HaIFwkA0akxxgE/ttXiDfC95fzJ9AM4/UBd4PUSR+xQSp5hRWOVvMq
+         xaKB0WSKJHJ3sJ7gLgv3eBVIK1hLqONyNSnPMD+P5bk9AV67kN1S8PkXVC3viNK4aQZj
+         sgWdm8ywxuBk7uV8jgqqxSkwlfAXfNfRoOxJ0aP8KXQpuaFWPOsNwIEkhG3tT72rov2R
+         eiiA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789735069; x=1790339869; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=MvBE9yZRuJVfjtjuzWbVJX4E5mFlmwdUJBfoQq94hqk=;
+        b=F6fi2SvXLGrY26QUlVX3cAkMOsRI22YeXjPRppbR3iks41BDzHNvl/2WsZ41ZZR0hF
+         2tW27QO81mnB1wxQLfmpM8pZkae8P0SnxSNAgsiR/cEDmiCZufhINKY4GhyR7HBg9dqe
+         qbtoFu5+yckRWoMvr+/L5X89SBzJRmAOOXrjIS1ejJ+8P7nnnYgURu+YvnHnDjhH6OaY
+         VuWKLGoFTMy9iPjrtL+UHW9mPGcwPhna8ko6r23FukY8YxklmocI3VtF5wkbfgk907i+
+         KWl151ryjVb4oscXvPfI+PozuX6PqYohgZee6a9nC2OR4A4MQPBWR9RjeDK4Qr7aMmBQ
+         KqLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789735069; x=1790339869;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=MvBE9yZRuJVfjtjuzWbVJX4E5mFlmwdUJBfoQq94hqk=;
+        b=d8EaHU4nI8fpZ6XEtQh4Qu/73UGWs1MA8k/WYYl5iqWab2g+5e4z41gLgmL40mLx4n
+         8b4GVVCTfUwZUcA9l5S8ZoA6jtuVFMX6G8ATffIYt5n2hot3TbW+HalhIAsqfqVaZLMl
+         JY3xBlYVFq0g6ICIx6JrSGuV+mzlNt/g3GDqghjYq9gbpd2CK7eEcO0+ZSIkT1uJZvmW
+         4xUWabRUjwlFPeGcdzpSkB7TdIV/d7xXgwI+5zVK8ULgDiV49vk7EiPwlT0Qo6cD2Esd
+         XKTwhZnk8zzYTTpG8qAXxpoLbHHdVe27tdIK3DfKxwqm6bo4W8e3QO35k8EQ0UfZDYIS
+         yt/A==
+X-Gm-Message-State: AFuF++lp/KF/2/bYxQqiJb7CkTFf3PmlsPvncKVD1fOMLNl933gSQcKI
+	pC26xgyvlsfKW1KEhdeJrQzqpAKw0xmJA1nfPm7RZQ1OUKpwgLBsipZ0cxVA8UypG621zvzzglO
+	hTosEFn3H313AfQxQRUEoPsG8UXCKjeVRbg==
+X-Gm-Gg: AYBFou1QyCDnTe28/JmCLlOHS/P0f5oE24Q9xVIx6PUlb0KkCF4Kw7KN5sJMf8QbSTm
+	oed7HuklVTap8DN5HJlL6YSzJ39uaH8I54I9Y5YoVNf0Lmeyybf3B4Tdph6HMA/RhZrEn/OEtZI
+	VnxQ3CkIHfQITzCqKUV7ck5LVFnn3uFCETCcXF6VyTqJSno4PBtmL2DgcJAPMvb2I0AJO4p3z3+
+	m2O2VNtYMy9nqolWbwVc3bF5APow2NAlfltJ31RKENPIBrXO35Q7YFsES7yXjOkM1CfesabIFIZ
+	BKKL9hj+/OqANv4LSp92G3FtE5gjOSW1NQc180Bl7BZUcYYbL41pRlE=
+X-Received: by 2002:a05:6870:35cb:b0:470:e97e:8f85 with SMTP id
+ 586e51a60fabf-4856ece701bmr5294917fac.21.1789735069085; Fri, 18 Sep 2026
+ 05:37:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Laurent Bigonville <bigon@debian.org>
-Subject: selinux_kernfs_init_security() ignores genfscon-resolved parent
- label, breaks type_transition on cgroup2/sysfs
-To: SElinux list <selinux@vger.kernel.org>
-Content-Language: fr, en-US
-Autocrypt: addr=bigon@debian.org; keydata=
- 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
- wQOeCC+SiVSdSv0zm8D5
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Debian-User: bigon
+References: <20260916180539.75114-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260916180539.75114-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 18 Sep 2026 08:37:37 -0400
+X-Gm-Features: AcwNN1VuKPfMuaVW8a9VuzmHbSYrzIYmtYKUJ86d4AriaDtEs_zSw3WohmhCZAQ
+Message-ID: <CAEjxPJ7Ybz-en4moHPGHZZyNmFHd01nYWtGa_1jJPoUc2ncO7w@mail.gmail.com>
+Subject: Re: [PATCH v7] libselinux: fix incorrect regexp anchoring
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnacek@gmail.com, 
+	jason@perfinion.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Wed, Sep 16, 2026 at 2:06=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> As identified in #544, libselinux anchors the pathname regexes by
+> prepending a ^ and appending a $, which will produce the wrong result
+> for a regexp like /foo|/bar. #544 also notes that we should be using
+> PCRE2_DOLLAR_ENDONLY/PCRE_DOLLAR_ENDONLY when compiling the regexp to
+> avoid matching a pathname with a trailing newline.
+>
+> Move the anchoring into the regex backend. For PCRE2, set
+> PCRE2_EXTRA_MATCH_LINE (as used by pcre2grep -x and GNU grep -Px):
+> pcre2 wraps the pattern in ^(?:...)$ after parsing it, so a top-level
+> | is grouped without shifting user backreference numbers, an unmatched
+> parenthesis is still rejected with an offset that points into the
+> input, and mode changes like (?x)#... or an unterminated \Q inside the
+> input cannot swallow the appended anchor. Set PCRE2_DOLLAR_ENDONLY so
+> the injected $ matches only at the end of the
+> subject. PCRE2_EXTRA_MATCH_LINE composes with PCRE2_PARTIAL_SOFT and
+> with JIT compilation, so selabel_partial_match() is unaffected.
+>
+> For the legacy PCRE1 back end, anchor as \A(?:...\E)\z so a top-level
+> | stays inside the anchors, a trailing newline in the subject is not
+> matched, and a pattern ending inside \Q does not swallow the closing
+> group and anchor. PCRE1 has no equivalent of PCRE2_EXTRA_MATCH_LINE,
+> so an (?x)#... comment at the end of the pattern will still consume
+> the suffix; that case is left unhandled on this legacy path.
+>
+> compile_regex() no longer needs to build an anchored copy of the
+> string.
+>
+> Reported-by: Stephane Chazelas (@stephane-chazelas)
+> Suggested-by: Stephane Chazelas (@stephane-chazelas)
+> Fixes: https://github.com/SELinuxProject/selinux/issues/544
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v7 fixes a typo in the man page.
 
-The other day I tried to troubleshoot (assisted with AI) why 
-"memory.pressure" files in the cgroup2 hierarchy were never getting 
-labeled memory_pressure_t, despite refpolicy defining:
-
-   type_transition init_t cgroup_t:file memory_pressure_t "memory.pressure";
-
-My understanding: selinux_kernfs_init_security() decides whether to 
-compute a transition for a new child by checking kernfs_xattr_get() on 
-the parent — kernfs's own private, per-node xattr store — and bails out 
-immediately if that returns -ENODATA. But /sys/fs/cgroup (and everything 
-under it) is still labeled cgroup_t for every other SELinux purpose, 
-including plain getxattr()/getfilecon() — that value comes from a 
-genfscon rule, resolved live, with no real stored xattr ever involved. 
-So the parent "has a label" as far as policy and every other check is 
-concerned, but not as far as this one specific kernel check is 
-concerned, and the type_transition never fires as a result.
-
-A simple way to confirm: force a real xattr to get persisted (e.g. chcon 
-system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/) and then 
-restart a service — its memory.pressure then correctly shows up as 
-memory_pressure_t.
-
-Tested on kernel 7.1.13 (Debian), refpolicy main branch, 
-cgroup_seclabel/genfs_seclabel_wildcard policy caps active.
-
-Has anyone got a view on whether this is intentional, and whether it'd 
-make sense for that check to fall back to a genfscon-resolved SID when 
-there's no stored xattr on the parent?
-
-Kind regards,
-
-Laurent Bigonville
-
+This patch has been merged.
