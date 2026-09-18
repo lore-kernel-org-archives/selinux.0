@@ -1,72 +1,70 @@
-Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
+Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D66850E59E
-	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 16:19:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8574036EAB0
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 16:58:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789748388; cv=none; b=XUmFvbm8XqNg9rI/4dC70nQ91CkC85z2IQry1XVQ17ox58/1/r6swGhgetZGmPnvr6NElXHrN7ftamzmZsAxHb/QDpwImM3zz5Ww02rB+mUA2besFqCJMY+pIInz4nwZK/bqmJ+qvu6wtONIj0tTkiCCEBDggt4wSOWurUVjRcI=
+	t=1789750739; cv=none; b=tZBNkr+Iyg5gOQ++BGqDXfLlwrW3G5hDQ/FA5LBjG/3VflGHbi0Uqgmyotnf/+c3PIFFWBh+QOxKKhNgWHEwHTg50joVqTKpZko9VLsE3qeJbRxAA2W7PbGUzKBWbhsWwOJ3xwYbb+0AjUrMJ+7oTTAwSm62N42FbJRH0Wq1mAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789748388; c=relaxed/simple;
-	bh=aKDRweExIDpFoOPqCxqQ1of+wQARuE+wnmvfC1VF/qE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=a8U6YARr/SC6LoFNRODbh5Oy5vvJr0mnNcLPfgs2FF24Ckgkrz7AaVU5zIKH20T0iTYnAiKcqSYg+8jqEgwFpSmymGnmI3Dy3Rv03JM/cOrl9hISTBBb2TmNvw+tMEI7hvJVXl5pclRvkNkGmHJbtMjP1884MAgE1BYX8eRQL8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=REI0acSl; arc=none smtp.client-ip=74.125.230.204
+	s=arc-20240116; t=1789750739; c=relaxed/simple;
+	bh=oL0/fNzQuT/hCitRtUWIBHEKDxL81aKilHM4GiTT+ek=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MH6eqLFyZ3Kpyd/GW2OlBncn3DH0nUsnHFe8dvOGln+H1XOXR5+3mrRY9gm30pkctcjh15Vl3R38ZXv/jBkp2vDBZd6ZrUvXyc5a2bvjHdOkfN231lzQ3Dr3SxzWBh+qCeWghP7mNcgelv5023c4OYbRUp0Gte0easKF4pSiGPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ltv4xctm; arc=none smtp.client-ip=74.125.230.235
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="REI0acSl"
-Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-52fb76906adso11569471cf.0
-        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 09:19:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ltv4xctm"
+Received: by mail-qk2-f43.google.com with SMTP id d75a77b69052e-530280b8234so4837421cf.0
+        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 09:58:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789748385; x=1790353185; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1gwRe20gh9UwQ49ALwQ0TL0JTMplMzsDtM1zrlBEN5I=;
-        b=REI0acSll06CA4v5Vy/t6VLO6AosZ1/2Z13qUvZdQ4Y2ZxNi9QckjkywRyg9ia84TK
-         xq8C7VIsdzao879mju+dvrz9QtM0CNVW+EbenZPQNTaiVgtAxbXXLf/vytaFGyl51XS6
-         6mIDm/tadDvqpG5qZv7NN1RVMFSILnVyGmbDON70NHZYa5J4rJ9cBNPTopq/4uYQO2dC
-         A5rMQiBWq/ismi0m10t1Bwz2LAvsJoGiIyql0SiomOTqSgYi0BWQGNOoGVrTzbXhEE7g
-         EoWwxpJS+mK6a0Gj0glVaA6HWfyZwEdZcUIEsGjbzibNrCzz6adC2H7OR1YUkXX3ojcP
-         1isQ==
+        d=gmail.com; s=20251104; t=1789750730; x=1790355530; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1s5GIIvO3rzWCeLt2qF8Ft6q+IryNRvD39+Oh/dVgYU=;
+        b=Ltv4xctmm7mfEUQbYyzCAVGWdfo+AexTaCig9VmuU7G4BIzLkmCsLz0Rl8vJHYeHPY
+         xc7bmc/qAjGIspwvFhuCFCnldFBj2Bt7OAcoqTWeU37kpGHLrpnkvsOxaq2ACESsTWrE
+         NJxnvXiYFAj6lVRaeZ1YPUbRMdiWSrmkz3tFC4qjj825A9WixF4mYiRD2wLcNY0vFDM5
+         Op+Qk13dyQ2FL097x0QEfm+dV15xZN/iHOJv7t4IYeecJGhVB+secX8jJ8mFI4c7ujUt
+         xSZkiJpenp0drIPdOsQ3zT76hdjnNKgE2Ma+eWpVgU6KaoWySE/8uQJg22Jq+TXUkjzn
+         ZMtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789748385; x=1790353185;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=1gwRe20gh9UwQ49ALwQ0TL0JTMplMzsDtM1zrlBEN5I=;
-        b=H9xooMiaJo8+B1ssEo5u9rZ1G1x95F1BAdidgHhWybEHoH0atnydFQZl0QWmMu03nu
-         NL1J2S0YnC+uA6/4va7dfu231qSxc1+ziN3JwobCHzfVGHTGnKVOXo296Ir/l1bRqnoz
-         3qmIVU22GxSNgHKMFge5CbFkz+XxZxr9hf80KfK/W7jvNmtZG0pzM5dtgmjwseFlQPX5
-         FyOsfRBQ4IPyugolR2JTUkaN/ilBo0S3dZr/1ZoTC75iIuviWaHWRHjEJtPPLNIPj4Qm
-         lXIGmka/f0rUxF4a5//xamuxuiyLNI7iVRsJnHFll0Gm8l1k1o+79U8I64lncYTjDXlp
-         83Cg==
-X-Gm-Message-State: AFuF++np3h272sZEKX7EDM9/l2d7SoHxUALCs7DWvUvAkpObmZxrJ8Q7
-	RihFYP2scERZFJq4p/+VNM2Cjsnu31booMPbbwXtbbeB0OBUHTw1WH94d9c38w==
-X-Gm-Gg: AYBFou3det7X4LKCftv09+4LYkbBcPfnb95eFjOwbjQ0VsdXdWR97jwKe06grw2gqTd
-	tKLt2vdUsdWfL7QCtT110QGx85I99st3Hw+Rp+WPhkwUq4s6Nk4B1qfoZxYunf+OZCIkCfulwA5
-	JPqZA/q8m1IbxrRGawbJHviSG2XgntdHAI1678WN6lDJPnOrBSnqtegRcY/7nY6ycVf4ZUiGScI
-	Treiigv83psRjn3SoWjgzWleGFLYkFY6QEYzDXuKhuETbKNmS/KLQzusFDNRo34nqOVQZbu74FS
-	K3cV9oKbbNaISEKfGWEiP1i3Dv1sW2LNB0SP+eT69FlBBHDTDve4l07B/s5/0EPowq/avnBc4Ka
-	WDvA3CLZmgtivi6J5zXE8Xrixms4x/y8VunUDe1HQ7VYlsy4tYI/Y1oK+V2w8rD8e5OZTgNseDE
-	XUsYTghF5R+TTUYzTWoaWG3HfYy1WtjEv8yyNkGu8LTYcoGc7dv8Jmeape2O2mK46R17maBmjhW
-	5mUB8IYQrX+OO3PP4VeTWaTvM+JTFP/luA2Xcwhtl1NlO+Js9kRx0T9cEelBU7rJIZ4bjuV0ajG
-	rkpffEg0JQ==
-X-Received: by 2002:a05:622a:418b:b0:532:9d80:3fe9 with SMTP id d75a77b69052e-5329e3d16d4mr45360701cf.56.1789748384401;
-        Fri, 18 Sep 2026 09:19:44 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789750730; x=1790355530;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1s5GIIvO3rzWCeLt2qF8Ft6q+IryNRvD39+Oh/dVgYU=;
+        b=UMO+TakPgC7o8p1SdlglIQeTrs/WpcKaR1o7GPUB7mpzxMGAP8XMyjxn8B8/zZC5Cr
+         wPwn7ydooSoMHEMliM/6U0Q4EytzWVirt5P2pEV75FBpNAdbbElE5CZgGnS+z/SF66At
+         EJcG5mD4xWXBCnPnCmArQ4WydWOZZ2tA9FVRnn4fsY8wMFG5QKaZo8QxWPwgKjXz3V86
+         zccBEIZeYHUWWyICEWtmvyhOrgDuUgfK0pdHfHJFeLnpMZBZ/FNX3Ty/Linznkb7yE5F
+         IWiVtPPIZ5cutKF+0RJch8rM+r2zkBx7OZRiqNunfZMYEem98I382wHcz/rPY4BaNai5
+         LZdA==
+X-Gm-Message-State: AFuF++mnFYT0m6unz3Y8K3LRVfOjSMwERaD4xsRZ5UXkPAJXLVQst15Q
+	lONybaiVZqZ6pRmSyJ/gLQ5Lx1VjUjuqXGqqlr8fRDnXLIAG1Y2GTDNtaJ+hPg==
+X-Gm-Gg: AYBFou04TpR4JuBAA1aaF3Cc6VFBHkkDuVE/1zDOqEQWHB1Lu9Dni84rDjB4fe/fIgC
+	y1dOlLenAj/6r9E1GZLqtxf1kZLSlkEJv/2GFeIuKs+C5d/JslqCJE6iWSAR60jIC4VtEnaWSAP
+	dZyJoLKY1qhUF/XnkG+wXHzrGTwZ79DfWMurpa6GYrfOasgQE2mYtSR2DAzqBNJ7qYOyoxl8l1h
+	Ym+6WCsWtMWANZZ0ifetNbhI9yybPzTMFCT5GGOtPO2MCoD+MAboWPi/ScuQm2fF/vetO+ppVmn
+	WteIPUanhLEqP7mDhfjnux4tUeAp+n3+8ExBo3h1tS+MlmpCxqv+bM1ZObs4T79lSxCk/8iNeIX
+	6iVEGJ0u8PxEQo/bFxq8rvfQwuTj3WQkCyQwFigVGBVt5xCgA4Ft/Op98c1uyH24BIJ2B5vwU4D
+	WF9q/EnASl5fetQIrx56ofBq8iub74mlDPD9EnR0rMzGhoCCPK2Uor38VaeKz+CJhxGmurBAgCC
+	yJnVndk2M0ccGhkIfrohRES/tqam9Qf8yfHx9ETu4ClLzNtuQMTTNGbF0m+e4fin1h8MdBRagAg
+X-Received: by 2002:ac8:58c6:0:b0:532:9b4a:5936 with SMTP id d75a77b69052e-5329e7932d0mr50589521cf.9.1789750730489;
+        Fri, 18 Sep 2026 09:58:50 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9125805e1a7sm16010856d6.36.2026.09.18.09.19.43
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532ae5ee8dcsm1424901cf.9.2026.09.18.09.58.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Sep 2026 09:19:43 -0700 (PDT)
+        Fri, 18 Sep 2026 09:58:50 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] python/semanage: update semanage-fcontext.8 for fixed regex anchoring
-Date: Fri, 18 Sep 2026 12:19:18 -0400
-Message-ID: <20260918161928.21194-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] policycoreutils/scripts/fixfiles: pass -I/-D through to setfiles/restorecon
+Date: Fri, 18 Sep 2026 12:58:34 -0400
+Message-ID: <20260918165834.30571-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -74,42 +72,204 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Commit c42116d304b6 ("libselinux: fix incorrect regexp anchoring")
-fixed #544 for libselinux but did not update the semanage-fcontext.8
-manual page to reflect the updated logic and flags. Update it
-accordingly.
+setfiles/restorecon -D enables per-directory security.sehash digest
+tracking (skip a subtree whose stored digest matches the current
+file_contexts) and -I forces the walk anyway while refreshing the
+digests. As noted by issue #44, fixfiles has no way to reach either.
 
-Reported-by: Stephane Chazelas (@stephane-chazelas)
-Suggested-by: Stephane Chazelas (@stephane-chazelas)
-Fixes: https://github.com/SELinuxProject/selinux/issues/544
+Add -I and -D to fixfiles and pass whichever is set as ${DIGESTFLAGS}
+to every setfiles/restorecon invocation, export it into the unshare -m
+subshell used with -M, and record it in /.autorelabel for onboot. -I
+wins over -D (setfiles -I already implies -D).
+
+Fixes: https://github.com/SELinuxProject/selinux/issues/44
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- python/semanage/semanage-fcontext.8 | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ policycoreutils/scripts/fixfiles   | 36 ++++++++++++++++++------------
+ policycoreutils/scripts/fixfiles.8 | 28 ++++++++++++++++++-----
+ 2 files changed, 44 insertions(+), 20 deletions(-)
 
-diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semanage-fcontext.8
-index 66956440..85fda43b 100644
---- a/python/semanage/semanage-fcontext.8
-+++ b/python/semanage/semanage-fcontext.8
-@@ -15,8 +15,13 @@ This command maps file paths using regular expressions to SELinux labels.
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index 493c86f9..6e93d2ba 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -92,6 +92,7 @@ fullFlag=0
+ BOOTTIME=""
+ VERBOSE="-p"
+ FORCEFLAG=""
++DIGESTFLAG=""
+ THREADS=""
+ RPMFILES=""
+ PREFC=""
+@@ -136,7 +137,7 @@ newer() {
+     shift
+     LogReadOnly
+     for m in `echo $FILESYSTEMSRW`; do
+-	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} ${THREADS} $* -i -0 -f -
++	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${DIGESTFLAG} ${VERBOSE} ${THREADS} $* -i -0 -f -
+     done;
+ }
  
- FILE_SPEC may contain either a fully qualified path,
- or a Perl compatible regular expression (PCRE),
--describing fully qualified path(s). The only PCRE flag in use is PCRE2_DOTALL,
--which causes a wildcard '.' to match anything, including a new line.
-+describing fully qualified path(s).
-+The regular expression is anchored at both ends,
-+so the whole path must match; a leading ^ or trailing $ is not required.
-+The PCRE flags in use are PCRE2_DOTALL,
-+which causes a wildcard '.' to match anything, including a new line,
-+PCRE2_DOLLAR_ENDONLY, and PCRE2_EXTRA_MATCH_LINE,
-+which apply the anchoring.
- Strings representing paths are processed as bytes (as opposed to Unicode),
- meaning that non-ASCII characters are not matched by a single wildcard.
- If you need to match a non-ASCII character with a wildcard, put it in a group, e.g. '(č)*'
+@@ -180,7 +181,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+ 		  esac;
+ 	       fi;
+ 	    done |
+-	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -;
++	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${DIGESTFLAG} ${THREADS} $* -i -R -f -;
+ 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+ fi
+ }
+@@ -203,7 +204,7 @@ fix_labels_on_mountpoint() {
+ 	test -z ${TMP_MOUNT+x} && echo "Unable to find temporary directory!" && exit 1
+ 	mkdir -p "${TMP_MOUNT}${m}" || exit 1
+ 	mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
+-	${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
++	${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${DIGESTFLAG} ${THREADS} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
+ 	umount "${TMP_MOUNT}${m}" || exit 1
+ 	rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+ }
+@@ -237,11 +238,11 @@ LogExcluded
+ case "$RESTORE_MODE" in
+     RPMFILES)
+ 	for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
+-	    rpmlist $i | ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -
++	    rpmlist $i | ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${DIGESTFLAG} ${THREADS} $* -i -R -f -
+ 	done
+     ;;
+     FILEPATH)
+-	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -R -- "$FILEPATH"
++	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${DIGESTFLAG} ${THREADS} $* -R -- "$FILEPATH"
+     ;;
+     *)
+ 	if [ -n "${FILESYSTEMSRW}" ]; then
+@@ -249,13 +250,13 @@ case "$RESTORE_MODE" in
+ 	    echo "${OPTION}ing `echo ${FILESYSTEMSRW}`"
+ 
+ 	    if [ -z "$BIND_MOUNT_FILESYSTEMS" ]; then
+-	        ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -q ${THREADS} ${FC} ${FILESYSTEMSRW}
++	        ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${DIGESTFLAG} $* -q ${THREADS} ${FC} ${FILESYSTEMSRW}
+ 	    else
+ 	        # we bind mount so we can fix the labels of files that have already been
+ 	        # mounted over
+ 	        for m in `echo $FILESYSTEMSRW`; do
+ 	            TMP_MOUNT="$(mktemp -p /run -d fixfiles.XXXXXXXXXX)"
+-	            export SETFILES VERBOSE EXCLUDEDIRS FORCEFLAG THREADS FC TMP_MOUNT m
++	            export SETFILES VERBOSE EXCLUDEDIRS FORCEFLAG DIGESTFLAG THREADS FC TMP_MOUNT m
+ 	            if type unshare &> /dev/null; then
+ 	                unshare -m bash -c "fix_labels_on_mountpoint $*" || exit $?
+ 	            else
+@@ -323,6 +324,7 @@ case "$1" in
+ 	fi
+ 	> /.autorelabel || exit $?
+ 	[ -z "$FORCEFLAG" ] || echo -n "$FORCEFLAG " >> /.autorelabel
++	[ -z "$DIGESTFLAG" ] || echo -n "$DIGESTFLAG " >> /.autorelabel
+ 	[ -z "$BOOTTIME" ] || echo -n "-N $BOOTTIME " >> /.autorelabel
+ 	[ -z "$BIND_MOUNT_FILESYSTEMS" ] || echo -n "-M " >> /.autorelabel
+ 	[ -z "$THREADS" ] || echo -n "$THREADS " >> /.autorelabel
+@@ -337,17 +339,17 @@ esac
+ }
+ usage() {
+ 	echo $"""
+-Usage: $0 [-v] [-F] [-M] [-f] [-T nthreads] relabel
++Usage: $0 [-v] [-F] [-I|-D] [-M] [-f] [-T nthreads] relabel
+ or
+-Usage: $0 [-v] [-F] [-B | -N time ] [-T nthreads] { check | restore | verify }
++Usage: $0 [-v] [-F] [-I|-D] [-B | -N time ] [-T nthreads] { check | restore | verify }
+ or
+-Usage: $0 [-v] [-F] [-T nthreads] { check | restore | verify } dir/file ...
++Usage: $0 [-v] [-F] [-I|-D] [-T nthreads] { check | restore | verify } dir/file ...
+ or
+-Usage: $0 [-v] [-F] [-T nthreads] -R rpmpackage[,rpmpackage...] { check | restore | verify }
++Usage: $0 [-v] [-F] [-I|-D] [-T nthreads] -R rpmpackage[,rpmpackage...] { check | restore | verify }
+ or
+-Usage: $0 [-v] [-F] [-T nthreads] -C PREVIOUS_FILECONTEXT { check | restore | verify }
++Usage: $0 [-v] [-F] [-I|-D] [-T nthreads] -C PREVIOUS_FILECONTEXT { check | restore | verify }
+ or
+-Usage: $0 [-F] [-M] [-B] [-T nthreads] onboot
++Usage: $0 [-F] [-I|-D] [-M] [-B] [-T nthreads] onboot
+ """
+ }
+ 
+@@ -366,7 +368,7 @@ set_restore_mode() {
+ }
+ 
+ # See how we were called.
+-while getopts "N:BC:FfR:l:vMT:" i; do
++while getopts "N:BC:FIDfR:l:vMT:" i; do
+     case "$i" in
+ 	B)
+ 		BOOTTIME=`/bin/who -b | awk '{print $3}'`
+@@ -398,6 +400,12 @@ while getopts "N:BC:FfR:l:vMT:" i; do
+ 	F)
+ 		FORCEFLAG="-F"
+ 		;;
++	I)
++		DIGESTFLAG="-I"
++		;;
++	D)
++		[ -z "$DIGESTFLAG" ] && DIGESTFLAG="-D"
++		;;
+ 	f)
+ 		fullFlag=1
+ 		;;
+diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
+index 928b8200..f5b5d9ac 100644
+--- a/policycoreutils/scripts/fixfiles.8
++++ b/policycoreutils/scripts/fixfiles.8
+@@ -6,22 +6,22 @@ fixfiles \- fix file SELinux security contexts.
+ .na
+ 
+ .B fixfiles
+-.I [\-v] [\-F] [-M] [\-f] [\-T nthreads] relabel
++.I [\-v] [\-F] [\-I|\-D] [-M] [\-f] [\-T nthreads] relabel
+ 
+ .B fixfiles
+-.I [\-v] [\-F] [\-T nthreads] { check | restore | verify } dir/file ...
++.I [\-v] [\-F] [\-I|\-D] [\-T nthreads] { check | restore | verify } dir/file ...
+ 
+ .B fixfiles
+-.I [\-v] [\-F] [\-B | \-N time ] [\-T nthreads] { check | restore | verify }
++.I [\-v] [\-F] [\-I|\-D] [\-B | \-N time ] [\-T nthreads] { check | restore | verify }
+ 
+ .B fixfiles
+-.I [\-v] [\-F] [\-T nthreads] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
++.I [\-v] [\-F] [\-I|\-D] [\-T nthreads] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
+ 
+ .B fixfiles
+-.I [\-v] [\-F] [\-T nthreads] \-C PREVIOUS_FILECONTEXT  { check | restore | verify }
++.I [\-v] [\-F] [\-I|\-D] [\-T nthreads] \-C PREVIOUS_FILECONTEXT  { check | restore | verify }
+ 
+ .B fixfiles
+-.I [-F] [-M] [-B] [\-T nthreads] onboot
++.I [-F] [\-I|\-D] [-M] [-B] [\-T nthreads] onboot
+ 
+ .ad
+ 
+@@ -52,6 +52,22 @@ If specified with onboot, this fixfiles will record the current date in the /.au
+ .B \-F
+ Force reset of context to match file_context for customizable files
+ 
++.TP
++.B \-D
++Set or update per-directory
++.I security.sehash
++digests. On subsequent runs, directories whose stored digest still
++matches the current file_contexts are skipped. See
++.BR setfiles (8).
++
++.TP
++.B \-I
++Ignore existing per-directory
++.I security.sehash
++digests, so all directories are checked and their
++digests refreshed. See
++.BR setfiles (8).
++
+ .TP
+ .B \-f
+ Clear /tmp directory with out prompt for removal.
 -- 
 2.55.0
 
