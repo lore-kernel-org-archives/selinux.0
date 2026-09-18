@@ -1,344 +1,192 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07AE372EE4;
-	Thu, 17 Sep 2026 21:23:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8D64A4842;
+	Fri, 18 Sep 2026 07:28:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789680216; cv=none; b=g2bgpnAi/Vv5ixUWGSG0TYXrtqSobRkAou/zvGOIOf77JoZPMxRxAySaehDpgk/7M+OCOq7xFFpXobOZBgrOyj+j6S/nL/P+IHI6rx022qm2r7mTTzuan0Dxmhc5hEES8awYujd0+hzxA1iKvn1N7lqt7AOSJqZ3C5wTATAAd8w=
+	t=1789716495; cv=none; b=hVozF4ViVrtM1E9zHhzizvI1Y6s7ulswD7Kw/vUiOOs7x0h+ssX68snCrfLhPll26Zhs1PUJOnuy93RmyEBm98hBpjMI7EKrgDd6GMhPrRF7Wn9oZsIHLwC1RBEk9R9u0/MgKQuEYLWCHQ0P9bz7uL8MnBlb0pCJherjbqzvd5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789680216; c=relaxed/simple;
-	bh=A7lL4KAfhIJBbzpbVryrOoEGdPkviEAu9tdoSX0n4Ds=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=N40tQlDZP0IAp0gSzyUzDVp4y7zAOsnximH2X5/zqZunIP/f4p48s+2mp9LtyMP5xxoe5IOZOmRmsFVw6bjyda3UParxu5zf9KQ0MGPmGgWrFGy0saesl/w26ge+OU+eieRdAZoTEa76Y4tQXwqEvoEaAxacJqfxGhvXcJQzIJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=VUF866Xg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789716495; c=relaxed/simple;
+	bh=z9d99/rxOW1nQfP5fM1K+vdvqvuf3TqZ0MmNsHP0Lps=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M9Q8n9tjEp2wc/fi/Y7qCVdtIL88DKGq4EySdeobAvRzyN17uk5xvYJ8Nq35dZN66iw1cd9ZMLRkBBDtulbzzG7cVMzygCCTzSGX75F4NzzS2awYFCZh79qEFttpvUfbFvbgBybONQYIb9cUwZlnyZiSTMjnG0a5VSnQHWAtOA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RoaD5iIE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="VUF866Xg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5062D1F000FF;
-	Thu, 17 Sep 2026 21:23:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1789680214;
-	bh=NUNrBmtamoGTZdnjr2/yL2y2w6DcpJMvTMICnOHXcqc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=VUF866Xg25rkEYuIAeRh8+Jby3Nsgi0QqQgf+tcoe0C7lFWZo2kW07wobdbQTXONa
-	 IrDTi0vtFdOje+nXofZ7qVIuq8UFrLKFeRBPgY0JvevdHLKjcg92+cAb0Z4/yQgheh
-	 XekOEPMPEkzPT/6xM5Mwlpf+y3YNL1+GloA5Mf1w=
-Date: Thu, 17 Sep 2026 14:23:29 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka
- <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato
- <pfalcato@suse.de>, David Hildenbrand <david@kernel.org>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
- <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, Dennis Dalessandro
- <dennis.dalessandro@cornelisnetworks.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>, Jaroslav Kysela
- <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Alexei Starovoitov
- <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
- <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, Kumar Kartikeya
- Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, Ryan
- Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
- <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Usama Arif
- <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert
- <dgilbert@interlog.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, Simona Vetter
- <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, Sebastian Reichel
- <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu
- <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov
- <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner
- <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
- <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rik van Riel
- <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli
- <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
- <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
- <airlied@gmail.com>, Will Deacon <will@kernel.org>, "Aneesh Kumar K.V"
- <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann
- <arnd@arndb.de>, Muchun Song <muchun.song@linux.dev>, Oscar Salvador
- <osalvador@suse.de>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan
- Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, Oliver Upton
- <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul
- Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
- <aou@eecs.berkeley.edu>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, Alexander
- Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>,
- Matthew Brost <matthew.brost@intel.com>, Joshua Hahn
- <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park
- <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, Chris
- Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, Kemeng Shi
- <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He
- <baoquan.he@linux.dev>, Youngjun Park <youngjun.park@lge.com>, Johannes
- Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt
- <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>,
- Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Chengming
- Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, Miklos
- Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org,
- selinux@vger.kernel.org, linux-sound@vger.kernel.org, bpf@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- fuse-devel@lists.linux.dev, Takashi Iwai <tiwai@suse.de>, Emil Tsalapatis
- <emil@etsalapatis.com>
-Subject: Re: [PATCH v3 00/40] mm: make VMA flag semantics explicit,
- eliminate VM_SPECIAL
-Message-Id: <20260917142329.369cd6539261d590600ce7ec@linux-foundation.org>
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RoaD5iIE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DEB1F000FF;
+	Fri, 18 Sep 2026 07:28:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789716482;
+	bh=mtFqLx8WMWdyHMx6wmboMfxQCGzliJI+dmsZqGbwLQw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=RoaD5iIEoCPQrHXU+U8wVKNg9pVdgksf27ihSN/Nt1uEp5387yrjNavwuZG0bw2uE
+	 07OkGmtl3iNUi99eiMveVonJHcjfhPZHVba68XHil6+FVCLohoHi3YJQAUvKGeKSV3
+	 6jjvfg7PYdJfdHaKGeDvINW3RDruYRnbpUR/C8vaWrVDFyBhu3JOrxkDcFar6Xq2eL
+	 z9AppVILc+MWfJCUdUoj6M79FKSHvX6lo7C3p+QeO4cNCFij1LL+zmvkPaOHLdij/c
+	 xUvhuq0VvKaF3PGb4xJGAFTxkMgv2MKj93kawcXpt7e1UOCHm/ocTzlfXNuxpSwSWx
+	 WNvIJKU4+uRGw==
+Date: Fri, 18 Sep 2026 09:27:57 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnacek@gmail.com, 
+	linux-security-module@vger.kernel.org, mic@digikod.net, serge@hallyn.com, jack@suse.cz, 
+	jmorris@namei.org
+Subject: Re: [PATCH] lsm: initialize the security blob for the initial
+ namespaces
+Message-ID: <20260918-kernbereich-altkleider-gespuckt-3b9488e49810@brauner>
+References: <20260916194824.37332-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260916194824.37332-1-stephen.smalley.work@gmail.com>
 
-On Thu, 17 Sep 2026 17:22:09 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
-
-> The VM_SPECIAL / VMA_SPECIAL_FLAGS mask conflates several unrelated
-> properties:
+On Wed, Sep 16, 2026 at 03:48:24PM -0400, Stephen Smalley wrote:
+> Commit f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
+> added a security blob to struct ns_common and allocates it from
+> __ns_common_init(). Most initial namespaces (init_user_ns,
+> init_uts_ns, init_pid_ns, init_mnt_ns, and, depending on
+> configuration, init_ipc_ns, init_cgroup_ns and init_time_ns) are
+> however set up statically via NS_COMMON_INIT() and never pass through
+> __ns_common_init(), so their ns_security pointer is left NULL for the
+> lifetime of the system. Any LSM that registers an lbs_ns blob and
+> dereferences its slice on one of those namespaces (for example from
+> the namespace_install hook when a task setns()'s back into an initial
+> namespace) will fault.
 > 
-> * Is this kernel-owned, whether MMIO, kernel-allocated pages, or ordinary
->   pages a driver maps itself?
-> * Can it be expanded or merged?
-> * Is this a 'weird' case like mlock where migration might race and we
->   'have' to set invalid flags to notify?
-> * Is it another 'weird' case where we just want to stop GUP from touching
->   it?
+> Allocate the blob and run the namespace_init hook for each of these
+> namespaces at the end of security_init(), after all ordered LSMs have
+> registered their hooks, so every LSM sees the initial namespaces the
+> same way it sees init_net (which is initialized at runtime via
+> ns_common_init(&init_net) from net_ns_init() immediately after
+> security_init()) and does not need to special-case them in its own
+> ->init() callback.
 > 
-> ...
+> Provide an init_ns_common_for_each() iterator in kernel/nscommon.c so
+> the list of statically-defined initial namespaces and their Kconfig
+> guards live next to the rest of the ns_common infrastructure. init_net
+> is intentionally excluded: pre-initializing it here would leak once
+> __ns_common_init() clears ns_security and re-allocates.
 > 
-> This series brings some order to things by both limiting what drivers can
-> do with VMA flags and switching to using predicates that describe
-> behaviour, not arbitrary flags.
+> Fixes: f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  include/linux/ns_common.h |  1 +
+>  kernel/nscommon.c         | 45 +++++++++++++++++++++++++++++++++++++++
+>  security/lsm_init.c       | 11 ++++++++++
+>  3 files changed, 57 insertions(+)
+> 
+> diff --git a/include/linux/ns_common.h b/include/linux/ns_common.h
+> index c8e227a3f9e2..742627000453 100644
+> --- a/include/linux/ns_common.h
+> +++ b/include/linux/ns_common.h
+> @@ -11,6 +11,7 @@
+>  bool is_current_namespace(struct ns_common *ns);
+>  int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_operations *ops, int inum);
+>  void __ns_common_free(struct ns_common *ns);
+> +int init_ns_common_for_each(int (*fn)(struct ns_common *ns));
+>  struct ns_common *__must_check ns_owner(struct ns_common *ns);
+>  
+>  static __always_inline bool is_ns_init_inum(const struct ns_common *ns)
+> diff --git a/kernel/nscommon.c b/kernel/nscommon.c
+> index e72426bba29a..4f3cba5518d7 100644
+> --- a/kernel/nscommon.c
+> +++ b/kernel/nscommon.c
+> @@ -1,11 +1,17 @@
+>  // SPDX-License-Identifier: GPL-2.0-only
+>  /* Copyright (c) 2025 Christian Brauner <brauner@kernel.org> */
+>  
+> +#include <linux/cgroup.h>
+> +#include <linux/ipc_namespace.h>
+> +#include <linux/mnt_namespace.h>
+>  #include <linux/ns_common.h>
+>  #include <linux/nstree.h>
+> +#include <linux/pid_namespace.h>
+>  #include <linux/proc_ns.h>
+>  #include <linux/security.h>
+> +#include <linux/time_namespace.h>
+>  #include <linux/user_namespace.h>
+> +#include <linux/uts_namespace.h>
+>  #include <linux/vfsdebug.h>
+>  
+>  #ifdef CONFIG_DEBUG_VFS
+> @@ -101,6 +107,45 @@ int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_ope
+>  	return 0;
+>  }
+>  
+> +/**
+> + * init_ns_common_for_each - iterate the statically-defined initial namespaces
+> + * @fn: callback invoked with each initial ns_common
+> + *
+> + * Walk the initial namespaces that are set up via NS_COMMON_INIT() at compile
+> + * time and therefore never pass through __ns_common_init(). The initial
+> + * network namespace is intentionally excluded: it is initialized at runtime
+> + * via ns_common_init(&init_net) from net_ns_init().
+> + *
+> + * Return: the first non-zero return from @fn, or 0.
+> + */
+> +int __init init_ns_common_for_each(int (*fn)(struct ns_common *ns))
+> +{
+> +	struct ns_common *set[] = {
+> +		to_ns_common(&init_user_ns),
+> +		to_ns_common(&init_uts_ns),
+> +		to_ns_common(&init_pid_ns),
+> +		from_mnt_ns(&init_mnt_ns),
+> +#if defined(CONFIG_POSIX_MQUEUE) || defined(CONFIG_SYSVIPC)
+> +		to_ns_common(&init_ipc_ns),
+> +#endif
+> +#ifdef CONFIG_CGROUPS
+> +		to_ns_common(&init_cgroup_ns),
+> +#endif
+> +#ifdef CONFIG_TIME_NS
+> +		to_ns_common(&init_time_ns),
+> +#endif
+> +	};
+> +	unsigned int i;
+> +	int ret;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(set); i++) {
+> +		ret = fn(set[i]);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +	return 0;
+> +}
+> +
+>  void __ns_common_free(struct ns_common *ns)
+>  {
+>  	security_namespace_free(ns);
+> diff --git a/security/lsm_init.c b/security/lsm_init.c
+> index dbda7771013b..60e15215f6bd 100644
+> --- a/security/lsm_init.c
+> +++ b/security/lsm_init.c
+> @@ -7,6 +7,7 @@
+>  
+>  #include <linux/init.h>
+>  #include <linux/lsm_hooks.h>
+> +#include <linux/ns_common.h>
+>  
+>  #include "lsm.h"
+>  
+> @@ -490,6 +491,16 @@ int __init security_init(void)
+>  		lsm_init_single(*lsm);
+>  	}
+>  
+> +	/*
+> +	 * The initial namespaces are set up statically via NS_COMMON_INIT()
+> +	 * and never pass through __ns_common_init(), so allocate their
+> +	 * security blobs and run the namespace_init hooks now that all LSMs
+> +	 * are registered. init_net is not covered here; it is initialized
+> +	 * at runtime from net_ns_init() shortly after security_init().
+> +	 */
+> +	if (init_ns_common_for_each(security_namespace_init))
+> +		panic("initial LSM ns alloc failed\n");
 
-Thanks, I've updated mm.git's mm-unstable branch to this version.
-
-> v3:
-> * Fixed up bug in patch 1 as reported by Mike - have to delay setting
->   map->vma_flags until after action prepare, though map->vm_file needs to
->   be set before for correct reference count management.
-> * Updated 4/40 to add a symmetric vm_end check as well as vm_start in case
->   of a dangerously insane driver, as per Sashiko.
-> * Updated 8/40 to check if a driver did something REALLY stupid like having
->   a NULL discontig_kernel_page_ops ptr, as per Sashiko.
-> * Updated 15/40 to trivially synchronise userland test comments.
-> * Updated 17/40 to correctly duplicate code to the userland VMA tests as
->   per Sashiko.
-
-Here's how v3 altered mm.git:
-
-
- mm/internal.h                   |    4 ++-
- mm/memory.c                     |    2 -
- mm/vma.c                        |   34 +++++++++++++++++-------------
- mm/vma.h                        |    3 +-
- tools/testing/vma/include/dup.h |   24 ++++++++++++++++-----
- 5 files changed, 45 insertions(+), 22 deletions(-)
-
---- a/mm/internal.h~b
-+++ a/mm/internal.h
-@@ -244,6 +244,7 @@ static inline void vma_close(struct vm_a
- static inline int mmap_file(struct file *file, struct vm_area_struct *vma)
- {
- 	const unsigned long prev_start = vma->vm_start;
-+	const unsigned long prev_end = vma->vm_end;
- 	const vma_flags_t prev_flags = vma->flags;
- 	int err;
- 
-@@ -263,9 +264,10 @@ static inline int mmap_file(struct file
- 	if (unlikely(err))
- 		return err;
- 
--	err = mmap_hook_validate(prev_start, &prev_flags, vma);
-+	err = mmap_hook_validate(prev_start, prev_end, &prev_flags, vma);
- 	if (unlikely(err)) {
- 		vma->vm_start = prev_start;
-+		vma->vm_end = prev_end;
- 		vma_close(vma);
- 	}
- 
---- a/mm/memory.c~b
-+++ a/mm/memory.c
-@@ -2653,7 +2653,7 @@ int map_discontig_kernel_pages_prepare(s
- 		action->map_kernel_discontig.ops;
- 
- 	/* At minimum need to be able to get pages. */
--	if (WARN_ON_ONCE(!ops->get))
-+	if (WARN_ON_ONCE(!ops || !ops->get))
- 		return -EINVAL;
- 
- 	__map_kernel_pages_prepare(desc);
---- a/mm/vma.c~b
-+++ a/mm/vma.c
-@@ -2797,15 +2797,15 @@ static int mmap_validate_vma_flags(const
- }
- 
- /* Check to ensure a driver hasn't done something crazy. */
--static int mmap_validate(unsigned long prev_start,
--			 unsigned long curr_start,
-+static int mmap_validate(unsigned long prev_start, unsigned long prev_end,
-+			 unsigned long curr_start, unsigned long curr_end,
- 			 const vma_flags_t *prev_flags,
- 			 const vma_flags_t *curr_flags)
- {
- 	bool was_maywrite, is_maywrite;
- 
--	/* Drivers cannot alter the address of the VMA. */
--	if (WARN_ON_ONCE(prev_start != curr_start))
-+	/* Drivers cannot alter the range of the VMA. */
-+	if (WARN_ON_ONCE(prev_start != curr_start || prev_end != curr_end))
- 		return -EINVAL;
- 
- 	was_maywrite = vma_flags_test(prev_flags, VMA_MAYWRITE_BIT);
-@@ -2843,7 +2843,8 @@ int mmap_prepare_validate(const struct v
- 	    WARN_ON_ONCE(desc->action.type != MMAP_NOTHING))
- 		return -EINVAL;
- 
--	return mmap_validate(prev_desc->start, desc->start,
-+	return mmap_validate(prev_desc->start, prev_desc->end,
-+			     desc->start, desc->end,
- 			     &prev_desc->vma_flags, &desc->vma_flags);
- }
- 
-@@ -2851,19 +2852,22 @@ int mmap_prepare_validate(const struct v
-  * mmap_hook_validate() - Ensure the driver hasn't violated invariants in
-  * its f_op->mmap hook.
-  * @prev_start: The start of the mapping prior to the mmap hook.
-+ * @prev_end: The end of the mapping prior to the mmap hook.
-  * @prev_flags: The VMA flags set for the VMA prior to the mmap hook.
-  * @vma: The VMA after the hook has been applied.
-  *
-  * Returns: 0 on success, otherwise an error.
-  */
--int mmap_hook_validate(unsigned long prev_start,
-+int mmap_hook_validate(unsigned long prev_start, unsigned long prev_end,
- 		       const vma_flags_t *prev_flags,
- 		       const struct vm_area_struct *vma)
- {
- 	const unsigned long start = vma->vm_start;
-+	const unsigned long end = vma->vm_end;
- 	const vma_flags_t *flags = &vma->flags;
- 
--	return mmap_validate(prev_start, start, prev_flags, flags);
-+	return mmap_validate(prev_start, prev_end, start, end, prev_flags,
-+			     flags);
- }
- 
- static int call_action_prepare(struct mmap_state *map,
-@@ -2900,15 +2904,9 @@ static int call_mmap_prepare(struct mmap
- 	if (err)
- 		return err;
- 
--	/* Update fields permitted to be changed. */
--	map->pgoff = desc->pgoff;
-+	/* Update first so file refcount tracked correctly. */
- 	if (desc->vm_file != map->vm_file)
- 		map->vm_file = desc->vm_file;
--	map->vma_flags = desc->vma_flags;
--	map->page_prot = desc->page_prot;
--	/* User-defined fields. */
--	map->vm_ops = desc->vm_ops;
--	map->vm_private_data = desc->private_data;
- 
- 	/* It's invalid for mmap_prepare hooks to clear vm_ops. */
- 	if (!desc->vm_ops)
-@@ -2923,6 +2921,14 @@ static int call_mmap_prepare(struct mmap
- 	if (err)
- 		return err;
- 
-+	/* Update fields permitted to be changed. */
-+	map->pgoff = desc->pgoff;
-+	map->vma_flags = desc->vma_flags;
-+	map->page_prot = desc->page_prot;
-+	/* User-defined fields. */
-+	map->vm_ops = desc->vm_ops;
-+	map->vm_private_data = desc->private_data;
-+
- 	/*
- 	 * MAP_PRIVATE-/dev/zero mappings are an ancient way of getting
- 	 * anonymous mappings. Rather than allowing these mappings to be odd
---- a/mm/vma.h~b
-+++ a/mm/vma.h
-@@ -786,7 +786,7 @@ void vm_area_free(struct vm_area_struct
- int mmap_prepare_validate(const struct vm_area_desc *prev_desc,
- 			  const struct vm_area_desc *desc);
- 
--int mmap_hook_validate(unsigned long prev_start,
-+int mmap_hook_validate(unsigned long prev_start, unsigned long prev_end,
- 		       const vma_flags_t *prev_flags,
- 		       const struct vm_area_struct *vma);
- 
-@@ -851,6 +851,7 @@ static inline int mmap_prepare_validate(
- }
- 
- static inline int mmap_hook_validate(unsigned long prev_start,
-+				     unsigned long prev_end,
- 				     const vma_flags_t *prev_flags,
- 				     const struct vm_area_struct *vma)
- {
---- a/tools/testing/vma/include/dup.h~b
-+++ a/tools/testing/vma/include/dup.h
-@@ -1667,22 +1667,36 @@ static inline bool vma_is_kernel_owned(c
- 	return vma_flags_is_kernel_owned(&vma->flags);
- }
- 
-+static inline bool vma_flags_is_fixed_mapping(const vma_flags_t *flags)
-+{
-+	/*
-+	 * VMA_PFNMAP_BIT should imply VMA_DONTEXPAND_BIT, but some callers set
-+	 * only the former.
-+	 */
-+	return vma_flags_test_any(flags, VMA_PFNMAP_BIT, VMA_DONTEXPAND_BIT);
-+}
-+
-+static inline bool vma_is_fixed_mapping(const struct vm_area_struct *vma)
-+{
-+	return vma_flags_is_fixed_mapping(&vma->flags);
-+}
-+
- static inline bool vma_flags_can_merge(const vma_flags_t *flags)
- {
- 	/*
--	 * VMA merging assumes that the properties of a VMA completely describe
--	 * the properties of that VMA.
-+	 * VMA merging assumes that a VMA's flags and fields completely describe
-+	 * its state.
- 	 *
- 	 * However, kernel-owned mappings may have established state upon mapping
- 	 * not embodied in any attribute of the VMA.
- 	 *
--	 * Additionally, PFN maps encode the source PFN of the range in
--	 * vma->vm_pgoff, which may otherwise cause spurious merges.
-+	 * Additionally, private (CoW) PFN maps encode the source PFN of the
-+	 * range in vma->vm_pgoff, which may otherwise cause spurious merges.
- 	 */
- 	if (vma_flags_is_kernel_owned(flags))
- 		return false;
- 	/* VMA explicitly marked as being unmergeable. */
--	if (vma_flags_test(flags, VMA_DONTEXPAND_BIT))
-+	if (vma_flags_is_fixed_mapping(flags))
- 		return false;
- 
- 	return true;
-_
-
+Wouldn't it be nicer to turn this around and call
+security_namespace_init from the ns common code and avoid the callback?
+Especially since there's only one.
