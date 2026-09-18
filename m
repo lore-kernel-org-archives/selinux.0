@@ -1,192 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8D64A4842;
-	Fri, 18 Sep 2026 07:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390C84CDDF4
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 10:18:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789716495; cv=none; b=hVozF4ViVrtM1E9zHhzizvI1Y6s7ulswD7Kw/vUiOOs7x0h+ssX68snCrfLhPll26Zhs1PUJOnuy93RmyEBm98hBpjMI7EKrgDd6GMhPrRF7Wn9oZsIHLwC1RBEk9R9u0/MgKQuEYLWCHQ0P9bz7uL8MnBlb0pCJherjbqzvd5M=
+	t=1789726712; cv=none; b=YFmL9Xm22nUhm7BRmz4uivujMFaDMSloZFaioPu1uIAM9XXct7TJW4QRke/nef/DodsEzoZ6Ee7qCRfUAz8U+MDFQaN/c8MlSsGbPaTsOOdXggnuzF9hf56TTRAeMFIehwq2KpjoXRKwiK1s44T1RrUDGVojr2cPv9FbTgzw5/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789716495; c=relaxed/simple;
-	bh=z9d99/rxOW1nQfP5fM1K+vdvqvuf3TqZ0MmNsHP0Lps=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M9Q8n9tjEp2wc/fi/Y7qCVdtIL88DKGq4EySdeobAvRzyN17uk5xvYJ8Nq35dZN66iw1cd9ZMLRkBBDtulbzzG7cVMzygCCTzSGX75F4NzzS2awYFCZh79qEFttpvUfbFvbgBybONQYIb9cUwZlnyZiSTMjnG0a5VSnQHWAtOA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RoaD5iIE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789726712; c=relaxed/simple;
+	bh=QnCX+k7uhi+6bQ9NVm1lq2ICegqDMGduXvBqJMCzwPo=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=X9YK8XvGZywrptL0t2RKDaN0YPEwvKZ7v6cyPqdUT4YCNvWRlTZ4ATrr8LzPntikPG3RirJaRwHzzQF5DM0wrCfgrz/1awIaxBOtlFT4QDHJ5ebmVGmhFdp+ZEB3Co9PgnvNGLjW8oHgyvkjYbKWdTqDmFUoAZAclHzzMKye42I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=kfK7c143; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RoaD5iIE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DEB1F000FF;
-	Fri, 18 Sep 2026 07:28:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789716482;
-	bh=mtFqLx8WMWdyHMx6wmboMfxQCGzliJI+dmsZqGbwLQw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RoaD5iIEoCPQrHXU+U8wVKNg9pVdgksf27ihSN/Nt1uEp5387yrjNavwuZG0bw2uE
-	 07OkGmtl3iNUi99eiMveVonJHcjfhPZHVba68XHil6+FVCLohoHi3YJQAUvKGeKSV3
-	 6jjvfg7PYdJfdHaKGeDvINW3RDruYRnbpUR/C8vaWrVDFyBhu3JOrxkDcFar6Xq2eL
-	 z9AppVILc+MWfJCUdUoj6M79FKSHvX6lo7C3p+QeO4cNCFij1LL+zmvkPaOHLdij/c
-	 xUvhuq0VvKaF3PGb4xJGAFTxkMgv2MKj93kawcXpt7e1UOCHm/ocTzlfXNuxpSwSWx
-	 WNvIJKU4+uRGw==
-Date: Fri, 18 Sep 2026 09:27:57 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnacek@gmail.com, 
-	linux-security-module@vger.kernel.org, mic@digikod.net, serge@hallyn.com, jack@suse.cz, 
-	jmorris@namei.org
-Subject: Re: [PATCH] lsm: initialize the security blob for the initial
- namespaces
-Message-ID: <20260918-kernbereich-altkleider-gespuckt-3b9488e49810@brauner>
-References: <20260916194824.37332-1-stephen.smalley.work@gmail.com>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="kfK7c143"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:Content-Type
+	:To:Subject:From:MIME-Version:Date:Message-ID:Reply-To:Cc:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=3yvzT7RSobImpb1GeaVhZKFvIP8Sm/Kpk4mFzciCgcI=; b=kfK7c143Do75teAKwbQtexL1Dn
+	viQn8RckhM71YCwIE5BkeXqyFYrCMWXR1sAhog02zL0jVQjPHawPKODrRiqVZl9xASWTqh3Z8AypD
+	FO3e1TFabshKLsiXde0C0gRS5BFUzD7gaibeehqB7AEIP7qy2tLrRxXoqjOQDi06XGywErZ2W3Zb1
+	ZsEjJfLimswuLqaLhpEvhjgGeXMuVL8TH2jhRX6RisZpM7f3Uob34v0ze4bAwslJX2Is9QjnyG+Kz
+	xC/BPuvXOu0y1HW8Y5rA7onxlrZQoT2HgXkZ1l15SiWmtobL/T2GCBNvCiNHOUt6hPcR/mpwhZaaB
+	6CH/FaYA==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
+	(Exim 4.96)
+	(envelope-from <bigon@debian.org>)
+	id 1x7Vfj-006eGZ-1U
+	for selinux@vger.kernel.org;
+	Fri, 18 Sep 2026 10:18:23 +0000
+Message-ID: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
+Date: Fri, 18 Sep 2026 12:18:21 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260916194824.37332-1-stephen.smalley.work@gmail.com>
+User-Agent: Mozilla Thunderbird
+From: Laurent Bigonville <bigon@debian.org>
+Subject: selinux_kernfs_init_security() ignores genfscon-resolved parent
+ label, breaks type_transition on cgroup2/sysfs
+To: SElinux list <selinux@vger.kernel.org>
+Content-Language: fr, en-US
+Autocrypt: addr=bigon@debian.org; keydata=
+ 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
+ wQOeCC+SiVSdSv0zm8D5
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Debian-User: bigon
 
-On Wed, Sep 16, 2026 at 03:48:24PM -0400, Stephen Smalley wrote:
-> Commit f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> added a security blob to struct ns_common and allocates it from
-> __ns_common_init(). Most initial namespaces (init_user_ns,
-> init_uts_ns, init_pid_ns, init_mnt_ns, and, depending on
-> configuration, init_ipc_ns, init_cgroup_ns and init_time_ns) are
-> however set up statically via NS_COMMON_INIT() and never pass through
-> __ns_common_init(), so their ns_security pointer is left NULL for the
-> lifetime of the system. Any LSM that registers an lbs_ns blob and
-> dereferences its slice on one of those namespaces (for example from
-> the namespace_install hook when a task setns()'s back into an initial
-> namespace) will fault.
-> 
-> Allocate the blob and run the namespace_init hook for each of these
-> namespaces at the end of security_init(), after all ordered LSMs have
-> registered their hooks, so every LSM sees the initial namespaces the
-> same way it sees init_net (which is initialized at runtime via
-> ns_common_init(&init_net) from net_ns_init() immediately after
-> security_init()) and does not need to special-case them in its own
-> ->init() callback.
-> 
-> Provide an init_ns_common_for_each() iterator in kernel/nscommon.c so
-> the list of statically-defined initial namespaces and their Kconfig
-> guards live next to the rest of the ns_common infrastructure. init_net
-> is intentionally excluded: pre-initializing it here would leak once
-> __ns_common_init() clears ns_security and re-allocates.
-> 
-> Fixes: f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  include/linux/ns_common.h |  1 +
->  kernel/nscommon.c         | 45 +++++++++++++++++++++++++++++++++++++++
->  security/lsm_init.c       | 11 ++++++++++
->  3 files changed, 57 insertions(+)
-> 
-> diff --git a/include/linux/ns_common.h b/include/linux/ns_common.h
-> index c8e227a3f9e2..742627000453 100644
-> --- a/include/linux/ns_common.h
-> +++ b/include/linux/ns_common.h
-> @@ -11,6 +11,7 @@
->  bool is_current_namespace(struct ns_common *ns);
->  int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_operations *ops, int inum);
->  void __ns_common_free(struct ns_common *ns);
-> +int init_ns_common_for_each(int (*fn)(struct ns_common *ns));
->  struct ns_common *__must_check ns_owner(struct ns_common *ns);
->  
->  static __always_inline bool is_ns_init_inum(const struct ns_common *ns)
-> diff --git a/kernel/nscommon.c b/kernel/nscommon.c
-> index e72426bba29a..4f3cba5518d7 100644
-> --- a/kernel/nscommon.c
-> +++ b/kernel/nscommon.c
-> @@ -1,11 +1,17 @@
->  // SPDX-License-Identifier: GPL-2.0-only
->  /* Copyright (c) 2025 Christian Brauner <brauner@kernel.org> */
->  
-> +#include <linux/cgroup.h>
-> +#include <linux/ipc_namespace.h>
-> +#include <linux/mnt_namespace.h>
->  #include <linux/ns_common.h>
->  #include <linux/nstree.h>
-> +#include <linux/pid_namespace.h>
->  #include <linux/proc_ns.h>
->  #include <linux/security.h>
-> +#include <linux/time_namespace.h>
->  #include <linux/user_namespace.h>
-> +#include <linux/uts_namespace.h>
->  #include <linux/vfsdebug.h>
->  
->  #ifdef CONFIG_DEBUG_VFS
-> @@ -101,6 +107,45 @@ int __ns_common_init(struct ns_common *ns, u32 ns_type, const struct proc_ns_ope
->  	return 0;
->  }
->  
-> +/**
-> + * init_ns_common_for_each - iterate the statically-defined initial namespaces
-> + * @fn: callback invoked with each initial ns_common
-> + *
-> + * Walk the initial namespaces that are set up via NS_COMMON_INIT() at compile
-> + * time and therefore never pass through __ns_common_init(). The initial
-> + * network namespace is intentionally excluded: it is initialized at runtime
-> + * via ns_common_init(&init_net) from net_ns_init().
-> + *
-> + * Return: the first non-zero return from @fn, or 0.
-> + */
-> +int __init init_ns_common_for_each(int (*fn)(struct ns_common *ns))
-> +{
-> +	struct ns_common *set[] = {
-> +		to_ns_common(&init_user_ns),
-> +		to_ns_common(&init_uts_ns),
-> +		to_ns_common(&init_pid_ns),
-> +		from_mnt_ns(&init_mnt_ns),
-> +#if defined(CONFIG_POSIX_MQUEUE) || defined(CONFIG_SYSVIPC)
-> +		to_ns_common(&init_ipc_ns),
-> +#endif
-> +#ifdef CONFIG_CGROUPS
-> +		to_ns_common(&init_cgroup_ns),
-> +#endif
-> +#ifdef CONFIG_TIME_NS
-> +		to_ns_common(&init_time_ns),
-> +#endif
-> +	};
-> +	unsigned int i;
-> +	int ret;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(set); i++) {
-> +		ret = fn(set[i]);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	return 0;
-> +}
-> +
->  void __ns_common_free(struct ns_common *ns)
->  {
->  	security_namespace_free(ns);
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index dbda7771013b..60e15215f6bd 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -7,6 +7,7 @@
->  
->  #include <linux/init.h>
->  #include <linux/lsm_hooks.h>
-> +#include <linux/ns_common.h>
->  
->  #include "lsm.h"
->  
-> @@ -490,6 +491,16 @@ int __init security_init(void)
->  		lsm_init_single(*lsm);
->  	}
->  
-> +	/*
-> +	 * The initial namespaces are set up statically via NS_COMMON_INIT()
-> +	 * and never pass through __ns_common_init(), so allocate their
-> +	 * security blobs and run the namespace_init hooks now that all LSMs
-> +	 * are registered. init_net is not covered here; it is initialized
-> +	 * at runtime from net_ns_init() shortly after security_init().
-> +	 */
-> +	if (init_ns_common_for_each(security_namespace_init))
-> +		panic("initial LSM ns alloc failed\n");
+Hello,
 
-Wouldn't it be nicer to turn this around and call
-security_namespace_init from the ns common code and avoid the callback?
-Especially since there's only one.
+The other day I tried to troubleshoot (assisted with AI) why 
+"memory.pressure" files in the cgroup2 hierarchy were never getting 
+labeled memory_pressure_t, despite refpolicy defining:
+
+   type_transition init_t cgroup_t:file memory_pressure_t "memory.pressure";
+
+My understanding: selinux_kernfs_init_security() decides whether to 
+compute a transition for a new child by checking kernfs_xattr_get() on 
+the parent — kernfs's own private, per-node xattr store — and bails out 
+immediately if that returns -ENODATA. But /sys/fs/cgroup (and everything 
+under it) is still labeled cgroup_t for every other SELinux purpose, 
+including plain getxattr()/getfilecon() — that value comes from a 
+genfscon rule, resolved live, with no real stored xattr ever involved. 
+So the parent "has a label" as far as policy and every other check is 
+concerned, but not as far as this one specific kernel check is 
+concerned, and the type_transition never fires as a result.
+
+A simple way to confirm: force a real xattr to get persisted (e.g. chcon 
+system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/) and then 
+restart a service — its memory.pressure then correctly shows up as 
+memory_pressure_t.
+
+Tested on kernel 7.1.13 (Debian), refpolicy main branch, 
+cgroup_seclabel/genfs_seclabel_wildcard policy caps active.
+
+Has anyone got a view on whether this is intentional, and whether it'd 
+make sense for that check to fall back to a genfscon-resolved SID when 
+there's no stored xattr on the parent?
+
+Kind regards,
+
+Laurent Bigonville
+
