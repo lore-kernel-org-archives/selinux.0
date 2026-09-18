@@ -1,126 +1,144 @@
-Received: from mail-yx2-f12.google.com (mail-yx2-f12.google.com [74.125.224.140])
+Received: from mail-ua2-f12.google.com (mail-ua2-f12.google.com [74.125.226.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E23233F8CA
-	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 15:31:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.140
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789745495; cv=none; b=GRovJTlr5R0uAvvTB8xw1oAyn97m4IUVfO5QrcjD7CANpu11tY17k8gfyFMaRTBgHIvial21i14Q9UqabtN/XlsttzQYPvQPddlxirg8p2BPN5/VNkAqdIJKuZkuqJoJfhhOLrjbRomaGbRb9H3o3oAaQ5zrIQzKloY6YtZgnAc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789745495; c=relaxed/simple;
-	bh=5W6k7FIPTyj3IZaUoZsHZPFsN26osd8sFKwW/UIUE7Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rvex6eJSenx7V/zS2YTuv6A55xTNDwatj18aBINI/0eEVu08QxAC062OjiD4Ciw8QNf4duoCZxA0H9/LWaOnJcC0TzMefW51jtrpxx9auO6vUDZROya6b4ywXeHxSnofgGrxc+5x71Qcd59Obupn8MSsV1th1DF3qRJkrVnozno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oXg9DDEQ; arc=none smtp.client-ip=74.125.224.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A4FA50B42B
+	for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 15:46:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.226.204
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789746403; cv=pass; b=I/dTMXSxX+ZcNqf5YmjdKxo7xSH4S8toqTxtqKSbFTQzKNnheJB9AOdfhH1Vy+6eeMLOLFR4glvwvjUbxR+uNaFmyZP8O5dLm3CN70odVykCJ8SfkfLsTU8AGEQe30uHOXsLCtDClQEQpsLU8icTlGs2Qfqwu0lLIrDPH9W/kXE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789746403; c=relaxed/simple;
+	bh=kg7m9VV/b1ERk+xG+fM4c0s/TijCxGE3YxwleZCwZ4s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c/eGhnLpCjPIvfFR6IXc2bik0M8YAAm+HqHYHM8RM9Obuwwpsz2yXj5Qw8mULjavOot34LYOQAKLLLcFBKX/wsSGQMYBpgy77QyQuO0saE/wZvdZiRq5W5BwEoVQUaW4IKtJJGCoXWn7VEyBH+t/wrDPK08jIruCph1PPWrOwUw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AjL2uGo0; arc=pass smtp.client-ip=74.125.226.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oXg9DDEQ"
-Received: by mail-yx2-f12.google.com with SMTP id 956f58d0204a3-66f943b286fso859119d50.2
-        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 08:31:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AjL2uGo0"
+Received: by mail-ua2-f12.google.com with SMTP id a1e0cc1a2514c-97e7c62dde2so228473241.2
+        for <selinux@vger.kernel.org>; Fri, 18 Sep 2026 08:46:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789746400; cv=none;
+        d=google.com; s=arc-20260327;
+        b=bMnI5dE9TiSiMBCVozdlVm9OMBw9j12ZqX8AfCIMYlzX9Y8JwIXv6uVposYXqkpZTd
+         +IbFhJ6Bq3Zn/cYqGNARiabpvxdv5BQ7ENXsbKpOXtSMdmUzSsIhkGmNoXZ/vTwJfnvc
+         axBwgUf4KWWIMZJUKjtOfB4vjE27IkdcSN7/MrD4X5O8picwzvx3TCpLAqlI82bMrjAH
+         euXbP6/EW2gEakGnZ971xzn5rYJFlznB5SJlI8vX1y4CNDuyv93xmeKWJw3LCYsCFDUj
+         TbWD+eA5itMQx+rEO0SmHZgxOthV/Lga9foOo5qExOW7nHzq9dpGCOiwQxv975s2KOVD
+         Iwdw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=IV3WRWf05XlULSlr+CBpdtvH1Ur6AjfIUkCTwtgGPKo=;
+        fh=ljUYtV4DzuF0ps1+6FWelP9jOHsXGOCfPvwEijZReO0=;
+        b=NPuvXz+C1nr6DGJBBefBg623PXdAIe6Q7XfyCsEZhabkWTIVaUP4J85PrUj2qCWJD4
+         LG6NOhtDytJ8wDnyMocYwhOIDfjtf/dRHOxEbaMGB6xZ/OeLZQ8k6llQfVQBcf6BLVhV
+         jQzynD6r5IS0wW0nsOcHdbHKC/AgKCKnWAQISvuTS5irV7bhV1ybpni6FAwYho/e+cSq
+         mwQVQPEuTG/uJSMeHieG5sSC0pTi5JwmL5kugKLrHih0ghyKc//rK2zho3qu8fYd9ha2
+         jtknG4f8OhDEm5L3dKfTL25bNDrNt1AVGRwe9i2eTUJCopRIVgtY4h6a2UYSERDTTK6j
+         4Ybw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789745493; x=1790350293; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=r8Ju7O1RIdZXgcYNcfQZVpLQPvL+6I7hgPAFEv9aBIQ=;
-        b=oXg9DDEQz5EspUjhsN8kovFamkkYCpg+Zy2UnqgcrIl9w/OGYDoQ2DEXlkV6OigdXH
-         oAR82BTsqDZLe8l2yjUB8Gb5nqqcvnYgAMp8QzLdPYOlm2DepskgQFCgy24c0MpaHxFy
-         sztRYVHy6xHy1VdKHPwyr26ya92Lo8BOlno8th0LMbhVchLVmbR9fk/BjmFFiUK+Pe4X
-         cIwUhWiXYIkf621tTyo1RZsjLnuPdx6Pig81aSvK6D9Q6Z5H5NAixdqNJDFO54QvPEoC
-         0yHJ8GZSBiAKiaYhQRJCweaHIRQcK6QkIvByqUAFiGA1Tqrf8TLxHuc3jsLshYy9eIfY
-         l2ag==
+        d=gmail.com; s=20251104; t=1789746400; x=1790351200; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=IV3WRWf05XlULSlr+CBpdtvH1Ur6AjfIUkCTwtgGPKo=;
+        b=AjL2uGo0wY54OJDiaO1mKssCRvpHnx30dyydOokHp+LJodQMN9IuDISJdNnDDG5viL
+         gEJgJ+kLq/zyR4DF9ihv9qmq5Cd5vsK46BHFgDL+m4juMJdORnrc+xwd4ViGuLkib/df
+         AuwQPnAp9EjCI2CRhUfGG3RblM18QymrcLPGMVd6ImGbbDM0CYKNns6ChNbZyugRD4Ld
+         W+foD0KTesoWQiCdFL4EcRpkrYja4/HNqccw2Kt2zyLYU/Erv7Q3J8raqaeDLBMwdPIV
+         oF7OqD2BfJdPvfcecZzpngs8g4V+MA+Yhv+9H0eMlHK/FvPDd/IGkkDdD4vflRRadznk
+         nZ2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789745493; x=1790350293;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=r8Ju7O1RIdZXgcYNcfQZVpLQPvL+6I7hgPAFEv9aBIQ=;
-        b=c5PjglNXBle2wKDlInpDvGBakI9AyXRbbKxWjTxXrvVudMYBEJGAlILViAB26O49nr
-         piRAJD1h1l3JAgI+DoNxyrTl7s2ounR5lTAeh1MqWSY6LNwhYOHljRUjJVtBOSxXRKcO
-         FSu7QPadjhdvdd2D2kCArlu8d0790su4TgoX3JiKmIsIGPnkCXZR6CLNgJ4Jh674Jky2
-         ocVcVvqUPsRcyMNS2/qOi8Fqey5E4glHQXU8KBF+/I6cdEZ4mpsSFWuR8BgIp4WsG5EM
-         p3aVGHR6lvaNxlpjaSzCmpxOmjv7/LQK8WIBJvyQMMDgDRXK1zMv9BUshsKBOc8qom+Q
-         hIxA==
-X-Gm-Message-State: AFuF++mw8VKE1/C1L1M5WdZ/+qjRnWR8/TMlHKnIAKafRjGzuFpJ6S7w
-	9qq4ki+3Da509XnqJzkY1cAtTUywTASLlsLAh4XcPdgQW5Ov3qxtACSUK7ZsiQ==
-X-Gm-Gg: AYBFou1eC4QDDwACdDzzESRS5Tc7RDQXkM4JO1G3RgQ1/s0dDqa8+sHvHDNDLmfmGs8
-	mq4DCj7wVn1SC0njTISGjZ9BEzJ601FTsXX0SKhLWkug0/hPIgjdTeYw2qoevDA2L76rBvbTMuE
-	t+MCBEhNj67PzeMogE/6rgs/yeT4j6kXmhkoGI4LITfjEOZwQlqGJH2oN8S3hMErpjGOvH6yHQN
-	+9tq3rnC2vrgx6Hm2HsVc5k0hZRyix+EkBpVtTAdpDdCKlM4pE7S8xYEvfolIDWI4gy5SddWvC1
-	C/AKrNfdjA+xbEImyPYucLY06OO/1v/ZToAC/3a0jHTlTclnYRX3Yw7g/Yj/BoMTLEYDmK5IVFy
-	dvNnHeOpHgPI1a7TK5Laq1glzGIMrrsRrnaxq4RQvNe74S1P0+IlgNtw6BpeldqiCa1I+8o3KeZ
-	zRcZI8JScwX7JqjsbvlX+VeW31eYpQtf1P6P1FQLmJTP7kVsQXtMZ37fo1Rl0Y3JkvkUBSt5UUn
-	+tzIC2V1fwrQaAhOM+ACNLv3HJPUF8WK2HB5KdCu9+g6/L46mjrGCng/eY7Mn8NWgniSJmLMKum
-	jLN5Ln33Mw==
-X-Received: by 2002:a05:690e:e88:b0:670:ff3d:e71a with SMTP id 956f58d0204a3-6717fdf0ccdmr1007534d50.76.1789745492723;
-        Fri, 18 Sep 2026 08:31:32 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9125800e368sm15410776d6.8.2026.09.18.08.31.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Sep 2026 08:31:32 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsepol: skip unrequired class slots in is_decl_requires_met()
-Date: Fri, 18 Sep 2026 11:31:18 -0400
-Message-ID: <20260918153118.20298-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20260707; t=1789746400; x=1790351200;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=IV3WRWf05XlULSlr+CBpdtvH1Ur6AjfIUkCTwtgGPKo=;
+        b=lVw/cTXECdNmaXoYSvGWRZOw06RMhWu8RtNVwYnkDxjsyis1DzkY3V+3a/y8ZMzXy3
+         DrcQxIU5IdrzNg3QBPP0Ci8utXlaJljDxs/dWmKAywHHbD6YzhWCIyXDc1aQKSnXGMFc
+         nIztqD/P5zL1z2RVVgqhX5RQu5OVsnmS8HIDF79cekxoaJtNuSioEO6VPAGj4YizAO0o
+         tnzQ1l40Nl2OIu7RXAfzfxJpGFTqarHDRp/GJve2DsPRiyArxWz0hSjwos89i6qpZu39
+         rKaxhe6XV6G6CmM3tVcQjdH2J8Pyqn9vSiWsfl45A23208ST90kctINDvehzuIB8mcYh
+         lm9Q==
+X-Gm-Message-State: AFuF++ke8tcbzJyjwMHwPxJ/CAQ2HJTKLGb7lWP1zzW9bVtcqG3J4+u8
+	Z8KcOCKMbZxrtvbeWD1cLERIo0P2WV51IASFj0fGO4ZXu2fRl6gWRZ2PLxYWISc6YYzBNYYwha6
+	VQWY+IU+7PQoQG88XMQVRF1tGhhtYg4Q=
+X-Gm-Gg: AYBFou1ogqTCNroyda9PvGp0NRDvN3creLXdsasANswVIGxYppOrGvEyx1oG+VUYmr2
+	NRaLXyFbeU4w+EIM47775ls6UIMvkZphkLXu1fokXVYYzOT+0Z5xhJ07NAL/IHhGt76LPQTBC29
+	J4x9MGrKWWbeo9NIgebkFBuGuWOZIaNtigxXAC1Imyn1Vs6UXY6BO2wBAmzpQZ6otQoxvf8nLCB
+	gXe22GoFOT/5aVQ5gWAVQD78QqD8PKP9d4OrY3TnGgYXvkRoKZPMuThT46UuVAjY9W7XSe6OXan
+	ED5XgAuB21QkykeNNMMz2jGDXvC3ZzuGK28usKCC97vTKshYAW6Ge6dmW2e99dx3dw==
+X-Received: by 2002:a05:6102:54a4:b0:797:fcf6:822 with SMTP id
+ ada2fe7eead31-7a55d28725emr1310530137.13.1789746399971; Fri, 18 Sep 2026
+ 08:46:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
+In-Reply-To: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 18 Sep 2026 11:46:28 -0400
+X-Gm-Features: AcwNN1X951HGzAEln1xGhjMPw8ueox8rJr3YRqPogg_YzcoJtI93eZMJ-2BaLYk
+Message-ID: <CAEjxPJ7_=ky-iy-6UHPS-Mh7GKc=BA-zyA4p96uKM3HEFEc=sg@mail.gmail.com>
+Subject: Re: selinux_kernfs_init_security() ignores genfscon-resolved parent
+ label, breaks type_transition on cgroup2/sysfs
+To: Laurent Bigonville <bigon@debian.org>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Cc: SElinux list <selinux@vger.kernel.org>, Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-copy_scope_index() sets a linked-in decl's required.class_perms_len to
-the largest mapped class value seen in that decl's required class
-scope, and allocates class_perms_map[] out to that length; the
-intermediate slots not present in required.scope[SYM_CLASSES] are left
-as empty ebitmaps. is_decl_requires_met() then iterates every slot
-0..len-1 and looks up p_class_val_to_name[i] / class_val_to_struct[i]
-for each.
+On Fri, Sep 18, 2026 at 6:44=E2=80=AFAM Laurent Bigonville <bigon@debian.or=
+g> wrote:
+>
+> Hello,
+>
+> The other day I tried to troubleshoot (assisted with AI) why
+> "memory.pressure" files in the cgroup2 hierarchy were never getting
+> labeled memory_pressure_t, despite refpolicy defining:
+>
+>    type_transition init_t cgroup_t:file memory_pressure_t "memory.pressur=
+e";
+>
+> My understanding: selinux_kernfs_init_security() decides whether to
+> compute a transition for a new child by checking kernfs_xattr_get() on
+> the parent =E2=80=94 kernfs's own private, per-node xattr store =E2=80=94=
+ and bails out
+> immediately if that returns -ENODATA. But /sys/fs/cgroup (and everything
+> under it) is still labeled cgroup_t for every other SELinux purpose,
+> including plain getxattr()/getfilecon() =E2=80=94 that value comes from a
+> genfscon rule, resolved live, with no real stored xattr ever involved.
+> So the parent "has a label" as far as policy and every other check is
+> concerned, but not as far as this one specific kernel check is
+> concerned, and the type_transition never fires as a result.
+>
+> A simple way to confirm: force a real xattr to get persisted (e.g. chcon
+> system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/) and then
+> restart a service =E2=80=94 its memory.pressure then correctly shows up a=
+s
+> memory_pressure_t.
+>
+> Tested on kernel 7.1.13 (Debian), refpolicy main branch,
+> cgroup_seclabel/genfs_seclabel_wildcard policy caps active.
+>
+> Has anyone got a view on whether this is intentional, and whether it'd
+> make sense for that check to fall back to a genfscon-resolved SID when
+> there's no stored xattr on the parent?
 
-If the base has undefined class values below that high-water mark
-(which policydb_validate() permits via the gaps bitmap, and which
-arises when a module requires a class not in the base so
-class_copy_callback() creates it at ++nprim), those array entries are
-NULL and is_id_enabled() derefs a NULL key in symhash().
+Added Ondrej to the cc as the originator of this hook, first
+introduced by commit ec882da5cda9 "selinux: implement the
+kernfs_init_security hook", which says "The hook applies the same
+logic as selinux_determine_inode_label(), with the exception of the
+super_block handling, which will be enforced on the actual inodes
+later by other hooks."
 
-Only examine slots the decl actually requires. For decls that came
-from the base itself, validate already guarantees every i <
-class_perms_len is a defined class, so this changes nothing there; for
-linked-in decls it skips the padding.
-
-Reported-by: oss-fuzz (issue 562655132)
-Fixes: https://issues.oss-fuzz.com/issues/562655132
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsepol/src/link.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 868e0a7a..ac9a4f2c 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -2007,9 +2007,13 @@ static int is_decl_requires_met(link_state_t *state, const avrule_decl_t *decl,
- 	}
- 	/* check that all classes and permissions have been satisfied */
- 	for (i = 0; i < decl->required.class_perms_len; i++) {
--		const class_datum_t *cladatum = pol->class_val_to_struct[i];
-+		const class_datum_t *cladatum;
- 		const scope_datum_t *scope;
- 
-+		if (!ebitmap_get_bit(&decl->required.scope[SYM_CLASSES], i))
-+			continue;
-+
-+		cladatum = pol->class_val_to_struct[i];
- 		bitmap = &decl->required.class_perms_map[i];
- 		id = pol->p_class_val_to_name[i];
- 
--- 
-2.55.0
-
+I think this mixed model of some files labeled by genfscon, others
+explicit, directory hasn't been explicitly set wasn't possible or
+considered at the time. If we were to change it, we'd need to check
+for regressions not only on cgroup but all kernfs-based filesystems.
