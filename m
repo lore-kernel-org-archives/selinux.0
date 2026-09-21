@@ -1,128 +1,200 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1F6D2BE053
-	for <selinux@vger.kernel.org>; Mon, 21 Sep 2026 13:48:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C49963B71C7
+	for <selinux@vger.kernel.org>; Mon, 21 Sep 2026 19:53:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789998512; cv=none; b=uSlFQQag2S6cU08bb/KaaWcYJxkMq5icLIbxtXDQFTeOqjFxYkD3AwkkSYywTt9cEIEDo1DhuUM03oUYBTtx/K9NdaDL4BLU6dFkL/QBteWDcozmZw5sJzhZw6rehFFldpB2n54sQIN0JlOBbDxR7eVNf1j6lPeJ4lQXqtizGYM=
+	t=1790020441; cv=none; b=GZm8Po3yoDu3eV7M/Sy5XW5oHolyn+T0qlcAM0cJGZHVd/hUBZ0F9V3w3ZgNbM5jiVf8d1AnkW22R7x6KMfcuU6qg4sAa7waiVblS5rwWHpQHdHrxE5kJIf+3xcb+lR0PkSwog0Wb5XMgoOOxcqi7QezhojlKd/UNvrlZE2v+Os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789998512; c=relaxed/simple;
-	bh=ZjclHJnoJY65G2yeExN9IyvpUqiKqYSTR5kQRjxjkyM=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BB22EOVK1nGLiPjJW0WFQUScb++9JKzr2HpfpF5p0Wfj5uqIjRwzaOcvCYgIZKj3xgMAX2CKiQE5QpM8iRykfKfNGFnAq/T4v2U2wMbte8i5VlOTZ6Aau4+SPeoZALNkZsACN3NozAVJCJ4lamP8i99kZNYY2VjdpQ2mgS/EZl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gzTl4NXd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790020441; c=relaxed/simple;
+	bh=tnfx8cMt/WOL5RD9IO2cld3X4twxITk6Cel2OFukG9E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KGVGKDgb05tphq3Aed8kYgTL3pHt8ZxIPAmFwy3tYPmFuZ0J/mp8NRl1ib8Ws1zSSE1PGzCTGs397UP+TiAyyH6t2mbRz9vBpcz7NUZYLg8V6JYf1rPXis1Urrf2+ZNVh8QIrS4fInTfHAblSrPEBrZWG476XY0+V3DPFtJkZJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BPpbgcB+; arc=none smtp.client-ip=74.125.230.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gzTl4NXd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADFE41F000FF
-	for <selinux@vger.kernel.org>; Mon, 21 Sep 2026 13:48:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789998510;
-	bh=pRYfSxaJf8sCvIshtSmfUlGj7VYdIu8O71vRW3yu06A=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=gzTl4NXdsN/04Y4hzyDWRkHXPiJ1n3j4UfOs1RoixqaVQ7V7ROxVTf6qRrmpbMMOt
-	 0KZPazfE7xS1gUK/+n+5uPHOMoj1zf6RMeiBThyB2XzG1MDbGx6hZA6Q0MVeCwh8Li
-	 cBZbRxo8JbhBdreMyXmHjgHTq4dEFzi/hzaA8elQ235mETi4boWruFYfSLRt0Q9Mkp
-	 MQO6wfpZgmowO5FzCHumt49l8kTntgkmR1QoyJf0pdBjCRgY0P9zGXCQ1TZLT8/wM2
-	 1qXHc2z1CQo5t65kfSwVZkSnaXGCnCf07ASl8tKybKZXSbXj92SP4UN1ZYSpYpod5N
-	 TISAzGWE7Stlw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5] selinux: implement namespace_init and
- namespace_install hooks
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: selinux@vger.kernel.org
-In-Reply-To: <20260921133145.17768-2-stephen.smalley.work@gmail.com>
-References: <20260921133145.17768-2-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 13:48:30 +0000
-Message-Id: <20260921134830.ADFE41F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BPpbgcB+"
+Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfc9b6e4so34051436d6.3
+        for <selinux@vger.kernel.org>; Mon, 21 Sep 2026 12:53:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790020438; x=1790625238; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vg7Y3TJpnWZhisRfvRmvkpOR3D3AeejKW5KDrDGKV3M=;
+        b=BPpbgcB+VsMApOmLvOEWkJc7VJsRQiSJ7vcR+YAFkqtCWny+IwHu/Zlvt9DJX97NXt
+         HgwnDTX8X+btIM39qFP24ARyIJqakmCNehGYDqs4l/ntl3j4D+/7J7EgQzy5MgIc+k3a
+         rMPF8g1d9sDN+rtSLHNtlkDztVsQxnpwjJDXMdzCdXsiSfXKFjLfh1/O4ty7RlbWXw89
+         GLY+gQf6SJv1y+fNz6J7q9vrGzX8hvMQtfS2SkbmOh7t6Rl9oxF3F+bT4QOLxFiGlgMX
+         Brvo8o9ztElyMt3kwpIEcVpLjMGcT1D5i0qGc/G4+0d3hxgXzspYJtW2jLBv0vbq1ZfK
+         CETQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790020438; x=1790625238;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vg7Y3TJpnWZhisRfvRmvkpOR3D3AeejKW5KDrDGKV3M=;
+        b=LTimkWXe71CkGjiuxupveRlP9aWivl/oe2qSvjZFF1AhTvOl3wP1Zq+zzrGKngSu8n
+         6IRu2PbaknOppaDP8c+PLPxcRnp5tVZasL4Uu49twn3KsJgeMRvdvsmjiLUcHVpKiJn8
+         6Y+FY14YmdK9kZV+aP9liEoQeYEBVtAJfuFRg1kIuhSDlVuuhwRba37iY5wyA/QxZhgZ
+         Ou9brSmwfJS8eq++Uzt4/045ISnL5qGGontn41A1H/WHATAkFGzSKi/WwQpQd6+MGre6
+         eZEN0Lp6+hWi37ZjsAAHbfg9I/Hp8XnDGTDhau1UuR7c/6wUYXlNGUV2ZoADjP/XGJQE
+         dMpg==
+X-Gm-Message-State: AFuF++lHnaxM0IFFOIlg4mfgj+sxFTc9a4ph2iokDKrJcficlHH2pT/w
+	qyZhqvL3Unyc+HUyZvniezCVIun0BI48rdUrD13ZOi05vGNt731Vw0amrd4F9Q==
+X-Gm-Gg: AYBFou3FUJfE/L6XcR748oiTmGyUSrdVNRp07oZDqwxx7hsjq58Q3zw41Blfa+AvBRP
+	Ua7DNDmFPswO4LCBJK89vMf7vlD49+HkZHAKSdByvyameV6LPAFN1BBtZrky0ImhzkzgkucNoAY
+	jkWRVraLIgui8QWZcyKGNk+qVAjBHJgzaYvUo95Z1KZuSuD28NEXTdCrNlJHE7ysI0oAbrgipXV
+	WlgxEU2oKiMOyMgoJz8kggQV4vE3grpLZ4+5rCTd9YkKFU+qlQcLEoiia/zlR+AnhWAA+MdHpuC
+	IxnuuMRqrbDJZgnpA5vqHy7T6pGg496vh1xsZxjLu/1O/2dLzz5cMHVVhsm1VMAx6pPvBy+ie3Q
+	9Z0PjeHXjp+pHFCuURmuERl3dWMjbRvS1WQtqsdnlShQANmgpzHm1AySlb0jpS5aoAD2i34+VDk
+	irHWZ57bctGYo2IEWvChYIaaN6Ad/8+Xwkhdj+wZHq1f1VUcn+w3xMDEu8TvG+dBRnSsgnFDSOF
+	jDJfVJJwdrG1/BOEpf1Jfm/SP0jxkNCZnY45Q1ccP/n1j/9XwaOLcZQKcvIaKEqnYZ1ZiT/V2c/
+	YDLlZ3cOGw==
+X-Received: by 2002:a05:6214:5a09:b0:912:517b:8fd with SMTP id 6a1803df08f44-913fc98495cmr23030456d6.47.1790020438569;
+        Mon, 21 Sep 2026 12:53:58 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91260a8a0c0sm74709906d6.36.2026.09.21.12.53.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 12:53:58 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/5] libsepol: consolidate IPPROTO_DCCP/SCTP fallbacks into kernel_to_common.h
+Date: Mon, 21 Sep 2026 15:53:37 -0400
+Message-ID: <20260921195341.25227-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] selinux: audit log records ns_id=3D0 for all namespace creations
---
+Five files that already include kernel_to_common.h each open-code the
+same IPPROTO_DCCP/IPPROTO_SCTP fallback pair. Move the fallback into
+the shared header (with the netinet/in.h include so the header is
+self-contained) and drop the copies. ports.c, cil/src/cil_binary.c,
+and checkpolicy keep their own copies since they do not include this
+header.
 
-commit ee58aea3229beb02443b58cad2bfbb58dd22830b
-Author: Daniel Durning <danieldurning.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsepol/src/kernel_to_cil.c     | 6 ------
+ libsepol/src/kernel_to_common.c  | 6 ------
+ libsepol/src/kernel_to_common.h  | 7 +++++++
+ libsepol/src/kernel_to_conf.c    | 6 ------
+ libsepol/src/module_to_cil.c     | 6 ------
+ libsepol/src/policydb_validate.c | 6 ------
+ 6 files changed, 7 insertions(+), 30 deletions(-)
 
-selinux: implement namespace_init and namespace_install hooks
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index f274d597..09ff5319 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -9,12 +9,6 @@
+ #include <arpa/inet.h>
+ #include <errno.h>
+ #include <netinet/in.h>
+-#ifndef IPPROTO_DCCP
+-#define IPPROTO_DCCP 33
+-#endif
+-#ifndef IPPROTO_SCTP
+-#define IPPROTO_SCTP 132
+-#endif
+ 
+ #include <sepol/kernel_to_cil.h>
+ #include <sepol/policydb/avtab.h>
+diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
+index f338b588..3edcabcf 100644
+--- a/libsepol/src/kernel_to_common.c
++++ b/libsepol/src/kernel_to_common.c
+@@ -7,12 +7,6 @@
+ 
+ #include <arpa/inet.h>
+ #include <netinet/in.h>
+-#ifndef IPPROTO_DCCP
+-#define IPPROTO_DCCP 33
+-#endif
+-#ifndef IPPROTO_SCTP
+-#define IPPROTO_SCTP 132
+-#endif
+ 
+ #include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/hashtab.h>
+diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_common.h
+index f00302fc..f319ea50 100644
+--- a/libsepol/src/kernel_to_common.h
++++ b/libsepol/src/kernel_to_common.h
+@@ -1,6 +1,13 @@
+ #include <stdio.h>
+ #include <stdarg.h>
+ #include <sys/types.h>
++#include <netinet/in.h>
++#ifndef IPPROTO_DCCP
++#define IPPROTO_DCCP 33
++#endif
++#ifndef IPPROTO_SCTP
++#define IPPROTO_SCTP 132
++#endif
+ 
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/policydb.h>
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index c6e8fadd..6c6e5603 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -8,12 +8,6 @@
+ 
+ #include <arpa/inet.h>
+ #include <netinet/in.h>
+-#ifndef IPPROTO_DCCP
+-#define IPPROTO_DCCP 33
+-#endif
+-#ifndef IPPROTO_SCTP
+-#define IPPROTO_SCTP 132
+-#endif
+ 
+ #include <sepol/kernel_to_conf.h>
+ #include <sepol/policydb/avtab.h>
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index baf98ab0..c00c8d33 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -27,12 +27,6 @@
+ #include <getopt.h>
+ #include <libgen.h>
+ #include <netinet/in.h>
+-#ifndef IPPROTO_DCCP
+-#define IPPROTO_DCCP 33
+-#endif
+-#ifndef IPPROTO_SCTP
+-#define IPPROTO_SCTP 132
+-#endif
+ #include <signal.h>
+ #include <stdarg.h>
+ #include <stdio.h>
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 8fb8e4de..0a106d18 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -1,12 +1,6 @@
+ 
+ #include <ctype.h>
+ #include <netinet/in.h>
+-#ifndef IPPROTO_DCCP
+-#define IPPROTO_DCCP 33
+-#endif
+-#ifndef IPPROTO_SCTP
+-#define IPPROTO_SCTP 132
+-#endif
+ 
+ #include <sepol/policydb/conditional.h>
+ #include <sepol/policydb/ebitmap.h>
+-- 
+2.55.0
 
-Add implementations of the namespace_init and namespace_install
-hooks for SELinux. Corresponding permissions are defined for each
-hook (create and setns, respectively).
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f2394cf6646e5..cd7ec2c90d1d0 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-[ ... ]
-> @@ -7184,6 +7211,41 @@ static int selinux_inode_getsecctx(struct inode *i=
-node, struct lsm_context *cp)
->  	cp->id =3D LSM_ID_SELINUX;
->  	return 0;
->  }
-> +
-> +static int selinux_namespace_init(struct ns_common *ns)
-> +{
-> +	struct common_audit_data ad;
-> +	struct ns_security_struct *nssec =3D selinux_ns(ns);
-> +	u16 sclass =3D ns_type_to_security_class(ns);
-> +	u32 sid =3D current_sid();
-> +
-> +	ad.type =3D LSM_AUDIT_DATA_NS;
-> +	ad.u.ns.ns_type =3D ns->ns_type;
-> +	ad.u.ns.ns_id =3D ns->ns_id;
-
-[Severity: Medium]
-Will this regression result in the audit log systematically recording an
-ns_id of 0 for every namespace creation?
-
-Looking at __ns_common_init() in kernel/nscommon.c, it initializes ns->ns_id
-to 0 just before the security_namespace_init() hook is invoked:
-
-kernel/nscommon.c:__ns_common_init() {
-	ns->ns_id =3D 0;
-	ns->ns_type =3D ns_type;
-	...
-	ret =3D security_namespace_init(ns);
-}
-
-The actual namespace ID appears to be generated only after the namespace
-infrastructure finishes invoking the security hooks. For example, in
-alloc_mnt_ns() in fs/namespace.c:
-
-fs/namespace.c:alloc_mnt_ns() {
-	if (anon)
-		ret =3D ns_common_init_inum(new_ns, MNT_NS_ANON_INO);
-	else
-		ret =3D ns_common_init(new_ns);
-	if (ret) {
-		kfree(new_ns);
-		dec_mnt_namespaces(ucounts);
-		return ERR_PTR(ret);
-	}
-	ns_tree_gen_id(new_ns);
-}
-
-Could this timing behavior prevent properly correlating namespace creation
-events with subsequent actions in the security audit logs, since the actual
-ID isn't assigned until after the audit record is generated?
-
-> +
-> +	nssec->sid =3D sid;
-> +	if (ns->inum =3D=3D MNT_NS_ANON_INO)
-> +		return avc_has_perm(sid, sid, sclass,
-> +					MNT_NAMESPACE__CREATE_ANON, &ad);
-> +
-> +	return avc_has_perm(sid, sid, sclass, NAMESPACE__CREATE, &ad);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921133145.1776=
-8-2-stephen.smalley.work@gmail.com?part=3D1
