@@ -1,72 +1,75 @@
-Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
+Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46437372ECB
-	for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 16:18:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA633563FC5
+	for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 16:19:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790093889; cv=none; b=IdCojYI6g8HmysAUeJNNg1r2bEEqM+170UMEut6NLxJoe7Eq1tjoGx0cJjV9gX4FFF97HFNcMQK/h1d/MtqHMIytCnBbkz5l75wGyzGsXfuZh7cQawpv28dHCH4ArE9JlqeZZ8+kbYp12cG20BLqBztfHu2wB0zyqmKDn08c51U=
+	t=1790093953; cv=none; b=eOqn2lsauRqd4o2NpJxr57amjxNriE4sdZiObs6TquwSAZCVZwH8PPBZL5AiTh5fJfOGTG+VUUuZIUX8DinVXPch7cKyBjGeTDXASSNldMlkBHjGMpBaHt4SQvAkaaL5uXUgDzrA69/uWSpIcR3CXVB9Xk43nyC2b4t1c4wkK0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790093889; c=relaxed/simple;
-	bh=zapWW/x2ABWg0EC/K+4wxaN43Go4miWIxPkoZyvZ/yI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ddXjqlwoHE+5n/73cebN96+s5HLezMGlG4wTGSkQebDH/6EiWnVNqIAemOVHOl3gcOk6zSiKxjS9rKTtf9Do8GKkAF4S5sP+p2TO7oc5j8K0XFYSafYSd/ch18b4YV8El8JfbBPQ7sswRkBpO8k+MmIEcrDnnTFWgfHvppbjHmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iOy3mmAN; arc=none smtp.client-ip=74.125.230.204
+	s=arc-20240116; t=1790093953; c=relaxed/simple;
+	bh=XvPtP2c8fmeZH7VfqVVBuytpk2Q614qWtLym/IIT7R4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fPxZ+qUfUt5luiWcR654UUDcUfP3FjAFw+o7n6YmSY6sy/d/dMU7SDDQ4TNBZfAMfcj9ibNqii5ZiHNw68vEgtS/BgjcE+Uu41FxMF2ShSIa30iBwkGiCh6agBPrdJeXXqt23zmK8PC73rpv8fxxFFLdWpZqVSNRyImmDSBdMyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q/aw+nnT; arc=none smtp.client-ip=74.125.230.235
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iOy3mmAN"
-Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-52fb76c9deeso722631cf.1
-        for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 09:18:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q/aw+nnT"
+Received: by mail-qk2-f43.google.com with SMTP id d75a77b69052e-52fb769ca02so981591cf.0
+        for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 09:19:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790093887; x=1790698687; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rHeeQ/MVZXwCxym/6IhKXGSHO45EuKtkhOsSyDDNN5o=;
-        b=iOy3mmANYwWQJ+IAebbAEGN1e0bEOlALa74HG0nEKqB3OfLOIUGOIEGf3zdKnpB1rn
-         wPQhPcIBZmDVyT0ZiqEqitfTjHa2a52K3Q5lRW3xt2+RTI0JyGxi2XvpyLNlDa9Y1XOo
-         uiFHvcbmzMLyyksVYhoCibMOVhCLtUnqndlKz+M1ETCSBCiwv5cTKGEJ12AUdx41Iky8
-         F2Dvp3perzQ/9r/nZVjHeET4d3BtPsIIae5mK9ImVOf+THl69H/5iu0alRp0Dmu3hxMR
-         eVh3o2VBZMp8R3AZo8pGQ+N75xsGOxDWqGjNV1xMdHltppRSfeMYzKT0nryFjD+iPTlZ
-         P9Yw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790093887; x=1790698687;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1790093951; x=1790698751; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=rHeeQ/MVZXwCxym/6IhKXGSHO45EuKtkhOsSyDDNN5o=;
-        b=gW8TF/YiXhFH1D9f/FR0DpqYwVHS0mSQjp1TU5MH+O1FGb0yZKUYNK2Bkn3rcPAB20
-         POcCkK7qXyQvULrYmbOvAo1F+Lvwac8mpdrd4VlxKl/SZD6/vBJiogdIqGQU2pdhrXPV
-         zs8sHW/7w2oBP6FL18t21jLfu0L/jW+VsZITpCRKZL27SW1h3PdA/qHHWT35iIF8V+cG
-         WISnlscSoGkQuMWYD5IHPvrRkbF2u6SrAnuywmfw4NAS58Wt3L1voTocNifV8dF9oH7G
-         Gdx8Ed29oGjkAS2QH+bw9/wvmtZW6686gqkd8cjS2lAswkuCb2GSBlbE/Et/0CcHq1o1
-         G56g==
-X-Gm-Message-State: AFuF++ldLBbFCDiHpm8l2QJch5ExmdazZby1AdllT1aBR4NH/YWuHq1j
-	oWhOx1HFreiFUzqmLquVg3vfonLGvZeBwORHjn1I5b1U9SxjKzKw8RvN1VgM8w==
-X-Gm-Gg: AYBFou09UdCOsVX/ncm+iUoUkroDE7Vvya1TGNDcxCQm0TFL4Hu+/Kw/Kvn3ZXjxDyH
-	vKLKnNiFYD4n9RnOTGF3UZAZaaq4hMIGSJukhj1+0s7ow0P8flZ6x1CUX7b5aTg9bi9pqLYUOMm
-	yC6sTVIdtBwRJOZPwBc2Wgo9ODnwdUvQp+w3l3uV3/poIYijHLCOBl36XaFkzD4K4k8mB0omYYG
-	R/N98xnAz0Uqs6tEyvSd/SlR+SP9zI9EAgp+FY6FKdXdZSsqk/ZvdPjRL1Xdy8H+GtariODEhmc
-	YUhWrAJoddXhZjrMIo5W095dMYyAvFHV3UKNDajeOqVeB3FdytzKG5nVBBZOpRf8iZdZmmwQNYi
-	PxYRD/SIBOL3t8XG9j+hikqEMM9LenfTsTp8I1lnYDHVrTwqh/9YjBRMX3UokH3jsrxZfrgx366
-	Lq8Q17esat1AfsdKsfOErdKyN9DXsuq2bQ8r0zr5lDBSpg9msBgYSP8AHAuguL5yqxMjVXlBVqK
-	lxzwTygRXiNZogtHSrUDBs+dUMHfvKWrooaL+M8Mt49a0P6UQkvHMztCrj46t+GK7QlDcfmU/lJ
-	8sbvyOzCoA==
-X-Received: by 2002:a05:622a:411a:b0:52f:f73c:3269 with SMTP id d75a77b69052e-532ead1e0c5mr1374181cf.36.1790093886869;
-        Tue, 22 Sep 2026 09:18:06 -0700 (PDT)
+        bh=ibi4r6F7K2AJs3vMYzYotJMK48I8FGAno2SoaanFuGY=;
+        b=q/aw+nnTgt95simmS1NGUGHm0u2FsS1kcCi+1P52KDqnHkjqApNhRDuBavWScko6sL
+         24VU8het3mvdiwHmw8kEnCMJd8XkRaYAGmdL+ry+RN26quKGX2Qoksj6retUoO3zINiJ
+         8YAJy6NFpTICPegrBpytA9E65m0h40lypQWGJpl3jm3Km0lpiv9hqIUxfhpcaz5ggi9+
+         QA78pZcdjcZJJ4VygphJcK+ju4YmK+UJP0hy3N8EpbFXi4mvT58WaMrqh3QKN3ZZqI2q
+         eP2MYl1ozFevpKxgk3hlle/SwokvjTx1HHYo9cx4bnu463CH2LR2FAvJHTVU27RVRsej
+         hxEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790093951; x=1790698751;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ibi4r6F7K2AJs3vMYzYotJMK48I8FGAno2SoaanFuGY=;
+        b=nBQYcmkErIOgFxEwBX0o/ZFODDZeCb2KSFbHbNkOy0HGjC3nMvySsLzO+Px0mDyI6j
+         3FER0OB2gUzWJ7y7NiexAbRsZDAQlwlei5j4oGyuaf3lg4OMuU1ZQLYJa2hFh7NbzVp1
+         6/jUDy3iW4TI+Kj3YRza/LGaqEpHoRhgptdEOViqWhAJ5L2Z0/waLEdzEmhmGtqD/ATU
+         h82V4yXOzfxRx/ePXCziXzPQMfYnrR7YSOQedaaeHr/zJIEz8a4Dl2Nefzos4BtLO4e5
+         qY6mzPrX4LMMavNNylvDWzrpLpEiyIAgoa414qXMyxrrSYsJfFmavIVQg3olFwi4Vjup
+         LFBA==
+X-Gm-Message-State: AFuF++kJ903gi4Za9qpS5z/ZLwHDTsC6IKw3Y/R4alBUJI7Z45B22XvR
+	YDmdMTrmEQmByDys2fRvKuShWDxSl7CDuIlQbErb07cNojBzxFJMdEVI3ak/6A==
+X-Gm-Gg: AYBFou37Q7Aoz8KIfH1PF299lBPVh7L+2WVqnhhPYksQD1dT7RPDnW/I3w8fwaalVAH
+	q/NLUhL4FpFwurun86xDZYOPb+bTSj3UMjjjcc7CVQwV8Cq0/QrlnbLZM+2uUv4a45dr+hKohik
+	+kS3UJKFXadWpvGvQhks4jy+iEFYF3Vq0QVvIw7HQ0wggdn+W+M3MowPY++C2WUnlQ0szRhOody
+	nHxHl0F2Z4fAH1mf/kCyMtoUMGgL7/sTxARz/cbJhClPAmksTrVYG4F8Bh6X5n1LcUjeOBAHNz5
+	xPzB2FwPuiot/gDyDCH7z3QPl3zj2egwnJuhKSwtOAcCwit36fhtpy99c7X/q1WRsk75znQ2MeT
+	hj4cm4CI9FiJnNnLAo01+vPcGILcUUW46IxsO7wtfj9ADtg7iPSs5vjwMZZSN6YB5jvkqEjAUiK
+	kShqJBtu0Ke913dHTrDyCEo8RVwG1pteywsxiGnhupUgucmAv0Vu/TcEMKBSD9O2cu8jwZcJDfQ
+	yM8gu7JngWPYbfnH8uNlh804a/aWnQtAj1SYfSdaGqMNIN+6ShXOJShtcePieVcV+tP6sDcvrj0
+X-Received: by 2002:a05:622a:8e:b0:530:e5f8:7f59 with SMTP id d75a77b69052e-532eacf13f1mr1342141cf.30.1790093950587;
+        Tue, 22 Sep 2026 09:19:10 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eb1e01a1sm113461cf.9.2026.09.22.09.18.05
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eb1e01a1sm113461cf.9.2026.09.22.09.19.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 09:18:06 -0700 (PDT)
+        Tue, 22 Sep 2026 09:19:10 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 1/2] restorecond: search fallback configuration roots for the watch lists
-Date: Tue, 22 Sep 2026 12:17:38 -0400
-Message-ID: <20260922161738.47551-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 2/2] policycoreutils/newrole: search fallback location for newrole_pam.conf
+Date: Tue, 22 Sep 2026 12:17:40 -0400
+Message-ID: <20260922161738.47551-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260922161738.47551-2-stephen.smalley.work@gmail.com>
+References: <20260922161738.47551-2-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,77 +78,76 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Search the fallback configuration roots for the restorecond.conf and
-restorecond_user.conf configuration files. Resolve both at startup so
-the resolved path is used for both the initial read and the inotify
-watch. A path given with -f is used as-is. If the primary location is
-later created, restarting the daemon picks it up, matching the
-resolve-once behavior of the other stateless consumers.
+newrole_pam.conf is optional and lives directly under /etc/selinux,
+outside the active policy root. On a stateless install a vendor may
+ship it under /usr/lib/selinux; try that as a fallback so per-command
+PAM service mappings are honored there too.
 
-These files live directly under /etc/selinux/ rather than under the
-active policy root, so the libselinux selinux_policy_open() search
-does not apply and a local list is used, mirroring
-semanage_conf_path() in libsemanage. The list can be overridden at
-build time via RESTORECOND_CONFDIRS.
+The fallback list is a build-time constant
+(PAM_SERVICE_CONFIG_FALLBACKS) rather than a libselinux call for the
+same reason as restorecond: the file is per-installation, not per-
+policy-type, so selinux_policy_open() would not remap it.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/restorecond.c | 35 +++++++++++++++++++++++++++++++++--
- 1 file changed, 33 insertions(+), 2 deletions(-)
+v2 breaks the loop if (cfg) so that paths[i] still refers to the
+correct path for error messages in process_pam_config().
 
-diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
-index 6548634d..495bf197 100644
---- a/restorecond/restorecond.c
-+++ b/restorecond/restorecond.c
-@@ -65,8 +65,32 @@
- const char *homedir;
- static int master_fd = -1;
+ policycoreutils/newrole/newrole.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+index 741d30a1..d1385142 100644
+--- a/policycoreutils/newrole/newrole.c
++++ b/policycoreutils/newrole/newrole.c
+@@ -100,6 +100,9 @@
  
--static const char *server_watch_file = "/etc/selinux/restorecond.conf";
--static const char *user_watch_file = "/etc/selinux/restorecond_user.conf";
-+#ifndef RESTORECOND_CONFDIRS
-+#define RESTORECOND_CONFDIRS "/etc/selinux/", "/usr/lib/selinux/"
+ #ifdef USE_PAM
+ #define PAM_SERVICE_CONFIG "/etc/selinux/newrole_pam.conf"
++#ifndef PAM_SERVICE_CONFIG_FALLBACKS
++#define PAM_SERVICE_CONFIG_FALLBACKS "/usr/lib/selinux/newrole_pam.conf"
 +#endif
-+
-+static const char *resolve_watch_file(const char *name, char *out, size_t len)
-+{
-+	static const char *dirs[] = { RESTORECOND_CONFDIRS, NULL };
+ #endif
+ 
+ #define DEFAULT_PATH "/usr/bin:/bin"
+@@ -249,9 +252,8 @@ static int reqsymcmp(hashtab_t h __attribute__((unused)),
+ static hashtab_t app_service_names = NULL;
+ #define PAM_SERVICE_SLOTS 64
+ 
+-static int process_pam_config(FILE *cfg)
++static int process_pam_config(const char *config_file_path, FILE *cfg)
+ {
+-	const char *config_file_path = PAM_SERVICE_CONFIG;
+ 	char *line_buf = NULL;
+ 	unsigned long lineno = 0;
+ 	size_t len = 0;
+@@ -305,16 +307,23 @@ err:
+  */
+ static int read_pam_config(void)
+ {
+-	const char *config_file_path = PAM_SERVICE_CONFIG;
++	static const char *paths[] = { PAM_SERVICE_CONFIG,
++				       PAM_SERVICE_CONFIG_FALLBACKS, NULL };
+ 	FILE *cfg = NULL;
+-	cfg = fopen(config_file_path, "r");
 +	unsigned int i;
 +
-+	for (i = 0; dirs[i]; i++) {
-+		snprintf(out, len, "%s%s", dirs[i], name);
-+		if (access(out, R_OK) == 0)
-+			return out;
++	for (i = 0; paths[i]; i++) {
++		cfg = fopen(paths[i], "re");
++		if (cfg)
++			break;
 +	}
-+	/*
-+	 * Nothing found: return the primary path so the eventual open()
-+	 * error names the location an administrator would create.
-+	 */
-+	snprintf(out, len, "%s%s", dirs[0], name);
-+	return out;
-+}
-+
-+static char server_watch_path[PATH_MAX];
-+static char user_watch_path[PATH_MAX];
-+static const char *server_watch_file;
-+static const char *user_watch_file;
- static const char *watch_file;
- struct restore_opts r_opts;
- 
-@@ -152,6 +176,13 @@ int main(int argc, char **argv)
- 	if (is_selinux_enabled() != 1)
- 		return 0;
- 
-+	server_watch_file = resolve_watch_file("restorecond.conf",
-+					       server_watch_path,
-+					       sizeof(server_watch_path));
-+
-+	user_watch_file = resolve_watch_file("restorecond_user.conf",
-+					     user_watch_path,
-+					     sizeof(user_watch_path));
- 	watch_file = server_watch_file;
- 
- 	/* Set all options to zero/NULL except for ignore_noent, digest, and skip_multilink. */
+ 	if (!cfg)
+ 		return 0; /* This configuration is optional. */
+ 	app_service_names =
+ 		hashtab_create(reqsymhash, reqsymcmp, PAM_SERVICE_SLOTS);
+ 	if (!app_service_names)
+ 		goto err;
+-	if (process_pam_config(cfg))
++	if (process_pam_config(paths[i], cfg))
+ 		goto err;
+ 	fclose(cfg);
+ 	return 0;
 -- 
 2.55.0
 
