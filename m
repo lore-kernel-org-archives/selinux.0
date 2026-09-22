@@ -1,109 +1,224 @@
-Received: from mail-yx2-f12.google.com (mail-yx2-f12.google.com [74.125.224.140])
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B31B5519AF
-	for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 15:20:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.140
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790090432; cv=pass; b=uKCEBCo2yDt6gOT61gfOJ1D7YGeULKaaCFspZdMqVqbGLub+ca8SXza0dR/5P1wWAoF5836Z8cvv17aE2q+H7Y4nyqBhHpHAye51Ze0A32BN+3fXnng1z+TlErtmhWRc2+Zxq0OV69IiK2OqZ4lszEwBliGcsNMPTB13GhSKdec=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790090432; c=relaxed/simple;
-	bh=wOG+RJiwOBzrs3wQ+TiuUiYTMJOFzbnMFoSfpb2M7vI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SE4/GYUZl6LGa3T3IGjDIStY/QzG7vwZEoZsUQhu39wluyEZD+BG+zasE87xTMvTQA4L785eOF+suOD6p2wUB5Q1a0TxpzWP0fuvacqRh2GbLbsH4frEv/+IIuR1t4W7pMQgVxSd8yzXygdP7b6C5jbLFWC1asHVbrB4CP9yj8g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QXg5yp/p; arc=pass smtp.client-ip=74.125.224.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB3C5208BC
+	for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 16:09:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790093394; cv=none; b=ofkkFKDXP7FxT6emRIGpmC4HlruzqwGruPZ890OhgzN9+E6qc73R9cUuBUvH8LNpzjbP+e4WcNn0Ku4raHI9wkWS/TTzfscRf+PU/+GeYf00AOmdOqSl20u4hJAK3g0qBKSR6JEQR82Y9lakax/kWk22fZJAbThtoZckgcf7p90=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790093394; c=relaxed/simple;
+	bh=ia+mD1enosFJxjpwUgUvKOab/iZfGKA2UcC7CHbHztU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UFI/cVbWgJZ3nXc1CPTYqRaQ5o1NZMANaf4d7Ed6YVImI10xXlaFsTYQqC24OEyzlTeprpwTudk2WfWT3OajmYupjaywGdQU2NO1wE+zxRoxOvvYXbHS6CodsuWjJs1W8IVuayDox6IrAOuC74C4qjPJlawjpujcg5oGxmxCqkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jmV/rBhb; arc=none smtp.client-ip=74.125.230.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QXg5yp/p"
-Received: by mail-yx2-f12.google.com with SMTP id 00721157ae682-85d43ac6072so1691127b3.0
-        for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 08:20:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790090430; cv=none;
-        d=google.com; s=arc-20260327;
-        b=D+4LbFUOTSQlPeYiLX5I+a8vzx2it2E8gqTlF0RbxN2hZ2iiG2UqyGU3U9SwJEwq62
-         EbJdcWT1Fxezcvw29uCAiQ2PJSB6rL0qNVvN87a41iUzzEQvvuv+lKo4jfmJZmxttfSr
-         zGy1vLZ5r3K0k4RcNZlLz5QwTCBs8WDoBG9cXRIGD4Usf2FTqGW0NXNpm/0aTsOFanh5
-         6U7Pa/fmpF4nxAxePLc0STuRWocblyTjHcz9tSM/bFUHSMeL1WXwcNtnQvI8Wq5k56D9
-         5/C58dG6w1qUUNtVP12+yEloHX9kXv0rg27Qc2WiSwrjbtOjqifUsM1UfYTz9f66vwMK
-         bTNA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=wOG+RJiwOBzrs3wQ+TiuUiYTMJOFzbnMFoSfpb2M7vI=;
-        fh=KcNbqYfh5/rp+3O/oy/Rn1Jlbpp64wJ640nU1xb/jaw=;
-        b=K8zUJcfZ2y5nLhkBBjwNGLuTWKSTSHaKRRmXSKguvd5MYB+YF8ETdmmABQ8Dd578ID
-         4VxcZyCZc0UVLT8mBtCOIku3Kg7Zr0qW2dKIRKoGE1P5v8xHSE1jZPhNpvgylL7HE33s
-         HIx9J46ucl1Q8WGtqyhBQmb4CSw7c27JRmXakBciwdxW8eESNIkB4G33/zSf8igVbLte
-         vy0oNAWjJCke0TXM0HfNSTu+Njq1m7LC9AOPOUjamKp5Z/IwyqM7BcBlm7tPHMrt5Yqe
-         9qyBrFjS3NKZLmRvb9o6UxW2QviA9PY2y8Mn27gztKM9ZwEiuS1PbFK1monub/UBmE52
-         EsiQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jmV/rBhb"
+Received: by mail-qk2-f12.google.com with SMTP id af79cd13be357-93a2a8c29c4so6198985a.3
+        for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 09:09:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790090430; x=1790695230; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wOG+RJiwOBzrs3wQ+TiuUiYTMJOFzbnMFoSfpb2M7vI=;
-        b=QXg5yp/pQajxCO8V/cFjGjMPGdWIrFrK97mtTm0Q/cUAUiKZ4PZmpnsM/5EvpZ/Fo5
-         6JJuPXnQHESyPKf367JCT/uCEouxVE1ShUkuCkHgrCG74GHkG1JKfwKNH1tsmMOiR5Rz
-         7K/suGYhillgn9jDVd2Wad18/fGDKuupw2YoKYzWEanw2nV7f/SahwHTXySFhXeyDaWL
-         481W2vydeHtHAYZEs8VrEQN0naV2pIXEZq8uJWjrYBAggf5MyYDX3SO0NXUDpZTP1LrH
-         XDOUUIzVSN2E5CxCWvW3uVVmc0RSWhAQ10PwZed988SNZQpaib6ouG8ulQVYWcodHItA
-         IZAw==
+        d=gmail.com; s=20251104; t=1790093391; x=1790698191; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=BtqDDtxeG/l9gjCTPOWUVJ8s87OYODbyE1Kv2UHAR1E=;
+        b=jmV/rBhbLy5VavwfEsQ8T36I9epB4uHNtLFYLRbupWGMd5dxVmsne7Eoq/bkyLpepL
+         TNxDF4FvOHz1vmBDvA2oueeb0XOAK9IWjrzJ9PWjYHXqZoh3SZ8IT4YAX0H1hUdl4P5U
+         J2PFiU5iFK6+R7oJ+uSV6jYpocTcjxqDw3v2azBfSjgnEmNeadON1Q2QayOlGExLEKBt
+         TskzH2H2mSZDlf5enFTPn3CFUrgG5VSGvrUW48TjUXUi/cDs6F26H+XHAJ52efyfjNiJ
+         VU39E9YXy7aAu6ucAakHsmuLP0CjjKRwdTD8iorHNmJj4VkCvk18BJmin2SDuDeU/dOy
+         4FWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790090430; x=1790695230;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wOG+RJiwOBzrs3wQ+TiuUiYTMJOFzbnMFoSfpb2M7vI=;
-        b=xosxwClT3TSanop53lCKT+voArf/2PHn1JyqmNZlc9jsLrjkF0EHdT2OH17bJ+IihE
-         fzf3QQhEQKaBDhBaWjADLc4uFnmG2nBElrCNzmKqQa6QWawsgqEV+Ul7LxF8MM/nOA5j
-         nuAeQoXfaGRRzDG/hglh+bjl+VGuoYJ9zEZBHXKlS6lVDqNV6zAuB9AKov01ZwPuKUMh
-         XD+gXK6cs6GsK4XbN1fL43nlUUNC3M2VgeL5WeB1mHHJIu6hLhWLWSxzAbCHRdex9Lc8
-         VEHQkEMpco+bWreTiuM2xV0tUERn3zCbAB8XVmjLK6eI5Vyp/AM3r72KMdUJ9DDgWrC2
-         STuQ==
-X-Gm-Message-State: AFuF++ndBpAsYltB1iRnsdrvIBUmMZ7SYwIJ1x3ag8QeycOMqwiaY+uY
-	hnPX9LPRXrloG/E67qv5ZdDDgQp1gzIjcYGxm7GDvbAVWJlaJD3XiecPoRlpe0O6sQa7gFfUGOu
-	aiqU3pWqrd+/2btaApyUTYx1azz3HDxUzDg==
-X-Gm-Gg: AYBFou0Ysa7jWmnzoLgGwMBx9j1vf3UPJtrNup8k12C8G+lM11IJ6IjazHj6U8Vq2Mr
-	YbQJulHmuQmod7f7XeetHrtBrawUgg7K+0J7ecBzFaN02sNwJv5h8VrHoXh7SjYST9B4Jkp5BGC
-	6ul+KGORXfmx81gnl8McjECKe99wa9JJiK62+d+ug9dm5rBAcFD33dyHvX0OzxYVm8b23wMpklZ
-	v6uGoOA9/uwI/Q3TRKh6EewaNUyoSCuD/uclLZuFTP/AaSPqNkj9WCzMKfn5t986lBE5AjXFzl/
-	dWMVkl5KYiBYc2UKYCrjBVLj7CuzbTzv5DhxkiRRonn9rASXHurPy6Q=
-X-Received: by 2002:a05:690c:e20f:10b0:873:5c7b:c0fe with SMTP id
- 00721157ae682-89736366fa6mr40629807b3.54.1790090429457; Tue, 22 Sep 2026
- 08:20:29 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790093391; x=1790698191;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=BtqDDtxeG/l9gjCTPOWUVJ8s87OYODbyE1Kv2UHAR1E=;
+        b=JM/rWct/8Jfktpbf4hje7rq5AXR+DiRZLcoaCF5C9TE+LAl5zN10xG6RBq/pxv0CTU
+         azjMOiBfG8yuyqvCtb1baAhLlG/QYe6JlNCSLc2zt75g2d2mQzduEm7QjERtrrnZxh2i
+         +JUWTyf8KgZOhBSuetprzVwvqGaTmdZaWFby0qNhGUSJW67ElwbZTaMqDnHpfIguuFON
+         faUy1P5iVY+QyemUiuTcYypy1Pdt61050emo8U5PjL2GPBe1tqJvJ/NaSul9H+aB7GB6
+         IKd/hyOgihqxZwiCwZo0qaZHA4SwSjQYrY4J276IXvuXu3jMU76GH8DQbW8OX5WGzSlV
+         ZpxQ==
+X-Gm-Message-State: AFuF++n0tBYQYz5NkTDt+ulhVnkJKtyoqHfKZwnDNP8FXUlzVn2jxAbE
+	3LgRlfGsT4d58IbUDLDOvpf5Ymax8+Xczi10NfRCJ2s365Cddizx63C7CIVIWw==
+X-Gm-Gg: AYBFou2OUwru8VguzvtvgZSCcmtPrHAXgRNOzXQLdHaRgK0npVgfOLcXMBCSoqPflam
+	t9mcgmQcLmvt36h6KYM/427dvLV070GYf2MTOTkj5ZG6w+vPoCm3BwE5SbAzUMeq05P6PQnw7dd
+	GMUAxGwvBqhKKsfBES0i8GZ5rwZn3RDQKiTUqtv42a/dRzq5+ZnX9dct0CAzXw2rRjs2sai17ln
+	vXq53QNxX/+ttU/ZgCNdS7OB12CFKON53nb4/QVHmVDRaJ53o7Siaqrisd1VqJRgLkOc0JoQmZ7
+	C/Tmu71vWsxJWPU8yZRe8SGI4j0gd05e9IeC6/sUpPV7vAGaQmX36vpQtM+rlZKu5FtYTfBG/n7
+	uCKFQBIQDC0rD+ueusC7R5UvNtaE81JNnPz6XvqqCNv0TWKNO2Vw0luO9sK/J8Srzw2/TolRY7o
+	ab1QNbMN7MkdfuCj8mARhqKOa22cby00vwnTrh1GbzMmbJafB3nLN8gaHUw9Ts1h5trWbY1KFm8
+	Bkqi06sUTEUsj6zFn2VJmPyyZB7LH9y8WeLLCcZ2QMA1lhmynsdwv2WNSl6/25XpkF4uMQHLDNy
+X-Received: by 2002:a05:620a:444d:b0:93b:6f87:ff60 with SMTP id af79cd13be357-93c15d7c395mr581010385a.14.1790093391173;
+        Tue, 22 Sep 2026 09:09:51 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93c24753395sm9132885a.4.2026.09.22.09.09.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 09:09:50 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 1/3] libselinux: export selinux_policy_open()
+Date: Tue, 22 Sep 2026 12:08:58 -0400
+Message-ID: <20260922160859.47233-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260921195341.25227-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260921195341.25227-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 22 Sep 2026 11:20:18 -0400
-X-Gm-Features: AcwNN1VaZGVjscni9FBpIT05tk1p9wsgjEAKZCgstYn84Q4dojWeI2b2IoMWEB8
-Message-ID: <CAEjxPJ7Y1Ms3b8FLubwGVtf1_dVmsRmcvNGDERHmQAww4_dUJw@mail.gmail.com>
-Subject: Re: [PATCH 1/5] libsepol: consolidate IPPROTO_DCCP/SCTP fallbacks
- into kernel_to_common.h
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 21, 2026 at 3:53=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Five files that already include kernel_to_common.h each open-code the
-> same IPPROTO_DCCP/IPPROTO_SCTP fallback pair. Move the fallback into
-> the shared header (with the netinet/in.h include so the header is
-> self-contained) and drop the copies. ports.c, cil/src/cil_binary.c,
-> and checkpolicy keep their own copies since they do not include this
-> header.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The configuration-root search list added by the stateless series is
+used inside libselinux via the internal selinux_policy_fopen()/
+selinux_policy_open() helpers, but external readers of policy
+configuration such as mcstransd and run_init still open the paths
+returned by selinux_translations_path()/selinux_colors_path()/
+selinux_contexts_path() directly and so do not fall back to a vendor
+root under /usr/lib/selinux.
 
-This series has been merged.
+Export the fd-returning selinux_policy_open() so those callers can use
+the same search without duplicating it. The FILE * variant stays
+internal so that <selinux/selinux.h> does not need to grow a <stdio.h>
+dependency; callers that want a stream can fdopen() the result.
+
+The search remaps paths under selinux_policy_root() only. Files that
+live directly under /etc/selinux/ (semanage.conf, restorecond.conf,
+newrole_pam.conf) are per-installation rather than per-policy-type;
+the former already has its own search in libsemanage and the latter
+two are handled separately without needing this interface.
+
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 fixes a typo in the commit message and a missing ')' in the man page.
+
+ libselinux/include/selinux/selinux.h      | 12 +++++
+ libselinux/man/man3/selinux_policy_open.3 | 57 +++++++++++++++++++++++
+ libselinux/src/libselinux.map             |  5 ++
+ libselinux/src/selinux_internal.h         |  3 +-
+ 4 files changed, 75 insertions(+), 2 deletions(-)
+ create mode 100644 libselinux/man/man3/selinux_policy_open.3
+
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index 364f955d..b789ee08 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -565,6 +565,18 @@ extern const char *selinux_policy_root(void);
+  */
+ extern int selinux_set_policy_root(const char *rootpath);
+ 
++/*
++ * selinux_policy_open opens @path for reading, and if @path is under
++ * selinux_policy_root() and yields ENOENT or EACCES, retries the open
++ * under each fallback configuration root in turn (e.g. /usr/lib/selinux
++ * when a distribution ships policy configuration there instead of /etc).
++ * @path is normally a path returned by one of the selinux_*_path()
++ * functions below. Returns a file descriptor on success or -1 with
++ * errno set (ENOENT if no configuration root had the file, EACCES if
++ * at least one root had it but refused access).
++ */
++extern int selinux_policy_open(const char *path, int flags);
++
+ /* These functions return the paths to specific files under the 
+    policy root directory. */
+ extern const char *selinux_current_policy_path(void);
+diff --git a/libselinux/man/man3/selinux_policy_open.3 b/libselinux/man/man3/selinux_policy_open.3
+new file mode 100644
+index 00000000..e4252b64
+--- /dev/null
++++ b/libselinux/man/man3/selinux_policy_open.3
+@@ -0,0 +1,57 @@
++.TH "selinux_policy_open" "3" "" "SELinux" "SELinux API Documentation"
++.SH "NAME"
++selinux_policy_open \- open a SELinux policy configuration file, searching fallback roots
++.
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "int selinux_policy_open(const char *" path ", int " flags ");"
++.
++.SH "DESCRIPTION"
++.BR selinux_policy_open ()
++opens
++.I path
++with the given
++.BR open (2)
++.IR flags .
++If
++.I path
++is under
++.BR selinux_policy_root (3)
++and the open fails with
++.B ENOENT
++or
++.BR EACCES ,
++the open is retried under each fallback configuration root in turn
++(for example
++.I /usr/lib/selinux
++on a system that ships vendor policy configuration there and keeps
++.I /etc/selinux
++for administrator overrides).
++.PP
++.I path
++is normally a value returned by one of the
++.BR selinux_binary_policy_path (3)
++family of accessors. Paths outside the policy root are opened as-is
++with no fallback. If
++.BR selinux_set_policy_root (3)
++has been called, the search is disabled and only
++.I path
++is tried.
++.
++.SH "RETURN VALUE"
++On success a file descriptor is returned. On failure \-1 is returned and
++.I errno
++is set:
++.B ENOENT
++if no configuration root contained the file, or
++.B EACCES
++if at least one root contained it but access was refused. Any other
++.BR open (2)
++error is returned against the root that produced it.
++.
++.SH "SEE ALSO"
++.BR selinux_policy_root (3),
++.BR selinux_binary_policy_path (3),
++.BR open (2),
++.BR selinux (8)
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+index 95cd53b0..9b439d8e 100644
+--- a/libselinux/src/libselinux.map
++++ b/libselinux/src/libselinux.map
+@@ -267,3 +267,8 @@ LIBSELINUX_3.10 {
+   global:
+     selinux_restorecon_get_relabeled_files;
+ } LIBSELINUX_3.9;
++
++LIBSELINUX_3.12 {
++  global:
++    selinux_policy_open;
++} LIBSELINUX_3.10;
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 718beb6e..c32bb4c0 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -117,10 +117,9 @@ const char *const *selinux_policy_roots(void);
+ /*
+  * Open @path (as returned by one of the selinux_*_path() accessors),
+  * falling back through selinux_policy_roots() when the primary path
+- * yields ENOENT or EACCES. Internal-only.
++ * yields ENOENT or EACCES. selinux_policy_open() is the public form.
+  */
+ FILE *selinux_policy_fopen(const char *path, const char *mode);
+-int selinux_policy_open(const char *path, int flags);
+ 
+ /*
+  * Resolve @path against the configuration-root list: write into @out
+-- 
+2.55.0
+
