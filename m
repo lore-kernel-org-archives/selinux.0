@@ -1,207 +1,169 @@
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9648C43550A
-	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 05:58:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E803468C22;
+	Wed, 23 Sep 2026 08:14:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790143118; cv=none; b=ZmGJV/vhuROCCbOQcX0nfk5jZO3FNrDsSKs60gIN1cB+EluU19sE+swBTQIZOO+XTm6DYb62/qweKptLg1BHkzf6ysUSODijHjm2twV6mIfS7ruG4zE1etwEDsfru2VqgXxw8gDHPG3lBqmlW7SivQ6FxqcPge6jKxhNfTEUaO4=
+	t=1790151254; cv=none; b=QkkydmTFgWKAv42om4OWOTP2WXvd+NDzpqIbfBr2bbIQB/StloH9myvyumT1py3C5kxnJMf7DgQA4YfbdXf3dn6W8Fx1t/qvt0Bq2V3E0futs8NLiGhSsiuaL5B0D5i08i0ES9psdiyw84kHOie5pMk3Y+zcvsi0JNyfjboKJns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790143118; c=relaxed/simple;
-	bh=PmH391A6TO0gaGyUsBIKOitYnmb7K4504f9XXR9L0Zk=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=DTFgb1RhmAW8zVTjdWVENKkrdy+sGZFzVystCkcuOltW/NYY5rIIHT9BtGrTglhrmhgB+v2TxWUiszXGJb+ENmpRCqt5vO+m/d7Ptg9UH2uoEoXkQlRc7prnytSA9tPihXrirvLHAx8n5ggBnEnYrhcpHs0HNzoNA7J8cwaUjdk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=C4nHV5Wq; arc=none smtp.client-ip=209.85.215.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
+	s=arc-20240116; t=1790151254; c=relaxed/simple;
+	bh=aN2ZWo/23w37qNKgpNUnQ0H6NGD03WPhBvg03+MG/94=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HR064HOt5Vnx77PFMZX0U1VDnIMihgT7audwW0G9+h8lBGhW6m4zH+0Zu06olSrHZnuTsQH47N4NPhfOE/ee1UP8ci5iG6uHAU/yt2ufBcMHAmqs71yOo97b1iHdkL1yvuM0CZ8JXayl+R78fG8Bce5Xkd7XBoxGrFXU7BRYeQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mCJlfOwt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="C4nHV5Wq"
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-cc73895c7d5so907816a12.1
-        for <selinux@vger.kernel.org>; Tue, 22 Sep 2026 22:58:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790143116; x=1790747916; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NXJUetFR7AJ6D/BzchuT4HBHOV5ivAIlr/T9LYZQyAk=;
-        b=C4nHV5Wqu2vfKi1vJMaFupK54uquOfx9igtI2409Phfnum5LHuOPANvBEf0UH2bEnr
-         Mj3JKrAYCgTIdzrQYLj3ISEERQ8gaxamH8is096BrocG7VqZGt94lV9k2vH+OJCy9e0o
-         BP7558rRyejHfA9gAAT3Yx96/hi7GhpzRWzM8CZCOs0hLXh6ROXwPjkb35wmISBVhBOw
-         7X4PnUBdpfsIsSm7E8qRp5lUFUoCiKQwlUWeMYhZOkGgLDD/H3Hu13e55l2II0iADNva
-         5LsRHRTHV75q6Z2y3op4Fj4j2naVdJmYROw7eEKQW+iYHrEybWYp/cNUU9xuTs1m7ceI
-         iozg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790143116; x=1790747916;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NXJUetFR7AJ6D/BzchuT4HBHOV5ivAIlr/T9LYZQyAk=;
-        b=Vt2zyrUg+FVygvtnk/QjC7Bm2grl3Wwe4DJkLPVSMRxFU5OFM9kFJF3aj//sWOQ4SP
-         DPl2GyvlZfhjZM1LCHf8gLQsqDCG3awsC2CQJA3VjP00uldseX0hF0MySZzq1kUjU5h6
-         7hsc9ZvQN/bNuKq/2PAlBF5S6kkNQzF/pxeQX5f/TGQvXCwvRPlF3pA6XIICexThtBvk
-         J9pAg7OHKigw+drJ9BcPZjdU1JimqxHFnP8JhjA99CdPsIppQNB+jxFmG5iofSNTQdGV
-         nAgXX0cboRMc27nZ40mVZxrkgrO5BOYrfjhnNukr5ZWaRn9fwOFdYJ3/u9ObYkY0BXsg
-         +Yjg==
-X-Gm-Message-State: AFuF++kgvQWNyG2Zb/hbIbD/Gh2GqIurwPIeUYEtyq81zjkJLc9hAei+
-	GC0mKDAngi0voGiDDogAF36ISzazEq60JFZ/VY0pRPT2bP169q0bCJNjeko9MNDYDXyzUSYR0xD
-	MMQhKokqv/o15blm68zFqqOMxbFS28UOm6sF/DAascf7PnkjIZTcFxTg4UaHMcEbnzhDrNhzMhQ
-	Rqc/8KdmeQgkLYUHhSgN4vORRbTTegj/N4Y/iWmA==
-X-Received: from pgdj28.prod.google.com ([2002:a05:6a02:521c:b0:cc4:37bf:2ca4])
- (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:6b01:b0:3d3:ae50:97cb
- with SMTP id adf61e73a8af0-3ddf7f0bfd0mr1854115637.24.1790143115637; Tue, 22
- Sep 2026 22:58:35 -0700 (PDT)
-Date: Wed, 23 Sep 2026 14:58:23 +0900
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mCJlfOwt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376301F000FF;
+	Wed, 23 Sep 2026 08:13:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790151252;
+	bh=4asDkf1r4nhSOrT7R8hAyZcEQKKYrXhZ/zPFbXlZHas=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mCJlfOwtX67y203buKELQIT2TJkfDrkJVRWjviTUThii3FIl01hNmt/2/N5niDJsO
+	 pMfVhn9hKYcyv1hPNTj3q8nO0Pds6VFO+rGQe1AtibuYmlGhfEvG5fzsVNd5VZj00d
+	 fkgcgDIaUfRNs16fD4U8B+bk8I0EVqFfud76K+T15hPjY5Wnzx7h17G1IEpBvKdbdT
+	 fwOMBpLGIgd0Nxsna3HHhcpWKXrmzcnrf1IYhuJaw4NDIion+IMG6MmbJbYDpOjNxG
+	 ds54K/vBGhy978o0s9QlAtQmkuOq1eOy+SdadnN3yilV4MeGzEJApyN21XCzbDlSMz
+	 y5uiJtnDQNScw==
+Date: Wed, 23 Sep 2026 09:13:40 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
+	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH v2 00/40] mm: make VMA flag semantics explicit, eliminate
+ VM_SPECIAL
+Message-ID: <arOCPN02xB7mykju@gremlin>
+References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
+ <20260914180811.057cba8fcc48d6e0b53a2683@linux-foundation.org>
+ <0b064fe6-ddb3-4f26-a1f2-2e9dd88d590f@kernel.org>
+ <CAJuCfpFBichJH4OcmSHTb1rOuQBT6k5pXeua9_KgpWjDBKvsYw@mail.gmail.com>
+ <aq6kzpK7wPl3iFGe@gremlin>
+ <aq6lW9FvL69QeA9H@gremlin>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
-Message-ID: <20260923055823.3567355-1-inseob@google.com>
-Subject: [PATCH] libsepol,checkpolicy: add --multiple-decls option
-From: Inseob Kim <inseob@google.com>
-To: selinux@vger.kernel.org
-Cc: tweek@google.com, nnk@google.com, Inseob Kim <inseob@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aq6lW9FvL69QeA9H@gremlin>
 
-Add a -m/--multiple-decls option to checkpolicy, mirroring the option of
-the same name in secilc, which allows a type or an attribute to be
-declared more than once. The declarations are merged into a single
-symbol whose attribute set is the union of the attribute sets of the
-individual declarations. Without the option a repeated declaration
-remains an error.
+On Sat, Sep 19, 2026 at 04:09:13PM +0100, Lorenzo Stoakes (ARM) wrote:
+> On Sat, Sep 19, 2026 at 04:05:57PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > On Fri, Sep 18, 2026 at 01:31:24PM -0700, Suren Baghdasaryan wrote:
+> > > On Fri, Sep 18, 2026 at 1:21 PM David Hildenbrand (Arm)
+> > > <david@kernel.org> wrote:
+> > > >
+> > > > On 9/15/26 03:08, Andrew Morton wrote:
+> > > > > On Mon, 14 Sep 2026 15:57:20 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+> > > > >
+> > > > >> The VM_SPECIAL / VMA_SPECIAL_FLAGS mask conflates several unrelated
+> > > > >> properties:
+> > > > >>
+> > > > >> ...
+> > > > >>
+> > > > >> It's all rather a mess.
+> > > > >>
+> > > > >> This series brings some order to things by both limiting what drivers can
+> > > > >> do with VMA flags and switching to using predicates that describe
+> > > > >> behaviour, not arbitrary flags.
+> > > > >
+> > > > > That's a lot of patches.
+> > > > >
+> > > > > Review is thin and I expect this won't improve a lot.  Lots of "no
+> > > > > functional changes" changes.
+> > > >
+> > > > I'll expect to go through all of them. Might just take a bit ;)
+> > >
+> > > ditto
+> >
+> > Thanks guys!
+>
+> Note v3 has been posted to fix a stupid bug in 1/40 + attack some very trivial
+> sashiko stuff
+>
+> https://lore.kernel.org/linux-mm/20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org/
 
-Policies assembled from several independently maintained sources may
-declare the same type in more than one of them. secilc merges such
-declarations when it links the resulting CIL files, but checkpolicy
-rejects them when the same sources are compiled in a single run.
+Just a gentle nudge on this :)
 
-symtab_insert() already permits multiple declarations of roles and
-users, so only SYM_TYPES is added to that allowlist, behind a new
-policydb flag. Nothing else is needed: create_type() returns the
-existing datum when the symbol exists and define_type() sets one
-attribute bit per declaration against it. Using the same identifier for
-both a type and an attribute remains an error, as does a repeated
-declaration of any other kind of symbol.
+If you guys or anybody else has some time it'd be appreciated! (obv. the v3 as
+linked above not this v2!)
 
-Signed-off-by: Inseob Kim <inseob@google.com>
----
- checkpolicy/checkpolicy.8                  |  3 +++
- checkpolicy/checkpolicy.c                  | 16 ++++++++++++++--
- libsepol/include/sepol/policydb/policydb.h |  2 ++
- libsepol/src/policydb.c                    |  7 +++++--
- 4 files changed, 24 insertions(+), 4 deletions(-)
+I know the series seems intimidating but most of the commits are very small and
+it's been in -next for a while.
 
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index caaaf67..b37d0ff 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
-@@ -46,6 +46,9 @@ Output line markers for allow rules, in addition to neverallow rules. This optio
- of the output CIL policy file, but the additional line markers helps debugging, especially
- neverallow failure reports. Can only be used when writing a CIL policy file.
- .TP
-+.B \-m,\-\-multiple\-decls
-+Allow types and attributes to be re-declared.
-+.TP
- .B \-c policyvers
- Specify the policy version, defaults to the latest.
- .TP
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index 1ab9598..cc866b3 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -107,7 +107,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
- {
- 	printf("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
- 	       "[-N] [-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
--	       "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [input_file]\n",
-+	       "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [-m] [input_file]\n",
- 	       progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
- 	exit(1);
- }
-@@ -391,6 +391,7 @@ int main(int argc, char **argv)
- 	unsigned int binary = 0, debug = 0, sort = 0, cil = 0, conf = 0,
- 		     optimize = 0, disable_neverallow = 0;
- 	unsigned int line_marker_for_allow = 0;
-+	unsigned int multiple_decls = 0;
- 	struct val_to_name v;
- 	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
- 	unsigned int policyvers = 0;
-@@ -422,11 +423,12 @@ int main(int argc, char **argv)
- 		{ "optimize", no_argument, NULL, 'O' },
- 		{ "werror", no_argument, NULL, 'E' },
- 		{ "line-marker-for-allow", no_argument, NULL, 'L' },
-+		{ "multiple-decls", no_argument, NULL, 'm' },
- 		{ "help", no_argument, NULL, 'h' },
- 		{ NULL, 0, NULL, 0 }
- 	};
- 
--	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELh",
-+	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELmh",
- 				 long_options, NULL)) != -1) {
- 		switch (ch) {
- 		case 'o':
-@@ -507,6 +509,9 @@ int main(int argc, char **argv)
- 		case 'L':
- 			line_marker_for_allow = 1;
- 			break;
-+		case 'm':
-+			multiple_decls = 1;
-+			break;
- 		case 'h':
- 		default:
- 			usage(argv[0]);
-@@ -555,6 +560,12 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (multiple_decls && binary) {
-+		fprintf(stderr,
-+			"Multiple declarations are only meaningful when compiling source policy\n");
-+		exit(1);
-+	}
-+
- 	if (binary) {
- 		fd = open(file, O_RDONLY);
- 		if (fd < 0) {
-@@ -628,6 +639,7 @@ int main(int argc, char **argv)
- 		parse_policy.mls = mlspol;
- 		parse_policy.handle_unknown = handle_unknown;
- 		parse_policy.policyvers = policyvers;
-+		parse_policy.multiple_decls = multiple_decls;
- 
- 		policydbp = &parse_policy;
- 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index bf948d9..ae125fd 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -630,6 +630,8 @@ typedef struct policydb {
- 	/* avrules whose line markes will be printed. Defaults to neverallow and
- 	   neverallowxperm */
- 	uint32_t line_marker_avrules;
-+
-+	int multiple_decls;
- } policydb_t;
- 
- struct sepol_policydb {
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 9716f5f..9e0eb72 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1456,8 +1456,11 @@ int symtab_insert(policydb_t *pol, uint32_t sym, hashtab_key_t key,
- 			return rc;
- 		}
- 	} else if (scope_datum->scope == SCOPE_DECL && scope == SCOPE_DECL) {
--		/* disallow multiple declarations for non-roles/users */
--		if (sym != SYM_ROLES && sym != SYM_USERS) {
-+		/* disallow multiple declarations for non-roles/users, unless
-+		 * the policy opted in to multiple declarations of types and
-+		 * attributes */
-+		if (sym != SYM_ROLES && sym != SYM_USERS &&
-+		    !(sym == SYM_TYPES && pol->multiple_decls)) {
- 			return -2;
- 		}
- 		/* Further confine that a role attribute can't have the same
--- 
-2.55.0.1082.g2b9226bbc0-goog
+>
+> >
+> > >
+> > > >
+> > > > --
+> > > > Cheers,
+> > > >
+> > > > David
+> >
+> > --
+> > Cheers, Lorenzo
+>
+> --
+> Cheers, Lorenzo
 
+--
+Cheers, Lorenzo
