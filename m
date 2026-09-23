@@ -1,103 +1,100 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404053AC0E4
-	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 14:31:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AAA455D88C
+	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 15:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790173879; cv=pass; b=FUfqXo5IR9ISVUC3bN0/zmLWYs3hKlF88qsvapsyDpXObEByyt2TGmAkYrg3cgUbvtuNZc+dFC4QlyF2xKJ9C+II6Necb/zdJr1xuJrGq6Bd0COxc1ZpPzXGMHIh/IwQVPWcGcIMbYeMvGcnAdiZDI90qpbxWpmS+8jIBdfeCb0=
+	t=1790176938; cv=pass; b=QTm5hCV9u0xSTjJfwOJZlnjxudhA8lSJ0h2tsvGatefVmNweZ25EKEtS0zGoltjwuPQv5ZnLfO9FmVUeojGLYzh4GazKjZuN6dHQEJL3iTH6DYG1w8a9LaV+1oUjyP02q/x4oPoBsWGxjx+COuPApAF7m1L7MVM7t2OoDIyKH50=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790173879; c=relaxed/simple;
-	bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
+	s=arc-20240116; t=1790176938; c=relaxed/simple;
+	bh=Amk0xDDiuLrZOX0meRHdnJJ0c8aLaK2hhT8r+pRxJMs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=joOMuYgqO8yQkYljmF7ZtwyGi/TDFLkUy6vbsrM76KX3iG/zLoJlLogaMiF21iZN3INycNFv0kH4+vJ+dBQK3YrVpT4bvd7KjooC67oSEa0DYilYSrY6wpRa2i5oEvbXaZbeWS3WmwVgl5jtG1ZLzHlFXMfb0Zv3/wonBVEVi4M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=C+1Ohl3z; arc=pass smtp.client-ip=209.85.160.172
+	 To:Cc:Content-Type; b=CLQK0gN6+bgLy6ttCU1+XO7I8iCEV/TUM29+kWKlQUfRFpuDv1ptqv6Wqsq/fWZBQ3XgcT4hFKxnAZy+CAkSzF4XD1Wstdr0Z7WAJCH0znxchxgZ/2VVHh/2BWLkDw0KKuEW1z7kWYsdNaVyydheTZ7EaRcuV5FA8atOXqPqbJs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FVFPhjYX; arc=pass smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="C+1Ohl3z"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-532e9ad9a1eso208171cf.0
-        for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 07:31:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790173876; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FVFPhjYX"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-53113d72966so281651cf.1
+        for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 08:22:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790176931; cv=none;
         d=google.com; s=arc-20260327;
-        b=mhLslfNV61OZFMCQ7lQ6BBA6QvyeNiMX4MB7ysU/m1wvdHPrE6DgDPu0/g0CZLgDgK
-         tW4cV+HuQz7WBKCcg68M/rZkN+PpodaU6r5/F8xnBfUYdWFbc5qnXLdUT+B5m37nkuQS
-         WByQhNigYqkOA5q9KuH8ZI45j1IcipVYZEjP75GuuJYcFoio9oJ4euStMGpW41Gt4iCu
-         r1huvcLGUXY/HydllSnDe5GZtZe8ug3v8ZcntEYN8bhYWPhZDLXlGvchuTf3CFAs7mpx
-         qtajbNQokRn2F5YgCz/YUW0ySPvONJoSIQdFCEoGwcyvBU4AI2jYq9KkMXq5eaTLxwsc
-         RjUQ==
+        b=esLmk5q0izDV+Mumdz59+PWcHNm+KfPzRFzl6oGL8tZTyIz+vDA5LWmXpzMh4TRkCf
+         FK3jud3QucsGrzWlW+/iZHPP80yN4SP3BMzTeGRC9zoXelQ589JfuH5Cs3oMZF63fr4f
+         UNW5+WZ15vpZusw3uM1MT8Vs1q+w1ez21AKfLbz1UmM6C/rM8QXRnzqifW70mscpo3IK
+         Y6YezZMHPTMYkKqxFWQddxFWtLpTW2Q7sRXjEgXiuEPfgr1v463r3t3FQ40xMob4+KUV
+         VXY/dLlW13QOMXcCamc7kSw151NMiGaU1zhWk9QCPuTBURNQspRTNdFggFqv24n06OvX
+         zW2w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        fh=9TxSc3sLHTDnEjT1fE5q1o/i6fsoq0TLhB1CWjniqK8=;
-        b=ZJb7cMB9i03UAcxRrHoQrCWho2F9RH1xaiyncNCLpoWO8QC0DoWjxi1cuf+UZmugLB
-         WPGKRm7lXJUt7scVpa5ixh+7J4mMdI3aCD4Mq2O3jcAnHELhYvcPQRRORp22lMc2PW24
-         zcp/SNd0SCZK8EHD2D74UWsAKjykY1+4soTz9rSg/I+0arQwyIPn0zqZtJWwWxdmjnW5
-         QLpp0Nk4AUFcG8K9tRsBmRHiH+wixraD5yj8xOVGvAcY/rd7DCTZ0eRss1O6DM57GaaV
-         NHTyWMFMnGQrfNUqCK7ZX0BFCpKLImOPHY+cvPVP2k6CuNgYXMpciV3d5PYyItxWDGg4
-         3ZYQ==;
+        bh=215xHvrjA8k8F2o69zQ3x9mbVUyDBcCR5N4QBUkVljc=;
+        fh=CH5WtbNaMennSXy82tdkWLKxfGGr6xtxD4l3toUpExs=;
+        b=onBa0Pr/32Q/3AXDBdbL7DSjagKOU77xCynQqmZJEMUE0fGt6eFJNemBcc3mPojRA2
+         tBSfHjHeGd0BDYkqC8Kjv91Cz9/9aUMImpwyc/H1BxaXJqm2uZRzPFmrLAsq9E4ASTHe
+         GAdgiBWBt72BRPZbtSY1XEUq6V58VSZ8TtZQOUt1/Shic71DGwmcN+DlweRxsr1AAqe0
+         CtWC0uxo4392WvyQRiIZYNg2nlvv09XdPetZRsMPM4LmdsYvBwJxhnmebmLqejYwjvTZ
+         GSuRp1AJwjZsg4uQb/0Ix7D+ealQ/aAXZicC7qqKojgVJrrG99SBMqv47sfzZOBRi/DK
+         oMFw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790173876; x=1790778676; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1790176931; x=1790781731; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        b=C+1Ohl3zbsMrjh1dB/zOjZD8WctelSpuD7HSjz83HtCzxAu2uQCdrvdk6mQA/qDmED
-         XPmCruc/0qesoh5ZaUY/8kYU55YuQDkrL+NWB4/GzBktzO6vR8i1QACk+3pme9wnGQCn
-         VZQmjl8KrY0HTHromA139b+tgbWQilZ3lTmZ8bgk7A7cwz+FVWfgOIYzhOmTDxAQ89K+
-         VZ5tGKKWdn2SxsyXoo0ZRNPy/7aL5Z2Tdfk7aj0pDU/c4b+4zxQCe6XqJRfIBBmHEG8r
-         fY+QEIfNks1XUT2d6WUeW6MkoHO+EYXflKlYvUF0fbOWU0DbvpsKlrTvHc30tBgH/z4n
-         u9Ww==
+        bh=215xHvrjA8k8F2o69zQ3x9mbVUyDBcCR5N4QBUkVljc=;
+        b=FVFPhjYX8LD6INsSglITHovKANCQHzky6BW5niWyjz8O89MDVMbgnTZkRwYDbSgRGD
+         z5bwv48sa/+Yh8mLlOGTyhktgExNaP84Bc2Kzh533cBzXPIHQMXVVNxntjZAJdPYjylw
+         p5An4gIJSo41/hv9U0M8dEZuzXbHqidzm57JNkHtyCDint0dLhDub8wI6OgX2sNJweMC
+         0DUDwFwUnkjF3OBWzRQHA6XvwFE9AlugrhOG5UUgwgnjxwR0t2obcdmUJrLWDoEeRSLe
+         SLbSo0qUJCEkBmQql558QkesN2UYLQnEs5yHdOwDUD+FZdP6BVaJ/h6aZDho8EbGFgEl
+         IiSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790173876; x=1790778676;
+        d=1e100.net; s=20260707; t=1790176931; x=1790781731;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        b=DK+XTq/bn1Qbe3/i9W+DCCmPV+XdCzfilyi/mBAAg6ShX0lEHLYrMsaNRzOD9VJcyq
-         87fT+Ylm0wjDgoFdTkU40TMNLmVVETcMD2cN7RF2AqTDG12N4bEvI38RVoFQcoSKgUml
-         GEXO02EUlEWDe+HjRuOe7LMHcqa1uC2M5Y+UE4Szy9xsh+jFK+5u0N93XwjcZiRYbEgo
-         lIebpLNZO0HAtZKwe5xc5/VnzgSl7vfHGN8Jupv0VlS+XviwBOwVonrqOuyNsfmacba7
-         guKR1rSRS9hEf7DFu3nbARucchRKnL1YYJUugB1K+qC1aez9swxIutZWulEh8JQ9m3ZY
-         jphg==
-X-Forwarded-Encrypted: i=1; AKwUvByysZsoDY+sJYNal7FbfZilY/IdlaH4BBCczzQ5RwweTKuXjexXFuo5ocKQVH7lyhZXOOhTvoCk@vger.kernel.org
-X-Gm-Message-State: AFuF++msH4ns0ImWIngrHYm3PKNdBBZnEjTF3EjeUCuQhj5bLL+Vn3PK
-	rrZBSyAwhuos8sbbWhILKikGR7bWzaVGwahme2UNbZgTUOdxPQiWwRYAGsRSBiCfJMWExY28gso
-	6htZYMUaLOMoSnH/Wpm8R+AaiQ74hgr/0NwzNlBef
-X-Gm-Gg: AYBFou0Fh1jkEEAkncguLP/eRBOxlTJoFHSzJRTgPBA1ZAdlif9OauN1zN56Hh0MJKh
-	MyeECYsFA+1V92WTPMvpaSTsDNJM3fZ4Z2HnuJgbkE+oBpIagHLOhKOa5e8hTXEViVDotP0/qvm
-	wCmtq0H96JAYuuxQCXRgm0ruD+tzkfAeP5VOXsnyYqYajiu7WqLsWVOK2k123EwV2huUSh7VBHd
-	mTxlwVRInEun6tFQ6kP7QljgvxLH6fMc8Qq4WqppFkewBUQohKUgdsILa1NpkPAaP35WWQ0+kaP
-	PzWp3KQ0ZWPqHsAxgKOMnSxDVzsdowYW+7Nw/lTtM9V4cWPwyEevJjLEz/DNY7Whl6sahIl6v6+
-	kqKQJr9tGpA==
-X-Received: by 2002:a05:622a:260e:b0:532:9d15:2e5a with SMTP id
- d75a77b69052e-532ede89b29mr14598791cf.1.1790173874906; Wed, 23 Sep 2026
- 07:31:14 -0700 (PDT)
+        bh=215xHvrjA8k8F2o69zQ3x9mbVUyDBcCR5N4QBUkVljc=;
+        b=zpDC7JTURq7tL2TOfm5OsC4k7g4UJWN8njBD1/XLpIrMXEcFcYfQLcWECyu1LPerc8
+         pfDL7RsXGGSsqr8xElzg9tXiH6VvdDJA/X4qnbgQrnHCmQe1wRobhQPWLqwVisLHNS6n
+         57y1V/SEX7jBJ5EzxTntzVC0PKdjd+v+LPKywjZj4ilZB0v5WL6mJ1UUaQ53h0KZZesp
+         SySTX8bwye9rYdFpZpCuRTR76TKg/Z5t1gmCFjKpDMiTS6o7RjJikqJ/X15lPpNQJDS6
+         lIxoEZuItIHiD23uj/VjElM34CFmfT1SUefPtjS6P7UXPjjk4/GWRp4JEaiMrVhlKz7F
+         b2aQ==
+X-Forwarded-Encrypted: i=1; AKwUvByyoZyONrGwxy1OZCRXzT4kbsRXRO+bKoamneX1EbbViDM0z6rH8+BKim1Ut+xNIcVJqHSrrB+Q@vger.kernel.org
+X-Gm-Message-State: AFuF++lUR0GSQ4OdE+4UZZnTUCBeW1v27B95fIwIpHCjlbCu5/QTbkDa
+	K/nVpdyEkfIeKXx3Ep6W5pVoGqRuSGhx9NlMnNOI2Vfo5e1s1rglKyLqdx4TanbrHIZA6uWvoYi
+	yUDE9JFmab9XePikmTKivoqk4Pt24YS8z9yC6ch5E
+X-Gm-Gg: AYBFou2xaO1N73cBscEeuZR5n/z/0QdVj9/F76DCRSODuLUbrUcK07ieXr31vM/Ybfs
+	n39FB7FTMCYvMI8cof2Kypd/GgiBi50jhdxLVWIUKO94ivGkeTRxgJUu+DZSmUrRMkgEoFeH1ao
+	fL3WdpZzBcbjNJILpYvFB6NxAM0xDnDUUY/XCQCSyIEYzUUsO047sGUcIXLwnKJ+F3fFwdyzLoR
+	Kci5eYKvSC/4GHuBgimuZRAbsDJfTp8YzJ78USi+AemrD6KlSbUG+qg9riNQWOeT9qfuVINiQ7U
+	pEATzZnkvS0dujPb/aoPYe24/Zi/ezb6Yb74z+zJ6Sx7RbUPCZrEbjuyf+myETOmnmt6flRUSIM
+	PmICxtFLuKg==
+X-Received: by 2002:ac8:5f4b:0:b0:530:e00f:7768 with SMTP id
+ d75a77b69052e-532f8b3706amr797061cf.0.1790176930008; Wed, 23 Sep 2026
+ 08:22:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914180811.057cba8fcc48d6e0b53a2683@linux-foundation.org>
- <0b064fe6-ddb3-4f26-a1f2-2e9dd88d590f@kernel.org> <CAJuCfpFBichJH4OcmSHTb1rOuQBT6k5pXeua9_KgpWjDBKvsYw@mail.gmail.com>
- <aq6kzpK7wPl3iFGe@gremlin> <aq6lW9FvL69QeA9H@gremlin> <arOCPN02xB7mykju@gremlin>
- <b007cd0f-29ef-457a-8e44-63ab26f3bcd0@kernel.org>
-In-Reply-To: <b007cd0f-29ef-457a-8e44-63ab26f3bcd0@kernel.org>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-1-4583d8a23bca@kernel.org>
+In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-1-4583d8a23bca@kernel.org>
 From: Suren Baghdasaryan <surenb@google.com>
-Date: Wed, 23 Sep 2026 07:31:02 -0700
-X-Gm-Features: AclHuK_ZGTwaB8ygIyiOyIIeQNRzbEtns-G_Cds8CuZ4q61CHw7YMjTifucik0o
-Message-ID: <CAJuCfpHL=dHjT=O4S88ZBvT1DyodAtCL9QTryepzs3EMwoECDQ@mail.gmail.com>
-Subject: Re: [PATCH v2 00/40] mm: make VMA flag semantics explicit, eliminate VM_SPECIAL
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, 
-	Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
+Date: Wed, 23 Sep 2026 08:21:58 -0700
+X-Gm-Features: AclHuK_Jr66nWhopiYzgP8yybrhj32Etg8U9Ma2NnEVU0JzktEFxq__eunHeX-k
+Message-ID: <CAJuCfpFe+pLusPy-xWYHp2rTP1becBb2nhX16xXd+hKD5Q+Z3g@mail.gmail.com>
+Subject: Re: [PATCH v3 01/40] mm/vma: fix mmap_prepare file handling, remove file_doesnt_need_get
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
 	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
 	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
 	Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>, 
@@ -154,42 +151,416 @@ Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Andrew Morton <akpm@linux-foundati
 	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
 	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
 	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
+	fuse-devel@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 23, 2026 at 1:40=E2=80=AFAM David Hildenbrand (Arm)
-<david@kernel.org> wrote:
+On Thu, Sep 17, 2026 at 9:23=E2=80=AFAM Lorenzo Stoakes (ARM) <ljs@kernel.o=
+rg> wrote:
 >
-> On 9/23/26 10:13, Lorenzo Stoakes (ARM) wrote:
-> > On Sat, Sep 19, 2026 at 04:09:13PM +0100, Lorenzo Stoakes (ARM) wrote:
-> >> On Sat, Sep 19, 2026 at 04:05:57PM +0100, Lorenzo Stoakes (ARM) wrote:
-> >>>
-> >>> Thanks guys!
-> >>
-> >> Note v3 has been posted to fix a stupid bug in 1/40 + attack some very=
- trivial
-> >> sashiko stuff
-> >>
-> >> https://lore.kernel.org/linux-mm/20260917-b4-mmap-prepare-vma-flag-san=
-ify-v3-0-4583d8a23bca@kernel.org/
-> >
-> > Just a gentle nudge on this :)
-> >
-> > If you guys or anybody else has some time it'd be appreciated! (obv. th=
-e v3 as
-> > linked above not this v2!)
-> >
-> > I know the series seems intimidating but most of the commits are very s=
-mall and
-> > it's been in -next for a while.
+> The map->file_doesnt_need_get flag is confusing and the existing
+> implementation has holes.
 >
-> Busy with too many other things sorry. Its time will come.
+> Drivers are permitted to change the owning file of a mapping. If they do
+> so, they are required to take a reference on that file.
+>
+> The mmap() operation which ultimately invokes __mmap_region() is guarante=
+ed
+> to drop the refcount for the original file the mapping was made under, bu=
+t
+> this is not true for the replaced file.
+>
+> This has been addressed so far by tracking map->file_doesnt_need_get, whi=
+ch
+> is rather poorly named and unfortunately fails to correctly track whether
+> or not an additional put were needed in a number of cases.
+>
+> Make life easier by removing this flag, and instead drop the reference fo=
+r
+> both mmap_prepare and the deprecated mmap callback in a new function
+> put_map().
+>
+> Track whether this needs to be done by aligning mmap_state with
+> vm_area_desc and store the original file in the map->file field, keeping
+> the updated file in map->vm_file.
+>
+> In order to have the same behaviour for both types of hooks, only drop th=
+e
+> reference __mmap_new_file_vma() itself took in its error path, deferring
+> the replaced file's reference to put_map().
+>
+> To make this work correctly, map->vm_file has to be updated before any
+> error handling, so update __mmap_new_file_vma() and call_mmap_prepare() t=
+o
+> set this field first.
+>
+> Also when mmap_prepare() changes the file and is then merged, the referen=
+ce
+> count also must be decremented, so update the logic to call put_map() in
+> this case too.
+>
+> Also update __compat_vma_mmap() to manually perform this step for stacked
+> file systems using the compatibility layer, and update
+> compat_set_vma_from_desc() to replace vma_set_file() with a correct
+> refcount/file update.
+>
+> No in-tree driver is impacted by the incorrect implementation of this
+> currently (no driver that does this is mergeable for one), so this does n=
+ot
+> need to be a fix.
+>
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
+>  mm/internal.h |  1 +
+>  mm/util.c     |  5 +++-
+>  mm/vma.c      | 83 +++++++++++++++++++++++++++++++++++------------------=
+------
+>  mm/vma.h      |  6 +++--
+>  4 files changed, 59 insertions(+), 36 deletions(-)
+>
+> diff --git a/mm/internal.h b/mm/internal.h
+> index 0dca33db068f..fe576d468af4 100644
+> --- a/mm/internal.h
+> +++ b/mm/internal.h
+> @@ -7,6 +7,7 @@
+>  #ifndef __MM_INTERNAL_H
+>  #define __MM_INTERNAL_H
+>
+> +#include <linux/file.h>
+>  #include <linux/fs.h>
+>  #include <linux/khugepaged.h>
+>  #include <linux/mm.h>
+> diff --git a/mm/util.c b/mm/util.c
+> index bf0513d1d3d0..016932780925 100644
+> --- a/mm/util.c
+> +++ b/mm/util.c
+> @@ -1228,8 +1228,11 @@ int __compat_vma_mmap(struct vm_area_desc *desc,
+>
+>         /* Perform any preparatory tasks for mmap action. */
+>         err =3D mmap_action_prepare(desc);
+> -       if (err)
+> +       if (err) {
+> +               if (desc->vm_file !=3D vma->vm_file)
+> +                       fput(desc->vm_file);
+>                 return err;
+> +       }
+>         /* Update the VMA from the descriptor. */
+>         compat_set_vma_from_desc(vma, desc);
+>         /* Complete any specified mmap actions. */
+> diff --git a/mm/vma.c b/mm/vma.c
+> index 55917d097933..fa784f069da4 100644
+> --- a/mm/vma.c
+> +++ b/mm/vma.c
+> @@ -24,7 +24,8 @@ struct mmap_state {
+>                 vm_flags_t vm_flags;
+>                 vma_flags_t vma_flags;
+>         };
+> -       struct file *file;
+> +       struct file *file;      /* mmap()-specified file. */
+> +       struct file *vm_file;   /* May be updated by mmap_prepare. */
 
-Had to take care of the pile of bugs but I'm on it now.
+Overall I like the change but I think you could avoid extra churn by
+keeping the name of `file` as is and add `struct file *orig_file`
+instead as:
 
++       struct file *orig_file;   /* mmap()-specified original file. */
+-       struct file *file;
++       struct file *file;      /* May be updated by mmap_prepare. */
+
+Then many uses of map->file would stay unchanged.
+
+>         pgprot_t page_prot;
+>
+>         /* User-defined fields, perhaps updated by .mmap_prepare(). */
+> @@ -43,8 +44,6 @@ struct mmap_state {
+>
+>         /* Determine if we can check KSM flags early in mmap() logic. */
+>         bool check_ksm_early :1;
+> -       /* If .mmap_prepare changed the file, we don't need to pin. */
+> -       bool file_doesnt_need_get :1;
+>  };
+>
+>  #define MMAP_STATE(name, mm_, vmi_, addr_, len_, pgoff_, anon_pgoff_, vm=
+a_flags_, file_) \
+> @@ -58,6 +57,7 @@ struct mmap_state {
+>                 .pglen =3D PHYS_PFN(len_),                               =
+ \
+>                 .vma_flags =3D vma_flags_,                               =
+ \
+>                 .file =3D file_,                                         =
+ \
+> +               .vm_file =3D file_,                                      =
+ \
+>                 .page_prot =3D vma_flags_to_page_prot(vma_flags_),       =
+ \
+>         }
+>
+> @@ -70,7 +70,7 @@ struct mmap_state {
+>                 .vma_flags =3D (map_)->vma_flags,                        =
+ \
+>                 .pgoff =3D (map_)->pgoff,                                =
+ \
+>                 .anon_pgoff =3D (map_)->anon_pgoff,                      =
+ \
+> -               .file =3D (map_)->file,                                  =
+ \
+> +               .file =3D (map_)->vm_file,                               =
+ \
+>                 .prev =3D (map_)->prev,                                  =
+ \
+>                 .middle =3D vma_,                                        =
+ \
+>                 .next =3D (vma_) ? NULL : (map_)->next,                  =
+ \
+> @@ -2447,7 +2447,7 @@ void mm_drop_all_locks(struct mm_struct *mm)
+>   */
+>  static bool accountable_mapping(struct mmap_state *map)
+>  {
+> -       const struct file *file =3D map->file;
+> +       const struct file *file =3D map->vm_file;
+>
+>         /*
+>          * hugetlb has its own accounting separate from the core VM
+> @@ -2496,7 +2496,7 @@ static void vms_abort_munmap_vmas(struct vma_munmap=
+_struct *vms,
+>
+>  static void update_ksm_flags(struct mmap_state *map)
+>  {
+> -       map->vma_flags =3D ksm_vma_flags(map->mm, map->file, map->vma_fla=
+gs);
+> +       map->vma_flags =3D ksm_vma_flags(map->mm, map->vm_file, map->vma_=
+flags);
+>  }
+>
+>  static void set_desc_from_map(struct vm_area_desc *desc,
+> @@ -2506,7 +2506,7 @@ static void set_desc_from_map(struct vm_area_desc *=
+desc,
+>         desc->end =3D map->end;
+>
+>         desc->pgoff =3D map->pgoff;
+> -       desc->vm_file =3D map->file;
+> +       desc->vm_file =3D map->vm_file;
+>         desc->vma_flags =3D map->vma_flags;
+>         desc->page_prot =3D map->page_prot;
+>  }
+> @@ -2586,6 +2586,10 @@ static int __mmap_setup(struct mmap_state *map, st=
+ruct vm_area_desc *desc,
+>         return 0;
+>  }
+>
+> +static bool map_same_file(struct mmap_state *map)
+> +{
+> +       return map->vm_file =3D=3D map->file;
+> +}
+>
+>  static int __mmap_new_file_vma(struct mmap_state *map,
+>                                struct vm_area_struct *vma)
+> @@ -2593,20 +2597,23 @@ static int __mmap_new_file_vma(struct mmap_state =
+*map,
+>         struct vma_iterator *vmi =3D map->vmi;
+>         int error;
+>
+> -       vma->vm_file =3D map->file;
+> -       if (!map->file_doesnt_need_get)
+> -               get_file(map->file);
+> +       vma->vm_file =3D map->vm_file;
+> +       if (map_same_file(map))
+> +               get_file(map->vm_file);
+>
+> -       if (!map->file->f_op->mmap)
+> +       if (!map->vm_file->f_op->mmap)
+>                 return 0;
+>
+>         error =3D mmap_file(vma->vm_file, vma);
+> +       map->vm_file =3D vma->vm_file;
+> +
+>         if (error) {
+>                 UNMAP_STATE(unmap, vmi, vma, vma->vm_start, vma->vm_end,
+>                             map->prev, map->next);
+> -               fput(vma->vm_file);
+> -               vma->vm_file =3D NULL;
+> +               if (map_same_file(map))
+> +                       fput(map->vm_file);
+>
+> +               vma->vm_file =3D NULL;
+>                 vma_iter_set(vmi, vma->vm_end);
+>                 /* Undo any partial mapping done by a device driver. */
+>                 unmap_region(&unmap);
+> @@ -2623,7 +2630,6 @@ static int __mmap_new_file_vma(struct mmap_state *m=
+ap,
+>                         !vma_flags_test(&map->vma_flags, VMA_MAYWRITE_BIT=
+) &&
+>                         vma_test(vma, VMA_MAYWRITE_BIT));
+>
+> -       map->file =3D vma->vm_file;
+>         map->vma_flags =3D vma->flags;
+>
+>         return 0;
+> @@ -2631,7 +2637,7 @@ static int __mmap_new_file_vma(struct mmap_state *m=
+ap,
+>
+>  static void map_set_anon(struct mmap_state *map)
+>  {
+> -       map->file =3D NULL;
+> +       map->vm_file =3D NULL;
+>         map->vm_ops =3D NULL;
+>         map->pgoff =3D map->addr >> PAGE_SHIFT;
+>  }
+> @@ -2643,7 +2649,7 @@ static bool map_is_private(const struct mmap_state =
+*map)
+>
+>  static bool map_is_anon(const struct mmap_state *map)
+>  {
+> -       return map_is_private(map) && !map->file;
+> +       return map_is_private(map) && !map->vm_file;
+>  }
+>
+>  /*
+> @@ -2688,7 +2694,7 @@ static int __mmap_new_vma(struct mmap_state *map, s=
+truct vm_area_struct **vmap,
+>         }
+>
+>         /* Invoke callbacks. */
+> -       if (map->file)
+> +       if (map->vm_file)
+>                 error =3D __mmap_new_file_vma(map, vma);
+>         else if (!is_anon)
+>                 error =3D shmem_zero_setup(vma);
+> @@ -2797,11 +2803,15 @@ static int call_mmap_prepare(struct mmap_state *m=
+ap,
+>         int err;
+>
+>         /* Invoke the hook. */
+> -       err =3D vfs_mmap_prepare(map->file, desc);
+> +       err =3D vfs_mmap_prepare(map->vm_file, desc);
+>         if (err)
+>                 return err;
+>
+> -       /* It's invalid for mmap_preprare hooks to clear vm_ops. */
+> +       /* Update first so file refcount tracked correctly. */
+> +       if (desc->vm_file !=3D map->vm_file)
+> +               map->vm_file =3D desc->vm_file;
+> +
+> +       /* It's invalid for mmap_prepare hooks to clear vm_ops. */
+>         if (!desc->vm_ops)
+>                 return -EINVAL;
+>
+> @@ -2811,10 +2821,6 @@ static int call_mmap_prepare(struct mmap_state *ma=
+p,
+>
+>         /* Update fields permitted to be changed. */
+>         map->pgoff =3D desc->pgoff;
+> -       if (desc->vm_file !=3D map->file) {
+> -               map->file_doesnt_need_get =3D true;
+> -               map->file =3D desc->vm_file;
+> -       }
+>         map->vma_flags =3D desc->vma_flags;
+>         map->page_prot =3D desc->page_prot;
+>         /* User-defined fields. */
+> @@ -2826,7 +2832,7 @@ static int call_mmap_prepare(struct mmap_state *map=
+,
+>          * anonymous mappings. Rather than allowing these mappings to be =
+odd
+>          * outliers, simply make them truly anonymous.
+>          */
+> -       if (map_is_private(map) && file_is_dev_zero(map->file))
+> +       if (map_is_private(map) && file_is_dev_zero(map->vm_file))
+>                 map_set_anon(map);
+>
+>         return 0;
+> @@ -2845,7 +2851,7 @@ static void set_vma_user_defined_fields(struct vm_a=
+rea_struct *vma,
+>   */
+>  static bool can_set_ksm_flags_early(struct mmap_state *map)
+>  {
+> -       struct file *file =3D map->file;
+> +       struct file *file =3D map->vm_file;
+>
+>         /* Anonymous mappings have no driver which can change them. */
+>         if (!file)
+> @@ -2868,6 +2874,20 @@ static bool can_set_ksm_flags_early(struct mmap_st=
+ate *map)
+>         return false;
+>  }
+>
+> +static void put_map(struct mmap_state *map)
+
+nit: maybe put_map_file() to be more specific?
+
+> +{
+> +       /*
+> +        * An error occurred or the VMA was merged.
+
+It's a bit weird that the function explains when it is being used.
+Having an appropriate comment at the call site seems better to me.
+
+> +        *
+> +        * If the file was changed by the driver (which is required to in=
+crement
+> +        * the replacement file's reference count), drop its reference co=
+unt.
+> +        *
+> +        * On error, the caller always drops the original file regardless=
+.
+> +        */
+> +       if (map->vm_file && !map_same_file(map))
+> +               fput(map->vm_file);
+> +}
+> +
+>  static unsigned long __mmap_region(struct file *file, unsigned long addr=
+,
+>                 unsigned long len, vma_flags_t vma_flags,
+>                 unsigned long pgoff, struct list_head *uf)
+> @@ -2922,7 +2942,10 @@ static unsigned long __mmap_region(struct file *fi=
+le, unsigned long addr,
+>
+>         __mmap_complete(&map, vma);
+>
+> -       if (have_mmap_prepare && allocated_new) {
+> +       if (!allocated_new) {
+> +               /* Merged, so need to drop refcount. */
+> +               put_map(&map);
+> +       } else if (have_mmap_prepare) {
+>                 error =3D mmap_action_complete(vma, &desc.action,
+>                                              /*is_compat=3D*/false);
+>                 if (error)
+> @@ -2936,13 +2959,7 @@ static unsigned long __mmap_region(struct file *fi=
+le, unsigned long addr,
+>         if (map.charged)
+>                 vm_unacct_memory(map.charged);
+>  abort_munmap:
+> -       /*
+> -        * This indicates that .mmap_prepare has set a new file, differin=
+g from
+> -        * desc->vm_file. But since we're aborting the operation, only th=
+e
+> -        * original file will be cleaned up. Ensure we clean up both.
+> -        */
+> -       if (map.file_doesnt_need_get)
+> -               fput(map.file);
+> +       put_map(&map);
+>         vms_abort_munmap_vmas(&map.vms, &map.mas_detach);
+>         return error;
+>  }
+> diff --git a/mm/vma.h b/mm/vma.h
+> index e97bd2dfa786..f15faa83f3d6 100644
+> --- a/mm/vma.h
+> +++ b/mm/vma.h
+> @@ -394,8 +394,10 @@ static inline void compat_set_vma_from_desc(struct v=
+m_area_struct *vma,
+>
+>         /* Mutable fields. Populated with initial state. */
+>         vma_set_pgoff(vma, desc->pgoff);
+> -       if (desc->vm_file !=3D vma->vm_file)
+> -               vma_set_file(vma, desc->vm_file);
+> +       if (desc->vm_file !=3D vma->vm_file) {
+> +               fput(vma->vm_file);
+> +               vma->vm_file =3D desc->vm_file;
+> +       }
+>         vma->flags =3D desc->vma_flags;
+>         vma->vm_page_prot =3D desc->page_prot;
+>
 >
 > --
-> Cheers,
+> 2.55.0
 >
-> David
