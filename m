@@ -1,108 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18DC40B11A;
-	Wed, 23 Sep 2026 17:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790184851; cv=none; b=OvrCg9QRtCNP5VVucGnbdPpUmUEak6jNzi6BClclV4USFZU+733FDCc4cZr1OwruFoGZoJyR/4Z6ULWVOUcBm43Qn3mNZMf6SKzXR17q2GFDrbUgCAhIfq4ITr3i0z2+HAJOOfG5I4/seJ+aCilOqmdJYlAITCKYgi/jbRrOFYQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790184851; c=relaxed/simple;
-	bh=kPlu2H6XNVNAm+eyKaf+KNtcUOLDMiz/SdRoD9k3csw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ELTwYuIr+aAzPO3Hku+6VyqsXqOKOKD1EIfW+ic5GBH106PoueFufjSLK4ocKA+S1f8ZgH6FPFCLquTAhVLU/XH4YblZio1C1JoFS0yTp1AiNSFzhR52X+8SEOO3HiK1ROETyoc50x9caOSqo9fF+F0TwV3srI3g+IAoCcmGPr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oIPXhDnn; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13E4953E2FC
+	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 19:31:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.141
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790191919; cv=pass; b=o37vE5TJh8lQanmuv9WpAXtBE0Nnx2iFk6naBBcv3Pbk6ajnzn8FBOcsVLuGmVfY7TkmyL8wpJyekq/myE6NInk64N6JcH/0CBL4tcTRl6e9UuJ88fJDeBV343+1GgnYM5WXmomnmvoa1Mx5gJQS5HoKpdf49Faz6hufRjcHWIM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790191919; c=relaxed/simple;
+	bh=/DNIFWcjtuouHSaeA/JNYdwTzI6jvMMdtjjAkJh4jLc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MST16Wt5+03qx3teyGMsXcKHDe4yoEF5fP+nQDj7q0P95PLe05d5uOd6E+LEAW1Up4J7zPudcZI52kcDHlr6TCZ4aMPuEygnWhbMDxRBznsD2UFy5GQxJq3uW+h/P4FqfNbYg0SZWURtg9krAW36IkLR3oDxxgJS5u4u4PtamIk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VWC8bNOf; arc=pass smtp.client-ip=74.125.224.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oIPXhDnn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7578A1F00898;
-	Wed, 23 Sep 2026 17:33:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790184849;
-	bh=kPlu2H6XNVNAm+eyKaf+KNtcUOLDMiz/SdRoD9k3csw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=oIPXhDnn6KrbHUdB8J3HtxFj0acE8ktVqJkOruOhJCvNG5tAAVxIsyoHMYMRieHKt
-	 Is5+S1MolM3HFRsMb1jGHJLJBKDKhutQW6ZfXT/uIcKRR1r6PUVXazNarmpYGmlPd0
-	 DrVxZDA5/RDFBx7/03GL1IZtxQpOt/AyuqUyDXzSfV+fX36mqbt0ecrQoeMZoKoF4P
-	 +Cw4hzzM0pyksIgfNEY/yt9LZw5XVPHz+WoNZuUa2xzYl1ssIwnutkaiQTvVstnnbO
-	 sloaQyC80Sym14M1BLGJIqAR7U69u/36OLTFb2LZOlo2vRK66xJr47KsIDUd4H3N/u
-	 MIh65qBa71P4g==
-Date: Wed, 23 Sep 2026 18:33:37 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 02/40] mm/vma: predicate setting mmap_prepare VMA
- fields on new vma alloc
-Message-ID: <arQNTibMdh6x_T04@gremlin>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-2-4583d8a23bca@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VWC8bNOf"
+Received: by mail-yx2-f13.google.com with SMTP id 00721157ae682-85d45ae011aso18110277b3.0
+        for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 12:31:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790191915; cv=none;
+        d=google.com; s=arc-20260327;
+        b=lfAqcxByjNUm+flKsCEnDT+U1xRC4gieqpC36Hz384sZrZmohZ9egryWYYmtyEkl83
+         S/1X4KJ9MPW0wU7lULbkK8S6Q7VxlSQGUiYU1GdmRXr6VlcPw0OwDVV/Vo0rRiq2yhrp
+         iWA/WGfW8WiQP4ZuZZLUFZkm3pqLeuPJfjsa5Iwd7RMIY1ix5z5sZmH13D/cHzXQsBZg
+         Vc4wJNpvYA9IKuJl+47VYdUpqhqS4uqk0oz2RqrYgERS/gPgwF6m0DljTfaFPUTuWfjb
+         7oD/1MhYW9ubMFlw/0+/9J3pzUA9p0pajn+P5GRt3aHz6h/THpIUmtDmLOXP7ZBUJ2uA
+         ECRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=/DNIFWcjtuouHSaeA/JNYdwTzI6jvMMdtjjAkJh4jLc=;
+        fh=KcNbqYfh5/rp+3O/oy/Rn1Jlbpp64wJ640nU1xb/jaw=;
+        b=VAev523asD72MY/Ubm/ccnaKcUC5Rms3QfjPiOt4EIJBNyenqOchc4/3L04ju0eucb
+         SbfVg9IbCCRvO8GqD/leSvSnbx1Wskyuz7vmOnncibdSnRD2ELX9awg3D8PZI2WmE0ze
+         vyupCWAH/M/khs3g5+eB2KMH+Z+CBY6EqbtC8F441s4dVq2v0Y+yVyTPf8/muyZTgsVD
+         dXpPEueRREBaxYs4iAJfDYLPv8fvJdM/XTKJw6c54mZhCrqimgp42fL5P8KQDjst2ghy
+         yOT+kbqigZ9echn/qCTXnSR7H52yB7tJMyKcRIpZtMHF4c2v1oRLgBDHucR5AvbeLxtl
+         ocOA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790191915; x=1790796715; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=/DNIFWcjtuouHSaeA/JNYdwTzI6jvMMdtjjAkJh4jLc=;
+        b=VWC8bNOf71ID72REjBUzQ4clSD2YXctJBIrFevFhP5uLFbLoO2q/qWIsOAmu+Hsbfi
+         0KvEhlfaBNzSHFntxcUkzyTFtl0BpyPSno2uZ6FTe95kLVrqfb4QxZ3b5ArTa+b2wIPK
+         ExgvbYKBUr0iB+mcn1sN2ie8PLsSA308c35dnf/EphZBI+p+HIrgKwHE+jZtbDiuMf6I
+         xvhvk/KxzTWBdEVfCngKy3g1Eozs12/0UeeaPXzs5VFT9SkSImDusQHBGWPp08cnFLWv
+         tRr0129+3J6al2X07ArtK7xNmSfgF4HpkUrFKDmICZGEznzua4gkxwU6dN9cruYcXMCx
+         20Zg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790191915; x=1790796715;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/DNIFWcjtuouHSaeA/JNYdwTzI6jvMMdtjjAkJh4jLc=;
+        b=dJioe8OqRcJcg0BgbU8AyQmRoNUXukfDvZUMEXH3bLddEvGUFw5VUR/OuLRBAdUJWS
+         HsJCCkl1kfsdeDKhEMErPIQGHYmXPrmwQxFiwTCuIYhL6qqaKT4mrLDnDLMlSVGDWSWH
+         +AxVJje0qbpjDN1I8b7CejZqNK7b7g5v9Tt36ncMd5gAah4BiOySs/6SC93sBpBsz4Ck
+         U6KGA2OOlYuDUa3aZ6gAMr+RoX8+oZV9ue+rH+OyAMPPjALchUyBObPuuIuPSFjWiEh7
+         nOJF/9N5UKMiOiFMWKXpCG6IAF7UfldYutS+5lmrLvJxr3V5Z8bx1Rp8K/F1kdiVYTBv
+         iEdw==
+X-Gm-Message-State: AFuF++l5STxleRdCPFjeH4TxR9lkx4hS7QpPVU4tqyLnk1/b5kbxSqd1
+	da12fZ0nbYwulUCMfdd0svr+cQqbZ5J1reCcMlN1DxNkLC6tCLNP+AAtSZz70nAt/QX/w+TX2+p
+	fWM4wljaw+ifS1CekPAAV3tFoE294PMQ8SmD+
+X-Gm-Gg: AYBFou2ySHi7XuCsSG3D73Ngnz5p1R78Fh7tT1ezA395Q4+VqBXY0m8V99T+y2ms9lt
+	PUlHLor7H3jRJYd9LEga5zXSLEX9RGBlQPPlKI16Cb+Bb2Scge2/oBag2c+one2JuvS/dTr/nYS
+	W7zRhg6Vut7CRyHVm1zGeSjnMxd+3SMyZe1NRBwpM72p5D3Fwd1RAZMD6wfe0W+VVgx5K5PwulM
+	AAGqRG0cxLzNurvpGrjs/bdtJzz+mIPybhBMDjDzaXzMBUg38MvGz34xpFxXtGgAWXQS7IsfgMQ
+	mGzaKa4Y/CvjJg4bNty7jXPl/2zzovZjh4q/Ww7E/exTSO80BiXDEduKlPXIGxi9Yg==
+X-Received: by 2002:a05:690c:e20e:20b0:89a:63bc:8d3 with SMTP id
+ 00721157ae682-8a64e5e5312mr833967b3.93.1790191915527; Wed, 23 Sep 2026
+ 12:31:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-2-4583d8a23bca@kernel.org>
+References: <20260923155617.56593-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260923155617.56593-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 23 Sep 2026 15:31:44 -0400
+X-Gm-Features: AclHuK_n0tp3MIpRM11Vz3kY7h96bQctqaB0F9sE22wJ_v01UfD3UrxizUFPTVE
+Message-ID: <CAEjxPJ7hDTgHOGZ-OK=9Vu3Tuy6iEFO7JnFSwSA8iCVvcYi0dQ@mail.gmail.com>
+Subject: Re: [PATCH] policycoreutils/scripts/fixfiles: search fallback
+ configuration roots
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Andrew - please drop this patch from the series, I will send a separate fix for
-this to go into an RC.
+On Wed, Sep 23, 2026 at 11:56=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> fixfiles reads /etc/selinux/config,
+> /etc/selinux/fixfiles_exclude_dirs, and constructs
+> FC=3D/etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts
+> directly. On a system where the SELinux configuration is shipped under
+> /usr/lib/selinux and /etc/selinux is empty, config is not found so
+> SELINUXTYPE defaults to "targeted" regardless of what the vendor
+> shipped, and FC points at a non-existent path. setfiles takes an
+> explicit SELABEL_OPT_PATH literally (only the no-path-given case in
+> label_file.c goes through the search list), so the setfiles
+> invocations fail.
+>
+> Add a small selinux_resolve() that mirrors the /etc/selinux then
+> /usr/lib/selinux search that libselinux applies, and use it for
+> config, fixfiles_exclude_dirs, and FC. FC is resolved independently of
+> config: a vendor config under /usr/lib can still be paired with a
+> libsemanage-written file_contexts under /etc.
+>
+> While here, move the two mktemp calls in diff_filecontext() to $TMPDIR
+> instead of alongside FC/PREFC. The scratch files are diff
+> intermediates whose location does not matter, and when FC resolves
+> under /usr/lib the directory is read-only. Creating and using the
+> intermediate files in $TMPDIR is safe because the caller of fixfiles
+> is trusted, mktemp usage is race-free by construction and creates the
+> new file with mode 0600, and the sticky bit on /tmp (plus
+> fs.protected_regular=3D1 on systems that enable it) prevents an attacker
+> from replacing the file between mktemp and the shell redirections.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
---
-Cheers, Lorenzo
+This has been merged.
+
+Known residual references to /etc/selinux that do not have a fallback still=
+:
+- mcstrans setrans.conf Include=3D targets (literal string is passed to
+glob; if you care, the vendor-supplied setrans.conf should specify
+/usr/lib/selinux prefixes in its setrans.conf and any child configs).
+- python/sepolgen /etc/selinux/sepolgen.conf passed to PathChooser()
+by src/sepolgen/defaults.py but degrades gracefully to hardcoded
+SELINUX_DEVEL_PATH.
+- python/chcat/chcat direct open of
+selinux.selinux_translations_path(); needs a SWIG wrapper for
+selinux_policy_open() to fix and only fails for chcat -L on a
+vendor-only setrans.conf.
+- gui/statusPage.py does os.listdir("/etc/selinux/") to provide GUI
+dropdown of available policy types. Vendor-only policy -> empty list.
+
+None of these seem like blockers to me to move forward with
+vendor-shipped policy under /usr/lib/selinux but I'm also happy to
+take patches addressing any of these if someone cares enough.
