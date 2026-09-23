@@ -1,170 +1,232 @@
-Received: from mail-yx2-f31.google.com (mail-yx2-f31.google.com [74.125.224.159])
+Received: from mail-yx2-f42.google.com (mail-yx2-f42.google.com [74.125.224.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05AFC53358B
-	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 13:38:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FB9323417
+	for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 13:42:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790170720; cv=pass; b=XZmkOhiU0XT4zjusqCQjmJb604O6PHoxHPgtF5RO+0+67KPd2R/q/XursdP0sU18a9va0QZyGBxMBwFaHDpgMLBRuXvdwddIO/muDf5MAWr+d+9JgC5dV+FOTVtiNTPCbQCWWEIPgZAQiF2uwkNEff39m5nZUG1aivNfhx9Jg1o=
+	t=1790170949; cv=pass; b=pCmRkAYo/dqipVKDSGkRQCiO3cvfQEMuzAsHjzeWGfk/nx2J0CGeY1xPt3mNOEnVaXlSUgGC64VI9kSB2nuQf/4U6mpbJETVAzOs6k4IWSEqEswkWcfqoKvmpFCPj87H/2RvF04a/01q3t94dAhQ5FgY8vGu2C20UDazJRSMSS8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790170720; c=relaxed/simple;
-	bh=GnrP3GYKnAZvOYa/VZOv3xHdL1BrhKzA1AssQAKBOno=;
+	s=arc-20240116; t=1790170949; c=relaxed/simple;
+	bh=1lLKi/f+6pd9BnVseGlU1GvuU7fFQfulZrjKhr7mzKo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nRhdIaihD69tduFPhbcKVzzjeOZLfZf7ku9NC5d2e+/Y0dzstwb4cnAGut6HpE+sKt5Le03s+D0+MFvn9i4CLmGrUYH9d45ZpVYPu0SMyj4FGSmsQjSNuh+cWW1iYp3VmmnK+5KQKy4778xr6NsUo8VNVaQYO7Lbk0DFlprX44o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sctMWTpu; arc=pass smtp.client-ip=74.125.224.159
+	 To:Cc:Content-Type; b=qEzuifCsOlnFulUaluCUkyOHRSKnRuODsTwWKkpOpKgFJon69CiQkkBQDOscyqShELD5jZQvszmBbF9qLkxpg10jCUv8Qx89m/iVoPgzzz69yZtMUTu08yCSZAH+vUqRF2nsVs80I2taWogI9LZlyYfaTHb+0HOc38AQU+X7zEs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A3gy2P4F; arc=pass smtp.client-ip=74.125.224.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sctMWTpu"
-Received: by mail-yx2-f31.google.com with SMTP id 00721157ae682-8659af7454eso14667057b3.1
-        for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 06:38:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790170717; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A3gy2P4F"
+Received: by mail-yx2-f42.google.com with SMTP id 00721157ae682-8a45b788a71so8335487b3.0
+        for <selinux@vger.kernel.org>; Wed, 23 Sep 2026 06:42:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790170946; cv=none;
         d=google.com; s=arc-20260327;
-        b=l4ADTG7KUHDq3UqhqWqQPstpaF9cW1ZJ+sbXrDhD5b2hX5EDOf7lE6P+yMTJLlBaPh
-         5NwHdZksoRAPS2UuYw7jorvuQSfNb+QVkYZwQu+o35yK6+Wv+g5vQ8r1TwOLdHhMJ5co
-         1tJVaBRycRkx1uer0wym6uSnSPhwO/2Icwj9FMS4VkQ4ySAhM9CH7jfstpcPtGiXBCHi
-         vnpPpwjSUgklIOqK3dZKrZbJagLY/9JMU+L4i9+Rk1osp5P7ugwq42Irz4e1PSU8Gvgp
-         ZBt0UnyJHpI57ez3LMHnXf+xrMagCvfKc0fT6wEuXoeiD9NF0qxYGi6AA5dvBj+DgwWd
-         srNw==
+        b=Mf/DKKTOL3+1ZHdtpx4rmcaf1an6CH0mPYHe0ELsO1AbT3KZv6IT6l5pyOkVTEmlxM
+         b0K7qIIp2HfWpNWPOw15oSdN3WAUcdOXsIdoLfVYO894AzyDpJH/j/Gojv3yY5FdgXIW
+         PCrdQ87GeP7hLriERm0QRYlMpEGLI6PQL+rJemT8m+6auPpKY7xvTBP8MIILOnmbsixa
+         ShbK9piHVkv0I/+yjGDHSLZ/BDcnsrG+9/tSLTXeBA2SNkuQB+AlGAxaNP94zI669k7/
+         EvI6G1mltrxfSlLdgyMQWY6HTrvyJS2A+/LEl+yqU2EvqS+2t5Ts7gSG7XmspbACzLoh
+         26Qw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=lCGQX/ipzcOOeMxRbp6wRlqqaTDM53LN4+s6YuTWBxs=;
-        fh=umc3Nr61JguynosSZv6Nt1t3DnezwCIDroWR11qQrsc=;
-        b=BRH0LemhdoqfUz9U5zGuGuBuvkljL/EEnRlIUGJj6Zd6bpnZvbidUa42zoWCNa0bZN
-         tEoPgNtoM950+ItdQ9sJLyBSx/XNi1UAUznF9IkofaKCi9tNIoI/sty9fIDYto+0xSxu
-         WiKgvly+xZ2G4SD1IbsRsSrMvbeIVlR0ePAnIVlKnirRgckH9cBHoo7dayNw1GEBuvUv
-         SuJcvf5R6ws9xLdn/SeYzteQySUF243qeRroCybN1ua3aKag6mP5dvoVKSs/pTmgFTf4
-         3Lvlk2kfoqV52Ni69CBmhf5cBQgJzdbi3lTqlR3jhJ54Tbky4W3xEHt5Ml1/wVRmY+CY
-         q9vQ==;
+        bh=owdAext4fTg7aEyGyJByoEuNPxjgErvBCEiFuB+Ekro=;
+        fh=A0YOLGP9HbGE+1PJzcfoTIxl+c5FEtO7hvAJYzsryIY=;
+        b=NgsvAFCwhKw6yhQhnaAaYARK+py1WldOMLTR7WY2KGsAXgNCMneXekfx23W7lVlw5K
+         GkbMGjK+L3dcQpx7B3yf7yygL+IoZ2FXUoTy2bQoMQO1vaNlngwoYYEXwPdxkbMdx98p
+         j9bh1yoDg1fjkoUMsFi066jOUAY7C4s4qB88DFwYGF09//PnypEfMT/1B+n9TszNFrLS
+         A5OqBPStdMnvc2xAy1sI7H6EcIB2gRVTl2YeTU04JtBBQ39XwXkZBQ3IZTQrlCbV6EUW
+         FRDryKeEqGLfXaaX+oSLuKkd+L1fwfc7lMgMUQ0SEmYW16sdN/LrU8yG5pCNcZYPjhHm
+         osAQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790170717; x=1790775517; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790170946; x=1790775746; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=lCGQX/ipzcOOeMxRbp6wRlqqaTDM53LN4+s6YuTWBxs=;
-        b=sctMWTpuMvOKIHQ35N4Uaxu8fw9PKZz7fs3W3KIXArPBzuZX/V+F/EaG+ezVz8dzoq
-         Q5gEEZpvXSFNpnZ56KpU/gig4e87fhdAh78rhY36VCaVjJGPLxSk1HLytMApjRdRIVkt
-         fJAfqUMHqnLcDh0Qeob8BLDhkxVAWHLUWCdAQadRVg/RHhrpZoqLRo+WCQI5P+EXLQbZ
-         b3UeKBcC95409iS2sWhNaEun8vyNT++YwzA3VG4ygqHsxoY+xQ0ifSbZSN6wcfXYTnSc
-         RM+x0acgEYSRTKc1So/be3Ds1WamGPt818x+a7BMfc9y9w7eSBWniMUCOcYDF3t0UcSH
-         ctIw==
+        bh=owdAext4fTg7aEyGyJByoEuNPxjgErvBCEiFuB+Ekro=;
+        b=A3gy2P4FgCxp5c02Jv7hG/j2UdTGniAlXR8mFB9ArA8+j0hw8vq3xq/yvBRcwrxid4
+         tOvQUOWtp2U228xboYuCohk/n75t99061ncIhNL6VwTfbzTaCdcliuXwxjh5Ri64S2mI
+         00QW2M6uluhKwvAoVdRmULHAxDw+Vu5JbwflA7hB5m5ILYt0gUHQoIJ7wvxWFqn5H72e
+         eh9K4FfpgDpkgEJicA13avxuyp6s6JXLsWps6h08H1o3XQqGNvRCSsQUJQVtbOB3RBjK
+         uIAS+8groDpX7YJxcaVHcspzGgMUtfCq2/y60hXPdgoX/fDFaQUXLwCIcVdgP2s+Mnhp
+         QqSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790170717; x=1790775517;
+        d=1e100.net; s=20260707; t=1790170946; x=1790775746;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lCGQX/ipzcOOeMxRbp6wRlqqaTDM53LN4+s6YuTWBxs=;
-        b=O1puZDpkLFufUzG7bX1BxT8K6I4vQwAkGNE90HBZCI6Uvv+JSTm0d9vV0qUNg8ePtA
-         zauzlWoO9o2x3sxAUYQ52ZjeJGUEbngNiQQPJULj8vuUhb6pJ/P2/2eFzKvgpuEnq9vk
-         s0v6wQskF95n5FVZKsjENyJzbBJ0YaYwJJiJ3AMD7UIEnZ+ormwHXJHwqYQu8ICgl3tD
-         rNbZMSACgtyzcLqn5mdZG4bGFREhF81f6jLNWThdX4wQ/k8fUtVbaJcZwmz/gfWHc6ub
-         5ty+wP+JN1LJq1W2tuOTqq8OzEM8CiIWp3sYjhPZzb6Xn6VG1GMO17/3vnZ/Xi3c9DAE
-         RhaA==
-X-Gm-Message-State: AFuF++mDGc9uWj8/WEm7KKtc0+enwBDei1E2mNtI7E1HrH2Shl+9nvrG
-	gmo83sZc4D7kH9kP+WDe/rvpXoAkVC4LvkrGjkhZaTsC90gx1D9f2sTNTmztk3i6xalfVbcd354
-	cM4gIIEAFAAnayRDDQyKcSR3kOdeNz2g=
-X-Gm-Gg: AYBFou0buhYaWRlH40rMbti+NJ1O8wM1b06lDkHBFsQRgexrI+BMd+Nh+xdbP62k68l
-	W3GZwR5EN43Wpee1mX0bD1MLrrIuErubKngHb6UP/vha7vmorFLszCng07PIeqfJMFS2q0awl5O
-	Ry/ObKYmA4X8GUWFXstSHKEPVgrpnH5+nwhWbYIXZA+pYg6NvMF00Lf25P3oosVeVpfvRY9w6i4
-	sVLU1uHqgDuRGtdICnXTlmXhPtw+rQT7mO1rktfw6XeiV0itCAJKHfx45O4YLVQBp9RRT4TS+UZ
-	28i71tulPZg2M0EaC0X2paAppOlzjgDaxrj2BUF13tC4Ga5o7VxMe8c=
-X-Received: by 2002:a05:690c:9985:b0:873:5c0f:295 with SMTP id
- 00721157ae682-8a45c4620a2mr16644897b3.63.1790170716700; Wed, 23 Sep 2026
- 06:38:36 -0700 (PDT)
+        bh=owdAext4fTg7aEyGyJByoEuNPxjgErvBCEiFuB+Ekro=;
+        b=zEsCYLgPqz0bcduTRdSJmth6gohOQmckN3YUj9krFqSLPpBcXJVV4tT6K/dF1i/qXK
+         LMK8wSZBGH3fjo5fRKKOV/UZ5bt2DHdXrYapQa+rSMBYkdRvHRJ9trkPoO0iZYLSYTPb
+         aDd33/Hxh8+xz70WUz7hxM9rLdMX4sViZAIo9OJwiufmz/81a0pp2OUfxnIEuhVrBm/d
+         3a++qXKIOIB8okHBXZBQk3JtbhhrNhtCXU4AOxSqq2Xopu71dusoZQT6trh1AWuO4tRt
+         9YwgfExtBUu9kCCx743FegXWGFd1HI+iYCLmTF6HmOYK55wepXHDr6gkLtmW3SJ6bZjK
+         FUvA==
+X-Gm-Message-State: AFuF++nyZlabvL3BLlPveD0dDIK8TKAzZKP30tcUbWV9iUOd+8OnYxmE
+	U0QYhmP1oYWSm/AXnUph2fA5t+TrGxzO+e+i10ShlhW0gkbhSikmMlpiO0q5ZUHzcNnOmO5J7PX
+	z7005bsjHeyZ10bSbzUBgMpbO7fiFjjvJ+A==
+X-Gm-Gg: AYBFou2qT8VhDwr78paHtaCTTbpYGiQcGcOZisVDpxolRO1Ax4w2vsVBMV3q6OK2kVA
+	V0yLGKtUMaQXz5LNSjzXJd42IrHpg7iTPeySk5hHO24oCgyFwZOGzMqqE529K+0x/iJ0UZtXRg/
+	lJEWEOwc/Lsof6i5epSjvT7Ka64xVNmWHIg+Cc+XpEzG6xAWjSX+fKdHYNZfyaDd5LDHw8IfSGs
+	yhmBLm8xWMpK/UBEGrPz8MMM87Fuo5u9r5NbEbDRtV9mdKMddIsUSpoUpKPF3UxZtEqEIm9NqRY
+	P6HZsjYxRRJbKjUtZIiEU0EQZ2UzyOoFG7zLAL1HnKXjvCUmpMsFVzY=
+X-Received: by 2002:a05:690c:281:b0:873:5c0f:299 with SMTP id
+ 00721157ae682-8a45c45fe76mr19591207b3.67.1790170946507; Wed, 23 Sep 2026
+ 06:42:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260923055823.3567355-1-inseob@google.com>
-In-Reply-To: <20260923055823.3567355-1-inseob@google.com>
+References: <20260923101956.3005420-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20260923101956.3005420-1-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 23 Sep 2026 09:38:24 -0400
-X-Gm-Features: AcwNN1X12J2r3BB0QloSH3riVG9L8XTPZK0QTB8Ucu4CjCcSJZCboRWr6ufDQ_I
-Message-ID: <CAEjxPJ4TGBbZZGOSPm14c0K+ZX-22ve9yK+zwDSH9aeu8sv6Mw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol,checkpolicy: add --multiple-decls option
-To: Inseob Kim <inseob@google.com>
-Cc: selinux@vger.kernel.org, tweek@google.com, nnk@google.com, 
-	James Carter <jwcart2@gmail.com>
+Date: Wed, 23 Sep 2026 09:42:14 -0400
+X-Gm-Features: AcwNN1U1oSLpmxGdfHXjGNa35l_2p_wnYjh-Wv_svFTIeM11WAAWmKoMegMoeC4
+Message-ID: <CAEjxPJ5PPzRBydR-d7nzmBKNq4bivmz=1C9tHyOGstXy+RM=+g@mail.gmail.com>
+Subject: Re: [PATCH] CIL: misc doc updates
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 23, 2026 at 2:02=E2=80=AFAM Inseob Kim <inseob@google.com> wrot=
-e:
+On Wed, Sep 23, 2026 at 6:33=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> Add a -m/--multiple-decls option to checkpolicy, mirroring the option of
-> the same name in secilc, which allows a type or an attribute to be
-> declared more than once. The declarations are merged into a single
-> symbol whose attribute set is the union of the attribute sets of the
-> individual declarations. Without the option a repeated declaration
-> remains an error.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Policies assembled from several independently maintained sources may
-> declare the same type in more than one of them. secilc merges such
-> declarations when it links the resulting CIL files, but checkpolicy
-> rejects them when the same sources are compiled in a single run.
+> - mention self as supported target in type-transitions
+> - mention the special behavior of `"*"` as an object-name for
+>   type-transitions (means NO object-name instead of file named literal
+>   asterisk
+> - mention support of extended permissions in conditional policies
+> - mention requirement of at least one branch for conditional policies
 >
-> symtab_insert() already permits multiple declarations of roles and
-> users, so only SYM_TYPES is added to that allowlist, behind a new
-> policydb flag. Nothing else is needed: create_type() returns the
-> existing datum when the symbol exists and define_type() sets one
-> attribute bit per declaration against it. Using the same identifier for
-> both a type and an attribute remains an error, as does a repeated
-> declaration of any other kind of symbol.
->
-> Signed-off-by: Inseob Kim <inseob@google.com>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+but see note below.
+
 > ---
+>  secilc/docs/cil_conditional_statements.md | 6 +++++-
+>  secilc/docs/cil_type_statements.md        | 6 +++---
+>  2 files changed, 8 insertions(+), 4 deletions(-)
+>
+> diff --git a/secilc/docs/cil_conditional_statements.md b/secilc/docs/cil_=
+conditional_statements.md
+> index 9afd4153..ef669eff 100644
+> --- a/secilc/docs/cil_conditional_statements.md
+> +++ b/secilc/docs/cil_conditional_statements.md
+> @@ -46,7 +46,9 @@ booleanif
+>
+>  Contains the run time conditional statements that are instantiated in th=
+e binary policy according to the computed boolean identifier(s) state.
+>
+> -[`call`](cil_call_macro_statements.md#call) statements are allowed withi=
+n a [`booleanif`](cil_conditional_statements.md#booleanif), however the con=
+tents of the resulting macro must be limited to those of the [`booleanif`](=
+cil_conditional_statements.md#booleanif) statement (i.e. [`allow`](cil_acce=
+ss_vector_rules.md#allow), [`auditallow`](cil_access_vector_rules.md#audita=
+llow), [`dontaudit`](cil_access_vector_rules.md#dontaudit), [`typemember`](=
+cil_type_statements.md#typemember), [`typetransition`](cil_type_statements.=
+md#typetransition), [`typechange`](cil_type_statements.md#typechange) and t=
+he compile time [`tunableif`](cil_conditional_statements.md#tunableif) stat=
+ement)).
+> +[`call`](cil_call_macro_statements.md#call) statements are allowed withi=
+n a [`booleanif`](cil_conditional_statements.md#booleanif), however the con=
+tents of the resulting macro must be limited to those of the [`booleanif`](=
+cil_conditional_statements.md#booleanif) statement (i.e. [`allow`](cil_acce=
+ss_vector_rules.md#allow), [`auditallow`](cil_access_vector_rules.md#audita=
+llow), [`dontaudit`](cil_access_vector_rules.md#dontaudit), [`allowx`](cil_=
+access_vector_rules.md#allowx), [`auditallowx`](cil_access_vector_rules.md#=
+auditallowx), [`dontauditx`](cil_access_vector_rules.md#dontauditx), [`type=
+member`](cil_type_statements.md#typemember), [`typetransition`](cil_type_st=
+atements.md#typetransition), [`typechange`](cil_type_statements.md#typechan=
+ge) and the compile time [`tunableif`](cil_conditional_statements.md#tunabl=
+eif) statement)).
+> +
+> +At least one `true` or `false` branch must be present. A branchless `(bo=
+oleanif expression)` is invalid. Extended-permission rules in runtime condi=
+tionals require a target policy version that supports conditional extended =
+permissions.
+>
+>  **Statement definition:**
+>
+> @@ -170,6 +172,8 @@ Compile time conditional statement that may or may no=
+t add CIL statements to be
+>
+>  If tunables are being treated as booleans (by using the CIL compiler com=
+mand line parameter `-P` or `--preserve-tunables` flag), then only the stat=
+ements allowed in a [`booleanif`](cil_conditional_statements.md#booleanif) =
+block are allowed in a [`tunableif`](cil_conditional_statements.md#tunablei=
+f) block. Otherwise, [`tunable`](cil_conditional_statements.md#tunable) sta=
+tements are not allowed in a [`tunableif`](cil_conditional_statements.md#tu=
+nableif) block.
+>
+> +At least one `true` or `false` branch must be present.
+> +
+>  **Statement definition:**
+>
+>  ```secil
+> diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_st=
+atements.md
+> index 541b9be1..704722c3 100644
+> --- a/secilc/docs/cil_type_statements.md
+> +++ b/secilc/docs/cil_type_statements.md
+> @@ -487,7 +487,7 @@ The type transition rule specifies the labeling and o=
+bject creation allowed betw
+>  **Statement definition:**
+>
+>  ```secil
+> -    (typetransition source_type_id target_type_id class_id [object_name]=
+ default_type_id)
+> +    (typetransition source_type_id target_type_id|self class_id [object_=
+name] default_type_id)
 
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 9716f5f..9e0eb72 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1456,8 +1456,11 @@ int symtab_insert(policydb_t *pol, uint32_t sym, h=
-ashtab_key_t key,
->                         return rc;
->                 }
->         } else if (scope_datum->scope =3D=3D SCOPE_DECL && scope =3D=3D S=
-COPE_DECL) {
-> -               /* disallow multiple declarations for non-roles/users */
-> -               if (sym !=3D SYM_ROLES && sym !=3D SYM_USERS) {
-> +               /* disallow multiple declarations for non-roles/users, un=
-less
-> +                * the policy opted in to multiple declarations of types =
-and
-> +                * attributes */
-> +               if (sym !=3D SYM_ROLES && sym !=3D SYM_USERS &&
-> +                   !(sym =3D=3D SYM_TYPES && pol->multiple_decls)) {
+typechange and typemember share cil_resolve_type_rule() so they also
+accept self.
 
-sym =3D=3D SYM_TYPES can also be true for type aliases.
-policy_define.c:add_aliases_to_type() case 1 was written for the
-require->decl path
-(turn a required stub into an alias). Under -m it is now reachable
-from DECL/DECL and
-does existing->flavor =3D TYPE_ALIAS; existing->primary =3D <T>;
-
-    type TYPE2;
-    allow TYPE2 self:CLASS1 PERM2;
-    typealias TYPE1 alias TYPE2;
-
-secilc -m rejects this via cil_allow_multiple_decls() f_new=3D=3Df_old
-(CIL_TYPE !=3D CIL_TYPEALIAS
-at cil_build_ast.c:151. Reverse order (alias then type X;) is a
-harmless no-op; create_type() returns the alias datum with
-flavor=3D=3DTYPE_TYPE(0)=3D=3Disattr(0), define_type() has nothing to set.
-
-Suggested fix: mirror the SYM_ROLES flavor guard in symtab_insert() -
-add_aliases_to_type()'s
-incoming aliasdatum has s.value pre-set to the primary's value whereas
-create_type()'s incoming
-datum has s.value=3D=3D0 from type_datum_init() memset; reject
-((type_datum_t*)datum)->s.value !=3D 0
-at the DECL/DECL_SYM_TYPES branch.
-Or refuse in add_aliases_to_type() case 1 when the existing datum's
-scope was already DECL - but
-symtab_insert() has already flipped/appended by then, so the former is clea=
-ner.
+>  ```
+>
+>  **Where:**
+> @@ -508,7 +508,7 @@ The type transition rule specifies the labeling and o=
+bject creation allowed betw
+>  </tr>
+>  <tr class=3D"odd">
+>  <td align=3D"left"><p><code>target_type_id</code></p></td>
+> -<td align=3D"left"><p>A single previously declared <code>type</code>, <c=
+ode>typealias</code> or <code>typeattribute</code> identifier.</p></td>
+> +<td align=3D"left"><p>A single previously declared <code>type</code>, <c=
+ode>typealias</code> or <code>typeattribute</code> identifier, or <code>sel=
+f</code> to use each source type as its own target.</p></td>
+>  </tr>
+>  <tr class=3D"even">
+>  <td align=3D"left"><p><code>class_id</code></p></td>
+> @@ -516,7 +516,7 @@ The type transition rule specifies the labeling and o=
+bject creation allowed betw
+>  </tr>
+>  <tr class=3D"odd">
+>  <td align=3D"left"><p><code>object_name</code></p></td>
+> -<td align=3D"left"><p>A optional string within double quotes representin=
+g an object name for the 'name transition' rule. This string will be matche=
+d against the objects name (if a path then the last component of that path)=
+. If the string matches exactly, the <code>default_type_id</code> will then=
+ become the new type.</p></td>
+> +<td align=3D"left"><p>A optional string within double quotes representin=
+g an object name for the 'name transition' rule. This string will be matche=
+d against the objects name (if a path then the last component of that path)=
+. If the string matches exactly, the <code>default_type_id</code> will then=
+ become the new type. The special name <code>*</code>, including the quoted=
+ form <code>"*"</code>, instead produces an unnamed transition. CIL string =
+literals do not process escapes, so a literal asterisk filename cannot be e=
+xpressed this way.</p></td>
+>  </tr>
+>  <tr class=3D"even">
+>  <td align=3D"left"><p><code>default_type_id</code></p></td>
+> --
+> 2.55.0
+>
+>
