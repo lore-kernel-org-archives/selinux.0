@@ -1,147 +1,136 @@
-Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
+Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCC332A3D7
-	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 17:17:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C20C54C4F6C
+	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 17:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790270253; cv=none; b=uXpEGEfDXrahthC9wtbhHmDpsJfI4JuFIDOcG8jhWfeH1/UdxxgGsXrOPpWRCT1FlNLNGmy1kU8t8ew1kPK1KAPhyHTMQjd3XyLOU6nOx5qjd7mHEfLLwsefjyzj8fh5zcl9Fjrqa/FJ9K6wkIXF+YTMc1avmAxTxbtsnMmTEIQ=
+	t=1790271282; cv=none; b=iSzJlfxHMG4KnLd6zUIbcUqYtqBmZ77m6hquyPCs6leoBfSWqE5OglfyNwansW7YskrTzVVadt2dPeyLrsa61vBSG1AAcXaMgCbwCjiLmNwUXzuSIq70+yh3fcsty9D5o4WIzbnRVPJW/DNFMfsj4kcMiaW8s0Se0TlaKd4xKak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790270253; c=relaxed/simple;
-	bh=N9G2xDWLJkhjpVHjPudlC9eB56JQvy0Q3UFpvQ70GnM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=H433k9nZ7WItkhGxf23c2Tznwfg8Zs8lW8P0+w0t59YNLvVsr7i/wcOgVywW/NeEzd05ub/25rrplxZYlx7ILrDWiWhrzZIlkgwkDOrevzwyIAHpLqTdeG+ybbko5EhVLVu8y9FXARph8Qg6lnKrBdcGU0OBOqBZULYh9CPSW1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=tprV5yBU; arc=none smtp.client-ip=74.125.230.204
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	s=arc-20240116; t=1790271282; c=relaxed/simple;
+	bh=5ncVrUKmgn9ZPdjhwYaSJwjgH7fXj30/KdYGD4FIwd4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DHsqStpJWbjQ0gJzYkLbuiKk8gz5Gs6BmcL8BuUmh9q3zOXkQjMhv74NpwKSKGFA1gKCyVzKo87dFCXtl0F6kUw4qsIeRDlyglMlCy3r+VCD+YEM8JifUrFXcjayg9N2VwSr+CIuAD0efSBck3Hg9+1Snt25flg9c27uXfNYQ0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UuIKBZXF; arc=none smtp.client-ip=74.125.230.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="tprV5yBU"
-Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-530e28a62abso911231cf.1
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 10:17:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UuIKBZXF"
+Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfcbe208so1343216d6.0
+        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 10:34:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1790270251; x=1790875051; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=feTLx7y3sxZ57LB+c+M8YbdddVhljMzyHzPRAu6TpA4=;
-        b=tprV5yBUII/qRzLyqKPdJDICtcHMIXdxXt3R1PhRppTAqbBmNEs7Uqtgc/IauT7bas
-         6q+btZ6riiYDfPxMNxJ9LlKIzVy4E/rMZS8FF2kWFWhC/RTZ0m/dLDIeIJEc6DmgUeKW
-         rRe5l+D4Gb5EgFoh0bNUVpRhgcRfueygz54BCmywUEAofeJDIrYo8R8bOOlnVVhbm8Xx
-         8y1PvkD+okpXc2BYxVcdIyuBwaEwabsdPE+xSDWc5coaNizNqVaWAFRlWZ+CHrBLXEHc
-         +ibea7n8Gc0GPrQRe/RTIUKy7LATsQy5mAZvm52IfaGHNyUnZEVBqjo1InS2m+tWjzj5
-         xc4Q==
+        d=gmail.com; s=20251104; t=1790271279; x=1790876079; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=I3R6mI+bCnxKTja03qZL2tI8HrKCPUv9eL20iDYlD5U=;
+        b=UuIKBZXFlPIwY6R0ETRUauezD5JrfgSzv2oAM7YwPS6jf7acG2hhpjKPSQ8r2jYDlL
+         tv0TRoxDAEkSpWyFbUyU6/fQFBN1wEqjwBf0ZxC7B2KAuxtBDHo7y7QDH4aND7BHjKLU
+         mi0aJ76kro0/EB7wB0yjpSTbC5pDEiI7nL/zVZ2aKmmLDnzO1i0e3IkCa3gVdq6W2dvr
+         5RIGzSlm1UrWjsVMTOB/9KSIKez7S7r69jx//6FG2iTHVN6h2nWvMmgf/XjGmTVyU+9G
+         UZbxd/tBqmGW9vzfbYwh/h9ODXvxtYxtLhLG2GhgEad+d51DpqZ4kuWWmoRFjTPk2IPH
+         Ex0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790270251; x=1790875051;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=feTLx7y3sxZ57LB+c+M8YbdddVhljMzyHzPRAu6TpA4=;
-        b=HvyVqMeSVtu/J+3C85P8D3pKPPVM5qy7N6wD0g9njQHasauTTl1IMXOVilLXTPs//N
-         M4QJjuEt8VSg5ubK5YKetsho47zrIj+p7Zg94o2yS7EydzTWgylOyG8lnB9jY1C67JpZ
-         AhrnL3W9UglSlbam8Mbd0nz27ka6L0fGIpNFMS2olS8CAMNU9uPCtqtp45I9FTOoiEIJ
-         3SMcdHiacNYVTc27Fu/TA5CgyfHsKLVyOTgzfQaGmhJDuQ+nWxXCjHQfg2Xht1WNF9rC
-         qNxk8BPMimA9m4XQSyfUrYnKK/4T72q9fRItCTxgoEUweFwfLhVfKD8rBJd9WlYPNIm8
-         QU3g==
-X-Forwarded-Encrypted: i=1; AKwUvByir1xm/4PTnUREF1zSU15qDVRVk0nuqlLidpplLd47YxCy1m/ZzMJd9QOW1fCwiGKPiraWNw2l@vger.kernel.org
-X-Gm-Message-State: AFuF++k1UufYZwqDxaZ10w/1F/xPFK33aDsNnSAquUFAV4D+7rtMigV8
-	uOu55lS/BzB3CZKsz/Jff42FAcqrVHgyGJf5kzCsPNDcfLfYLVdsjLn4bTPrSDD+AaI=
-X-Gm-Gg: AYBFou3hmnJ7icE6UARIbM9ktb88Xd+LiIj0qmCmol3wifKd/7BfPJECJ579D3/FyB8
-	orsdV1udOXPeExSQLxpFx459nTkd4R8K/hWpJVUa+RVW4hBRzL1aL7BhMc/Z3t9RIY4P3HB1VET
-	46FbrHeOdlPEdOqILLKRzvqU5jIXgho6N9wNCM9cHZpNp8mvwRjGGB8HgKmvy38MES+avQ78Mw/
-	UXMgBqg7jo/6xqEhb2oQTduy7ZODYFyiuPeA/yvC8MjmQVjU5/Wk/QO7HX2a2rAZmKRI3cZboOQ
-	QRjUmlPtf3dTH+xXl+jWQco0xqBZdlnsWIvXdQ58u5u+1JRwNCG55GqLeOquLVVKBRhk15T/Zfc
-	NthvfDgyMUvkbYDdawKU2MjSW4GCpPZXEe32oGtL5auDvBYtixR1vMamMLZuamtfx54sVHFG9G7
-	as4nOp0H7IUkc9gvI5W1hZO181MyyerJ5SG8nYuE84GL+HXTTZUX2Cxn34Dy+rraW4HZ+AWTAX5
-	SJeS7nIdsZY4tMw9B9oO4WIH5jbLecny2iVMwmKYCcKQYih3tCIwhQ=
-X-Received: by 2002:a05:622a:2b05:b0:530:42e4:f001 with SMTP id d75a77b69052e-532feb3025amr31555731cf.46.1790270250746;
-        Thu, 24 Sep 2026 10:17:30 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532f8b7174asm25743881cf.14.2026.09.24.10.17.29
+        d=1e100.net; s=20260707; t=1790271279; x=1790876079;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=I3R6mI+bCnxKTja03qZL2tI8HrKCPUv9eL20iDYlD5U=;
+        b=Rpq6y1JyHAWeDMCvNYX8N06s/1EPqhuicKEpIWTaCdEjg8FcVRlmReh5BWx3NGB1+U
+         983anG9/H/NTnUOpVob2OKg5BshK2l9aaNRM2OazZRmdDYoF1+87g05FQbqCBQN2vV1h
+         gAu9NESw1PiRGAT7gThxNiIkDM4B3x/UmiIqZ43hKTwlHE0AK9HlUyyHCkHjyM9/IC6t
+         xTnz/vpBj6csojd+cACv2/BsA9mejPej1b5xw7cHmvFqX4Dk5Q9g55sPHfe/wC5f6Kx2
+         Jc2xpHCXliDIc/4FjH/hBBK9hmatuOeUUzzifz8OPTSal4iOQot9yTtBQxjtpTa3iF7r
+         sEzw==
+X-Gm-Message-State: AFuF++nnFC60y83aavWxiEij6GuHAxdkkW5Cu3/vvk0UTUPi9zzhFB4q
+	NJQ/z1tzH8legmQZCmaJ2GsKBP4wRbc99zlNCD5NCFWABGBD9akCtPhRWNlO9g==
+X-Gm-Gg: AYBFou2a+OQEGhUCagOVJHIHOh4nYdg/PQ8xfVsyjshM/Ww3UqLt21Xuczc8S62Y492
+	MA13cIwmByFD0GF5YB7a4X/iDAyFJe9KqxvoHNd1GsfddZ8lgthhPm4jLaYV34vyTfKpBf7jGHF
+	0uyrx/iTTRWnpSIE4swHiP04smP2N2YqGKQUGsBC1Ba4d/TG47SQpGEoxJfd2lOWtfNQrzCPO63
+	Bd3pAm4m45YfxZQV/ncK9uTMzWdwTYB2atoKg9DgU85kMLWteJF91n/YWi/L+8uUmOG7MBo1RMy
+	THnqDvw1kW5ytjcaoMNfTToS0TQbyOnDyddpv1ZoBz+JjEttuNBcDy1doWlAXKMdx5kOKRl1OjY
+	xiwu62LaDaKrfRfcms2sabzRbk7doUhhK9b2gNbB0FdX2hc7bywdFdGP8TN4nk2XmGEzAxgtDXq
+	+cKbZG6W/KrFGkzfwf/D5v2gi4xynPJSk1Rcc2M42Xea5WWx0X7/CkRQVDNaM29sHAir5D3WT+Z
+	5IjMO4iQJ1alXf1bSJVYl/ESS/7Xwdi6BKEsyeoBY/CFwvjZf6/2PCygOg1JayZSM83m1viUOc=
+X-Received: by 2002:a05:6214:130d:b0:912:517b:20e1 with SMTP id 6a1803df08f44-91421ef3338mr33363036d6.41.1790271279447;
+        Thu, 24 Sep 2026 10:34:39 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9141e21995fsm21511576d6.10.2026.09.24.10.34.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 10:17:30 -0700 (PDT)
-Date: Thu, 24 Sep 2026 13:17:28 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 04/40] mm: consistently validate VMA state after
- mmap[_prepare] hooks
-Message-ID: <arVW5i8pvySq6Co2@gourry-fedora-PF4VCD3F>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-4-4583d8a23bca@kernel.org>
+        Thu, 24 Sep 2026 10:34:39 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/2] libselinux: add Python binding for selinux_policy_open()
+Date: Thu, 24 Sep 2026 13:34:21 -0400
+Message-ID: <20260924173422.65885-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-4-4583d8a23bca@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 17, 2026 at 05:22:13PM +0100, Lorenzo Stoakes (ARM) wrote:
->  static inline int mmap_file(struct file *file, struct vm_area_struct *vma)
->  {
-...
-> +	err = mmap_hook_validate(prev_start, prev_end, &prev_flags, vma);
-> +	if (unlikely(err)) {
-> +		vma->vm_start = prev_start;
-> +		vma->vm_end = prev_end;
-> +		vma_close(vma);
->  	}
-> +
-> +	return err;
->  }
->  
+Regenerate selinuxswig_python_exception.i so the SWIG-wrapped
+selinux_policy_open() raises OSError from errno on failure instead of
+returning -1, and add a policy_open(path, mode="r") convenience helper
+to the %pythoncode block that calls selinux_policy_open(path, O_RDONLY|O_CLOEXEC)
+and returns an os.fdopen()'d file object. Python callers can then read policy
+configuration files with the same fallback-root search that C users of
+selinux_policy_open()/selinux_policy_fopen() get:
 
-I indepdeantly validated the sashiko report on this chunk.  Seems like
-close() should be deferred until after __map_new_file_vma() calls
-unmap_region().
+    with selinux.policy_open(selinux.selinux_translations_path()) as f:
+    	 ...
 
-suggested fix is to drop vma_close() from mmap_file()  and update the
-cleanup in __mmap_new_file_vma() 
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/selinuxswig_python.i           | 9 +++++++++
+ libselinux/src/selinuxswig_python_exception.i | 8 ++++++++
+ 2 files changed, 17 insertions(+)
 
-if (error) {
-	UNMAP_STATE(unmap, vmi, vma, vma->vm_start, vma->vm_end,
-		    map->prev, map->next);
-	vma_iter_set(vmi, vma->vm_end);
-	unmap_region(&unmap);
-
-	/* Release driver state only after its mappings are gone. */
-	vma_close(vma);
-
-	if (map_same_file(map))
-		fput(map->vm_file);
-	vma->vm_file = NULL;
-
-	return error;
-}
-
-Example race:
-
-  Thread A                              Thread B
-
-  mmap(MAP_FIXED, address A)
-    driver remap_pfn_range(A, page P)
-                                         load/store at known address A
-                                         hardware finds the new present PTE
-    validation fails
-    ->close() frees page P
-                                         UAF
-    unmap_region()
-    TLB shootdown
-
-With that fix
-
-Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
-
-~Gregory
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 74d923e4..2340ed2d 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -62,6 +62,15 @@ def install(src, dest):
+     """ An SELinux-friendly shutil.move method """
+     shutil.move(src, dest)
+     restorecon(dest, recursive=True)
++
++def policy_open(path, mode="r", **kwargs):
++    """ Open a policy configuration file for reading, searching fallback configuration roots (see selinux_policy_open(3)). Returns a file object """
++    fd = selinux_policy_open(path, os.O_RDONLY | os.O_CLOEXEC)
++    try:
++        return os.fdopen(fd, mode, **kwargs)
++    except:  # noqa: E722
++        os.close(fd)
++        raise
+ %}
+ 
+ /* security_get_boolean_names() typemap */
+diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
+index e5e55a79..6ab1bc6a 100644
+--- a/libselinux/src/selinuxswig_python_exception.i
++++ b/libselinux/src/selinuxswig_python_exception.i
+@@ -743,6 +743,14 @@
+   }
+ }
+ 
++%exception selinux_policy_open {
++  $action
++  if (result < 0) {
++     PyErr_SetFromErrno(PyExc_OSError);
++     SWIG_fail;
++  }
++}
++
+ %exception selinux_check_access {
+   $action
+   if (result < 0) {
+-- 
+2.55.0
 
