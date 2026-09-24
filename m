@@ -1,61 +1,64 @@
 Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C20C54C4F6C
-	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 17:34:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A0A04C77A0
+	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 17:34:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790271282; cv=none; b=iSzJlfxHMG4KnLd6zUIbcUqYtqBmZ77m6hquyPCs6leoBfSWqE5OglfyNwansW7YskrTzVVadt2dPeyLrsa61vBSG1AAcXaMgCbwCjiLmNwUXzuSIq70+yh3fcsty9D5o4WIzbnRVPJW/DNFMfsj4kcMiaW8s0Se0TlaKd4xKak=
+	t=1790271286; cv=none; b=ldQGmdvBo80BzMo1XiuRr0F+FffoIzCfuIhEgLGK+RhSgGFqYEQm9xfiUwH6SogCvTTaBFGh+/z7Ulj42YdsIZiWI6f2kzJ5IGyO3VQJ3KlWMDM5T8qKHww4QVUSnxDODYdjei9Az19EIAV43y3Erf5ZluaDznbEpu89O1EUaeg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790271282; c=relaxed/simple;
-	bh=5ncVrUKmgn9ZPdjhwYaSJwjgH7fXj30/KdYGD4FIwd4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DHsqStpJWbjQ0gJzYkLbuiKk8gz5Gs6BmcL8BuUmh9q3zOXkQjMhv74NpwKSKGFA1gKCyVzKo87dFCXtl0F6kUw4qsIeRDlyglMlCy3r+VCD+YEM8JifUrFXcjayg9N2VwSr+CIuAD0efSBck3Hg9+1Snt25flg9c27uXfNYQ0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UuIKBZXF; arc=none smtp.client-ip=74.125.230.140
+	s=arc-20240116; t=1790271286; c=relaxed/simple;
+	bh=dqAPbAu5YYXnxDGbJPj44ExmiJL39OCHoQwqIn177ms=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=amo6OdvKRmZm3zt8DmluJjsohPBQPNJJ9QldWZgOQoLqajKljSlzFVQv0km60FQBfNrY5JoDSmHQQbmtII9+uX54oeperMfGwTRnKlTfgWTeQOIUm2STq7FuZLG5kb3exV5CLm/UGeD0V42symG0RGvWU2oKiWyLLel8vNJQ9d8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eSVC3/Zm; arc=none smtp.client-ip=74.125.230.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UuIKBZXF"
-Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfcbe208so1343216d6.0
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 10:34:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eSVC3/Zm"
+Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfe57a3bso1059606d6.1
+        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 10:34:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790271279; x=1790876079; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=I3R6mI+bCnxKTja03qZL2tI8HrKCPUv9eL20iDYlD5U=;
-        b=UuIKBZXFlPIwY6R0ETRUauezD5JrfgSzv2oAM7YwPS6jf7acG2hhpjKPSQ8r2jYDlL
-         tv0TRoxDAEkSpWyFbUyU6/fQFBN1wEqjwBf0ZxC7B2KAuxtBDHo7y7QDH4aND7BHjKLU
-         mi0aJ76kro0/EB7wB0yjpSTbC5pDEiI7nL/zVZ2aKmmLDnzO1i0e3IkCa3gVdq6W2dvr
-         5RIGzSlm1UrWjsVMTOB/9KSIKez7S7r69jx//6FG2iTHVN6h2nWvMmgf/XjGmTVyU+9G
-         UZbxd/tBqmGW9vzfbYwh/h9ODXvxtYxtLhLG2GhgEad+d51DpqZ4kuWWmoRFjTPk2IPH
-         Ex0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790271279; x=1790876079;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1790271283; x=1790876083; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=I3R6mI+bCnxKTja03qZL2tI8HrKCPUv9eL20iDYlD5U=;
-        b=Rpq6y1JyHAWeDMCvNYX8N06s/1EPqhuicKEpIWTaCdEjg8FcVRlmReh5BWx3NGB1+U
-         983anG9/H/NTnUOpVob2OKg5BshK2l9aaNRM2OazZRmdDYoF1+87g05FQbqCBQN2vV1h
-         gAu9NESw1PiRGAT7gThxNiIkDM4B3x/UmiIqZ43hKTwlHE0AK9HlUyyHCkHjyM9/IC6t
-         xTnz/vpBj6csojd+cACv2/BsA9mejPej1b5xw7cHmvFqX4Dk5Q9g55sPHfe/wC5f6Kx2
-         Jc2xpHCXliDIc/4FjH/hBBK9hmatuOeUUzzifz8OPTSal4iOQot9yTtBQxjtpTa3iF7r
-         sEzw==
-X-Gm-Message-State: AFuF++nnFC60y83aavWxiEij6GuHAxdkkW5Cu3/vvk0UTUPi9zzhFB4q
-	NJQ/z1tzH8legmQZCmaJ2GsKBP4wRbc99zlNCD5NCFWABGBD9akCtPhRWNlO9g==
-X-Gm-Gg: AYBFou2a+OQEGhUCagOVJHIHOh4nYdg/PQ8xfVsyjshM/Ww3UqLt21Xuczc8S62Y492
-	MA13cIwmByFD0GF5YB7a4X/iDAyFJe9KqxvoHNd1GsfddZ8lgthhPm4jLaYV34vyTfKpBf7jGHF
-	0uyrx/iTTRWnpSIE4swHiP04smP2N2YqGKQUGsBC1Ba4d/TG47SQpGEoxJfd2lOWtfNQrzCPO63
-	Bd3pAm4m45YfxZQV/ncK9uTMzWdwTYB2atoKg9DgU85kMLWteJF91n/YWi/L+8uUmOG7MBo1RMy
-	THnqDvw1kW5ytjcaoMNfTToS0TQbyOnDyddpv1ZoBz+JjEttuNBcDy1doWlAXKMdx5kOKRl1OjY
-	xiwu62LaDaKrfRfcms2sabzRbk7doUhhK9b2gNbB0FdX2hc7bywdFdGP8TN4nk2XmGEzAxgtDXq
-	+cKbZG6W/KrFGkzfwf/D5v2gi4xynPJSk1Rcc2M42Xea5WWx0X7/CkRQVDNaM29sHAir5D3WT+Z
-	5IjMO4iQJ1alXf1bSJVYl/ESS/7Xwdi6BKEsyeoBY/CFwvjZf6/2PCygOg1JayZSM83m1viUOc=
-X-Received: by 2002:a05:6214:130d:b0:912:517b:20e1 with SMTP id 6a1803df08f44-91421ef3338mr33363036d6.41.1790271279447;
-        Thu, 24 Sep 2026 10:34:39 -0700 (PDT)
+        bh=s+vB+w0xaNKDi4gqp3lJrF3iMSxDyWrAGstqUBereUk=;
+        b=eSVC3/Zm7NcTQYo5cY7frkZ7WLDeYc4wptfp85S/l8fPl6yQ2gi7q/N03Xh0MULfTR
+         SjW69v7NjayQz3wUNBnNPZzMycve1Wype3Cj9GIXMXUSvsquArA+8FKMlcrSCE6NkWqG
+         zvg9oLqUOeB6+miLm8sn40mL3nx4FXEhrWas5kix79tMHCb9qEPqcqbrerA0C4GKbOxA
+         P973vJ43gPfB96KWRG0h0AD9fAJKX2FSSfNlGWfKqmV1TLb0ZKX8ySWAL3CaiPJ+1HJE
+         lbeewvq8+bfQY6TyYoLD2yHCB7CbBJcA0zG9aIBBajHBP4V8rv8dDstps0/HyYJwShLW
+         K7Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790271283; x=1790876083;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=s+vB+w0xaNKDi4gqp3lJrF3iMSxDyWrAGstqUBereUk=;
+        b=TxMMC7kcD6DuormFX+U0jChrny9W7eym3HmGqqobJgq10iu/B6ewjqlhqbt3SZ6yrZ
+         KDYSDM99J7Agxhhnwfh8NvyZHtDvCDf4ZYBvaq/VHl0xbXHGmOh7hcA/PF7B2E6uS0hB
+         uF301IMou3nGFvJOJcbzA6IIa+hMb7y/4AvXgKTTChOemt/2aOXuai7k746l0pi+tr54
+         asDKqzjGAK/Ac2NdJieES/ZBGsVzgnanbVBzGFZVZOxG3iiMROvrYzpKFCZbrc8XLebQ
+         FuNrg8lXWXswCz0FTNT72VQZvVJzUx49wmhUrv1Bs323BehtR4XiqS9FEoGkB3uQbTEQ
+         w0Lw==
+X-Gm-Message-State: AFuF++mCz35GPFhutP/t0gIkIuIY7Ec1DdSzBSL4F8xSOB2lnFm+coKO
+	/+McXU71nhXswNhnifiEXfmdK8DT7vtwdLZjjRl6WqakPpaMXAa5fQrVUOTV4g==
+X-Gm-Gg: AYBFou2WKX0ukP5OKimK9scsJ52RjfM2zRr6ePCPK0PPJW1MtumSRXLXARsmAJPcFpw
+	EFdmhxP8louozcKWYxamo5fzJg/ohUtcwHfscIoLjDIgBfQAa3jfkgRm23BmVOP8SSgGVp/40JS
+	bA4+m4K9npcQ9L3Cqx86ULz2JeGUBJO6GDhiY90wpNS/TYxdLZ6MLRP9fXcy6sK/5TYXaHVcGxM
+	xoKeyP57cBBv3GUgbMaLSSAf1zEUnaKYCQVkZ0EX2Zb/vVW2J6sxLVid1sGnbn782ztErKIHWij
+	VS8eiD14cWu0Wk+6c+ReuxH5tc++01nsO/R69H6MFF0bdAFqhEbRYoKW/rHeIDkaDjCpRSTvd3V
+	4WDcMJS5vrQxcoZ80IYNhiKvPc/Vnhu4Zn5sz6J/7Nbbao4mIP3wtF5QlQ+e/03BE10w67320Du
+	3jBTpvzWhNN9+TzQiz6WJVGYlCq089aEjd3p2IjTNoyE1SEO7Gyrl/BXh/d4lhhnqahOFSvdG4D
+	mXI67KElY9NvUDU3/XORLVLZV/PPimQ3MRQ6s3s0Sa8HNcsk7IqjBbmMe6tEso+oFiKLLzTK88X
+	204nIqfEMqc=
+X-Received: by 2002:a05:6214:4282:b0:910:3453:8f28 with SMTP id 6a1803df08f44-91421dcac4dmr32083666d6.36.1790271282986;
+        Thu, 24 Sep 2026 10:34:42 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9141e21995fsm21511576d6.10.2026.09.24.10.34.39
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9141e21995fsm21511576d6.10.2026.09.24.10.34.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 10:34:39 -0700 (PDT)
+        Thu, 24 Sep 2026 10:34:42 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -63,10 +66,12 @@ Cc: plautrba@redhat.com,
 	jason@perfinion.com,
 	jwcart2@gmail.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/2] libselinux: add Python binding for selinux_policy_open()
-Date: Thu, 24 Sep 2026 13:34:21 -0400
-Message-ID: <20260924173422.65885-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 2/2] python: read policy configuration files via selinux.policy_open()
+Date: Thu, 24 Sep 2026 13:34:22 -0400
+Message-ID: <20260924173422.65885-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260924173422.65885-1-stephen.smalley.work@gmail.com>
+References: <20260924173422.65885-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,62 +80,115 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Regenerate selinuxswig_python_exception.i so the SWIG-wrapped
-selinux_policy_open() raises OSError from errno on failure instead of
-returning -1, and add a policy_open(path, mode="r") convenience helper
-to the %pythoncode block that calls selinux_policy_open(path, O_RDONLY|O_CLOEXEC)
-and returns an os.fdopen()'d file object. Python callers can then read policy
-configuration files with the same fallback-root search that C users of
-selinux_policy_open()/selinux_policy_fopen() get:
+Switch the direct open() reads of files under selinux_policy_root() in
+chcat, semanage, and sepolicy over to selinux.policy_open(), so that a
+distribution shipping policy configuration under a fallback root such
+as /usr/lib/selinux/<type> (with only local overrides in
+/etc/selinux/<type>) is handled the same way as by the C users of
+selinux_policy_open()/selinux_policy_fopen().
 
-    with selinux.policy_open(selinux.selinux_translations_path()) as f:
-    	 ...
+policy_open() raises the same OSError subclasses as open() on failure,
+so the existing except IOError/OSError handlers are unchanged. The
+file_contexts.subs write path in seobject.commit is left as-is; writes
+always go to the primary root.
+
+/etc/selinux/sepolgen.conf and the /etc/selinux/ directory listing in
+gui/statusPage.py are top-level (not under the policy root) and so are
+not covered by selinux_policy_open(); they are left for a separate
+change.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/selinuxswig_python.i           | 9 +++++++++
- libselinux/src/selinuxswig_python_exception.i | 8 ++++++++
- 2 files changed, 17 insertions(+)
+ python/chcat/chcat                   |  2 +-
+ python/semanage/seobject.py          |  4 ++--
+ python/sepolicy/sepolicy/__init__.py | 12 ++++++------
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-index 74d923e4..2340ed2d 100644
---- a/libselinux/src/selinuxswig_python.i
-+++ b/libselinux/src/selinuxswig_python.i
-@@ -62,6 +62,15 @@ def install(src, dest):
-     """ An SELinux-friendly shutil.move method """
-     shutil.move(src, dest)
-     restorecon(dest, recursive=True)
-+
-+def policy_open(path, mode="r", **kwargs):
-+    """ Open a policy configuration file for reading, searching fallback configuration roots (see selinux_policy_open(3)). Returns a file object """
-+    fd = selinux_policy_open(path, os.O_RDONLY | os.O_CLOEXEC)
-+    try:
-+        return os.fdopen(fd, mode, **kwargs)
-+    except:  # noqa: E722
-+        os.close(fd)
-+        raise
- %}
+diff --git a/python/chcat/chcat b/python/chcat/chcat
+index c4f59229..5a9e94fb 100755
+--- a/python/chcat/chcat
++++ b/python/chcat/chcat
+@@ -365,7 +365,7 @@ def usage():
  
- /* security_get_boolean_names() typemap */
-diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
-index e5e55a79..6ab1bc6a 100644
---- a/libselinux/src/selinuxswig_python_exception.i
-+++ b/libselinux/src/selinuxswig_python_exception.i
-@@ -743,6 +743,14 @@
-   }
- }
  
-+%exception selinux_policy_open {
-+  $action
-+  if (result < 0) {
-+     PyErr_SetFromErrno(PyExc_OSError);
-+     SWIG_fail;
-+  }
-+}
-+
- %exception selinux_check_access {
-   $action
-   if (result < 0) {
+ def listcats():
+-    fd = open(selinux.selinux_translations_path())
++    fd = selinux.policy_open(selinux.selinux_translations_path())
+     for l in fd.read().split("\n"):
+         if l.startswith("#"):
+             continue
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index b790597d..61a1a501 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -2373,7 +2373,7 @@ class fcontextRecords(semanageRecords):
+         self.equiv_dist = {}
+         self.equal_ind = False
+         try:
+-            fd = open(selinux.selinux_file_context_subs_path(), "r")
++            fd = selinux.policy_open(selinux.selinux_file_context_subs_path())
+             for i in fd.readlines():
+                 i = i.strip()
+                 if len(i) == 0:
+@@ -2386,7 +2386,7 @@ class fcontextRecords(semanageRecords):
+         except IOError:
+             pass
+         try:
+-            fd = open(selinux.selinux_file_context_subs_dist_path(), "r")
++            fd = selinux.policy_open(selinux.selinux_file_context_subs_dist_path())
+             for i in fd.readlines():
+                 i = i.strip()
+                 if len(i) == 0:
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index 3b87a869..bb241121 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -589,7 +589,7 @@ def find_entrypoint_path(exe, exclude_list=[]):
+ 
+ def read_file_equiv(edict, fc_path, modify):
+     try:
+-        with open(fc_path, "r") as fd:
++        with selinux.policy_open(fc_path) as fd:
+             for e in fd:
+                 f = e.split()
+                 if f and not f[0].startswith('#'):
+@@ -624,7 +624,7 @@ def get_local_file_paths(fc_path=selinux.selinux_file_context_path()):
+         return local_files
+     local_files = []
+     try:
+-        with open(fc_path + ".local", "r") as fd:
++        with selinux.policy_open(fc_path + ".local") as fd:
+             fc = fd.readlines()
+     except OSError as e:
+         if e.errno != errno.ENOENT:
+@@ -650,15 +650,15 @@ def get_fcdict(fc_path=selinux.selinux_file_context_path()):
+     global fcdict
+     if fcdict:
+         return fcdict
+-    fd = open(fc_path, "r")
++    fd = selinux.policy_open(fc_path)
+     fc = fd.readlines()
+     fd.close()
+-    fd = open(fc_path + ".homedirs", "r")
++    fd = selinux.policy_open(fc_path + ".homedirs")
+     fc += fd.readlines()
+     fd.close()
+     fcdict = {}
+     try:
+-        with open(fc_path + ".local", "r") as fd:
++        with selinux.policy_open(fc_path + ".local") as fd:
+             fc += fd.readlines()
+     except OSError as e:
+         if e.errno != errno.ENOENT:
+@@ -957,7 +957,7 @@ def get_login_mappings():
+     if login_mappings:
+         return login_mappings
+ 
+-    fd = open(selinux.selinux_usersconf_path(), "r")
++    fd = selinux.policy_open(selinux.selinux_usersconf_path())
+     buf = fd.read()
+     fd.close()
+     login_mappings = []
 -- 
 2.55.0
 
