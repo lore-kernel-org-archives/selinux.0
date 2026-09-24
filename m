@@ -1,73 +1,71 @@
-Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
+Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5539949F136
-	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 15:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004013E168F
+	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 16:22:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790265344; cv=none; b=p6lyCLo+/f4u6Z4YxRbvnf/MT46CqhyqrLXIyx/lsfcCLsHlXnKSRZyZzI7+u4pr6FXoOow3ZPGNPLMbDrzG/kJobZXtM6Iy0xA7PkDzqK9jqqdUMb+PSZG04Wwt0i1glA/6KAJiLHjeIL2NvtnK9kpRi13Fn6AHaQl25bov1fc=
+	t=1790266958; cv=none; b=khOqUwW4E2erQnl7K/tUfAN5mePMxeQzL18H1os74ZN0vEHaeSoN/55B2FWIpZmHBtmS+fN6NfCd+kZWLOND8i/A/spjSFhbON7cz8ZQDQ1u6HDjNJcZ7NF8vvU2+TLf8xcv9VPPvrJAwZl2WO7INWXtNre+grfm/G70gBKoiaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790265344; c=relaxed/simple;
-	bh=Q5D4yAvuqXHbiKhEa/er96XtBVg+QWLaBcAGSIsbXTY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cJLQDP37PlJ5MV1Ah7XsmWE77ry3f0QYIg5bgXbPJX+fy4oi4T8h5xRenYT/gezNdcDpG478FO01bcWrfHx1lMzvQJeAXY+36KQFnCO5bSCjgnbDb3lmi6B5u2i5ciIlZviwh7iF5VVVj8DeTLcRQHdf7ppj1YFnecklsv0vX28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HFWxtrp/; arc=none smtp.client-ip=74.125.230.235
+	s=arc-20240116; t=1790266958; c=relaxed/simple;
+	bh=yeRvrxLNXu5P/5fuNsA8vOFpswkyNefZgn9R8H/EavU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lnhG2i0Rp30CnVUpblSO4f7mbu3QKjjwUfvj7GFXwoj15hP1owgKbrcZEDcecWXsKTV2GQyIAGjL6MrsqDlD3e60RzNydSgaNNTRXsdYMJnZyhfhdvh6HnvgHBP6a+rcF34MhXdodjtKsAKR+y1cMgCFDyF/tvbXLyGoKASbdN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lsEEdewL; arc=none smtp.client-ip=74.125.224.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HFWxtrp/"
-Received: by mail-qk2-f43.google.com with SMTP id d75a77b69052e-532db7db0c6so17796561cf.2
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 08:55:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lsEEdewL"
+Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-66c9995ca60so549443d50.1
+        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 09:22:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790265342; x=1790870142; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790266956; x=1790871756; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qweEPtcKXgRYttqbDy1g92kx8sdhToHOPmTPtEdnZec=;
-        b=HFWxtrp/aquHXjdz55oMnvWRbsW9PoyJjLnk6fqOtxO4M0IJCE+wN+ClSeU0PTguC5
-         1rcSOFUw9W1Y7CdtCx82AN8IELs7ruBNn5bP1m8QrrhAwbLiE6al/dJOY+9jLQ0auJGy
-         r8q0RQJUcKm4GZzCNmStaAVmNsIlWM3+6TzXB4amgsQLp+B4p6Yi4hd80Bh817XC1SKT
-         kVEgB8PqScnv8EM6/CkuB+6k7UdZGPLQJ2rcN4Q2htbTSLop2ROmZOYZKve2HgZXD6gL
-         JY8W1/zqWRX7fGmrJWi2t4C5HnBwSU1ZikNqWjcRPQe6CMwkuFskVEkVnaKM+u7V8fXq
-         oCYg==
+        bh=HBvTgUmuKWfYCix8ZfV3kufvtt3QFhFjLgVOos+ID6U=;
+        b=lsEEdewLbb6u0XKkpC+djCGuPxrqnKNntC2qgWMyFbnndQ1V+XH8kvGXpc1m0qEOMm
+         PbsIwshJMZt8drw9pWPn4MRLqFwFoEOWuVO/1Wy8T+fL9MOEWkjMFP//XeHoGIvdKl+E
+         U/nltmUFMr7yIzZeTX8UNJ/82NQh4qXk4GMz1HFQCaOWs963YrPUiY33Hc2Ak3h8hS8g
+         wCS1hIKwAvlVU3SeyPTv0Te2PZMqVGC+RknXjQqFxcjPmLEDkOwN+ODXYYAfn7qlI/uZ
+         htN0gVKLtwr3w8/jm77bN8wFsXdc+vdLPVGlHTY89dtASHhG9X1qSJxOeRyHBhp1VS1G
+         nndQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790265342; x=1790870142;
+        d=1e100.net; s=20260707; t=1790266956; x=1790871756;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=qweEPtcKXgRYttqbDy1g92kx8sdhToHOPmTPtEdnZec=;
-        b=0mSydT0WhnYTZnai1TRJsOUcYq+xnMLzXLDJtbyy2kp92gLYBAmO6FbgOwfUEt95CC
-         i0t6M9dORaXZNZ3jjZeKaHDKGPix7srlnN1QMb7qdyXyBf+FHA1eJbizFQkQCSo1DAg8
-         bCcDCB/IMGlyLVVikIiecWUyvMMup8KgkCyyri4HoahuFdmGpGgWryhxOW4irT7hcyrU
-         6/cRSL7kDqnLH8VJqGtsqGp6CysL8IQzN774sDgGwbP2vxdiQENzxgykmoDQV8keL1SC
-         PD3hh9QEgBj1djfsFOaYXbHfq9xPExA55IAijbxxf0UrgItLmykslmhxSjHjtfbK9aHS
-         UT0g==
-X-Gm-Message-State: AFuF++nLtKG5QR1QlhSUHain7O4Z9yp42Gzyv+I3dtKrmkcwtdtozl24
-	DrhZvXYQCXQD5l5/Y7wq5d++E3wd5itCedfyjy+RtcuWodZfcsnlpPy58Igj7w==
-X-Gm-Gg: AYBFou1ESbSVzDZuaK/WdurKm5AxjvYBp+KzRWOQqW43/QbBTI6qVgj/2hmdfRJwqS/
-	mw7OpTgEuRwvYiuRiUoLqOyUF/SEYgEgwN/wUdOsPXv4w9VJRAex6wIzx+TKhYNILFZdfrxeuQB
-	Uc2BJ39Zgipqkr0mjiBla3H2DIBljs3ueASNgVDx3/Hrv2oyyo/w0kRfVzX12YjLXmyVCXJcZVs
-	Dv4rkbP7bbegZdjeZQkc7bhOhxjWKyriiZ49mdWWlDbstR7C7G7D3ktHhg4Dp54Mb2t3NZ2vKbG
-	CVFezL9yKHgV1DDDKLHbdFFEepl4XWQDeC0mcYT/M3u2RssMh5s1Fwc/CfvKtgo7/mneRGfwW2N
-	f+MmXxg5fzqlNRvacDOzDS/IcDChuq/ya525V9T2H+G7p4VTmqhwhurwdERRER7o6eYv+Oflj6H
-	SajtjMaYHbtddjDcCMrk7I2upv99ul3bKwfag4AuHpcxGQJB9lWRhEGQHtpd2X5KZFJVXIu7RpC
-	qiGrMMZouOa6cvh7VovaSOtll6G9Ey23KXXTti9zMruCpQ4bgpgAGOHU26kfQr1I1KFb+T3GivH
-	4dIyBc4/NQ==
-X-Received: by 2002:a05:622a:4d88:b0:531:d52:a271 with SMTP id d75a77b69052e-532fea87d45mr28279091cf.27.1790265342110;
-        Thu, 24 Sep 2026 08:55:42 -0700 (PDT)
+        bh=HBvTgUmuKWfYCix8ZfV3kufvtt3QFhFjLgVOos+ID6U=;
+        b=OGUO0TxcGncFGFPHrpZ1/5gBMuPCAujplamx5wEWp6n96iwtpa5hMfjxIJ4M7JEoN6
+         rS82+Nox6PCMJ8F/qTP4mgDHNbVk+GkwIVjdyP2HDcauQtSmWe1ZpBYj16W9x5u7QP1o
+         Fr5PQJZuDZ3tls9nT06aJUTAo7EXulWbGIy5r+rlzqBbLXqK/0Sgsa1Ach+stVCisQ3k
+         1gemzBn7xFHs/9iuvs0kQxv/gB58BwfjkmyAq9FJTC8UOKAKSZ37Hl0ecqF5HHGFse0q
+         7v5ZQrNOa/V5suXWHhNphe48Nx16oqFDycmm/yyx/aTyJuDqLKi//IRru5j4XEWZPiWS
+         3PFg==
+X-Gm-Message-State: AFuF++mGvjuk1aDYsoEg6gJWX4cG++HSL66iSWqqBhLg5c/nVKBVYSBY
+	SMCGppFEIc66keDs4TlwuUCx7ljtUXruR526SUvA79vQjLki+5f1yYJlc26pvw==
+X-Gm-Gg: AYBFou1JRKhcirEUuB2faJDoIF88e1K+Pe8LHxfj5cAzj5vdyfjqmcW3pOl41kMqqr7
+	eQTtI6AcDCVDSE0at6/NG0YnwKdqHR/vdd4YxID5tJpHQE7dLRuDA1kYSxfp7w/Bc3Ac2bloSmA
+	vKYuPEa8Xb0dfgJSHQqaBJYo4bik26YJUsY6vHDQYncBtYNuQfUO9ya1hmfrTjZONhv3fFiKmn1
+	nb6/WCgEzHZaAViNiUjjhaqh/sozqcgtqj465xlzIV0hopm2oZXKC5PopbAfSBDvRIBm7COpqZh
+	KwiZoJJORbuEQ2UGCOkKYkKmrcUIkwqO2F1GN4IPEkV+hZ1gv1qzQYfFkcG5rQkBdvJNy2/39sF
+	mKKvvhmhIjvMQM1OTVgaRd5BHj3PSGm53AqFnWfu0iUfbu4fGGts9O5dN61hGT8Fm0lWA8K9pUG
+	M40kMwpEXG1ttIoQ3asPxhHZomKYeUkNsaWqwH5b8dAlodO5ASI0mY5SOQIJGua2ZGBEf5rA5wI
+	DVjrxvpc5iMaPNZnXQaRMFCaV3n6bNTW7US+j8lsJZ5/9X/qruJpFbT/pvXEroGSTbN6As4j/s=
+X-Received: by 2002:a05:690e:11c2:b0:670:fe3e:bf05 with SMTP id 956f58d0204a3-672ed302e52mr1920349d50.23.1790266955831;
+        Thu, 24 Sep 2026 09:22:35 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eaec166bsm45717541cf.4.2026.09.24.08.55.41
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9141e21967fsm19786586d6.13.2026.09.24.09.22.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 08:55:41 -0700 (PDT)
+        Thu, 24 Sep 2026 09:22:35 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
 	omosnacek@gmail.com,
 	jason@perfinion.com,
 	jwcart2@gmail.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Laurent Bigonville <bigon@debian.org>
-Subject: [PATCH v2] python/semanage: document and export the user labeling prefix
-Date: Thu, 24 Sep 2026 11:54:36 -0400
-Message-ID: <20260924155435.64444-2-stephen.smalley.work@gmail.com>
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] python/semanage: fall back to filename completion for fcontext paths
+Date: Thu, 24 Sep 2026 12:22:20 -0400
+Message-ID: <20260924162220.64876-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -77,92 +75,83 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-semanage user -l has always printed a Labeling / Prefix column and
-semanage user -a/-m -P PREFIX has always set it (stored in users_extra
-as 'user NAME prefix PREFIX;' and consumed by genhomedircon for the
-ROLE template substitution and homedir_role selection), but -P has
-been argparse-suppressed and undocumented since the 2013 argparse
-conversion, and seluserRecords.customized() does not emit it, so
-'semanage export | semanage import' silently resets any non-default
-prefix to 'user'.
+semanage fcontext -a -t TYPE /some/pathprefix<TAB> does not
+auto-complete currently; the fcontext arm of _semanage()
+unconditionally offers the option word list for any word that isn't
+the argument to -t/-f/-S/..., and the completion is registered without
+-o default, so an empty match stays empty.
 
-Give -P a real --help string, document it in semanage-user(8), and
-have customized() emit '-P PREFIX' when the stored prefix differs from
-the 'user' default so export/import round-trips.
+Register the completion with '-o default -o bashdefault' so an empty
+COMPREPLY falls through to readline filename completion, and only
+offer the fcontext option list when the current word is empty or
+starts with '-'. The path/regex positional and the -e/--equal argument
+then get ordinary filename completion.
 
-Reported-by: Laurent Bigonville <bigon@debian.org>
-Fixes: https://github.com/SELinuxProject/selinux/issues/140
+While here, the __get_*_opts helpers echo '$ALL_OPTS $MANAGED_OPTS
+...'  in single quotes, so the common option variables are never
+expanded and only the per-subcommand-specific flags have ever been
+offered. Switch to double quotes so -l/--list, -a/--add, -h/--help, etc
+are completed under every subcommand.
+
+Reported-by: Germano Massullo (@Germano0)
+Fixes: https://github.com/SELinuxProject/selinux/issues/278
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 adds a space in the man page to prevent bolding (8).
+ python/semanage/semanage-bash-completion.sh | 30 +++++++++++----------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
- python/semanage/semanage        |  3 ++-
- python/semanage/semanage-user.8 | 10 +++++++++-
- python/semanage/seobject.py     |  8 +++++---
- 3 files changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index 89166269..09bfc806 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -416,7 +416,8 @@ def setupUserParser(subparsers):
-     userParser.add_argument('-R', '--roles', default=[],
-                             action=CheckRole,
-                             help=_("SELinux Roles. You must enclose multiple roles within quotes, separate by spaces. Or specify -R multiple times."))
--    userParser.add_argument('-P', '--prefix', default="user", help=argparse.SUPPRESS)
-+    userParser.add_argument('-P', '--prefix', default="user",
-+                            help=_("Labeling prefix for the SELinux user, used by genhomedircon when generating home directory labels. Defaults to 'user'."))
-     userParser.add_argument('selinux_name', nargs='?', default=None, help=_('selinux_name'))
-     userParser.set_defaults(func=handleUser)
+diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
+index d0dd139f..cbc26f9c 100644
+--- a/python/semanage/semanage-bash-completion.sh
++++ b/python/semanage/semanage-bash-completion.sh
+@@ -57,18 +57,18 @@ __get_all_stores () {
+ __get_all_modules () {
+     semodule -l
+ }
+-__get_import_opts () { echo '$ALL_OPTS --f --input_file' ; }
+-__get_export_opts () { echo '$ALL_OPTS --f --output_file' ; }
+-__get_boolean_opts () { echo '$ALL_OPTS --on -off -1 -0' ; }
+-__get_user_opts () { echo '$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role '; }
+-__get_login_opts () { echo '$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range'; }
+-__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto'; }
+-__get_interface_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type '; }
+-__get_node_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto'; }
+-__get_fcontext_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype '; }
+-__get_module_opts () { echo '$ALL_OPTS $MANAGED_OPTS --enable --disable '; }
+-__get_dontaudit_opts () { echo '-S on off' ; }
+-__get_permissive_opts () { echo '$ALL_OPTS -a --add -d --delete' ; }
++__get_import_opts () { echo "$ALL_OPTS --f --input_file" ; }
++__get_export_opts () { echo "$ALL_OPTS --f --output_file" ; }
++__get_boolean_opts () { echo "$ALL_OPTS --on -off -1 -0" ; }
++__get_user_opts () { echo "$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role "; }
++__get_login_opts () { echo "$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range"; }
++__get_port_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto"; }
++__get_interface_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type "; }
++__get_node_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto"; }
++__get_fcontext_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype "; }
++__get_module_opts () { echo "$ALL_OPTS $MANAGED_OPTS --enable --disable "; }
++__get_dontaudit_opts () { echo "-S on off" ; }
++__get_permissive_opts () { echo "$ALL_OPTS -a --add -d --delete" ; }
  
-diff --git a/python/semanage/semanage-user.8 b/python/semanage/semanage-user.8
-index 50d50bea..0cb82765 100644
---- a/python/semanage/semanage-user.8
-+++ b/python/semanage/semanage-user.8
-@@ -2,7 +2,7 @@
- .SH "NAME"
- .B semanage\-user \- SELinux Policy Management SELinux User mapping tool
- .SH "SYNOPSIS"
--.B  semanage user [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE SEUSER) | \-\-delete SEUSER | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE SEUSER ) ]
-+.B  semanage user [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE \-P PREFIX SEUSER) | \-\-delete SEUSER | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE \-P PREFIX SEUSER ) ]
- 
- .SH "DESCRIPTION"
- semanage is used to configure certain elements of
-@@ -54,6 +54,14 @@ MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login ma
- .TP
- .I   \-R [ROLES], \-\-roles [ROLES]
- SELinux Roles. You must enclose multiple roles within quotes, separate by spaces. Or specify \-R multiple times.
-+.TP
-+.I   \-P PREFIX, \-\-prefix PREFIX
-+Labeling prefix for the SELinux user, stored in
-+.I users_extra
-+and used by
-+.BR genhomedircon (8)
-+when generating home directory context entries. Defaults to
-+.BR user .
- 
- .SH EXAMPLE
- .nf
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index b790597d..a2a16dd6 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -1043,10 +1043,12 @@ class seluserRecords(semanageRecords):
-         l = []
-         ddict = self.get_all(True)
-         for k in sorted(ddict.keys()):
--            if ddict[k][1] or ddict[k][2]:
--                l.append("-a -L %s -r %s -R '%s' %s" % (ddict[k][1], ddict[k][2], ddict[k][3], k))
-+            prefix, level, srange, roles = ddict[k]
-+            popt = "-P %s " % prefix if prefix and prefix != "user" else ""
-+            if level or srange:
-+                l.append("-a %s-L %s -r %s -R '%s' %s" % (popt, level, srange, roles, k))
-             else:
--                l.append("-a -R '%s' %s" % (ddict[k][3], k))
-+                l.append("-a %s-R '%s' %s" % (popt, roles, k))
-         return l
- 
-     def list(self, heading=1, locallist=0):
+ _semanage () {
+         local command=${COMP_WORDS[1]}
+@@ -150,7 +150,9 @@ _semanage () {
+                 COMPREPLY=( $(compgen -W "$( __get_node_opts ) " -- "$cur") )
+ 		return 0
+         elif __contains_word "$command" ${VERBS[FCONTEXT]} ; then
+-                COMPREPLY=( $(compgen -W "$( __get_fcontext_opts ) " -- "$cur") )
++		if [[ -z "$cur" || "$cur" == -* ]] ; then
++			COMPREPLY=( $(compgen -W "$( __get_fcontext_opts ) " -- "$cur") )
++		fi
+ 		return 0
+         elif __contains_word "$command" ${VERBS[BOOLEAN]} ; then
+                 COMPREPLY=( $(compgen -W "$( __get_boolean_opts ) " -- "$cur") )
+@@ -171,4 +173,4 @@ _semanage () {
+         COMPREPLY=( $(compgen -W "$comps" -- "$cur") )
+         return 0
+ }
+-complete -F _semanage semanage
++complete -o default -o bashdefault -F _semanage semanage
 -- 
 2.55.0
 
