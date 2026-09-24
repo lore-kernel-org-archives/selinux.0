@@ -1,66 +1,66 @@
-Received: from mail-qk2-f13.google.com (mail-qk2-f13.google.com [74.125.230.205])
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A0A343F8A1
-	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 16:38:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.205
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCC332A3D7
+	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 17:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790267895; cv=none; b=uGfZ+XVH+RDy1HGKknRocU/CAtEGg21h2dWspdfwkJsdvxDiUUR7x7yiCG9PoPVg8HdvgT/uLQeBQls1hJvtomavnDCK5Z199SIRyBjiQBZPxfGW1nVkTuZpHofvNHlnGm9kFLVmLu308QIoReQH5BDjJFc6w8soDt0Toi9Rgzk=
+	t=1790270253; cv=none; b=uXpEGEfDXrahthC9wtbhHmDpsJfI4JuFIDOcG8jhWfeH1/UdxxgGsXrOPpWRCT1FlNLNGmy1kU8t8ew1kPK1KAPhyHTMQjd3XyLOU6nOx5qjd7mHEfLLwsefjyzj8fh5zcl9Fjrqa/FJ9K6wkIXF+YTMc1avmAxTxbtsnMmTEIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790267895; c=relaxed/simple;
-	bh=Y6dfgoDu9ENyHz35342iESy0PYqePxl/sIn9jSurkUk=;
+	s=arc-20240116; t=1790270253; c=relaxed/simple;
+	bh=N9G2xDWLJkhjpVHjPudlC9eB56JQvy0Q3UFpvQ70GnM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JG6ZzNHm5zW1jgrquJE3ip6+u6Fl87Pcms7URa7RnRqDmby87opdW+fnXW5hzmzT3DUQO+XeEdRGFmB5CID5EZFk4OQfqlpqVw7Fn3nvNnWLJyhOhsgp/0cKWdWxNRPdpBqOL40gQ+JB9SQ42+vuu6x7+tgw5rg3onkwSPczeys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=DELaQ6H+; arc=none smtp.client-ip=74.125.230.205
+	 Content-Type:Content-Disposition:In-Reply-To; b=H433k9nZ7WItkhGxf23c2Tznwfg8Zs8lW8P0+w0t59YNLvVsr7i/wcOgVywW/NeEzd05ub/25rrplxZYlx7ILrDWiWhrzZIlkgwkDOrevzwyIAHpLqTdeG+ybbko5EhVLVu8y9FXARph8Qg6lnKrBdcGU0OBOqBZULYh9CPSW1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=tprV5yBU; arc=none smtp.client-ip=74.125.230.204
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="DELaQ6H+"
-Received: by mail-qk2-f13.google.com with SMTP id d75a77b69052e-52fb76543e2so141231cf.1
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 09:38:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="tprV5yBU"
+Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-530e28a62abso911231cf.1
+        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 10:17:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1790267891; x=1790872691; darn=vger.kernel.org;
+        d=gourry.net; s=google; t=1790270251; x=1790875051; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
-        b=DELaQ6H+GoqYKhSPbbw83I2UghjOPLUKt/HJzwYXOl5vd4By1b/ewKsZIbd9ahXhZb
-         TJDLBT2drAnq8j1D4gtZjKdZE54vfhHIW07z7SMjyhNrpJZ88lIXL27llafwJKgt7Hvw
-         zeqWn52o1fsiwmzoo4rrDQZv3h3IiFJnFO2iuBnkUsGA3ktjvtFHA3Jr6K2ZEcGMg8M1
-         1di2ZTIAJ2yTB2V6zmlctv6zG6tcG5IvMF9RkWmI06r7tX+skZxDuVThBB0MSr3NZe3S
-         B2+XxiOTA95Xk/3/+mlBZ2rpvQSIcAx9lD43yFxhcrOBvTesr5mE416XkZK5Fw1vsdLx
-         5Q7g==
+        bh=feTLx7y3sxZ57LB+c+M8YbdddVhljMzyHzPRAu6TpA4=;
+        b=tprV5yBUII/qRzLyqKPdJDICtcHMIXdxXt3R1PhRppTAqbBmNEs7Uqtgc/IauT7bas
+         6q+btZ6riiYDfPxMNxJ9LlKIzVy4E/rMZS8FF2kWFWhC/RTZ0m/dLDIeIJEc6DmgUeKW
+         rRe5l+D4Gb5EgFoh0bNUVpRhgcRfueygz54BCmywUEAofeJDIrYo8R8bOOlnVVhbm8Xx
+         8y1PvkD+okpXc2BYxVcdIyuBwaEwabsdPE+xSDWc5coaNizNqVaWAFRlWZ+CHrBLXEHc
+         +ibea7n8Gc0GPrQRe/RTIUKy7LATsQy5mAZvm52IfaGHNyUnZEVBqjo1InS2m+tWjzj5
+         xc4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790267891; x=1790872691;
+        d=1e100.net; s=20260707; t=1790270251; x=1790875051;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
-        b=OlEiH29GTAC+Z2pzSzjwHAMkeh2rdRS1rckTQhHFNr2fiImPHZq/HU2M+IpDcddREp
-         AVyAP0keQHcEffNHGl4TkP3E6Ema6toEP2rt8mxyLYfifrclPsVuU2zoDjEnjyums7ft
-         DmdEQr2QphiGf3VfxXFxEvRcKzXM3ToMqxeC43NdK2Y5O4q54e7lxHwu0hPxs2TuDHNf
-         c0SAb9rWr7dJsh0SPJysufGeqy6Yvqxbl/0+sn1S/h0dpDmZXTyOaHFaORKKEm0jvDH+
-         zpNn8IYiWIti0Cij4vjY6WTP2h12K3X7nTIy/1o27vm9btMd4PoOSav01AoM8b8uCDcL
-         WpSA==
-X-Forwarded-Encrypted: i=1; AKwUvBzb5shVttqjsjKrkLPFpMK8WDVz3tkqMl6WcS/LOY96Ry7bE3/E/LLKJA3Q8sJcv9AInJo0N0T0@vger.kernel.org
-X-Gm-Message-State: AFuF++nhnW2dzMU/uI782bx5YK6poWeuhx0K/P8EyxDCrAmpIiQZxCCh
-	papmvrTDiRw8MeW9LwtIkoQft0pywodMf+1Xv43wnfFEUalj8BbaSw+ZaQDx5sV15EE=
-X-Gm-Gg: AYBFou0V4ZhkL7le1WNHMJ7EBACwnwHUjRqIO5LiZ9PdpjK6VnTv7jKR0BDJAoYY76h
-	UCUNrQm0Ry90DEdIYOl1SKEfZBcjbtpDNZTzVIrVmlbXEYLvSq7qHAQcohYv1ZFzeYHEnFv1vE6
-	LyC6OQlYTlBy6H6AreBwU9TlCwW9KSYS68mxVG6mXWMKy21PWr222+G0LYe14IWckBo7ttJXkM6
-	JyJwhGlSy3y51HXW1S41BkVkVMJDK02ooiXxIefJgd9nkVbUmUyPWdvmMKsReJsyIkyDFxWYLkz
-	/iBOAH33gkwdoLhuLEA5x5IxDSZ8PzEbePzGX5SZ/hZLpoCZOgw9NlyNQaA/6YWW3RDGJdUMKdA
-	ERRccV2LxsU5OjVPOHv9qbn+g9170dzFGzI9hPDLP8yHgFRX7/PKP3wM+87TL9gFIAkcl3492ap
-	2nYrMYMXqAe+W7Oo+o0JhN5WGr9ZxBZCpMvArUtSyUVrgn0sJ8B8xHYG4q1kiD3bZhjPfyjIE0L
-	0mQoXFMWV+Po6t+pOsI9I9jM0C3Dlfyt+1M0DBHgceX1fhRVZTJfWM=
-X-Received: by 2002:ac8:5743:0:b0:530:d860:ffba with SMTP id d75a77b69052e-532fe9f05bamr29797891cf.6.1790267890993;
-        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
+        bh=feTLx7y3sxZ57LB+c+M8YbdddVhljMzyHzPRAu6TpA4=;
+        b=HvyVqMeSVtu/J+3C85P8D3pKPPVM5qy7N6wD0g9njQHasauTTl1IMXOVilLXTPs//N
+         M4QJjuEt8VSg5ubK5YKetsho47zrIj+p7Zg94o2yS7EydzTWgylOyG8lnB9jY1C67JpZ
+         AhrnL3W9UglSlbam8Mbd0nz27ka6L0fGIpNFMS2olS8CAMNU9uPCtqtp45I9FTOoiEIJ
+         3SMcdHiacNYVTc27Fu/TA5CgyfHsKLVyOTgzfQaGmhJDuQ+nWxXCjHQfg2Xht1WNF9rC
+         qNxk8BPMimA9m4XQSyfUrYnKK/4T72q9fRItCTxgoEUweFwfLhVfKD8rBJd9WlYPNIm8
+         QU3g==
+X-Forwarded-Encrypted: i=1; AKwUvByir1xm/4PTnUREF1zSU15qDVRVk0nuqlLidpplLd47YxCy1m/ZzMJd9QOW1fCwiGKPiraWNw2l@vger.kernel.org
+X-Gm-Message-State: AFuF++k1UufYZwqDxaZ10w/1F/xPFK33aDsNnSAquUFAV4D+7rtMigV8
+	uOu55lS/BzB3CZKsz/Jff42FAcqrVHgyGJf5kzCsPNDcfLfYLVdsjLn4bTPrSDD+AaI=
+X-Gm-Gg: AYBFou3hmnJ7icE6UARIbM9ktb88Xd+LiIj0qmCmol3wifKd/7BfPJECJ579D3/FyB8
+	orsdV1udOXPeExSQLxpFx459nTkd4R8K/hWpJVUa+RVW4hBRzL1aL7BhMc/Z3t9RIY4P3HB1VET
+	46FbrHeOdlPEdOqILLKRzvqU5jIXgho6N9wNCM9cHZpNp8mvwRjGGB8HgKmvy38MES+avQ78Mw/
+	UXMgBqg7jo/6xqEhb2oQTduy7ZODYFyiuPeA/yvC8MjmQVjU5/Wk/QO7HX2a2rAZmKRI3cZboOQ
+	QRjUmlPtf3dTH+xXl+jWQco0xqBZdlnsWIvXdQ58u5u+1JRwNCG55GqLeOquLVVKBRhk15T/Zfc
+	NthvfDgyMUvkbYDdawKU2MjSW4GCpPZXEe32oGtL5auDvBYtixR1vMamMLZuamtfx54sVHFG9G7
+	as4nOp0H7IUkc9gvI5W1hZO181MyyerJ5SG8nYuE84GL+HXTTZUX2Cxn34Dy+rraW4HZ+AWTAX5
+	SJeS7nIdsZY4tMw9B9oO4WIH5jbLecny2iVMwmKYCcKQYih3tCIwhQ=
+X-Received: by 2002:a05:622a:2b05:b0:530:42e4:f001 with SMTP id d75a77b69052e-532feb3025amr31555731cf.46.1790270250746;
+        Thu, 24 Sep 2026 10:17:30 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eb32f6aasm45064551cf.16.2026.09.24.09.38.09
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532f8b7174asm25743881cf.14.2026.09.24.10.17.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
-Date: Thu, 24 Sep 2026 12:38:08 -0400
+        Thu, 24 Sep 2026 10:17:30 -0700 (PDT)
+Date: Thu, 24 Sep 2026 13:17:28 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, 
@@ -72,11 +72,11 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
 	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
 	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 03/40] mm/vma: introduce and use
- vma_[flags_]can_merge()
-Message-ID: <arVRqJZkql6sGunt@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH v3 04/40] mm: consistently validate VMA state after
+ mmap[_prepare] hooks
+Message-ID: <arVW5i8pvySq6Co2@gourry-fedora-PF4VCD3F>
 References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-4-4583d8a23bca@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -85,24 +85,63 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
+In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-4-4583d8a23bca@kernel.org>
 
-On Thu, Sep 17, 2026 at 05:22:12PM +0100, Lorenzo Stoakes (ARM) wrote:
-> Replace the open-coded VMA_SPECIAL_FLAGS check in the VMA merge logic with
-> two new functions vma_flags_can_merge() and vma_can_merge() and update the
-> merge logic to use the former.
-> 
-> This abstracts the check and expresses it in terms of the desired behaviour
-> rather than an arbitrary and confusing VMA flag.
-> 
-> This also lays the groundwork for making further improvements in VMA flag
-> usage.
-> 
-> Also update the userland VMA tests to reflect the change.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+On Thu, Sep 17, 2026 at 05:22:13PM +0100, Lorenzo Stoakes (ARM) wrote:
+>  static inline int mmap_file(struct file *file, struct vm_area_struct *vma)
+>  {
+...
+> +	err = mmap_hook_validate(prev_start, prev_end, &prev_flags, vma);
+> +	if (unlikely(err)) {
+> +		vma->vm_start = prev_start;
+> +		vma->vm_end = prev_end;
+> +		vma_close(vma);
+>  	}
+> +
+> +	return err;
+>  }
+>  
+
+I indepdeantly validated the sashiko report on this chunk.  Seems like
+close() should be deferred until after __map_new_file_vma() calls
+unmap_region().
+
+suggested fix is to drop vma_close() from mmap_file()  and update the
+cleanup in __mmap_new_file_vma() 
+
+if (error) {
+	UNMAP_STATE(unmap, vmi, vma, vma->vm_start, vma->vm_end,
+		    map->prev, map->next);
+	vma_iter_set(vmi, vma->vm_end);
+	unmap_region(&unmap);
+
+	/* Release driver state only after its mappings are gone. */
+	vma_close(vma);
+
+	if (map_same_file(map))
+		fput(map->vm_file);
+	vma->vm_file = NULL;
+
+	return error;
+}
+
+Example race:
+
+  Thread A                              Thread B
+
+  mmap(MAP_FIXED, address A)
+    driver remap_pfn_range(A, page P)
+                                         load/store at known address A
+                                         hardware finds the new present PTE
+    validation fails
+    ->close() frees page P
+                                         UAF
+    unmap_region()
+    TLB shootdown
+
+With that fix
 
 Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
+
+~Gregory
 
