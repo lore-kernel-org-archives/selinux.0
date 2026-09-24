@@ -1,157 +1,108 @@
-Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
+Received: from mail-qk2-f13.google.com (mail-qk2-f13.google.com [74.125.230.205])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004013E168F
-	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 16:22:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A0A343F8A1
+	for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 16:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790266958; cv=none; b=khOqUwW4E2erQnl7K/tUfAN5mePMxeQzL18H1os74ZN0vEHaeSoN/55B2FWIpZmHBtmS+fN6NfCd+kZWLOND8i/A/spjSFhbON7cz8ZQDQ1u6HDjNJcZ7NF8vvU2+TLf8xcv9VPPvrJAwZl2WO7INWXtNre+grfm/G70gBKoiaM=
+	t=1790267895; cv=none; b=uGfZ+XVH+RDy1HGKknRocU/CAtEGg21h2dWspdfwkJsdvxDiUUR7x7yiCG9PoPVg8HdvgT/uLQeBQls1hJvtomavnDCK5Z199SIRyBjiQBZPxfGW1nVkTuZpHofvNHlnGm9kFLVmLu308QIoReQH5BDjJFc6w8soDt0Toi9Rgzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790266958; c=relaxed/simple;
-	bh=yeRvrxLNXu5P/5fuNsA8vOFpswkyNefZgn9R8H/EavU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lnhG2i0Rp30CnVUpblSO4f7mbu3QKjjwUfvj7GFXwoj15hP1owgKbrcZEDcecWXsKTV2GQyIAGjL6MrsqDlD3e60RzNydSgaNNTRXsdYMJnZyhfhdvh6HnvgHBP6a+rcF34MhXdodjtKsAKR+y1cMgCFDyF/tvbXLyGoKASbdN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lsEEdewL; arc=none smtp.client-ip=74.125.224.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790267895; c=relaxed/simple;
+	bh=Y6dfgoDu9ENyHz35342iESy0PYqePxl/sIn9jSurkUk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JG6ZzNHm5zW1jgrquJE3ip6+u6Fl87Pcms7URa7RnRqDmby87opdW+fnXW5hzmzT3DUQO+XeEdRGFmB5CID5EZFk4OQfqlpqVw7Fn3nvNnWLJyhOhsgp/0cKWdWxNRPdpBqOL40gQ+JB9SQ42+vuu6x7+tgw5rg3onkwSPczeys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=DELaQ6H+; arc=none smtp.client-ip=74.125.230.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lsEEdewL"
-Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-66c9995ca60so549443d50.1
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 09:22:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="DELaQ6H+"
+Received: by mail-qk2-f13.google.com with SMTP id d75a77b69052e-52fb76543e2so141231cf.1
+        for <selinux@vger.kernel.org>; Thu, 24 Sep 2026 09:38:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790266956; x=1790871756; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=HBvTgUmuKWfYCix8ZfV3kufvtt3QFhFjLgVOos+ID6U=;
-        b=lsEEdewLbb6u0XKkpC+djCGuPxrqnKNntC2qgWMyFbnndQ1V+XH8kvGXpc1m0qEOMm
-         PbsIwshJMZt8drw9pWPn4MRLqFwFoEOWuVO/1Wy8T+fL9MOEWkjMFP//XeHoGIvdKl+E
-         U/nltmUFMr7yIzZeTX8UNJ/82NQh4qXk4GMz1HFQCaOWs963YrPUiY33Hc2Ak3h8hS8g
-         wCS1hIKwAvlVU3SeyPTv0Te2PZMqVGC+RknXjQqFxcjPmLEDkOwN+ODXYYAfn7qlI/uZ
-         htN0gVKLtwr3w8/jm77bN8wFsXdc+vdLPVGlHTY89dtASHhG9X1qSJxOeRyHBhp1VS1G
-         nndQ==
+        d=gourry.net; s=google; t=1790267891; x=1790872691; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
+        b=DELaQ6H+GoqYKhSPbbw83I2UghjOPLUKt/HJzwYXOl5vd4By1b/ewKsZIbd9ahXhZb
+         TJDLBT2drAnq8j1D4gtZjKdZE54vfhHIW07z7SMjyhNrpJZ88lIXL27llafwJKgt7Hvw
+         zeqWn52o1fsiwmzoo4rrDQZv3h3IiFJnFO2iuBnkUsGA3ktjvtFHA3Jr6K2ZEcGMg8M1
+         1di2ZTIAJ2yTB2V6zmlctv6zG6tcG5IvMF9RkWmI06r7tX+skZxDuVThBB0MSr3NZe3S
+         B2+XxiOTA95Xk/3/+mlBZ2rpvQSIcAx9lD43yFxhcrOBvTesr5mE416XkZK5Fw1vsdLx
+         5Q7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790266956; x=1790871756;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=HBvTgUmuKWfYCix8ZfV3kufvtt3QFhFjLgVOos+ID6U=;
-        b=OGUO0TxcGncFGFPHrpZ1/5gBMuPCAujplamx5wEWp6n96iwtpa5hMfjxIJ4M7JEoN6
-         rS82+Nox6PCMJ8F/qTP4mgDHNbVk+GkwIVjdyP2HDcauQtSmWe1ZpBYj16W9x5u7QP1o
-         Fr5PQJZuDZ3tls9nT06aJUTAo7EXulWbGIy5r+rlzqBbLXqK/0Sgsa1Ach+stVCisQ3k
-         1gemzBn7xFHs/9iuvs0kQxv/gB58BwfjkmyAq9FJTC8UOKAKSZ37Hl0ecqF5HHGFse0q
-         7v5ZQrNOa/V5suXWHhNphe48Nx16oqFDycmm/yyx/aTyJuDqLKi//IRru5j4XEWZPiWS
-         3PFg==
-X-Gm-Message-State: AFuF++mGvjuk1aDYsoEg6gJWX4cG++HSL66iSWqqBhLg5c/nVKBVYSBY
-	SMCGppFEIc66keDs4TlwuUCx7ljtUXruR526SUvA79vQjLki+5f1yYJlc26pvw==
-X-Gm-Gg: AYBFou1JRKhcirEUuB2faJDoIF88e1K+Pe8LHxfj5cAzj5vdyfjqmcW3pOl41kMqqr7
-	eQTtI6AcDCVDSE0at6/NG0YnwKdqHR/vdd4YxID5tJpHQE7dLRuDA1kYSxfp7w/Bc3Ac2bloSmA
-	vKYuPEa8Xb0dfgJSHQqaBJYo4bik26YJUsY6vHDQYncBtYNuQfUO9ya1hmfrTjZONhv3fFiKmn1
-	nb6/WCgEzHZaAViNiUjjhaqh/sozqcgtqj465xlzIV0hopm2oZXKC5PopbAfSBDvRIBm7COpqZh
-	KwiZoJJORbuEQ2UGCOkKYkKmrcUIkwqO2F1GN4IPEkV+hZ1gv1qzQYfFkcG5rQkBdvJNy2/39sF
-	mKKvvhmhIjvMQM1OTVgaRd5BHj3PSGm53AqFnWfu0iUfbu4fGGts9O5dN61hGT8Fm0lWA8K9pUG
-	M40kMwpEXG1ttIoQ3asPxhHZomKYeUkNsaWqwH5b8dAlodO5ASI0mY5SOQIJGua2ZGBEf5rA5wI
-	DVjrxvpc5iMaPNZnXQaRMFCaV3n6bNTW7US+j8lsJZ5/9X/qruJpFbT/pvXEroGSTbN6As4j/s=
-X-Received: by 2002:a05:690e:11c2:b0:670:fe3e:bf05 with SMTP id 956f58d0204a3-672ed302e52mr1920349d50.23.1790266955831;
-        Thu, 24 Sep 2026 09:22:35 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9141e21967fsm19786586d6.13.2026.09.24.09.22.35
+        d=1e100.net; s=20260707; t=1790267891; x=1790872691;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
+        b=OlEiH29GTAC+Z2pzSzjwHAMkeh2rdRS1rckTQhHFNr2fiImPHZq/HU2M+IpDcddREp
+         AVyAP0keQHcEffNHGl4TkP3E6Ema6toEP2rt8mxyLYfifrclPsVuU2zoDjEnjyums7ft
+         DmdEQr2QphiGf3VfxXFxEvRcKzXM3ToMqxeC43NdK2Y5O4q54e7lxHwu0hPxs2TuDHNf
+         c0SAb9rWr7dJsh0SPJysufGeqy6Yvqxbl/0+sn1S/h0dpDmZXTyOaHFaORKKEm0jvDH+
+         zpNn8IYiWIti0Cij4vjY6WTP2h12K3X7nTIy/1o27vm9btMd4PoOSav01AoM8b8uCDcL
+         WpSA==
+X-Forwarded-Encrypted: i=1; AKwUvBzb5shVttqjsjKrkLPFpMK8WDVz3tkqMl6WcS/LOY96Ry7bE3/E/LLKJA3Q8sJcv9AInJo0N0T0@vger.kernel.org
+X-Gm-Message-State: AFuF++nhnW2dzMU/uI782bx5YK6poWeuhx0K/P8EyxDCrAmpIiQZxCCh
+	papmvrTDiRw8MeW9LwtIkoQft0pywodMf+1Xv43wnfFEUalj8BbaSw+ZaQDx5sV15EE=
+X-Gm-Gg: AYBFou0V4ZhkL7le1WNHMJ7EBACwnwHUjRqIO5LiZ9PdpjK6VnTv7jKR0BDJAoYY76h
+	UCUNrQm0Ry90DEdIYOl1SKEfZBcjbtpDNZTzVIrVmlbXEYLvSq7qHAQcohYv1ZFzeYHEnFv1vE6
+	LyC6OQlYTlBy6H6AreBwU9TlCwW9KSYS68mxVG6mXWMKy21PWr222+G0LYe14IWckBo7ttJXkM6
+	JyJwhGlSy3y51HXW1S41BkVkVMJDK02ooiXxIefJgd9nkVbUmUyPWdvmMKsReJsyIkyDFxWYLkz
+	/iBOAH33gkwdoLhuLEA5x5IxDSZ8PzEbePzGX5SZ/hZLpoCZOgw9NlyNQaA/6YWW3RDGJdUMKdA
+	ERRccV2LxsU5OjVPOHv9qbn+g9170dzFGzI9hPDLP8yHgFRX7/PKP3wM+87TL9gFIAkcl3492ap
+	2nYrMYMXqAe+W7Oo+o0JhN5WGr9ZxBZCpMvArUtSyUVrgn0sJ8B8xHYG4q1kiD3bZhjPfyjIE0L
+	0mQoXFMWV+Po6t+pOsI9I9jM0C3Dlfyt+1M0DBHgceX1fhRVZTJfWM=
+X-Received: by 2002:ac8:5743:0:b0:530:d860:ffba with SMTP id d75a77b69052e-532fe9f05bamr29797891cf.6.1790267890993;
+        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eb32f6aasm45064551cf.16.2026.09.24.09.38.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 09:22:35 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	jwcart2@gmail.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] python/semanage: fall back to filename completion for fcontext paths
-Date: Thu, 24 Sep 2026 12:22:20 -0400
-Message-ID: <20260924162220.64876-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
+Date: Thu, 24 Sep 2026 12:38:08 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
+Subject: Re: [PATCH v3 03/40] mm/vma: introduce and use
+ vma_[flags_]can_merge()
+Message-ID: <arVRqJZkql6sGunt@gourry-fedora-PF4VCD3F>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
 
-semanage fcontext -a -t TYPE /some/pathprefix<TAB> does not
-auto-complete currently; the fcontext arm of _semanage()
-unconditionally offers the option word list for any word that isn't
-the argument to -t/-f/-S/..., and the completion is registered without
--o default, so an empty match stays empty.
+On Thu, Sep 17, 2026 at 05:22:12PM +0100, Lorenzo Stoakes (ARM) wrote:
+> Replace the open-coded VMA_SPECIAL_FLAGS check in the VMA merge logic with
+> two new functions vma_flags_can_merge() and vma_can_merge() and update the
+> merge logic to use the former.
+> 
+> This abstracts the check and expresses it in terms of the desired behaviour
+> rather than an arbitrary and confusing VMA flag.
+> 
+> This also lays the groundwork for making further improvements in VMA flag
+> usage.
+> 
+> Also update the userland VMA tests to reflect the change.
+> 
+> No functional change intended.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Register the completion with '-o default -o bashdefault' so an empty
-COMPREPLY falls through to readline filename completion, and only
-offer the fcontext option list when the current word is empty or
-starts with '-'. The path/regex positional and the -e/--equal argument
-then get ordinary filename completion.
-
-While here, the __get_*_opts helpers echo '$ALL_OPTS $MANAGED_OPTS
-...'  in single quotes, so the common option variables are never
-expanded and only the per-subcommand-specific flags have ever been
-offered. Switch to double quotes so -l/--list, -a/--add, -h/--help, etc
-are completed under every subcommand.
-
-Reported-by: Germano Massullo (@Germano0)
-Fixes: https://github.com/SELinuxProject/selinux/issues/278
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- python/semanage/semanage-bash-completion.sh | 30 +++++++++++----------
- 1 file changed, 16 insertions(+), 14 deletions(-)
-
-diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
-index d0dd139f..cbc26f9c 100644
---- a/python/semanage/semanage-bash-completion.sh
-+++ b/python/semanage/semanage-bash-completion.sh
-@@ -57,18 +57,18 @@ __get_all_stores () {
- __get_all_modules () {
-     semodule -l
- }
--__get_import_opts () { echo '$ALL_OPTS --f --input_file' ; }
--__get_export_opts () { echo '$ALL_OPTS --f --output_file' ; }
--__get_boolean_opts () { echo '$ALL_OPTS --on -off -1 -0' ; }
--__get_user_opts () { echo '$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role '; }
--__get_login_opts () { echo '$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range'; }
--__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto'; }
--__get_interface_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type '; }
--__get_node_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto'; }
--__get_fcontext_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype '; }
--__get_module_opts () { echo '$ALL_OPTS $MANAGED_OPTS --enable --disable '; }
--__get_dontaudit_opts () { echo '-S on off' ; }
--__get_permissive_opts () { echo '$ALL_OPTS -a --add -d --delete' ; }
-+__get_import_opts () { echo "$ALL_OPTS --f --input_file" ; }
-+__get_export_opts () { echo "$ALL_OPTS --f --output_file" ; }
-+__get_boolean_opts () { echo "$ALL_OPTS --on -off -1 -0" ; }
-+__get_user_opts () { echo "$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role "; }
-+__get_login_opts () { echo "$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range"; }
-+__get_port_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto"; }
-+__get_interface_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type "; }
-+__get_node_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto"; }
-+__get_fcontext_opts () { echo "$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype "; }
-+__get_module_opts () { echo "$ALL_OPTS $MANAGED_OPTS --enable --disable "; }
-+__get_dontaudit_opts () { echo "-S on off" ; }
-+__get_permissive_opts () { echo "$ALL_OPTS -a --add -d --delete" ; }
- 
- _semanage () {
-         local command=${COMP_WORDS[1]}
-@@ -150,7 +150,9 @@ _semanage () {
-                 COMPREPLY=( $(compgen -W "$( __get_node_opts ) " -- "$cur") )
- 		return 0
-         elif __contains_word "$command" ${VERBS[FCONTEXT]} ; then
--                COMPREPLY=( $(compgen -W "$( __get_fcontext_opts ) " -- "$cur") )
-+		if [[ -z "$cur" || "$cur" == -* ]] ; then
-+			COMPREPLY=( $(compgen -W "$( __get_fcontext_opts ) " -- "$cur") )
-+		fi
- 		return 0
-         elif __contains_word "$command" ${VERBS[BOOLEAN]} ; then
-                 COMPREPLY=( $(compgen -W "$( __get_boolean_opts ) " -- "$cur") )
-@@ -171,4 +173,4 @@ _semanage () {
-         COMPREPLY=( $(compgen -W "$comps" -- "$cur") )
-         return 0
- }
--complete -F _semanage semanage
-+complete -o default -o bashdefault -F _semanage semanage
--- 
-2.55.0
+Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
 
