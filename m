@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA69B3921DB
-	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:19:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5ED401486
+	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:19:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790356747; cv=none; b=DLQXGThBtCE28w7gH9GOqZm3nh2rQ+Meb18f2cW86Jbf5U0M6nOVAq454p9nBx9UfEtZZeCYJU454HkTrueKKrV1l95H0FoB4tReSCL1Ew51h0KrWI8BD9ifVI1kRTHqOQM6DyMfGsJKCE88pgtTRzsgjYzjtnWnWMEgq42muLs=
+	t=1790356752; cv=none; b=tX3rw/TI17hI1TSWsIs4Fsqd1NWU0hd4OEEBgaAwVDZDwAFd70l+12aArWASUnsdU12XH+vNWbvw+sJ200hd/46J2l7B7MVoVVD8ECzZqGjeS7xmmB2IDYSG6aGzc3CLWaPLzk1SsDG2HvLQDrPHW4ztmFhKs/pKwiEnPfpZV7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790356747; c=relaxed/simple;
-	bh=CFbZNvdiyGRs4fC4ImXW6SDoU5pxLqgidTxwzH2YPXg=;
+	s=arc-20240116; t=1790356752; c=relaxed/simple;
+	bh=5U1JE9hxvbhXcZLPxTGXNlL0ISKh2HZq/1uxLU38C5g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=TVDPLsFlnpliChbIuAjUokFxIgC/7Ik3oX19uE9sNrRQLHzB8YuB8z4zo0QX9IIdOQffoUZVCK+KNcnvslinxV6tuvCzX1XyCyAQyGdIlIFibirs9K4XAzodWw6vkuHyBqteBfbxbPO27ndHwwOjYV5Zai2M9SV0u30g6H0lCJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=BxXa2h3M; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=qslxQETvJF2gYrUMb2XHOV6V8WVpK4Au6R6cJ4hD8gnDAtPg5izie3MABQVLEwesjItBYLfWkb5voW1+7ijw1j0XsledvWpPxsDF1wq0yDE7UKV8mOQhwyMQXdiuDXV90FZ33yJOvuewq5+zWozHMy2DNAywOspgcJpsdpwBkjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Q/ofv2eE; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="BxXa2h3M"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Q/ofv2eE"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1790356715;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pPwUHaBlRuHopWWilgHS/7QqOBPEXVZ59y0Ac+Ptf00=;
-	b=BxXa2h3MnETzXb2TbgaaUsFYBOrEffMnwB9aZ3RYOiajS64X8Gf5hyuHRuknXxbOwTG4U1
-	7dGiAhTrKogMsN+cP3brauO6b4AyuDsLgBjsoUdsIfRkHsrsoJEk0wYVQvL++V4+TTYwH8
-	CkosIoDVb61/ECDY6//VVbP6kuhc8VAlvoCJvBOG7bgUpRLM1upz7OxHfd6zTJFOPvxVIp
-	iksCFM/XU7tOiWIhJvxc/dniv8mC3fd/ZjCgl/GC/dMDTXrrN0h7Csm3qrEN/uTJU29xu+
-	XFIx6pT5fKZ0W7uVdbOMiRDxfFQ0n5LGsqWWWKm3+fE5nwJQntBNqrszROMGjg==
+	bh=6Uj011AcSW1R8cpLv3PvgdsDIEP5zOaOJbSTLtJRVYE=;
+	b=Q/ofv2eEQSlo4zL68bl+sSozYCB9FPVgQiqVXumNJ6d8xP7OdWDwjnqn2aPXdHDKPwHwX4
+	aGc++wu4wKsacv5V5de++GkA1vK10hJpTydYqpv2YzHLQ//baovO6eOn5n+kJIodAobFvQ
+	6UnCqLP/8ry0RQvw6xYgfxRrwBE4E3bDfhNjMDogrdMPK1QvE8upSxhS/jj5rewjTV4PhX
+	kGaZwFhbHL8CXk0m5hzaCGM3rwxc9OoRn+jcMf/IxAn67mNQaGdAldoaI5KhD81YS8v3ta
+	GGIGR1syY3D9COesSToroHnaTtIMcg9O7H2/dkObkBIMU8HaJSDSp6gcYNHJVw==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 21/21] tests: drop headers from Makefile dependencies
-Date: Fri, 25 Sep 2026 19:17:53 +0200
-Message-ID: <20260925171755.2029271-20-cgoettsche@seltendoof.de>
+Subject: [PATCH 01/21] policy: allow io_uring allowed in the io_uring test domains
+Date: Fri, 25 Sep 2026 19:17:54 +0200
+Message-ID: <20260925171755.2029271-21-cgoettsche@seltendoof.de>
 In-Reply-To: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 References: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,104 +49,64 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Clang does not support header files included in the compile command:
+Since Linux 6.15, io_uring_setup(2) is subject to the SELinux
+io_uring allowed permission, checked on the calling domain against
+itself (kernel commit c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM hooks
+for io_uring_setup()")).  Policies that define this permission, e.g.
+Reference Policy since commit d4084b9fa ("Add new kernel security class
+memfd_file and new kernel permissions"), do not grant it to the io_uring
+test domains, which only get the minimal testsuite domain rules.
 
-    clang -g -O2 -Werror -Wall -Wextra -Wno-error=unused-parameter -D_GNU_SOURCE -DHAVE_BPF -DHAVE_FS_WATCH_PERM -DHAVE_BPF    bpf_test.c bpf_common.c bpf_common.h  -lselinux -lbpf -o bpf_test
-    clang: error: cannot specify -o when generating multiple output files
+io_uring_queue_init_params() then fails with EACCES, so the positive
+io_uring tests fail and the negative ones pass without ever reaching the
+check they are meant to exercise:
 
+  avc:  denied  { allowed } for  pid=3493 comm="iouring"
+    scontext=unconfined_u:unconfined_r:test_io_uring_t:s0-s0:c0.c1023
+    tcontext=unconfined_u:unconfined_r:test_io_uring_t:s0-s0:c0.c1023
+    tclass=io_uring permissive=0
+
+Grant the permission in the common io_uring test domain definition if
+the policy defines it.
+
+Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/binder/Makefile        | 4 ++--
- tests/fdreceive/Makefile     | 2 +-
- tests/fs_filesystem/Makefile | 2 +-
- tests/keys/Makefile          | 2 --
- tests/sctp/Makefile          | 2 +-
- tests/tun_tap/Makefile       | 2 +-
- 6 files changed, 6 insertions(+), 8 deletions(-)
+ policy/Makefile         | 3 +++
+ policy/test_io_uring.te | 6 ++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/tests/binder/Makefile b/tests/binder/Makefile
-index b89d4db..5c3a589 100644
---- a/tests/binder/Makefile
-+++ b/tests/binder/Makefile
-@@ -3,7 +3,7 @@ INCLUDEDIR ?= /usr/include
+diff --git a/policy/Makefile b/policy/Makefile
+index bf1ea76..2d098ce 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -207,6 +207,9 @@ endif
  
- TARGETS = check_binder client manager service_provider
- LDLIBS += -lselinux -lrt
--DEPS = binder_common.c binder_common.h
-+DEPS = binder_common.c
- 
- ifeq ($(shell test -e $(INCLUDEDIR)/linux/android/binderfs.h && echo true),true)
- CFLAGS += -DHAVE_BINDERFS
-@@ -11,7 +11,7 @@ TARGETS += check_binderfs
+ ifeq ($(shell grep -q io_uring $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ TARGETS += test_io_uring.te
++ifeq ($(shell grep -q all_io_uring_perms.*allowed $(POLDEV)/include/support/all_perms.spt && echo true),true)
++export M4PARAM += -Dio_uring_allowed_defined
++endif
  endif
  
- ifneq (,$(findstring -DHAVE_BPF,$(CFLAGS)))
--	DEPS += ../bpf/bpf_common.c ../bpf/bpf_common.h
-+	DEPS += ../bpf/bpf_common.c
- 	LDLIBS += -lbpf
- endif
+ all: build
+diff --git a/policy/test_io_uring.te b/policy/test_io_uring.te
+index ad12846..4b8a1f7 100644
+--- a/policy/test_io_uring.te
++++ b/policy/test_io_uring.te
+@@ -36,6 +36,12 @@ testsuite_domain_type_minimal($1_t)
+ #
+ allow $1_t self:process fork;
  
-diff --git a/tests/fdreceive/Makefile b/tests/fdreceive/Makefile
-index d9f8927..4b1fb8c 100644
---- a/tests/fdreceive/Makefile
-+++ b/tests/fdreceive/Makefile
-@@ -1,7 +1,7 @@
- TARGETS = client server
- 
- ifneq (,$(findstring -DHAVE_BPF,$(CFLAGS)))
--	DEPS = ../bpf/bpf_common.c ../bpf/bpf_common.h
-+	DEPS = ../bpf/bpf_common.c
- 	LDLIBS += -lbpf
- endif
- 
-diff --git a/tests/fs_filesystem/Makefile b/tests/fs_filesystem/Makefile
-index 9224860..3293a91 100644
---- a/tests/fs_filesystem/Makefile
-+++ b/tests/fs_filesystem/Makefile
-@@ -1,5 +1,5 @@
- TARGETS = fsmount fspick move_mount
--DEPS = fs_common.c fs_common.h
-+DEPS = fs_common.c
- LDLIBS += -lselinux
- USE_FS = ../filesystem
- 
-diff --git a/tests/keys/Makefile b/tests/keys/Makefile
-index d9f36ff..d3793db 100644
---- a/tests/keys/Makefile
-+++ b/tests/keys/Makefile
-@@ -1,8 +1,6 @@
- TARGETS = keyctl keyctl_relabel keyring_service request_keys
- LDLIBS += -lselinux -lkeyutils
- 
--$(TARGETS): keys_common.h
--
- all: $(TARGETS)
- 
- clean:
-diff --git a/tests/sctp/Makefile b/tests/sctp/Makefile
-index c77b919..62254c2 100644
---- a/tests/sctp/Makefile
-+++ b/tests/sctp/Makefile
-@@ -2,7 +2,7 @@ TARGETS = sctp_client sctp_server sctp_bind sctp_bindx sctp_connectx \
- 	sctp_asconf_params_client sctp_asconf_params_server \
- 	sctp_peeloff_client sctp_peeloff_server
- 
--DEPS = sctp_common.c sctp_common.h
-+DEPS = sctp_common.c
- CFLAGS ?= -Wall
- 
- LDLIBS += -lselinux -lsctp
-diff --git a/tests/tun_tap/Makefile b/tests/tun_tap/Makefile
-index 11f5b03..f4b69d5 100644
---- a/tests/tun_tap/Makefile
-+++ b/tests/tun_tap/Makefile
-@@ -1,5 +1,5 @@
- TARGETS = tun_tap tun_relabel
--DEPS = tun_common.c tun_common.h
-+DEPS = tun_common.c
- LDLIBS += -lselinux
- 
- all: $(TARGETS)
++#
++# Allow io_uring_setup(2), which the kernel checks against the
++# io_uring allowed permission if the policy defines it.
++#
++ifdef(`io_uring_allowed_defined', `allow $1_t self:io_uring allowed;')
++
+ #
+ # Define a per-domain type for any io_uring anon inodes created
+ # by this domain. We use per-domain types so we can distinguish
 -- 
 2.55.0
 
