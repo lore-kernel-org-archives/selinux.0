@@ -1,42 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F913F5BE6
-	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:18:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016683B7749
+	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:18:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790356727; cv=none; b=r7UOYqUsXN9iXxg2mOX88bE7s550Ij+LA6iWyDKGZRmcJD0Qvrr3d0WYUoaJzuiM8jQ7R0+8PZkhV8kRG6Hb3ZNjdha3/N+S/WarAZsHpq+EVBPFESdxoC17wnaKqMJ8Ha+Wlq8t/jlxs8S5EFfiVxTKH/4fAZvfvHCxTOyfqmw=
+	t=1790356724; cv=none; b=WwZpmKoIUk9y+QqBFJKtBDIP7zkqsOiY80dSUmSrYz2yHSMjeYQ+cmv6STZGcBbAIazXyGUzPO9ZSkwXfy1HtCLPldWa0hiHVAD6egaooM+1P9I7O0c33iAiW4FwCEHIAGUXGxwuIpjXrRe6mXzkHSafMgnx/iGGg6IM7jZd68U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790356727; c=relaxed/simple;
-	bh=wO6VZZf11y3UEREWBLybkS1b53Fb9qjG6f3hiYR9Z14=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ceTZDZ6yb6giz8+p8JwbBfYs1AUZywXUi3TkC/bZ29UvR7URK4Flui5dQZEZnvTI9MOSR1/cVatG+AHV7ql9wnfTnYpv+9tSkVoRhZoyb6OyyXXfzb2iYyAcohpm6/FiUDjYGMkMYqIoBdEwfJb5iBngDnKkmllmgxuM907eMms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=px9U3Nn7; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1790356724; c=relaxed/simple;
+	bh=wIo/2aOXbs/C2FWpfmUQDGvTeFnXK5uFPHzs7aZavdI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ippNrN+AkKwNo4iHY3cNzIWzVR63bh//3rg0dQB0EHdtALls0uEhJzSMGqN0uwZpZ3xHld3qoiP98Yu+ujGdt7OWcd4dEqSDymPlgYBfqFUYUPGDiLnXOw7crrvBdVWZqtfCfuVx8YKfQOvgJ/atcC8A2q3f9MJb0KDQ8xUTOYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=CK4aBAy7; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="px9U3Nn7"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="CK4aBAy7"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790356710;
+	s=2023072701; t=1790356707;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qWguEuC75eBVVSHmKPAvkIaBgYP979Pc9TV0yGSbdFA=;
-	b=px9U3Nn78vO4rP8iKWM5JGqh6hil4GfL+P1V4AOm3PpiZBdfAOvDKTopm5FjkcPISaTXKC
-	xm2/yc17NF/tOSFoUcsv/02lyOX5mMg17sQ+hW0QcXFGaCE4ll1kOCqM+WzIXnaakJ7njD
-	gII/eAdA6LBDg3xY18X35oE22pqZIzUkwYaZ50JdCoCHD5UZkXFUt7qpYaBGG1GuYnPc1X
-	B4llvuAuvYPFaC9bW8qxicSfUitHwaJGpGXrcC186QTt2/I47wKBHUEyaLEZQNIyMGTF1Q
-	chvX6P8anvfK4tiIm4/8XuAkI9mvfAq8PpPzvYC1UD42J22E9E9CHfwc8WavRg==
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=krne7TJFP5TaUqOiGtYolT5+z04Kh3KoMNLLeot4DM8=;
+	b=CK4aBAy7plXblqJRIju5g3LOpHWbcrP9cls1rQBk9kJyAfOsiLUGlUTOTqM+Y3yRxZBB6e
+	DtE9q2rI1bnX6tSomvIO4911c/kZj/jjDPUtrGWNUGWKOJy0kJp24IdIlhM3O7QDrMwvkA
+	DC4rrvWRetfItLYCmgYOR4juMcl0IRockQJXp/grpkhTyZfJJ9K2JdXBXPB+KmIqx3lWFB
+	T3FPquCdSiNDoYw8OTGOXcewr2Qa+mcz/41W1iQStLq3iQGIAQA/YzUxB+i2rDwO6NlH4v
+	aFONhSiZhwVGq7UXKxkiVCEFVvZhLLMfeaUW8JWaDTdJOzfnZFIKGhYX/fVlbg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 04/21] tests: skip module_load tests without a kernel build directory
-Date: Fri, 25 Sep 2026 19:17:36 +0200
-Message-ID: <20260925171755.2029271-3-cgoettsche@seltendoof.de>
-In-Reply-To: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
-References: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 02/21] policy: fix build with Reference Policy
+Date: Fri, 25 Sep 2026 19:17:34 +0200
+Message-ID: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -49,37 +44,76 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The module_load tests build kernel modules against
-/lib/modules/$(uname -r)/build.  If the headers for the running kernel
-are not installed, e.g. when testing a custom kernel, the build fails
-and aborts the whole testsuite.
+test_file_load.te and test_bpf_token.te call interfaces that only exist
+in the Fedora policy: files_rw_generic_tmp_dir(),
+fs_rw_inherited_tmpfs_files(), userdom_read_inherited_user_tmp_files()
+and fs_list_bpf_dirs().  With Reference Policy, e.g. Debian's
+selinux-policy-dev, the unexpanded calls end up in the module source
+and the test policy fails to build.
 
-Skip the tests with a warning in that case, like other tests are skipped
-if their requirements are not met.  Check for the Makefile within the
-build directory, since distributions may ship the build symlink with the
-kernel image and only install its target with the kernel headers.
+Fall back to the Reference Policy equivalents, as already done for other
+interfaces in test_global.te.  files_rw_generic_tmp_dir() needs no
+replacement, since Reference Policy's files_tmp_filetrans() already
+allows writing to /tmp.  test_bpf_token.te also uses bpf_t directly,
+which only got required via fs_list_bpf_dirs(), so require it explicitly.
 
+Fixes: 011a106 ("policy,tests: add tests for new permissions for loading files/data")
+Fixes: 16ac3af ("tests/bpf: Add tests for SELinux BPF token access control")
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ policy/test_bpf_token.te |  9 +++++++++
+ policy/test_file_load.te | 12 ++++++++++++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 084c788..d1edd4d 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -102,7 +102,11 @@ endif
+diff --git a/policy/test_bpf_token.te b/policy/test_bpf_token.te
+index bc7a777..5f05d1c 100644
+--- a/policy/test_bpf_token.te
++++ b/policy/test_bpf_token.te
+@@ -2,6 +2,15 @@
+ #
+ # Policy for testing BPF map create and program load with BPF token
  
- ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-+ifneq ($(wildcard /lib/modules/$(shell uname -r)/build/Makefile),)
- SUBDIRS+=module_load
-+else
-+$(warning Skipping module_load tests: /lib/modules/$(shell uname -r)/build not found)
-+endif
- endif
- endif
++require {
++	type bpf_t;
++}
++
++# Reference policy does not have fs_list_bpf_dirs()
++ifdef(`fs_list_bpf_dirs', `', `
++define(`fs_list_bpf_dirs', `allow $1 bpf_t:dir list_dir_perms;')
++')
++
+ ################### Allow map_create_as and prog_load_as ###################
+ fs_list_bpf_dirs(test_bpf_t)
+ allow test_bpf_t bpf_t:filesystem mount;
+diff --git a/policy/test_file_load.te b/policy/test_file_load.te
+index 5e5c85c..35387af 100644
+--- a/policy/test_file_load.te
++++ b/policy/test_file_load.te
+@@ -7,12 +7,24 @@ require {
+     type user_tmp_t;
+ }
+ 
++# Reference policy does not have the *_inherited_* interfaces
++ifdef(`fs_rw_inherited_tmpfs_files', `', `
++define(`fs_rw_inherited_tmpfs_files', `fs_rw_tmpfs_files($1)')
++')
++ifdef(`userdom_read_inherited_user_tmp_files', `', `
++define(`userdom_read_inherited_user_tmp_files', `userdom_read_user_tmp_files($1)')
++')
++
+ attribute testkexecdomain;
+ 
+ type test_kexec_tmp_file_t;
+ files_tmp_file(test_kexec_tmp_file_t)
+ 
++# Reference policy does not have files_rw_generic_tmp_dir(), but its
++# files_tmp_filetrans() below already allows writing to /tmp.
++ifdef(`files_rw_generic_tmp_dir', `
+ files_rw_generic_tmp_dir(testkexecdomain)
++')
+ files_tmp_filetrans(testkexecdomain, test_kexec_tmp_file_t, file)
+ manage_files_pattern(testkexecdomain, test_kexec_tmp_file_t, test_kexec_tmp_file_t)
  
 -- 
 2.55.0
