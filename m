@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70F0E416859
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E18F415F31
 	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:18:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790356737; cv=none; b=se6l8saws8QXny62Fhdtakk1OeB21HRu8jUmHJ1jPRn6IaELnJJIpPpX2zLNsFJ/Z0MlYtckWZaeOVbbNKc3rs0UbJGcEdJVFKEXMIm7oB+Ee/6Kz/bxINxhboLWAwl+HYEQCbqU/GAP+oqscCmavLmFWVp8rX3N0DuPHb8XbOk=
+	t=1790356735; cv=none; b=VmtZ4sLfHz74QTmW/O13kwgXcQqw4JZVxQe9EfgzwIGLVBgHRZm4MfJLpJSKWzSSAlnYGqfyVbgr0vVV0ZKo+Kvz6gW+1/TBnb1vn73XlTwnYt8geNWUXf4gwTZwz4lzAvDr3KXPJUNiSkPDVJyisI5ir19903L0qtUMIXx3LU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790356737; c=relaxed/simple;
-	bh=Sg7FmyN4P1kCUGV5Je//LXE/8n0Axho5KwCB0KQdiOc=;
+	s=arc-20240116; t=1790356735; c=relaxed/simple;
+	bh=ry9teIAgvCwZWkzK0IrOGVZo4jvbVT+04sKUxFGqnwo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MrCC2pVqEU84jWuK9ptIslypxqgqIvuma0UPQ3pUGk2fI8D+cxMQ2wR/o+umwkkSLOupu/0tpCc82E+DzV8SkjcSwTse7W2WwhNHGtsirN9cBFtt4/5HlJZBZsCLuE76bx9gB7Waa2wUyAASuK5EkzNOnN2GfERplh09nn5VwSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=sawqxUbY; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=E984Hb0GcOWAQtCAqJbyFopJINgNCGz4hYFNWBHauvdav5DbNXsbUvTh+vkF8z6KC7sPL9hqV+D6Am++JOiQX+HMJFD94wFZvl0Xc+Tls3AcBQTfvr+srDfIicu4kzO5gnkLZorc84yn3PygnT48faW1eXz1RkuGNvA9mW+1Fo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=VcgF3QeG; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="sawqxUbY"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="VcgF3QeG"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790356714;
+	s=2023072701; t=1790356713;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1JULJako1O63+9cdW4dK1Klom2TIFu3DItDpOIgHbmA=;
-	b=sawqxUbYmGiI7kl441vseqZM61qBp7GDqrK+naN9q0MpEOJrHlQTJcDfvUHU6UnMwQzH7C
-	aFIBwyaOfdFjeHwNKQOsONsnSOcgzYqloGmDKDzjtYzUnCksWl1hp3maBptiHI3TniLEWY
-	qlgLO5jdjxeGNAy1pi32IYAwm3zrQJOnF0fER2ainxTBdKvTvMBFRGjQ7wkjxFmlEPEAQj
-	YxHFDXMANvyOLN6216D6/HXSP+0OsnMzH3CDvL139B36+eobsEueWDHWcWEfuavkoHdeWD
-	p8fDoU7hutZENdO/Id3PYh8ryCDyEQp6OCjVVjInT7EO7d+GlIy7AITKEHQRsA==
+	bh=rT/vmsxR8Iua2B0tZjNlQTL1dqNfg+cvZzgwrMfDyRM=;
+	b=VcgF3QeGGvsXgQfEmDYvT50tLCG7wwwzO5EuDJd2Xx44Oev7ZvfA5AsR3EjVi2QgSUciol
+	gfeYIPpAzJFG4Ps9uBt7zQcT1E/UoTMA7aUAQ7OfW8M+cX1NiHwdPdZSVkqCqcGnPLlVV2
+	vQCV+2FHBBMwSreyX+DeQTbKmxQpvcYZmXCh5SpNcNWmCm3LucHofyTdUSg/CkeEgiV/Kb
+	QT5ZmxmJoxiJ20Mi8MzM7NY2xyduK6wcjZ69EwDU1cpifCH31+T9gBPef+IwxegKcqVNi5
+	NDZf6kLqACymhj51bWELJj+drF3RZ6NiR+UwnRxx+vFZppc6IX99q4NjTJZ7KQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 15/21] tests/extended_socket_class: work with CONFIG_CRYPTO_USER_API disabled
-Date: Fri, 25 Sep 2026 19:17:47 +0200
-Message-ID: <20260925171755.2029271-14-cgoettsche@seltendoof.de>
+Subject: [PATCH 12/21] Makefile: add PHONY targets
+Date: Fri, 25 Sep 2026 19:17:44 +0200
+Message-ID: <20260925171755.2029271-11-cgoettsche@seltendoof.de>
 In-Reply-To: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 References: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -51,68 +51,37 @@ From: Christian Göttsche <cgzones@googlemail.com>
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/extended_socket_class/test | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+v2: order targets alphabetically
+---
+ Makefile        | 2 ++
+ policy/Makefile | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/tests/extended_socket_class/test b/tests/extended_socket_class/test
-index 1e6299f..f85243a 100755
---- a/tests/extended_socket_class/test
-+++ b/tests/extended_socket_class/test
-@@ -3,10 +3,11 @@
- use Test;
+diff --git a/Makefile b/Makefile
+index 8d6227a..ecde287 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,7 @@
+ SUBDIRS = policy tests 
  
- BEGIN {
--    $test_count     = 6;
-+    $test_count     = 4;
-     $test_bluetooth = 0;
-     $test_sctp      = 0;
-     $test_smc       = 0;
-+    $test_alg       = 0;
- 
-     # check if SCTP is enabled
-     if ( system("modprobe sctp 2>/dev/null && checksctp 2>/dev/null") eq 0 ) {
-@@ -26,6 +27,12 @@ BEGIN {
-         $test_smc = 1;
-     }
- 
-+    # check if ALG is supported
-+    if ( system("modprobe af_alg 2>/dev/null") eq 0 ) {
-+        $test_count += 2;
-+        $test_alg = 1;
-+    }
++.PHONY: all check-syntax clean test
 +
-     plan tests => $test_count;
- }
+ all:
+ 	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i all ; done
  
-@@ -127,17 +134,20 @@ if ($test_bluetooth) {
-     ok($result);
- }
+diff --git a/policy/Makefile b/policy/Makefile
+index 2d098ce..012199a 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -212,6 +212,8 @@ export M4PARAM += -Dio_uring_allowed_defined
+ endif
+ endif
  
--# Verify that test_alg_socket_t can create a Crypto API socket.
--$result = system(
-+if ($test_alg) {
++.PHONY: all build clean expand_check load unload
 +
-+    # Verify that test_alg_socket_t can create a Crypto API socket.
-+    $result = system(
- "runcon -t test_alg_socket_t -- $basedir/sockcreate alg seqpacket default 2>&1"
--);
--ok( $result, 0 );
-+    );
-+    ok( $result, 0 );
+ all: build
  
--# Verify that test_no_alg_socket_t cannot create a Crypto API socket.
--$result = system(
-+    # Verify that test_no_alg_socket_t cannot create a Crypto API socket.
-+    $result = system(
- "runcon -t test_no_alg_socket_t -- $basedir/sockcreate alg seqpacket default 2>&1"
--);
--ok($result);
-+    );
-+    ok($result);
-+}
- 
- if ($test_smc) {
- 
+ expand_check:
 -- 
 2.55.0
 
