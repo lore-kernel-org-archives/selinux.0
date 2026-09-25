@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0D83403B02
-	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:18:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6165D41443A
+	for <selinux@vger.kernel.org>; Fri, 25 Sep 2026 17:18:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790356735; cv=none; b=YnA9wRplVSssCvxXyomRadDTz3vpq6YR07XXA/5+q/bJm0RxYD6N0ujlip6j7ch+LT1owYXr6PHsmsppc3VqgEbXf+O7tWxDoe1SkBY4/5zB0PXa+Gsf4CSWdAWj8mTxaB0faVJcp4qZ4PZCR9rFj89K/1otsubg6FNPvBaFT3s=
+	t=1790356738; cv=none; b=NooSorsTq55udIVhHbxVFEzAob7KZYimwqNfPPg48EKOEXetXBF8JJ3qGftAna441qDuYqEIdNTBi0DfwNTVPhJTTBnnqVBgZRUc4589gsmkxhr5/p2wBTxEuftmcb/47HWYhwSk8K0/CFvs/gtgazD7U17jiQ1YbKO/GBejV8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790356735; c=relaxed/simple;
-	bh=KXmyQ22j+oDnbGiK44DFC8oEFIeB4UN8sk+l/jhIgGc=;
+	s=arc-20240116; t=1790356738; c=relaxed/simple;
+	bh=etpd6S+4Kp+/PJqiI6M3mxDq9pZNOX1EWdjQX9fLw5w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AYzI4mPtGHGZ6Wodq7zkLXgUMs+BYNAwEEA7a/an6Oe4qbDEbSQUHOnEvrpLZzvQGJSgkzRskBF45nJ9NTQQJqGuz/DcgwmHOL7hQxKCCdlXBp4zPeBdqPxeg2pqd3CbZ52HoXGYQswBQB9/l1CjjcsMUuLnCLdJYdKBDZ85r5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=by6cXpQA; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=gj+6JbPFBnve6Vk01QLI4jwTG/WwnZbf+ZJ6010neuOxasiwz6ZamkAEmNC8QwyADx32vbJcPRlydFvNmYu8T0FnA+sskp6OPobdOS+Jf75uphQ0InCrtiIzM5pIWgYBraaheo2woSIteTPVTgUweLzSi2qgozn6yc64N3GiPpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=m9isOwAz; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="by6cXpQA"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="m9isOwAz"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790356713;
+	s=2023072701; t=1790356711;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zSNBpe1atQooonlUgZNQ3BETBvWW8G61fAEhguEy5D0=;
-	b=by6cXpQATyEIAc85XHWr53we5D0YIgXDYHEoOaNGy4S/JoZ0ZoF3sJcRViopzlBDf9xCUT
-	8buwqXfFafgXJUnRGLtJxKXs/CLvqMy431IMSrobs33U9vK8CUhQUmH8/l0M2B+Xtf9I8f
-	WRfzzITZVfjoyJ09tmlF4WZqNiTpM/WvExgxXR/TTRjnksJPuG0wOL9Bl1QABfkG7Jt+5M
-	YD9dIDniqU2jD873uDGUNAyaa1aFmbousoea3wtYk0OLXB0Z9FSEZX22T+ws4gDpAmLqsz
-	cdeIydWYkPqrmh7OxWlYu3x0PfgKuXq5E1IOIn76DqGZJ17asF9kduvVzwhKtA==
+	bh=2QWjS2mdqbmJOhDpwmo3JDPySFyVnZsTYeQVAZh0rJk=;
+	b=m9isOwAzcm2lOVG/hI004NRBVC9ve2q2m/dOvuyBsKFD0U5lCNbfUnk6awgbFEDdbvOS8t
+	NsERJBSCiy1StmDFgiYm3XHN0OSzudScqOyhXLu3JwVj+KhjzC8ZZxVp851yySv5dKH2WP
+	92B81BhZP3qT1X0E1FOMIDzduzgk3e+LneixQMhNJPfXcKR2nBP7f07WkH1NL99QTVh5Dz
+	0DGPVnavfMgu7f5PuyUPokSUBGQWimYYFZTASgimNcCDbRG+oorJaN87ZYC+07YO2MrnRa
+	VR0z3KEtSa1CCVDXMHnDUgjir+xsG2Yupfd+a/t2qT/HhzG30PX+v4zKAFnHjQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 13/21] test: overlayfs related tweaks
-Date: Fri, 25 Sep 2026 19:17:45 +0200
-Message-ID: <20260925171755.2029271-12-cgoettsche@seltendoof.de>
+Subject: [PATCH 08/21] Makefile: use $(MAKE) to pass options
+Date: Fri, 25 Sep 2026 19:17:40 +0200
+Message-ID: <20260925171755.2029271-7-cgoettsche@seltendoof.de>
 In-Reply-To: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 References: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,109 +49,36 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-OverlayFS does not support a couple of ioctl's and other features, like
-NFS, so skip and tweak relevant tests.
+Pass make options, e.g. number of jobs, which allows to build multiple
+test executables in a single sub-directory in parallel.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v2: fix support for NFS, by using FS_IOC_GETFLAGS only on FIGETBZ
-    failure
----
- tests/capable_sys/test     |  2 +-
- tests/ioctl/test_ioctl.c   | 16 +++++++++++++---
- tests/ioctl/test_noioctl.c | 11 +++++++++--
- tests/overlay/test         |  7 ++++---
- 4 files changed, 27 insertions(+), 9 deletions(-)
+ Makefile | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/tests/capable_sys/test b/tests/capable_sys/test
-index 132c732..6fb57a1 100755
---- a/tests/capable_sys/test
-+++ b/tests/capable_sys/test
-@@ -10,7 +10,7 @@ BEGIN {
-     $basedir =~ s|(.*)/[^/]*|$1|;
+diff --git a/Makefile b/Makefile
+index 9081406..8d6227a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,14 +4,12 @@ all:
+ 	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i all ; done
  
-     $fs          = `stat -f --print %T $basedir`;
--    $test_fibmap = ( $fs ne "btrfs" and $fs ne "nfs" );
-+    $test_fibmap = ( $fs ne "btrfs" and $fs ne "nfs" and $fs ne "overlayfs" );
+ test:
+-	make -C policy load
+-	make -C tests test
+-	make -C policy unload
++	$(MAKE) -C policy load
++	$(MAKE) -C tests test
++	$(MAKE) -C policy unload
  
-     $test_count = 7;
-     if ($test_fibmap) {
-diff --git a/tests/ioctl/test_ioctl.c b/tests/ioctl/test_ioctl.c
-index 9bf732d..a68c4e0 100644
---- a/tests/ioctl/test_ioctl.c
-+++ b/tests/ioctl/test_ioctl.c
-@@ -27,11 +27,21 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
+ check-syntax:
+ 	@./tools/check-syntax
  
--	/* This one should hit the FILE__GETATTR or FILE__IOCTL test */
-+	/*
-+	 * This one should hit the FILE__GETATTR or FILE__IOCTL test.
-+	 * FIGETBSZ is not available on overlayfs,
-+	 * and FS_IOC_GETFLAGS is not available on NFS.
-+	 */
- 	rc = ioctl(fd, FIGETBSZ, &val);
- 	if( rc < 0 ) {
--		perror("test_ioctl:FIGETBSZ");
--		exit(1);
-+		if(errno == EINVAL) {
-+			rc = ioctl(fd, FS_IOC_GETFLAGS, &val);
-+		}
-+
-+		if( rc < 0 ) {
-+			perror("test_ioctl:FIGETBSZ/FS_IOC_GETFLAGS");
-+			exit(1);
-+		}
- 	}
- 
- 	/* This one should hit the FILE__IOCTL test */
-diff --git a/tests/ioctl/test_noioctl.c b/tests/ioctl/test_noioctl.c
-index ea9f120..f8cac63 100644
---- a/tests/ioctl/test_noioctl.c
-+++ b/tests/ioctl/test_noioctl.c
-@@ -43,10 +43,17 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
--	/* This one should hit the FILE__IOCTL or FILE__GETATTR test and fail. */
-+	/*
-+	 * This one should hit the FILE__GETATTR or FILE__IOCTL test.
-+	 * FIGETBSZ is not available on overlayfs,
-+	 * and FS_IOC_GETFLAGS is not available on NFS.
-+	 */
- 	rc = ioctl(fd, FIGETBSZ, &val);
-+	if( rc == -1 && errno == EINVAL ) {
-+		rc = ioctl(fd, FS_IOC_GETFLAGS, &val);
-+	}
- 	if( rc == 0 ) {
--		printf("test_noioctl:FIGETBSZ");
-+		printf("test_ioctl:FIGETBSZ/FS_IOC_GETFLAGS");
- 		exit(1);
- 	}
- 
-diff --git a/tests/overlay/test b/tests/overlay/test
-index ae8ec33..6dcf401 100755
---- a/tests/overlay/test
-+++ b/tests/overlay/test
-@@ -9,14 +9,15 @@ BEGIN {
-     chop($seuser);
-     $seuser =~ s|^(\w+):.*$|$1|;
- 
--    $isnfs = `stat -f --print %T $basedir`;
-+    $fs = `stat -f --print %T $basedir`;
- 
-     # check if kernel supports overlayfs and SELinux labeling
-     if ( system("grep -q security_inode_copy_up /proc/kallsyms") ) {
-         plan skip_all => "overlayfs not supported with SELinux in this kernel";
-     }
--    elsif ( $isnfs eq "nfs" ) {
--        plan skip_all => "overlayfs upperdir not supported on NFS";
-+    elsif ( $fs eq "nfs" or $fs eq "overlayfs" ) {
-+        plan skip_all =>
-+          "overlayfs upperdir not supported on NFS and OverlayFS";
-     }
-     else {
-         plan tests => 137;
+ clean:
+ 	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i clean ; done
+-
+-
 -- 
 2.55.0
 
