@@ -1,237 +1,186 @@
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011038.outbound.protection.outlook.com [40.93.194.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f35.google.com (mail-wr2-f35.google.com [74.125.225.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2FFA255F28;
-	Sat, 26 Sep 2026 02:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.38
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790389828; cv=fail; b=Z50kVBAB1Xa7FXM9tIgH7N96m2IF/HSx+r2mrN3UwLp1EI6EPg3oMYA3inUjPvHHfJ5a/Of3mVJJryjRSAqQvpnBDRCHVFXA+L6/0IMqr+Rebm9VFBBZrVTUejlSq8i2TYuvBRmBqGi+komWY8ho84TyrWIYomcJt0wgD+1JQac=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790389828; c=relaxed/simple;
-	bh=FNhiyKfw+w86IepAg5/GM7Ls6jy3nchchg3rrJE/Zrk=;
-	h=Content-Type:Date:Message-Id:Subject:Cc:To:From:References:
-	 In-Reply-To:MIME-Version; b=Gpnbil5rGnXNbGrqB0Q35qr6FlVuouJRQK+0JOCFRAosGR3zBV70oRjnAVK3f6/W9XtAg0HDB5kgCQnNnCjgIpdQ4sQVo7oIuLQN27EhoVyL/GqqdYths4h/ESLKiDdXuHTyoyoOyVJi2j62M547KVGez7TfW+W0cMmFSPJxyRE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Jhyp1dXd; arc=fail smtp.client-ip=40.93.194.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C03E3A6EE3
+	for <selinux@vger.kernel.org>; Sat, 26 Sep 2026 07:56:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.99
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790409399; cv=none; b=R9UQRf+swnMqeL1Uj+4kGgMjusNAfiDguYw35ZyCDUgMcl0k3gXW4Ywb4Z9eCdt0YQxg1kSkW/Yq6VktVRA2ugod91fbSUAs6maE5S0GxADm2ncDREMzSw5agtTei/uF2wAhDUtDNJGwJnbjeCCR734hb7iseK6SqaO32PrFiHY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790409399; c=relaxed/simple;
+	bh=yY5aPVN1kZdRX24f/rOo18N2WyJh702NUMPAilvlSUI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UAG5jFiGkez/G7tQxboECa5AN5W+FeAHLyLtAcLrmQRF5OTMMTu0SMEQad4T3j3zkTvreBcSD3oOekY0mFRmXRl5baHCE9SWEZFZoZkei6LzL6TIuhTgT086aiswFoDL6lFVDXNu730N+44W31lcKmIATNno0kIAkeiVGumi2rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k7sMzVkW; arc=none smtp.client-ip=74.125.225.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Jhyp1dXd"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MGt+/rGefaZMuWMA5TLfFlwpc/JuU7A8aX1qxvmvQ3UqMFlQJVm1XDrY9Pcr8Y5ZKk6TdVnsdNE/EklatQY8obKNbNjw9iIt5RwBGOdrT7V53dUHMrtHItSegcD/1hSjYzlQYmbpr9YxoSjWZkaiibcNir347pkoB9QpcEN7HXMIts3SfkoDOARt+imm7QAio7f5UB8bVpkLjL5dknuwhdO+VSeDkA99QogxxaGIaz4xnvMoTDu9M/S21bKi0M3W5kWx7QH3Qa/QKIqm4c0bEw188byJ0H/QNDM47M8N4qC1nuezxQFuyjM358X7ynW0yWbDvrZaunc9rf3Z/mKCmw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mQMimtvf09yHV27pRM3QAJhff16w1Cd9pOcXbZNVfZ0=;
- b=ypj4dpgsiNu/i7tTLJzyvv/pipRpmPiVIwETnar17yFfkLM+jeM9+xPjPYSSM+8bjiBF8h/XO/VEiL36NtBg5gc5XghuVai1RtEZrSTyjWK5ahQA96DI65iSOzNfoESwSlUYjL3zaRDS4r1QK4TECTfHUWhsEGflZFpjND2lAh6HcPEYTlnOqNXHJaqZd5DVYBCckIJRmpOoOdiPHyjKux5H7du7LfgY1M2bdQRUIKTE68vg8/3AwXOXnYuma0s4PHeqYjW0Lxl51b/zzxbXtS4ApR0rePKyeEffyI3KnbJAAijJP9nPplH898ADSInBE+1WN/QGw78KOdatN47CYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mQMimtvf09yHV27pRM3QAJhff16w1Cd9pOcXbZNVfZ0=;
- b=Jhyp1dXd0M1VuO/UfCjUw5NuvpMNCOmvbiIwuwrppoASf2Jx85KK5TQmMftiJhMWj3hN1uq/+vJQeK54+ejiMm6V3MB8Vas0ZCOuj/Q6iUebBy6cCITtlKrS+LYimWr2PHsDJ+zhDoStXrJ0hEbcSjfbECJgHtXLQvT4ANHyr6cj5gao4s/Ic12V2Nksc00BlsYLQC+jMpSNYr4Js7hHFOIcAK3DojmNzamkCJhtT2QzcSv0d1FgpOte/Nf9PwxMju68GYUJj2XBYBKNSChYsWm7HWi6+sT9S63PIYLBVRCIJgXjc0OB5hjyRNwedF7BJFo4KyeRvWqDBmjuEFpgzg==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com (2603:10b6:208:40e::7)
- by IA0PR12MB8255.namprd12.prod.outlook.com (2603:10b6:208:404::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.18; Sat, 26 Sep
- 2026 02:30:18 +0000
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16]) by IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16%6]) with mapi id 15.21.0451.014; Sat, 26 Sep 2026
- 02:30:18 +0000
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 25 Sep 2026 22:30:11 -0400
-Message-Id: <DLOW7WTRQY8J.RZ0XDZWZIMS5@nvidia.com>
-Subject: Re: [PATCH v3 21/40] mm/gup: error out early on !VMA_MAYREAD_BIT
- VMAs
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
- <linux-doc@vger.kernel.org>, <linux-usb@vger.kernel.org>,
- <linux-rdma@vger.kernel.org>, <selinux@vger.kernel.org>,
- <linux-sound@vger.kernel.org>, <bpf@vger.kernel.org>,
- <linux-scsi@vger.kernel.org>, <linux-fbdev@vger.kernel.org>,
- <dri-devel@lists.freedesktop.org>, <linux-trace-kernel@vger.kernel.org>,
- <linux-perf-users@vger.kernel.org>, <linux-arch@vger.kernel.org>,
- <linux-fsdevel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <kvmarm@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
- <kvm@vger.kernel.org>, <kvm-riscv@lists.infradead.org>,
- <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
- <sparclinux@vger.kernel.org>, <fuse-devel@lists.linux.dev>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, "Andrew Morton"
- <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>,
- "Vlastimil Babka" <vbabka@kernel.org>, "Jann Horn" <jannh@google.com>,
- "Pedro Falcato" <pfalcato@suse.de>, "David Hildenbrand" <david@kernel.org>,
- "Mike Rapoport" <rppt@kernel.org>, "Suren Baghdasaryan"
- <surenb@google.com>, "Michal Hocko" <mhocko@suse.com>, "Jonathan Corbet"
- <corbet@lwn.net>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Dennis Dalessandro" <dennis.dalessandro@cornelisnetworks.com>, "Jason
- Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>, "Paul
- Moore" <paul@paul-moore.com>, "Stephen Smalley"
- <stephen.smalley.work@gmail.com>, "Jaroslav Kysela" <perex@perex.cz>,
- "Takashi Iwai" <tiwai@suse.com>, "Alexei Starovoitov" <ast@kernel.org>,
- "Daniel Borkmann" <daniel@iogearbox.net>, "Andrii Nakryiko"
- <andrii@kernel.org>, "Eduard Zingerman" <eddyz87@gmail.com>, "Kumar
- Kartikeya Dwivedi" <memxor@gmail.com>, "Baolin Wang"
- <baolin.wang@linux.alibaba.com>, "Nico Pache" <nico.pache@linux.dev>, "Ryan
- Roberts" <ryan.roberts@arm.com>, "Dev Jain" <dev.jain@arm.com>, "Barry
- Song" <baohua@kernel.org>, "Lance Yang" <lance.yang@linux.dev>, "Usama
- Arif" <usama.arif@linux.dev>, "Kiryl Shutsemau" <kas@kernel.org>, "Doug
- Gilbert" <dgilbert@interlog.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <mkp@kernel.org>, "Jaya Kumar" <jayalk@intworks.biz>, "Simona Vetter"
- <simona@ffwll.ch>, "Helge Deller" <deller@gmx.de>, "Sebastian Reichel"
- <sre@kernel.org>, "John Hubbard" <jhubbard@nvidia.com>, "Peter Xu"
- <peterx@redhat.com>, "Masami Hiramatsu" <mhiramat@kernel.org>, "Oleg
- Nesterov" <oleg@redhat.com>, "Peter Zijlstra" <peterz@infradead.org>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>, "Dave Hansen"
- <dave.hansen@linux.intel.com>, <x86@kernel.org>, "Arnaldo Carvalho de Melo"
- <acme@kernel.org>, "Namhyung Kim" <namhyung@kernel.org>, "Mark Rutland"
- <mark.rutland@arm.com>, "Rik van Riel" <riel@surriel.com>, "Harry Yoo"
- <harry@kernel.org>, "Juri Lelli" <juri.lelli@redhat.com>, "Vincent Guittot"
- <vincent.guittot@linaro.org>, "Maarten Lankhorst"
- <maarten.lankhorst@linux.intel.com>, "Maxime Ripard" <mripard@kernel.org>,
- "Thomas Zimmermann" <tzimmermann@suse.de>, "David Airlie"
- <airlied@gmail.com>, "Will Deacon" <will@kernel.org>, "Aneesh Kumar K.V"
- <aneesh.kumar@kernel.org>, "Nick Piggin" <npiggin@gmail.com>, "Arnd
- Bergmann" <arnd@arndb.de>, "Muchun Song" <muchun.song@linux.dev>, "Oscar
- Salvador" <osalvador@suse.de>, "Matthew Wilcox (Oracle)"
- <willy@infradead.org>, "Jan Kara" <jack@suse.cz>, "Marc Zyngier"
- <maz@kernel.org>, "Oliver Upton" <oupton@kernel.org>, "Catalin Marinas"
- <catalin.marinas@arm.com>, "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Anup Patel" <anup@brainfault.org>, "Paul Walmsley" <pjw@kernel.org>,
- "Palmer Dabbelt" <palmer@dabbelt.com>, "Albert Ou" <aou@eecs.berkeley.edu>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Janosch Frank"
- <frankja@linux.ibm.com>, "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>, "Gerald Schaefer"
- <gerald.schaefer@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, "Andreas Larsson" <andreas@gaisler.com>, "Alexander
- Viro" <viro@zeniv.linux.org.uk>, "Christian Brauner" <brauner@kernel.org>,
- "Matthew Brost" <matthew.brost@intel.com>, "Joshua Hahn"
- <joshua.hahnjy@gmail.com>, "Rakie Kim" <rakie.kim@sk.com>, "Byungchul Park"
- <byungchul@sk.com>, "Gregory Price" <gourry@gourry.net>, "Ying Huang"
- <ying.huang@linux.alibaba.com>, "Alistair Popple" <apopple@nvidia.com>,
- "Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, "Kemeng
- Shi" <shikemeng@huaweicloud.com>, "Nhat Pham" <nphamcs@gmail.com>, "Baoquan
- He" <baoquan.he@linux.dev>, "Youngjun Park" <youngjun.park@lge.com>,
- "Johannes Weiner" <hannes@cmpxchg.org>, "Qi Zheng" <qi.zheng@linux.dev>,
- "Shakeel Butt" <shakeel.butt@linux.dev>, "Axel Rasmussen"
- <axelrasmussen@google.com>, "Yuanchu Xie" <yuanchu@google.com>, "Wei Xu"
- <weixugc@google.com>, "Chengming Zhou" <chengming.zhou@linux.dev>, "Michal
- Hocko" <mhocko@kernel.org>, "Miklos Szeredi" <miklos@szeredi.hu>, "Xu Xin"
- <xu.xin@linux.dev>
-From: "Zi Yan" <ziy@nvidia.com>
-X-Mailer: aerc 0.22.0
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org> <20260917-b4-mmap-prepare-vma-flag-sanify-v3-21-4583d8a23bca@kernel.org>
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-21-4583d8a23bca@kernel.org>
-X-ClientProxiedBy: YQBPR0101CA0244.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c01:66::16) To IA0PR12MB8374.namprd12.prod.outlook.com
- (2603:10b6:208:40e::7)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k7sMzVkW"
+Received: by mail-wr2-f35.google.com with SMTP id ffacd0b85a97d-4887840c529so548687f8f.1
+        for <selinux@vger.kernel.org>; Sat, 26 Sep 2026 00:56:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790409395; x=1791014195; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YI9LML6UkRl05Tm2nCgeCpB6+5W0fxaRHeYbqDyeGfo=;
+        b=k7sMzVkWtbUDbbp4+aRtCSwDYg/N9rlz5NFwvHo0ICgZGz2vAj1arjCTNFVVNezR16
+         /Ct47msFKVJf6LN2vVRfnO34+ZDkjssZdw6W3qAaFsAWlcL7BNXDy1FA2VflXUW56lSt
+         3ZZjWRd5JTtGPcuQLzV0GCBCGh840Ak32mWas3lf2k1lgPMuNRRsWyFoUL+Ed/qnlU6U
+         +qDtYx3WR7Jqscy8bKzg+pZYCzGu1rSnBgortOuci/G1L04E4zKswMx1/ZTwSTlxLLCD
+         r8wNC5Uyyd/2qpi54K+mrUFtFa75uqS95saZ22AN2yr2mWIdpnEPm/XnVjnVdFRJLXmP
+         ltGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790409395; x=1791014195;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=YI9LML6UkRl05Tm2nCgeCpB6+5W0fxaRHeYbqDyeGfo=;
+        b=LLS4pHde9VeKEPrBPDjVzGNWQCy/uXlk0YUBA/0vyYyEtHSydWxs6T6k0TV4l2KOp/
+         CYZiLjOIz8zkLsAQIHvA0kA29jRnDCaVsQgmPru7WyIdbZDqxcZuhaY2MiIdOmE+j0Fu
+         6q2OjNhq0XLAYVcOZXfps8+syt/C/JQ4kUUaFQROcxAd9BimCgHPW40CgrIxoaeUqnFN
+         f3Kh0THQ4Ri+te72PgWsr3wr7oW7lMfhNvfU7bjcu3dETw3KseuvzUGeYbnJ3GAsjJK5
+         bc0NDduPKN46DEuoH4nLXIfJEwaErQczWlrBgtxfITEqywpxlqwowjc0tVcWA2E8TIWt
+         8qcQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx3YpXeG0heZQQ806oazBZuW2KCqZKvlVs+ySktcvoEc7fTAPpnaPRXvETvnDOB+6lWjCYp7xDp@vger.kernel.org
+X-Gm-Message-State: AFuF++ngBzd4xtsiBQ+LWQmPP4irkDkrxJc1deOG4xq31OKbYB2wkk0b
+	DrOCb/hZYOZ9DJ+6UFArqd3HR+u7KAQfJdE4oCelDl9YPzy/YWE5LiTa
+X-Gm-Gg: AYBFou2ys8sZOG6rt9WUB0Lix3Qc8H2+pv6/T2kDjD7aTBJTu9bwwSddOJOFpONdzL4
+	rv27Ae0II4YHX0NmfHXRIjffEQQXh244JGsmx6SNDyStlY/0HUbry09ESF6PFSaA64Qx5m1xiX9
+	ST92jjpO676BLl6RFn72gjJc6gBOCQLJPWFd/695/EcNY50XAN26oFGCDHlYy1FWmPV+F5HIhDL
+	RfKm65Kh3+HhmTcK3HN3GLcdcZxGZU3pUVl71cPj+1TKHYnEeZBuUsF3otD5fJlfVF4cBd0N2gR
+	6Q1lcRIf8Ku/bPd1YTPeIACcNmisvuGLkEaLklz/UY/ks8LJggFuDKhNIjdD+jem7TaqCVH04fs
+	icjsk9NPAh5Rpz7Zkdcrb7BDPcR2NDmalFD3IZA5SyCoOu6knam4XN/2KOG9Hf7Z4IZA5HSx+sb
+	g7WqvDSZ/CN5AarUe9e/1YRy+kQf9CzyfcbObSYBUyxCxXSNdbpwnwRPZSBhX1HPXcDzf9TGgJK
+	x8UNw8x8K4jEaS5XcGZRuo=
+X-Received: by 2002:a05:600c:8b82:b0:49f:fefc:7d01 with SMTP id 5b1f17b1804b1-49ffefc7e4dmr2208755e9.15.1790409394348;
+        Sat, 26 Sep 2026 00:56:34 -0700 (PDT)
+Received: from localhost (ip87-106-108-193.pbiaas.com. [87.106.108.193])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fe667ae2fsm204215155e9.13.2026.09.26.00.56.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 00:56:33 -0700 (PDT)
+Date: Sat, 26 Sep 2026 09:56:28 +0200
+From: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>
+To: Justin Suess <utilityemal77@gmail.com>
+Cc: Cai Xinchen <caixinchen1@huawei.com>, mic@digikod.net,
+	gnoack@google.com, paul@paul-moore.com, jmorris@namei.org,
+	serge@hallyn.com, corbet@lwn.net, skhan@linuxfoundation.org,
+	rdunlap@infradead.org, gregkh@linuxfoundation.org,
+	rafael@kernel.org, dakr@kernel.org, dlemoal@kernel.org, hch@lst.de,
+	axboe@kernel.dk, viro@zeniv.linux.org.uk, brauner@kernel.org,
+	jack@suse.cz, dhowells@redhat.com, code@tyhicks.com,
+	linkinjeon@kernel.org, sj1557.seo@samsung.com, yuezhang.mo@sony.com,
+	hirofumi@mail.parknet.co.jp, cel@kernel.org, jlayton@kernel.org,
+	neil@brown.name, okorniev@redhat.com, Dai.Ngo@oracle.com,
+	tom@talpey.com, miklos@szeredi.hu, amir73il@gmail.com,
+	senozhatsky@chromium.org, chenxiaosong@chenxiaosong.com,
+	zohar@linux.ibm.com, roberto.sassu@huawei.com,
+	dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com,
+	stephen.smalley.work@gmail.com, omosnacek@gmail.com,
+	casey@schaufler-ca.com, nanx95726@gmail.com, djwong@kernel.org,
+	daniel@iogearbox.net, linux-security-module@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	driver-core@lists.linux.dev, linux-block@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev,
+	ecryptfs@vger.kernel.org, exfat@lists.linux.dev,
+	linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+	linux-cifs@vger.kernel.org, linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	xiujianfeng@huawei.com, lujialin4@huawei.com
+Subject: Re: [PATCH RFC -next 00/12] landlock: Add READ_METADATA and
+ WRITE_METADATA access rights
+Message-ID: <20260926.255b951d3013@gnoack.org>
+References: <20260924104831.1081137-1-caixinchen1@huawei.com>
+ <araxO4ze0KZBz756@suesslenovo>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA0PR12MB8374:EE_|IA0PR12MB8255:EE_
-X-MS-Office365-Filtering-Correlation-Id: 138fddc9-a7bf-4081-49c6-08df1b761ace
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|7416014|376014|921020|4143699003|11063799006|10067099003|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	yjqVnX4u7QVMeoGtLZtilVpLpigFGWHuQ2n8R3oTV5gTh+k4sSvcwvhdBdE4FcBYxlT2GGAjngmQGd//PFhv3HshkFRhbMu46G4Tz9arATj0zyb58k/UEXPNtvtqsjfstROxgIbGfZ6qrYZP8w8qXK/mtEmIm83b2o1KS8VnTVVHfn7+EN80YuDipniFrgp18nqs/mEksiGRiRsUqiueQoCoP6DPmwPSHHj5h0lhVhOJAyTzLaYTwHAKibRZVbbk2y7Q6MrMxOUdyvkhWTK9LQ+4WUK5XH+lpAJ1cn32OdoWD2nUfYd6VAYOzH8JlWT5dbP6LnjtuvzeCC31wbS4tpbVQI4WJXUpihedWGYaAs9L4X6ZTvKwb1gnqqFSBjAaOAkEx0zvJsniEAq2263YFusu21vdWStkZB/DOlmKaQx8C5sp1MjZXBLqMhSzVa2x5/kYq4Ta8FQChTEU1aUQ3SLkAyLI0ncmqfsMb4sypZZsd3ybc1V4jNTeINEV/KGTlYlJW7L2ntQc6RxOp8UT1bLXmAmHrb5R+GyRMiSv7+FZwSXABHYxUeeklKDy/4MTX06dj4hCTYxsWMVvpjrBk569iH1+qmWOxgXN54d93bmfLMybGnrrI4buvelUaq0Uc3rzeUx0kHVTq/P+2E3JxTyinyEyXZMDdxRDjbHXuosTIOQnPcRDqcBrOZozt7IRP52P5Dy5RhXVJiR0h4SvgQ==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR12MB8374.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(7416014)(376014)(921020)(4143699003)(11063799006)(10067099003)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?LzhkM0k5SklGaXJtUU9UZzArUk0xeUR3K2Y3U29yNmE2bjZnZVZlbk8vdkx0?=
- =?utf-8?B?QXQ0ZnRQRWFIa2JoTnJSazBERHVFUWpRQ1I4K002bXFBUUZhdFpyREVmZStB?=
- =?utf-8?B?T0gzcmhhaVRWM1Y5TTJybHBndmRNcFo0Y0c0SDVoenpaWkY5U2ZGdElqQzBj?=
- =?utf-8?B?dUZHRkU0eVVndnhhY1lDc0NaMnRSUVNoODFvMktybi9LUmJ0M1pEalVaQlJo?=
- =?utf-8?B?SDI5L0YreHBkL1ZqY29Ba2hqbll3QnpQdXBxVTMreVF6VmJLeXRKL0Q1V3dZ?=
- =?utf-8?B?SHNrajh2UUI4R1ZnR1d3Mm5aOGxaT1hzSXdEMTJ4UHRQU3kyMUxzOXNtaVJC?=
- =?utf-8?B?ZDkxY2ZIcXVIVjJ5THZwQmo2eStkT0hQU1htZlRqdmlaelZ2cU9IYnRuOVVV?=
- =?utf-8?B?YXJJSDc1YktqS2JTYWxqRmVvZFlLdXZNN2cvbVNybEJTK3Vib3B1M2VxK0FY?=
- =?utf-8?B?aG5tS01XVytpTEdtaUVlYVREcDZsTnZkLzJpUTUvdVpPd0phL1UvWlZhYUJ5?=
- =?utf-8?B?R2NneHBMU2ZtUjNnRm95Y3RMQTBCOUlnTTR0SmF3eWVZU0tpU1JJbVdOWmgx?=
- =?utf-8?B?aEQwNGhvVi9PNllGbzdEZi9qM2M4M1dRdEFmcnFpNEQ4ZWtSTWptc3BMbXU2?=
- =?utf-8?B?SmRNUi9ZT3dMOHB3dlF0dGkxbmhIRmZvRUg3WjRZTEUzWU12Y2d5dzY1dk1K?=
- =?utf-8?B?TFZ6N1lBUWxHODZFNWFhUUpEcWZRbmc4bnlLZ25PMm9mYWQ4anplWHpqVm1j?=
- =?utf-8?B?V01SVEx1ZnE2VFY4dVg1ODJYT3ZKdHZtdjg5MU95bG1XYjFwUHRBUmI3eUhp?=
- =?utf-8?B?WG5tSG15K0k4cnNMUGVOaVQwSnhLd3lFWXhtYytOeDZ3a0NQY2hIbzZxaVUx?=
- =?utf-8?B?NDVKWk9reDU0ZEN0c01IZmxzR0YzNGVhN1NndG1KRzMzTkVXNDhyRkRkUG9a?=
- =?utf-8?B?WElzSWVONjVLYWprT25WK3FJYjRMNE5YanFURUFvWDBabnQrUStwczU0TjJS?=
- =?utf-8?B?eTlCQmhycDNvMlVveERiaW9aL2JCMDROUDhtSmRzOUgzRHNhMm1GWTR1OEtJ?=
- =?utf-8?B?cmcvcGx0YWdSLzU1dDV3WGpocW5ha250dXRyZ29ramVKS2xTaEZQd2x0Q3Zj?=
- =?utf-8?B?SlVZLzJyOWF6bU9QajFxYkFKZHhYK2ZnempmYU5zWEtuMktWbytCMGFXR2lk?=
- =?utf-8?B?b0wva256ZDlIYXY3M29yL3V5RTZzc2hUV0FYZ3hpVUdURExNZVJ1c2VJN3Ir?=
- =?utf-8?B?UHFJbjgwZ2tmeHBadXNYWnVIUVFib1VldHdyTm1ON21CNmw1djZrakl1Zk01?=
- =?utf-8?B?TnF1NVRua0RJZFlBVFBjcGhKaDFrUU9mSml3Y2F2Q2g5VUlxYUtRTWliVCt0?=
- =?utf-8?B?SVF2MUlreDljZ3B6WlVVMFNqRWdmdC8wYXRNYlZSRys4Vm8xZVAxQWUvSzZN?=
- =?utf-8?B?SEttR0tEOEFDYUc0NkplVGpub0FIZk84ZUVnQXVTNGZFZWJPcU5hbG5Xbi8w?=
- =?utf-8?B?b0FNTEpaSFM3ejhoYlE1V2hxQms2NGRvRWVqUk4wQUNxZTdtQnJTVEl5Qlp2?=
- =?utf-8?B?VUhHK2Fkbmc1V1lJNlVXS05QVzdlVHllblZTeFpTODJudHBKcmtYSUhuTEJw?=
- =?utf-8?B?NzlPRjJMNkJ6eUQwV3F6eVFLUXZqWEZoM2pWTTBVWW9xaHBQSHZvT2o5NFdi?=
- =?utf-8?B?N3hCS202dzhFVVJDZUQ2NnlzMWxUTDd5V3ZHUFphZnBEMlpLNDVCeFVMU1JT?=
- =?utf-8?B?Q3FHVzlOSW1mcTcwODVqSXNMNWoyd2hYSmFWdVVtWXpCNEI4ZzdjVC9odDJa?=
- =?utf-8?B?c2tqNW9XRjY4UWJHelgwdmZyUEJJL2RubEZHTmc2RnlPUjNiOFhYVGhIOVJJ?=
- =?utf-8?B?R1lTUlk0eUxJLzNJZ2JRYSs4Q1NwU1pLUUZob005VDFRZ2c2YjQ4QVlxU3RP?=
- =?utf-8?B?Y01DRU9ITXllNzgraXZkbStsWWZGTTdXdWgxMk9NRy8zTHc1QUFLcW15c2Zq?=
- =?utf-8?B?U2JBSzZPNjVjTFF2cnJzSnhaU3hySlNSUWtKeVg3M3EydU5WdHNjOEdNVXA3?=
- =?utf-8?B?QzZTOE1hT3RDbVRvdWg4ei9sYTljSkFzZE51S2JvN2syVGVPOFhPNTZyWVlQ?=
- =?utf-8?B?OFo1R3N3RWNUVlhlKzRxdGRjZWNGYXFRSWF6T0lHd1c2MHF2ZzI5R2ErVTJD?=
- =?utf-8?B?LzB2MElydjR6c09XZ2g1TzRzTERTR1ExR3VQeGNndU1MTmdrOHQ4WmVQdDJx?=
- =?utf-8?B?NlJBWlhUYWZKSW9qcDRLWFVYSit3MlhHWHF3bkxxRVYwelhzMUNEVGVtNG14?=
- =?utf-8?Q?unUmaXGZA1/PSmHZb0?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 138fddc9-a7bf-4081-49c6-08df1b761ace
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR12MB8374.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2026 02:30:18.0846
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: COb42g68OUl+u5Cs4xToYuDg9UqVuTh90oapNXsS4S4BMaLi2HZXpCMHLeL1bQQI
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8255
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <araxO4ze0KZBz756@suesslenovo>
 
-On Thu Sep 17, 2026 at 12:22 PM EDT, Lorenzo Stoakes (ARM) wrote:
-> When populating a VMA range via the aptly named populate_vma_page_range()
-> an unreadable VMA will always eventually fail with -EFAULT.
->
-> That a VMA is accessible is always checked, however VMA_MAYREAD_BIT is no=
-t.
->
-> All user mappings always have VMA_MAYREAD_BIT set, so this check only
-> impacts kernel mappings.
->
-> It is implemented specifically to disallow population of uprobes XOL
-> mappings which are exec-only.
->
-> A nasty interaction with these mappings may occur if they are mlocked, so
-> actively disallow this early.
->
-> This allows a subsequent commit to remove the VM_IO check in
-> __mm_populate() which otherwise requires non-MMIO mappings to be wrongly
-> flagged simply as a workaround.
->
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  mm/gup.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
+Hello!
 
-Acked-by: Zi Yan <ziy@nvidia.com>
+On Fri, Sep 25, 2026 at 02:03:05PM -0400, Justin Suess wrote:
+> On Thu, Sep 24, 2026 at 06:48:19PM +0800, Cai Xinchen wrote:
+> > This series adds two new Landlock filesystem access rights,
+> > LANDLOCK_ACCESS_FS_READ_METADATA and LANDLOCK_ACCESS_FS_WRITE_METADATA,
+> > which control access to file and directory metadata such as inode
+> > attributes (mode, ownership, timestamps), extended attributes and POSIX
+> > ACLs.  It picks up the work from the "landlock: add chmod and chown
+> > support" series [1] and follows the coarse-grained grouping discussed in
+> > that thread [2]: instead of separate chmod/chown rights, metadata
+> > operations are grouped into one read and one write right.
+> > 
+> > Landlock evaluates access rights on a per-path basis, but the metadata
+> > related LSM hooks (inode_getattr, inode_setattr, inode_setxattr,
+> > inode_getxattr, inode_listxattr, inode_removexattr, inode_set_acl,
+> > inode_get_acl, inode_remove_acl) only receive the dentry of the accessed
+> > object.  Patches 1-7 therefore first pass struct path instead of dentry
+> > through the metadata-related VFS helpers and LSM hooks.  This is a pure
+> > refactoring with no behavior change, split so that every patch builds
+> > and works on its own:
+> >
+> I like these patches, but is the ability to read metadata already
+> sorta controlled by LANDLOCK_ACCESS_FS_READ_DIR on the parent
+> directory?
+> 
+> The one case I see this being different is:
+> 
+> 1. if you wanted to grant read access to the file, but not metadata
+> read access, but I can't think of any usecase for being able to read
+> the contents of a file, but not the metadata. (see below)
+> 
+> 2. If you had the absolute path already and didn't need READ_DIR.
+> 
+> I see introducing this READ_METADATA as causing potential
+> hard-to-diagnose issues.
+> 
+> Say you handle READ_METADATA and READ_FILE, but only grant READ_FILE.
+> 
+> The program can technically open the file with the READ_FILE permission,
+> but it may error out because the stat() on it beforehand failed.
+> It's pretty common for programs to do that kind of thing (stat before
+> open), like for checking for config files (strace bash and you see it
+> stat .profile, /etc/profile)
+> 
+> There may be other bugs, because being able to set permissions to read
+> a file *but not read it's metadata* isn't possible currently in posix
+> acl and userspace may not work well if that assumption no longer holds.
+> 
+> So maybe WRITE_METADATA is good enough?
 
+The existing use cases are the combinations of (a) READ_DIR
+allowed/denied and (b) READ_METADATA allowed/denied.  Because these
+two access rights overlap slightly, it seems likely that for a given
+directory or file, users will want to either grant both, or deny both.
 
+At the moment, where the (not yet existing) READ_METADATA is
+implicitly always allowed, the problematic case is the one where the
+Landlock user wants to deny READ_DIR, but where much of the same
+metadata is still available through stat() and the various
+get-attribute syscalls.  (c.f. the warning box in the Landlock docs
+[1])
 
---=20
-Best Regards,
-Yan, Zi
+In my view the READ_METADATA right closes a gap that READ_DIR left
+open (which is also potentially surprising to callers if they did not
+read the docs closely).  Also, if its implementation is symmetric to
+WRITE_METADATA, I feel that it's worth having it in the same patch
+set.
 
+–Günther
+
+P.S.: I know, even after we can control stat(), there are likely ways
+to infer the presence of a file by observing Landlock error codes.
+This would be nice to fix as well, but is harder to do without
+controlling the path walk itself [2].  But also, the fact that this is
+currently not controllable is not an excuse for leaving READ_METADATA
+open IMHO.
+
+[1] https://docs.kernel.org/userspace-api/landlock.html#filesystem-flags
+[2] https://github.com/landlock-lsm/linux/issues/9
