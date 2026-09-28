@@ -1,248 +1,230 @@
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FD453E4C96
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 06:25:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13A88377A8A;
+	Mon, 28 Sep 2026 06:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.226
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790576709; cv=none; b=eTX/2Tp/yUX2LfhMnsxt1TUughgIo9+IGh51yWwYjdJnhB7oyH5ru1bqrTeajw4xduuuph1V2S97fIvML4xYf/nwmB8JU1hu2PSUoXHhVhwACwYkJ3vZv8TAhwu9Rl2/w7a4fDwdz+RwpB0U3sdQRcMBqGOLTjRjSgmep6kCzzA=
+	t=1790578347; cv=none; b=GhwIK7rpTDFxDUOJlupaujJhou+zSk77wFLi5hZRFNnsm1pkbtt4aPdoBulJG9nAfmlQ+udvIlmgpD+QiO+mzLfn1qoJjI8UjT8TVLnUEoblB0gOfRk1E7bbIUjRqMoFE5AQdmezaGL8w9mQsKyi5Yd3bAGz2TJUUt91yWkUzJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790576709; c=relaxed/simple;
-	bh=/MslaPsAwSJeKoH2RXpoHusPKf/9mDJxI1cvSHvSPPc=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=RbCAQjBprUtN24TiplDJsMj1fGDPy4mxMJMJD6b7S6sh6Vue6pFwj0UTorO6kixVuXnokv6PLW5YJvXPYeugVvIT3DZMiMuZ0tNf/FN7681EY7f745dLvd2/kum7uxDn/vr+6DijBOpraqL8nttbtfOgIuCUPGFpJq6mLPzcjgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=agTLfn/F; arc=none smtp.client-ip=209.85.215.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
+	s=arc-20240116; t=1790578347; c=relaxed/simple;
+	bh=l99O4EFuTYgaVlJE6vpUwnoIBIsWomYu6FImDHQefNw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Pcc4+n5IQamy6p4GXCQFIaMjKD5/vQh/ap5biYCdEQHtTg3vdY+Nf5fyt9VlzdICR3Rp9prLIyepv1SpmMXZqb5bE4mhOeZyAlrn9NPiH8cidCQm2QZ3Co7MtTPc/gj4ImoOk8etUBNP3ZReiHmMapeKKaezTDMGHLQMVQiutGc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=tZ+wKmOM; arc=none smtp.client-ip=113.46.200.226
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="agTLfn/F"
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc1eb205d31so3101464a12.2
-        for <selinux@vger.kernel.org>; Sun, 27 Sep 2026 23:25:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790576707; x=1791181507; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ofpBLAjDkBQ49nas8IbeLZK0rzOy2bm93J3ip0cci10=;
-        b=agTLfn/FVCY3Wrx1UQYsIRkMfwfUHLz+5GaLBxpehU7za3Q3EbVRabmYbH0phmXfp/
-         iSFO4UoBPrOXoUuLfPZmxUfTYnDe35JHb09PtENO26Xhpv6AV0cclKjumyWSPtWlBpSS
-         v3vWWXemK+qVPiSavmCxXTy0d1DCMHiXGfhXvOfQeUjG72dvpJpcB19yIKjxUkOdZ7vT
-         z2OXeMATuS1zXPnxlT7G8LJwWy28CegyJ63h5ITripC0MurEdYHRPZlvcxtrAVZUohDE
-         8OXpoMEFFTLEKG6Xu3YHNLrK0Zm6hw+o4DqaRYEu7M2dJOdmf2irfutE4fB7sDvPqfS5
-         7OCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790576707; x=1791181507;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ofpBLAjDkBQ49nas8IbeLZK0rzOy2bm93J3ip0cci10=;
-        b=cwYxnmLvAtC3gXFRzgPiUDXvaif/FXwcmvvW5Yz8VMMqaqNVlnLG0Gh/XLiR4P4UZp
-         Wezn8hDCU4NEp8jpWW9vCq/c1dG4W7oTQdBZFvyMerrSSTYBfjtDA8Tn/skjiY2WQBYw
-         gZZlINyMe7LvpOawZ4vnaxuVuH+ZelJVWFYe/cHVluZObXglnJjT8v33KVlN1Ddt7TBX
-         /TS94iXEpET3i+4Llv+8HmyLfSBy4Tzcw+F8tdyy8MiqoOm2dp5Eott63EIBOOC1BMKD
-         UQ7VYhSrELYBmKHixM6kNxdWBccsnl2ICVF4q+mjGTJyvYYq7maRQkfX7uw9LudcyRGA
-         u6AA==
-X-Gm-Message-State: AFuF++kBlTCZCT6MCEfaAueJxJt9hYjcirvrL/ECYzppqbPb1YFTzwG7
-	n9ltmoDljRj2qwfS19Y/AqdynJ0oV5ZOUaEp0Nt6cpjY4MHeTLXOtuaESmTvdpnQjW8WE6Bp637
-	dOrHJSn6pUEPVvm3/8ZJ8vSL4Hb4nxs2pOHokmem+uOHywOh0pLJ3YJ9aGnWPdpGMPylqUgL0l5
-	5CTsnzOWV+oxqWRdJ+u2J1Vfggvj9maAcJGpuVIQ==
-X-Received: from pgbfq9.prod.google.com ([2002:a05:6a02:2989:b0:cc7:a4b2:4040])
- (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:7010:b0:3da:755f:a031
- with SMTP id adf61e73a8af0-3de26c10217mr7284546637.12.1790576706910; Sun, 27
- Sep 2026 23:25:06 -0700 (PDT)
-Date: Mon, 28 Sep 2026 15:24:59 +0900
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="tZ+wKmOM"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=bF8dwco2OpD4jw+50IjUaWbm2lJ2kGH1r7RGZwU0W0U=;
+	b=tZ+wKmOMTbZczy4gL36DV6korVrDaOkEMaU77eNpngM0R1q31v2+V3uXwl+/ZcznRLqzPasUl
+	eIce1fwk7YKmARooBYj6Lqiw3GAaNlYP/36f2E2tCuWM4AXAFAu9UNw4dtAJP6Ye0pJE5lBixZP
+	fRIxJ9kXCs/c6I2hGflDe9Q=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4htWrY3DnCzKmWP;
+	Mon, 28 Sep 2026 14:39:57 +0800 (CST)
+Received: from whupemk100010.china.huawei.com (unknown [7.152.184.41])
+	by mail.maildlp.com (Postfix) with ESMTPS id 2F7F640572;
+	Mon, 28 Sep 2026 14:52:09 +0800 (CST)
+Received: from [10.67.109.91] (10.67.109.91) by whupemk100010.china.huawei.com
+ (7.152.184.41) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Mon, 28 Sep
+ 2026 14:52:03 +0800
+Message-ID: <a6a40c38-0e1c-4a3f-a705-e4a38c575c25@huawei.com>
+Date: Mon, 28 Sep 2026 14:52:02 +0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.56.0.rc1.315.gc6ed9934b7-goog
-Message-ID: <20260928062459.3189005-1-inseob@google.com>
-Subject: [PATCH v2] libsepol,checkpolicy: add --multiple-decls option
-From: Inseob Kim <inseob@google.com>
-To: selinux@vger.kernel.org
-Cc: tweek@google.com, nnk@google.com, Inseob Kim <inseob@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC -next 00/12] landlock: Add READ_METADATA and
+ WRITE_METADATA access rights
+To: =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack3000@gmail.com>
+CC: <mic@digikod.net>, <gnoack@google.com>, <paul@paul-moore.com>,
+	<jmorris@namei.org>, <serge@hallyn.com>, <corbet@lwn.net>,
+	<skhan@linuxfoundation.org>, <rdunlap@infradead.org>,
+	<gregkh@linuxfoundation.org>, <rafael@kernel.org>, <dakr@kernel.org>,
+	<dlemoal@kernel.org>, <hch@lst.de>, <axboe@kernel.dk>,
+	<viro@zeniv.linux.org.uk>, <brauner@kernel.org>, <jack@suse.cz>,
+	<dhowells@redhat.com>, <code@tyhicks.com>, <linkinjeon@kernel.org>,
+	<sj1557.seo@samsung.com>, <yuezhang.mo@sony.com>,
+	<hirofumi@mail.parknet.co.jp>, <cel@kernel.org>, <jlayton@kernel.org>,
+	<neil@brown.name>, <okorniev@redhat.com>, <Dai.Ngo@oracle.com>,
+	<tom@talpey.com>, <miklos@szeredi.hu>, <amir73il@gmail.com>,
+	<senozhatsky@chromium.org>, <chenxiaosong@chenxiaosong.com>,
+	<zohar@linux.ibm.com>, <roberto.sassu@huawei.com>,
+	<dmitry.kasatkin@gmail.com>, <eric.snowberg@oracle.com>,
+	<stephen.smalley.work@gmail.com>, <omosnacek@gmail.com>,
+	<casey@schaufler-ca.com>, <nanx95726@gmail.com>, <djwong@kernel.org>,
+	<daniel@iogearbox.net>, <linux-security-module@vger.kernel.org>,
+	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<driver-core@lists.linux.dev>, <linux-block@vger.kernel.org>,
+	<linux-fsdevel@vger.kernel.org>, <netfs@lists.linux.dev>,
+	<ecryptfs@vger.kernel.org>, <exfat@lists.linux.dev>,
+	<linux-nfs@vger.kernel.org>, <linux-unionfs@vger.kernel.org>,
+	<linux-cifs@vger.kernel.org>, <linux-integrity@vger.kernel.org>,
+	<selinux@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+	<xiujianfeng@huawei.com>, <lujialin4@huawei.com>, <bpf@vger.kernel.org>,
+	<kpsingh@kernel.org>, <matt@bobrowski.net>, <alexei.starovoitov@gmail.com>
+References: <20260924104831.1081137-1-caixinchen1@huawei.com>
+ <20260926.e0135fe7712f@gnoack.org>
+Content-Language: en-US
+From: Cai Xinchen <caixinchen1@huawei.com>
+In-Reply-To: <20260926.e0135fe7712f@gnoack.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ whupemk100010.china.huawei.com (7.152.184.41)
 
-Add a -m/--multiple-decls option to checkpolicy, mirroring the option of
-the same name in secilc, which allows a type or an attribute to be
-declared more than once. The declarations are merged into a single
-symbol whose attribute set is the union of the attribute sets of the
-individual declarations. Without the option a repeated declaration
-remains an error.
+Thank you for review!
 
-Policies assembled from several independently maintained sources may
-declare the same type in more than one of them. secilc merges such
-declarations when it links the resulting CIL files, but checkpolicy
-rejects them when the same sources are compiled in a single run.
+I will link the feature request
+(https://github.com/landlock-lsm/linux/issues/11) in the v2 cover letter.
 
-symtab_insert() already permits multiple declarations of roles and
-users, so SYM_TYPES is added to that allowlist, behind a new policydb
-flag. Like role attributes, type aliases are excluded, as in secilc;
-otherwise add_aliases_to_type() would silently turn a declared type
-into an alias of another type. The merge needs nothing else:
-create_type() returns the existing datum when the symbol exists and
-define_type() sets one attribute bit per declaration against it. Using
-the same identifier for both a type and an attribute remains an error,
-as does a repeated declaration of any other kind of symbol.
+For https://github.com/landlock-lsm/linux/issues/18, the current
+READ_METADATA cannot solve this problem, and I don't have a good idea 
+for now.
 
-Signed-off-by: Inseob Kim <inseob@google.com>
----
-v2:
- - Reject multiple declarations where either the new or the existing
-   symbol is a type alias, following the `secilc -m` behavior
----
- checkpolicy/checkpolicy.8                  |  3 +++
- checkpolicy/checkpolicy.c                  | 16 +++++++++++--
- libsepol/include/sepol/policydb/policydb.h |  2 ++
- libsepol/src/policydb.c                    | 28 ++++++++++++++++++++--
- 4 files changed, 45 insertions(+), 4 deletions(-)
+For path_* rename, I'd rather keep the inode_* names:
 
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index caaaf67..b37d0ff 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
-@@ -46,6 +46,9 @@ Output line markers for allow rules, in addition to neverallow rules. This optio
- of the output CIL policy file, but the additional line markers helps debugging, especially
- neverallow failure reports. Can only be used when writing a CIL policy file.
- .TP
-+.B \-m,\-\-multiple\-decls
-+Allow types and attributes to be re-declared.
-+.TP
- .B \-c policyvers
- Specify the policy version, defaults to the latest.
- .TP
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index 1ab9598..cc866b3 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -107,7 +107,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
- {
- 	printf("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
- 	       "[-N] [-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
--	       "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [input_file]\n",
-+	       "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [-m] [input_file]\n",
- 	       progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
- 	exit(1);
- }
-@@ -391,6 +391,7 @@ int main(int argc, char **argv)
- 	unsigned int binary = 0, debug = 0, sort = 0, cil = 0, conf = 0,
- 		     optimize = 0, disable_neverallow = 0;
- 	unsigned int line_marker_for_allow = 0;
-+	unsigned int multiple_decls = 0;
- 	struct val_to_name v;
- 	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
- 	unsigned int policyvers = 0;
-@@ -422,11 +423,12 @@ int main(int argc, char **argv)
- 		{ "optimize", no_argument, NULL, 'O' },
- 		{ "werror", no_argument, NULL, 'E' },
- 		{ "line-marker-for-allow", no_argument, NULL, 'L' },
-+		{ "multiple-decls", no_argument, NULL, 'm' },
- 		{ "help", no_argument, NULL, 'h' },
- 		{ NULL, 0, NULL, 0 }
- 	};
- 
--	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELh",
-+	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELmh",
- 				 long_options, NULL)) != -1) {
- 		switch (ch) {
- 		case 'o':
-@@ -507,6 +509,9 @@ int main(int argc, char **argv)
- 		case 'L':
- 			line_marker_for_allow = 1;
- 			break;
-+		case 'm':
-+			multiple_decls = 1;
-+			break;
- 		case 'h':
- 		default:
- 			usage(argv[0]);
-@@ -555,6 +560,12 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (multiple_decls && binary) {
-+		fprintf(stderr,
-+			"Multiple declarations are only meaningful when compiling source policy\n");
-+		exit(1);
-+	}
-+
- 	if (binary) {
- 		fd = open(file, O_RDONLY);
- 		if (fd < 0) {
-@@ -628,6 +639,7 @@ int main(int argc, char **argv)
- 		parse_policy.mls = mlspol;
- 		parse_policy.handle_unknown = handle_unknown;
- 		parse_policy.policyvers = policyvers;
-+		parse_policy.multiple_decls = multiple_decls;
- 
- 		policydbp = &parse_policy;
- 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index bf948d9..ae125fd 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -630,6 +630,8 @@ typedef struct policydb {
- 	/* avrules whose line markes will be printed. Defaults to neverallow and
- 	   neverallowxperm */
- 	uint32_t line_marker_avrules;
-+
-+	int multiple_decls;
- } policydb_t;
- 
- struct sepol_policydb {
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 9716f5f..fbfc0bf 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1385,6 +1385,12 @@ int policydb_load_isids(policydb_t *p, sidtab_t *s)
- 	return 0;
- }
- 
-+static int type_is_alias(const type_datum_t *type)
-+{
-+	return type->flavor == TYPE_ALIAS ||
-+	       (type->flavor == TYPE_TYPE && !type->primary);
-+}
-+
- /* Declare a symbol for a certain avrule_block context.  Insert it
-  * into a symbol table for a policy.  This function will handle
-  * inserting the appropriate scope information in addition to
-@@ -1456,8 +1462,11 @@ int symtab_insert(policydb_t *pol, uint32_t sym, hashtab_key_t key,
- 			return rc;
- 		}
- 	} else if (scope_datum->scope == SCOPE_DECL && scope == SCOPE_DECL) {
--		/* disallow multiple declarations for non-roles/users */
--		if (sym != SYM_ROLES && sym != SYM_USERS) {
-+		/* disallow multiple declarations for non-roles/users, unless
-+		 * the policy opted in to multiple declarations of types and
-+		 * attributes */
-+		if (sym != SYM_ROLES && sym != SYM_USERS &&
-+		    !(sym == SYM_TYPES && pol->multiple_decls)) {
- 			return -2;
- 		}
- 		/* Further confine that a role attribute can't have the same
-@@ -1478,6 +1487,21 @@ int symtab_insert(policydb_t *pol, uint32_t sym, hashtab_key_t key,
- 				return -2;
- 			}
- 		}
-+		if (sym == SYM_TYPES) {
-+			type_datum_t *base_type;
-+			type_datum_t *cur_type = (type_datum_t *)datum;
-+
-+			base_type = (type_datum_t *)hashtab_search(
-+				pol->symtab[sym].table, key);
-+			assert(base_type != NULL);
-+
-+			if (type_is_alias(base_type) ||
-+			    type_is_alias(cur_type)) {
-+				/* Only regular types and attributes are
-+				 * allowed to have multiple declarations. */
-+				return -2;
-+			}
-+		}
- 	} else if (scope_datum->scope == SCOPE_REQ && scope == SCOPE_DECL) {
- 		scope_datum->scope = SCOPE_DECL;
- 	}
--- 
-2.56.0.rc1.315.gc6ed9934b7-goog
+* There is precedent for the mismatch: the inode_getattr hook
+   upstream already takes a "const struct path *" (this series just
+   aligns the other metadata hooks with it).
 
+* The path_* prefix has an established meaning in the LSM hook
+   interface: it denotes the pathname-based (TOMOYO/AppArmor-style)
+   hooks that are invoked at the VFS path level *before* the
+   corresponding inode_* hook, as a paired, duplicate check
+   serving a different class of LSMs.  For example, a chmod(2)
+   currently runs security_path_chmod() (fs/open.c, for TOMOYO and
+   AppArmor) and then, via notify_change(),
+   security_inode_setattr() (for SELinux, Smack and now Landlock);
+   vfs_mknod() similarly calls both security_path_mknod() and
+   security_inode_mknod().  Renaming inode_setattr to
+   path_setattr would put two path_-prefixed hooks with different
+   call contracts into the same syscall, and path_chown(path,
+   uid, gid) next to a path_setattr(path, attr) would read as a
+   redundant pair, even though they belong to different hook
+   families.  Landlock itself already uses the path_* family for
+   its real path-level hooks (e.g. path_truncate for the TRUNCATE
+   right), so mixing renamed inode hooks into that prefix would
+   also blur its own hook table.
+
+* If the consensus is that these hooks should be renamed, I think
+   that should be a standalone, tree-wide rename series (including
+   inode_getattr), so that BPF programs only break once instead of
+   twice.
+
+On 9/26/2026 4:27 PM, Günther Noack wrote:
+> On Thu, Sep 24, 2026 at 06:48:19PM +0800, Cai Xinchen wrote:
+>> This series adds two new Landlock filesystem access rights,
+>> LANDLOCK_ACCESS_FS_READ_METADATA and LANDLOCK_ACCESS_FS_WRITE_METADATA,
+>> which control access to file and directory metadata such as inode
+>> attributes (mode, ownership, timestamps), extended attributes and POSIX
+>> ACLs.  It picks up the work from the "landlock: add chmod and chown
+>> support" series [1] and follows the coarse-grained grouping discussed in
+>> that thread [2]: instead of separate chmod/chown rights, metadata
+>> operations are grouped into one read and one write right.
+>>
+>> Landlock evaluates access rights on a per-path basis, but the metadata
+>> related LSM hooks (inode_getattr, inode_setattr, inode_setxattr,
+>> inode_getxattr, inode_listxattr, inode_removexattr, inode_set_acl,
+>> inode_get_acl, inode_remove_acl) only receive the dentry of the accessed
+>> object.  Patches 1-7 therefore first pass struct path instead of dentry
+>> through the metadata-related VFS helpers and LSM hooks.  This is a pure
+>> refactoring with no behavior change, split so that every patch builds
+>> and works on its own:
+>>
+>>    1: notify_change() and its callers
+>>    2: inode_setsecctx hook (must come before 3: the SELinux and Smack
+>>       implementations call __vfs_setxattr_locked internally)
+>>    3: xattr helpers, which also drops a redundant EVM xattr size sanity
+>>       check whose vfs_getxattr() call only has a dentry and therefore
+>>       cannot be migrated to the new path-based signature
+>>    4: POSIX ACL helpers
+>>    5: inode_setattr hook
+>>    6: inode xattr hooks
+>>    7: inode POSIX ACL hooks
+>>
+>> Two deliberate scoping decisions for this refactor:
+>>
+>> - The hooks consistently take struct path rather than struct file.  The
+>>    VFS call sites involved (chmod(2), chown(2), utimensat(2), xattr(2)
+>>    and ACL syscalls) operate on paths, and several of them (lstat(2),
+>>    lchown(2), llistxattr(2), ...) have no struct file to begin with.
+>>
+>> - struct inode_operations->setattr still receives (idmap, dentry, attr).
+>>    Only the VFS boundary (notify_change()) and the LSM hook layer see the
+>>    path, which keeps the refactor contained to fs/attr.c and the LSM
+>>    infrastructure instead of touching every filesystem.
+>>
+>> Patches 8-12 then implement the new rights, their tests, the sandboxer
+>> sample and the documentation.  Semantics:
+>>
+>> - READ_METADATA covers stat(2) and friends, getxattr(2) and friends,
+>>    listxattr(2) and friends, and POSIX ACL reads.
+>> - WRITE_METADATA covers chmod(2), chown(2), utimensat(2), setxattr(2),
+>>    removexattr(2) and friends, and POSIX ACL set and remove.
+>> - Only explicit metadata changes requested by user space are restricted.
+>>    Implicit changes performed by the kernel (e.g. timestamp updates on
+>>    write(2), size changes on truncate(2)) are not, and neither are
+>>    chmod(2)/chown(2) calls that change nothing (e.g. chown(2) with
+>>    (-1, -1), which never reaches the hook), matching the SELinux
+>>    inode_setattr behavior.
+>> - Kernel-internal accesses performed with override_creds() (e.g.
+>>    overlayfs, cachefiles) and kernel threads without a Landlock domain
+>>    (e.g. nfsd, ksmbd) are not restricted.
+>>
+>> The Landlock ABI version is incremented from 11 to 12.
+>>
+>> The series is based on linux-next commit 5c4d4169604b ("Add linux-next
+>> specific files for 20260921").
+>>
+>> Testing: each patch has been built for aarch64 (gcc, -Werror) and the
+>> landlock selftests (445 tests, including the new ones) pass in QEMU on
+>> aarch64; base_test reports ABI v12.
+>>
+>> [1] https://lore.kernel.org/all/20220827111215.131442-1-xiujianfeng@huawei.com/
+>> [2] https://lore.kernel.org/all/abc960a1-e66e-792e-6869-cfd201c29dbe@digikod.net/
+> Thank you for sending this patch set!
+>
+> Some meta-remarks at the beginning:
+>
+> * You might want to link the bugtracker feature request:
+>    https://github.com/landlock-lsm/linux/issues/11
+> * In the final version, I think it's preferred to merge patches 8
+>    (adding the access right enums) and 9 (adding the LSM hooks that use
+>    them).  Having the feature as an atomic commit makes it harder to
+>    accidentally mess it up during a backport, because you can't patch 8
+>    without 9.
+> * As Paul alluded to, the changes to the LSM hook interface and to the
+>    existing callers in VFS are likely the hardest part of this patch
+>    set.  Alexei from the BPF subsystem has also reiterated recently
+>    that he wants BPF to be looped into such changes.  BPF hooks do not
+>    give the same backwards compatibility guarantees as the syscall
+>    layer, but there are existing users of LSM hooks specifically
+>    through the BPF LSM.
+>
+> * In https://github.com/landlock-lsm/linux/issues/18, we came across
+>    statfs(), which returns file system meta-information based for the
+>    file system that a given file belongs to.  I have weak confidence
+>    that READ_METADATA would be the right access right to protect this
+>    with, but it's a somewhat related operation.  Maybe you have some
+>    thoughts on this?
+>
+> More concrete questions:
+>
+> * If a "inode" LSM hook gets a "path" argument now, should it be
+>    renamed from "inode_..." to "path_..."?
+>
+>    (Maybe the BPF people can chime in about to what extent that would
+>    cause additional churn for BPF users, in a situation where they
+>    anyway already need to make a change due to the changing function
+>    signature?)
+>
+> –Günther
