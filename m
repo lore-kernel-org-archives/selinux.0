@@ -1,43 +1,43 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3FA4E3222
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A1F4E5340
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 17:47:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790617624; cv=none; b=sY2WZYv2i7WY+YA9YjxZAYiITjO0lq3AU9UaE8llpOn21hm61o+McFXQTwCweKHOT0UeGdEaJ+lMtcnwPgCXtZUkKO0DbOTrZxyoIq2LE2a38OHqLf+E6aW2bJ05t0N1y10kAYBfz+CQ6ePCN/B3ZKW/ngzJxnSP7Nozl/1PvQs=
+	t=1790617624; cv=none; b=O7PSe0KXDfQZ+sm6611ty5cdSjGw0/z+8ubaKC2Z5KviYPbrYu6JB/EZP6VfkxLnD03281B7LGB4jLfSPjOquq8I0yKbtCNEeWXD0q4KvHS1LVFbOrTZJZ32eGrb9DEvjv0cSZX6LiM9kK/9PBI0NzD+z4TygUHUD+AUxTzx1E4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790617624; c=relaxed/simple;
-	bh=PhrdUaSKot7Yp2NrOv0ZemKjneKLZr72r2fzJRnKqXE=;
+	bh=UhQCq6NfTP/0NWz4OExqYEje2R45eB1w9tmEWMvEqI8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OjMVy8p+s6sQADHTr/Q2suPqZsZNiuzV3wPER+AQ7B7q0xdgTdHZuX2JsJi0aLxd1mP3liIq9Fs9VlfroT0RBb72cREe+XZhS98VWSQrLU0Imx3gs5cvvW7h61RXXvNYvzwZP8+EuUKx0aLiTvvyiVGTe8XYWvLT/iC3CSEEKEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rMG6leTV; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=hyVzvLb5FY6oBqES/cDAUHwH8rMDUBdrrNtKruU9K7OMF8GUmDs5bHXLko8MRpxdtUHQAuoxyE1m3uWQHaD7qAsuNGH10hh3Om9nJEo699LDajObaK/QQSmKPBPAlpCeujvCEkv2FOUNEz9En/YXFEB+VCaYrqFGIKoiUSPuCvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=KzL3MIaA; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rMG6leTV"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="KzL3MIaA"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790617618;
+	s=2023072701; t=1790617619;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=marh4+ERpXBq9sSf2PIkuH8T5BlN1+4WLltm6GD8dkA=;
-	b=rMG6leTVLWFfL3iALlloskghp9CUtKl66e937w0Z8iUVkAq1uQOv40AOKTCMuS2C8HhM3V
-	sE91Yaxr78MwHCHbd7+bX9j//rcWLHXq+Zvew8LdHAXH2lUeRNzC+5cWSH9sRikIJVTF6V
-	2XHLL5wHyY3AQgIA9KgFW8rCmvx50+t8a3s6eU7zPajuP+/4BdXdMtLAslFug6IUd/D0xJ
-	S3yPYYfoZ4qMDxI/0BQMecvSl/sIoWOMFGzzM2/N3fvgTfe/2WahRQSDEMzy+mvgOmU/er
-	LPtE1psNRgeIBdrR8k02OuUX0HF+cVo8X4ehMeJKBKECCZl2IdNBqlBjrXlGDg==
+	bh=lksGgUyV0YpI8pDIFzz4gay6C3s0Q6ikiF+vcUO0RYg=;
+	b=KzL3MIaAyefGA/D/C4WygsyswCKMuLFFT9dBoTU9h+mFpTKMxo1Er9aun5rExla1HoK4Du
+	gtAWBhcDlMRNpqjiOCiqAooTOwkFn5C6vdKkr4ewWQapxeaOmPsd4aXhUgQ8ICgtEH79BU
+	+qU/20SJWc6pLdXjKAKaWBgWt2ekh8tu1loa+aejpCpu+3QCZSEPh7VLrjwnq2GXbE4V+2
+	NC+JqsJE4alvCGzF6iFUoJiRCsbv4iR8Df5KhLW0KHkHTSYSNn8ggrGtwar8fGU9VmpnuF
+	K8emiKnaia03NN8ABWIUa/zsHHWY1G4aN2s/oIae4lAabiRO4IzxjgqBYVn31A==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 09/32] selinux: factor out sel_make_files()
-Date: Mon, 28 Sep 2026 19:46:19 +0200
-Message-ID: <20260928174643.2458710-8-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 12/32] selinux: avoid context string allocation on getxattr size query
+Date: Mon, 28 Sep 2026 19:46:22 +0200
+Message-ID: <20260928174643.2458710-11-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 References: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -52,92 +52,48 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-sel_make_avc_files() and sel_make_ss_files() contain the same loop to
-create the files of a tree_descr table.  Move it into a common helper.
+For a size-only query of the security.selinux xattr the context string
+is computed, copied and immediately freed.  Pass a NULL buffer to
+security_sid_to_context*() instead, which only computes the length.
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/selinuxfs.c | 49 ++++++++++++++----------------------
- 1 file changed, 19 insertions(+), 30 deletions(-)
+ security/selinux/hooks.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 42cfef5fcca2..0fce6c0b0426 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1447,22 +1447,14 @@ static const struct file_operations sel_avc_cache_stats_ops = {
- };
- #endif
- 
--static int sel_make_avc_files(struct dentry *dir)
-+static int sel_make_files(struct dentry *dir, const struct tree_descr *files,
-+			  unsigned int nfiles)
- {
--	struct super_block *sb = dir->d_sb;
--	struct selinux_fs_info *fsi = sb->s_fs_info;
-+	struct selinux_fs_info *fsi = dir->d_sb->s_fs_info;
- 	unsigned int i;
- 	int err = 0;
--	static const struct tree_descr files[] = {
--		{ "cache_threshold",
--		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
--		{ "hash_stats", &sel_avc_hash_stats_ops, S_IRUGO },
--#ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
--		{ "cache_stats", &sel_avc_cache_stats_ops, S_IRUGO },
--#endif
--	};
- 
--	for (i = 0; !err && i < ARRAY_SIZE(files); i++) {
-+	for (i = 0; !err && i < nfiles; i++) {
- 		struct inode *inode;
- 
- 		inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
-@@ -1478,30 +1470,27 @@ static int sel_make_avc_files(struct dentry *dir)
- 	return err;
- }
- 
--static int sel_make_ss_files(struct dentry *dir)
-+static int sel_make_avc_files(struct dentry *dir)
- {
--	struct super_block *sb = dir->d_sb;
--	struct selinux_fs_info *fsi = sb->s_fs_info;
--	unsigned int i;
--	int err = 0;
- 	static const struct tree_descr files[] = {
--		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
-+		{ "cache_threshold",
-+		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
-+		{ "hash_stats", &sel_avc_hash_stats_ops, S_IRUGO },
-+#ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
-+		{ "cache_stats", &sel_avc_cache_stats_ops, S_IRUGO },
-+#endif
- 	};
- 
--	for (i = 0; !err && i < ARRAY_SIZE(files); i++) {
--		struct inode *inode;
--
--		inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
--		if (!inode)
--			return -ENOMEM;
--
--		inode->i_fop = files[i].ops;
--		inode->i_ino = ++fsi->last_ino;
-+	return sel_make_files(dir, files, ARRAY_SIZE(files));
-+}
- 
--		err = sel_attach_file(dir, files[i].name, inode);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0c4511325ce3..67f96fc95492 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3630,21 +3630,18 @@ static int selinux_inode_getsecurity(struct mnt_idmap *idmap,
+ 	 */
+ 	isec = inode_security(inode);
+ 	if (has_cap_mac_admin(false))
+-		error = security_sid_to_context_force(isec->sid, &context,
++		error = security_sid_to_context_force(isec->sid,
++						      alloc ? &context : NULL,
+ 						      &size);
+ 	else
+ 		error = security_sid_to_context(isec->sid,
+-						&context, &size);
++						alloc ? &context : NULL,
++						&size);
+ 	if (error)
+ 		return error;
+-	error = size;
+-	if (alloc) {
++	if (alloc)
+ 		*buffer = context;
+-		goto out_nofree;
 -	}
-+static int sel_make_ss_files(struct dentry *dir)
-+{
-+	static const struct tree_descr files[] = {
-+		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
-+	};
- 
--	return err;
-+	return sel_make_files(dir, files, ARRAY_SIZE(files));
+-	kfree(context);
+-out_nofree:
+-	return error;
++	return size;
  }
  
- static ssize_t sel_read_initcon(struct file *file, char __user *buf,
+ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
 -- 
 2.55.0
 
