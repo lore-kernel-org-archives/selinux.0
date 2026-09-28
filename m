@@ -1,43 +1,43 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F9E14EBAC3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAA174E73CC
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 17:47:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790617629; cv=none; b=PexWF4pW++JiEVqnxk0xbP0Gu4yYK6tgrghKgCjDJZI6PudsZJv6KV1cLtmtp0OjFlpFibctaZJO9j1vHmHd8Bn/hb2dksBSUw8955XaDJDUIC7MZtLJXMj7M7sw1X246877zBjGorXUismoTgBb7Ebr7aeq1la9lDpkbghkNDA=
+	t=1790617629; cv=none; b=FrcrJbk/YB/+xQiMYD0WBAVuA7gaBzgR7i1jl+23fPC2KAU9CnmN8QlBKB6ac15xYauc0l5zCRmD/S3bjezNgtr2HAbGKjVAPCPfOaEVz2bjvIqW7ZBwN2kEYFQLp4U0mmoBnRQ6w06JSBwPOpXniwwEnaf71a8/lnaAsK6uFHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790617629; c=relaxed/simple;
-	bh=iNQg420vwA1bKLHiVEUeRD7ESOL6LbwHowukyCMxgDE=;
+	bh=XfNIuOMLJccYJOQtIz27ZuSNDN69p4N1QCMMSsAD9OE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hllkq4z9bkwmKUtmlEVvh3zVyor3/WidL++SLFI0hexrMGDMypaNXBzdY5KSkfjuDI6ptuDPts5jEwPIBmOyie9Z2b9PAmd81qG1UMTzQIpgJKw3c3ju+32mCGOUXA38mURzODb1Q2LQFl2LBF9x76b0rndymZX8F3wyz/Kjp5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Vzy6anif; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=NtbynxnnNPB3Cb4MmlyiTOYSnIn8FmMPyhEzJxckDz0xiGfqXNvH60bEBe+d+ORVtt2IGE0aOM6j0k+i97CreCIBefyjZhWZ+JtmpHllo63qjG299E0Ek3GmKkg0MSlErJRcce3TK3ajIiwuoRPGlGgN/BAMkZvG4sQITTYr4Fk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=C3uW31k4; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Vzy6anif"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="C3uW31k4"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790617623;
+	s=2023072701; t=1790617624;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=czAPHz5IDbhQVAFHLDhZ/D53MG+UHlbS4nFLFDuRyXI=;
-	b=Vzy6anifp8jZ74rwTid6omv7X2f4xH0VX/TRXi90r4DVnSQ6M9fBk0VjBYudQ5Fkcqe6i0
-	hXJp4wIQ2Fic9Nv4uOuPzPTSuMu37Zi7kgNra+t7Fb1ld8yiL8d2rTanTxPBi5LPCT+nyl
-	KYinhhsxmicYtAmvdCbEVstpwyEeTTle+fdNXKB9Z7TV0RVRxXc6H/lCAQcIJeWjq6moZ4
-	fra8scfbAyPvM01YJlZKv8IP+0zuSY2qZGWSCPm39iiKkSrZPQhp7b+4+LP68ynAsHUrft
-	HJruZCnjgVsW6Azw5Ktd/2NBjRSNc9knQk/plSBWiCRrHJF9Pvm0Cd3xnwSuhg==
+	bh=nx1c3EG0doGrMq3apldODQVog/ZqmdoSGt9i1hya/i8=;
+	b=C3uW31k4mSWtBTdx2y8iGzT5sHnUr6wNP1MCEI1OykbeXf2fC/MFCOvN7dzQKRKfoytBXn
+	z4Y67qaVPE6J/dbu4QtZbXCjwaUpNKPcBVhv0zT30pJvWQGfp4XPNBpBGPoVU6TAFyQGB1
+	N6GkxF1BSWqUtD+NTNk7wAJXhzCSiarv+fMhAPynY8nV6fDyT1TuCR8FWaSkftR8rWoRVi
+	aIadWN2OjimHwI3E2YGQIxGdIZqgzePJ1Rq/SnIUalufNNHRlthqnIS9olBKjLaYYNFYd8
+	Rq1+68J9LmFjPg9gZ0qLn52/+WevF9X0Tc+MAxDCFicWHI9Pr1ryWKMDH9ht9Q==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 23/32] selinux: simplify nlmsg_perm()
-Date: Mon, 28 Sep 2026 19:46:33 +0200
-Message-ID: <20260928174643.2458710-22-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 26/32] selinux: drop page_mkwrite handler for the policy mapping
+Date: Mon, 28 Sep 2026 19:46:36 +0200
+Message-ID: <20260928174643.2458710-25-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 References: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -52,81 +52,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Pass the number of table entries instead of the table size in bytes,
-return directly on a match and drop unreachable breaks after returns.
+->page_mkwrite() is only invoked for write faults on VM_SHARED
+mappings. A shared mapping of the policy file can never become
+writable: the inode is S_IMMUTABLE, so the file cannot be opened for
+writing and do_mmap() clears VM_SHARED and VM_MAYWRITE for MAP_SHARED
+mappings of it, and in addition sel_mmap_policy() clears VM_MAYWRITE
+and rejects VM_WRITE for any VM_SHARED mapping.
+
+Drop the unreachable handler and with it the FAULT_FLAG_MKWRITE test,
+which is only set on the page_mkwrite path. Write faults on private
+mappings still reach ->fault() with FAULT_FLAG_WRITE and keep failing
+with SIGBUS.
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/nlmsgtab.c | 23 +++++++++--------------
- 1 file changed, 9 insertions(+), 14 deletions(-)
+ security/selinux/selinuxfs.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index 655d2616c9d2..41618c3f81c1 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -153,17 +153,16 @@ static const struct nlmsg_perm nlmsg_audit_perms[] = {
- static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab,
- 		      size_t tabsize)
- {
--	unsigned int i;
--	int err = -EINVAL;
-+	size_t i;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 595f9fabbc0b..9c626ef26a78 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -391,7 +391,7 @@ static vm_fault_t sel_mmap_policy_fault(struct vm_fault *vmf)
+ 	unsigned long offset;
+ 	struct page *page;
  
--	for (i = 0; i < tabsize / sizeof(struct nlmsg_perm); i++)
-+	for (i = 0; i < tabsize; i++) {
- 		if (nlmsg_type == tab[i].nlmsg_type) {
- 			*perm = tab[i].perm;
--			err = 0;
--			break;
-+			return 0;
- 		}
-+	}
+-	if (vmf->flags & (FAULT_FLAG_MKWRITE | FAULT_FLAG_WRITE))
++	if (vmf->flags & FAULT_FLAG_WRITE)
+ 		return VM_FAULT_SIGBUS;
  
--	return err;
-+	return -EINVAL;
- }
+ 	offset = vmf->pgoff << PAGE_SHIFT;
+@@ -408,7 +408,6 @@ static vm_fault_t sel_mmap_policy_fault(struct vm_fault *vmf)
  
- int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
-@@ -189,16 +188,14 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 			return 0;
- 		}
- 		return nlmsg_perm(nlmsg_type, perm, nlmsg_route_perms,
--				  sizeof(nlmsg_route_perms));
--		break;
-+				  ARRAY_SIZE(nlmsg_route_perms));
- 	case SECCLASS_NETLINK_TCPDIAG_SOCKET:
- 		if (selinux_policycap_netlink_xperm()) {
- 			*perm = NETLINK_TCPDIAG_SOCKET__NLMSG;
- 			return 0;
- 		}
- 		return nlmsg_perm(nlmsg_type, perm, nlmsg_tcpdiag_perms,
--				  sizeof(nlmsg_tcpdiag_perms));
--		break;
-+				  ARRAY_SIZE(nlmsg_tcpdiag_perms));
- 	case SECCLASS_NETLINK_XFRM_SOCKET:
- 		/* If the BUILD_BUG_ON() below fails you must update the
- 		 * structures at the top of this file with the new mappings
-@@ -211,8 +208,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 			return 0;
- 		}
- 		return nlmsg_perm(nlmsg_type, perm, nlmsg_xfrm_perms,
--				  sizeof(nlmsg_xfrm_perms));
--		break;
-+				  ARRAY_SIZE(nlmsg_xfrm_perms));
- 	case SECCLASS_NETLINK_AUDIT_SOCKET:
- 		if (selinux_policycap_netlink_xperm()) {
- 			*perm = NETLINK_AUDIT_SOCKET__NLMSG;
-@@ -225,8 +221,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 			return 0;
- 		}
- 		return nlmsg_perm(nlmsg_type, perm, nlmsg_audit_perms,
--				  sizeof(nlmsg_audit_perms));
--		break;
-+				  ARRAY_SIZE(nlmsg_audit_perms));
- 	}
+ static const struct vm_operations_struct sel_mmap_policy_ops = {
+ 	.fault = sel_mmap_policy_fault,
+-	.page_mkwrite = sel_mmap_policy_fault,
+ };
  
- 	/* No messaging from userspace, or class unknown/unhandled */
+ static int sel_mmap_policy(struct file *filp, struct vm_area_struct *vma)
 -- 
 2.55.0
 
