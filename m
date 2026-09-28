@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40BBF4DD3D1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3FA4E3222
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 17:47:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790617624; cv=none; b=NMXUvdfBMsvQX25n9s7nGK7bik/KoeIlKmJmqAUK5u6TpYMRDe5G7oH90RxsKgMLoNE09ELUy2X5NWFKlDYsIewYb5ipRVM0qcxL+qioaxyeW/mrFp/G1shfNDltgSTm6ymqDJjE1J/u3W+bo+YhZ4jlLOLwxPIcMuIT/v8Rz7Q=
+	t=1790617624; cv=none; b=sY2WZYv2i7WY+YA9YjxZAYiITjO0lq3AU9UaE8llpOn21hm61o+McFXQTwCweKHOT0UeGdEaJ+lMtcnwPgCXtZUkKO0DbOTrZxyoIq2LE2a38OHqLf+E6aW2bJ05t0N1y10kAYBfz+CQ6ePCN/B3ZKW/ngzJxnSP7Nozl/1PvQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790617624; c=relaxed/simple;
-	bh=7+/yFzTJwia4YmxMOrD51asBsON2mrwQyiyfT1sXv8g=;
+	bh=PhrdUaSKot7Yp2NrOv0ZemKjneKLZr72r2fzJRnKqXE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JC4o6Y51DhfI+LLeoUAitzlOzPy1KBDFDn02e8aY1Olm0NG2p2y4DYK7fyY3JD0sHMYT/TFCLCGe6eWkGLUFMv480rJArRoYuvrkzpEbUpbyjRNiuItY8a/Dy02Q2Qa0GPN40V8zaSfTeHD5KaLfTQ7aHagiT1M5+AkU2W390PE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ITEHUMMW; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=OjMVy8p+s6sQADHTr/Q2suPqZsZNiuzV3wPER+AQ7B7q0xdgTdHZuX2JsJi0aLxd1mP3liIq9Fs9VlfroT0RBb72cREe+XZhS98VWSQrLU0Imx3gs5cvvW7h61RXXvNYvzwZP8+EuUKx0aLiTvvyiVGTe8XYWvLT/iC3CSEEKEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rMG6leTV; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ITEHUMMW"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rMG6leTV"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1790617618;
@@ -24,20 +24,20 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/tTY8wklYPq4RPCmfEDzLb+RaTPd0abnOpdXF3ERTaE=;
-	b=ITEHUMMWXcT9tnKW52Wd83t2s9nOmfvP8rWmvHexCY//iSjq/NyarQBd0l/Xgug6VkG5Ci
-	jyiMKF3YFjm6ruGFNEByg88DLCJQLvIvGOQViy5oEey84HCfarUO9X0BV9lwku7oxjrLgI
-	897dr7FMDnI2rFD5dwMU7aCatsmo25DKag9gqC3svnkZocLNC+TKX2YFJEySd2+2myXCHl
-	vq/jTIvWV05+T6QZ9FacmE8thpQHjZ12TIXNCEIL0HivLklGeAf5on85nhWB/5Jp0ppgIc
-	UpsYEmn0q64SmO3f9sN2woMFpzvM8wvHXMUXia/g28UxejbIHASHUjRhw5Xg3g==
+	bh=marh4+ERpXBq9sSf2PIkuH8T5BlN1+4WLltm6GD8dkA=;
+	b=rMG6leTVLWFfL3iALlloskghp9CUtKl66e937w0Z8iUVkAq1uQOv40AOKTCMuS2C8HhM3V
+	sE91Yaxr78MwHCHbd7+bX9j//rcWLHXq+Zvew8LdHAXH2lUeRNzC+5cWSH9sRikIJVTF6V
+	2XHLL5wHyY3AQgIA9KgFW8rCmvx50+t8a3s6eU7zPajuP+/4BdXdMtLAslFug6IUd/D0xJ
+	S3yPYYfoZ4qMDxI/0BQMecvSl/sIoWOMFGzzM2/N3fvgTfe/2WahRQSDEMzy+mvgOmU/er
+	LPtE1psNRgeIBdrR8k02OuUX0HF+cVo8X4ehMeJKBKECCZl2IdNBqlBjrXlGDg==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 07/32] selinux: drop constant value parameter of ebitmap_set_bit()
-Date: Mon, 28 Sep 2026 19:46:17 +0200
-Message-ID: <20260928174643.2458710-6-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 09/32] selinux: factor out sel_make_files()
+Date: Mon, 28 Sep 2026 19:46:19 +0200
+Message-ID: <20260928174643.2458710-8-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 References: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -52,185 +52,92 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-All callers of ebitmap_set_bit() pass 1 as value.  Drop the parameter
-together with the unused bit clearing branch and
-ebitmap_node_clr_bit().
+sel_make_avc_files() and sel_make_ss_files() contain the same loop to
+create the files of a tree_descr table.  Move it into a common helper.
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/ebitmap.c  | 37 +++-------------------------------
- security/selinux/ss/ebitmap.h  | 11 +---------
- security/selinux/ss/mls.c      |  6 +++---
- security/selinux/ss/policydb.c |  8 ++++----
- 4 files changed, 11 insertions(+), 51 deletions(-)
+ security/selinux/selinuxfs.c | 49 ++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 30 deletions(-)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index ea894361fed6..fd489d8cfbed 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -87,7 +87,7 @@ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1,
- 	ebitmap_for_each_positive_bit(e1, n, bit)
- 	{
- 		if (ebitmap_get_bit(e2, bit)) {
--			rc = ebitmap_set_bit(dst, bit, 1);
-+			rc = ebitmap_set_bit(dst, bit);
- 			if (rc < 0)
- 				return rc;
- 		}
-@@ -301,7 +301,7 @@ int ebitmap_get_bit(const struct ebitmap *e, u32 bit)
- 	return 0;
- }
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 42cfef5fcca2..0fce6c0b0426 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1447,22 +1447,14 @@ static const struct file_operations sel_avc_cache_stats_ops = {
+ };
+ #endif
  
--int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value)
-+int ebitmap_set_bit(struct ebitmap *e, u32 bit)
+-static int sel_make_avc_files(struct dentry *dir)
++static int sel_make_files(struct dentry *dir, const struct tree_descr *files,
++			  unsigned int nfiles)
  {
- 	struct ebitmap_node *n, *prev, *new;
+-	struct super_block *sb = dir->d_sb;
+-	struct selinux_fs_info *fsi = sb->s_fs_info;
++	struct selinux_fs_info *fsi = dir->d_sb->s_fs_info;
+ 	unsigned int i;
+ 	int err = 0;
+-	static const struct tree_descr files[] = {
+-		{ "cache_threshold",
+-		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
+-		{ "hash_stats", &sel_avc_hash_stats_ops, S_IRUGO },
+-#ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
+-		{ "cache_stats", &sel_avc_cache_stats_ops, S_IRUGO },
+-#endif
+-	};
  
-@@ -309,44 +309,13 @@ int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value)
- 	n = e->node;
- 	while (n && n->startbit <= bit) {
- 		if ((n->startbit + EBITMAP_SIZE) > bit) {
--			if (value) {
--				ebitmap_node_set_bit(n, bit);
--			} else {
--				u32 s;
--
--				ebitmap_node_clr_bit(n, bit);
--
--				s = find_first_bit(n->maps, EBITMAP_SIZE);
--				if (s < EBITMAP_SIZE)
--					return 0;
--
--				/* drop this node from the bitmap */
--				if (!n->next) {
--					/*
--					 * this was the highest map
--					 * within the bitmap
--					 */
--					if (prev)
--						e->highbit = prev->startbit +
--							     EBITMAP_SIZE;
--					else
--						e->highbit = 0;
--				}
--				if (prev)
--					prev->next = n->next;
--				else
--					e->node = n->next;
--				kmem_cache_free(ebitmap_node_cachep, n);
--			}
-+			ebitmap_node_set_bit(n, bit);
- 			return 0;
- 		}
- 		prev = n;
- 		n = n->next;
- 	}
+-	for (i = 0; !err && i < ARRAY_SIZE(files); i++) {
++	for (i = 0; !err && i < nfiles; i++) {
+ 		struct inode *inode;
  
--	if (!value)
--		return 0;
--
- 	new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
- 	if (!new)
- 		return -ENOMEM;
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-index ae05cc8e4672..9b14f2304620 100644
---- a/security/selinux/ss/ebitmap.h
-+++ b/security/selinux/ss/ebitmap.h
-@@ -106,15 +106,6 @@ static inline void ebitmap_node_set_bit(struct ebitmap_node *n, u32 bit)
- 	n->maps[index] |= (EBITMAP_BIT << ofs);
+ 		inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
+@@ -1478,30 +1470,27 @@ static int sel_make_avc_files(struct dentry *dir)
+ 	return err;
  }
  
--static inline void ebitmap_node_clr_bit(struct ebitmap_node *n, u32 bit)
--{
--	u32 index = EBITMAP_NODE_INDEX(n, bit);
--	u32 ofs = EBITMAP_NODE_OFFSET(n, bit);
+-static int sel_make_ss_files(struct dentry *dir)
++static int sel_make_avc_files(struct dentry *dir)
+ {
+-	struct super_block *sb = dir->d_sb;
+-	struct selinux_fs_info *fsi = sb->s_fs_info;
+-	unsigned int i;
+-	int err = 0;
+ 	static const struct tree_descr files[] = {
+-		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
++		{ "cache_threshold",
++		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
++		{ "hash_stats", &sel_avc_hash_stats_ops, S_IRUGO },
++#ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
++		{ "cache_stats", &sel_avc_cache_stats_ops, S_IRUGO },
++#endif
+ 	};
+ 
+-	for (i = 0; !err && i < ARRAY_SIZE(files); i++) {
+-		struct inode *inode;
 -
--	BUG_ON(index >= EBITMAP_UNIT_NUMS);
--	n->maps[index] &= ~(EBITMAP_BIT << ofs);
--}
+-		inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
+-		if (!inode)
+-			return -ENOMEM;
 -
- #define ebitmap_for_each_positive_bit(e, n, bit)      \
- 	for ((bit) = ebitmap_start_positive(e, &(n)); \
- 	     (bit) < ebitmap_length(e);               \
-@@ -128,7 +119,7 @@ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2,
- 		     u32 last_e2bit);
- u32 ebitmap_get_highest_set_bit(const struct ebitmap *e);
- int ebitmap_get_bit(const struct ebitmap *e, u32 bit);
--int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value);
-+int ebitmap_set_bit(struct ebitmap *e, u32 bit);
- void ebitmap_destroy(struct ebitmap *e);
- struct policy_file;
- int ebitmap_read(struct ebitmap *e, struct policy_file *fp);
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index b48f8256dd4c..3b2f888506af 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -318,7 +318,7 @@ int mls_context_to_sid(struct policydb *pol, char oldc, char *scontext,
- 				return -EINVAL;
+-		inode->i_fop = files[i].ops;
+-		inode->i_ino = ++fsi->last_ino;
++	return sel_make_files(dir, files, ARRAY_SIZE(files));
++}
  
- 			rc = ebitmap_set_bit(&context->range.level[l].cat,
--					     catdatum->value - 1, 1);
-+					     catdatum->value - 1);
- 			if (rc)
- 				return rc;
+-		err = sel_attach_file(dir, files[i].name, inode);
+-	}
++static int sel_make_ss_files(struct dentry *dir)
++{
++	static const struct tree_descr files[] = {
++		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
++	};
  
-@@ -335,7 +335,7 @@ int mls_context_to_sid(struct policydb *pol, char oldc, char *scontext,
+-	return err;
++	return sel_make_files(dir, files, ARRAY_SIZE(files));
+ }
  
- 			for (i = catdatum->value; i < rngdatum->value; i++) {
- 				rc = ebitmap_set_bit(
--					&context->range.level[l].cat, i, 1);
-+					&context->range.level[l].cat, i);
- 				if (rc)
- 					return rc;
- 			}
-@@ -438,7 +438,7 @@ int mls_convert_context(struct policydb *oldp, struct policydb *newp,
- 			if (!catdatum)
- 				return -EINVAL;
- 			rc = ebitmap_set_bit(&newc->range.level[l].cat,
--					     catdatum->value - 1, 1);
-+					     catdatum->value - 1);
- 			if (rc)
- 				return rc;
- 		}
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 13d88e47db3c..cad404fc8819 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -2292,13 +2292,13 @@ static int filename_trans_read_helper_compat(struct policydb *p, struct policy_f
- 			name = NULL;
- 
- 			rc = ebitmap_set_bit(&p->filename_trans_ttypes,
--					     key.ttype, 1);
-+					     key.ttype);
- 			if (rc)
- 				return rc;
- 		}
- 	}
- 	kfree(name);
--	return ebitmap_set_bit(&datum->stypes, stype - 1, 1);
-+	return ebitmap_set_bit(&datum->stypes, stype - 1);
- 
- out:
- 	kfree(ft);
-@@ -2400,7 +2400,7 @@ static int filename_trans_read_helper(struct policydb *p, struct policy_file *fp
- 	if (rc)
- 		goto out;
- 
--	return ebitmap_set_bit(&p->filename_trans_ttypes, ttype, 1);
-+	return ebitmap_set_bit(&p->filename_trans_ttypes, ttype);
- 
- out:
- 	kfree(ft);
-@@ -3122,7 +3122,7 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
- 			goto bad;
- 
- 		/* add the type itself as the degenerate case */
--		rc = ebitmap_set_bit(e, i, 1);
-+		rc = ebitmap_set_bit(e, i);
- 		if (rc)
- 			goto bad;
- 	}
+ static ssize_t sel_read_initcon(struct file *file, char __user *buf,
 -- 
 2.55.0
 
