@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1004E7815
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:58:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C194E80DE
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:58:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790611111; cv=none; b=JuSm7AqiKfAEiZpZ1phBRlcHQkMr+f/8fXDjnPjfrjTHjnbXIZCWECUjp8A9+9LaYrRtri1VIGZ/bxbOsEVHvSsQJvqzCQXXckmyqKxH6kizuSYhmpDAq5GULjH5tg925NdqGHKCcqTR0gIbkm71VfW/hMTkwHGoIYW7G/pKImY=
+	t=1790611111; cv=none; b=hR5/ABLu0JUm6TxfsCFBJAoA22+qORjfjy6BX6xg62vNFIxMifPIvXgeBCON8a9J7owAFN5nhKJnqoU8Vmo64r1guT/Ct6sXzmeS7VuYG0+XHZtgx8+I36AuY2gSkyquHjvTqn0i6rd8Sh+8t6myXyDD/2Lk4pO2uGXSo4umqjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790611111; c=relaxed/simple;
-	bh=HgWANVqU054GTyIHeMedhkjYZ5zYe2M+CxdBx08DrtE=;
+	bh=pMaQ/NKt7KsgdOS4YVPfhDKYS9JIU/1bz1zuPU+D1Lk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dGNWozDxYDwxH/O8sh798xfGrm1wH4JyevW90RNbwiQOojaZrXaMQ3Bqjvo0BEk70MfT2hBkEO92jeYBM8RjCvWYOENNfZ0pNOGc5MxBxVw1GFysdO9vGk7WrLKP5zmwrROVWlFCjunm+O/RQCJK0t76qe6d0ttnNi44+glgY6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rpFp5DKA; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=uSzkJt1ckbATTbPAoLy827JVYg+ITBu0Q+a9zxoACGXPpN37dq9R4rh8YEwQroKZOOaQb5XFk0puUQ4wxbF6VPlM3qssDzlQnDjlJxQmIAdkT4g3SuvC+qiVs0E+6Mrv5LYps8pyUkW1LVWVs3g5YoexTHNdImDBEQdC5RCI+6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Hbr5GGQq; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rpFp5DKA"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Hbr5GGQq"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1790611100;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=08bt7VQJTVt1aC5+4PGgiehcAC5ZyNNTs60gLlKYx6M=;
-	b=rpFp5DKA7viIhtVQ5YwNYAjjvyzH4NWoGTnLkTLgw4iySTkh869/Kw2+InnNXA55brBfHQ
-	3Et3rTMqPD1SWqJJCcQo3OPENIhFK6ow9rDvttoibxLYUBRwQtTdgfms0N69YIp4yqUeLe
-	e6ay/bZ2wK3mekOU4LQc+WBMhhOYEQmhs5nAp5TNiyGcbXnEtRzotEQ+oiDb4s8X+82Q55
-	XSzgxNT0PeNr7j1LmOLh7UkqCkWvlNgT9UR65oz/aEBGD2b9Lz6N3mTE/spL7i8pru+TQY
-	XJ8DdmoUuIwSqIYWmwzRqF2HXm3YbKExq7ywlARYkxwTvJhJL2rW5zZqYY/7Ng==
+	bh=O6BE6j48O9sIgyh3Za6o+5ctcpmNXknxE3Gi+o8Cpj8=;
+	b=Hbr5GGQqYSmbgqHnhoR5k0cJlT1JZ9LGjskpAaJTjoIz5xLkJ005mYDZF7djohzn3cfGO0
+	sKm0D6a8W9p0bMrnjTBbsBPQ7xuqAKbVzcMQNPSwLKrx52eq21nqPi2Hc9RoQ40FMToOeR
+	PdGu5hz76QtW5vXMsc/pTgQGnxLVhZoQkKWOB/K1L4oHW4b3R/cLuSJeSRmiFXmFxHW2r+
+	lo1+R5KaTkwMk0dZ0GgVqDVkZTjfrjTuGYG6psB6NNYBHftlf3ILeA4+9MOG4pW5FAA1ds
+	9R6RcnfoI01qOgJVC4VYFRS4xk9RI1PlAFAIj+CT0EKgATnapTd44zB4q7Wsdw==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 05/21] defconfig: update for current kernels
-Date: Mon, 28 Sep 2026 17:57:36 +0200
-Message-ID: <20260928155753.2259807-4-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 06/21] README.md: update the Debian dependencies
+Date: Mon, 28 Sep 2026 17:57:37 +0200
+Message-ID: <20260928155753.2259807-5-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 References: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,164 +49,57 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Several options have been removed from the kernel or no longer take
-effect, so parts of the testsuite silently end up not being configured:
-
-* Drop options that no longer exist: INET_XFRM_MODE_TRANSPORT,
-  INET6_XFRM_MODE_TRANSPORT, EXT3_FS_SECURITY, XFS_SECURITY, ANDROID,
-  KEYS_COMPAT and NFS_V4_1.
-* SMC now depends on DIBS, and SMC_LO has been replaced by DIBS_LO.
-  Without DIBS the SMC socket tests are not configured at all.
-* CRYPTO_USER_API cannot be selected directly; enable it via
-  CRYPTO_USER_API_HASH for the AF_ALG socket tests.
-* IP_NF_SECURITY and NETFILTER_XT_MATCH_MULTIPORT need
-  NETFILTER_ADVANCED, and the iptables security tables need the legacy
-  xtables options.  Also add NFT_COMPAT for iptables with the nf_tables
-  backend, and the nf_tables options used by nftables-load.
-
-Also add options required by existing tests that were missing: MPTCP,
-vsock loopback, user namespaces and checkpoint/restore, fanotify
-permission events, userfaultfd and the function tracer.
-
-Checked by merging into x86_64_defconfig: apart from the filesystem
-specific *_FS_SECURITY options, all requested options now end up in the
-resulting configuration.
+libselinux1-dev has been renamed to libselinux-dev after Debian 13
+(trixie).  Also add packages providing tools used by the tests that are
+not pulled in by the listed ones: make, lksctp-tools (checksctp),
+keyutils (keyctl) and f2fs-tools (mkfs.f2fs, as in the Fedora list).
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v2: avoid trailing comments, move them to the prior line
----
- defconfig | 61 ++++++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 10 deletions(-)
+ README.md | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/defconfig b/defconfig
-index 3dcf710..6ce3dc0 100644
---- a/defconfig
-+++ b/defconfig
-@@ -11,27 +11,40 @@ CONFIG_SECURITY_SELINUX=y
- # Not strictly required for basic SELinux operation.
- CONFIG_SECURITY_NETWORK_XFRM=y
- CONFIG_NETLABEL=y
-+# required for IP_NF_SECURITY and XT_MATCH_MULTIPORT
-+CONFIG_NETFILTER_ADVANCED=y
-+CONFIG_NETFILTER_XTABLES_LEGACY=y
-+CONFIG_IP_NF_IPTABLES_LEGACY=m
- CONFIG_IP_NF_SECURITY=m
--CONFIG_INET_XFRM_MODE_TRANSPORT=m
-+CONFIG_IP6_NF_IPTABLES_LEGACY=m
-+CONFIG_IP6_NF_SECURITY=m
-+# used by iptables with the nf_tables backend
-+CONFIG_NFT_COMPAT=m
- CONFIG_INET_AH=m
--CONFIG_INET6_XFRM_MODE_TRANSPORT=m
- CONFIG_INET6_AH=m
--CONFIG_CRYPTO_SHA1=m # used for testing, could be updated if desired
-+# used for testing, configured via ip xfrm
-+CONFIG_XFRM_USER=m
-+# used for testing, could be updated if desired
-+CONFIG_CRYPTO_SHA1=m
- CONFIG_NETWORK_SECMARK=y
- CONFIG_NF_CONNTRACK_SECMARK=y
- CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=m
- CONFIG_NETFILTER_XT_TARGET_SECMARK=m
- CONFIG_NETFILTER_XT_MATCH_STATE=m
--CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m # used for testing sctp
-+# used for testing sctp
-+CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m
-+CONFIG_NF_CONNTRACK=m
-+CONFIG_NF_TABLES=m
-+CONFIG_NF_TABLES_IPV4=y
-+CONFIG_NF_TABLES_IPV6=y
-+CONFIG_NFT_CT=m
+diff --git a/README.md b/README.md
+index 5487085..7722c1d 100644
+--- a/README.md
++++ b/README.md
+@@ -126,20 +126,24 @@ command:
  
- # Filesystem security labeling support.
- # Only need to enable the ones for the filesystems on which you are testing.
- # reiserfs is not supported.
- CONFIG_EXT2_FS_SECURITY=y
--CONFIG_EXT3_FS_SECURITY=y
- CONFIG_EXT4_FS_SECURITY=y
- CONFIG_JFS_SECURITY=y
--CONFIG_XFS_SECURITY=y
- CONFIG_JFFS2_FS_SECURITY=y
- CONFIG_F2FS_FS=m
- CONFIG_F2FS_FS_SECURITY=y
-@@ -43,6 +56,8 @@ CONFIG_F2FS_FS_SECURITY=y
- CONFIG_IP_SCTP=m
- CONFIG_BT=m
- CONFIG_CRYPTO_USER_API=m
-+# selects CRYPTO_USER_API
-+CONFIG_CRYPTO_USER_API_HASH=m
+ 	# apt-get install perl \
+ 		gcc \
++		make \
+ 		selinux-policy-dev \
+-		libselinux1-dev \
++		libselinux-dev \
+ 		net-tools \
+ 		iptables \
+ 		libsctp-dev \
++		lksctp-tools \
+ 		attr \
+ 		libbpf-dev \
+ 		libkeyutils-dev \
++		keyutils \
+ 		linux-headers-$(uname -r) \
+ 		quota \
+ 		xfsprogs \
+ 		xfslibs-dev \
+ 		uuid-dev \
+ 		e2fsprogs \
++		f2fs-tools \
+ 		jfsutils \
+ 		dosfstools \
+ 		btrfs-progs \
+@@ -148,6 +152,9 @@ command:
+ 		libibverbs-dev \
+ 		liburing-dev
  
- # Network protocol implementations.
- # These are enabled to run sctp ASCONF tests using a GRE tunnel
-@@ -67,7 +82,6 @@ CONFIG_OVERLAY_FS=m
- # Android binder implementations.
- # These are enabled to test the binder controls in
- # tests/binder; they are not required for SELinux operation itself.
--CONFIG_ANDROID=y
- CONFIG_ANDROID_BINDER_DEVICES="binder"
- CONFIG_ANDROID_BINDER_IPC=y
- # This will configure the Dynamically Allocated Binder Devices added
-@@ -83,7 +97,6 @@ CONFIG_BPF_SYSCALL=y
- # These are enabled to test the key controls in tests/keys; they are
- # not required for SELinux operation itself.
- CONFIG_KEYS=y
--CONFIG_KEYS_COMPAT=y
- CONFIG_KEY_DH_OPERATIONS=y
++On Debian 13 (trixie) and older, install `libselinux1-dev` instead of
++`libselinux-dev`.
++
+ On Debian prior to version 11 (bullseye) you need to build and install netlabel_tools manually:
  
- # Test key management socket.
-@@ -99,6 +112,9 @@ CONFIG_TUN=m
- CONFIG_HAVE_PERF_EVENTS=y
- CONFIG_PERF_EVENTS=y
- CONFIG_TRACEPOINTS=y
-+CONFIG_FTRACE=y
-+# provides the ftrace function event
-+CONFIG_FUNCTION_TRACER=y
- 
- # Test filesystem permissions.
- # This is not required for SELinux operation itself.
-@@ -110,7 +126,6 @@ CONFIG_QFMT_V2=y
- # This is not required for SELinux operation itself.
- CONFIG_NFS_FS=m
- CONFIG_NFS_V4=m
--CONFIG_NFS_V4_1=y
- CONFIG_NFS_V4_2=y
- CONFIG_NFS_V4_SECURITY_LABEL=y
- CONFIG_NFSD=m
-@@ -141,5 +156,31 @@ CONFIG_DEBUG_FS=y
- 
- # Test SMC sockets
- CONFIG_INFINIBAND=m
-+CONFIG_DIBS=m
-+CONFIG_DIBS_LO=y
- CONFIG_SMC=m
--CONFIG_SMC_LO=y
-+
-+# Test MPTCP sockets.
-+# This is not required for SELinux operation itself.
-+CONFIG_MPTCP=y
-+CONFIG_MPTCP_IPV6=y
-+
-+# Test vsock sockets over the loopback transport.
-+# This is not required for SELinux operation itself.
-+CONFIG_VSOCKETS=m
-+CONFIG_VSOCKETS_LOOPBACK=m
-+
-+# Test capabilities in user namespaces and BPF tokens.
-+# This is not required for SELinux operation itself.
-+CONFIG_USER_NS=y
-+# provides /proc/sys/kernel/ns_last_pid
-+CONFIG_CHECKPOINT_RESTORE=y
-+
-+# Test fanotify permission events.
-+# This is not required for SELinux operation itself.
-+CONFIG_FANOTIFY=y
-+CONFIG_FANOTIFY_ACCESS_PERMISSIONS=y
-+
-+# Test userfaultfd.
-+# This is not required for SELinux operation itself.
-+CONFIG_USERFAULTFD=y
+     # git clone https://github.com/netlabel/netlabel_tools
 -- 
 2.55.0
 
