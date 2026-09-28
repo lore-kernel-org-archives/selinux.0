@@ -1,43 +1,43 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3004C4DEC2D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC624E50AF
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 17:47:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790617625; cv=none; b=Ns8g2u8kspLqzJt2c2RQ/7K1aW8Aj/5nBTmYPi7aWgfDu2k1uY95fci3lfc1ioiOqNj18iExj/aHQvK929g3LjAIYWBd8Rh31Oi9e/4apEMSsTGypFYsg+vC129MFxVaJECn3eg7tho2MDP5yYQ6UwIeuwYimnnRhnVLWZWoQXk=
+	t=1790617625; cv=none; b=XCuSnpRPKpDe1vtkjUVxOJI8+fSS/Lr9jl+zVO9CH5qwUA7xWozea16BjcmIylnpNuJWERBS13hHoB3kJlsjF0sJW6UzeYpLSL1u8ooO0FwfwS1Xkv8YJSBY17ASP6K+HxHXf+OvUe06Urark3qKai0jfq/YjtGp5hIgyjC7bQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790617625; c=relaxed/simple;
-	bh=2ruTBWrsx9X+eTDD0jSZQoBuiI2af/JnhjZFoEXyklg=;
+	bh=wFZ3S0+0FMr7yy5rcAeRwGcxsoaT7BqF8Fom7xbH3Aw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ECKuSH0yrzJdrFHzgnEWjxl7tp9Pu5XrK3iMYnWUWBmjaHqSorsH+0O2cb2NYXfwEYNPMbHY4zRnGKcr7T88TrLGu+IWB505Bqgq91CMf1Omleibb+UsLhieHDzzYlKIePy59uUrrNWz0GNO+LCnV8X7LgbTpsmnQgJzTFWcdB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ceFO/S4u; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=B8BsPDj6jyl/WKfzg7hejdphJXeo1lwsUb3sNnCTo8Mj2NXsX9xVKZ8cHIPUTMG/0jav4IkDsZ67a1D1qw8/BTBDM51mg0Nkz+pg+dqyD7rijHDWjkmavVfVNKp+jZaWin8l9JIhlhtKlFmxTfSlVEeADmZRnqlLkFFQ13X4ESQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Lvwz/OGh; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ceFO/S4u"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Lvwz/OGh"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790617620;
+	s=2023072701; t=1790617621;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iFiRJEN2uR/7gmI5SSXl6vxNxzSZdxStuRC8xq+cE8c=;
-	b=ceFO/S4uwpGlIggT07woFXQ9/wsIpzrLiFzYuJeREtvwS6RKjtst0CBdq3h7AKd1rwJG3b
-	POSlr/9z13hUa86vgpgtl6+LQcv1GWXAiPU1dlX4nrcFQsCxD8J8q1olFFNshP2+dymDHj
-	iffrKsp4E4Es9uCaQFnJXmfKClBSMmaKas5u403dH4yfqtFigzVB/87Ib9lKzdH/tfw19k
-	+kIYq2/gz9SGPxfmhAMrbxTR2eZdaarfUNr0+TtOr2xk+yvNyKOuFNoOI3W7iE9HeGbW2v
-	tZe0CE4z6vM2kyTD2elF10M/pYx/okeUo3sA0QlXNNf1KZHnP77jJIxmW08B0g==
+	bh=jJTAJuu2W1ENVZPLsi1Zw/TM1hYV84CQN4ualZGZvuo=;
+	b=Lvwz/OGhKOXs6CszClkpIiqyUrW+KXiK2ODQlpoyUyR/AAyvCz47C+ZUKBYcolkYkFh8jD
+	904b21GNYwSupV/coyicVOee4PDs1KcqXZ5RNuYfuyVDMRGW/LGkjM46ISzEljQdcGpTVs
+	+uKmW4zsPhcLxaqVDVMmNso0FkNzIxwj1H2urhmtyxRUzg7IE54tFxLEWvL7Q2LBU7QN58
+	LJJg79/Jc3jdqdb887wBQc32fbVMS85gxAnbVrh41PSqHIV2I0rnI7ldHDvfmInAuMj8Eb
+	PachSD9N/qN3E4sgSmjKOgJ5RLuVZyKBca6G/OnU3fEqYVwFIFkIHKZkvuHAfg==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 14/32] selinux: make sidtab_init() return void
-Date: Mon, 28 Sep 2026 19:46:24 +0200
-Message-ID: <20260928174643.2458710-13-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 16/32] selinux: drop unused policydb parameter of perm_read()
+Date: Mon, 28 Sep 2026 19:46:26 +0200
+Message-ID: <20260928174643.2458710-15-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 References: <20260928174643.2458710-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -52,69 +52,47 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-sidtab_init() cannot fail.  Drop its return value and the unreachable
-error handling in its only caller.
+perm_read() never uses its policydb argument.
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/policydb.c | 6 +-----
- security/selinux/ss/sidtab.c   | 4 +---
- security/selinux/ss/sidtab.h   | 2 +-
- 3 files changed, 3 insertions(+), 9 deletions(-)
+ security/selinux/ss/policydb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index cad404fc8819..ba96baec74a9 100644
+index ba96baec74a9..94b0f1392ad3 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -934,11 +934,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
- 	bool isid_init;
- 	int rc;
- 
--	rc = sidtab_init(s);
--	if (rc) {
--		pr_err("SELinux:  out of memory on SID table init\n");
--		return rc;
--	}
-+	sidtab_init(s);
- 
- 	isid_init = ebitmap_get_bit(&p->policycaps,
- 				    POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT);
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index 118af0aa2767..f55e1d781e52 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -32,7 +32,7 @@ struct sidtab_str_cache {
- #define index_to_sid(index) ((index) + SECINITSID_NUM + 1)
- #define sid_to_index(sid)   ((sid) - (SECINITSID_NUM + 1))
- 
--int sidtab_init(struct sidtab *s)
-+void sidtab_init(struct sidtab *s)
- {
- 	u32 i;
- 
-@@ -53,8 +53,6 @@ int sidtab_init(struct sidtab *s)
- 	INIT_LIST_HEAD(&s->cache_lru_list);
- 	spin_lock_init(&s->cache_lock);
- #endif
--
--	return 0;
+@@ -1224,8 +1224,8 @@ static u32 perm_claimed_mask(u32 nprim)
+ 	return nprim ? U32_MAX >> (SEL_VEC_MAX - nprim) : 0;
  }
  
- static u32 context_to_sid(struct sidtab *s, struct context *context, u32 hash)
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-index a9d932a6352e..0298070fb759 100644
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -104,7 +104,7 @@ struct sidtab {
- 	DECLARE_HASHTABLE(context_to_sid, SIDTAB_HASH_BITS);
- };
+-static int perm_read(struct policydb *p, struct symtab *s,
+-		     struct policy_file *fp, u32 *claimed)
++static int perm_read(struct symtab *s, struct policy_file *fp,
++		     u32 *claimed)
+ {
+ 	char *key = NULL;
+ 	struct perm_datum *perdatum;
+@@ -1310,7 +1310,7 @@ static int common_read(struct policydb *p, struct symtab *s, struct policy_file
+ 		goto bad;
  
--int sidtab_init(struct sidtab *s);
-+void sidtab_init(struct sidtab *s);
- int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context);
- struct sidtab_entry *sidtab_search_entry(struct sidtab *s, u32 sid);
- struct sidtab_entry *sidtab_search_entry_force(struct sidtab *s, u32 sid);
+ 	for (i = 0; i < nel; i++) {
+-		rc = perm_read(p, &comdatum->permissions, fp, &claimed);
++		rc = perm_read(&comdatum->permissions, fp, &claimed);
+ 		if (rc)
+ 			goto bad;
+ 	}
+@@ -1561,7 +1561,7 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
+ 		}
+ 	}
+ 	for (i = 0; i < nel; i++) {
+-		rc = perm_read(p, &cladatum->permissions, fp, &claimed);
++		rc = perm_read(&cladatum->permissions, fp, &claimed);
+ 		if (rc)
+ 			goto bad;
+ 	}
 -- 
 2.55.0
 
