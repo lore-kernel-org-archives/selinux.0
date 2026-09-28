@@ -1,144 +1,136 @@
-Received: from mail-qk2-f41.google.com (mail-qk2-f41.google.com [74.125.230.233])
+Received: from mail-yx2-f43.google.com (mail-yx2-f43.google.com [74.125.224.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17AF34D5994
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 17:58:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.233
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790618329; cv=none; b=nptuQ+pWDbtwMd/Au5jWk4MVq6I72vkA4co0mJ0MOgF5G6tna3nhrub6DDS7UQBFQc3V3l62c7vMezgZMyAwohyaPcraZc+xwO8x0yPos0/jdtuHgEO87s6kNko8isz2RojATEgYs3KJkZlSUCVbiRF3g5WVjvIavAYZsdtkRiI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790618329; c=relaxed/simple;
-	bh=QXueCtxR2MPKvUkKkGoliKd821jNxrSf7zeDfYddBXY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XFoAIoGQDbUvvU5/oMS/1uk9D/omBcOb91DR4m5QrKm8A7OP+CGNXcMyiiHUi16Sc4UhEFx69m31Gla9Do3oM6QMj0YHKooQgJd9mEr4C/MNYW6bppQVGoR2NwyM6I2XEM6S17Xax+81c8SZlkAgvE5PrRo4sxTM+oc9yEb8XtQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SpN4MU7B; arc=none smtp.client-ip=74.125.230.233
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F47A384CE5
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 18:21:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790619671; cv=pass; b=dDgFsDuEvIKNYzjwiPJ09zIu9bUy7sLDky8lDNwbX0HOp/tFnBrvragbYdsJA/818gyDQmZFJg0zULskXTKE8zYvAVaHjYhtitSivzEja0h4A0VsifMW1iVl3tWTiI74OvXTE5YsnvuLo6d1wEXrjiWadzROvPw/UOYspmSXRvQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790619671; c=relaxed/simple;
+	bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZiesIdnefeBkjFUd8IF6nxMYGX7qT86KG78dwtl9mSe+mywF02qIdeYm7alus7Gy74cZa6HUY2DNCnQ12H7Fn1WbtTeeOmXLi/DjGFvPeaIt+xav7kgELhXm90ysbpDxbyQy+oU90Cs8KTtUZkVkmlkxt8CF7yqjZM243cUWHdU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ISr7sndj; arc=pass smtp.client-ip=74.125.224.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SpN4MU7B"
-Received: by mail-qk2-f41.google.com with SMTP id d75a77b69052e-532c7643bc4so41352361cf.3
-        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 10:58:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ISr7sndj"
+Received: by mail-yx2-f43.google.com with SMTP id 00721157ae682-895353e9051so30301607b3.0
+        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 11:21:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790619669; cv=none;
+        d=google.com; s=arc-20260327;
+        b=IZl9gkcg9808JvukeFZ9vfqAn2+pRKtpjOGJBA9yU+/ly23rPeaVXsAmhM8P6QKYAo
+         PMCnu+hc0P2olAs+1VHYEUxEZOwD0MBJLz92n8TDNZ9Uy1GxTg90KRV8ZnyHkbclYOl/
+         yXrcAa22zBbZ8S5Z/GV0xRDFuPDS9P2v3dnTRuArkHMkD5Vc253bqlAoKeUFk71mm6ZI
+         pNYhqty0So5pYjhHtcYQBKfXOg3aMFCGwBG1efxnLfiSJjM7rIqB2Lc2A3ad4Q8CbUIn
+         3RLO0WzFgl6LuwafPn6WxfAsgpv7r18doQ+xlheOVx86U/5ySQLWBRG+S77otO3YCtiM
+         4gZA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
+        fh=ynz/8+FwD6qg4pGsVrM1o3ZMcJz6Z9Ld9eMncvonVNU=;
+        b=jS4Wgpp3xRxh0NaGvTlVsDQMMCtrjOpUu4Eb2i3iMQbOOHQF6Yw6AN+OXEUcEpFfZe
+         QoFb/TMoliNOuMPM0psDoAsIsz79LnyPqLZaHrjDV+PuU9zb1QNHy9w/9/1+lFl5BX+F
+         U63gF8K+SCaZ7GJ/nC9rFXN1bjEtF3ZQ7Kxtx/u4DRxnkbfSrKQrq24Fuqk/4WlRjnwu
+         7IqvRSUsilmKjYnSjuxFr8frAj/0gQLq9SVwRAyuHkNDqg5E8aX4/vCLHYlySo+AbatN
+         nkGS1eUkW8fV+Z2UfFJsuFFhnqPw2xdpv5E5lytVZMmeJdOIIoe5z6AzyePhlOE/79iu
+         38fA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790618327; x=1791223127; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=85SL2bnfNlviLE+vw8NYbxgLCoP4pGSgeiC99yyz9KY=;
-        b=SpN4MU7BHWrZxvCvoMdS+GFt2gtfDv1RYvqTfmpb6NCGtXweZFz4Ng/mhngvDuEQWf
-         mEud4ujdB2sAj6wnHodKtAnPowisWqUBR68YQiJborEtO35mHMLheu8vOoRs7VNcX2GS
-         c42Vs+1COuBWDWhQ2NWZXJKPoP4jVHcc+HAH2gWUIrT5oIrex85XgQCsOnafbv8XQ23h
-         GCEZQLAPJvKgzE9+BdaaBt7BdiIHTqEeu6a2mzVwPgdWBX7h7F1X5tY4w2UTARBEH3jQ
-         VJlakR+GcLxkH7mqNgpqacwLi/5XCR5SroE2RodWE9ehe2WyeAqsJVPpogqmr+Td4nIB
-         N76g==
+        d=gmail.com; s=20251104; t=1790619669; x=1791224469; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
+        b=ISr7sndjyFoqYwFJe68KrPm1AnWOkFl622QWvL6J2QS+/oulutQmvf3rdsVfd7RAUd
+         f7iaY9klREyXoL+O95CkOVS9QqfD33gdLDOhC04Eu844e9EYX9uleK1qWTVLylyHbI5P
+         9rNS7sk2VseFgje5oBOoixC4VFwgizAqMaqv97ANm53kNmNWpgHGpKYvDgYneZm+ppN6
+         u7/2OBtEp0uptbojDmuVWeRmIkx+krX2AjSX2lLjmD40p95bGTeTkvEwMRW+gMpvAo9K
+         lcvn16VLZsDbKJ4ayJzfM71q/5Ky6zH98kAy+dixptdMeoePR9UnWBYgUu2oni6DBM80
+         wnBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790618327; x=1791223127;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=85SL2bnfNlviLE+vw8NYbxgLCoP4pGSgeiC99yyz9KY=;
-        b=mp6hx9MpyTSuSctlPV8fDIqSD6wTr9Ua1MyI6PEvjSP27NZ5mDoB+QpU6hzpT6ZguH
-         1xeCBYiC5ZTTcn9U8Vw9VLn1EsHNh0By0JYb//COpWPvUerglmvAeEU4iK4osBnuCoVW
-         HvF/TBmIHA7fwsgtDoF4H3n8u3gx5TlOSLB6GI5hWDV/gUa6ksTlbbH/bTXHrKAZTmyX
-         Aaf+SE2FEZrWL5WF8R3yvwSqxvoubjjp7vZpvcicgQtMtUqbO0ZZiomkO1V5HPI4ggyL
-         Idb0q7eyAA/m8Z4SoUw6WdIQgHn3x7Y9lESDa3eZoDozriMe63uTo9Jsl5pHitDK6BtU
-         7nlQ==
-X-Gm-Message-State: AFuF++kRBeCn2SGcry5tagNLPhJ0GNq3T8OWTtufsmsxgs+PTF1HBWlt
-	Oe2pYDiKT05NkgAEOvQmmA1MNUHho7EKK+8YOrfjfq2jIktOzsW/I5g9b2nhig==
-X-Gm-Gg: AYBFou05erU6WF4yfBpoRfvmBV2wuawV9wWcprrR3e//JtzTZ/YCCiNOuehsG6XliEj
-	Y54QRPIqlKRyOyuwn7DK9ArjjQwKzrRHjiltDCJUALJWHXIrpN/viGZ3EebWenKOGsP+g2KKCXe
-	v8YhBgvJ83wVA8bgeCd/qJm1jDWV78iEcQKsRxYDtaazdu6Ue5yHFBdioCgHLa6glvSzVployx+
-	8EfPLbAqe56bjS16WOTN20dUadYGC7K+UQJUyRzXVG6/mFUghX0IGBtUnNqquiRnl9LDoPvE6Hi
-	0eSu7AhcsVr5CzwuUjaJwxrV6DX6DA5uFqRQTLoigjcy/vVQ8HSnjeDZ8dJZII8aH4kftLo/kkp
-	3ENgiIVked9GRIbQ//mnYCQh3lRbOAy7df9Pb6bl6ZwJF4lI1qInkqxfiinPgz7jNNPSqMuBYEo
-	+fouCOXiIC9TA3l82mEw+J16VDj1XDgyAQKwOKhynMDjnnuUOqr/XatGyKAoTXe9s6hRkK6gBlk
-	8/pvVMtkxfC0QB6TrYsDzumeyX8t0kJYtOQj2g1SSU2Zg2Pex6h93D8vW0gPzc4ueU/Wg88bWQ=
-X-Received: by 2002:a05:622a:c07:b0:533:39bc:efec with SMTP id d75a77b69052e-53339bcf3b3mr107923491cf.2.1790618326915;
-        Mon, 28 Sep 2026 10:58:46 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-53322422063sm67366331cf.28.2026.09.28.10.58.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2026 10:58:46 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	jwcart2@gmail.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/2] gui/statusPage.py: also enumerate policy types under /usr/lib/selinux
-Date: Mon, 28 Sep 2026 13:58:30 -0400
-Message-ID: <20260928175830.78464-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260928175830.78464-1-stephen.smalley.work@gmail.com>
-References: <20260928175830.78464-1-stephen.smalley.work@gmail.com>
+        d=1e100.net; s=20260707; t=1790619669; x=1791224469;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
+        b=M/3S0UlYb3Zgba4981c32y03FOtq7fppGe3fggeeJnkQaHctY5b2zYRTp4o2qqVIZ1
+         Rd8HXS+lmLRU88xDTAKUx5WRW38bBQpPdpkQrshRwJN4qfI8msWk/cD69oGrcSJuLJKO
+         kjtQq3E+Ft1C/kuMba64G/ZHma/WFBA16vS2p3BIIvRp/Q7oFyQhbOtkdnjJUQ8qCKw6
+         9dFKbXLTxeU/tsbwM6EYv3gNMzyQENltQAwauaKaj8QC4rXOytWtN5zX/eAqyYL7LZpP
+         nP2EO/QPOQopTFTwdavpvR4sewpFX4fjpsdMq8/hoi/tC0Gvnu9rtyQAU9zboMtS/xA9
+         jtDg==
+X-Gm-Message-State: AFq9FYIFIgDjq99irHpjJK8ymq5aNO+4EdIQjiSGrU+UMUCFF66aYyMq
+	kPlTWrDL7EyBk8VWMkheA3fgQhQrwLervE0Xr6bw+dUaz2BCYGEYNnvTlxQ5OtQLVQtWAeeQZYR
+	Z6pCMfxCp1QZmrtMzS3wzsNWNQO/my3I=
+X-Gm-Gg: AYBFou3YdIQ3Gr33hOC//dLvlXpjUx8iyUdERqQaaNjBQ3P6VO6rLAX8rnqO0GwvKET
+	deOzocmYdp9kSheGq4O/yYnID2suiEyUFX7GVGQ8AdajGSZJfgX+qpik2Hk16L8TA3idPVDQPnR
+	mQKcFF+8ViJ3SDIYsqKvwuhBB5Ldb+Rd+E3j9A9g+uQrw48oBx/pPVAivwt80XnXK4dpR3lI011
+	wexYFIMJmBY8O1HMDmXMWiIMQzUugeRuoGXNFzClDVBNm/uZaKECYafnfO1Zowtcxj5Ar31hlba
+	lbMphcigE+Vf2GrOfrmdpdORWZJxaL1a1+81eKsfszKBT7lbqtxn11s=
+X-Received: by 2002:a05:690c:f13:b0:8a8:c71e:d83c with SMTP id
+ 00721157ae682-8a8c71eefcfmr38075237b3.14.1790619669147; Mon, 28 Sep 2026
+ 11:21:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260928165253.2388012-1-cgoettsche@seltendoof.de>
+ <20260928165253.2388012-3-cgoettsche@seltendoof.de> <CAEjxPJ7HzmQz5tfwCgru+qWNLpC4mHMKzQsOXKhuGJFUCgorRw@mail.gmail.com>
+ <CAEjxPJ6aWQYLrVdxLcEO6SNw1DbR6LQ3URXszzMsjoR715gxdg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6aWQYLrVdxLcEO6SNw1DbR6LQ3URXszzMsjoR715gxdg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 28 Sep 2026 14:20:58 -0400
+X-Gm-Features: AclHuK8w0eUYozwPsedRJIOChCTkNxbPomtpzmHmY332LswI9En6-bOFkcUz1Z0
+Message-ID: <CAEjxPJ4m-gVVHnydYS34DiaMWb-BJsnUV7WEXqaEPp5h-Kac6w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] selinux: bounds-check role and user membership
+ bitmaps at load
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
+	Ondrej Mosnacek <omosnacek@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-read_selinux_config() populates the "SELinux Type" dropdown by listing
-/etc/selinux/*/policy/. On a stateless install where the shipped
-policies live under /usr/lib/selinux/ this yields an empty list even
-though the running policy was found there.
+On Mon, Sep 28, 2026 at 1:54=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Mon, Sep 28, 2026 at 1:49=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Mon, Sep 28, 2026 at 12:53=E2=80=AFPM Christian G=C3=B6ttsche
+> > <cgoettsche@seltendoof.de> wrote:
+> > >
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > >
+> > > role->dominates, role->types and user->roles are read as ebitmaps but
+> > > their set bits are never checked against the role and type symbol
+> > > tables. A bit naming an undefined value is silently accepted, and an
+> > > out-of-range one is used to index those tables later; in particular
+> > > role_bounds_sanity_check() passes such a bit straight to sym_name(),
+> > > reading p->sym_val_to_name[] out of bounds on a crafted bounded role.
+> > >
+> > > Validate the three bitmaps in policydb_index() once every symbol tabl=
+e
+> > > is populated (roles are read before types, so this cannot be done in
+> > > role_read()).
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> I don't appear to have received patches 2/3 or 3/3 as of yet although
+> I did get sashiko responses to both.
+> Not sure why. Regardless, you or Paul can feel free to add my Acked-by
+> to the ones I see on patchwork and lore.
 
-Walk each configuration root in turn and de-duplicate by name so an
-/etc override of a vendor policy is listed once. Sort the entries so
-the menu order is stable, and skip a root that does not exist rather
-than raising. write_selinux_config() continues to write via
-selinux_path() (i.e. to /etc/selinux/config in the writable
-configuration root).
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- gui/statusPage.py | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
-
-diff --git a/gui/statusPage.py b/gui/statusPage.py
-index 832849e6..82b3490c 100644
---- a/gui/statusPage.py
-+++ b/gui/statusPage.py
-@@ -30,6 +30,10 @@ DISABLED = -1
- modearray = ("disabled", "permissive", "enforcing")
- 
- SELINUXDIR = "/etc/selinux/"
-+# Fallback configuration roots searched (in order) for installed policy
-+# types when populating the type menu. Writes always go to SELINUXDIR
-+# via selinux_path().
-+SELINUX_CONFDIRS = (SELINUXDIR, "/usr/lib/selinux/")
- RELABELFILE = "/.autorelabel"
- 
- ##
-@@ -195,13 +199,20 @@ class statusPage:
-         n = 0
-         current = n
- 
--        for i in os.listdir(SELINUXDIR):
--            if os.path.isdir(SELINUXDIR + i) and os.path.isdir(SELINUXDIR + i + "/policy"):
--                self.types.append(i)
--                self.selinuxTypeOptionMenu.append_text(i)
--                if i == self.initialtype:
--                    current = n
--                n = n + 1
-+        for confdir in SELINUX_CONFDIRS:
-+            try:
-+                entries = sorted(os.listdir(confdir))
-+            except OSError:
-+                continue
-+            for i in entries:
-+                if i in self.types:
-+                    continue
-+                if os.path.isdir(confdir + i + "/policy"):
-+                    self.types.append(i)
-+                    self.selinuxTypeOptionMenu.append_text(i)
-+                    if i == self.initialtype:
-+                        current = n
-+                    n = n + 1
-         self.selinuxTypeOptionMenu.set_active(current)
-         self.typeHistory = current
- 
--- 
-2.55.0
-
+I do notice that the From: address differs on these emails from your
+usual, not sure if that is causing them to go to the bitbucket in the
+sky for me. Maybe you should directly cc me on any you want me to
+review to be safe - still waiting for the RFC series to show up
+likewise for me.
