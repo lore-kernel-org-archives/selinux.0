@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7663A4E9C09
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819C54E9C14
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:58:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790611118; cv=none; b=i2heo8ChXYkdzo+etJpxmYRyPXsG8h8KZ7dXNWzl0vLNTppllceI6By5tutmKcz/xeMdAWMdD8SUHUMUWvq2bdnc2/m6qU2g4MpEDizVDjIu1mK/GF/ZakG5m6vOWhH1HpG0RvUyWtFU+PZbkyOXKUU0EF2adnVWZjj0FlGAk9k=
+	t=1790611118; cv=none; b=GoBvkMzfB1+bxO0Q6oP/8W5Hjth/zwR3mKALG3samPa5SyRZKteDplehn/1qp0nGFS2qounoh73sE4QQEmQAIsrBbnM2BiKBmAl7w7BPw5a7K2ejpz+hbukZzJfWbMR++BClqFfH0mGpi1lEvDszxjbVm7cMoH+Oi8s0c1SOHxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790611118; c=relaxed/simple;
-	bh=8PMaGHWqOm8RYPc194ruMZqZWHY/7L5XDzKr3uZ4YXM=;
+	bh=KPfkSJdhiqSRRmjY6+to7AEZ2X5LVCnXaCjGYrrkFsg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=W1ZChIh9AO3wVpLt4kkLxsROTt3phaB0GMNzg1nG8+ktGmFUgdJl70OLEqbMLHUZ3xFZdZrqiOM4ZbORMyo7zjxbBlYh2YgUlnkpdrATq+M2QKKAzsWA/WMKvWJ/3IEfUcQ0BiDl3gcEgx12Za/68mxk/NadM8frd2STowa7Ddc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=gwo62KH+; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=RhTcGcEHCEF7B/CVXqolkMvXpR4jq537q9SEvpKLG7sRk4K2qCLapkikvGl0bbTEoKsejPQALBNhMhw29s80BqWyhaIlqutXmsSCRpiTii34UqZ1LwnqfMSjWUz2bR59PpegozDjeNeZaA4ri7cX6n50e+g3ckw1krU2tJ7pNLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=KIKfE+H8; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="gwo62KH+"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="KIKfE+H8"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790611104;
+	s=2023072701; t=1790611105;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=D8z16C3Hk6nEsPDwpeHHiNOLQSyYhqINb2CQdWBmpjo=;
-	b=gwo62KH+zjZA08niamlvhU42b0KZlCO/EoCzY1Xk2c4KC5a13CnoxwEXu1TjDSA4sBxcCq
-	O9pJ2sybRXicEWlWt0PMxccc7I4deVNe19QCWHRou+Z4/y9i29j/djEB1L6AaY5D4e0kE3
-	0OHYWXddHs8zlU8JofWFUGWAlRkKOVqdRFg4ZCSNxLAooTpugYZAPp4qe4qDSzIDQI0mBk
-	SfOh8ok4JzTOPl6M7aeNdSx3qLRz6Om5ssOyurc7Vt2DAHyldm6Ijhj47DzmWlR5Y/XFGP
-	uloQlDfOuuKihABrnWGJ/4xnW42KflX9QkCNGAPJKqTZ0G32/lbGkM45XsR+FA==
+	bh=2jIfzdaUz7jWUViHDYntGOUa34RRU5OeVuY2oyrFJa8=;
+	b=KIKfE+H8daS1GuiVmrzcfso68CooQ2U89ZHPEFFrs+zQnX71mE36xw4IO1DmMbuMnMJMXX
+	Ll39w2SJCbPN5Lq/1FdotRxXOmIjE7dQQXzGhpk/rAF3oGWYN2n3D10Pien2wSdYh2m71f
+	mpAV1if0jWO6KToHVE8C5qE/ydWF8bpKZ945f7u3Otkwaagc5ecU1rowIBHImJeu/m4kbc
+	7YWUVGYq8AW1ykx79OOVk8D5t1e1REZHn/7/9EBmbRXQ0qFqxWLS2RnX0SCH46LPtkZr6B
+	XlQ6IyFAvHFTGcV/I1522r0CPl/Nw5UsA+n3bXbiauSDEbvQStpxIP6OEmfWtQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 18/21] tests/filesystem: improve fsnotify check and preload loop module
-Date: Mon, 28 Sep 2026 17:57:49 +0200
-Message-ID: <20260928155753.2259807-17-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 20/21] tests: fail on compiler warnings and enable Wextra
+Date: Mon, 28 Sep 2026 17:57:51 +0200
+Message-ID: <20260928155753.2259807-19-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 References: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,43 +49,30 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-fsnotify support might be missing from the running kernel.
-
-Pre-load the loop module to ensure creating a loop device succeeds.
+Warnings issued by -Wall and -Wextra most of the time point to actual
+issues in the code.  Treat them as errors, so the resulting test run
+failure will be investigated and the issue handled.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/filesystem/Filesystem.pm | 2 +-
- tests/filesystem/test          | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+v2: use correct plural in commit message
+---
+ tests/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
-index ff6daec..115144e 100644
---- a/tests/filesystem/Filesystem.pm
-+++ b/tests/filesystem/Filesystem.pm
-@@ -15,7 +15,7 @@ sub check_config {
-     $watch         = 0;
+diff --git a/tests/Makefile b/tests/Makefile
+index d1edd4d..1118089 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -6,7 +6,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+ SELINUXFS ?= /sys/fs/selinux
+ FILESYSTEMS ?= ext4 xfs jfs vfat btrfs f2fs
  
-     $result = `$base/../kvercmp $kvercur $kverminstream`;
--    if ( $result > 0 && -e $fanotify_fs ) {
-+    if ( $result > 0 && -e $fanotify_fs && -d "/proc/sys/fs/fanotify/" ) {
-         $watch = 1;
-         $tst_count += 11;
-     }
-diff --git a/tests/filesystem/test b/tests/filesystem/test
-index 56f116a..1525199 100755
---- a/tests/filesystem/test
-+++ b/tests/filesystem/test
-@@ -182,6 +182,9 @@ ok( $result >> 8 eq 13 );
+-export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
++export CFLAGS+=-g -O0 -Werror -Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE
  
- system("rm -rf $basedir/mntpoint 2>/dev/null");
- 
-+# Preload module
-+system("modprobe loop 2>/dev/null");
-+
- ############### Test Basic Mount/Unmount ##########################
- mk_mntpoint_1($private_path);
- 
+ DISTRO=$(shell ./os_detect)
+ SELINUXFS := $(shell cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' ')
 -- 
 2.55.0
 
