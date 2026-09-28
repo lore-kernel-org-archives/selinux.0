@@ -1,136 +1,943 @@
-Received: from mail-yx2-f43.google.com (mail-yx2-f43.google.com [74.125.224.171])
+Received: from mail-qk2-f40.google.com (mail-qk2-f40.google.com [74.125.230.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F47A384CE5
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 18:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790619671; cv=pass; b=dDgFsDuEvIKNYzjwiPJ09zIu9bUy7sLDky8lDNwbX0HOp/tFnBrvragbYdsJA/818gyDQmZFJg0zULskXTKE8zYvAVaHjYhtitSivzEja0h4A0VsifMW1iVl3tWTiI74OvXTE5YsnvuLo6d1wEXrjiWadzROvPw/UOYspmSXRvQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790619671; c=relaxed/simple;
-	bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZiesIdnefeBkjFUd8IF6nxMYGX7qT86KG78dwtl9mSe+mywF02qIdeYm7alus7Gy74cZa6HUY2DNCnQ12H7Fn1WbtTeeOmXLi/DjGFvPeaIt+xav7kgELhXm90ysbpDxbyQy+oU90Cs8KTtUZkVkmlkxt8CF7yqjZM243cUWHdU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ISr7sndj; arc=pass smtp.client-ip=74.125.224.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 072434E4C54
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 19:25:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.232
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790623517; cv=none; b=B5d/IBCL5mz4Sz9bv1UFrsdvV7HsjqLailGPfW7Hw9fhEI131DuEREGrLl7vy4VOGLQO6oQ+ioHZaeJrKPqu0VSULsZpannPlRg/6ceKW6R2DSa1ysdhU0GZYbg3u7DMrgGztDypTNAXGWN1q849/8qVoMsF3y3AbeSKz549vuY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790623517; c=relaxed/simple;
+	bh=5GIVbRlQNfoA4iHAFWMQ+wMtyPrOCv2+AFsgfvBdz84=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=m4EA0VG5Du+2rm/lzGmzLcFA1uKO0cedoedvDZV4Sq67EdjNUk7xFDyBevpzEDbC5zM1E8JPRX80Ly4Au5+A3rabq71uR8RX+5D+W5cAeyIqFjqL+W0aqA97S5vpb8lFmHXPoHYUvJlKhw52J+8JIX7L6hzD5C8tAuQ6bts8mSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MrhCO+X0; arc=none smtp.client-ip=74.125.230.232
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ISr7sndj"
-Received: by mail-yx2-f43.google.com with SMTP id 00721157ae682-895353e9051so30301607b3.0
-        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 11:21:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790619669; cv=none;
-        d=google.com; s=arc-20260327;
-        b=IZl9gkcg9808JvukeFZ9vfqAn2+pRKtpjOGJBA9yU+/ly23rPeaVXsAmhM8P6QKYAo
-         PMCnu+hc0P2olAs+1VHYEUxEZOwD0MBJLz92n8TDNZ9Uy1GxTg90KRV8ZnyHkbclYOl/
-         yXrcAa22zBbZ8S5Z/GV0xRDFuPDS9P2v3dnTRuArkHMkD5Vc253bqlAoKeUFk71mm6ZI
-         pNYhqty0So5pYjhHtcYQBKfXOg3aMFCGwBG1efxnLfiSJjM7rIqB2Lc2A3ad4Q8CbUIn
-         3RLO0WzFgl6LuwafPn6WxfAsgpv7r18doQ+xlheOVx86U/5ySQLWBRG+S77otO3YCtiM
-         4gZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
-        fh=ynz/8+FwD6qg4pGsVrM1o3ZMcJz6Z9Ld9eMncvonVNU=;
-        b=jS4Wgpp3xRxh0NaGvTlVsDQMMCtrjOpUu4Eb2i3iMQbOOHQF6Yw6AN+OXEUcEpFfZe
-         QoFb/TMoliNOuMPM0psDoAsIsz79LnyPqLZaHrjDV+PuU9zb1QNHy9w/9/1+lFl5BX+F
-         U63gF8K+SCaZ7GJ/nC9rFXN1bjEtF3ZQ7Kxtx/u4DRxnkbfSrKQrq24Fuqk/4WlRjnwu
-         7IqvRSUsilmKjYnSjuxFr8frAj/0gQLq9SVwRAyuHkNDqg5E8aX4/vCLHYlySo+AbatN
-         nkGS1eUkW8fV+Z2UfFJsuFFhnqPw2xdpv5E5lytVZMmeJdOIIoe5z6AzyePhlOE/79iu
-         38fA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MrhCO+X0"
+Received: by mail-qk2-f40.google.com with SMTP id af79cd13be357-93c5f7af3e1so212392585a.3
+        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 12:25:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790619669; x=1791224469; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
-        b=ISr7sndjyFoqYwFJe68KrPm1AnWOkFl622QWvL6J2QS+/oulutQmvf3rdsVfd7RAUd
-         f7iaY9klREyXoL+O95CkOVS9QqfD33gdLDOhC04Eu844e9EYX9uleK1qWTVLylyHbI5P
-         9rNS7sk2VseFgje5oBOoixC4VFwgizAqMaqv97ANm53kNmNWpgHGpKYvDgYneZm+ppN6
-         u7/2OBtEp0uptbojDmuVWeRmIkx+krX2AjSX2lLjmD40p95bGTeTkvEwMRW+gMpvAo9K
-         lcvn16VLZsDbKJ4ayJzfM71q/5Ky6zH98kAy+dixptdMeoePR9UnWBYgUu2oni6DBM80
-         wnBw==
+        d=gmail.com; s=20251104; t=1790623514; x=1791228314; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YSNq+lK+DHfAhl2kU38JzmZK8WpvAV4p4pmJSIN94Q8=;
+        b=MrhCO+X0Tsz4P05EM9Qxkva9k2ctVkAvDqc6WPtNFZY7ltSFhZYITK3rklrQsuJi5V
+         6i/UVmGRFmNdv3GFkSFyPOUGy44l0qkZI4l0sJHCjGSxx3LJyriB/vsEtgRRQN04R9ax
+         +OKyfuF6TYfCxSELrKIP8FLfvYCcVzS/ckn5I6BFb+1yXd8UmEjSwgbyKyY7sctOpcjS
+         pywLnIr2mQ/oBHQXFNXBOUeupHMJpNxVOLI0+oTx3ZUOpzgPsrRWdKD0yRaxm6/C7pIp
+         3t8H3hS34yNOepGSsV6YFX3+tVNXNif7AAWTACpPYE5mudOpfBWK9CPLdkAUDnEUrWr6
+         vyAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790619669; x=1791224469;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=a+KhPY522kXSb5a8MRC4XWYK6cLoKSM7YgIt/ixbJ6A=;
-        b=M/3S0UlYb3Zgba4981c32y03FOtq7fppGe3fggeeJnkQaHctY5b2zYRTp4o2qqVIZ1
-         Rd8HXS+lmLRU88xDTAKUx5WRW38bBQpPdpkQrshRwJN4qfI8msWk/cD69oGrcSJuLJKO
-         kjtQq3E+Ft1C/kuMba64G/ZHma/WFBA16vS2p3BIIvRp/Q7oFyQhbOtkdnjJUQ8qCKw6
-         9dFKbXLTxeU/tsbwM6EYv3gNMzyQENltQAwauaKaj8QC4rXOytWtN5zX/eAqyYL7LZpP
-         nP2EO/QPOQopTFTwdavpvR4sewpFX4fjpsdMq8/hoi/tC0Gvnu9rtyQAU9zboMtS/xA9
-         jtDg==
-X-Gm-Message-State: AFq9FYIFIgDjq99irHpjJK8ymq5aNO+4EdIQjiSGrU+UMUCFF66aYyMq
-	kPlTWrDL7EyBk8VWMkheA3fgQhQrwLervE0Xr6bw+dUaz2BCYGEYNnvTlxQ5OtQLVQtWAeeQZYR
-	Z6pCMfxCp1QZmrtMzS3wzsNWNQO/my3I=
-X-Gm-Gg: AYBFou3YdIQ3Gr33hOC//dLvlXpjUx8iyUdERqQaaNjBQ3P6VO6rLAX8rnqO0GwvKET
-	deOzocmYdp9kSheGq4O/yYnID2suiEyUFX7GVGQ8AdajGSZJfgX+qpik2Hk16L8TA3idPVDQPnR
-	mQKcFF+8ViJ3SDIYsqKvwuhBB5Ldb+Rd+E3j9A9g+uQrw48oBx/pPVAivwt80XnXK4dpR3lI011
-	wexYFIMJmBY8O1HMDmXMWiIMQzUugeRuoGXNFzClDVBNm/uZaKECYafnfO1Zowtcxj5Ar31hlba
-	lbMphcigE+Vf2GrOfrmdpdORWZJxaL1a1+81eKsfszKBT7lbqtxn11s=
-X-Received: by 2002:a05:690c:f13:b0:8a8:c71e:d83c with SMTP id
- 00721157ae682-8a8c71eefcfmr38075237b3.14.1790619669147; Mon, 28 Sep 2026
- 11:21:09 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790623514; x=1791228314;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YSNq+lK+DHfAhl2kU38JzmZK8WpvAV4p4pmJSIN94Q8=;
+        b=qkzr9kddagQmiuIF0wFt/3UhDJ7/DXWInOtj0t/e+ehqrY9v0XBMoCo6QGdy4MgEcr
+         mapk6lhRy1K1ze2a0OxiaxnolpuWrqMnNVY7xKC9onT4f7pozEYaKg8Kc5urgYY0cfId
+         l0qLQbUQHmrOIJDOwpgrryVz+cTxwqc/NpNE1QPea91D+aCqt0xWBBxhWNvJmRpupf3M
+         W4zOaaame/bWp+EswGz57gD5Rt/ZSHLzm0Bhi7ElqiLh5kmn5u3ygAK+o8kW3ibkMpij
+         H77Xe7VvyOeZe5FkxGUtnP2FD9gfeCcBBN4bfdQa5WxJj9FsAbEXzsSleaXLm0v3MTE9
+         ncAQ==
+X-Gm-Message-State: AFuF++mYnduPUL5MhBhTwok1UePV7Rwijg/SEq3cTlo3prfvuMNbqoCE
+	JX9nijYeAyY9P8JNu75F7TertFd9E6CrwdnoJqFARV1ad2jIOcAbi2WSbnVU7w==
+X-Gm-Gg: AYBFou36llQYiHndgBs0RKiI4HemaTuOagVb/OdERtOK4naL9V1GBXNzuLO6+y2joN0
+	P+OahUyoyLD7ecBghyBU1ZVZa4WBjaaKj9/+YSNc4xWCMdcjP3Iip1ydE/9QqTaggMXGvu+8LsT
+	TZBFX5AOr+JcFP2ytXrVAR7X1Ju+4EffKtOPfuGfvNIHpacmiKWnQZtkoEP/y2aBExbE6T6wcin
+	65aK0EKBz9SnOpjY7NKdozONl7IvBq3z5/0L9PeKT9oTaANe7w83nMOmZ43YE3KJvDRW/0J4C8j
+	+xEulzk1SDxDlEDYLQNo9dRhEMPMkXXhKMqayVnnwStCVdfiDMMgvLWJfqEY5jmjDI1ECQ0TGMH
+	w+r38lLrhhkq/N3vam1sEENdHTKXMwAqqpkKsFbmgBXdPiqX8cSQVNIdQpPuS1gAMDZdTbybSJW
+	vEQIGplDR9WNGJD+xK5ZL7Czdv40zzas2+nMimbCHnatFmo5DS3Kx5ZwamLJ70wFKNXHv/2ei0K
+	A0jWZBve8kWm/59qSRoLErH9ySHb2vkUaRZ3E2Y0Piv2xgnYbwoYBFjsgqmTDtPOwN86Nare9eB
+	tbn7FxuUzwY=
+X-Received: by 2002:a05:620a:2725:b0:939:6de7:8765 with SMTP id af79cd13be357-93c43cf7633mr2241651485a.44.1790623513118;
+        Mon, 28 Sep 2026 12:25:13 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93c813a443fsm226377285a.12.2026.09.28.12.25.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2026 12:25:12 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] userspace: update man pages for /usr/lib fallbacks
+Date: Mon, 28 Sep 2026 15:24:58 -0400
+Message-ID: <20260928192458.81906-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260928165253.2388012-1-cgoettsche@seltendoof.de>
- <20260928165253.2388012-3-cgoettsche@seltendoof.de> <CAEjxPJ7HzmQz5tfwCgru+qWNLpC4mHMKzQsOXKhuGJFUCgorRw@mail.gmail.com>
- <CAEjxPJ6aWQYLrVdxLcEO6SNw1DbR6LQ3URXszzMsjoR715gxdg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6aWQYLrVdxLcEO6SNw1DbR6LQ3URXszzMsjoR715gxdg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 28 Sep 2026 14:20:58 -0400
-X-Gm-Features: AclHuK8w0eUYozwPsedRJIOChCTkNxbPomtpzmHmY332LswI9En6-bOFkcUz1Z0
-Message-ID: <CAEjxPJ4m-gVVHnydYS34DiaMWb-BJsnUV7WEXqaEPp5h-Kac6w@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] selinux: bounds-check role and user membership
- bitmaps at load
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnacek@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 28, 2026 at 1:54=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Sep 28, 2026 at 1:49=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Mon, Sep 28, 2026 at 12:53=E2=80=AFPM Christian G=C3=B6ttsche
-> > <cgoettsche@seltendoof.de> wrote:
-> > >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > role->dominates, role->types and user->roles are read as ebitmaps but
-> > > their set bits are never checked against the role and type symbol
-> > > tables. A bit naming an undefined value is silently accepted, and an
-> > > out-of-range one is used to index those tables later; in particular
-> > > role_bounds_sanity_check() passes such a bit straight to sym_name(),
-> > > reading p->sym_val_to_name[] out of bounds on a crafted bounded role.
-> > >
-> > > Validate the three bitmaps in policydb_index() once every symbol tabl=
-e
-> > > is populated (roles are read before types, so this cannot be done in
-> > > role_read()).
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> I don't appear to have received patches 2/3 or 3/3 as of yet although
-> I did get sashiko responses to both.
-> Not sure why. Regardless, you or Paul can feel free to add my Acked-by
-> to the ones I see on patchwork and lore.
+Update all of the userspace man pages to note the /usr/lib fallbacks
+for the configuration files.
 
-I do notice that the From: address differs on these emails from your
-usual, not sure if that is causing them to go to the bitbucket in the
-sky for me. Maybe you should directly cc me on any you want me to
-review to be safe - still waiting for the RFC series to show up
-likewise for me.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ checkpolicy/checkpolicy.8                     |  3 ++
+ .../man/man3/get_ordered_context_list.3       |  4 +-
+ libselinux/man/man3/is_context_customizable.3 |  9 +++-
+ libselinux/man/man3/matchmediacon.3           |  2 +-
+ .../man/man3/selinux_binary_policy_path.3     |  2 +-
+ libselinux/man/man3/selinux_boolean_sub.3     |  2 +-
+ libselinux/man/man3/selinux_getenforcemode.3  |  2 +-
+ libselinux/man/man3/selinux_getpolicytype.3   |  2 +-
+ libselinux/man/man3/selinux_policy_root.3     |  4 +-
+ libselinux/man/man5/customizable_types.5      |  2 +-
+ libselinux/man/man5/default_contexts.5        |  2 +-
+ libselinux/man/man5/default_type.5            |  2 +-
+ libselinux/man/man5/failsafe_context.5        |  2 +-
+ libselinux/man/man5/removable_context.5       |  2 +-
+ libselinux/man/man5/securetty_types.5         |  2 +-
+ libselinux/man/man5/selabel_db.5              |  2 +-
+ libselinux/man/man5/selabel_file.5            | 10 ++---
+ libselinux/man/man5/selabel_media.5           |  2 +-
+ libselinux/man/man5/selabel_x.5               |  2 +-
+ libselinux/man/man5/service_seusers.5         |  2 +-
+ libselinux/man/man5/seusers.5                 |  2 +-
+ libselinux/man/man5/user_contexts.5           |  6 +--
+ libselinux/man/man5/virtual_domain_context.5  |  2 +-
+ libselinux/man/man5/virtual_image_context.5   |  2 +-
+ libselinux/man/man8/selinux.8                 | 19 +++++---
+ mcstrans/man/man5/setrans.conf.5              | 16 +++++--
+ mcstrans/man/man8/mcs.8                       | 12 +++++-
+ mcstrans/man/man8/mcstransd.8                 | 16 +++++--
+ policycoreutils/man/man5/selinux_config.5     | 12 +++++-
+ policycoreutils/newrole/newrole.1             | 43 ++++++++++++++-----
+ policycoreutils/run_init/run_init.8           | 24 ++++++++---
+ policycoreutils/semodule/genhomedircon.8      | 12 ++++--
+ policycoreutils/sestatus/sestatus.8           |  7 +++
+ policycoreutils/setfiles/restorecon.8         |  4 +-
+ policycoreutils/setfiles/setfiles.8           |  3 ++
+ python/chcat/chcat.8                          | 19 +++++++-
+ restorecond/restorecond.8                     | 28 ++++++++++--
+ 37 files changed, 212 insertions(+), 75 deletions(-)
+
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index caaaf675..011f742e 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -76,12 +76,15 @@ Show usage information.
+ .nf
+ Generate policy.conf based on the system policy
+ # checkpolicy -b -M -F /etc/selinux/targeted/policy/policy.33 -o policy.conf
++# checkpolicy -b -M -F /usr/lib/selinux/targeted/policy/policy.33 -o policy.conf
+ Recompile system policy so that unknown permissions are denied (uses policy.conf from ^^).
+ Note that binary policy extension represents its version, which is subject to change
+ # checkpolicy -M -U deny -o /etc/selinux/targeted/policy/policy.33 policy.conf
++# checkpolicy -M -U deny -o /usr/lib/selinux/targeted/policy/policy.33 policy.conf
+ # load_policy
+ Generate CIL representation of current system policy
+ # checkpolicy -b -M -C /etc/selinux/targeted/policy/policy.33 -o policy.out
++# checkpolicy -b -M -C /usr/lib/selinux/targeted/policy/policy.33 -o policy.out
+ 
+ .SH "SEE ALSO"
+ SELinux Reference Policy documentation at https://github.com/SELinuxProject/refpolicy/wiki
+diff --git a/libselinux/man/man3/get_ordered_context_list.3 b/libselinux/man/man3/get_ordered_context_list.3
+index 2a1e08f0..f9daaddb 100644
+--- a/libselinux/man/man3/get_ordered_context_list.3
++++ b/libselinux/man/man3/get_ordered_context_list.3
+@@ -48,9 +48,9 @@ SELinux
+ identity that are reachable from the specified
+ .I fromcon
+ context based on the global
+-.I \%/etc/selinux/{SELINUXTYPE}/contexts/default_contexts
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/default_contexts
+ file and the per-user
+-.I \%/etc/selinux/{SELINUXTYPE}/contexts/users/<username>
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/users/<username>
+ file if it exists.  The 
+ .I fromcon
+ parameter may be NULL to indicate that the current context should
+diff --git a/libselinux/man/man3/is_context_customizable.3 b/libselinux/man/man3/is_context_customizable.3
+index ca332dc4..eb5c7f6c 100644
+--- a/libselinux/man/man3/is_context_customizable.3
++++ b/libselinux/man/man3/is_context_customizable.3
+@@ -9,7 +9,7 @@ is_context_customizable \- check whether SELinux context type is customizable by
+ .
+ .SH "DESCRIPTION"
+ This function checks whether the type of scon is in the
+-.I /etc/selinux/{SELINUXTYPE}/context/customizable_types
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/context/customizable_types
+ file.  A customizable type is a file context type that
+ administrators set on files, usually to allow certain domains to share the file content. restorecon and setfiles, by default, leave these context in place.
+ .
+@@ -18,7 +18,14 @@ Returns 1 if security context is customizable or 0 if it is not.
+ Returns \-1 on error.
+ .
+ .SH "FILE"
++.TP
+ .I /etc/selinux/{SELINUXTYPE}/context/customizable_types
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/context/customizable_types
++The list of customizable types for file contexts. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ .
+ .SH "SEE ALSO"
+ .BR selinux "(8)"
+diff --git a/libselinux/man/man3/matchmediacon.3 b/libselinux/man/man3/matchmediacon.3
+index 187e1c14..e8b271ac 100644
+--- a/libselinux/man/man3/matchmediacon.3
++++ b/libselinux/man/man3/matchmediacon.3
+@@ -24,7 +24,7 @@ using
+ Returns 0 on success or \-1 otherwise.
+ .
+ .SH Files
+-.I /etc/selinux/{POLICYTYPE}/contexts/files/media
++.I {/etc,/usr/lib}/selinux/{POLICYTYPE}/contexts/files/media
+ .
+ .SH "SEE ALSO"
+ .BR selinux "(8), " freecon "(3)
+diff --git a/libselinux/man/man3/selinux_binary_policy_path.3 b/libselinux/man/man3/selinux_binary_policy_path.3
+index 01538688..4c2bb45e 100644
+--- a/libselinux/man/man3/selinux_binary_policy_path.3
++++ b/libselinux/man/man3/selinux_binary_policy_path.3
+@@ -44,7 +44,7 @@ directories and files
+ .SH "DESCRIPTION"
+ These functions return the paths to the active policy configuration
+ directories and files based on the settings in
+-.IR /etc/selinux/config .
++.IR {/etc,/usr/lib}/selinux/config .
+ .sp
+ .BR selinux_path ()
+ returns the top-level SELinux configuration directory.
+diff --git a/libselinux/man/man3/selinux_boolean_sub.3 b/libselinux/man/man3/selinux_boolean_sub.3
+index a29a38d5..95cb5807 100644
+--- a/libselinux/man/man3/selinux_boolean_sub.3
++++ b/libselinux/man/man3/selinux_boolean_sub.3
+@@ -10,7 +10,7 @@ selinux_boolean_sub \- Search the translated name for a boolean_name record
+ .SH "DESCRIPTION"
+ .BR selinux_boolean_sub ()
+ searches the
+-.I \%/etc/selinux/{POLICYTYPE}/booleans.subs_dist
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/booleans.subs_dist
+ file
+ for a matching boolean_name record.  If the record exists the boolean substitution name is returned.  If not
+ .BR \%selinux_boolean_sub ()
+diff --git a/libselinux/man/man3/selinux_getenforcemode.3 b/libselinux/man/man3/selinux_getenforcemode.3
+index 7ed94c11..4242a506 100644
+--- a/libselinux/man/man3/selinux_getenforcemode.3
++++ b/libselinux/man/man3/selinux_getenforcemode.3
+@@ -10,7 +10,7 @@ selinux_getenforcemode \- get the enforcing state of SELinux
+ .SH "DESCRIPTION"
+ .BR selinux_getenforcemode ()
+ Reads the contents of the
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ file to determine how the system was setup to run SELinux.
+ 
+ Sets the value of
+diff --git a/libselinux/man/man3/selinux_getpolicytype.3 b/libselinux/man/man3/selinux_getpolicytype.3
+index b219d421..bb499e3e 100644
+--- a/libselinux/man/man3/selinux_getpolicytype.3
++++ b/libselinux/man/man3/selinux_getpolicytype.3
+@@ -10,7 +10,7 @@ selinux_getpolicytype \- get the type of SELinux policy running on the system
+ .SH "DESCRIPTION"
+ .BR selinux_getpolicytype ()
+ Reads the contents of the
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ file to determine the SELinux policy used on the system, and sets
+ .I \%policytype
+ accordingly. Free
+diff --git a/libselinux/man/man3/selinux_policy_root.3 b/libselinux/man/man3/selinux_policy_root.3
+index 75ac8ec0..e4f9b794 100644
+--- a/libselinux/man/man3/selinux_policy_root.3
++++ b/libselinux/man/man3/selinux_policy_root.3
+@@ -14,13 +14,13 @@ selinux_set_policy_root \- Set an alternate SELinux root path for the SELinux po
+ .SH "DESCRIPTION"
+ .BR selinux_policy_root ()
+ reads the contents of the
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ file to determine which policy files should be used for this machine.
+ .
+ .BR selinux_set_policy_root ()
+ sets up all policy paths based on the alternate root
+ 
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ file to determine which policy files should be used for this machine.
+ .
+ .SH "RETURN VALUE"
+diff --git a/libselinux/man/man5/customizable_types.5 b/libselinux/man/man5/customizable_types.5
+index 4924f7bd..145cd1ab 100644
+--- a/libselinux/man/man5/customizable_types.5
++++ b/libselinux/man/man5/customizable_types.5
+@@ -18,7 +18,7 @@ will use this information to obtain a list of types relating to files that shoul
+ .BR selinux_customizable_types_path (3)
+ will return the active policy path to this file. The default customizable types file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/customizable_types
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/customizable_types
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/default_contexts.5 b/libselinux/man/man5/default_contexts.5
+index f63d24a0..b18331b7 100644
+--- a/libselinux/man/man5/default_contexts.5
++++ b/libselinux/man/man5/default_contexts.5
+@@ -27,7 +27,7 @@ SELinux-aware login applications generally use one or more of the following libs
+ .sp
+ The default context configuration file path for the active policy is returned by \fBselinux_default_contexts_path\fR(3). The default, default contexts file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/default_contexts
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/default_contexts
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/default_type.5 b/libselinux/man/man5/default_type.5
+index 082a5f01..97e8fb3e 100644
+--- a/libselinux/man/man5/default_type.5
++++ b/libselinux/man/man5/default_type.5
+@@ -7,7 +7,7 @@ The \fIdefault_type\fR file contains entries that allow SELinux-aware applicatio
+ .sp
+ \fBselinux_default_type_path\fR(3) will return the active policy path to this file. The default, default type file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/default_type
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/default_type
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/failsafe_context.5 b/libselinux/man/man5/failsafe_context.5
+index e7032e5f..6382fcb3 100644
+--- a/libselinux/man/man5/failsafe_context.5
++++ b/libselinux/man/man5/failsafe_context.5
+@@ -12,7 +12,7 @@ to obtain a known valid login context for an administrator if no valid default e
+ .BR selinux_failsafe_context_path "(3) "
+ will return the active policy path to this file. The default failsafe context file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/failsafe_context
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/failsafe_context
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/removable_context.5 b/libselinux/man/man5/removable_context.5
+index f16e8bdc..f7966636 100644
+--- a/libselinux/man/man5/removable_context.5
++++ b/libselinux/man/man5/removable_context.5
+@@ -8,7 +8,7 @@ This file contains the default label that should be used for removable devices.
+ .BR selinux_removable_context_path "(3) "
+ will return the active policy path to this file. The default removable context file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/removable_context
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/removable_context
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/securetty_types.5 b/libselinux/man/man5/securetty_types.5
+index dbc5c2ea..ac33a725 100644
+--- a/libselinux/man/man5/securetty_types.5
++++ b/libselinux/man/man5/securetty_types.5
+@@ -10,7 +10,7 @@ file contains a list of types associated to secure tty type that are defined in
+ .BR selinux_securetty_types_path "(3) "
+ will return the active policy path to this file. The default securetty types file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/securetty_types
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/securetty_types
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/selabel_db.5 b/libselinux/man/man5/selabel_db.5
+index 76eb9bc6..9e92b29b 100644
+--- a/libselinux/man/man5/selabel_db.5
++++ b/libselinux/man/man5/selabel_db.5
+@@ -121,7 +121,7 @@ The database context file used to retrieve a context depends on the \fBSELABEL_O
+ .sp
+ The default database object contexts file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/sepgsql_context
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/sepgsql_context
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
+index 041197d5..a2f61342 100644
+--- a/libselinux/man/man5/selabel_file.5
++++ b/libselinux/man/man5/selabel_file.5
+@@ -93,15 +93,15 @@ The optional local and distribution substitution files that perform any path ali
+ .sp
+ The default file context series of files are:
+ .RS 6
+-.I /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/file_contexts
+ .br
+-.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.local
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/file_contexts.local
+ .br
+-.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.homedirs
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/file_contexts.homedirs
+ .br
+-.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs
+ .br
+-.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs_dist
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs_dist
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/selabel_media.5 b/libselinux/man/man5/selabel_media.5
+index b7c28e32..82a3dadd 100644
+--- a/libselinux/man/man5/selabel_media.5
++++ b/libselinux/man/man5/selabel_media.5
+@@ -48,7 +48,7 @@ The media context file used to retrieve a default context depends on the \fBSELA
+ .sp
+ The default media contexts file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/files/media
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/files/media
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/selabel_x.5 b/libselinux/man/man5/selabel_x.5
+index 198a3e19..58e2128e 100644
+--- a/libselinux/man/man5/selabel_x.5
++++ b/libselinux/man/man5/selabel_x.5
+@@ -87,7 +87,7 @@ The X context file used to retrieve a default context depends on the \fBSELABEL_
+ .sp
+ The default X object contexts file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/x_contexts
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/x_contexts
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/service_seusers.5 b/libselinux/man/man5/service_seusers.5
+index 385a3262..ae60e1f6 100644
+--- a/libselinux/man/man5/service_seusers.5
++++ b/libselinux/man/man5/service_seusers.5
+@@ -13,7 +13,7 @@ The path for each configuration file is formed by the path returned by
+ .IR /logins/username
+ appended (where \fIusername\fR is a file representing the GNU/Linux user name). The default services directory is located at:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/logins
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/logins
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/seusers.5 b/libselinux/man/man5/seusers.5
+index 25125600..7fb341ca 100644
+--- a/libselinux/man/man5/seusers.5
++++ b/libselinux/man/man5/seusers.5
+@@ -10,7 +10,7 @@ file contains a list GNU/Linux user to SELinux user mapping for use by SELinux-a
+ .BR selinux_usersconf_path "(3) "
+ will return the active policy path to this file. The default SELinux users mapping file is located at:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/seusers
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/seusers
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/user_contexts.5 b/libselinux/man/man5/user_contexts.5
+index fc53d6cf..3c6c5526 100644
+--- a/libselinux/man/man5/user_contexts.5
++++ b/libselinux/man/man5/user_contexts.5
+@@ -30,9 +30,9 @@ There can be one file for each SELinux user configured on the system. The file
+ .BR \%selinux_user_contexts_path (3)
+ for the active policy, with the SELinux user name appended, for example:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/users/unconfined_u
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/users/unconfined_u
+ .br
+-.I /etc/selinux/{SELINUXTYPE}/contexts/users/xguest_u
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/users/xguest_u
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+@@ -60,7 +60,7 @@ This consists of a \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entry that represents
+ .RE
+ .
+ .SH "EXAMPLE"
+-# Example for xguest_u at /etc/selinux/targeted/contexts/users/xguest_u
++# Example for xguest_u at {/etc,/usr/lib}/selinux/targeted/contexts/users/xguest_u
+ .br
+ system_r:crond_t:s0			xguest_r:xguest_t:s0
+ .br
+diff --git a/libselinux/man/man5/virtual_domain_context.5 b/libselinux/man/man5/virtual_domain_context.5
+index a76fe145..f363480e 100644
+--- a/libselinux/man/man5/virtual_domain_context.5
++++ b/libselinux/man/man5/virtual_domain_context.5
+@@ -10,7 +10,7 @@ file contains a list of domain contexts that are available for use by the SELinu
+ .BR selinux_virtual_domain_context_path "(3) "
+ will return the active policy path to this file. The default virtual domain context file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/virtual_domain_context
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/virtual_domain_context
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man5/virtual_image_context.5 b/libselinux/man/man5/virtual_image_context.5
+index df1c0e90..25e62337 100644
+--- a/libselinux/man/man5/virtual_image_context.5
++++ b/libselinux/man/man5/virtual_image_context.5
+@@ -10,7 +10,7 @@ file contains a list of image contexts for use by the SELinux-aware virtualizati
+ .BR selinux_virtual_image_context_path "(3) "
+ will return the active policy path to this file. The default virtual image context file is:
+ .RS
+-.I /etc/selinux/{SELINUXTYPE}/contexts/virtual_image_context
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/virtual_image_context
+ .RE
+ .sp
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
+index 9c466d57..733d9d82 100644
+--- a/libselinux/man/man8/selinux.8
++++ b/libselinux/man/man8/selinux.8
+@@ -13,7 +13,7 @@ information and technical documentation about SELinux can be found at
+ https://github.com/SELinuxProject.
+ 
+ The
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ configuration file controls whether SELinux is
+ enabled or disabled, and if enabled, whether SELinux operates in
+ permissive mode or enforcing mode.  The
+@@ -36,7 +36,7 @@ privileged mode of operation if denied access.
+ Disabling SELinux by setting
+ .B SELINUX=disabled
+ in
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ is deprecated and depending on kernel version and configuration it might
+ not lead to SELinux being completely disabled.  Specifically, the
+ SELinux hooks will still be executed internally, but the SELinux policy
+@@ -47,11 +47,11 @@ recommended to use the
+ .B selinux=0
+ kernel boot option instead.  In that case SELinux will be disabled
+ regardless of what is set in the
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ file.
+ 
+ The
+-.I /etc/selinux/config
++.I {/etc,/usr/lib}/selinux/config
+ configuration file also controls what policy
+ is active on the system.  SELinux allows for multiple policies to be
+ installed on the system, but only one policy may be active at any
+@@ -69,11 +69,11 @@ You can
+ define which policy you will run by setting the
+ .B SELINUXTYPE
+ environment variable within
+-.IR /etc/selinux/config .
++.IR {/etc,/usr/lib}/selinux/config .
+ You must reboot and possibly relabel if you change the policy type to have it take effect on the system.
+ The corresponding
+ policy configuration for each such policy must be installed in the
+-.I /etc/selinux/{SELINUXTYPE}/
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/
+ directories.
+ 
+ A given SELinux policy can be customized further based on a set of
+@@ -106,7 +106,14 @@ is used in the policy to allow this, which in turn needs also policy capability
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ .
+ .SH FILES
++.TP
+ .I /etc/selinux/config
++.TP
++.I /usr/lib/selinux/config
++The SELinux configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ .
+ .SH "SEE ALSO"
+ .ad l
+diff --git a/mcstrans/man/man5/setrans.conf.5 b/mcstrans/man/man5/setrans.conf.5
+index 4949a502..f63ffd0c 100644
+--- a/mcstrans/man/man5/setrans.conf.5
++++ b/mcstrans/man/man5/setrans.conf.5
+@@ -4,7 +4,7 @@ setrans.conf \- translation configuration file for MCS/MLS SELinux systems
+ 
+ .SH "DESCRIPTION"
+ The
+-.I /etc/selinux/{SELINUXTYPE}/setrans.conf
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/setrans.conf
+ configuration file specifies the way that SELinux MCS/MLS labels are translated into human
+ readable form by the mcstransd daemon.  The default policies support 16 sensitivity levels (s0 through s15) and 1024 categories (c0 through c1023). Multiple categories can be separated with commas (c0,c1,c3,c5) and a range of categories can be shortened using dot notation (c0.c3,c5).
+ 
+@@ -101,6 +101,14 @@ if category bits 5 and 9 are set and the sensitivity level is s1, the constraint
+ selinux(8), mcs(8), mls(8), chcon(1)
+ 
+ .SH "FILES"
+-/etc/selinux/{SELINUXTYPE}/setrans.conf
+-.br
+-/usr/share/mcstrans/examples
++.TP
++.I /etc/selinux/{SELINUXTYPE}/setrans.conf
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/setrans.conf
++The SELinux context translation configuration file.  The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
++.TP
++.I /usr/share/mcstrans/examples
++Other examples of SELinux context translation configurations.
+diff --git a/mcstrans/man/man8/mcs.8 b/mcstrans/man/man8/mcs.8
+index aeaf22ef..ad870efc 100644
+--- a/mcstrans/man/man8/mcs.8
++++ b/mcstrans/man/man8/mcs.8
+@@ -15,7 +15,8 @@ infrastructure.  They just differ in their specific configuration.
+ 
+ 
+ The
+-.I /etc/selinux/{SELINUXTYPE}/setrans.conf configuration file translates the labels on disk to human
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/setrans.conf
++configuration file translates the labels on disk to human
+ readable form.   Administrators can define any labels they want in this file.
+ Certain applications like printing and auditing will use these labels to 
+ identify the files.  By setting a category on a file you will prevent 
+@@ -27,4 +28,11 @@ Examples of file labels would be PatientRecord, CompanyConfidential etc.
+ selinux(8), chcon(1)
+ 
+ .SH FILES
+-/etc/selinux/{SELINUXTYPE}/setrans.conf 
++.TP
++.I /etc/selinux/{SELINUXTYPE}/setrans.conf
++.TP
++.I /usr/lib/selinux/${SELINUXTYPE}/setrans.conf
++The SELinux context translation configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+diff --git a/mcstrans/man/man8/mcstransd.8 b/mcstrans/man/man8/mcstransd.8
+index 9a5922ba..0d88fced 100644
+--- a/mcstrans/man/man8/mcstransd.8
++++ b/mcstrans/man/man8/mcstransd.8
+@@ -11,7 +11,11 @@ This manual page describes the
+ .BR mcstransd
+ program.
+ .P
+-This daemon reads /etc/selinux/{SELINUXTYPE}/setrans.conf configuration file, and communicates with libselinux via a socket in /var/run/setrans.
++This daemon reads the
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/setrans.conf
++configuration file, and communicates with libselinux via a socket in
++.I /var/run/setrans
++.
+ .SH "OPTIONS"
+ .TP
+ \-f
+@@ -26,7 +30,13 @@ The program was originally written by Dan Walsh <dwalsh@redhat.com>.
+ The program was enhanced/rewritten by Joe Nall <joe@nall.com>.
+ 
+ .SH "FILES"
+-/etc/selinux/{SELINUXTYPE}/setrans.conf 
+-
++.TP
++.I /etc/selinux/{SELINUXTYPE}/setrans.conf
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/setrans.conf
++The SELinux context translation configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ .SH "SEE ALSO"
+ .BR setrans.conf (5), mcs (8)
+diff --git a/policycoreutils/man/man5/selinux_config.5 b/policycoreutils/man/man5/selinux_config.5
+index f391befb..b49eca18 100644
+--- a/policycoreutils/man/man5/selinux_config.5
++++ b/policycoreutils/man/man5/selinux_config.5
+@@ -18,7 +18,8 @@ Whether the system is to be relabeled or not.
+ 
+ The entries controlling these functions are described in the \fBFILE FORMAT\fR section.
+ .sp
+-The fully qualified path name of the SELinux configuration file is \fI/etc/selinux/config\fR.
++The fully qualified path name of the SELinux configuration file is
++.I{/etc,/usr/lib}/selinux/config
+ .sp
+ If the \fIconfig\fR file is missing or corrupt, then no SELinux policy is loaded (i.e. SELinux is disabled).
+ .sp
+@@ -80,7 +81,14 @@ The actual binary policy is located relative to this directory and also has a po
+ The binary policy name has by convention the SELinux policy version that it supports appended to it. The maximum policy version supported by the kernel can be determined using the \fBsestatus\fR(8) command or \fBsecurity_policyvers\fR(3). An example binary policy file with the version is:
+ .br
+ .RS
+-.I /etc/selinux/targeted/policy/policy.24
++.I /etc/selinux/targeted/policy/policy.35
++Note that this file and any other policy file might instead be found
++under
++.I /usr/lib/selinux
++if the vendor ships policy files there; in that case, those files can
++still be overridden by creating a file under
++.I /etc/selinux
++.
+ .RE
+ .RE
+ .sp
+diff --git a/policycoreutils/newrole/newrole.1 b/policycoreutils/newrole/newrole.1
+index 544274d7..cc283bc5 100644
+--- a/policycoreutils/newrole/newrole.1
++++ b/policycoreutils/newrole/newrole.1
+@@ -54,7 +54,9 @@ In particular, an argument of \-\- \-c will cause the next argument to be
+ treated as a command by most command interpreters.
+ .PP
+ If a command argument is specified to newrole and the command name is found
+-in /etc/selinux/newrole_pam.conf, then the pam service name listed in that
++in
++.I {/etc,/usr/lib}/selinux/newrole_pam.conf
++, then the pam service name listed in that
+ file for the command will be used rather than the normal newrole pam
+ configuration.  This allows for per-command pam configuration when
+ invoked via newrole, e.g. to skip the interactive re-authentication phase.
+@@ -99,15 +101,36 @@ Running a program in a given role or level:
+    # newrole \-l Secret \-\- \-c "/path/to/app arg1 arg2..."
+ 
+ .SH FILES
+-/etc/passwd - user account information
+-.br
+-/etc/shadow - encrypted passwords and age information
+-.br
+-/etc/selinux/<policy>/contexts/default_type - default types for roles
+-.br
+-/etc/selinux/<policy>/contexts/securetty_types - securetty types for level changes
+-.br
+-/etc/selinux/newrole_pam.conf - optional mapping of commands to separate pam service names
++.TP
++.I /etc/passwd
++User account information
++.TP
++.I /etc/shadow
++Encrypted passwords and age information
++.TP
++.I /etc/selinux/{SELINUXTYPE}/contexts/default_type
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/contexts/default_type
++Default types for roles. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
++.TP
++.I /etc/selinux/{SELINUXTYPE}/contexts/securetty_types
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/contexts/securetty_types
++Contains securetty types authorized for level changes. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
++.TP
++.I /etc/selinux/newrole_pam.conf
++.TP
++.I /usr/lib/selinux/newrole_pam.conf
++Optional mapping of commands to separate pam service names. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ .br
+ .SH SEE ALSO
+ .BR runcon (1)
+diff --git a/policycoreutils/run_init/run_init.8 b/policycoreutils/run_init/run_init.8
+index d7ff45d0..503d570e 100644
+--- a/policycoreutils/run_init/run_init.8
++++ b/policycoreutils/run_init/run_init.8
+@@ -7,18 +7,28 @@ run_init \- run an init script in the proper SELinux context
+ .br
+ .SH DESCRIPTION
+ .PP
+-Run a init script under the proper context, which is specified in 
+-/etc/selinux/POLICYTYPE/contexts/initrc_context.
++Run a init script under the proper context, which is specified in
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/initrc_context
++.
+ It is generally used interactively as it requires either shadow or
+ PAM user authentication (depending on compile-time options).  It
+ should be possible to configure PAM such that interactive input is
+ not required.  Check your PAM documentation.
+ .SH FILES
+-/etc/passwd - user account information
+-.br
+-/etc/shadow - encrypted passwords and age information
+-.br
+-/etc/selinux/POLICYTYPE/contexts/initrc_context - contains the context to run init scripts under
++.TP
++.I /etc/passwd
++User account information
++.TP
++.I /etc/shadow
++Encrypted passwords and age information
++.TP
++.I /etc/selinux/{SELINUXTYPE}/contexts/initrc_context
++.TP
++.I /usr/lib/selinux/{SELINUXTYPE}/contexts/initrc_context
++Contains the context to run init scripts under. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ .SH SEE ALSO
+ .BR newrole (1),
+ .BR runcon (1)
+diff --git a/policycoreutils/semodule/genhomedircon.8 b/policycoreutils/semodule/genhomedircon.8
+index ecab7ba3..8289c176 100644
+--- a/policycoreutils/semodule/genhomedircon.8
++++ b/policycoreutils/semodule/genhomedircon.8
+@@ -9,15 +9,21 @@ to rebuild the currently active SELinux policy (without reloading it) and to cre
+ labels for each user home directory based on directory paths returned by calls to getpwent().
+ 
+ The latter functionality depends on the "usepasswd" parameter being set to "true" (default)
+-in /etc/selinux/semanage.conf.
++in
++.I {/etc,/usr/lib}/selinux/semanage.conf
++.
+ 
+ This script is usually executed by
+ .B semanage
+ although this default behavior can be optionally modified by setting to "true" the
+-"disable-genhomedircon" in /etc/selinux/semanage.conf.
++"disable-genhomedircon" in
++.I {/etc,/usr/lib}/selinux/semanage.conf
++.
+ 
+ Directories can be excluded from the list of home directories by the setting "ignoredirs"
+-in /etc/selinux/semanage.conf.
++in
++.I {/etc,/usr/lib}/selinux/semanage.conf
++.
+ 
+ .SH AUTHOR
+ This manual page was written by
+diff --git a/policycoreutils/sestatus/sestatus.8 b/policycoreutils/sestatus/sestatus.8
+index a89c53fd..31062467 100644
+--- a/policycoreutils/sestatus/sestatus.8
++++ b/policycoreutils/sestatus/sestatus.8
+@@ -67,7 +67,14 @@ Display the current state of booleans.
+ .RE
+ 
+ .SH "FILES"
++.TP
+ .I /etc/sestatus.conf
++.TP
++.I /usr/lib/sestatus.conf
++The sestatus configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>.
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index 001039b7..8b6a82df 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -71,7 +71,9 @@ options will force a replacement of the entire context.
+ If a file is labeled with
+ .BR customizable
+ SELinux type (for list of customizable
+-types see /etc/selinux/{SELINUXTYPE}/contexts/customizable_types), restorecon
++types see
++.I {/etc,/usr/lib}/selinux/{SELINUXTYPE}/contexts/customizable_types)
++, restorecon
+ won't reset the label unless the \-F option is used.
+ .P
+ It is the same executable as
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 101556a9..88f4ecef 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -343,11 +343,14 @@ with exit status
+ .SH EXAMPLE
+ .nf
+ Fix labeling of /var/www/ including all sub-directories, using targeted policy file context definitions and list all context changes
++# setfiles -v /usr/lib/selinux/targeted/contexts/files/file_contexts /var/www/
+ # setfiles -v /etc/selinux/targeted/contexts/files/file_contexts /var/www/
+ List mislabeled files in user home directory and what the label should be based on targeted policy file context definitions
++# setfiles -nv /usr/lib/selinux/targeted/contexts/files/file_contexts ~
+ # setfiles -nv /etc/selinux/targeted/contexts/files/file_contexts ~
+ Fix labeling of files listed in file_list file, ignoring any that do not exist
+ # setfiles -vif file_list /etc/selinux/targeted/contexts/files/file_contexts
++# setfiles -vif file_list /usr/lib/selinux/targeted/contexts/files/file_contexts
+ 
+ .SH "AUTHOR"
+ This man page was written by Russell Coker <russell@coker.com.au>.
+diff --git a/python/chcat/chcat.8 b/python/chcat/chcat.8
+index 3e1f7ca2..e75db097 100644
+--- a/python/chcat/chcat.8
++++ b/python/chcat/chcat.8
+@@ -59,6 +59,21 @@ chcon(1), selinux(8), semanage(8)
+ .br
+ When operating on files this script wraps the chcon command.
+ .SH "FILES"
+-/etc/selinux/{SELINUXTYPE}/setrans.conf 
+-.br
++.TP
++.I /etc/selinux/{SELINUXTYPE}/setrans.conf
++.TP
++.I /usr/lib/selinux/${SELINUXTYPE}/setrans.conf
++The SELinux context translation configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
++.TP
++.I
+ /etc/selinux/{SELINUXTYPE}/seusers
++.TP
++.I
++/usr/lib/selinux/{SELINUXTYPE}/seusers
++The SELinux users configuration. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+diff --git a/restorecond/restorecond.8 b/restorecond/restorecond.8
+index bb99b24a..82b114f7 100644
+--- a/restorecond/restorecond.8
++++ b/restorecond/restorecond.8
+@@ -11,7 +11,11 @@ This manual page describes the
+ .BR restorecond
+ program.
+ .P
+-This daemon uses inotify to watch files listed in the /etc/selinux/restorecond.conf, when they are created, this daemon will make sure they have 
++This daemon uses inotify to watch files listed in the
++.I {/etc,/usr/lib}/selinux/restorecond.conf
++file.
++
++When any of the listed files are created, this daemon will make sure they have
+ the correct file context associated with the policy.
+ 
+ .SH "OPTIONS"
+@@ -30,7 +34,9 @@ Use alternative restorecond.conf file.
+ Run in foreground, do not become a daemon.
+ .TP
+ .B \-u
+-Turns on user mode.  Runs restorecond in the user session and reads /etc/selinux/restorecond_user.conf.  Uses dbus to make sure only one restorecond is running per user session.
++Turns on user mode.  Runs restorecond in the user session and reads the
++.I {/etc,/usr/lib}/selinux/restorecond_user.conf
++file. Uses dbus to make sure only one restorecond is running per user session.
+ .TP
+ .B \-v
+ Turns on verbose debugging.  (Report missing files)
+@@ -39,8 +45,22 @@ Turns on verbose debugging.  (Report missing files)
+ This man page and program was written by Dan Walsh <dwalsh@redhat.com>.
+ 
+ .SH "FILES"
+-/etc/selinux/restorecond.conf
+-/etc/selinux/restorecond_user.conf
++.TP
++.I /etc/selinux/restorecond.conf
++.TP
++.I /usr/lib/selinux/restorecond.conf
++The restorecond root daemon configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
++.TP
++.I /etc/selinux/restorecond_user.conf
++.TP
++.I /usr/lib/selinux/restorecond_user.conf
++The restorecond user session configuration file. The file in
++.B /etc
++overrides the default configuration provided by the vendor in
++.BR /usr/lib .
+ 
+ .SH "SEE ALSO"
+ .BR restorecon (8),
+-- 
+2.55.0
+
