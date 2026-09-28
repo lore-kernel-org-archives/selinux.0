@@ -1,40 +1,45 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B6B34EF15B
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 16:53:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93AAC4F3EB6
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 16:53:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790614395; cv=none; b=ESLZqt6KHWhpPbnrHKcFogbjzePdUDu1QZyN1Stzzg81N/Fh70unfb2HfuQDzVeVyGlrIUqTzF1AhrP1ZxvOg0Wbwzark+CHv1ixI77Bt0iiXA08fu0SIqqCAbSYC42OkM8L6euL1trviNxiDJq2ivx8q/jMhzxtBzuCSOOxRBM=
+	t=1790614396; cv=none; b=HyHj17CO/u2K65YUcw3pV1lrEIdl1ohnU7ZU/CNFSAD1pz6m9JNNjq+I1Oza6GYP3vfgmhRtncXPZoBbVG3rrHbYw4j5Vz8yPZms/TVytN0DtoCebvVmGhLEhQoo6CDao0gfdhIZrRwy7QDu0oPCeQ9KzQhLeZxfQPOwmF6brw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790614395; c=relaxed/simple;
-	bh=NLPdGvEMpxIz4BB8PlO8vv62yR2xavU5+IQZ1zYngQE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=muYx+kQ6TbZCPuK8Nrx057tQA2rOQ6m56toHb6+K2MGcHRWmO6hAL1aq0K1/VlSZpxZh/8eELHQsJYx2ke8JU9N7nPheQHVuimcZSxj/C+790EEhp+OxPI8ZcWd7FAgsl+S5axHdyHS8TsQcn8ymJit7V0Qxl6fAs68qt7ZEaWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Rqmqk8A0; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1790614396; c=relaxed/simple;
+	bh=CtCvgeTSu+dAmozwEeMrHF7/npJIFhWgFrVtAlgw0O8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=R/HRD5y2hu5+kHzHhabEV7HAcPHs1bpMX06g8+hiwl6FxpIcyP8M6E/bSzUIVYdApJNf1yqomumciBEairHwmJ4S8cyYwGStXhFup9LBdjXXwOqZi9rubbYmNP0Rjd5HgeaLmEX3+OdIo0z5IXOL5Nmjjwmzl2Aa7/Fm8Yebei4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Ulv7VBsq; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Rqmqk8A0"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Ulv7VBsq"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790614391;
+	s=2023072701; t=1790614392;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=zI3OpxD+MPPymaUifMCm3gHcIIMssXXDdKVy1M3eE2c=;
-	b=Rqmqk8A033SCqAovDeVW4mTWI5MkCO1oJwYcbcWB2sd0Og8QCoUDFAf3iTMT9w7woRDbHF
-	dhyneN7G2kBT7xMZRiZpzpM4F3k/1X7R7VGRo35yngOw2OyAMFC8Cf8324FXSJRZ3lfAEP
-	YXgqEjQ9JSEPob5ol+zN5Yp0B47JD2ciX5Wsc0/f9AqUwwWbC5J1rlMEEsJFP8/A2LQsn8
-	ob5X3FXXrKz0C0Do/L79d0DOo9mbNvo8cqg5Erpd+m1Vg1yAOLtA+iX/0agErR8Vvp5Ivy
-	NkbYb7Lv607NNAfpzGF8zNQ8GtCIBvTzggupH5Nl3Z+HDUjW9sswIrOwZdExhA==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=igXv/HUVv2Ryj2XsbHZxpIMNWSy/XvxFw9bfqrQa3lA=;
+	b=Ulv7VBsqL3BPuvPX/Nt2yys5FtJqs4ZFWzhmLQnasoOpnNllimN/rrAEchljxnEzJ1tr/B
+	ED9hu3MrFhmEQ6aQkOqcuMmMpgSK4xpY9FJ0KQ+v5yjsN9GpUxpS8neyQmBP+Rl6FOFqm9
+	OMUWog0KobwVj9uUYY8NIZzsIh2CwYI5f1CLJViU3AVyy+3eszugT/k5xVwdsu/8QQ1JzA
+	FJEu/L8fUmifsH8R1Lo4d8ZePxDhLwOKHrqM5yrHW/NxQLtFU1D9GB8aa+ZfXK7LpBYGld
+	1Re2UFaHzw78oDhrU61azTFUgtBoj8VSL6A4EgZbMxhUyzo5pGN6BsdClJW9Tw==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 2/3] selinux: validate user MLS range and default level at load
-Date: Mon, 28 Sep 2026 18:52:51 +0200
-Message-ID: <20260928165253.2388012-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 1/3] selinux: bounds-check role and user membership bitmaps at load
+Date: Mon, 28 Sep 2026 18:52:53 +0200
+Message-ID: <20260928165253.2388012-3-cgoettsche@seltendoof.de>
+In-Reply-To: <20260928165253.2388012-1-cgoettsche@seltendoof.de>
+References: <20260928165253.2388012-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -47,41 +52,95 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-user_read() reads each user's MLS range and default level but, unlike
-range transitions and security contexts, never validates them.
-Validate usr->range and usr->dfltlevel in user_index_check() when MLS is
-enabled, once the level and category symbol tables are populated.
+role->dominates, role->types and user->roles are read as ebitmaps but
+their set bits are never checked against the role and type symbol
+tables. A bit naming an undefined value is silently accepted, and an
+out-of-range one is used to index those tables later; in particular
+role_bounds_sanity_check() passes such a bit straight to sym_name(),
+reading p->sym_val_to_name[] out of bounds on a crafted bounded role.
+
+Validate the three bitmaps in policydb_index() once every symbol table
+is populated (roles are read before types, so this cannot be done in
+role_read()).
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/policydb.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+v2: check each bit instead of just comparing the highest bit against
+nprim
+---
+ security/selinux/ss/policydb.c | 52 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index e0304297def4..e51293e3ca8c 100644
+index 13d88e47db3c..e0304297def4 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -748,6 +748,20 @@ static int user_index_check(void *key, void *datum, void *datap)
- 		}
- 	}
+@@ -707,6 +707,50 @@ static int sens_cat_index_check(void *key, void *datum, void *datap)
+ 	return 0;
+ }
  
-+	if (p->mls_enabled) {
-+		if (!mls_range_isvalid(p, &usr->range)) {
-+			pr_err("SELinux:  user %s has an invalid MLS range\n",
-+			       (const char *)key);
-+			return -EINVAL;
-+		}
++static int role_index_check(void *key, void *datum, void *datap)
++{
++	const struct policydb *p = datap;
++	const struct role_datum *role = datum;
++	struct ebitmap_node *node;
++	u32 bit;
 +
-+		if (!mls_level_isvalid(p, &usr->dfltlevel)) {
-+			pr_err("SELinux:  user %s has an invalid MLS default level\n",
-+			       (const char *)key);
++	ebitmap_for_each_positive_bit(&role->dominates, node, bit) {
++		if (!policydb_role_isvalid(p, bit + 1)) {
++			pr_err("SELinux:  role %s declares dominance on undefined role %u\n",
++			       (const char *)key, bit + 1);
 +			return -EINVAL;
 +		}
 +	}
 +
- 	return 0;
- }
++	ebitmap_for_each_positive_bit(&role->types, node, bit) {
++		if (!policydb_type_isvalid(p, bit + 1)) {
++			pr_err("SELinux:  role %s authorizes undefined type %u\n",
++			       (const char *)key, bit + 1);
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
++static int user_index_check(void *key, void *datum, void *datap)
++{
++	const struct policydb *p = datap;
++	const struct user_datum *usr = datum;
++	struct ebitmap_node *node;
++	u32 bit;
++
++	ebitmap_for_each_positive_bit(&usr->roles, node, bit) {
++		if (!policydb_role_isvalid(p, bit + 1)) {
++			pr_err("SELinux:  user %s authorizes undefined role %u\n",
++			       (const char *)key, bit + 1);
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
+ /* clang-format off */
+ static int (*const index_f[SYM_NUM])(void *key, void *datum, void *datap) = {
+ 	common_index,
+@@ -836,6 +880,14 @@ static int policydb_index(struct policydb *p)
+ 			goto out;
+ 	}
  
++	rc = hashtab_map(&p->p_roles.table, role_index_check, p);
++	if (rc)
++		goto out;
++
++	rc = hashtab_map(&p->p_users.table, user_index_check, p);
++	if (rc)
++		goto out;
++
+ 	rc = 0;
+ out:
+ 	return rc;
 -- 
 2.55.0
 
