@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B8A4E7819
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9E84E80BD
 	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:58:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790611115; cv=none; b=FvuMSTw3Yt4Xesn/S33AucHPzDlxjuawWMOB8lmpN/nXrt7t4G8Fqs2sHChcoeSOn3oYnMFJZ4YxSgkuLrjW56y6RKyfjWbe+ys3ScY8BKQd8hMFgtEPJfFFswSPnnHQGvVlFHOTxMsD1aeayZ0OEedJmFQ4FSdNKbQColLIvHw=
+	t=1790611116; cv=none; b=BAvcOFCQ5wy4FVoyQKRl2yBswoSI8L06s98kQ6pmpoIDcKw7DsUDJrnwQwTegLB/w5LQuxCiS61eRUTbKDN2rsS1QhctqiyehnPepXqH7G0F7gNCjBThgeIzwynOwuPLh9o6fhYpbscOOfSJMfEToBJzWaoLd2Hk8YWS7ujWsNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790611115; c=relaxed/simple;
-	bh=WT7ZWweTc5y6D9E/gZZylf8AbfcR3EtCnpZQLfAyJnI=;
+	s=arc-20240116; t=1790611116; c=relaxed/simple;
+	bh=1w8YlBGemLyFGKhwYNd/g0zSOZLLcAzah30VZmWLah4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lebIFLwGE8oK2ZXiqBnrCA/uabH7OdVRFhpBJeLUqgtB/0DoQkKFUawaKfXCoZ0PncMp4OmylILOzunRS9CaIGruYEknVRCavr4CUdBRN5AY+64Wzb1UGJ3zOPfrwKbAxcxcg3mHNIRILnk11J4WUwC2EdPS0811bAbrW/KHkfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ZHOMbK4R; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=TDePVRfM4yl546TNK8WDi9ko7qFMffSqj8aSzqPQJZzZpE1DReYol+N6BHJ/ruFTpP8JCV4peLTyihYNR7mMuXKEHwIxriRnEpvhqjCgl+J6gPIW13pgLwqBeI5XxBbzelpwLWtXFoFDnHevDbVrqvq5jaJAIkL83WcbL8SLpCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=NB8IZjXm; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ZHOMbK4R"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="NB8IZjXm"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1790611103;
+	s=2023072701; t=1790611102;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8T8KOsYNilVd5KQ+ckSS04sOPh0BNjVvcAy8rCcQekM=;
-	b=ZHOMbK4RLxXWeTY8BWUyCvxfh6grBbkLd/8E5vqrseThY75g4I6V/sxpL6QSdThTblgANv
-	0ge+emYmZ09pwwWptWZZiIWTo+uEnIk2xtQPyXSQA1/VRuuwl+xdGAcq6KOAWrOBAYd4xf
-	wq/uGiHMTot073krNQsI7TX6rAVZNfdVda62h8eev79Tuwm7ZkA21KjTOnWoK/omg92lHI
-	ORsNwRWfVU7HRyMCrkuH0vFn5FYGhHJp/xkLud2KcxsNTMaDWT2madmP1warTWKYrOIEMM
-	E6AcPQ0uHU4ZX8oqq7+IaBIWSwYakB2K8RsLD3XI0gfM1/IPYpNazH7tdScumg==
+	bh=iL8fdiDbyut7a1XVnmiVPSvG5BpKKQlJp+gdiQ7u0qI=;
+	b=NB8IZjXm5tzBdeXTU4Y5vU4WEzOXwyrVH/YeeoBQQHjKPFkiy1GBMq/WnaDwThYuEbvxoM
+	SoTCgGCMNB2hBRfHxXCa+8PPDhxPX1uadwZqyN00NbiWv+iJWuIi60CzpTUNkMxTxs08eL
+	fsmTtLyJmJz4+BYyP/qSBSOeGPfpKsvHKSA5uAO59+hZRVQdY0SlfAyJ4ZykhbINNxGNdy
+	6SwHnCqYvVl1MdZPrmmby9rPzLd8VkFVEnt5HC/A04ef23OqVzBnD9dHK7+17aY0RMuV3V
+	z5Hsk9U0i/Io24lkLPYIlpgzjvzhv7+XeK5RBGMYW6ITaOmBRNhgrtlbUCJs/A==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 14/21] tests/notify: work with CONFIG_FANOTIFY disabled
-Date: Mon, 28 Sep 2026 17:57:45 +0200
-Message-ID: <20260928155753.2259807-13-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 11/21] tests: enable strictness for perl scripts
+Date: Mon, 28 Sep 2026 17:57:42 +0200
+Message-ID: <20260928155753.2259807-10-cgoettsche@seltendoof.de>
 In-Reply-To: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 References: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -51,292 +51,84 @@ From: Christian Göttsche <cgzones@googlemail.com>
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/notify/test            | 172 +++++++++++++++++++++--------------
- tests/notify/test_fanotify.c |  14 ++-
- 2 files changed, 114 insertions(+), 72 deletions(-)
+ tests/loop.pl        |  9 ++++++---
+ tests/nfsruntests.pl |  6 +++++-
+ tests/runtests.pl    | 16 ++++++++++------
+ 3 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/tests/notify/test b/tests/notify/test
-index 77db8c2..be28ad1 100755
---- a/tests/notify/test
-+++ b/tests/notify/test
-@@ -1,11 +1,25 @@
+diff --git a/tests/loop.pl b/tests/loop.pl
+index f5bf6ba..2c97b77 100644
+--- a/tests/loop.pl
++++ b/tests/loop.pl
+@@ -1,12 +1,15 @@
  #!/usr/bin/perl
  
- use Test;
--BEGIN { plan tests => 18 }    # number of tests to run
- 
--# help the test script locate itself
--$basedir = $0;
--$basedir =~ s|(.*)/[^/]*|$1|;
-+BEGIN {
-+    # help the test script locate itself
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
+-$count = shift || 1;
++use strict;
++use warnings;
 +
-+    $fanotify_support = 1;
++my $count = shift || 1;
+ 
+ print "Running all tests $count times\n";
+ 
+-for ( $i = 0 ; $i < $count ; $i++ ) {
++for ( my $i = 0 ; $i < $count ; $i++ ) {
+     print "$i: ";
+-    $foo = `./runtests.pl`;
++    my $foo = `./runtests.pl`;
+     if ( $foo =~ m|All tests successful.\n| ) {
+         print $';
+     }
+diff --git a/tests/nfsruntests.pl b/tests/nfsruntests.pl
+index c3f0626..fa4e23a 100755
+--- a/tests/nfsruntests.pl
++++ b/tests/nfsruntests.pl
+@@ -1,5 +1,9 @@
+ #!/usr/bin/perl
 +
-+    $result = system("runcon -t test_watch_t $basedir/test_fanotify -c 2>&1");
++use strict;
++use warnings;
 +
-+    # check if CONFIG_FANOTIFY is enabled - ENOSYS
-+    if ( $result >> 8 eq 38 ) {
-+        $fanotify_support = 0;
-+        plan tests => 4;
-+    }
-+    else {
-+        plan tests => 18;
-+    }
-+}
+ use Test::Harness;
  
- # Get rid of a testfile and dir from last run if it's there (just in case)
- system("rm -f $basedir/watch_me");
-@@ -27,45 +41,53 @@ $exit_val =
-   system("runcon -t test_watch_t $basedir/test_inotify $basedir/watch_me 2>&1");
- ok( $exit_val, 0 );
+-@test = "$ARGV[0]";
++my @test = "$ARGV[0]";
+ runtests(@test);
+diff --git a/tests/runtests.pl b/tests/runtests.pl
+index a2ed7ea..7654a82 100755
+--- a/tests/runtests.pl
++++ b/tests/runtests.pl
+@@ -1,20 +1,24 @@
+ #!/usr/bin/perl
  
--# Should be able to set non-permissions based fanotify watch
--$exit_val = system(
--    "runcon -t test_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1");
--ok( $exit_val, 0 );
-+if ($fanotify_support) {
- 
--# Should NOT be able to set permission based fanotify watch
--$exit_val = system(
--    "runcon -t test_watch_t $basedir/test_fanotify -p $basedir/watch_me 2>&1");
--ok($exit_val);    # this should fail
-+    # Should be able to set non-permissions based fanotify watch
-+    $exit_val = system(
-+        "runcon -t test_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1");
-+    ok( $exit_val, 0 );
- 
--# Should NOT be able to set read based fanotify watch
--$exit_val = system(
--    "runcon -t test_watch_t $basedir/test_fanotify -r $basedir/watch_me 2>&1");
--ok($exit_val);    # this should fail
-+    # Should NOT be able to set permission based fanotify watch
-+    $exit_val = system(
-+"runcon -t test_watch_t $basedir/test_fanotify -p $basedir/watch_me 2>&1"
-+    );
-+    ok($exit_val);    # this should fail
++use strict;
++use warnings;
 +
-+    # Should NOT be able to set read based fanotify watch
-+    $exit_val = system(
-+"runcon -t test_watch_t $basedir/test_fanotify -r $basedir/watch_me 2>&1"
-+    );
-+    ok($exit_val);    # this should fail
-+}
+ use Test::Harness;
  
- # Should NOT be able to set read based inotify watch
- $exit_val = system(
-     "runcon -t test_watch_t $basedir/test_inotify -r $basedir/watch_me 2>&1");
--ok($exit_val);    # this should fail
-+ok($exit_val);        # this should fail
+-@dirs = split( / /, $ENV{SUBDIRS} );
++my @dirs    = split( / /, $ENV{SUBDIRS} );
++my @scripts = ();
  
--## TEST PERM WATCH
--# Should be able to set permission based fanotify watch
--$exit_val = system(
-+if ($fanotify_support) {
-+
-+    ## TEST PERM WATCH
-+    # Should be able to set permission based fanotify watch
-+    $exit_val = system(
- "runcon -t test_perm_watch_t $basedir/test_fanotify -p $basedir/watch_me 2>&1"
--);
--ok( $exit_val, 0 );
-+    );
-+    ok( $exit_val, 0 );
- 
--# Should NOT be able to set watch of accesses
--$exit_val = system(
-+    # Should NOT be able to set watch of accesses
-+    $exit_val = system(
- "runcon -t test_perm_watch_t $basedir/test_fanotify -r $basedir/watch_me 2>&1"
--);
--ok($exit_val);    # this should fail
-+    );
-+    ok($exit_val);    # this should fail
- 
--## TEST READ NO PERM WATCH PERMSISSIONS
--# Should NOT be able to set read and perm watch
--$exit_val = system(
-+    ## TEST READ NO PERM WATCH PERMSISSIONS
-+    # Should NOT be able to set read and perm watch
-+    $exit_val = system(
- "runcon -t test_read_watch_t $basedir/test_fanotify -p -r $basedir/watch_me 2>&1"
--);
--ok($exit_val);    # should fail
-+    );
-+    ok($exit_val);    # should fail
-+}
- 
- # Should be able to set read inotify watch
- $exit_val = system(
-@@ -73,12 +95,15 @@ $exit_val = system(
- );
- ok( $exit_val, 0 );
- 
--## TEST READ WITH PERM WATCH PERMSISSIONS
--# Should be able to set read and perm watch
--$exit_val = system(
-+if ($fanotify_support) {
-+
-+    ## TEST READ WITH PERM WATCH PERMSISSIONS
-+    # Should be able to set read and perm watch
-+    $exit_val = system(
- "runcon -t test_perm_read_watch_t $basedir/test_fanotify -p -r $basedir/watch_me 2>&1"
--);
--ok( $exit_val, 0 );
-+    );
-+    ok( $exit_val, 0 );
-+}
- 
- ## TEST NO WATCH PERMSISSIONS
- # Should NOT be able to set inotify watch
-@@ -86,45 +111,52 @@ $exit_val = system(
-     "runcon -t test_no_watch_t $basedir/test_inotify $basedir/watch_me 2>&1");
- ok($exit_val);    # this should fail
- 
--# Should NOT be able to set any fanotify watch
--$exit_val = system(
--    "runcon -t test_no_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1");
--ok($exit_val);    # this should fail
--
--## TEST READ ONLY
--# Should NOT be able to get read-write descriptor
--$exit_val = system(
--    "runcon -t test_rdonly_t $basedir/test_fanotify -l $basedir/watch_me 2>&1");
--ok($exit_val);    # this should fail
--
--# Should be able to get read-write descriptor
--$exit_val = system(
--    "runcon -t test_watch_t $basedir/test_fanotify -l $basedir/watch_me 2>&1");
--ok( $exit_val, 0 );
--
--## TEST MOUNT WATCHES
--# Should NOT be able to set a watch on a mount point
--$exit_val = system(
--    "runcon -t test_watch_t $basedir/test_fanotify -m $basedir/watch_dir 2>&1");
--ok($exit_val);    # this should fail
--
--# Should be able to set a watch on mount point
--$exit_val = system(
-+if ($fanotify_support) {
-+
-+    # Should NOT be able to set any fanotify watch
-+    $exit_val = system(
-+"runcon -t test_no_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1"
-+    );
-+    ok($exit_val);    # this should fail
-+
-+    ## TEST READ ONLY
-+    # Should NOT be able to get read-write descriptor
-+    $exit_val = system(
-+"runcon -t test_rdonly_t $basedir/test_fanotify -l $basedir/watch_me 2>&1"
-+    );
-+    ok($exit_val);    # this should fail
-+
-+    # Should be able to get read-write descriptor
-+    $exit_val = system(
-+"runcon -t test_watch_t $basedir/test_fanotify -l $basedir/watch_me 2>&1"
-+    );
-+    ok( $exit_val, 0 );
-+
-+    ## TEST MOUNT WATCHES
-+    # Should NOT be able to set a watch on a mount point
-+    $exit_val = system(
-+"runcon -t test_watch_t $basedir/test_fanotify -m $basedir/watch_dir 2>&1"
-+    );
-+    ok($exit_val);    # this should fail
-+
-+    # Should be able to set a watch on mount point
-+    $exit_val = system(
- "runcon -t test_mount_watch_t $basedir/test_fanotify -m $basedir/watch_dir 2>&1"
--);
--ok( $exit_val, 0 );
-+    );
-+    ok( $exit_val, 0 );
- 
--# Should NOT be able to set a perm watch on a mount
--$exit_val = system(
-+    # Should NOT be able to set a perm watch on a mount
-+    $exit_val = system(
- "runcon -t test_mount_watch_t $basedir/test_fanotify -m -p $basedir/watch_dir 2>&1"
--);
--ok($exit_val);    # this should fail
-+    );
-+    ok($exit_val);    # this should fail
- 
--# Should be able to set a perm watch on a mount object
--$exit_val = system(
-+    # Should be able to set a perm watch on a mount object
-+    $exit_val = system(
- "runcon -t test_mount_perm_t $basedir/test_fanotify -p -m $basedir/watch_dir 2>&1"
--);
--ok( $exit_val, 0 );
-+    );
-+    ok( $exit_val, 0 );
-+}
- 
- # Clean up test file
- system("rm -f $basedir/watch_me");
-diff --git a/tests/notify/test_fanotify.c b/tests/notify/test_fanotify.c
-index bc3b4c3..fe89265 100644
---- a/tests/notify/test_fanotify.c
-+++ b/tests/notify/test_fanotify.c
-@@ -5,6 +5,7 @@
- 
- #include <getopt.h>
- 
-+#include <errno.h>
- #include <fcntl.h>
- #include <poll.h>
- #include <sys/fanotify.h>
-@@ -12,7 +13,7 @@
- 
- void printUsage()
- {
--	fprintf(stderr, "Usage: test_fanotify [-p] [-r] [-l] [-m] file_name\n");
-+	fprintf(stderr, "Usage: test_fanotify [-p] [-r] [-l] [-m] [-c] file_name\n");
- 	exit(1);
+ for (@dirs) {
+     push @scripts, "$_/test";
  }
  
-@@ -26,13 +27,14 @@ int main(int argc, char *argv[])
- 	int mask = FAN_OPEN;  // default mask
- 	int flags = FAN_MARK_ADD;
- 	int listening = 0;
-+	int check = 0;
+-$output = `id`;
++my $output = `id`;
+ $output =~ /uid=\d+\((\w+)\).*context=(\w+):(\w+):(\w+)/
+   || die("Can't determine user's id\n");
+-$unixuser = $1;
+-$user     = $2;
+-$role     = $3;
+-$type     = $4;
++my $unixuser = $1;
++my $user     = $2;
++my $role     = $3;
++my $type     = $4;
  
- 	// the -p flag will test for watch_with_perm
- 	// the mask used at mark will contain FAN_OPEN_PERM
- 	//
- 	// the -r flag will test for watching accesses to files for reads
- 	// the mask will contain FAN_ACCESS
--	while ((arg = getopt(argc, argv, "prlm")) != -1) {
-+	while ((arg = getopt(argc, argv, "prlmc")) != -1) {
- 		switch (arg) {
- 		case 'p':
- 			mask |= FAN_OPEN_PERM;
-@@ -46,6 +48,9 @@ int main(int argc, char *argv[])
- 		case 'm':
- 			flags |= FAN_MARK_MOUNT;
- 			break;
-+		case 'c':
-+			check = 1;
-+			break;
- 		default:
- 			printUsage();
- 		}
-@@ -53,6 +58,11 @@ int main(int argc, char *argv[])
+ print "Running as user $unixuser with context $2:$3:$4\n\n";
  
- 	// get file descriptor for new fanotify event queue
- 	fd = fanotify_init(FAN_CLASS_CONTENT, O_RDWR);
-+	if (check) {
-+		if (fd < 0 && errno == ENOSYS)
-+			exit(ENOSYS);
-+		exit(0);
-+	}
- 	if (fd < 0) {
- 		perror("fanotify_init:bad file descriptor");
- 		exit(1);
 -- 
 2.55.0
 
