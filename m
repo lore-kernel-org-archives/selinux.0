@@ -1,101 +1,129 @@
-Received: from smtp-42ab.mail.infomaniak.ch (smtp-42ab.mail.infomaniak.ch [84.16.66.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f39.google.com (mail-yx2-f39.google.com [74.125.224.167])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AEA44F3ECA
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 19:27:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.66.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790623661; cv=none; b=NtX3rZSVFIxjWmjrSh1uvHUJuKpJV2Q5L9aXNMTwbVt0QMmVy/GupwPp9mc/MC+8gIZcxIyzleZ7VAeZTmKKOtBxOPX9mLL+gVZ40M9y4YuV48YyLHxB8rW9qm0xERebtROWyQjpKuahh1DdRQm0t3m/GQvluk0S91RY0UuG+qU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790623661; c=relaxed/simple;
-	bh=6xjVniVqjCHQFLrGCtk5qdSMV8MBrax8j4hWdoPd8DQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L+vBCZ4Uz34qIiKeVnjKmBNTPSd1wJw2YsTLDcaGi660IDXUbx9H0CR/Mj9LxKe5pBoRJhWupg+pg0vS7us9otViRwOoz6DWaltpB9m2WuLNmNNwEO/WSsnyXpGQR5XqWJBeWj3ISm7slC0PCfDklm0F+/n0OyOVEGJYD2IWUrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=XbYx7UpK; arc=none smtp.client-ip=84.16.66.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EC05377A8B
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 19:30:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.167
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790623856; cv=pass; b=iBHEl68L3CZZwJLsfRyXn/+sOa4KIgDw/VrVQVFXsbMzzXp2HdcZ0MBBpvzwHEMhTnvM7gJGwMjz0ugdAOB56n7t8Q0TnVnkEQLWAaNUWOzfxl70eYqxo8zzbhik2qH9s/tf2A9yS9hrgoHPe2DVgShdDVgIqffAbKCzPyKEm6w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790623856; c=relaxed/simple;
+	bh=cWD8I8h7f2Mn53Nrt9tP6IaEf3LtqBr0+P+yyQFgntI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QqooucZDiEEaBG2Zk+GZLimkvwa3USVh6nmrU7fNU0MoSkMLjpPmj0g/AoTNEoeBo7OrTtmoHymANQtLaI82j2JQEexRp4Lua+49CsHoylGIRMhksWXF2NcpDp8pp9MpJ+3K80hv+OCnlA7Aq/XXXQIpOc6mWk0cctDxlKiXWZU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gvo1QHuO; arc=pass smtp.client-ip=74.125.224.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="XbYx7UpK"
-Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4htrt960YlzPPS;
-	Mon, 28 Sep 2026 21:27:29 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1790623649;
-	bh=s0iu/y58ex5jQf0shyHgJjsvS0d1Pn766Y0myLp/xWs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=XbYx7UpKkMU0wm+KNQybv/OEFEaH0br6LrTI8dSkxuh90XrfPNQFZ/5WikB6GEMFr
-	 /VOWAHZSUMgt/xHir7wC70zrnSC/j6vhhfJ/b+tyq9zM51hHDimhBq8n1PiZNuninl
-	 aJhDsVxnrpvaxGqk9OW8pn9pXXG0JzgD1sJNwMps=
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4htrt61NwlzvBM;
-	Mon, 28 Sep 2026 21:27:26 +0200 (CEST)
-Date: Mon, 28 Sep 2026 21:27:25 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Christian Brauner <brauner@kernel.org>, 
-	Cai Xinchen <caixinchen1@huawei.com>, gnoack@google.com, jmorris@namei.org, serge@hallyn.com, 
-	corbet@lwn.net, skhan@linuxfoundation.org, rdunlap@infradead.org, 
-	gregkh@linuxfoundation.org, rafael@kernel.org, dakr@kernel.org, dlemoal@kernel.org, 
-	hch@lst.de, axboe@kernel.dk, viro@zeniv.linux.org.uk, jack@suse.cz, 
-	dhowells@redhat.com, code@tyhicks.com, linkinjeon@kernel.org, sj1557.seo@samsung.com, 
-	yuezhang.mo@sony.com, hirofumi@mail.parknet.co.jp, cel@kernel.org, jlayton@kernel.org, 
-	neil@brown.name, okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com, 
-	miklos@szeredi.hu, amir73il@gmail.com, senozhatsky@chromium.org, 
-	chenxiaosong@chenxiaosong.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
-	dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, stephen.smalley.work@gmail.com, 
-	omosnacek@gmail.com, casey@schaufler-ca.com, nanx95726@gmail.com, djwong@kernel.org, 
-	daniel@iogearbox.net, linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev, linux-block@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ecryptfs@vger.kernel.org, 
-	exfat@lists.linux.dev, linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, xiujianfeng@huawei.com, lujialin4@huawei.com
-Subject: Re: [PATCH RFC -next 00/12] landlock: Add READ_METADATA and
- WRITE_METADATA access rights
-Message-ID: <20260928.ueyaze7gah5A@digikod.net>
-References: <20260924104831.1081137-1-caixinchen1@huawei.com>
- <20260925-zahnersatz-hielt-lerche-141893658522@brauner>
- <CAHC9VhSeXmOHvioZ12aVmnOtpP52-G=K_jS3K0fTSiCrDHStPw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gvo1QHuO"
+Received: by mail-yx2-f39.google.com with SMTP id 00721157ae682-8a8f3f7ff7cso25763817b3.3
+        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 12:30:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790623853; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Os+czpYzDQ+ar33WrwGRFjLHIZGbEdzs063TvFD9Yq+w/7GMpImCfBJFeSgDm1MSxe
+         6pcN/QukKKU1Se63DqKbolCpZlnvQosci96+dNC8yh0xMinSvqfGuC3Qk2llvS6gxkHK
+         iGf9nYKZpznUvIhZ4TzXjU7KmSPCg0n4tYG4OjUU2FJ2WuQB/anYCO4J/GWyyrIESapr
+         kCL37fwhhlD6mm7QXwUwjydFs/GbSBPP1gSvUoYV/i76YNjjnPd4nlqE008AbVht3aRK
+         T2pubCTwPPeWX9SA6WFVDm342mYcpqclfcjzaJt4QCXAr0di/l1peQdaJe1Ufau6Q/td
+         l35Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=cWD8I8h7f2Mn53Nrt9tP6IaEf3LtqBr0+P+yyQFgntI=;
+        fh=sYZahEULhEIRUqWBvHQMm51qlzhx/WS6Homio1aCbAE=;
+        b=HwV7FwXoaiAQlnAQNQd2gZPvZRT7EE7cj3T+ahLc4C3OsstVju2+s30T2UnsV8vhBI
+         utiXDYOAHwvIslxPnc9PmWMSQYmfaj6uWX0zJNjSp4bxBvpQOcPiCiS2OjM6EfFRG29r
+         WnoAXqqZir/Vv8z2BQcZ9Kd2lt9W2dtBP01WBMKxYYPReWxk1chIIrjBRi58CQkjqvNQ
+         E5eaLOELzTJLRp8QDVnWjzC2tEWDpujo9C3rhDQSHMEdH5BflchwhiO/BtOGyR7rWQMC
+         GdXzHzuqxaSofKeGXoi+Qe3tTlAbn1NzF7uIvAxTw0ruelTG0ogkMKZDUWxf2cX2udZL
+         Cdvw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790623853; x=1791228653; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cWD8I8h7f2Mn53Nrt9tP6IaEf3LtqBr0+P+yyQFgntI=;
+        b=Gvo1QHuOI7A65Mgu5SAXn00It5kIXTmp9uDzN6+heSjhl7EYQE4gfOeFmtpZRYh7RA
+         cXy02Z7VA7VZb+a1EpWEZ/9l6CyyedxrjKCkobJoD7r1Lg1rP5y2cub04+ySLGbYLqHT
+         En6+LXxr3knrO6l54BcCuNOkmEws8qXUwlpFtom+5Zd+mwmaU8H7es6huUxxI2s5lTQr
+         WiUNMtebJin3xSrwlWYzK1mb/wsdErSWbWpV4jMxxQWNNMJNrQr16RgedfR2UILKsbPv
+         epDTjIBWnnT1KTaFhUZXpRRCLzJb50yO5XTlc7m5hIxM6PItG8HQYgLpaYD4bpguV9UW
+         swzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790623853; x=1791228653;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cWD8I8h7f2Mn53Nrt9tP6IaEf3LtqBr0+P+yyQFgntI=;
+        b=AvxsTJkIj8uIexZFfIGXXQAFvXchnpfGHPH99Pn8VPcXV8AQ4+GyNqmHOB/y9B9172
+         krx0Zallb2We66LepZ/lEYmv+ejml1ebE9jjmgHoQBruhvf2+UHn4tJoAgg5th26KuMU
+         w7e+uXaOy6Q72mDB/TX+PbP9z+iyYiriyI2R/ZawirKhpnxDho+yGn55Vk5UrMchZhBK
+         RZPWS2TiWDaoxwyGsBFmbR71yLfriTzwh84LtcznjvlRUuygyqjMqq3xy7gKdfqHDmxW
+         62nsGVx7rbUVF2gizsVxaxF5x8B489L4HZD+tq0NoZyFpDVcAId7bVpZUtFM2JYZhihA
+         aEUw==
+X-Gm-Message-State: AFq9FYIc0tIXHZa1WHXuflF1ZCmsbRv7kreGWKtLe2Y3lNfYEObf/BxY
+	kjrTQ+s8ikYac49ZrsKyf2Kbt+VNzwbYaUYj30DgQ11PcnU+x4kukSV1WC30qfFswpj3pHLlC2k
+	MK2TGO2M3FZBLtAZDbMAXBMMMT/7m13o=
+X-Gm-Gg: AYBFou2IHPWqI7z3EQSJQ5jegvaZIOWTOyt1UuAz+mu81qL+Cq7lcQKqY2XYp9NZN20
+	+XX7AiNES4ClGBmEkV25OtYfGy+xUXQDDSMO5UQMYvpvRSR2jATM0GwAfOpoRuzlnY+g8MAK+eK
+	o0JM/kFcsadllLmIBSvlhLcVw5Fhrh7VXDDLN52uxOS6coAfStIldk7t6scGQVYNIccOFb/Tp01
+	cwSviPnpQenkWOQaJgUAE8nTZBQqWmLzXn5IfWr4zwzvFoN6N9V9VdziAu9Y/kEfDprzLOPkuWK
+	Hax3jDD0vcDHxjrqd41MX6zTDiFiZcgWd5i0gAOtvTFQKWfxLeJ/pkQ=
+X-Received: by 2002:a05:690c:6e85:b0:8a8:93e9:3832 with SMTP id
+ 00721157ae682-8a893e93995mr38258557b3.37.1790623853302; Mon, 28 Sep 2026
+ 12:30:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhSeXmOHvioZ12aVmnOtpP52-G=K_jS3K0fTSiCrDHStPw@mail.gmail.com>
-X-Infomaniak-Routing: alpha
+References: <20260928062459.3189005-1-inseob@google.com> <CAEjxPJ6iZRkAa9Xadwo=H-1CQtU+jAChydfquoSrFL82rqFiLw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6iZRkAa9Xadwo=H-1CQtU+jAChydfquoSrFL82rqFiLw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 28 Sep 2026 15:30:41 -0400
+X-Gm-Features: AclHuK8DUAf5K7mRzhqNlY-4fwob7r1zJv8ej2awSEwyDBbe4q3rONUxi5Ca8J8
+Message-ID: <CAEjxPJ72C+biF7d1JBmeYZiVB9z1FyOewYoFjYTLWFbaE8Y2iA@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol,checkpolicy: add --multiple-decls option
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, tweek@google.com, nnk@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 25, 2026 at 01:07:08PM -0400, Paul Moore wrote:
-> On Fri, Sep 25, 2026 at 11:33 AM Christian Brauner <brauner@kernel.org> wrote:
-> > On Thu, Sep 24, 2026 at 06:48:19PM +0800, Cai Xinchen wrote:
-> > > This series adds two new Landlock filesystem access rights,
-> > > LANDLOCK_ACCESS_FS_READ_METADATA and LANDLOCK_ACCESS_FS_WRITE_METADATA,
-> > > which control access to file and directory metadata such as inode
-> > > attributes (mode, ownership, timestamps), extended attributes and POSIX
-> > > ACLs.  It picks up the work from the "landlock: add chmod and chown
-> > > support" series [1] and follows the coarse-grained grouping discussed in
-> > > that thread [2]: instead of separate chmod/chown rights, metadata
-> > > operations are grouped into one read and one write right.
+On Mon, Sep 28, 2026 at 12:35=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Mon, Sep 28, 2026 at 2:26=E2=80=AFAM Inseob Kim <inseob@google.com> wr=
+ote:
 > >
-> > This is mostly fine for me. @Michael, for the fs side of things I would
-> > give you a stable branch vfs-7.*.shared.landlock.path that you can pull
-> > once this is ready.
-> 
-> This is in my queue, but I haven't reviewed the changes yet.
-> 
-> @Christian, I'm guessing you will merge patches 1/12, 3/13, and 4/12
-> since those are the VFS changes?  Once you have a branch for that, and
-> we have all the necessary ACKs, I'll merge the LSM changes in 2/12,
-> 5/12, 6/12, and 7/12 and then Mickaël can merge the Landlock patches.
-> 
-> Are we all okay with that?
+> > Add a -m/--multiple-decls option to checkpolicy, mirroring the option o=
+f
+> > the same name in secilc, which allows a type or an attribute to be
+> > declared more than once. The declarations are merged into a single
+> > symbol whose attribute set is the union of the attribute sets of the
+> > individual declarations. Without the option a repeated declaration
+> > remains an error.
+> >
+> > Policies assembled from several independently maintained sources may
+> > declare the same type in more than one of them. secilc merges such
+> > declarations when it links the resulting CIL files, but checkpolicy
+> > rejects them when the same sources are compiled in a single run.
+> >
+> > symtab_insert() already permits multiple declarations of roles and
+> > users, so SYM_TYPES is added to that allowlist, behind a new policydb
+> > flag. Like role attributes, type aliases are excluded, as in secilc;
+> > otherwise add_aliases_to_type() would silently turn a declared type
+> > into an alias of another type. The merge needs nothing else:
+> > create_type() returns the existing datum when the symbol exists and
+> > define_type() sets one attribute bit per declaration against it. Using
+> > the same identifier for both a type and an attribute remains an error,
+> > as does a repeated declaration of any other kind of symbol.
+> >
+> > Signed-off-by: Inseob Kim <inseob@google.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I guess the initial branch would be Christian's one, then Paul's would
-start from this branch and add the LSM patches on top of it, and then
-I'll do the same with the Landlock changes?  If Christian needs to
-change his branch, Paul would have to rebase on top of the new branch,
-and that would cascade to me.  That will be an interesting gymnastic,
-especially if there are substantive changes in the VFS (which could lead
-to headaches for the -next merges), but we can try.
+This has been merged.
