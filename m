@@ -1,127 +1,130 @@
-Received: from mail-yx2-f42.google.com (mail-yx2-f42.google.com [74.125.224.170])
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D8614E77F8
-	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:26:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B3034C98C
+	for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 15:43:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.141
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790609190; cv=pass; b=mTzEerKaKzYxBJdX/6cd8bZtgrIhXpK8ATVdrwV2Rp+NWq6fNWoylqjKX+ou6Eo1A0KnUesBw3wkybTJBQKLZq2wv//dcKpmT45yoYsChdd3+1NcuBaNw9InEGcItL14W5wi6UiepYeGQb6I8tFQgyhdqQr2akVUUspHEs65oQY=
+	t=1790610182; cv=pass; b=W9MVvMj6gZ/DkZGzyRi2klIJvc+rwD8pIRG6GxkSAxL3YiMCi1nlFLelnSZq5Lpu7tzy4bgaPt2hq3gmjbeZ1XYOzo+JWalR5263PaLITlM3XeI7LT7se5yxp1XZICqB672vpfef6QZrk7WEJn2wnr6Qi2zRlqF8wbPVHTtEz4k=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790609190; c=relaxed/simple;
-	bh=9DMBUFNQMztS/KWTWDm722pDacqD8WvElm8Dg7iwuLw=;
+	s=arc-20240116; t=1790610182; c=relaxed/simple;
+	bh=U2cdBtfeRLjOeAZQlJJO2bDbE6EC6/JN3pY6KZCa02Q=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QR2qs8C9X/Es9zDPseaz9HOl3S2A26agkB30wVKJGiLSEn7pxnnCLtlGCBtxx6xzcGbspsj2pX3MbFo4E/Upt7RsIAjSCKi/7Ui5EUVPCnOQcMjPIMsEHbwcYmaiEwNlFp5GSpFmP42RLa2HrBSbPo31gaL6kObdszwkMt7TkYQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GwRWwfx7; arc=pass smtp.client-ip=74.125.224.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=f5Wi1RmJH+7sqp3+P+o9jWdFz9FQoP/iG3WhH1rE5v3Fo9G2ahdJ+mdglleTeZGQQ6TCEhrcyS2ZykHzGJREGmkOiDQPmhf0DTfnpcVW5RmMVXHW0KV3Zfisdr1IihZNJ3b3W0lUnxM2yuUhwVrgxj2l+lWKC+8EpT0yJPKVXho=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=ZGk9ymys; arc=pass smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GwRWwfx7"
-Received: by mail-yx2-f42.google.com with SMTP id 00721157ae682-895fd505824so25861827b3.1
-        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 08:26:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790609187; cv=none;
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="ZGk9ymys"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49d1fb0cf5eso30412615e9.3
+        for <selinux@vger.kernel.org>; Mon, 28 Sep 2026 08:43:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790610179; cv=none;
         d=google.com; s=arc-20260327;
-        b=GEEuw0WbODyUGC27zJC7FLjdeBdOQNgpd9yYwC7V8ZqY38/xuqzmpH3g2E/TPq4KWb
-         pWy7Y32m7xy4TcvFvh1aygz4Za3St5pfi1PPpHOSBikkKjckFwUfWDSuf2Mz1c6HM37W
-         h+pkcfuPkaPB0e/rsRedGUoZLVLTKzv5xTan8MQXkeb7NpA2cTKsI/J124V+haE4D1ne
-         cI9qdaradNgFo+RiatL5P+d1y5r03USBEocE+ESZRq8ey+Aw/K2F8ZMj+zcRDdzFyw67
-         sjbxR9N0w2z/v05MFHu+MOp+1KrrfE2ZFNzzUZ62cZBnH0Ossra2X/MJ4h1jb0aR+w0K
-         m+Cw==
+        b=hcE3UCprFjed6Y58wa71WEK3aXvLjs+kvFWRv2AURBLTsaYvAUIgDBzb97EwQ5UPS6
+         EcNAem1nnpNDegqwj26/yrk1BQLko0EPgBdumNiXaaCv/N1HBKFbY20bfWjBmfbK5I4o
+         dK0xluSoF/mlSrnGO8gXpPPt5FCEFNm68QfUvxL2lUyp+QIS/7GHvV3dUOTtSFYheOSo
+         ZnwuX1Sp0YY1FzzF5G+gpXBREktQ+3twOvbWby4Neh++LgF4DlM4Gl6F+jciJdhS1UXR
+         pkLmGLmKrZ6R/lf99jaucQHnnyIl8037yHbhIy3q/1Dipgz3GVlczp+0ExuoFM1alJLp
+         wPwQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=s+/uV6YicflkKrix7H90kLlPIxJUTMCDKlEx9tlMdvk=;
-        fh=JHL+dlBtetZKWAunLGWKbt14h50PoOUW6V+T78x38Ms=;
-        b=Dr6JbRC0/Sl3OU+aVi53j4xbHnUDm7eQmB5oEV6wMYJphs/LGKQetCy7suIeILaZO8
-         jA7w7OgMjrZfVfDDkMO2mjkR356VFFqaH2JOIXrPDpWH2uKuzBcLK7g4URaNgHUGHZqZ
-         HQY8KhjkcANf5CJ0QNrhtQvXR7w78w92eg64mrr+FgUdiJKZ7Rt+GMfTcBKXg10djL2k
-         Y4+7el2jzQPRkwl49eo2G/qFKCYm8RDZ76MFznzENJk0+AS7HTlI1sBeA4ZscuQloyan
-         CTxhNmPTDrriwcY6F8UBxf4Ba4dwylypbxkQQYRB4G2QGs2R8DSy/jmcxlKfF8G4rNAs
-         B99g==;
+        bh=IZtLGWyqYFqZYYGwFIDWClrjfdJEwEU1j//h6wMWJu4=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=Mfj6InaHaMS/I+YKGOoa0oaoZHdcBNxTRwLQQMpg3Zi+jDZ1aCva7ve7iKVcfWEheK
+         R/eVbYqS1prsfDiGe++ogp9qfrC9wBAVPwKg3X2m/zl+TQ9pv8+er2O7aDEmlJw6AQbr
+         iVea+Q61a8Nz/UG+PrRXgf7Zp/dSWOwwUF3ns4R2RGxy9DamWQK/TSANdD5L2uC/MBMm
+         YEujOoK8hhnVI/A1lM4JfzS1pY9iHh1+WjRIPj//VGBgY9JTXWu0YhIIsw2hbD6uZKvB
+         oQ0LMwrsgVYE6DQEG7IUSIDi/e/bAoJTuWoG+x3Zy/A8333F2zdPIeNm2P4It5PfCxCc
+         /ulw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790609187; x=1791213987; darn=vger.kernel.org;
+        d=googlemail.com; s=20251104; t=1790610179; x=1791214979; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=s+/uV6YicflkKrix7H90kLlPIxJUTMCDKlEx9tlMdvk=;
-        b=GwRWwfx7gd2C8tcAJ5PPxKIL6MiUDHbYG1txLlBCrjw5KpVoFWpkPoRlI95zH1sc7a
-         VISBhC3FcBkm1czQ225ELVrhqztc+1HUN2WcfvdqJ8EIFVJL5pW5uoYzUfwwiaU//zRL
-         nl8fe/PZNeYbohRSOLx7+Ozo1qa4nSxiFxaAgP7X0qg2bbj3JXv8kxhbZMwQl8sZoBhX
-         Gtna9LPtQtkplsc0X+k2KyK6Egp6S+MDFgCzcSJZpRwniaoYO340eZXkVvyYmr009Pqq
-         wsJ8o0Y4DkYwV58DQ5TbbFTHa8SbGUX0TRt445woUQ/S6MU3tDuLMzvDtr8Hn4n4L1jB
-         JFew==
+        bh=IZtLGWyqYFqZYYGwFIDWClrjfdJEwEU1j//h6wMWJu4=;
+        b=ZGk9ymysiX3beRXCQ/jacIjcVeopX5PpC4/aGDcvmaZHZfeltY2A5SElVRrJSgcQVu
+         MyzchcZMnzJpDOUHfNrSRONen5eOkDUzi5RCTtkj7vPaNkeHpBmR7caP/3y3ANGJpxbl
+         hIEiSFs4hFzveDH4gbrAIttl8hKCYX/htqzVFs0rFRyYKOqJkcSGIUBd5ARlS04oWoue
+         h94OiLQvKk2JjLWpFndmx4NNTmwcY1Q6mIouvVOXxo5dnqdAlCd95eWDbsa4EqiEVgdi
+         nSdmxbeEY7O7nYbv31C2Wp5bZNKFb+cy8s/b1nGtCm3y74TrRMJz2JExVBeaFY7Reknc
+         BNrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790609187; x=1791213987;
+        d=1e100.net; s=20260707; t=1790610179; x=1791214979;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=s+/uV6YicflkKrix7H90kLlPIxJUTMCDKlEx9tlMdvk=;
-        b=RzBxCjsVzDNV+h921oa0ZYUu3bV7JOJFWNJd3sWWCoWZ1cfOby7K4Ro4EuvydT8tIp
-         Qs7nihhLrLA+zfmzVolV74J6gSOCqSGUfMOCbL/lmLm1HZKrR1VE/dGnUS9lJ2tGQQSO
-         M9qIn4f3bhfWrDiD2EMVkpXr+YoqHUmoeqhN0/wWxnFaLcHx+Jp9quuR/Jeid4zSNrz0
-         imECOXcdcIIKV/RLytzVLntDoapUSrlx3DYh7M02cdqLb48VGKIjfZfczZ5rGxC5i8iL
-         ocu+0ionvhDXhmwy2p9wRdUZ15/Am7cjJyaVHJbOyH37jqrtcV7YWIwOSiz6EjPKJf/j
-         RAIg==
-X-Gm-Message-State: AFq9FYJsG1XMwu+XZI+bxxdqwm58Z3Fg8lmUd7TotvXFhRjiTJ5wZ0bd
-	zVwheqErlRkDY2x1ME72vFg7p/6MbTNwgqDGOhs37EHW61xh5gXlaWKAtyvFU6Zb5Wk/OXt73Ln
-	em0cXnV1+gxogHGmRU6hyxeO2ufsF4trcF3tB
-X-Gm-Gg: AYBFou2UDCsPW6obnIPayxqJ5VluqTqZucukYoCxx1xSZ5ymfGM5xcq7MwAyQJsjZ8Y
-	jt2gPDFasbTL8hqIYTRaYv6QvjG2zx0KfAfs67o3T/p2XhPov946xMv/MsyGBsINOhGaEUb4wzs
-	tmiT4uw1glZYq5YFvTatbaraLRV3dSCTD8Jd32zKnf3uJ/yOxsXz6tkaW/cRnTnqq92VDpwGzZ2
-	d7IPCCM/IcdU65NJ+89JiOarznHvYWsElSdYCrLDZEQNIaXKzEvA6mWk+3a0KTPAc7GFUTtoGIy
-	DyeXz82MQdWtvr6FGhV7OSrHd0YJjjh/naDv3iSKD+uFhwk7H77IJfo=
-X-Received: by 2002:a05:690c:319:b0:873:5bb2:6c37 with SMTP id
- 00721157ae682-8a64dfc80fdmr65150997b3.62.1790609187036; Mon, 28 Sep 2026
- 08:26:27 -0700 (PDT)
+        bh=IZtLGWyqYFqZYYGwFIDWClrjfdJEwEU1j//h6wMWJu4=;
+        b=yneEr26lMmFl3OqHLq//toQn52N3xFRAY0N2M72+hzOHwRXidltjc2YS+gwEKaQpAl
+         p7ESzme+AaaWJ/prT5D/aKNqnWXD0MUdNyzh7oTrgNzMlmTiVkfad6O4ByqyVmOiopa9
+         VAnx1VFFs1e+npU7W5HuCrXXT9OQ/+9tWY5qeSTcL8OXEKoG0W7iwJ5Yiry+0ri08iGw
+         zkdvDhoqUNEdnm1A3NGTD/Ve+NJOqENf5Ta7gJzeE9XCJNLq2FnytoSj7AVpFMLX44rL
+         fW72ikTgYT58Jgf2p/+Lh74aaaOdiXByj2kDsJ9ZEKteDgEGlHIqNNt/owe1maLsuHH9
+         3nkQ==
+X-Gm-Message-State: AFuF++mjbf1TWRdpQVzrJ1dM+hSYC8RDv1pLPbBopULbMRgD9NTmavmb
+	tMKqr0T5zsvfhRbkU0eai9y8G+vjkPJx8gT2QXSjCN7GczGpGCWuPKnKrxa57m7TjmaQx0t/N4F
+	xezN7l2Sr03hH9KMnn/JUBcl7Ts8NKKO6kwvs
+X-Gm-Gg: AYBFou3VplRIAn6grZA0D/DBaG5uJkTS7oVkEsjyShGwuH0FMq5wHX7Scjof4cgRlw+
+	rQsBtBmCuza7duhKF0zUVYoPWMYWKoqKS9DQV/qyJH4bxyLNLgZgSeWbAnYPRAtxgsPoJMRk251
+	0Rtyc/2Y1VzBV/ICB5pydHcOqd87jHTT0F5TwpcEFipN4+TZ0pYnj2+UDsnAuSyFXqamYr8Wzf3
+	lHD5SRulq3+2F3WFKA+TfSJDoI2OL3ri2TzAfaIBZvrTHgqBYIhKIQ4Ad5/+MHUdIye7xNOQV14
+	iWKoT/b2Qu7Xcee9aakXjbPoEt+vcz2zrg3mNtpFsoeyV9vJ4SM2ii5W9I8+DHWos8mOtQ==
+X-Received: by 2002:a05:600c:4705:b0:49f:dde2:3906 with SMTP id
+ 5b1f17b1804b1-49fe66d95f2mr236099475e9.15.1790610179085; Mon, 28 Sep 2026
+ 08:42:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260928141917.17577-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260928141917.17577-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 28 Sep 2026 11:26:16 -0400
-X-Gm-Features: AclHuK9Anx4Iv6nqSqzS1FS7sYPQi1CJpIVO1_3jpf8avzkkLJjpedbT1zuG4xw
-Message-ID: <CAEjxPJ6JUzSBgkfKRQCTeW2JK5L7pbLHAe68ZbCeg=Spj4mESg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: preserve NATIVE_LABELS on already-initialized sb
- in set_mnt_opts
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnacek@gmail.com
+References: <20260925171755.2029271-1-cgoettsche@seltendoof.de>
+ <20260925171755.2029271-2-cgoettsche@seltendoof.de> <CAEjxPJ5oAD0NJFsL5XaZZktM8xsnkt71T=j9fmVXB_qsRkLnYg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5oAD0NJFsL5XaZZktM8xsnkt71T=j9fmVXB_qsRkLnYg@mail.gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 28 Sep 2026 17:42:47 +0200
+X-Gm-Features: AclHuK-GGFUvaNcThptmzTclA0rbQ_3ja13KJsHL7IpwZU3I2EvPe0dZZEDSIjw
+Message-ID: <CAJ2a_Dc2FxU9ZUm0m+awtabTcFgNT6ZYpY1YZSpPJV3L=roCew@mail.gmail.com>
+Subject: Re: [PATCH 03/21] policy/test_cap_userns.te: allow searching /proc/sys/kernel
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 28, 2026 at 10:19=E2=80=AFAM Stephen Smalley
+On Fri, 25 Sept 2026 at 20:49, Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> When an NFSv4 filesystem exported with security_label is mounted a
-> second time, sget_fc() returns the existing superblock and
-> nfs_get_root() calls security_sb_set_mnt_opts() again on it. Since the
-> superblock is already SB_INITIALIZED, selinux_set_mnt_opts() takes an
-> early exit without setting SECURITY_LSM_NATIVE_LABELS in
-> *set_kern_flags. nfs_get_root() then sees kflags without
-> SECURITY_LSM_NATIVE_LABELS set and clears NFS_CAP_SECURITY_LABEL on
-> the shared nfs_server, silently disabling per-file labeling for both
-> the new and the original mount.
+> On Fri, Sep 25, 2026 at 1:20=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > With Reference Policy, the checkpoint_restore test in cap_userns fails,
+> > because test_cap2_userns_t cannot reach /proc/sys/kernel/ns_last_pid:
+> >
+> >   avc:  denied  { search } for  comm=3Dsh name=3Dkernel dev=3D"proc"
+> >     scontext=3Dunconfined_u:unconfined_r:test_cap2_userns_t:s0-s0:c0.c1=
+023
+> >     tcontext=3Dsystem_u:object_r:sysctl_kernel_t:s0 tclass=3Ddir
+> >
+> > Reference Policy's kernel_rw_kernel_ns_lastpid_sysctl() only allows
+> > searching proc_t and sysctl_t, but not the sysctl_kernel_t directory
+> > containing the file.  Also allow reading the kernel sysctls, which
+> > includes searching that directory.
 >
-> Commit 3815a245b501 ("security/selinux: fix SECURITY_LSM_NATIVE_LABELS
-> on reused superblock") fixed the same problem in
-> selinux_sb_clone_mnt_opts().  The reused-superblock path for a plain
-> second mount now goes through sb_set_mnt_opts rather than
-> sb_clone_mnt_opts, so it needs the same treatment: on both
-> SE_SBINITIALIZED early exits, set SECURITY_LSM_NATIVE_LABELS in
-> *set_kern_flags when the superblock was already using
-> SECURITY_FS_USE_NATVE.
->
-> Closes: https://github.com/SELinuxProject/selinux-kernel/issues/69
-> Closes: https://github.com/SELinuxProject/selinux-testsuite/issues/92
+> Isn't that a bug in refpolicy that should be fixed?
 
-As it turns out, this also fixes the other longstanding NFS bug we
-have open, so you can also add:
-Closes: https://github.com/SELinuxProject/selinux-kernel/issues/70
-Closes: https://github.com/SELinuxProject/selinux-testsuite/issues/91
-and seemingly this goes all the way back to:
-Fixes: eb9ae686507b ("SELinux: Add a new labeling type native labels")
+yes, see https://github.com/SELinuxProject/refpolicy/pull/1256.
+will drop this patch from v2.
+
+>
+> >
+> > Fixes: f24939e ("Add tests for checkpoint_restore in cap2_userns")
+> > Assisted-by: Claude:claude-opus-5-5
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Otherwise,
+> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
