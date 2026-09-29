@@ -1,93 +1,93 @@
-Received: from mail-yx2-f39.google.com (mail-yx2-f39.google.com [74.125.224.167])
+Received: from mail-yx2-f40.google.com (mail-yx2-f40.google.com [74.125.224.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D5E64FDA72
-	for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 16:10:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010344D2EDB
+	for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 16:11:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.168
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790698244; cv=pass; b=SewHcJyg99SZabQ3UF8N5iaSvm75xAU1XGhIriczHxJTxHJzeVAHv2WFybD8ocFeeQvnYkvS5ej5UeQ1BZmWVeApIqObWuE1scMvu4UNk7Sl7HYF5DnOUZRidLiZMiZiM8HjC2TpEta38xrY9fVUSx8rxhjNHEXn+pSJZBKMzfA=
+	t=1790698282; cv=pass; b=qm+K6VCGiJ58PgTwPoBiPRNBFJIqI5W9X/R6WFsOFbRYFxZ5ZOJxeabOFBktTQxjhc1ZO7VCjhcgG7aD3suySi9cQ6E4RamVhcsng0YrspEtkia2xHSLQ8oU8x5Q81xf0asgGlt6xGK536eXFit+pSBMYRNKbTaqKcPEgoOX4aA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790698244; c=relaxed/simple;
-	bh=vcJoPQg5ahdgZLIujO7NvBPX0of5Q0dEGm4e8Irzhbk=;
+	s=arc-20240116; t=1790698282; c=relaxed/simple;
+	bh=wHl1FDABhM3yad/8+p6QXIIxMDXjz8ZSygcALHcwGio=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UMoObrcldAIMLh5QV8DQTZpeLixyxZJrEdWCDhLnSR26jlgKcEcD+/XIxLW2x0OCniW7vM1bDOz9nfJ3T7wLnHhr2qXODKdEKp6woaULJN7MC0yr74lEhFZolfEPcx5U0c+feCTGSZLE/ps6An3mEzJYF95dRoywyH+/BWYfzxQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nAr8scUK; arc=pass smtp.client-ip=74.125.224.167
+	 To:Cc:Content-Type; b=OCNefAda3lKFrOFTqoXsOWcixNuOhKrvBjRonNLEUk3rIQqlHsjUjst1q23e6K6ev7ZGB1vTFmKHEJgSrXr1LUTuBIzk9r4sABgbECvtyeb0LoH2oGr8Pvb6qoBNO2O+baRZwLNfWyh5XekBXBS1V9E+z1juHyIgPyLoeyh+GWk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a7Pf2g5G; arc=pass smtp.client-ip=74.125.224.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nAr8scUK"
-Received: by mail-yx2-f39.google.com with SMTP id 00721157ae682-8aa75b33a26so25170047b3.2
-        for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 09:10:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790698242; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a7Pf2g5G"
+Received: by mail-yx2-f40.google.com with SMTP id 00721157ae682-8ab46253999so7964517b3.2
+        for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 09:11:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790698280; cv=none;
         d=google.com; s=arc-20260327;
-        b=gPQMbghGYNAZz1HWDmozmTGPWCI4gY12VcnXcm3mJPnP2c8HXnRnZWNiJQq4ZQwq39
-         UQeuS/yjocY8jPVnUy8E6FN2nlnajkyGfma3B9Szcjq4ZxWFa2tkqJfTh7ufMGD6ROpt
-         1uofBPblk1lIga8bDaGNgBwbVhhVzfA3xOuc+aMq/716Rj8qtM4HEIj7z8joNUdPvlKB
-         Udevm+CI/iINkoBQKSfDOZWfD3xoRRaNd8Dw8QzbwliBfB5GDMXvTjjoS7zLQn1pzFCX
-         AUPiIk21EBI+XY4WPIWFAV/vxTr0APoX7XdGAPdrCXCzcl8GR8YJUGqt14q2A3v16Hwy
-         9enQ==
+        b=BaFeJGw6aTKQxcFwy39LEVZCJLlLwtn5RSYD6FDSswiGAPiIh2o5QCbuQl8GOKbpZa
+         bjkQVuxw+ml6axXQLdEPf1mFH8Vzs3cFB4nO3z2vJBXiMU8TZsy/iAnnU1KfclbpWjCl
+         OGY98k0jte5Aogt9YBzwwgOFW9kdCDBU7UcsjLivRGwgn07haRRC4YzEXe3XoyL0fNkx
+         9G43vQSK0lTuNGbuXAft2L6cWsr77HSeDRbVyB9ympueF0Tq9R13nOIecWfdvq/28GeV
+         1JWUaRK5KlqeRvX9BDFhz1PkDGQSmZKx0SUewEI0jNX6c4cEtSha+UFTqCx8MxWB8ShR
+         EvUg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=vcJoPQg5ahdgZLIujO7NvBPX0of5Q0dEGm4e8Irzhbk=;
+        bh=wHl1FDABhM3yad/8+p6QXIIxMDXjz8ZSygcALHcwGio=;
         fh=ynz/8+FwD6qg4pGsVrM1o3ZMcJz6Z9Ld9eMncvonVNU=;
-        b=nO0zWX2RuHg55lrcL3V35+O++rhnRIyLf7xPEqqFfrfLh0sXTIeNV/YvsMeirKbrnQ
-         L9kvMcmzWFFIRX1WeJ82gVv/s2DEBhXuMC6iISMClmoprqPj0UhheAjbRQaOKsn5ypzJ
-         kRDR09qM6qJg4WJJBm+/OqpozykP+SfDlVPWzB6kNUQDeQMMOG3Z1+F8KXr8gqBH1wOZ
-         BZZilVIkxwqbgAmxa91mFav5zGaVuHjAgjBBi3J81nPUN/x9r/AkaYKEE/y29XH2yKQf
-         cXbqyTQA2drqD3Xj4vJhZwSwyQds6EvbV1F39c6CnZDnSzaB96IbFfW39dtJUU7INhZE
-         2W8A==;
+        b=jtgE5T885slH8a643qXBz87+9ryTGoP/3CLDXVywdazjhufLigF/39jKmTARwANmdz
+         Pz0QTME+o3qHW0EiqDX7fpOmyuCIAcS3AZqYPt7br8xDDMJC8awNw5ln31jGZisGrssd
+         Is3OGbrvpdpkpSqJk2XU9URPpfJDT8e7b+9tgREFwETqi+lVytSL2Mdeu7SPnJQfO07X
+         X9XWAdH9K5ZGRcsHExUW2X5dw8iaDRUZ76N0NXUGIVN88rp+jOEsDGKgNdur1ly8MOgY
+         vDLtCe5rsZPHzZZyMI6qk8Gg0Iw8/Zmc1crP/AFKXYX5GeoGxhhw1qAB1I3qtulXU7jw
+         fG9Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790698242; x=1791303042; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790698280; x=1791303080; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=vcJoPQg5ahdgZLIujO7NvBPX0of5Q0dEGm4e8Irzhbk=;
-        b=nAr8scUK2kc9M9mMJj8xkwJhNBEii1N8UgSv6XE0PANLgjdcKfXkoz4lEWmWoiHY81
-         JGuCEnBeiYIcEsn53MsHAKCJVm1lunzvlYAuYnJpCpOHGxhUyJm3sxWv0PL7N6Q22A1L
-         6wsa/R1wDiwLX05J2my0oQzjftAB8OM/RZcwff403xEEgFbLg57erJK72WD5puMw5Sna
-         tVPD7axb6dhAW4GyaYwrKYvksxkeqXB4Dr43coD4mZA369mPxVoUPfLfWI3eHY2f8HH2
-         kECh9gKHr4gUZle+hMOWaHrmZ22cdlgcXZyke/XA9+JNzaQ4egcQaPrSn/x0rXQrBKv8
-         j++g==
+        bh=wHl1FDABhM3yad/8+p6QXIIxMDXjz8ZSygcALHcwGio=;
+        b=a7Pf2g5GMUAnFhbejtyiafGYTwYRyphnFDevFKBkDS1EJucC96Oy0knwL8FZAFhtXh
+         Nx3wd09Ivl+i5fjgfIRsWjRanhsf7w1ADLKEiurYS/lfS5KBK4KFcl1uJDKOdpBASghm
+         atmOYevewWz1JH7aLwFI3K9325G258lbTFpUg9af5nYLmGvDDF9yU2NBijjP6qU7RoFd
+         HhTb+VOAVH9oG9TnvM5yVO/jYugZTLRYrT/54KDCuJ99NTLAXbVQRQmB9mjOJ9Ps4EGL
+         NlGQZAqOtj2tdDuRbkeWMwmf61ZLIOa8OYSbenLB+Gx3J+kKekpIZ2elGiYyRxm15/Zo
+         4qUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790698242; x=1791303042;
+        d=1e100.net; s=20260707; t=1790698280; x=1791303080;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=vcJoPQg5ahdgZLIujO7NvBPX0of5Q0dEGm4e8Irzhbk=;
-        b=e1gh9NSWRasWCeYtQgDPT/k/qmrgia9vpsaHBQKjAwQ+fBWsJ3XOFWJ2SNaALdU0ZJ
-         8boTXq3jHh9v0MpQ/3+rj8XUhoGcFUya6MZHN41V3MCwp5yFv/HsPVxaFi4DSLb5WHkG
-         qS9o4/0EsSuijLcZgMEe4IGZU8WvthMuxdCU9L6HIvL5iFkho8X+RoxB7h58EuzUcgdr
-         Fyi4pZCHRqD/pAZ2lqkFJAsmzgZrMeNWhBQGT938ZjOJplTvbRlJMrzMTL7WrdKqUNGP
-         f3coUrKR42UAK/BIpY2xZWFKKIQukZZUy0HT26dl8S0c/KM1fjpNonFXHHILXECRNf8N
-         qh0Q==
-X-Gm-Message-State: AFq9FYIXNlsuYm9stkIt73dGrU2Uuii23s/0gfNbpchSyVK7gsMOu4sn
-	BxgUd9WRYndpXdRm0uckmqso2o/ZV4hy+x3QGo3SwhyQuniZABjcRJz/O0X9SAxVy+a3Ckc4wXe
-	rz1j5oiYU12KaRPL9BrPUzz8E5o7d0PI=
-X-Gm-Gg: AYBFou0lXhoE6B/6ikXTUEk9pWSl1pjosWGHKfLwBNPgpBvBzbv/0uk4bTrlBjWzr7d
-	Bqf44X0ZxwWWLJqY0H6yxwKszcJww24z/PfkLFHsMhjLluYFXZwDIpZSclDMiwr1VRv0ONn7wCs
-	9g3XW/TDXtuGCN7DRMFDEXIWpIkOpBvYGCBWsRrfss0meeQWng6kMpAv9KxqenSoXZvIxjaG0Cq
-	y6VlQA0CHBkoUxuhT6b6TXeaLrhNNK5VIbfZJJj2tT2nkC1Y2RT7Q8hXYpWadx+7PpUgi2lxDQN
-	f4c5cMHLq58LW0NVkPSkUvRIUYrjmYl00ZljOwdOT7gFZXkP5dAGdiNj
-X-Received: by 2002:a05:690c:d88:b0:893:44af:ceaa with SMTP id
- 00721157ae682-8a64860b119mr95160247b3.5.1790698242217; Tue, 29 Sep 2026
- 09:10:42 -0700 (PDT)
+        bh=wHl1FDABhM3yad/8+p6QXIIxMDXjz8ZSygcALHcwGio=;
+        b=YV+8kTNpfYZx92qceMmeY6/HWDcn0GgO7Kvl98p8Vj7IBgPuLbhEbZDdh9dVgHYHrf
+         6Flj1lvylkxqdaURntcQkhGKtCT3uzH8YhNyWoKCi5xRQxEPIvPoJwzDcFAjW6+qzQJH
+         phnCu75/OJZCoCYrUQ48ReBr7YUa1To1O+1A7m88Jp9YssBL5Q7pa6aE7wT3Xyb1nurE
+         MQut8rbTfip6xYMi4FDFgOt9TVVR3RfTGZv9q67Brn19Xp29Hoh9URBJMuLdbKAYmqQm
+         kljWNSfDpDEisUxYd8hR6oiMbnLVElX3hme6l+MzDvvp4KT5v3Kusr3jQg2+CYMxjwvA
+         xiHQ==
+X-Gm-Message-State: AFq9FYL0V2SMYqyhfhIEvNPTin1bjGBzVCtKjOTn5L877ppEWzPh+lGm
+	Me8dU1mWJ/4proKULe0+mXlyNT8XLTXRA31YtvdDOpzCrNC47vaBzy4DpSldC+VmPvruHe7iC0+
+	6ywP4GkSxLtMQvR2JMDzsCLmOfsy7WY0=
+X-Gm-Gg: AYBFou3zcoqmydEGyf2vMOraj7quM+qs8Bp0VX4IgZH8YA5BcsKMxBv3auJeOsxyQrU
+	mKBasKuLUHDno1jCZt0FWqwGKgLvTONaXWqtmj25xCf5fIr/WoMETDjl0PGW/sixCEalogmq6kR
+	BSSKpXWPMuVdL5BBgAAWXx1iR85pPoB09oa/1GR1myoNiIv9eNsno4UnZzOZZ6PNTv/TA7BFmrR
+	qdeqy4oxttDcfWs13xxC14TlM+R18CszgNVZxA2pVe1KqTYXqzSA75iyqwCsp1/ebcnSffEPUHX
+	qiPojwYZ4+mY2gqDh7EC3EId1k2g+BdkUNdQh2x+zafmzafz5s4RZlw=
+X-Received: by 2002:a05:690c:e0c5:20b0:8a1:275e:40b2 with SMTP id
+ 00721157ae682-8a64ad4af54mr58987227b3.68.1790698279963; Tue, 29 Sep 2026
+ 09:11:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260928174643.2458710-1-cgoettsche@seltendoof.de> <20260928174643.2458710-30-cgoettsche@seltendoof.de>
-In-Reply-To: <20260928174643.2458710-30-cgoettsche@seltendoof.de>
+References: <20260928174643.2458710-1-cgoettsche@seltendoof.de> <20260928174643.2458710-31-cgoettsche@seltendoof.de>
+In-Reply-To: <20260928174643.2458710-31-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 29 Sep 2026 12:10:31 -0400
-X-Gm-Features: AclHuK_v0dmajPTSJ0jVoYPNGSqNMMjIb7LJkzNBtKUCNCMrL-4mlvWV0_JM6HE
-Message-ID: <CAEjxPJ75AprhWOeuKYtQ5pUF+9Z5riozafFvBG4kSWaTgwHFCg@mail.gmail.com>
-Subject: Re: [RFC PATCH 31/32] selinux: add policydb_class_datum() helper
+Date: Tue, 29 Sep 2026 12:11:09 -0400
+X-Gm-Features: AclHuK-qaEizWMjZwMkI2lkDzKjS4zvbZkAP1czivQqYSCwyoYbHAtMLn36lTDI
+Message-ID: <CAEjxPJ7HzFWfakcuTJ369jz4O4T8X6fxujJHwwHKnd=JJZ3tHw@mail.gmail.com>
+Subject: Re: [RFC PATCH 32/32] selinux: drop unused policydb parameter of context_write()
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
 	Ondrej Mosnacek <omosnacek@gmail.com>
@@ -99,22 +99,9 @@ On Mon, Sep 28, 2026 at 5:23=E2=80=AFPM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Five sites open-code the range check of a class value followed by the
-> lookup in class_val_to_struct[]. Add a helper returning the class datum
-> or NULL for an out of range value, and use it in
-> context_struct_compute_av(), security_compute_validatetrans(),
-> security_compute_sid(), mls_compute_sid() and string_to_av_perm().
->
-> Each caller keeps its own handling of an invalid class. In
-> security_compute_sid() the unconditional assignment makes the reset of
-> cladatum on retry redundant.
+> context_write() never uses its policydb argument.
 >
 > Assisted-by: Claude:claude-opus-5-5
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-This also fixes context_struct_compute_av(),
-security_compute_validatetrans(), and string_to_av_perm() for the case
-where class_val_to_struct[value-1] =3D=3D NULL so it is more than just a
-refactor.
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
