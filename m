@@ -1,161 +1,152 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-yx2-f42.google.com (mail-yx2-f42.google.com [74.125.224.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8917E3DAAD9
-	for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 15:41:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E621B3DA7D9
+	for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 15:42:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790696485; cv=pass; b=SrfkfbU3oH4YKaUZn0/T9fy2k715D8ZHn+lwOcLdZ3hCbDuQz1HjWQMaT7EQp1fmnO9C6rPF/fN6X5u3zxcKTIl+dYNce3O9lTF0Bef0NptCzJycGBt+awaWQMnTQF+FY6OjWw9Abj1ZdDluqA6EPChFZb2Zb73jgFuXhOWpXl0=
+	t=1790696526; cv=pass; b=SOd/Wox8ylzPmSl1TYtrR3Fp8SCcYHGzaRhLevMNXkIKcxalMhSQTniSgY2ccwYAhrLUptpiGsxHkq6Z1eWfZARs4TX8wN0jPP7faZSF8f3uBIGBmpPC6S0ucwRteax89tV3sGniAM9jYWm/LBe0ZQUsyhKaVi4x3M1+1vs4lt8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790696485; c=relaxed/simple;
-	bh=Ff6kC5hPrRqY3srb5EBpmjAqOlTQzd0IBH6PRPcDfLE=;
+	s=arc-20240116; t=1790696526; c=relaxed/simple;
+	bh=mLs6pBT9pNRnMG264V38n57wNmNjVWkAD5Ybi80k/cU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MBZXmaaQYXy5Z0Ccak3o9XVMYeosf8PHHRy0E4uWhgCtOZMte07yCHN08+ABcwDMGu08cjhFGqoXKEvqH4syi3L0uimjrPxSdRPuz75MhPZzT/E6sJXHIA6ZeKADsChK7HpJB/N7Jc27FnNXHpyjsDn6nzSwkva5kn3MIxB9/K4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VdY5z8Yo; arc=pass smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=VUitLIRlpfa+DtFEys/0kcmEKm1tQMQpUyr+XJgUdn9uG+fFdNdaC0QoG49ho6YNeTh5Z9/T5gr18wSQiQ7mGerzO0JxLVAtuK2F4tQA8nE/YRSHVk6kyloY3zy+m9a9Mi0upNyj2ZvYRpblj2k4qe6P9X97gOX1QQsUs4Mf6og=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gqS9jEXO; arc=pass smtp.client-ip=74.125.224.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VdY5z8Yo"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccd5cf02so2274034a91.3
-        for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 08:41:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790696483; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gqS9jEXO"
+Received: by mail-yx2-f42.google.com with SMTP id 00721157ae682-8a7411012b1so40232507b3.2
+        for <selinux@vger.kernel.org>; Tue, 29 Sep 2026 08:42:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790696524; cv=none;
         d=google.com; s=arc-20260327;
-        b=lSMa1GAymoXe0Nd4ZX5/HIhtScGvyTugNX/lqpiluAjS5GmXttFI1+j+Y5aTqFzEsp
-         OCvzWXHdTrsTUWv3wg12PKE3qJ7diOBG0+/WL7PKk4dRPNr9JQGDCFaiX1v24Mf9g8CI
-         h4VZKyVQiZmmaf2hElU6arc2lKXf6oLr2JN2Qg/2iMQpg60iVCAaEeRgOksiqELlWWBZ
-         NZ7SjwNDG9F+ZbUaHwxdpQipThObzWAf9ts88LqoDoHrOuN2JI0sTQWI5oeQV+DkoDlA
-         mgUYMkUDfIkhuWF5D6bOYyW0fD803V+oHVxdAZfWcXZ9gzNGqVjx8q73ceS7/uZw9s6c
-         uuAA==
+        b=Ry/oxIxeNyZA/cpuA+UDwn++RAZb/NUZzfXhaBcFDWP8mA66IEF6foHz0vlOq8c7Sn
+         qCZJtgRw7veqCh7EjLgm8qdnJlPtrzVMmfC3Iw/pjidldx4rY7EhwtaTv+8dRhTOMKis
+         NYo9Q0o1ZMeQN3YU4vh675mdX4nBFgbQLNjB+X18ilcR97YFT/1n7o4HCTy8mDNXgsM4
+         S6h5gUYFaFvusVQeOvUZpZAa2wI3PsEQNDCmznBgLNplOy19iTpyg4X+QK3OgORszm6g
+         9mKuYoAPuPGeFgtRT6vLl/mMHOxbmJLVYqKl1hT0r0vXp16idu9j87NZqigxNk45rV2Q
+         Fq5w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=DloQ75v9I8tL4sabQ6zmS9+wLTDkp28GIOajsDW+cZA=;
-        fh=RTntaT/8M4zOHZaFsL8SWSMvL1Tz3agE559vYGXX734=;
-        b=CXDYpLXONaEC0W8+GsjwWn524bi0feLkhHsktEX7dq8p9Hk6bkpgzFafTCwZeljFTa
-         znlGjNP9MvkTW/HlVfE8+FpQkvy7LxxPngA+grpRj2dIxCAScFuND4V8UvNzk0Lz5tk3
-         SNaCBUa1AhF7VfupULWmJP8cGdmCenSEnEe8huiHbwcKNk2ZumPN9SYTXnQU7P0MZZ4i
-         V8sLtxqbKI/ycF9Z6EAmfSt3/NAnsbIIFBf51CZLsUY6cwUL9dEGABK+8YsbsrTPnS3k
-         vQpv5sFkIwpmYzLxnn/phCXn4FpXKAMcaxX8SLSXNCfOCrfdoTLpT88FBc+ms7SjU3i/
-         Z2Og==;
+        bh=Tb9dl5RnzcAiJkeJNuHm3Nb7DxX9bNgaZJkwsUjfTZo=;
+        fh=ynz/8+FwD6qg4pGsVrM1o3ZMcJz6Z9Ld9eMncvonVNU=;
+        b=j2klL04yMg+fEhFDGjrnm1muRU4jcQ5VaUX1mxtT7P0FKfHKQkjsqVUJDk9M6wKXUV
+         TxFnWPNkUOkE1s7rEI9hXEuv25pD8dsa+k5fZjBU8ChooZOxILD2xpZwlaZv4Gkt9gCg
+         UValM1/7MWSikzH4vuNlFaJ1hCGxcTR431cyZugY5vEzt52FronX3H3gP2AIVgQgSulV
+         mk2zeweKQzdPQ0i5UT4iuUlMQBuz23cMjb7p8fvRvjQgj8w5O5TayFFITFPmGlkdIMXx
+         CLLHT2QbEz1D9/NdlIj1TSolbRFFNb1n+qoF6U4N9NtwY6NH8nXJhljFczJ4IyggyFVb
+         lVGw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1790696483; x=1791301283; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790696524; x=1791301324; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=DloQ75v9I8tL4sabQ6zmS9+wLTDkp28GIOajsDW+cZA=;
-        b=VdY5z8YoInDCnVPmPUm5T8INxeOb6a4PvVutNsPnGQMjPCHakCxQ7YRxDTJiehtUM2
-         nSN/kYHZA3i5bIxkbPnO9xP4sdyyoMERSXUeQTn+/fW7jwDDC/n6ma9RIyHsAbhpJkpE
-         Migw9a1iex6kLad5GdRNo2cpwj9g9EoeWdXQ7qv9gP4J07Tfb3hFB/xBwZD4Bykok7ky
-         Vb4fzSZm4jEQuF83TmfGMBsOgeZ7wV+J9INpJeVL6R+lzdOJ8tbUynrrK+jWj+ZOorrL
-         x03MuKlVvaRdTxLwhGuYpgaKsiQ2IlPvoM5B3FWeKYUYj+uTNOpPS6mBvowOQwbGIEQA
-         4Rpg==
+        bh=Tb9dl5RnzcAiJkeJNuHm3Nb7DxX9bNgaZJkwsUjfTZo=;
+        b=gqS9jEXOfJ8zdfFG1p7yvv4wg2WQstnCNxOh7yev5wIbTAzM+hK9JXuURMjeYCT+Er
+         JkF8dGWLy1fm82WVNyZG98AVa7GFpxzuN6NoaSbiVCp6uKStCI7XfLjW6+061BSV6QfB
+         D2mmojrWk5oJ32H8lSMxxVcUf+wt7bFmWCG63DZNTJvAuHRCfHADg9/ShihbkBgk2u1o
+         Fh93sWuystYVMB5d1M6wRbGCxxVth1UkLLJQnWysWsa99WzCKaWh3OdIodcE8j+Whk/S
+         Nx4swCpRWYUrrjSMOxZWdTSizjGYMi/4cXVr4lHc4kr3bBQflmbPTskrIzqDbbvSYZhN
+         Kh0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790696483; x=1791301283;
+        d=1e100.net; s=20260707; t=1790696524; x=1791301324;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=DloQ75v9I8tL4sabQ6zmS9+wLTDkp28GIOajsDW+cZA=;
-        b=l1HyvEwlTnJQCu/efoKK4kvHSL0Qb6rTDLcYtJlq6saHFTL3d/YeMkZO+Efd5hfRbN
-         lA8t/Bg2BsT7c9fmcTgv4EVEYLFvnNu2uuy/YJMgkoAeRHBZxnd0R/J89gsCbEUn6qH/
-         OnYzDymivZqTPH5RKcIdylZhcoNsoIo5tEgL7aC4Qnn3GRYelH4P7eagEwhFZ6vLrjs4
-         HtsuiJgOPH+2maBDIqVQflsVeq1zzsK2NBvORQBucKKRySrP+6vQJQ3gX4NKWp1t4oVZ
-         IVahdTK4K1PhECSa2ZlYA8HfMS7+YiL3xHFpjlBOK7yc9njifPnCI1u4yRT71mu2yqJf
-         q9Ow==
-X-Forwarded-Encrypted: i=1; AKwUvByByihV2aZv3P7Qu9MDsoIM9QJ84aQCdTr1qpmublTtbdUIQps12Hy6nZ0wb67mz0tAtsXZdofG@vger.kernel.org
-X-Gm-Message-State: AFq9FYLYz9x3vijzghezb6g7WVUBbQWDjelvj+NP+4AsLEfmFkNDALVo
-	AUAbGM1+Q91mplGkMd9tBkgzHbTLqsQemPAc4UYJTO4xAf3jdaYWPmKEKfBKPXNxlVeOB613/+i
-	+9/li4+MeGegeiYhMKQddNF597X4QsAN03cY9Iaso
-X-Gm-Gg: AYBFou0WeacQe8Y7hW4BDN4QoEUwRQpWLegEcRw1wO0fMjC2fmT963RcrDkxggvbu8D
-	EYHb8EhozdNP1DZfS+ff5mRRkClr9HX//nLzG8HgB+pveiK4QlQ2jPEqLt64wQXfzAQariH/TTH
-	5Df/BRq1GMnhCUpzC6xlrpYDfhKf78zft+f1AlMC22oF4GOmsZ6hYZMkSlFFgyXLNQ2sSrnDy8C
-	nEYib/2/CbXZLMnnFa1KC8DzgxZWdUYu5Q/3NNRlyLwlxaBJI6B1Y8FZP66bZGuYxHzczgKMhBw
-	TCs2sNG3U08hKpxkL6KviaSPx/HWFNmkcWfmkVWxx7VzOekLfIaay3Pf6uT5Qerl6B72fhdqm9i
-	c/uVdCSYlan0=
-X-Received: by 2002:a17:90a:ec87:b0:3a4:a2f9:f2f9 with SMTP id
- 98e67ed59e1d1-3a4a2f9f6b7mr1995395a91.52.1790696482601; Tue, 29 Sep 2026
- 08:41:22 -0700 (PDT)
+        bh=Tb9dl5RnzcAiJkeJNuHm3Nb7DxX9bNgaZJkwsUjfTZo=;
+        b=1zVQ3KlepFV/Es1QkczVa3tXN6PfJ6tkhYBenIZFZ6H/V8fafLBX0bL+MakpA9shbc
+         XtqpZOFUexI1kqOrwJK3kO1xlx2TTBVL3DVpUY0Vjm7m745+AThwaNiRaKVNYZb/toE8
+         Rf0+G+mR0BoO/krh9n2UC2IMPbo2lLnfdA9HNiu9iphpD4ldfs95ZIkpGWiaPNMWQ+9y
+         b0sfV5oCyBgYdT3Nh4vwsvHqfaLhWX0IVXMecA8G9bGU4x4wb5KD7tf6l/vtMk8TomJH
+         vWCOWFfxfzsRa7a16xbgn6TI0OkTESsDjqsH3DvQNWQAVNHztLWPHr1zVKt0BxraCC1N
+         FOxQ==
+X-Gm-Message-State: AFq9FYJIhNMw+3aFNqSLpl7v0CU0t/kzKXaqcRot5/PrG1nHXbVZ2Unv
+	SpfBqkKQLHX5QlmDWWJ8xZfY0EKTZFMeiaZdFC3Yjeds61QZiFAGuzqZLwwayprRtV7Zg9MaUv0
+	sSGd6Ga0OziNLPpOKVwqBuNE7xde2LUA=
+X-Gm-Gg: AYBFou26/kRSlqJN6DLHmxYiTZYRJYqb9LzJWJGkuCTWYwNEaJN/JsnX5FJinR2KaAQ
+	K5KVFcVIp1AjIR4HgQd07zarAy97hkYMvhEvvUXCue1CdFlhM6biOfZhfkLyYpPuJ5R07qY8412
+	fTW5BFWwcQgM4WQoY/NU2eszi3k1i47vZqaL9fQwXsmG4Ow9YkDq8xBaMUyoh15mEnUu/7YPreR
+	h9um7112oP+q3O/NoLWS9sm24wS0mCtOqxm12VjEtSjoDKBtvfGmY2ZPyiQTzD8xLRrhyXK81dI
+	RZzWhY4fxkk7rNF99FPfPxI0E/kuOl3okzX+oTjGPwz2lZ4bpcIR0b0=
+X-Received: by 2002:a05:690c:c6d4:b0:887:f24e:cb60 with SMTP id
+ 00721157ae682-8a86d67354cmr37371517b3.38.1790696523762; Tue, 29 Sep 2026
+ 08:42:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260706235053.4104951-1-song@kernel.org> <CAPhsuW7E-mW5CvmSXjUsc1GBjvgpy=pnaYOzTJsLXDvx8+RMJQ@mail.gmail.com>
- <20260928-hinein-lacke-nachfahren-45ac39a36146@brauner> <CAHC9VhRPd8z=67=RWM-0DqjTXysk75FtF=haY9-Vv1oGcX1PAg@mail.gmail.com>
- <CAPhsuW7iFP4Y6C1ZhTvtEgTzgKjnpF9+8YfVg4o3P4BHEnR+LA@mail.gmail.com>
- <CAHC9VhQVVfKkRaHOp90E-WVGEVy_MYFBreUYPMc9Y79rLaviRQ@mail.gmail.com> <CAPhsuW5jQCe89LT_22dvQWVnw2cvpceODjvKiHEiYT9Wm_Npgg@mail.gmail.com>
-In-Reply-To: <CAPhsuW5jQCe89LT_22dvQWVnw2cvpceODjvKiHEiYT9Wm_Npgg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 29 Sep 2026 11:41:10 -0400
-X-Gm-Features: AclHuK-k4dcV8AsNHD2Yr0ha3qdtOhv_YrLUXKayEeb-M3C-kGGNkoHEhnTeD88
-Message-ID: <CAHC9VhRdn-jrNJY1K=1RsZQiO80QKR3nD+DHyUM5n_a3TrxLhA@mail.gmail.com>
-Subject: Re: [PATCH v6 0/8] lsm: Replace security_sb_mount with granular mount hooks
-To: Song Liu <song@kernel.org>
-Cc: Christian Brauner <brauner@kernel.org>, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, jmorris@namei.org, serge@hallyn.com, 
-	viro@zeniv.linux.org.uk, jack@suse.cz, john.johansen@canonical.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, mic@digikod.net, 
-	gnoack@google.com, takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
-	kernel-team@meta.com
+References: <20260928174643.2458710-1-cgoettsche@seltendoof.de> <20260928174643.2458710-14-cgoettsche@seltendoof.de>
+In-Reply-To: <20260928174643.2458710-14-cgoettsche@seltendoof.de>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 29 Sep 2026 11:41:52 -0400
+X-Gm-Features: AclHuK_OkM7gQdQt0vjqZHplffIOCQmXpGNjtT4DoLLn_6TxzLzrxaRfOYAnkfc
+Message-ID: <CAEjxPJ4MxRzs2tVAtq7EcsL8R0=PtxA-aKnPKyEi63qhRRN2Ug@mail.gmail.com>
+Subject: Re: [RFC PATCH 15/32] selinux: make mls_level_isvalid() static
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
+	Ondrej Mosnacek <omosnacek@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 29, 2026 at 2:21=E2=80=AFAM Song Liu <song@kernel.org> wrote:
-> On Mon, Sep 28, 2026 at 3:35=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> [...]
-> > >
-> > > There is another question here. These new hooks do not have any in-tr=
-ee
-> > > user at the moment. This appears to violate the "New LSM Hooks" polic=
-y
-> > > in [2]. Could you please give more specific guidance on this?
-> >
-> > There are LSMs which implement mount level access controls, you've
-> > been updating those in your patchset :)  I believe that some of those
-> > LSMs do have some (full? needs verification) coverage on the new mount
-> > API.  I would expect that a patchset that adds, or modifies the
-> > existing, mount hooks would also update those LSMs accordingly.  From
-> > what I've seen, you've done a good job updating the individual LSMs
-> > thus far, but if you have any questions or are unsure of what to do
-> > for any one LSM, please ask and I'm sure the associated devs will be
-> > happy to help.
+On Mon, Sep 28, 2026 at 5:23=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> I don't think the scope here, adding hooks for fsopen, fsconfig, fsmount,
-> fspick, open_tree, open_tree_attr and mount_setattr and using them
-> properly in all LSMs, is a reasonable ask for a single patchset. Given
-> how much time this simple refactoring patchset has taken, I don't foresee
-> this work landing in any reasonable timeframe.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Please consider reviewing this set and landing it before asking for more
-> work.
+> It is only used within mls.c.
+>
+> Assisted-by: Claude:claude-opus-5-5
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-[NOTE: dropped herton@canonical due to bounces]
+Will collide with
+https://lore.kernel.org/selinux/20260928165253.2388012-1-cgoettsche@seltend=
+oof.de/
+Recommend dropping this one.
 
-I suspect there is a misunderstanding regarding the new mount API and
-the LSM hooks.  I believe that we have all of the necessary LSM hooks
-already in place for the new mount API, but since I haven't looked at
-that in several years, verifying this would be good.  Beyond ensuring
-the hooks are still complete, I was suggesting that if you are going
-to create per-operation LSM hooks for the legacy mount API, it would
-be good if we had similar (same?) LSM hooks for the new mount API.
-Alternatively, if it doesn't make sense to have per-operation hooks
-with the new API, it would be good to document that in your patchset's
-commit descriptions.  Either way, I think your patchset needs to
-address the new mount API in some way.  I don't want to speak for
-Christian, but I believe these comments are in keeping with his
-previous comments in this thread.
-
-With all that said, you did identify a potential issue with resolving
-dev_path multiple times in both AppArmor and TOMOYO.  That does look
-like something that we should fix regardless (I see Tetsuo has already
-ACK'd your patch, but we are waiting on the AppArmor folks).  However,
-what that fix will look like will likely be determined by what you
-want to do with respect to both the legacy and new mount APIs.
-
---=20
-paul-moore.com
+> ---
+>  security/selinux/ss/mls.c | 3 ++-
+>  security/selinux/ss/mls.h | 1 -
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> index 3b2f888506af..81e6cfd0272b 100644
+> --- a/security/selinux/ss/mls.c
+> +++ b/security/selinux/ss/mls.c
+> @@ -156,7 +156,8 @@ void mls_sid_to_context(struct policydb *p, struct co=
+ntext *context,
+>         *scontext =3D scontextp;
+>  }
+>
+> -bool mls_level_isvalid(const struct policydb *p, const struct mls_level =
+*l)
+> +static bool mls_level_isvalid(const struct policydb *p,
+> +                             const struct mls_level *l)
+>  {
+>         const char *name;
+>         const struct level_datum *levdatum;
+> diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+> index c107b5182fb7..49efb1808ef0 100644
+> --- a/security/selinux/ss/mls.h
+> +++ b/security/selinux/ss/mls.h
+> @@ -29,7 +29,6 @@ void mls_sid_to_context(struct policydb *p, struct cont=
+ext *context,
+>                         char **scontext);
+>  bool mls_context_isvalid(const struct policydb *p, const struct context =
+*c);
+>  bool mls_range_isvalid(const struct policydb *p, const struct mls_range =
+*r);
+> -bool mls_level_isvalid(const struct policydb *p, const struct mls_level =
+*l);
+>
+>  int mls_context_to_sid(struct policydb *p, char oldc, char *scontext,
+>                        struct context *context, struct sidtab *s, u32 def=
+_sid);
+> --
+> 2.55.0
+>
