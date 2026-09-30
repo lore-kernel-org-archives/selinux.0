@@ -1,136 +1,160 @@
 Received: from mail-yx2-f40.google.com (mail-yx2-f40.google.com [74.125.224.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8031C4CE677
-	for <selinux@vger.kernel.org>; Wed, 30 Sep 2026 12:48:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23D94F4D08
+	for <selinux@vger.kernel.org>; Wed, 30 Sep 2026 13:44:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.168
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790772531; cv=pass; b=fMpjLGW1fG5CRguEsJ2BBTEiefVYkxg5ryi4XNl7AXAEbCWB/uk7rvn3nFX5uk38pn6afSl9XkWdo8Boi0ydiIWGL3BDpdVMvUxD7mk737PDyttTsruQUw72S7N/jZ4+yioH1zgiZzx6zx9ZmKW5GyTR6xd+i+VCccn1g6CYIoY=
+	t=1790775882; cv=pass; b=S2FEIHcYvw0NIEKR6UC2dKokFW/J+oGnB/k/nD3et9/KrO3Birj2bhcwdXzqJgCD9E33bbaTM8KbsXWFsICG7s0ls/GkZFkdDr9OtKPazDv43F7oRRPZSLSKNgf/F9HJIxfcvjmKZszaeIPE8aU0+kibus0EKiq0t1FnLiupnDQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790772531; c=relaxed/simple;
-	bh=N3FMAvWEt17Bf7x0sLTX/js5UtRHBqOSYKoNkgngcFQ=;
+	s=arc-20240116; t=1790775882; c=relaxed/simple;
+	bh=NWjpIM4Lb29XI+Uy5O+HFC+BjU7EElrud2pJsiyRe6c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KANKa4hR9a/v/3WPUqHTsRQALx14Of6IEyErgOzZ+BKfYciWm2pq6EjfOtnvwfgXMF8uer6Ra7DVG40zIIDDDIXZs8uiRQmUgGSABCE3nxlM9dKh2rhPPXWX2+Llf4jLstgxb7zWQ0M93tk1spcZenBjDaCj2/lEoZ0BIYGbiys=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FjoqcIbj; arc=pass smtp.client-ip=74.125.224.168
+	 To:Cc:Content-Type; b=fz1ItLNnWi9TmC0vV+lu45AkxyU+WE/yhIMtEqJapydD/Ji1/TsXjVfk6segdw8QxDrmCGglKtCf9IkP+Z8/uB9zxGtDU7dYYopXyszucu3CkhhUsp3hlEhleFQqHsziCpVni/4P8I8o6e+TncrPqDtVDJvTgDhus7IHflOKDTY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IveIz5Ai; arc=pass smtp.client-ip=74.125.224.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjoqcIbj"
-Received: by mail-yx2-f40.google.com with SMTP id 00721157ae682-8ab441c70f2so16046127b3.1
-        for <selinux@vger.kernel.org>; Wed, 30 Sep 2026 05:48:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790772523; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IveIz5Ai"
+Received: by mail-yx2-f40.google.com with SMTP id 00721157ae682-8ab441c70f2so16901137b3.1
+        for <selinux@vger.kernel.org>; Wed, 30 Sep 2026 06:44:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790775875; cv=none;
         d=google.com; s=arc-20260327;
-        b=GyyhMgWYB5UVh4yTTE3nnZCiNDfjy1XB5v7saUed7k9uOuwWXh+5bIaOH3b4QnpN/K
-         T/wzgEA31j1am1X96+VzlNbm94EvcqP2Zryy7EOyfpfpXiXDYaHDaHLtPkOpuDBP3DCS
-         qm0rBPLqE4ZpbNfZzJ0ErL4Dc+tNvFliXFZzcky1BJ8qtUpLnmSy5n6bQBs1lZt298jJ
-         RVRYBihjvI/0T1UP/rbwm4G7t6V87b7Ns68WgywDXyYPwMXiZk15MO/F3617ytF1FQmQ
-         Vrfek6NkuDpWjE4fRkdambb8XPIU87Dtctla7XhCGeGBjPL+dZ9hJed3uI8guBamVlR0
-         gwZw==
+        b=DTnZHTIuoTSpQzgXzLKsULUXPC76PrsW+4DuylFVkKTeYunQVvtNTtd9caOTSEK78e
+         MhcfJe+4mYPwphdanIcP1HlBhHpiaCFnDdEGk1OQBDbghzl+auCIyX+HRzdPUa8YErn3
+         z9i/zw/Zd/6s/pwjyJvcx5ei3skhFzftQNN396o6Ee4Wu9rwo9nA9coQ0JOdhHFZlBJS
+         tbIKwXYwwDlwil1zB3bl0EuGU9v1xTN/XA6oXmnupKspMHNdToWoG1MNaWg46toYXnyW
+         /0L7ahPnv9RzSoMKgRuwjRJe8Ybv+oJpk+mb9tPx0aFLAFbJDfrblKrh42Is55SL+sVY
+         fk5Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=t7NycjNM/piEGewXqAmxiDWI4rObE1LmP0En6O75Xlg=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=RJ2nW62IaA11ct1pPzVN2AuUAocKD95Qu8N0w4SXgIS5DuOnvTRjpnLrXS5UAyvzS9
-         X9NsHtrrIALNdUjnC/BOHEMbAYv/zpyPfxaIp5UpsaNlNACbtPyCsD2KiOdcCKnFUlyv
-         OImzJ6mZh8J+UmWeFaR08uzcqPS8n0ZQtOm59n2bn6favfRn85vGBZ4t8+PjNvmVgpMH
-         bTZzn7LYqu6gxZBir5cLfA6MAcVJuDIde4GAZGcrF+/mCO3dV9uvWfHT0gGzpyIRfOJR
-         R+pCJ1IzRFEd06Mk8EMz8ZNWHHcZIe7h0rLjtyiDlI7Cy34gv60hu6dO1noIHL82kpMz
-         4HTA==;
+        bh=NWjpIM4Lb29XI+Uy5O+HFC+BjU7EElrud2pJsiyRe6c=;
+        fh=xola9bpobev7B/0cSx8Wd89xRigZs6jJUie9CaqaNMI=;
+        b=sI5b1sVdHgV4eF+nurt4Zgw0NlzeH0Qt3nG+SpjfaxZ5Y2zS2vQph4CmpxkkgPVcvI
+         PRup/ROiExsufyVJraFxPnynzGkrK/UyAka3JiF1YCuqsV9iv2w0/+iS6zvB4mZjVcQf
+         uBFFGeHyLxf1/sWnl6s19rmAyATpBd9IuCI9E2gqB8qmwT/ViL+msjXdkjGlw7x+HlMz
+         dCzT66bGrWCMzN3Z5xQTo2+wQeokotmTgS6mjG33Sssic3VqDJXpJdpNQnLoHMGDWi0k
+         +ues6XbMMTlLFTNW7iWkDeOWvO3a7MGhwDn0HU2qEn6mW0V8p2ceL/9o8fiCPErCj9ZE
+         qMWg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790772523; x=1791377323; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790775875; x=1791380675; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=t7NycjNM/piEGewXqAmxiDWI4rObE1LmP0En6O75Xlg=;
-        b=FjoqcIbjPuzqHNUEMUojwlkxD1KAiToascJZ++Bx+qfggH18kYDvjFS3rGBey5CDZv
-         jIJm8SI2DBqbmx6XKXcUm1MNQD7Taki7z4hR/jHpY018DArtC5GLdOfEBw+CTiU2YdQx
-         U4dMElFw7p5hAEniScFi856NBDHmPch2mfZ7nM2wF8aqstcngvE1jKExeAc3ntvcTTSI
-         taDg9GrtpQVH/kxrwfje06wFVDjHEUrAIotVwKC8N/u70dxZi7W1MhJ0xALu9zU4j8yG
-         0wxuMoo3DC2qKFWqYbbgbLlIjksrKwtdvqTOS09VufXZcl8X3Zhv1QTkVAiFqCec1o9Q
-         XyVg==
+        bh=NWjpIM4Lb29XI+Uy5O+HFC+BjU7EElrud2pJsiyRe6c=;
+        b=IveIz5AiTt/YG1KpRldCvMGbpeO31BdIwk3i8ub2bB5Bwh3GulqmwRwYRKabN4LV5n
+         w040T2d1JHE+5koty9myWu/XUKnDQCbSNIp9l6NfSoRUdesfU9SE+dSCzRPOaGHbSWGI
+         wDQKqdRdoEStMX2zVEz5ncb0JLtAEzh2D9CSklwrsYdTAoE3BAc/xqLbKoGv2qQsGrpC
+         ZfBvQS3aJ6wIx6Md6Wb6H14ph9VyOvnNdMo+nOaClRnC7BAVYT4uk0jqOrv4tvUj0VX+
+         6p2CsB+pW9g/lGOXnGU2goLWwdQE8McaPrrU+r0/GisBfE2TrfgFtIiJd/74bAtju0iV
+         aZ2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790772523; x=1791377323;
+        d=1e100.net; s=20260707; t=1790775875; x=1791380675;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=t7NycjNM/piEGewXqAmxiDWI4rObE1LmP0En6O75Xlg=;
-        b=K6l5R4o7BBNNeQ9P2OHqOGd4Gxofgj8mP34EjDuiQCKqvwKeRGf9sH6adQ2Zlw9990
-         mWTEg9kaB9fY0yOG6BOhstDLAJeO8yx5YuPi+m8l+tl8nZ6KC6uQPcUDu5JByaCsKAhK
-         AwAMzjY8oR1cfnDv7p/0p2Dq4BuvTVJZ2Ga2j36UQPfKTQYudTTLif8WVigSvOmh5JIk
-         hU9mZDmA9wLx3ZL0JsBEcwpEpScVzHaC4AOQ/0E0plS+bdqYKz6BHG+OoU5S2IVHNMh5
-         T4RC/KMHsI3KCTDNTvdZTo4b/eAokX/aiGblHhCnjUDLPa7z4sDEtBrHSQwZn00o6Oew
-         QGQA==
-X-Gm-Message-State: AFq9FYKu2U1Ap2qpFWPRepjZsMCR+buZKrFqJ/GJ4tYe2OQy2L1yGD63
-	GNQIK3FwdnfiVuJAJDKPEhEpwZBVihtqxEZWKNqGQQs7A0LglAIcJ+YYFRhWsU59liY3X2mFAxM
-	zwPUwpox4sMJ4pP+NQEsDbQnBZopmaf4=
-X-Gm-Gg: AYBFou1fv8skSYfVS6LlzBWUzu64/FY1LqLIY+FcOgvM5o6RL2pVd+EuP+JFse4syRW
-	cH90IPvKM3oonFHpA97hoA3EWAjg/TMSqkS3xP/U/JDglU7P7aHcUw31wfLQX5zItHjwfC8ZkMr
-	Fs0Zmb752Tc5E2rd9LfMgoFYQJZB/4NzXe3lrSqOBU+t/2qOd35poQ8SNrBbGtKHwBbIs23ZOtC
-	wJUqZxSgzZEbsGbJk5S/NjpmyH3w9Q+fF7gUv2GB3plmU8/tv2KmUFmGXlJKFYRZR1L4KZMhkLB
-	BxsFKSrUYORVzrTU145FxDYu1Y6OC3h4vhzH5CZXzaxE4H0LfooN7D4+rebdTuJ8WDI=
-X-Received: by 2002:a05:690c:399:b0:8ac:927:f7d1 with SMTP id
- 00721157ae682-8ac92d31c24mr5171927b3.22.1790772522831; Wed, 30 Sep 2026
- 05:48:42 -0700 (PDT)
+        bh=NWjpIM4Lb29XI+Uy5O+HFC+BjU7EElrud2pJsiyRe6c=;
+        b=KwGTfBsGgj1FMwrvsqcT7aXYQ1HhozjtXxF2FR7/chKP3UcF5m47IFcCpylzRXoLBu
+         ppBpwQCOJL/PGeO+1YaNayzu6FQO45xkQHO7mqHi7VUcKcrbiYU/tNaPeHNmONjA9xM6
+         xddZHNK3yq6waP+ILuE5Nyo/TGixIhlYXnmEa3pwJlPKuCDB2N8pZswWX5eCKJWoEu18
+         +xGTSa8FlMUmE43pyDh8Z83F1KhfUJbwyYl06S2ngJy2Z4CNl2/jrQ8OfLtLxAZf9RwJ
+         aUS5f3SyM3BpJeCIXV+cEOTDkyaP2gh+a6x+vU0NU6ePEwalqcVOu4TxdeCwB3mg1tfb
+         VdlQ==
+X-Gm-Message-State: AFq9FYICP4EcBM3swUBwipgf6iCMVe6v5y2Tra2Px+m0H5B+5tevXk6m
+	f9xGgBJev/KwHuXm5mL9tozEF3G+3ZFrOvx4kNJZeV5PduTYXCg0hMcuz8b/Vu+4M18HTYnyhgG
+	h9Y4j3y/1FX5LO19XYr+lVQZXXHFSVSw=
+X-Gm-Gg: AYBFou3pfNd25GRXUPdw9tyLQ+sTz4bxXSY8/k5XyofoA5Z0d0AZj7KiVaJtq+AVzSZ
+	4s/Qk7vfuR12YwMyACRz1ddlIvscNNK5s7kIQfoqbb42DjJHwCa0Z233Xl8MtewFgOaF8hnRdko
+	R82/dskIB6MIyevjo9vGosF+n25AHe98z+ZZjkqtfLY3CBgoAM5Sl+BQTm4un5vf99bgGpZH4I7
+	UxjDOhzDHp5o+zamw7kJn2NkjzW/WUQGtfAbwgvwCL3uWCBNjSU+6MSCLLcZbzWptVpHEMs59Q+
+	wAKElCzhQOzD7hkE0HvBEJ9sCQOmAr30Fj2K/EQ43kCyNhszkBYBksQ=
+X-Received: by 2002:a05:690c:c00e:b0:8a1:17f0:a44a with SMTP id
+ 00721157ae682-8ac93c00b71mr4440877b3.46.1790775875489; Wed, 30 Sep 2026
+ 06:44:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260928155753.2259807-1-cgoettsche@seltendoof.de> <20260928155753.2259807-19-cgoettsche@seltendoof.de>
-In-Reply-To: <20260928155753.2259807-19-cgoettsche@seltendoof.de>
+References: <20260930111444.192037-2-lautrbach@redhat.com>
+In-Reply-To: <20260930111444.192037-2-lautrbach@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 30 Sep 2026 08:48:31 -0400
-X-Gm-Features: AclHuK_M4CQdSjFJkpS9JX9zAzxUbI3TEKsScI45lXXXkjkHdisjLFvpxOg9dv8
-Message-ID: <CAEjxPJ5oW8QPVeiwPst0kAjKKL=CJLaL5H-44fYD4sdV-MMpeA@mail.gmail.com>
-Subject: Re: [PATCH v2 20/21] tests: fail on compiler warnings and enable Wextra
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+Date: Wed, 30 Sep 2026 09:44:24 -0400
+X-Gm-Features: AclHuK_73D7moxu__gsSK4cmRwwqtk5s6oZF41YECES6w_eoopp_ZIh9VTLIlhc
+Message-ID: <CAEjxPJ4a9r0Um3ufA16spvB6raYSQhaJbzwyWCvz4zkZeigjRg@mail.gmail.com>
+Subject: Re: [PATCH] Replace SHA-1 with SHA-256
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org, Petr Lautrbach <plautrba@redhat.com>, 
+	Jason Zaman <jason@perfinion.com>, Russell Coker <russell@coker.com.au>, Cathy Hu <cahu@suse.de>, 
+	Johannes Segitz <jsegitz@suse.de>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 29, 2026 at 5:37=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Wed, Sep 30, 2026 at 7:18=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> From: Petr Lautrbach <plautrba@redhat.com>
 >
-> Warnings issued by -Wall and -Wextra most of the time point to actual
-> issues in the code.  Treat them as errors, so the resulting test run
-> failure will be investigated and the issue handled.
+> SHA-1 is considered obsolete so move to SHA-256 as the default digest alg=
+orithm.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Import the public-domain SHA-256 implementation from WjCryptLib and use i=
+t for
+> label digest handling.
+>
+> The original source of sha256.c is
+> https://github.com/WaterJuice/WjCryptLib/releases/tag/Version_3.0.0
+>
+> Ignore sha256.{c,h} in make-format and check-format targets in order to a=
+dopt
+> possible future changes in WaterJuice/WjCryptLib simpler.
+>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> ---
 
-Again, you can keep Reviewed-by, Acked-by, Tested-by tags across patch
-versions as long as there are no substantive changes.
-
+A few comments below regarding compatibility / versioning and code
+formatting inconsistency, but otherwise
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-> ---
-> v2: use correct plural in commit message
-> ---
->  tests/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/tests/Makefile b/tests/Makefile
-> index d1edd4d..1118089 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -6,7 +6,7 @@ INCLUDEDIR ?=3D $(PREFIX)/include
->  SELINUXFS ?=3D /sys/fs/selinux
->  FILESYSTEMS ?=3D ext4 xfs jfs vfat btrfs f2fs
->
-> -export CFLAGS+=3D-g -O0 -Wall -D_GNU_SOURCE
-> +export CFLAGS+=3D-g -O0 -Werror -Wall -Wextra -Wno-unused-parameter -D_G=
-NU_SOURCE
->
->  DISTRO=3D$(shell ./os_detect)
->  SELINUXFS :=3D $(shell cat /proc/mounts | grep selinuxfs | cut -f 2 -d '=
- ')
-> --
-> 2.55.0
->
->
+1. selabel_hash_all_partial_matches() output size grows from 20 to 32
+bytes. selabel_hash_all_partial_matches() is a public exported symbol
+(libselinux.map, LIBSELINUX_2.9) whose prototype is uint8_t *digest
+with no length parameter and no man page. Any external caller sized
+for the old SHA-1 output gets a 12-byte OOB write from
+hash_all_partial_matches(). This interface/functionality was based on
+Android-specific functionality and I don't see any distro users, so
+this is probably fine to break, but it should be a stated decision and
+called out in the commit message and the 3.12 release notes. I will
+defer to the distros on whether it requires a libselinux.so version
+bump; I am fine either way.
+
+2. restorecon_xattr no longer surfaces legacy 20-byte digests.
+get_digests_all_partial_matches() only returns xattr_digest when
+read_size =3D=3D SHA256_HASH_SIZE, so an existing 20-byte security.sehash
+is treated as "no xattr". add_xattr_entry() then returns 1 without
+adding a list entry, so restorecon_xattr on an unconverted tree shows
+nothing where it used to show "No Match", and restorecon_xattr -d
+removes the legacy value silently instead of listing it as
+DELETED_NOMATCH. The removexattr() in the new legacy branch also fires
+(harmlessly, ENODATA) on every directory that never had a sehash. Not
+blocking but worth a follow-up so the transition is visible.
+
+3. Two differently formatted copies of the same sha256.[ch] files.
+libsemanage/src/shas256.[ch] is the same source but already
+reformatted by the mass reformatting. We likely ought to be consistent
+for both either way.
+
+4. The commit message could note that every existing security.sehash
+is a miss on the first restorecon -D after upgrade one-time full check
++ rewrite to 32 bytes; fsetxattr(...,0) at walk_next() overwrites in
+place.
+
+5. There is a lingering comment in label_support.c "Process in blocks
+of chunkSize bytes" that references a no-longer-existing variable
+after this change; you could drop that comment in a v2 or follow-up
+patch.
