@@ -1,151 +1,124 @@
-Received: from mail-yx2-f43.google.com (mail-yx2-f43.google.com [74.125.224.171])
+Received: from mail-yx2-f42.google.com (mail-yx2-f42.google.com [74.125.224.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3B9253951
-	for <selinux@vger.kernel.org>; Thu,  1 Oct 2026 16:38:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5337D35C1AD
+	for <selinux@vger.kernel.org>; Thu,  1 Oct 2026 16:50:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790872696; cv=pass; b=iAHTAcWK95mjTdPOmnaqhpNQ+6mjd4RDzOHTJAsILxicFwkEifi/62tjh6GsItjfDri5+8RdU8Z1efpezT3c98lFj0sWE1ktehtmsE19uBVsKadvVfriZDSsaY1476MUAd+8D1JervP5ktAeaKKdhWwDObPISJN/HYUDS4IMx18=
+	t=1790873406; cv=pass; b=pj/6etvIcHG5m01LO8P+E2PtSj5drhqAv2QvNUwlbAO8gXivikaUB46MeBFmJ0Xt4ev2siVSQE7XsL5ssCy9yILN3PYk73wVzN3sBTxNu98yFkJMpyUDj5fg6Y8a/AloaUHycUNEj0Cp7UA850oqr6dpVqxEZjguAu9Oce/TIfk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790872696; c=relaxed/simple;
-	bh=zTzFHP+jlHeUdEQ5vb0ZGqSBPiDfPT/kEkT+MC7FqqA=;
+	s=arc-20240116; t=1790873406; c=relaxed/simple;
+	bh=mox1WlTxIDibXsTf/nluODNSARmdm48L523CqSslhM4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T6hUVRDCXPM1i65bme5Buqu2Qv1839vColOdizPwpWtdIa88a0ewbz4ryKceH0tbiS+uuGoZHeTzxa8vtAJ8segGowAiwhT+865oGOH/ARp13SpsGhhqCxoLlsatCuNlupvZAojbVMxpG1WJxyOyz/KoQ+1zTDs2GHgNahmOeK4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p0zwbtj2; arc=pass smtp.client-ip=74.125.224.171
+	 To:Cc:Content-Type; b=N5jeXzy2YG33TxNkPh4H05SJwxoo8qzg1/CGVPPe6PebSxdsyEuHcxP8XKgYh++dPuDEVVCoSxEoI1LKhT3td/c9NDoStvhW/YIVIvS1JiiLld2Y2BSw9qjYE8ExCTjfP2xsn10YEE8oPWXTehvr2My6uByuHazg3GxhVQaPY2M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SpP/1hTf; arc=pass smtp.client-ip=74.125.224.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p0zwbtj2"
-Received: by mail-yx2-f43.google.com with SMTP id 00721157ae682-895eaf31683so70284807b3.0
-        for <selinux@vger.kernel.org>; Thu, 01 Oct 2026 09:38:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790872694; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SpP/1hTf"
+Received: by mail-yx2-f42.google.com with SMTP id 00721157ae682-8a7411012b1so66035347b3.2
+        for <selinux@vger.kernel.org>; Thu, 01 Oct 2026 09:50:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790873404; cv=none;
         d=google.com; s=arc-20260327;
-        b=CreC7+WiSCaYEPYQgP+H6gcougJP5bU68E3YYWjGwKxASwiFWVYTCTAgaopTh1LXeO
-         nW1PnpcqkDCrYVdrjy7aNwRgf/yI7JpcwAG3FyPHd1CO+VTBvhbLOuOD0Ogr+51F7aDe
-         q5DFhycFnKB/w9PyfZyCXeCb8kN6V2DSGX+uDgBrO7pju+cyZ80PlljwnwdnRMwZatXh
-         y1ehmMhe5+GqM5xme8SXxTNJIsP9xLREV4ae3aiZPRaQ6RgCV1pnaRt8Ml9dIehBmKAc
-         qvMHDDl9n31MsYAn/SoeK9kNQEe6KKQywMtUYXQVIlR3xu6JwwuA9wFyjmPnAOBZUXHO
-         6Zmw==
+        b=e8zC4vrKF2IWGGtqYsBt6sDsjPYAugFq67p59roDWxf7BeSM39j8y1NyvefLY6/mKr
+         cMeCGGpprbaCmx60COa3fdwbSVbvy6N/Q4Cl/mZY7BSfp253Nfjp8VMV9Hm7J7/GGu+i
+         K1tKbbPYX819opSCgbR5NvpSfhthdNmehxG71OI8UuXhEgL2i4ujLCKcZivagoSzUh0j
+         VKveu13iGPwpbJ4gXnTROBWhE2miMgZBfgaxV6ySvXRMxjdj1a0EehOY3Z5zyyhON9Qj
+         oMoCkHAty6qr2/+X8kmSWk84Y60vjQ9/oEwSmTrQPTBMDFbpLqtuLMzralz/fsXdlJus
+         rjiw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=LQXuuhnfvTeYpPkQ/vLVbCwdQc1Ux1adrvIel5vGZts=;
-        fh=f0d7tAu7BOkiaLEIU2lJ11FX5Nw0xORDdFfhziE/xIA=;
-        b=LInlCaEpoJF9pVtWJ77B9LGqyw9kutoM3mJMJ+u+2+KDJGGNHsFALtLLLLmH2PdrnJ
-         xvUSM4EcujsaMRkqPxz8D1b6ZEaSJbXsh6eheHKdg8UkVc7l4Q5d/nEJktWLkRt205a/
-         AxXK6sYPfqACYG1O3Xphq991aZMra0VY79kLSLuiP6LwKhVSXkxrbVNNtdnFN3HV43hW
-         YW7+ovGkFLbLXXX1sKuOkpql9egPFqO28AhMQ1mVB1HEwfIRhUHpYG75ICvx3CStd7is
-         bsKRfFRuTKGbimR48WaCOD4IWZ2ZSnNvHWOT95bsXOQuAkMRH17FHszxVnXsmMkRlgvG
-         q5Vg==;
+        bh=UbDohKE43+zBzl33PcQgNZd1DxsgXjoBVgH9dx+GOO4=;
+        fh=+/jkIbTpILq22bdT2iyNUDyKgmv7eCl5AoATw4+EBko=;
+        b=r4g7z6/n1qjvfgBXlJ75bZfzUQgXb7DKs9nlRogzpwsPrMFxt1mWd49LGMtDOsWq2B
+         paiktaKTsMVOEvt65aJRLGupFQfbbnQCfI/sJaXDtQt54Z/SasB+QH5CXObv96s0lmgG
+         Rrs+f7zOWQDGsngiTiaLl92djwEpme4VxaLoENtz+YTO539+NSB5Kg3jZekWruYyXwAL
+         kLdsQTh9l+p+gslfnWLqPD0+dt8ZL8/wX23mLRZz27msZEMpSxsbYoc4yc8TcMp3tpCT
+         nSvGFOkvqMr/HkbqPDWq/77/2NmBc6FqSjJRzq6XOgRysA9RdZaWJ4wSaZl+78DmpaH6
+         XWBA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790872694; x=1791477494; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790873404; x=1791478204; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=LQXuuhnfvTeYpPkQ/vLVbCwdQc1Ux1adrvIel5vGZts=;
-        b=p0zwbtj2iMdxEh/A5vyx+HjgSR5La6BfqoMiH5mYCyIL7SPycfOwxsNRkKpQd6fCVR
-         SAjbTLXSZC2UDWklN+JlivAc9Xtfz+y5g7IJ6onnyoG5xWsXLBNH6V/CATcWqxgQ0cB1
-         AleETTEBOSE1qLEJgtMUmeWlrS7RdLXxXEUBRbkTxR4FaOL4HwIVtu13enYP98mmlfGo
-         z6INaT1ysaqe5X6lVryLh90S3PiHnltipGLuak0EUm8kkGkdnpG7aE25Cb00aAUPdw4a
-         zZJZh2pPi7+mBoCD1bsrC9sRR3nBrccTpdfXkQHx2hIFodzCmz0ugVpGVQ4V6gyaMU/T
-         6hZg==
+        bh=UbDohKE43+zBzl33PcQgNZd1DxsgXjoBVgH9dx+GOO4=;
+        b=SpP/1hTfMk420x8l6OETQK7kNhJGjhgGSVSn8CtBGn1+NPzSuPsOt54fb7wXON2SGY
+         Dpyoiyr0191UBEKQljVC7pgGrIukd+I/SEtIMC1ao4pWIoe0/h0KiD3asfDVujtGVn+H
+         VXANgxqNNzSkVSDuv+et1lyEh6Kg9fBr00xivzKpQzPgxVT2xD+ZESNt3PVVQiNFYbGh
+         9AXLFtL2pccLgQb5aajs5U4uBybijXJ5Y3IjnfT9YP9l0XsMlv5wrbborDe+VU/Lsc4h
+         Nl7OmKGVV8BQUzeQqfC9tgx4w4NowBk28uygGAHjejl1QM+Q6zbEoFlU6m3hndehq4+Y
+         qC7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790872694; x=1791477494;
+        d=1e100.net; s=20260707; t=1790873404; x=1791478204;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=LQXuuhnfvTeYpPkQ/vLVbCwdQc1Ux1adrvIel5vGZts=;
-        b=OfUno4NE2G9cx+LGlBxtUSyFCYVAq8quRHvg9QNGtyszSepVRVsGOXKd3voNboVd4/
-         otLsYxKeeRqqBRJLhfotE6ShOeli1cEM886NbrKJyk3zGmh/tjx1WzWp3vjja8PAunhr
-         r/Xssjw++CEMaZ4kCGR6mJx28WKuXRUy/CPj011mnVybdZJGs8WjP66Df6vAOiDCCe5/
-         QvG0BjpymCOn+Bz7AkNXtcc/qV0VrFr8/WJyPo/3GwfKohdDSOJaRKbDOcbgr9mBCE0A
-         H9Uo/iEKvdr0lBqjBCN5xg4ZKunHqp3CUvaR/mdBjlWkG0ZEKyKW/IRibqmrg+Q7aLdp
-         GYtg==
-X-Forwarded-Encrypted: i=1; AKwUvBxxoCUzI37sHp055/82E010/1VwSXkUp+NmvcE/qhpdaWlkPEhOOMW2znq5Z4pjZKjb24disKr2@vger.kernel.org
-X-Gm-Message-State: AFq9FYLmqoqTqQA+gxnWsjFnHSXo9Ba10fC6dfsRkzwWQ7AkU5YZy0+t
-	UbPk1GppzeB2IRRdg9GKiNMDJ+eCJwd7iz8RQpGfkbO1V78vu8pfGgujGgPpks34VNtPxA4QQLm
-	kHEZzNSf3ndWRhrDA04ZB1D0cfnUYybw=
-X-Gm-Gg: AYBFou09kEb82TKo4UdFBsO00D9ioGWHRgnO0QXZi8sMC6VUxJfOX39CJy3KnQgg5EF
-	uchAHEDI50tHBgR2BXid1kJE/4op1b/gN8kTDiCpOyB4IiB3GF/P8ORr3vlXIJIUWZrQf0gcGk8
-	a1k4h+QbdqBKN7/7IzVuMAbh3IbzmtLA+gW+66ZWf7kHIKBFp0OJxiPvp/KRoMUoE38DZvH04Vz
-	Ds28zfRkFT8A4L9YYvgHHNtNg892G2owzaXY9zINO3LXhQ5MqhMEMJmmzQq+68wbN43w87siOXZ
-	jFVflgiZQf/GtGgPs2yVlU28TtMkVINfvGlsaA/UKwSToZYEEHUfXVA=
-X-Received: by 2002:a05:690c:6c10:b0:873:5c6b:a310 with SMTP id
- 00721157ae682-8ac948c849cmr22214287b3.62.1790872693677; Thu, 01 Oct 2026
- 09:38:13 -0700 (PDT)
+        bh=UbDohKE43+zBzl33PcQgNZd1DxsgXjoBVgH9dx+GOO4=;
+        b=HuS4to+aK74skqs27jxR4h8ii7En8FKqlAoV7vtyg2dkrzxeGuXPa7oosPPUHgeLWc
+         BrULFA/yo8W1tqJC+vXzCU7EsbRwbCSkKO2TpMKAaCeWx961kytsqSi0mICLMS2WrT7e
+         vvJf9qiuxroCu2U85Tob4foxO4h78ZBZKdycoOOMAN30v3xXvIzNvfKdhXMsMX2xtIuf
+         SA1G6MUadg+3cZfCHN28r5hkqf7khR4JNZY47cn4gRnDXPWYpeLcVIh5dOD0QLezFt0s
+         g4+uJJnG77oDdnsdHvT5J4cjTlx0aBkdjvL3Ykw2oGiJ2HcTrxDxRiOtl0bCR8xIGAzO
+         pvhw==
+X-Gm-Message-State: AFq9FYIejRA0BnLj2y1XGOvE9UQ4a6ET+bz3egsL0BC5KXkgMdlFvEcj
+	9+V037BCvHiflVGL0iOdVqBBCX1dO7YBS1elhQPzpPipnxW/VV+nkaN5oA9UWFKmUWOkhHnyngG
+	g1PDhcGJJobXLlHGR59DRk6NFFpG6+2Q=
+X-Gm-Gg: AYBFou0QGcbY1sEqmCiuD7mCf7tINa8ZGQ+MZM9KIezgj2AIH8vPOubF1ZQNFskRTfu
+	+PufiQzNTIto/FQVtR4iwKOWgPZV7uYSsskxHjxQaX2PsGLBvHBePdknV67EhR/bYHBwzfyd6qm
+	TSYsK7T6sFsDUjXPcOQRm3aud1as2wZ0MvBrA7qVuE4GuAYWcB0z8/BsTUwSzN3JbgXoqqlzclQ
+	eZytNm2DC0s/RCYmostPXQDI2Kw51i/KR5ygQyX5d/YJAjvRMYeZUhtrwWq9ZY+yCc+ndF1HwFI
+	0iK6hogpMqgGNCKkQQeK9mZitE8jUR1BW7So0+oqNYmbFIjyMeQfwei/jvYF8/q1ZA==
+X-Received: by 2002:a05:690c:60c5:b0:87a:c454:6d67 with SMTP id
+ 00721157ae682-8ac946be6abmr24621797b3.52.1790873404224; Thu, 01 Oct 2026
+ 09:50:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260918143142.19435-2-stephen.smalley.work@gmail.com>
- <20260925-gebaggert-ersehen-serpentinen-a6e61570e1b7@brauner> <CAHC9VhTga1k7SnT+JXWgmCdfsEDkm83PwjonVBpNeNm+q3UWVA@mail.gmail.com>
-In-Reply-To: <CAHC9VhTga1k7SnT+JXWgmCdfsEDkm83PwjonVBpNeNm+q3UWVA@mail.gmail.com>
+References: <20260710081533.451115-1-jonderka@redhat.com> <20261001153456.104370-1-bgrech@redhat.com>
+In-Reply-To: <20261001153456.104370-1-bgrech@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 1 Oct 2026 12:38:02 -0400
-X-Gm-Features: AclHuK96-5glJSr8F5qL1SZIZo6qNIPEama9zFWhTW_-k1WBXGLnbo55O8cQqZ8
-Message-ID: <CAEjxPJ7w-8J37OjPUNzLzofbPezq41yK_GtsZJxRDNbDRZnw+A@mail.gmail.com>
-Subject: Re: [PATCH v3] lsm,nscommon: initialize the security blob for the
- initial namespaces
-To: Paul Moore <paul@paul-moore.com>
-Cc: Christian Brauner <brauner@kernel.org>, linux-security-module@vger.kernel.org, 
-	mic@digikod.net, serge@hallyn.com, jack@suse.cz, jmorris@namei.org, 
-	omosnacek@gmail.com, selinux@vger.kernel.org
+Date: Thu, 1 Oct 2026 12:49:53 -0400
+X-Gm-Features: AclHuK_s40sMRjVDaksFbQKJ_P7Ni6y1inL4dg-Ij1l6bqXH_kF6PLOw6ny_Two
+Message-ID: <CAEjxPJ7E_dVUF6XRJ=zS2fBh9QM_aw+k_9fWyxB77nUKQKiNog@mail.gmail.com>
+Subject: Re: [PATCH] skip inet_socket/mptcp when MPTCP is not supported
+To: Brian Grech <bgrech@redhat.com>
+Cc: selinux@vger.kernel.org, jonderka@redhat.com, 
+	=?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 29, 2026 at 9:59=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
+On Thu, Oct 1, 2026 at 11:35=E2=80=AFAM Brian Grech <bgrech@redhat.com> wro=
+te:
 >
-> On Fri, Sep 25, 2026 at 9:58=E2=80=AFAM Christian Brauner <brauner@kernel=
-.org> wrote:
-> > On Fri, Sep 18, 2026 at 10:31:43AM -0400, Stephen Smalley wrote:
-> > > Commit f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> > > added a security blob to struct ns_common and allocates it from
-> > > __ns_common_init(). Most initial namespaces (init_user_ns,
-> > > init_uts_ns, init_pid_ns, init_mnt_ns, and, depending on
-> > > configuration, init_ipc_ns, init_cgroup_ns and init_time_ns) are
-> > > however set up statically via NS_COMMON_INIT() and never pass through
-> > > __ns_common_init(), so their ns_security pointer is left NULL for the
-> > > lifetime of the system. Any LSM that registers an lbs_ns blob and
-> > > dereferences its slice on one of those namespaces (for example from
-> > > the namespace_install hook when a task setns()'s back into an initial
-> > > namespace) will fault.
-> > >
-> > > Allocate the blob and run the namespace_init hook for each of these
-> > > namespaces at the end of security_init(), after all ordered LSMs have
-> > > registered their hooks, so every LSM sees the initial namespaces the
-> > > same way it sees init_net (which is initialized at runtime via
-> > > ns_common_init(&init_net) from net_ns_init() immediately after
-> > > security_init()) and does not need to special-case them in its own
-> > > ->init() callback.
-> > >
-> > > Provide a ns_common_init_security() helper in kernel/nscommon.c so
-> > > that the list of statically-defined initial namespaces and their
-> > > Kconfig guards live next to the rest of the ns_common
-> > > infrastructure. init_net is intentionally excluded: pre-initializing
-> > > it here would leak once __ns_common_init() clears ns_security and
-> > > re-allocates.
-> > >
-> > > Fixes: f675d2e95569 ("lsm: add LSM blob and hooks for namespaces")
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> >
-> > Seems good to me,
-> > Reviewed-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> >
-> > I'm waiting for Paul and then I would pick this into namespace-7.4.misc=
-.
+> MPTCP is supported since kernel 5.6, but only works with SELinux
+> since 6.5. tests/Makefile currently adds inet_socket/mptcp whenever
+> the kernel version is >=3D 6.5. That is not sufficient: some kernels
+> meet the version requirement but are built without MPTCP.
 >
-> Since we already have the other LSM/namespace patches in lsm/dev I'd
-> prefer to merge this patch into lsm/dev so it is we have the core
-> LSM/namespace patches rooted in one branch.  Going forward we can
-> stick with the topic branch approach.
+> Gate inclusion of inet_socket/mptcp on both:
+>   1. kernel version >=3D 6.5 (existing check)
+>   2. the net.mptcp.enabled sysctl existing under /proc/sys/net/mptcp
 >
-> Are we all okay with that for this patch?
+> v2: use the net.mptcp.enabled sysctl instead of grepping
+> CONFIG_MPTCP out of /lib/modules/$(uname -r)/config.
+>
+> Signed-off-by: Jan Onderka <jonderka@redhat.com>
+>
+> Co-developed-by: Jan Onderka <jonderka@redhat.com>
+> Signed-off-by: Brian Grech <bgrech@redhat.com>
 
-That's fine with me.
+I'm planning to take most of the patches from this series:
+https://lore.kernel.org/selinux/20260928155753.2259807-1-cgoettsche@seltend=
+oof.de/
+some of which may make this and other patches you have redundant (or
+break on conflicts).
+Might want to wait until those are merged to re-spin. Or if you think
+yours are better, let me know
+and I'll look closer.
