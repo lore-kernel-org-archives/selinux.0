@@ -1,265 +1,308 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f12.google.com (mail-yx2-f12.google.com [74.125.224.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4572547044;
-	Thu,  1 Oct 2026 13:18:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879F4516154
+	for <selinux@vger.kernel.org>; Thu,  1 Oct 2026 13:47:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790860721; cv=none; b=uGFbyisuqXKAI7o9CBKSb/XNW81H2SVhdtG32zJ30/vWj9TriZi3ySosXwGcKWzs7AmJ3B+4YDitHQlJhocOzjgzDF9aWzFZNQ9f+L6ZtgwxrnvMfl9sQqNgTycEOAxlgRw0phunuoJalYzHDObhg8C82vzpan7o/8dKl0phm28=
+	t=1790862474; cv=none; b=kacHW8TH1KMs13UPK4dDzfSr3o47cGlt4RWASXBmZUwodpkRxLhIsRK1XSxGLwbBmR/JSoVvreIrgNA+lGi9ahXzEWd7ZIBtEcFAS+7yoc7GumNG9KyEX7tOuxum2xpjluTuE4UpYZf4iCu9IpsOVBFtWjG4fVrqSL/icIpjRGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790860721; c=relaxed/simple;
-	bh=JkI7VZ4A2uC+/dn/L/W5qEz5CiiPheGQnlanGKaUISA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ETcJ1NcbHqBgpF6IYf+BqSLH5Q39PI3LRPFC36l+haeIC9pjh4HHzbN8cuH5IYH29UnW8LP8d5t2qlMWfZjNhUTSuVyDMnrlTD4BwkMAAhYhSWlkAk9kSFUq671GPknSMJW1mDMx/OvoiwBXoAimx14GHxEdmJKErvSOqw4nbOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=agBhyH+b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790862474; c=relaxed/simple;
+	bh=gA8S2Zv1xNNyDX4iYS17032tJpE3+n+24wFdKWnzALg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HnxF5CnLXqUDwjAtLa8t/8m2O/VKmCbVblUx5xs64Mf6GgQPczaNL3qZQOjWrDAFibtIIU+qyHo/8tLDb7pQRatc4hBLQtWH/TNbSXth1NunSYA6SEgl7ePX3FhMNDUJ6IdaO+1MpgRjk4TZ65VNgB5b+z4vxNRhzO4XDpPTXeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EhaW2OzD; arc=none smtp.client-ip=74.125.224.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="agBhyH+b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628371F000FF;
-	Thu,  1 Oct 2026 13:18:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790860718;
-	bh=UxjpaonxC/3VDFbLXavStYHgpCVIO4MBlBHvzTk6YXI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=agBhyH+bFmKD1JiAnoEtz/5qMdv8Ap+ND3x/3N77sLFcXCZ3bcDlajbZP+2ap44sx
-	 KPIQ+CdPX8Cd2RQc2lWaQ+6tuTQVHD2pYQlPNxdOxQthGqM2hpE/FWfeBE+JBoOiSg
-	 aTHw3Pfaa+usXhHmYbPmjg6Em6hcDF+IY/Dz4XEOgO3LkcfaH27mJOMvaKWNKyUSaV
-	 dIgxHpJeU+ZOW+vHFYouo/WQFX/mh6XCActsubBMgSttDFWHcozj2biVdd0OlH5rHg
-	 SjqdUVy0SHAv0dkWibepFp4IukMLRAR7jxSvh/uVcF78zQKMLBluxXYPcqcH563yw/
-	 oK2yZa6XGh3Fg==
-Message-ID: <0623ee06-00e5-421e-a24a-ed605abb559b@kernel.org>
-Date: Thu, 1 Oct 2026 14:36:40 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EhaW2OzD"
+Received: by mail-yx2-f12.google.com with SMTP id 956f58d0204a3-670fee39d73so7172148d50.3
+        for <selinux@vger.kernel.org>; Thu, 01 Oct 2026 06:47:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790862470; x=1791467270; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CEmshy0XDjhpiyv3Dhm414kHwT2h52SJeHo7PfDF82c=;
+        b=EhaW2OzDDRUOCWgEZSKXKYeN+XbP9miocHDfmLQBqGxwkbY7vqDj1q453KkeaWr0eM
+         oFPM0Li3SYb6xHlAUiHqk/3UuTgQcZycggAkwMkBP+I+B9YOlraFKXoJlOwt/O4GDamO
+         gcnqyHxplgfNNsj0eAt0WP8wOe/3woxe574P6mPYjZq1EHEuXEHazW2qqXgE5g7ROA7x
+         /9f4vPvPnNqA1t0UWSirK8Q5M9slbhPNAdZYE3cJnEPmBUGvtOioJjEYp01N8G77E3gJ
+         63IjFzZ4F4yI39412ugz0sTPwwEu4RgVdy49ERdhexc9XgYqs37+hWYrpxaeG7FcT5uR
+         pvVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790862470; x=1791467270;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=CEmshy0XDjhpiyv3Dhm414kHwT2h52SJeHo7PfDF82c=;
+        b=dPDowkPZyJu3vFGA/zgnYhczp7/cYLD0FH8udf+KwYoJDY10cX5sMB+d6EPibeHrKR
+         NUBYPO1lfI6crF4lLMA3TsB4+Hscj0SQTnrXe9+MKHJl6BblaFwKGz7dsinrPmbjrHUt
+         AzccBnBHBDlcTxgW2cvdx0UjYGuGdNfR4urFrgesxKQKAnkarxQLdy+AAezEapiZSIt2
+         BseFWdbVENcCR4casNkJxHduZLTj9zSh2NqIK73j3frt63E+sp025PGlXyEjgdsk2w3+
+         cAJC0oYLPswLQba5Sqwv+wiKfF2WqQfPzDKv1Hnohiv5Uz2U3AsRcJ587BLwX9ji7FwU
+         jDNQ==
+X-Forwarded-Encrypted: i=1; AKwUvByulnJ+DYr32+wAnxz21hzi5pOrNiM3sM+rKt1uTr+NO609WSXMcphALS+wTyBER6xosIQeTG3W@vger.kernel.org
+X-Gm-Message-State: AFuF++m+8lMPCJvPweGW/WRP1bqGAiY44XFsfp80rXH5vCoVdE1t4dDg
+	iSFrLT8d9h05DgRrl1jtDjkuuP4c1+/dhKsbCHhTxwkCqT8Q08clmxkg
+X-Gm-Gg: AYBFou2+L/IcZOywQLQEecda9Y6xXzQnwr7Fc+DWGOtzRW/YpmUljSZ3Ug8TOu/47x1
+	jgydb83JGhBMfMK1YFXyQrVxAgwF3Sk2Ct3tkQx5fur/Q327wQEGX0re864i2cx4Uz38RSA3fr+
+	TPCyyaDdMNUrVPU1cXO0eGcCTWd0yW+JvKISvp8CdfwUmtAwM+A2Nh9iXD7paiIdQOgXFmBTXNx
+	26mjxX9+wsFmyC9+KFMSpsG0DODKjlCJlkVRETYUcFpYylb/rle2dGOFb/DdrpqOVLULvpQ1eZp
+	dzrVY/UCEu6XlGxbVNS8HYz65NdiiwtOxRN/RdSi74parxJQs+/FeeqotQWy3VbbI7E5XxNTurz
+	94SUqBf8u8/ZPac+n9pvESq4sV+TQfpmuNcs6vY0ALRokJo6BvaRKVTkuvXNU8jsZQO+xIRkKzO
+	fvX7te3sZaMcCEhn2b2Z0Ozi6NbA+T5PoO+qNUHQ3owS9Ns6kxnshshq/Pm5sXACcbwG0RKkk7A
+	Qeh
+X-Received: by 2002:a05:690e:ca:b0:675:6e73:fbdd with SMTP id 956f58d0204a3-67683572f34mr1849533d50.88.1790862470241;
+        Thu, 01 Oct 2026 06:47:50 -0700 (PDT)
+Received: from suesslenovo ([71.132.185.69])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8acdab5665fsm10834727b3.6.2026.10.01.06.47.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Oct 2026 06:47:49 -0700 (PDT)
+Date: Thu, 1 Oct 2026 09:47:18 -0400
+From: Justin Suess <utilityemal77@gmail.com>
+To: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+Cc: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack3000@gmail.com>, Cai Xinchen <caixinchen1@huawei.com>, paul@paul-moore.com, 
+	jmorris@namei.org, serge@hallyn.com, corbet@lwn.net, skhan@linuxfoundation.org, 
+	rdunlap@infradead.org, gregkh@linuxfoundation.org, rafael@kernel.org, dakr@kernel.org, 
+	dlemoal@kernel.org, hch@lst.de, axboe@kernel.dk, viro@zeniv.linux.org.uk, 
+	brauner@kernel.org, jack@suse.cz, dhowells@redhat.com, code@tyhicks.com, 
+	linkinjeon@kernel.org, sj1557.seo@samsung.com, yuezhang.mo@sony.com, 
+	hirofumi@mail.parknet.co.jp, cel@kernel.org, jlayton@kernel.org, neil@brown.name, 
+	okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com, miklos@szeredi.hu, 
+	amir73il@gmail.com, senozhatsky@chromium.org, chenxiaosong@chenxiaosong.com, 
+	zohar@linux.ibm.com, roberto.sassu@huawei.com, dmitry.kasatkin@gmail.com, 
+	eric.snowberg@oracle.com, stephen.smalley.work@gmail.com, omosnacek@gmail.com, 
+	casey@schaufler-ca.com, nanx95726@gmail.com, djwong@kernel.org, daniel@iogearbox.net, 
+	linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	netfs@lists.linux.dev, ecryptfs@vger.kernel.org, exfat@lists.linux.dev, 
+	linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	xiujianfeng@huawei.com, lujialin4@huawei.com
+Subject: Re: [PATCH RFC -next 00/12] landlock: Add READ_METADATA and
+ WRITE_METADATA access rights
+Message-ID: <ar5hdxmv2Ohqqxqj@suesslenovo>
+References: <20260924104831.1081137-1-caixinchen1@huawei.com>
+ <araxO4ze0KZBz756@suesslenovo>
+ <20260926.255b951d3013@gnoack.org>
+ <arqcbjWLN1CLkL_Y@suesslenovo>
+ <arurOphe6QIx2Zr8@google.com>
+ <arvjb0HJYh1KyEBB@suesslenovo>
+ <20260929.Ahgoo4yeetai@digikod.net>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 15/40] mm/vma: add vma[_flags]_is_kernel_owned()
- predicates
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
- Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>,
- Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>,
- Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
- <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
- Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>,
- Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
- Xu Xin <xu.xin@linux.dev>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
- linux-sound@vger.kernel.org, bpf@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- fuse-devel@lists.linux.dev
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-15-4583d8a23bca@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-15-4583d8a23bca@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260929.Ahgoo4yeetai@digikod.net>
 
-On 9/17/26 18:22, Lorenzo Stoakes (ARM) wrote:
-> Rather than referring to VMA flags with uncertain meaning, add a new
-> predicate that explicitly describes what possession of the VMA_PFNMAP_BIT
-> or VMA_MIXEDMAP_BIT flags mean, and then refer to that function for
-> determining VMA mergeability.
+On Tue, Sep 29, 2026 at 08:51:47PM +0200, Mickaël Salaün wrote:
+> On Tue, Sep 29, 2026 at 01:27:44PM -0400, Justin Suess wrote:
+> > On Tue, Sep 29, 2026 at 02:12:42PM +0200, Günther Noack wrote:
+> > > On Mon, Sep 28, 2026 at 01:13:35PM -0400, Justin Suess wrote:
+> > > > On Sat, Sep 26, 2026 at 09:56:28AM +0200, Günther Noack wrote:
+> > > > > Hello!
+> > > > > 
+> > > > > On Fri, Sep 25, 2026 at 02:03:05PM -0400, Justin Suess wrote:
+> > > > > > On Thu, Sep 24, 2026 at 06:48:19PM +0800, Cai Xinchen wrote:
+> > > > > > > This series adds two new Landlock filesystem access rights,
+> > > > > > > LANDLOCK_ACCESS_FS_READ_METADATA and LANDLOCK_ACCESS_FS_WRITE_METADATA,
+> > > > > > > which control access to file and directory metadata such as inode
+> > > > > > > attributes (mode, ownership, timestamps), extended attributes and POSIX
+> > > > > > > ACLs.  It picks up the work from the "landlock: add chmod and chown
+> > > > > > > support" series [1] and follows the coarse-grained grouping discussed in
+> > > > > > > that thread [2]: instead of separate chmod/chown rights, metadata
+> > > > > > > operations are grouped into one read and one write right.
+> > > > > > > 
+> > > > > > > Landlock evaluates access rights on a per-path basis, but the metadata
+> > > > > > > related LSM hooks (inode_getattr, inode_setattr, inode_setxattr,
+> > > > > > > inode_getxattr, inode_listxattr, inode_removexattr, inode_set_acl,
+> > > > > > > inode_get_acl, inode_remove_acl) only receive the dentry of the accessed
+> > > > > > > object.  Patches 1-7 therefore first pass struct path instead of dentry
+> > > > > > > through the metadata-related VFS helpers and LSM hooks.  This is a pure
+> > > > > > > refactoring with no behavior change, split so that every patch builds
+> > > > > > > and works on its own:
+> > > > > > >
+> > > > > > I like these patches, but is the ability to read metadata already
+> > > > > > sorta controlled by LANDLOCK_ACCESS_FS_READ_DIR on the parent
+> > > > > > directory?
+> > > > > > 
+> > > > > > The one case I see this being different is:
+> > > > > > 
+> > > > > > 1. if you wanted to grant read access to the file, but not metadata
+> > > > > > read access, but I can't think of any usecase for being able to read
+> > > > > > the contents of a file, but not the metadata. (see below)
+> > > > > > 
+> > > > > > 2. If you had the absolute path already and didn't need READ_DIR.
+> > > > > > 
+> > > > > > I see introducing this READ_METADATA as causing potential
+> > > > > > hard-to-diagnose issues.
+> > > > > > 
+> > > > > > Say you handle READ_METADATA and READ_FILE, but only grant READ_FILE.
+> > > > > > 
+> > > > > > The program can technically open the file with the READ_FILE permission,
+> > > > > > but it may error out because the stat() on it beforehand failed.
+> > > > > > It's pretty common for programs to do that kind of thing (stat before
+> > > > > > open), like for checking for config files (strace bash and you see it
+> > > > > > stat .profile, /etc/profile)
+> > > > > > 
+> > > > > > There may be other bugs, because being able to set permissions to read
+> > > > > > a file *but not read it's metadata* isn't possible currently in posix
+> > > > > > acl and userspace may not work well if that assumption no longer holds.
+> > > > > >
+> > > > * posix acl and linux DAC.
+> > > > 
+> > > > > > So maybe WRITE_METADATA is good enough?
+> > > > > 
+> > > > > The existing use cases are the combinations of (a) READ_DIR
+> > > > > allowed/denied and (b) READ_METADATA allowed/denied.  Because these
+> > > > > two access rights overlap slightly, it seems likely that for a given
+> > > > > directory or file, users will want to either grant both, or deny both.
+> > > > > 
+> > > > > At the moment, where the (not yet existing) READ_METADATA is
+> > > > > implicitly always allowed, the problematic case is the one where the
+> > > > > Landlock user wants to deny READ_DIR, but where much of the same
+> > > > > metadata is still available through stat() and the various
+> > > > > get-attribute syscalls.  (c.f. the warning box in the Landlock docs
+> > > > > [1])
+> > > > > 
+> > > > > In my view the READ_METADATA right closes a gap that READ_DIR left
+> > > > > open (which is also potentially surprising to callers if they did not
+> > > > > read the docs closely).  Also, if its implementation is symmetric to
+> > > > > WRITE_METADATA, I feel that it's worth having it in the same patch
+> > > > > set.
+> > > > > 
+> > > > > –Günther
+> > > > > 
+> > > > > P.S.: I know, even after we can control stat(), there are likely ways
+> > > > > to infer the presence of a file by observing Landlock error codes.
+> > > > > This would be nice to fix as well, but is harder to do without
+> > > > > controlling the path walk itself [2].  But also, the fact that this is
+> > > > > currently not controllable is not an excuse for leaving READ_METADATA
+> > > > > open IMHO.
+> > > > >
+> > > > I'm still sort of concerned about the case where read access is allowed,
+> > > > but metadata isn't, due to how many applications will not cleanly handle
+> > > > such an unexpected condition. You can reproduce this with a seccomp
+> > > > policy forbidding stat().
+> > > > 
+> > > > Would it make sense to have the existing READ rights
+> > > > (READ_DIR/READ_FILE) imply READ_METADATA on the files/directories 
+> > > > if READ_METADATA is handled? Reading a file's contents should always
+> > > > imply that you can read the metadata.
+> > > 
+> > > I am wary of situations where the handling of access rights implicity
+> > > implies other access rights.  We have discussed such schemes in the
+> > > past (e.g. we considered a design for RESOLVE_UNIX where we'd have
+> > > both a "scoped" and a "access_fs" right that would interact with each
+> > > other), but in the end we always settled for approaches where such
+> > > interactions would not be necessary.  One of the concerns was that it
+> > > would complicate "best effort" fallback logic in all Landlock
+> > > libraries and in the countless places where people use the syscalls
+> > > directly.
+> > > 
+> > > To throw another option in the mix.  (To be clear, I have only 70%
+> > > confidence, so feel free to push back, but it feels like it might
+> > > work?):
+> > > 
+> > > Is this similar to the "truncate" right?
+> > > ----------------------------------------
+> > > 
+> > > With "truncate", there was an existing common operation (open(2) with
+> > > O_TRUNC, a.k.a. creat(2)) which called the truncation hook and checked
+> > > for the truncation access right.  But that was in fact OK.  The way we
+> > > resolved it at the time was by documenting very loudly that WRITE_FILE
+> > > and TRUNCATE access rights should always be requested in lockstep, if
+> > > TRUNCATE is handled.
+> > > 
+> > > If READ_DIR and READ_FILE do in fact read and return metadata to the
+> > > user, maybe the right thing would be to do it the same way here and
+> > > *require* that we have READ_METADATA to do these operations?
+> > > 
+> > > (READ_METADATA is automatically allowed as long as it's not handled,
+> > > so that approach does not break existing programs.  Programs who
+> > > consciously start handling READ_METADATA must simply take into account
+> > > that reading directories and opening files for reading requires
+> > > READ_METADATA.)
+> > > 
+> > > (BTW, I can see it for reading directories, but I am not sure I fully
+> > > follow the argument why opening files for reading means that you can
+> > > read the metadata?  Can't that be guarded on fstat()-like operations?)
+> > >
+> > Many standard libraries will call stat before / after opening a file to
+> > allocate a buffer matching the file size. Or to figure out if mmap
+> > is more efficient than opening it directly.
+> > 
+> > So Python's open().read() or Go's os.ReadFile they may throw an error
+> > when opening the file, making it look as if the file is inaccessible
+> > when its contents are. They make the assumption that if a file is
+> > readable, the metadata is too.
+> > 
+> > There's also a lot of metadata that is already leaked by just having
+> > READ_FILE. FS_IOC_GETFLAGS/FS_IOC_FSGETXATTR ioctl / fileattr_get are
+> > unrestrictable and allow you to see inode attributes. There's also
+> > access(2) which isn't restricted here and allows you to see your rights
+> > on the file. The size can be found by simply seeking to the beginning
+> > and end. So much of the metadata is obtainable with just READ_DIR/READ_FILE.
+> > 
+> > ...
+> > 
+> > Another problem I'm just realizing is that this READ_METADATA
+> > right is inconsistent with open file descriptor behavior. With most
+> > rights, already open file descriptors are exempted, but here, fstat,
+> > (and the other stat-family calls which takes a file descriptor) become
+> > denied even on already open files. It's a catch 22 here, if you change
+> > the fstat to not apply to opened files, then READ_FILE becomes a bypass
+> > for READ_METADATA. But if you leave it as is, then it's inconsistent with
+> > the other Landlock rights wrt already opened files.
 > 
-> Either flag means the contents of the mapping are owned by the kernel,
-> usually a driver, rather than by the core mm: the memory may be MMIO,
-> kernel-allocated pages or even ordinary pages the driver maps itself, but
-> the core must not populate, reclaim, migrate, copy-on-write or merge the
-> range on its own initiative.
+> Indeed, these access rights should follow the
+> LANDLOCK_ACCESS_FS_TRUNCATE mechanic.
+>
+Ahh good idea. Forgot about that! So associate the
+READ_METADATA right with the fd at open time like with truncate.
+> > 
+> > Which isn't the end of the world, but just shows that either
+> > approach is going to have it's quirks. 
+> > 
+> > I think it would be better to just avoid the cat and mouse game here
+> > of trying to seperate READ_FILE/READ_METADATA and either require
+> > READ_METADATA be specified with READ_FILE if READ_METADATA is handled
+> > like Gunther proposed, or have READ_FILE imply READ_METADATA.
+> > 
+> > Documenting it strongly is OK too, but really there are really zero
+> > usecases where you'd want to grant READ_FILE without READ_METADATA
+> > so it would need to be made extremely clear.
 > 
-> We initially also include VMA_IO_BIT here, as by implication, these must be
-> kernel-owned. (mlock() also sets VMA_IO_BIT transiently on ordinary VMAs
-> while locking them, which is addressed later in this series.)
+> What about a program that just need to read files? We can think about
+> sanboxes such as those used in web browsers, but that applies to other
+> tailored processes that don't need/want to access metadata e.g., for
+> confidentiality or personal information (UID, timestamp) concerns.
 > 
-> However the intent is to in future remove this, as no mapping should be
-> marked as an I/O mapping without also being marked with VMA_PFNMAP_BIT.
+> This is similar to FILE_WRITE vs. TRUNCATE: most of the time we want
+> them to be grouped.
 > 
-> This forms the basis of further work intended to improve how we express VMA
-> properties such as this.
-> 
-> Also update the VMA userland tests to reflect the change.
-> 
-> No functional change intended.
+Your argument is persuasive :)
 
-Of course I have to bitch about the naming :)
+I still have open questions about file_getattr(2)
+and the FS_* ioctls above, which I don't think are handled by this
+READ_METADATA right. access(2) is a seperate question, but I'm
+unsure if that's worth it/in scope for restricting.
 
-Intuitively: kernel owned vs ... user owned?
+(I think WRITE_METADTA also doesn't handle file_setattr(2) and
+the FS_IOC_FSSETFLAGS ioctls)
 
-No, it's kernel owned vs core-mm owned.
-
-Which implies core-mm is not part of the kernel?
-
-Yes, this is confusing. ;)
-
-I assume you're coming from "map_kernel_pages*", but that's rather "kernel
-memory" and not "kernel owned".
-
-Usually we say "driver owned" when not talking about pagecache/anon. Or user vs.
-kernel memory.
-
-So is it really all about "is this (excluding CoW) no ordinary user memory that
-we would track through the rmap" ?
-
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  include/linux/mm.h              | 56 ++++++++++++++++++++++++++++++++++++++++-
->  tools/testing/vma/include/dup.h | 29 ++++++++++++++++++++-
->  2 files changed, 83 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 2a92193ac6a5..cab29d6e15c1 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -1612,6 +1612,44 @@ static inline bool vma_is_shared_maywrite(const struct vm_area_struct *vma)
->  	return is_shared_maywrite(&vma->flags);
->  }
->  
-> +/**
-> + * vma_flags_is_kernel_owned() - Do the specified VMA flags indicate that the
-> + * contents of the VMA are owned by the kernel rather than the core mm?
-> + * @flags: The VMA flags to test.
-> + *
-> + * A kernel-owned mapping is one whose contents are established and controlled
-> + * by the kernel, typically a driver, rather than by the core mm's fault and
-> + * rmap machinery.
-> + *
-> + * The mapping may be memory-mapped I/O, kernel-allocated pages or ordinary
-> + * pages the owner has chosen to map itself (shmem via a PFN map, for instance).
-> + *
-> + * In all cases the core mm must not populate, reclaim, migrate, copy-on-write
-> + * or merge it of its own accord.
-> + *
-> + * Pages mapped this way are not necessarily reference counted or map counted.
-> + *
-> + * Returns: true if the flags indicate a kernel-owned mapping.
-> + */
-> +static inline bool vma_flags_is_kernel_owned(const vma_flags_t *flags)
-> +{
-> +	return vma_flags_test_any(flags, VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT,
-> +				  VMA_IO_BIT);
-
-I thought we have cases where we drivers insert pages and neither set
-VMA_PFNMAP_BIT nor VMA_MIXEDMAP_BIT.
-
-I assume vmf_insert_page_mkwrite() is fine because it is DAX doing it (should we
-limit this interface to DAX?).
-
--- 
-Cheers,
-
-David
+Justin
+> > 
+> > Thanks,
+> > Justin
+> > 
+> > > —Günther
+> > 
