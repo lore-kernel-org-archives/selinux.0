@@ -1,220 +1,112 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FFC630649C
-	for <selinux@vger.kernel.org>; Fri,  2 Oct 2026 15:46:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D7B2F9D82;
+	Fri,  2 Oct 2026 16:11:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790955986; cv=none; b=s0s01F2wWrWaawjGqwwErEgtbt4KfcMQwp56tZVM5ssKaRZ+/XIysfMWNiSE6iLgkeHVKvPA+dEQ9P5nvPj6iisR8Mgn4j38MWXp2WZSWbpXnn/N3aOd0v7SHB5si1ArNJhAdB9mKbBfiK40O7Ali7KIWhVG8kOr2+rW9jYJXuE=
+	t=1790957509; cv=none; b=O/hWpWkp2uelyDL39JcFFn5OnvgZBY3sUWAHbHjz+6TdvSy4zRArUvBs5NLfzWZQpNYzovJ3w4bzMnsoWCOzSF8sByD0n2xQCuBDclXleIsqnmSkPV3kagt7Xcty7ZuWIIS32Oy4Y+AIZrxa/RHtcOOyxhJI+sQgz8gGSOqR8iY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790955986; c=relaxed/simple;
-	bh=L0nOc+1j3OAemph2lE5m5mn3nU0eEe+BZFM0iYsDkLo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pSqsM2+JTdtYh0yNNSHeJELUQPBtkVk9462+5j0IiZfwwM/ZvNdGh6emOu38itl5EKy0dysEINnv//IsHWlZ80iHrriaaZQgiGoPmGCdxzfRW1Gw1cAy9JZ64wFFJqE4C4+JynUUyZ+txGrVzcDynz0+rz2d6v7oR6X2QfQmTMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J70S4k8w; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1790957509; c=relaxed/simple;
+	bh=d/BWqh3I+o1TpqkOrGVewyRNzXZFs+ZGIdSCNuZrwAQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qm1wylZNTeriuWHvsqSax35Sg4/rAczcIkWofNAwmsK808FEkYeeRy1ygMRe5Sfo++2i2I+LgcRSBBSp7irr0UCC6b4/xBdPRX/FNbAGoH+Nnrcrc+y0RTYQ4NQhtlSqG8yMgOkWOWY38hf2lKbyDN0rI3pna+8GO4D4vwUK6O4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KlPBNFEO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J70S4k8w"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790955984;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+06mnZ2RDElOSk8hZ7OLXEATFYOe+JTobMF91yUHyhY=;
-	b=J70S4k8wMO6kd/WjvFHatPuQpJOJdmsjZj/YQnl3h/Ti5s57yAIOKL7k/DY82toyBl3P0I
-	J11oLw74TVmfFyQsftBzQgHk/N9cBbJzI5o18Y54AsjHIVfNHmco60dYG8JkBg1OaENOvR
-	RosnDkIPkuCkj2Dwo8vFQUT0Lv/CSoE=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-299-0rtPXp0HMNic3PGf5GEnyQ-1; Fri,
- 02 Oct 2026 11:46:20 -0400
-X-MC-Unique: 0rtPXp0HMNic3PGf5GEnyQ-1
-X-Mimecast-MFC-AGG-ID: 0rtPXp0HMNic3PGf5GEnyQ_1790955979
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9B018195BDD6;
-	Fri,  2 Oct 2026 15:46:19 +0000 (UTC)
-Received: from bgrech-thinkpadp1gen3.redhat.corp (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CE14119560AB;
-	Fri,  2 Oct 2026 15:46:18 +0000 (UTC)
-From: Brian Grech <bgrech@redhat.com>
-To: selinux@vger.kernel.org,
-	stephen.smalley.work@gmail.com
-Cc: Brian Grech <bgrech@redhat.com>
-Subject: [PATCH v2] tests: skip io_uring when unsupported or disabled
-Date: Fri,  2 Oct 2026 10:46:16 -0500
-Message-ID: <20261002154617.751470-1-bgrech@redhat.com>
-In-Reply-To: <20261001153212.102261-2-bgrech@redhat.com>
-References: <20261001153212.102261-2-bgrech@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KlPBNFEO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8488D1F000FF;
+	Fri,  2 Oct 2026 16:11:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790957508;
+	bh=d/BWqh3I+o1TpqkOrGVewyRNzXZFs+ZGIdSCNuZrwAQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KlPBNFEOE0gGia6RZAPeBTgVB7HNktDmiscBZ7dS/dxuvyJV5qZ4EBnMmKRqBWf+p
+	 NlxsjCUCHTgzOy14NdmetFcItytYbmQN/W1Cz9uNprrziSxnI2AwI/H7kvg7pcE0Th
+	 apHw1PmIMxp0r8Tb82ZsCAY6CdcYuqB/iILLMgb+Hd9L8Z04owEifByqirNGM+qtq7
+	 tnLVDa9jv/B19Ic1romkl3FQeHLFBdffX1K2/Z3MGzjcMTPK1VcbUS2u0EawxZYH+y
+	 GpQjr2jGxvYJz4PqGTUmJEW1o60Sr6vup0HAlwN8d+g/2nFyPIqzdSzcGp8to062lR
+	 qxk5wHC7LEjbQ==
+Date: Fri, 2 Oct 2026 17:11:18 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
+	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
+Subject: Re: [PATCH v3 40/40] mm/vma: introduce and use vma[_flags]_can_gup()
+Message-ID: <ar_WousLPxpyMozt@gremlin>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-40-4583d8a23bca@kernel.org>
+ <202033a0-ea65-44de-8119-689e0df0b78e@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202033a0-ea65-44de-8119-689e0df0b78e@kernel.org>
 
-Gate io_uring on liburing.h at build time (documented dependency,
-same pattern as key_socket/keyutils.h).
+On Fri, Oct 02, 2026 at 09:48:14AM +0200, David Hildenbrand (Arm) wrote:
+> Long story short: I wonder whether vma[_flags]_can_gup() is the right
+> abstraction, especially for users that don't actually *use* gup but just want
+> slightly similar semantics (no VM_IO|VM_PFNMAP).
 
-At runtime, probe unconfined via a new iouring "probe" mode
-(io_uring_queue_init()/exit()) rather than kernel config files or the
-io_uring_disabled sysctl alone: that sysctl (v6.6+) postdates the
-io_uring permission being tested (v5.16), so its absence does not mean
-unsupported. Use it only for the "== 2" admin-disabled case.
+OK confirmed off-list that you would prefer this be dropped for now.
 
-Converting to Test::More also requires ok($result, 0) -> ok($result ==
-0): the two-arg form silently inverts the "should succeed" checks
-under Test::More.
-
-Assisted-by: Claude Code:claude-sonnet-5
-Signed-off-by: Brian Grech <bgrech@redhat.com>
----
- tests/Makefile           |  6 ++++++
- tests/io_uring/iouring.c | 20 +++++++++++++++++++-
- tests/io_uring/test      | 38 +++++++++++++++++++++++++++++++-------
- 3 files changed, 56 insertions(+), 8 deletions(-)
-
-diff --git a/tests/Makefile b/tests/Makefile
-index 1118089..4c8e82b 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -176,9 +176,15 @@ ifeq ($(shell [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SELINUXFS)/
- SUBDIRS += memfd
- endif
- 
-+# Skip when liburing-devel (providing liburing.h) isn't installed to build
-+# against. Runtime kernel support (CONFIG_IO_URING, io_uring_disabled) is
-+# probed by the test itself rather than here, since kernel config files
-+# aren't reliable for hand-built/booted kernels.
- ifeq ($(shell grep -q io_uring $(POLDEV)/include/support/all_perms.spt && echo true),true)
-+ifeq ($(shell test -e $(INCLUDEDIR)/liburing.h && echo true),true)
- SUBDIRS += io_uring
- endif
-+endif
- 
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
-diff --git a/tests/io_uring/iouring.c b/tests/io_uring/iouring.c
-index 36b014f..59ffbce 100644
---- a/tests/io_uring/iouring.c
-+++ b/tests/io_uring/iouring.c
-@@ -479,6 +479,7 @@ int main(int argc, char *argv[])
- 	struct rlimit rlim;
- 
- 	enum { TST_UNKNOWN,
-+	       TST_PROBE,
- 	       TST_SQPOLL,
- 	       TST_T1_PARENT, TST_T1_CHILD
- 	     } tst_method;
-@@ -486,7 +487,9 @@ int main(int argc, char *argv[])
- 	/* parse the command line and do some sanity checks */
- 	tst_method = TST_UNKNOWN;
- 	if (argc >= 2) {
--		if (!strcmp(argv[1], "sqpoll"))
-+		if (!strcmp(argv[1], "probe"))
-+			tst_method = TST_PROBE;
-+		else if (!strcmp(argv[1], "sqpoll"))
- 			tst_method = TST_SQPOLL;
- 		else if (!strcmp(argv[1], "t1") ||
- 			 !strcmp(argv[1], "t1_parent"))
-@@ -499,6 +502,21 @@ int main(int argc, char *argv[])
- 		exit(EINVAL);
- 	}
- 
-+	/*
-+	 * Minimal probe: just check whether the kernel supports io_uring at
-+	 * all, without any of the SELinux-specific setup below. Meant to be
-+	 * run unconfined so a failure here means io_uring isn't available,
-+	 * not that it was denied by policy. Exits 0 if supported, 1 if not.
-+	 */
-+	if (tst_method == TST_PROBE) {
-+		struct io_uring probe_ring;
-+
-+		if (io_uring_queue_init(URING_ENTRIES, &probe_ring, 0) < 0)
-+			exit(1);
-+		io_uring_queue_exit(&probe_ring);
-+		exit(0);
-+	}
-+
- 	progname = strdup(argv[0]);
- 	progdir = dirname(progname);
- 
-diff --git a/tests/io_uring/test b/tests/io_uring/test
-index dd97027..fb6528e 100755
---- a/tests/io_uring/test
-+++ b/tests/io_uring/test
-@@ -1,17 +1,41 @@
- #!/usr/bin/perl
- 
--use Test;
--BEGIN { plan tests => 11 }
-+use Test::More;
- 
--$basedir = $0;
--$basedir =~ s|(.*)/[^/]*|$1|;
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    # Probe unconfined so a failure here means io_uring isn't built into
-+    # the kernel at all, not that it was denied by policy.
-+    my $io_uring_supported =
-+      system("$basedir/iouring probe >/dev/null 2>&1") == 0 ? 1 : 0;
-+
-+    # kernel.io_uring_disabled was only added in v6.6, well after the
-+    # io_uring support being tested here (v5.16), so its absence does not
-+    # mean io_uring is unsupported - only a value of 2 means io_uring is
-+    # administratively disabled, even for privileged processes.
-+    chomp( my $io_uring_disabled =
-+          `sysctl -n kernel.io_uring_disabled 2>/dev/null` );
-+
-+    if ( !$io_uring_supported ) {
-+        plan skip_all => "io_uring not supported by this kernel";
-+    }
-+    elsif ( $io_uring_disabled eq "2" ) {
-+        plan skip_all =>
-+          "io_uring is disabled via the kernel.io_uring_disabled sysctl";
-+    }
-+    else {
-+        plan tests => 11;
-+    }
-+}
- 
- # Remove any leftover test files from prior runs.
- system("rm -f $basedir/iouring.out");
- 
- # Verify that test_io_uring_t passes the t1 test
- $result = system("runcon -t test_io_uring_t $basedir/iouring t1");
--ok( $result, 0 );
-+ok( $result == 0 );
- 
- # Verify that test_io_uring_no_override_t fails the t1 test on io_uring override_creds
- $result = system(
-@@ -44,7 +68,7 @@ chomp($serange);
- $childctx = "$seuser:$serole:test_io_uring_child_t:$serange";
- $result =
-   system("runcon -t test_io_uring_parent_t $basedir/iouring t1 $childctx");
--ok( $result, 0 );
-+ok( $result == 0 );
- 
- # Verify that test_io_uring_child_no_override_t fails the t1 test on io_uring override_creds
- $childctx = "$seuser:$serole:test_io_uring_child_no_override_t:$serange";
-@@ -72,7 +96,7 @@ ok($result);
- 
- # Verify that test_io_uring_sqpoll_t passes the sqpoll test
- $result = system("runcon -t test_io_uring_sqpoll_t $basedir/iouring sqpoll");
--ok( $result, 0 );
-+ok( $result == 0 );
- 
- # Verify that test_io_uring_no_sqpoll_t fails the sqpoll test
- $result = system(
--- 
-2.55.0
-
+--
+Cheers, Lorenzo
