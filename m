@@ -1,114 +1,122 @@
 Received: from mail-yx2-f40.google.com (mail-yx2-f40.google.com [74.125.224.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9005140B38A
-	for <selinux@vger.kernel.org>; Fri,  2 Oct 2026 19:37:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15EA03ECBF5
+	for <selinux@vger.kernel.org>; Fri,  2 Oct 2026 19:38:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.168
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790969868; cv=pass; b=ObxXdxsxVs61wW+kzDB3mKnxnYouBJdpKIe3pz0w7/jY/6lvHLvavfJnftNj6WvJI4g06HtlVPuhjAT2y/xl7E5WuEkhDbokwVkjnk1IFLYA49NdgdP4GVIo9iH7JPXTYlEUyBP99IpvSeXpqqG5pRHoLXMAXJzBgIbosE3K7Gk=
+	t=1790969909; cv=pass; b=Zk0y4LAC6vM1jnFdanTh7D+zvvQ8HZQ06t/dfSEj7rOhBBV6hwDtY4N/jxW75UZ0O2VlMFBBasCnRiqvBDTPTqkntkdtpYfB3M408dMrW1c+IibNhfZEhKH5d0nOFPvVdh4tdNa9ieOxzThBRaEC6jgZlWp9ggDNv+GsSVHCKWE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790969868; c=relaxed/simple;
-	bh=jsa8p0PenOQe7xz/Cc2uUWiwjzhWN4cfUFkjzNzzRgk=;
+	s=arc-20240116; t=1790969909; c=relaxed/simple;
+	bh=xsBUuNHyJi9yrhsvrYQPnMsYSonpH+BAcPOtIOEzYI8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CuWbi3hdOGlK4v/Nc3LERjSlV/GVb5exzsUezlkKrNHZgrctDJB7qGnHsKdovqmgCokQvVUizWwTyHzzIsiwMpt02UuJ5cUdpoNFdpLe8P/Sum6rvxyJMZvmq5ayOkk2CEdmTvLBrRcLeDRasXCs9xpGDyivHyxHP4qPx09ydqc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FuC5NDEd; arc=pass smtp.client-ip=74.125.224.168
+	 To:Cc:Content-Type; b=naSdbHFV3RSJgh/VJq6Pl9bMilTH11Hwn8XD4ZwJ5qZeYI3Wr48ZwNjp7J8hk7jRSW4VnYyKkeZmGHQX2u+H+nnHK+w/5ckQLAnbCU7R74QckTV6XU+2spbTqCPEA7febD2R6dfwsqRdkBk7sZe9u0+i1X6vHcrFF3EknrN0s+U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XBby5iq2; arc=pass smtp.client-ip=74.125.224.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FuC5NDEd"
-Received: by mail-yx2-f40.google.com with SMTP id 956f58d0204a3-6756a6320f6so351326d50.2
-        for <selinux@vger.kernel.org>; Fri, 02 Oct 2026 12:37:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790969859; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XBby5iq2"
+Received: by mail-yx2-f40.google.com with SMTP id 956f58d0204a3-67568357b63so360147d50.1
+        for <selinux@vger.kernel.org>; Fri, 02 Oct 2026 12:38:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790969900; cv=none;
         d=google.com; s=arc-20260327;
-        b=qHwiF4y3iAerxjgU8LdChs0IlZvSB4ja4AEBT7iVfwfxjhCEVU391gDCXU9eE2Wj/d
-         NA6ifl+T+MX4wgUYXDz3FSWepnk5huTgOEkQWTcDWYZfOLkPreUEei5JeEgktSyRZIdC
-         d1JZamDwStlalcLo51ArQF0UpGBd5+7itdY84YEi4TwJZB7Nzvu+MOEH5zUDytvahMKl
-         +5JNoXvmLeYP2byVeJg6AsQNspHArFFDtmwHW1/zW7Q2bQC1+sFWdFAkahsL7L4IgjX1
-         jXhqdg6VlF24f3RiPedPJJDlh+aPDAGSALUwBJ7sPYA9qlzbEw9Cd2YU75eXkjADg4s2
-         LbGQ==
+        b=II0cHIOZHz1Js5lPfYvU3HTjvcAKBoQziQwJzkgnOxAdN85pBQzpUkNky1hGfjGDzX
+         l+o6uadFfR+B5Pz64fx3AsdG9jH6ITiDzYslq5baoSOKwoyan3eOhx4lKQcoeEZZn+OY
+         25oiH3WUvtP0CcNlLH0xREGrJLvhNeIqqTltqCaJ2dR50pIpD85CdYBcqxm550V16AI+
+         t1nLLc/ADS4x6wyWJlcIX7h0Wwgm+Z9htOjHyFl/i8xzKKpw4ujOydtk13H4i0ivXg4A
+         WXV+Ecghj8UhWclvQm9ZXyO4krEtcye3qGkQ7a53CP/n9L+tuTblKcPd4Z5FDcZ09/Ep
+         1Bxw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=jsa8p0PenOQe7xz/Cc2uUWiwjzhWN4cfUFkjzNzzRgk=;
+        bh=xsBUuNHyJi9yrhsvrYQPnMsYSonpH+BAcPOtIOEzYI8=;
         fh=E95boLTiTkq8XsjKw8GK1wyz25DmW0RgNCvDUxEAbME=;
-        b=bf7y49q2IiahTFtFWtxRv9nU7n3sJEJ3/zHjzNJPeJ+1kMpOoOf+WZ7NQe3Y7b5Ukr
-         HiTlOJ/3xkpOlno6rIfwGAAFABRucwRiQcDTrtrIHjw8PWTw3u95f3Qi4IFNU4/HNn0G
-         nharVwPvkaQEmp9QGedl63M4adJFEOA1Y7u/OZKQNri+PX9IDt9Mi0bxDyivQsYh7/Y6
-         1a/3q138i9uO2LnRxlC4+rk376grn4p08GDLFYjaZJTa4oiwihva3M0FOFVz5qMRsqUK
-         nOsRIlYQMhrLmGxvRJEx8RtTwBks6orpgpb6YLBcd0GiCS9ZOPNz39gveExXJ3zQvZI0
-         6RpA==;
+        b=XYb3S0UOJa4I7UCNlwKAnLxsrzUzwx/vWn2uSaWleG7L+FYBhjGnWTSGZKQOgDFTCp
+         YRaBk6fAi/Y95l7l71Qk4cML4Zy0IZzFCjbI7jiynQF39usQZmfZ4bEVDVhaaw6IvcUf
+         dh5tFm2nkPD7Yl0rp5Qq7saAT7X6roRpg1w7BXJso5YMamhuXs7uX9tLNr/MhxB0oZSm
+         u3bcOxbiQHcBGIpiKyg6GVCMBjHXCIKzDubMeSCuttJylm7Yz+4LnJZZKQ36rysmekks
+         NY910K++su13z/wk7oIPaXCY2BqIF1/VSgWQ+QR59WEM52Txc9vouDSuIxYp2bSp5ZKH
+         bMSQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790969859; x=1791574659; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790969900; x=1791574700; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=jsa8p0PenOQe7xz/Cc2uUWiwjzhWN4cfUFkjzNzzRgk=;
-        b=FuC5NDEd0Ey0MJ5HK+kee1VQxi1zD0bNqORH8mZqD6HLv471xPdd0JpTqocoNdBu/1
-         D8vQhACWIdhaxST+vVUC0IsTfA3wh5dhrrZBbhGMQt0r4NygAvMX5lxj1+tjF5ABuiBI
-         YDWrnv3cp1XhV41y4JmWPo7Oe9QNu+JDxkqafltaEYgYEp2jXCU9k5nAcHXp45wHlve6
-         gcFru6t1bmjn7bc8p72D/mtel1foMG4XKU3N7EKCDxtUjy7Mlu7U5hc93FLI7PMstZvt
-         ON7Ee93OUGHxjEmnx1A/IAX/K3oUjh5+NWcwe8IOPpTh8Z/cOogaBR7LSY36duJ5g7J5
-         theQ==
+        bh=xsBUuNHyJi9yrhsvrYQPnMsYSonpH+BAcPOtIOEzYI8=;
+        b=XBby5iq2xxYKRVsT7WaktE5wxh/IAkSTlJcdV48fCrE8LlAS913xjY5pwc7rJsSiZy
+         TzuCE94GEI4p4B/mM4xQGq8+iBFaKB0NEm/Wt1kxITjnoCh4UWq92Y/EdWiKrvPk+4n6
+         vpKDvwCfvF5LhBpl0ex6X8m4EgLn3z8KUlM4UrDhAJM6zoSILsJRzOblyWVcro7U6m6T
+         +Cff8NGI8xeCgr+u7Mt1u1Z56epjGixWk+01zQL94MlsInijhC7hpwYPx8suhJ77arcl
+         ogP5dnpTJgOxgCM19oa+rqlQ8Kh7+dKrrTnPT4kyfz1cxXc4mWPR3zl6LXDDrrT6f3nz
+         JTtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790969859; x=1791574659;
+        d=1e100.net; s=20260707; t=1790969900; x=1791574700;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jsa8p0PenOQe7xz/Cc2uUWiwjzhWN4cfUFkjzNzzRgk=;
-        b=i3BGXGQr2DSYyf6VLvyaq1H8Tzw8PvO/CLXSsAnVfiPJrqYlCXyEW535O0vgW+Plyk
-         fmptk4CAeLu7Vxe0DvnCQBdka43Hfd2FTbnzuENG3R0Rg73U5A/zoVv6BQJKHQkwYTtD
-         wbKx2tu6GOR7U608JDxDREQhixVUYYtCF/lgfhTlYDha54lY63IpDUQ0CrD1p9WpZlqJ
-         yleWueH77cVgEBwXe2Wdul7v6dKHckkYbpkaemMRKZ3XfqKQ/X5KpdD8Brmd475wlRvA
-         YO8hRsmC9zbfJfHOFHdmAUaevVXav/Sh1q6/2nyZ8To6ltt89HpSuz80Dw6byiQiDI6/
-         rJlA==
-X-Gm-Message-State: AFq9FYLQBDKNGMxSg3TmFpHyf59e/J63bPf27GJ1GDsIJRzJ+FdI5KS8
-	I2zGNvU5fTPcDoSVYGdD1Xf7j/4c/YIZ8uZ51nSCj/Nc+R7hFMyW3pdY8A2vCSZZemZidErnhrM
-	Zk1RFyd5spi3mt8CW21VmVAr5+QTwk2o=
-X-Gm-Gg: AYBFou2DOK4Hd8fc+4kGTiQOgDuTeDwg/i5Xjhu7/ZU+aNFj8RbTJeiAHL1U5OdYR4Y
-	QBjCMxN5kBNzsE33Ph4l36U3qQkclg4csi+48XugrZv19wPZP65OfdsUZVNzext/J8ZEKy5K7MG
-	P3LbSVM1Zlymukm+Ic+BydVVV6hSAfeBj2nTscAncVPbwawOscbLOrrdKWsRuJipgqBVzWEGFyF
-	m6CqiSlh0jLf/kHSo2ICzp9GXI0v4Dh3X8PsSXJ2kLmhBktBy8xRlfRWIhlUeYAo7zfi/FhF8FG
-	ISaI2huicU4mLr2jy/euIucdWpOjJPMjVaR9bK+7JE2cPZv0bGyp9g0=
-X-Received: by 2002:a05:690e:11c1:b0:677:bf8a:e4d0 with SMTP id
- 956f58d0204a3-677bf8b223cmr16722d50.9.1790969859348; Fri, 02 Oct 2026
- 12:37:39 -0700 (PDT)
+        bh=xsBUuNHyJi9yrhsvrYQPnMsYSonpH+BAcPOtIOEzYI8=;
+        b=tyvrUAdIIbluGmVeMWIMUKThlStlB3rbRMnUCB/ZrC3IzKTOfmCjluViwWKcarxIOk
+         mm2ZM7ioAU3pNrozNyZ27AJiBW+ylDUetuCZ1ArijldK/NQ0Ume8sR8lE6Km8gGcbov3
+         Sgwxx2PzJQq/Yomo/U1StxFIex2S5MRkyLGUD31TfBW8ddedhWuatiAULAO6xrl6fDhJ
+         3YyYQiq/vBeGr5/7n3nM/lpO8CaLBNLGJHOqt66NTunq9EHzlZ7KJGGhKe+tZ8wzEuxt
+         bHqiwjsJEcUk7taM/12xcW9kGTuEikI9bgddklmKC4NE6BC3DDvt2zOIdg3dFd2mh1+S
+         Xtiw==
+X-Gm-Message-State: AFq9FYLwbev62fIWz0Cp6TR0uc7dXCNHsiFoWx/t73fe1/wVOb3WT1h/
+	H3XAKqdBsi02wM4kppHVgkk1PkJKZwbYadiOojtlAtVHdeyAStdueOJTi8KQzoMvjbduMXocKvx
+	i3eZyfPGwxE1oX1M4JtpbaOV6akjTZiAcqS3t
+X-Gm-Gg: AYBFou1kCB9lE2Arcl3sK/d5TjhvBv598lMta4HR4Qyh7osv6+iXCZSdzjDOpkeQgRe
+	HTgBenxzNGUFUdmy7wQZg+Qq2wPiBBOgQA0yOZoHMrxDJPeXKnjFNr1nnpa2QC0NUEz7PqBMacg
+	f0Hg/8ebY1RPskJL6tvOJFQe1UQ25l5vv7tdb1ND+nnbAkiynEMGcDP+jdN5DI1qtiolKm9U5Wj
+	BcJcPh/dOyz9tCNGCUfKhbXe1bGKtpsHpgUVStOhKnKzL+0CbCmJuelEySkoQQEiz7HvJypX8Nl
+	+RZ71saQrJYPtcjuMzBghPx/yY5JwbEdANXgHZa5Ut5ICuAgKutHtpQ=
+X-Received: by 2002:a05:690e:484e:b0:674:17ca:25dd with SMTP id
+ 956f58d0204a3-677ac0e12cdmr1143209d50.78.1790969899686; Fri, 02 Oct 2026
+ 12:38:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261001153212.102261-1-bgrech@redhat.com> <CAEjxPJ4W5g6_938rr4k7Bmgm9Mq7HpL=CfasPZ4SEtr3YYFobw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4W5g6_938rr4k7Bmgm9Mq7HpL=CfasPZ4SEtr3YYFobw@mail.gmail.com>
+References: <20261001153212.102261-1-bgrech@redhat.com> <20261001153212.102261-3-bgrech@redhat.com>
+ <CAEjxPJ4mjdBgTupSCGqrpwe=6=OURSSvewC+iAhPAQF0c19Fuw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4mjdBgTupSCGqrpwe=6=OURSSvewC+iAhPAQF0c19Fuw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 2 Oct 2026 15:37:28 -0400
-X-Gm-Features: AclHuK-GZ4Qer7DNyR55XaH_ZcunMX7lAoi6OuS6Cw2MBdwI4YQPI0hTnGUuaD0
-Message-ID: <CAEjxPJ6tyDPdezn00rEb8fCiz8x8m8XqJtnTrbexKkWuhewFYA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] tests/netlink_socket: skip iscsi subtest when
- NETLINK_ISCSI is unsupported
+Date: Fri, 2 Oct 2026 15:38:08 -0400
+X-Gm-Features: AclHuK94s6jwRlX6aei8FUPdaRnDakzR4vMxJH7zR8KRrpgxJJyyv5f_HRHmUc4
+Message-ID: <CAEjxPJ6V+6abL3ZTEU=xBS2GamNWpbnrGyMmMQRy4x-arK22CA@mail.gmail.com>
+Subject: Re: [PATCH 3/3] tests/filesystem: probe ext4 quota support before
+ enabling it
 To: Brian Grech <bgrech@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 2, 2026 at 10:05=E2=80=AFAM Stephen Smalley
+On Fri, Oct 2, 2026 at 10:15=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Oct 1, 2026 at 12:22=E2=80=AFPM Brian Grech <bgrech@redhat.com> w=
+> On Thu, Oct 1, 2026 at 12:05=E2=80=AFPM Brian Grech <bgrech@redhat.com> w=
 rote:
 > >
-> > test_netlink_iscsi_socket_t's ability to create a NETLINK_ISCSI socket
-> > depends on kernel support for the iSCSI netlink transport. On systems
-> > built without it, socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ISCSI) fails
-> > regardless of SELinux confinement, so the create/deny pair of subtests
-> > fail without exercising any access control.
+> > Add ext4_native_quota_supported() and legacy_quota_supported() to
+> > Filesystem.pm: instead of inferring quota support from kernel version,
+> > actually create a small loopback ext4 filesystem and try to mount it
+> > (with the native quota feature, and separately via the legacy
+> > quotacheck(8)/quotaon(8) mechanism) to see if the kernel can really
+> > handle it. Use native quota only when supported; fall back to the
+> > legacy path only when that works either; and skip quota testing
+> > entirely (without breaking basic ext4 mount/unmount tests) when neither
+> > mechanism is usable.
 > >
-> > Probe support unconfined before running the confined cases, and skip
-> > just those two subtests when unavailable, leaving the rest of the
-> > netlink_socket tests (netfilter, generic, crypto) unaffected.
+> > The probe uses an isolated tempdir under /tmp rather than the ext4
+> > test's own $basedir: per-filesystem test directories (tests/filesystem/
+> > ext4, .../jfs, etc.) are symlinks back to tests/filesystem itself, so
+> > writing probe files into $basedir would share state with every other
+> > filesystem test, and incomplete cleanup (a stuck loop device or mount)
+> > could corrupt whichever filesystem test runs next in SUBDIRS order.
 > >
 > > Assisted-by: Claude Code:claude-sonnet-5
 > > Signed-off-by: Brian Grech <bgrech@redhat.com>
