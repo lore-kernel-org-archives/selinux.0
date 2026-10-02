@@ -1,149 +1,184 @@
-Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE3AA26982C
-	for <selinux@vger.kernel.org>; Thu,  1 Oct 2026 19:51:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.141
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790884295; cv=pass; b=Kl22w8myq5/SyiM17e1qvJjHfZcOFMKJOWzSswHLCHWRp6r0IpOEA2/iURoKDjXQVwZ1xlzJqRuNqUo6tGaOCm5b9a05CoSVGBwKs3d1j/k7GvDCJyugYonTUhLVNY53l7wRDwo/iB68GuI5VBSgNUHngu9Hju9fo7F7TzR5CJc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790884295; c=relaxed/simple;
-	bh=OP3XDSSWU/VdeN62K8ogioLxVjAMnOT2KuU9KWDv1Q0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MSu+yWqxONuHvMEsii9puBLYb1AsRVCgZx5+Sl9+fi9DDOCeZvOr0l68vlj+9uAFNiihaQ+W/4UO0mmuvPCeJFe+hsuGegOHKzU0iBbR7kryya5OFdYJPoUQ2oXesUfcqgJ4NRmk74ysMX9CNbjyJpgeAhqln2o+/T9NCNK7C1c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l9tbsySg; arc=pass smtp.client-ip=74.125.224.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E45F93E1D07;
+	Fri,  2 Oct 2026 06:52:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790923972; cv=none; b=K6BpjuQPKSzkkaQe0q+UDcxBxQoynrDXZOQgXM0EkKflYZ6Wh7ZcF6MVbD7fFt3cv005XhaRHFONNE8JJkjYW2YjVd0/bMETpERZjqLRwoNaDPjXtysjR6iukzxVa6V6qaGabXW9sO77hHHLnpX6O4fD19ZQ8T6a0aYhWZnDwwA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790923972; c=relaxed/simple;
+	bh=qB2Wypr9G/9D5c5y2YXcfVZc9vgDAVA8p+hTwJcQ4bM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Pj7L2aLqOLNtIeaAqmR/jAL8KWCaqNQCBPT69oUMXPI1t+PDlz5nIw/B7GYGihJAQ++oiW4ev8GtsbTH+J6mJtdt262SSO+GNIawHsPiYiwZXxqE2SA79181pwutKERh1oN1IJvJDmrFvG6GeXPXF7nHd3m8czmSxoQwWaZhyWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c8bDWgyU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l9tbsySg"
-Received: by mail-yx2-f13.google.com with SMTP id 956f58d0204a3-66e4ab20f4bso7594981d50.0
-        for <selinux@vger.kernel.org>; Thu, 01 Oct 2026 12:51:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790884293; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hXai/kG/uZ1DzEtf5V7p3TyUJZChdxPurb5DYvbF3m+RQ4RdDc+1l+qvJlAjrpFrat
-         P4cPuK1BeSXNZa4vKx3veKIs07QuRiY28XmvZD13b47McOrSFFNeKCfahEXna0N4nWGX
-         r7kcbaYpfQh6q+LJ2hvC0udqDezfkHaWU7lqfWOKhzo4PxGnHW3GB9CGJptbAINYOdP5
-         5y6+vjXIlkeBqJXRjwmaDLnu7vC/DLhrf8GUdDUJ1xgD6NP8DmlHStME5SSBNHUWvZof
-         NzwXoAEmdG8ImFcW5eJeaylPBbVkiShFmOFrnXny47j/aabu8xBZlLyVZ7moTwAZpyKZ
-         zJbQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=8J/w0j4NwnvWjg6O3ihJHH2Vq6gocuQpI6bXmVCoQqY=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=e07EJtCDN3ChC3ltFzPNEZ9wv8NV+By42L/irE1iKu8cEG2bwf8NiijIk9LbxQvzer
-         5D0ZIb6WrgZ+B2rr6p9EQufGyZcXbb3bACvDZV7GNLe5vGLf2eNw+yjJImiZ3FyFh58Z
-         FVHGVGeOqiIzElOGSrjiVF/PcHumbta80uDeAEzgNJr/IJ62uxHyRxhm5JrmQT7w6fHK
-         0ZC6EtcsLAZSh3287bbj0GZLOPEsPnUDgk61f7IeoPsFRRkCVl1q6vsFTFQZkNgKRwi+
-         S+ajTljj7uYyX2Ae5vz2AGEkipg5q3g+X0KFFp57cND0Ffga4k3wRb9trpBagr0ms39r
-         Svkg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790884293; x=1791489093; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8J/w0j4NwnvWjg6O3ihJHH2Vq6gocuQpI6bXmVCoQqY=;
-        b=l9tbsySgVkQxRYqgBQrZspv+bj6PlUiRDGYBCXTM6+UQqaShy6KRjhNKMEIOJg2pQf
-         L4GiwM/ZrIyk26j+bNB93eg+ANlp5i20q0O8HJTP4q91oDAxHhCWya0n6DTmNHD9wwTr
-         8VPIEYufnRCGNUf4MD9cksXhljiscPRBJoAB5xav5m9BeMgzkycv+UcweVrZmfuUF7K4
-         P5Zl78lcuyb/3ES+F6qHsoa8wMmujaeBmPb1hLQcbkhFmVscusT7CxacTzXfZuEw4ooO
-         JdHy57SYW1P1RFMOjKV9EtWikjKAWuUKgWfdDo77tZ5F1rZ+uU9Lehsxad1rLqDfeHXs
-         sTlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790884293; x=1791489093;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8J/w0j4NwnvWjg6O3ihJHH2Vq6gocuQpI6bXmVCoQqY=;
-        b=ryRxknLd2Qdt8zjuNnCEj3cYiVXkYKtSwSbj4z+YNBIPOmche0yBV8YFLQljakp9Vz
-         Po0z8qn4aKXUFaLvx4eJPW4V2P1pURE/GG5w9T8wqS5gIk6f151mdY4TVJFOLZKSAxj4
-         quyyIVPUyd3LRgXEUPrRt0efxIyT3RGtdAc90xCJSVuqISPBC7ZpmtcvlvgLtsgGbY3o
-         YVtpDmtio8vYl3l+f8tbjygIPWYQOnlme2L/wexZ7tf+gDMroBCA09bygS9+5ZYRYmod
-         dhLBAFNl7eErM2XrRcV0IrpRJ9D4eJilLcrBPOrH77RCpeB3p3QGjlum+8n7gqFRk766
-         8QuA==
-X-Gm-Message-State: AFq9FYJAzR0Jsr0DHNkHim5tA46M9RwARacj3CkCq+s4HLxehZFXSuJP
-	LoGqyrqu6jdp+4yDqlan545sTd8nsuHz5PjRMA0JUxfVO35OVujHEavWQwtu/AjBt1Zp5TIWD7U
-	7pqt84I+L4v/nikUNAGWcpdexQUe7UoE=
-X-Gm-Gg: AYBFou0FCxD5q1rM8UhNIAG3gkZ+Ztz+la/7rrpXyTGfHRUiv+iKVklHgJfemZirKG1
-	PhsQZzWB0YfHZDyBWX++uoNQ6iYFnyO92CdhsifQmltn4O4bSFPo3pQGdcO4jPFWwW6nsYwHPyX
-	WCZzK0g/WhWjou8OKO0kUlE+csbEBj0FAM4J6OZpCIS1m/nMaQHf6x3pGVAofaZLGImX7Tt9Ygr
-	DH/q3qBbgO759kM9w8trk9O1fsES99CfrKgJ8sb3y52cAaOpjRUnonTPP7Jt9xx1uNXkhmJHYaS
-	eShW6GWhgAKwYdKMcmWhnHhoc2KvH10Z/JFwPIspyxKPzAr7b0tYdtc=
-X-Received: by 2002:a05:690e:4363:b0:676:948b:1bec with SMTP id
- 956f58d0204a3-677ac0fb705mr146603d50.102.1790884292760; Thu, 01 Oct 2026
- 12:51:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c8bDWgyU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B78DB1F000FF;
+	Fri,  2 Oct 2026 06:52:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790923970;
+	bh=u15YH4Gk1jY734f7Ru9LTF8CNh+n4MtAogEYgBYqpnw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=c8bDWgyU7nbSbFiXaryamWOeLdeQpMchMrG0YjFpHuBOQ1PuqIEtbmxLMXTlp4ewM
+	 OL/GoVIH5VS5zURtCMofHqaWCe4cVE9WJ8MPM3FdcVOyMRU1YSbKnFj7c9DjyEVkSw
+	 9gCmXRSqnWhhFoMhDJ/lGP59xmGFDa3YmRJMrGx+9mw3LMY8NLYorwZ19bld8oz5rO
+	 DgWfbQbiLCLEg2FXnUdwmI6B06bIL+jviB54nuqoHIQ8yrkmiuMD5hPR0jQVPoCSav
+	 mIx8HAdy4CslS+i7YzgBC1u1s9bonkEoTcmwC1glIfgxX4mWnJ3lRT0smKX9wzYurc
+	 IJYDuX5dbpfvw==
+Message-ID: <bd623df8-d5f0-46a3-927f-f0a4b458e651@kernel.org>
+Date: Fri, 2 Oct 2026 08:52:06 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260928155753.2259807-1-cgoettsche@seltendoof.de>
- <20260928155753.2259807-21-cgoettsche@seltendoof.de> <CAEjxPJ5BYBkugQAvZD8FzUidGV8tA5zv7WG-EQsTEhk0F3L=WQ@mail.gmail.com>
- <CAEjxPJ7Uw15KjHkv=RuX1OdZWq9Sax_d=jX2TG0RsfsFsuSiqQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7Uw15KjHkv=RuX1OdZWq9Sax_d=jX2TG0RsfsFsuSiqQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 1 Oct 2026 15:51:21 -0400
-X-Gm-Features: AclHuK9-jR2rDRpfx5l_iBOh-IlbdpNXQRw3XwjmsjPmcGnc4_wLns4nolpSoSU
-Message-ID: <CAEjxPJ5APz1eEDHDDo4DuOvKrjfZMHYh=hvQ-Z3_p5FB4aopiQ@mail.gmail.com>
-Subject: Re: [PATCH v2 01/21] policy: allow io_uring allowed in the io_uring
- test domains
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 27/40] mm: remove hugetlb_inline.h
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
+ Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>,
+ Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>,
+ Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
+ <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+ Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
+ Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
+ Xu Xin <xu.xin@linux.dev>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ fuse-devel@lists.linux.dev
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-27-4583d8a23bca@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-27-4583d8a23bca@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Sep 29, 2026 at 12:20=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Tue, Sep 29, 2026 at 11:14=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Tue, Sep 29, 2026 at 11:10=E2=80=AFAM Christian G=C3=B6ttsche
-> > <cgoettsche@seltendoof.de> wrote:
-> > >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > Since Linux 6.15, io_uring_setup(2) is subject to the SELinux
-> > > io_uring allowed permission, checked on the calling domain against
-> > > itself (kernel commit c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM ho=
-oks
-> > > for io_uring_setup()")).  Policies that define this permission, e.g.
-> > > Reference Policy since commit d4084b9fa ("Add new kernel security cla=
-ss
-> > > memfd_file and new kernel permissions"), do not grant it to the io_ur=
-ing
-> > > test domains, which only get the minimal testsuite domain rules.
-> > >
-> > > io_uring_queue_init_params() then fails with EACCES, so the positive
-> > > io_uring tests fail and the negative ones pass without ever reaching =
-the
-> > > check they are meant to exercise:
-> > >
-> > >   avc:  denied  { allowed } for  pid=3D3493 comm=3D"iouring"
-> > >     scontext=3Dunconfined_u:unconfined_r:test_io_uring_t:s0-s0:c0.c10=
-23
-> > >     tcontext=3Dunconfined_u:unconfined_r:test_io_uring_t:s0-s0:c0.c10=
-23
-> > >     tclass=3Dio_uring permissive=3D0
-> > >
-> > > Grant the permission in the common io_uring test domain definition if
-> > > the policy defines it.
-> > >
-> > > Assisted-by: Claude:claude-opus-5-5
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > I shouldn't have to re-ack the patches that didn't change. Please
-> > carry my Acks forward in the future for unchanged (or even trivial
-> > changes like updated patch description or comments or other
-> > non-functional changes) patches.
->
-> FTR,
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On 9/17/26 18:22, Lorenzo Stoakes (ARM) wrote:
+> This header really makes little sense - every place it is included mm.h is
+> also included, and the header itself includes mm.h, so it does nothing to
+> reduce header size.
 
-I merged the subset of this series that I acked, along with a couple
-of fixes squashed in for code formatting (./tools/check-syntax -f) and
-some slight tweaking of the patch description.
+
+It's very small indeed
+
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+-- 
+Cheers,
+
+David
