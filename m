@@ -1,95 +1,179 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20483318EF4
-	for <selinux@vger.kernel.org>; Fri,  2 Oct 2026 23:59:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A19C37D131
+	for <selinux@vger.kernel.org>; Sat,  3 Oct 2026 08:33:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790985569; cv=none; b=PLfrH9AjGnxEMroN970tS7FZ1UYEllboveZrNshRZopDtNqmnXPLi3YcIxReryxCZgF4xL6vyVGknJ4eG/A3PSO/PDvuzOTfAnFY42INw6L95xNFc2uk4ZfB4BnH3I7OIAUp90BOJoHNoVr2gTLMh/Nz/WJatkJtU4WkQ0ZpsPk=
+	t=1791016403; cv=none; b=JuETzIv01J6Ok0zE2OtMetLRRROgGgwSf5Hz2OwTzzYvB91MG4oIJulec/zXe9LCdGZDZH7y8zS1mEKd1Al5hv+Ak5/xSsYqULnSxKXQJ0po9R7sP47jhFZ3pQFu57kll3Axv7pm5vEW0qWFLNy4y/JudfbdFT1bU0/KnsOuiQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790985569; c=relaxed/simple;
-	bh=sLkGfZptRXK51umYuoSuAMNosgceJoovn/TWb9z+shg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gAQjZw5bIyLqkvcR92lVAAniGB/o+7288ndOY15IOo18QOq96037d0Hw23l489x3stBGlK/PyjGQT7bHybyLyR0GvD5lPOMY3BoLOJfQKm02Hsb/MuxNPj+64mbOYwZ3pl5MnHruCqR4CNfkLHkQFFREwQ52DAV2duJYQk15NFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gEDqnTry; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791016403; c=relaxed/simple;
+	bh=G5hdGVr1Fp4WrVd4L+DCACgK5mq1Y7oGb1kzmKDtIdQ=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=mI0ApwCslj8MkFQy/eQn+J36RCC+qKWsFFuxNRuqmIi//KnRKHo8CG3RPtaGJ9TJddIMxIV2ETVRBEGuNhVDoRbQIaPS8KsI3y1fy0DTjozKBwLapgMHjzYoIBN3ticupj3vA08TTqOx3aBsBNNRk/pYgX2zCUvUdAdQJA8Jl9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=jott2BMY; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gEDqnTry"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0FFD1F0089E
-	for <selinux@vger.kernel.org>; Fri,  2 Oct 2026 23:59:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790985567;
-	bh=sqGFC3qmWH7lZzdVKHbKhQsEqSgB4ysviPSLiqhzyqY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=gEDqnTryhqiFJprKEVSK1K3Sb+gFGDOGkhezrxhlGQvG1+t0d4bTl/CuMSbXTArYR
-	 s0reyUj6gm/5H7saLwcyEafNfwTkNPGufkopttlAq/z1RBzwXIz6fwhVuQMMY7P6CT
-	 cKnrq+VbRhzzFh95qlhCL1VofIoA3biRtp8TQvImXKx0LRP6C84o0vYQkTROCU7W+R
-	 M/FD0GYCJKWdT7iUBMJMoZY/Iv4kaalv0R0PaWzJjk/73b7CTuvXy04scUUWZWGNb+
-	 pnnlvuFjEgpZmUjj5ynOfGh3pH7tNBlWgQr/jFXD2avveulb1umPpYpSOR6Z+l3rCS
-	 QOZO3knSW22Xw==
-Received: by mail-qv2-f41.google.com with SMTP id 6a1803df08f44-91782711448so4166456d6.2
-        for <selinux@vger.kernel.org>; Fri, 02 Oct 2026 16:59:27 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBybdza/6iO0uNiLw2+UCw06pobN3W667jeOg4TZRyiL8jC+Qt+IkpzCKZH52/0bVWZnyqjw9pF1@vger.kernel.org
-X-Gm-Message-State: AFuF++kz1Q37RNjM2cKe6rmiZsr5dVvU/5GWvPBv/L7iBS9Uhgwt/LdG
-	wpX6fgTJT94jae3nFGvMAjZ8i/nzEz2bCieJwN+eErnt+lCDW/gBeapLQRxn0vMA8BkHKxiFjCT
-	v1oc03YmAVbq8c6ikB7GLPwYvRTsvE6U=
-X-Received: by 2002:a05:620a:31a1:b0:93c:63f5:eab with SMTP id
- af79cd13be357-93cf17173c2mr775294085a.31.1790985566849; Fri, 02 Oct 2026
- 16:59:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="jott2BMY"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:Content-Type
+	:In-Reply-To:References:Cc:To:Subject:From:MIME-Version:Date:Message-ID:
+	Reply-To:Content-ID:Content-Description;
+	bh=XcVrJCe0WBTqAJYTY3/l4+8fAxk4cv9GJc+SG8G1VMw=; b=jott2BMYSwLZMskJHKFlMQAu9k
+	pohqS2VpeLYppaTRWZyws1/ZsYzT7lSXsjUNIWpKab7pH6QqE3gbntG320M2VonaABPTWTHRbnOnJ
+	Al5muD+1QaXmPDJ8FnZiQSkLzHdvuoiceFFBDv08+gOm/qIEUaNJBnUAEeevnUsiMe5rexZ30AbKT
+	/irsHzPR1TQthm1Zry/LQTElXK1f0+IAKwvw8TGPKz/o9E24f40AlbNClGSV2jhCUVIdxpWE359Yj
+	JQCqMdvXjZeMVDkO8j3Txbye/V1YEVmOl74ibf6YSaipdOTOToPwrIHfn7Ck8PfxQdtupEp/H148i
+	0HI0EK7A==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
+	(Exim 4.96)
+	(envelope-from <bigon@debian.org>)
+	id 1xCvBA-001W1g-28;
+	Sat, 03 Oct 2026 08:33:12 +0000
+Message-ID: <833bdec5-3935-4f86-961c-f179e5f8fb9c@debian.org>
+Date: Sat, 3 Oct 2026 10:33:17 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260706235053.4104951-1-song@kernel.org> <CAPhsuW7E-mW5CvmSXjUsc1GBjvgpy=pnaYOzTJsLXDvx8+RMJQ@mail.gmail.com>
- <20260928-hinein-lacke-nachfahren-45ac39a36146@brauner> <CAHC9VhRPd8z=67=RWM-0DqjTXysk75FtF=haY9-Vv1oGcX1PAg@mail.gmail.com>
- <CAPhsuW7iFP4Y6C1ZhTvtEgTzgKjnpF9+8YfVg4o3P4BHEnR+LA@mail.gmail.com>
- <CAHC9VhQVVfKkRaHOp90E-WVGEVy_MYFBreUYPMc9Y79rLaviRQ@mail.gmail.com>
- <CAPhsuW5jQCe89LT_22dvQWVnw2cvpceODjvKiHEiYT9Wm_Npgg@mail.gmail.com>
- <CAHC9VhRdn-jrNJY1K=1RsZQiO80QKR3nD+DHyUM5n_a3TrxLhA@mail.gmail.com>
- <CAPhsuW5r0Uqu2xUzxkLAakA4=waE-1LLORSqU4SSD5sX_NEn9A@mail.gmail.com> <CAHC9VhQvaQyx35M-DJmfrVVqXNcmS+_5uwbtDgMB9SPERaQvog@mail.gmail.com>
-In-Reply-To: <CAHC9VhQvaQyx35M-DJmfrVVqXNcmS+_5uwbtDgMB9SPERaQvog@mail.gmail.com>
-From: Song Liu <song@kernel.org>
-Date: Fri, 2 Oct 2026 16:59:15 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4XdDUAoL-pXAD5UAGjU=JEQUr7Hw1vDkZGX3dOAiRR1A@mail.gmail.com>
-X-Gm-Features: AclHuK9C91U0PJ9_l2jaTWobWTm1-Dmq8dZhGXcoIwRv5AqNzoLVEvpCNXqEjEI
-Message-ID: <CAPhsuW4XdDUAoL-pXAD5UAGjU=JEQUr7Hw1vDkZGX3dOAiRR1A@mail.gmail.com>
-Subject: Re: [PATCH v6 0/8] lsm: Replace security_sb_mount with granular mount hooks
-To: Paul Moore <paul@paul-moore.com>
-Cc: Christian Brauner <brauner@kernel.org>, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, jmorris@namei.org, serge@hallyn.com, 
-	viro@zeniv.linux.org.uk, jack@suse.cz, john.johansen@canonical.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, mic@digikod.net, 
-	gnoack@google.com, takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
-	kernel-team@meta.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Laurent Bigonville <bigon@debian.org>
+Subject: Re: selinux_kernfs_init_security() ignores genfscon-resolved parent
+ label, breaks type_transition on cgroup2/sysfs
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Cc: SElinux list <selinux@vger.kernel.org>, Paul Moore <paul@paul-moore.com>
+References: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
+ <CAEjxPJ7_=ky-iy-6UHPS-Mh7GKc=BA-zyA4p96uKM3HEFEc=sg@mail.gmail.com>
+ <CAEjxPJ4LTaiSc37j1bYwUkC04+BLaXVz5xArRRGEvf3rHQS7+A@mail.gmail.com>
+ <CAEjxPJ6FBdnHvUmXfD7WNgsFRLy3JuFHkwN4p0=9Wm82L2nZXQ@mail.gmail.com>
+Content-Language: fr, en-US
+Autocrypt: addr=bigon@debian.org; keydata=
+ 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
+ wQOeCC+SiVSdSv0zm8D5
+In-Reply-To: <CAEjxPJ6FBdnHvUmXfD7WNgsFRLy3JuFHkwN4p0=9Wm82L2nZXQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Debian-User: bigon
 
-On Wed, Sep 30, 2026 at 10:55=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> On Wed, Sep 30, 2026 at 12:37=E2=80=AFPM Song Liu <song@kernel.org> wrote=
-:
-> > On Tue, Sep 29, 2026 at 8:41=E2=80=AFAM Paul Moore <paul@paul-moore.com=
-> wrote:
-[...]
-> >
-> > Thanks for the clarification! It appears we can indeed add coverage
-> > for the new mount APIs without much work.
-> >
-> > Attached is a quick draft for this change on top of current patchset.
-> > Is this heading in the right direction?
->
-> Can you send out a revised patchset?  I suspect there will be a number
-> of people who want to review your draft, and it's a lot easier if we
-> don't all have to apply the patch separately :)
+Le 1/10/26 à 16:45, Stephen Smalley a écrit :
+> On Thu, Oct 1, 2026 at 10:22 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>> On Fri, Sep 18, 2026 at 11:46 AM Stephen Smalley
+>> <stephen.smalley.work@gmail.com> wrote:
+>>> On Fri, Sep 18, 2026 at 6:44 AM Laurent Bigonville<bigon@debian.org> wrote:
+>>>> Hello,
+>>>>
+>>>> The other day I tried to troubleshoot (assisted with AI) why
+>>>> "memory.pressure" files in the cgroup2 hierarchy were never getting
+>>>> labeled memory_pressure_t, despite refpolicy defining:
+>>>>
+>>>>     type_transition init_t cgroup_t:file memory_pressure_t "memory.pressure";
+>>>>
+>>>> My understanding: selinux_kernfs_init_security() decides whether to
+>>>> compute a transition for a new child by checking kernfs_xattr_get() on
+>>>> the parent — kernfs's own private, per-node xattr store — and bails out
+>>>> immediately if that returns -ENODATA. But /sys/fs/cgroup (and everything
+>>>> under it) is still labeled cgroup_t for every other SELinux purpose,
+>>>> including plain getxattr()/getfilecon() — that value comes from a
+>>>> genfscon rule, resolved live, with no real stored xattr ever involved.
+>>>> So the parent "has a label" as far as policy and every other check is
+>>>> concerned, but not as far as this one specific kernel check is
+>>>> concerned, and the type_transition never fires as a result.
+>>>>
+>>>> A simple way to confirm: force a real xattr to get persisted (e.g. chcon
+>>>> system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/) and then
+>>>> restart a service — its memory.pressure then correctly shows up as
+>>>> memory_pressure_t.
+>>>>
+>>>> Tested on kernel 7.1.13 (Debian), refpolicy main branch,
+>>>> cgroup_seclabel/genfs_seclabel_wildcard policy caps active.
+>>>>
+>>>> Has anyone got a view on whether this is intentional, and whether it'd
+>>>> make sense for that check to fall back to a genfscon-resolved SID when
+>>>> there's no stored xattr on the parent?
+>>> Added Ondrej to the cc as the originator of this hook, first
+>>> introduced by commit ec882da5cda9 "selinux: implement the
+>>> kernfs_init_security hook", which says "The hook applies the same
+>>> logic as selinux_determine_inode_label(), with the exception of the
+>>> super_block handling, which will be enforced on the actual inodes
+>>> later by other hooks."
+>>>
+>>> I think this mixed model of some files labeled by genfscon, others
+>>> explicit, directory hasn't been explicitly set wasn't possible or
+>>> considered at the time. If we were to change it, we'd need to check
+>>> for regressions not only on cgroup but all kernfs-based filesystems.
+>> So there are two possible fixes for this that wouldn't require any
+>> kernel changes:
+>> 1. Enable the genfs_seclabel_wildcard policy capability (libsepol
+>> 3.9+, kernel 6.16+) and add a genfscon cgroup2 "*/memory.pressure"
+>> rule in your policy.
+>> 2. chcon cgroup_t /sys/fs/cgroup at boot
+>>
+>> We could modify the kernel as well but that will require some
+>> additional plumbing beyond just modifying that one hook function. Can
+>> you just use one of the two approaches above?
+> I should note that only the first approach fully fixes the issue for
+> all paths by which memory.pressure might be created in sub-trees. The
+> second one won't fix that. So the purely policy-based approach is best
+> if you can require libsepol 3.9+ and kernel 6.16+.
 
-After reading the code further, I better understand why Christian thinks
-there is a significant gap here. I will not able to finish a good draft bef=
-ore
-LPC. Hopefully, we can discuss this in a hallway track, and reach a good
-version soon after LPC.
+I can indeed confirm that adding "genfscon cgroup2 "/*/memory.pressure" 
+gen_context(system_u:object_r:memory_pressure_t,s0)" in the policy and 
+enabling "genfs_seclabel_wildcard" capability is fixing the labeling
 
-Thanks,
-Song
+bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure -exec ls -Z 
+{} \;|grep  memory_pressure_t|wc -l
+176
+bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure  -exec ls -Z 
+{} \;|wc -l
+177
+
+There is just one remaining one with the wrong label, not sure that's 
+intended=
+bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure  -exec ls -Z 
+{} \;|grep -v memory_pressure_t
+system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/memory.pressure
+
+I guess the rule can be added to the refpolicy?
+
