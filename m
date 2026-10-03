@@ -1,232 +1,211 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f38.google.com (mail-yx2-f38.google.com [74.125.224.166])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4F51DF75B;
-	Sat,  3 Oct 2026 09:04:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791018243; cv=none; b=PL7UBZi9abnBNfYCTJqmgs1mIlnFGFPTt8YvMMpwyzH3PEQW5He7OXl8oJPq8Cph58qYNxx72H/HceB449V/lqZ7tFw4pctDvar6IzZt05bdC6uIHa/RTDj4esVb7k3hKaXKAwZHC8FVJRwW3lk2RMUnlXJxq1o2h/zh2Oy0oX8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791018243; c=relaxed/simple;
-	bh=ySVPAx6FaV3b8M7WMt7yxSlRhPhy0oNRcPgzmnCJNSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wg6m51J5JdeRNoH7nrBAfXINIhtt/jk9jjUsH3MvWswIIbUG4ao3XDbCZpWyq2HEsiYsasr0uvY1HJFY8WRW+kR+rYkc77MNrlu/htTi3zzbG6+PCF1sUKo7EqB8fb3j1/xdePAJoBe9eBnUGpwnbME15mc7PAx+zulBlwKjbTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UU+loouH; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF0F242A17F
+	for <selinux@vger.kernel.org>; Sat,  3 Oct 2026 12:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.166
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791031545; cv=pass; b=YemH2fwMVk0+eReP/4xO8/b+fxymQtdgNldmJ5OSPtp2fEh5YDUeHH5WycFICfkVSd2FhOGIt5o+xkbEfb2yYgfiDRUhe5BWeKOtlF/plpmgme8vkq9oyEENrdd3bimj/9vK8RjBwns9ume/sM8MD0PFlyFN52u7aew6+Sg0oKs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791031545; c=relaxed/simple;
+	bh=lVSSCQaDrrksmFia8hOGrjzs+X8iezFeEHJlfTm5rdk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dPoVO/PMPZHRWZxBdv20AYHGfW0EtKX4K2gWGZ1Ff9FO/Vr7JiiU/VZJ9Cjkk4Q69rSS5K/lsjG6Tjdnp6F5iwMzsgJZm+SPkIzCWvhXMSC9a/YQ8UE72qBJneCgOBZwhbuM4MIDvP9tb/dE4qqDoD8Z2foaWsBceiHmp4mYPDU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rSnE+kxF; arc=pass smtp.client-ip=74.125.224.166
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UU+loouH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 767B81F0089B;
-	Sat,  3 Oct 2026 09:03:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791018241;
-	bh=NITJ8yWQ1OUFlY+k5bUccAdy4sUgfCl1c+vQ6EKuHAU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UU+loouHu/X9/2nGZUM3yCjbj4m/KC/TpyT2T7f6ukoZ0E8xdeCQhCux5NhqFywrK
-	 emhXMJF4ztWEAjcQUfNwmoOfmxWibJrgcS0Y14+/3QYIKiQ5kMD+QrEiMuTQiog1N8
-	 HdzT/Ef9+BC0kDIPVp13fKjpTa3KnJQlYUuTeVVgi+gEshYQcDbogRYzy1bU/u88qg
-	 37uls/VRrrDFxVnS7En+EP+D0EmvYFVAJfg454GL12+afZ6I3k3lu7HdNKAXHgZG9u
-	 cVstBTuY/reLAY7kfSL/oJgi0aXYVR8zFlCr4BXzJpC7jM5kV2qrlq5ymtar6nRky1
-	 2H6/ZXoDRdmXg==
-Date: Sat, 3 Oct 2026 10:03:31 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 15/40] mm/vma: add vma[_flags]_is_kernel_owned()
- predicates
-Message-ID: <asDDLXqBduWVX0k8@gremlin>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-15-4583d8a23bca@kernel.org>
- <0623ee06-00e5-421e-a24a-ed605abb559b@kernel.org>
- <ar_CYfkR5Pfb7J9b@gremlin>
- <83bf4650-7339-4fc9-89a6-378a327f4f6e@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rSnE+kxF"
+Received: by mail-yx2-f38.google.com with SMTP id 956f58d0204a3-67561cbafd0so252007d50.2
+        for <selinux@vger.kernel.org>; Sat, 03 Oct 2026 05:45:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791031542; cv=none;
+        d=google.com; s=arc-20260327;
+        b=d/RvSwe9iU6GUTVSicf90nFGoltZkPBSulKx60bDp4I2Ys81KGQD9ERyk4QMT6wOfX
+         u97cToEDYlP+Sa1UuI33gLktzijG3KyWbe2/B/fs9HuTaQOHAohAdFkkNMTTSTXTCJ/A
+         jR+aFUxGe0VK3LXpd1XO7WgzQdoooBTYR9CAc5noJv/X+oguCs9pqynpGkbRFH42bhob
+         70B70nb2p+Xrf0PiKXjAlVnIgask73Gxy19rye+jaJgdI3EHXmXiDe5Aphoav2dTnlTt
+         J7f5cDE6jRe0BsK3avMJlsAoi+JsNzEQ20eJRDInVAb+5FK8UQLal7z+gT2jRJLbMId0
+         sf2A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=l9sfEZkQmxl7rRh5XH8oibtJ2OI1ntwx0Ed4r64Lpww=;
+        fh=0wZVB//CdI6gOCAY9HPOoQR/d2LCvBeX4QSAoPkfftY=;
+        b=DCx1Phrc1VyqyPDlwegZ9j1V9eIErudo7+eEcQvz6yb0FTbXAzFPrxF8XwYXbUYJy9
+         aenhOzdZkhX/2u/01Lu6KSwwR26bLqG1R5OYzAgmaE1WE8y5H1D5JFc9sBus+Y6KVTwP
+         BZjnXFJdE+Xkuouodd+4eVcVFVQKFse0O4tUyuMYPTVw5aD6r2DkiXwRmRAw8ATWhlON
+         BnenkZn3+4INOgNR32FFetiokRYeHLLEeON2cdzN6TZOV0bsd06v0hLyneklN2miC5FK
+         PWdeq1yfr5tjV446yriGPSeVjqbZgrocnlRec4sSgs2EsnqAe+r7k/sU7Yqde54EQ5iA
+         9+fA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791031542; x=1791636342; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=l9sfEZkQmxl7rRh5XH8oibtJ2OI1ntwx0Ed4r64Lpww=;
+        b=rSnE+kxFJ3ufJxsQOL0NPYjuC6tnorqK1vLFjSv023o/koL/aF8xhOUKofyYzSjDrF
+         vYGpUWdPFdKJdfeR1mxepESxqSFN+9fQInpYtO+1Wb0AMvkyFtfsnM4D6cBO//mFRFn7
+         rFDUy+C4oaq7E9JiKhTwSd5zE6VVirSvix+R+JFTaYC6QW9iWEu45Tq02PGExyq2zXfR
+         20uAcOTZrr3GlpSDdAquMMvp7Os/aHib7sKBnG1a9/cA6Rq63RuysAMq1P8YKP8WgiHj
+         IR8Ep8aSbohKrXQjbudU68BYMrcwzWZ6scnBGhxn4Qs5s4R80Jc4cUb5vGxNfWiyzJd5
+         NemA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791031542; x=1791636342;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=l9sfEZkQmxl7rRh5XH8oibtJ2OI1ntwx0Ed4r64Lpww=;
+        b=hpr8fKFbAjfHABTlNTnV23i25Lel4pcTGJ9Iujjm/G0wp9eFEkFwe8rjEPBblcKpNj
+         UQj8ARWHq+EsDjXv4Od639T0Bky8iI+BDdk1VT8kcOchdXifYy4A5B2N9Zg55F7PqY53
+         GzVD9SSwbTihYDyQXD2ZCz8b2iCZslCkKnIbUrlFOpPbnU8PzVKVCxVDEzwzxQ6CEjyq
+         PMtGyuvZ7hKRKQ7nL5sxQWsnjEvi9wAmwxAeTXSnxRXHaQxfCJQHuRkR+8/nOakDyYUJ
+         sSDG7q/A3a60erzaCd0oocxdGpoDxCqCQZgoOamC2E7/PoU4VqTw7K+gUY4v8Bw3SBuq
+         +vKA==
+X-Forwarded-Encrypted: i=1; AKwUvBxaRMrqpE6vnFlwQWs3P947AqXdXtuKdMcBoZIh+12n/i+mvBGDyGPm+cjfhnHsl3rPpsI9VPbB@vger.kernel.org
+X-Gm-Message-State: AFq9FYLmw7nB0M0gaPgC/HEqDs3JgEgfwTW3vrsiU21mhvBvSMV6FmaC
+	+rreMo7yOlWh8u3Ta67DTRms1RR5bRpHg3Pgtk1V+x8pEMc1SmWMYhBdT7HksbM5XptgBirp3JT
+	001Sk+MeZlmeBos/Lp0qdifqPiFN9OZs=
+X-Gm-Gg: AYBFou0Bf8mPZahr+UcTBJ12DjxjXoGxnhr0jVw5Ld0geFPpSW+OhVEdGDwx8MEbAJb
+	riaGDM2C5xcU4bujtQtbxq8G7628A30MonlBbuNve9YzGQHZbacukxkvkznJ7V0HfjPKn02U+vJ
+	sN3wP6yNb8daIWbmsDgc3qtwjtNbTg+ReMWPhw0dk46Z8rF8Bk5ItvuUVYa3uBJcsNwAMcY6bY9
+	v8r8A2VbPZJ5UU/PtRE+qMowukOSAbuTgnFWdmmFX80y6qOEo9UgsrXoD0CKnBP3EDWUhPZ0IS4
+	PVdDwVkQQuOFJIC667iaF/BiZJg5dS75u9jTF2rX+1oufmm11b5XDlUQ
+X-Received: by 2002:a05:690e:1512:b0:677:b728:4c81 with SMTP id
+ 956f58d0204a3-677b7285ab0mr1261617d50.38.1791031542051; Sat, 03 Oct 2026
+ 05:45:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <83bf4650-7339-4fc9-89a6-378a327f4f6e@kernel.org>
+References: <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
+ <CAEjxPJ7_=ky-iy-6UHPS-Mh7GKc=BA-zyA4p96uKM3HEFEc=sg@mail.gmail.com>
+ <CAEjxPJ4LTaiSc37j1bYwUkC04+BLaXVz5xArRRGEvf3rHQS7+A@mail.gmail.com>
+ <CAEjxPJ6FBdnHvUmXfD7WNgsFRLy3JuFHkwN4p0=9Wm82L2nZXQ@mail.gmail.com> <833bdec5-3935-4f86-961c-f179e5f8fb9c@debian.org>
+In-Reply-To: <833bdec5-3935-4f86-961c-f179e5f8fb9c@debian.org>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Sat, 3 Oct 2026 08:45:30 -0400
+X-Gm-Features: AclHuK_xaj3EaP1JqVtzdttFZ95GzYeLXRIg73ZwSsnmNYqZNpB1rlcA4Axs2L8
+Message-ID: <CAEjxPJ60od3GG5wqEYuoQQjtW+3VykX2J9L1e4uX0z7yAhRxRQ@mail.gmail.com>
+Subject: Re: selinux_kernfs_init_security() ignores genfscon-resolved parent
+ label, breaks type_transition on cgroup2/sysfs
+To: Laurent Bigonville <bigon@debian.org>, Chris PeBenito <pebenito@ieee.org>, 
+	selinux-refpolicy@vger.kernel.org
+Cc: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
+	SElinux list <selinux@vger.kernel.org>, Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 02, 2026 at 11:19:32PM +0200, David Hildenbrand (Arm) wrote:
-
-> > So indeed, vs. user-owned.
+On Sat, Oct 3, 2026 at 4:33=E2=80=AFAM Laurent Bigonville <bigon@debian.org=
+> wrote:
 >
-> Right, I read "contents of the VMA are owned by the kernel rather than the core
-> mm?" and that confused me, because the opposite of the kernel is to me not core-mm.
->
-> Maybe it would be clearer to focus on the opposite direction, then we wouldn't
-> have to find a word to describe "not core-mm".
-
-Yeah, it is hard to know how to express that.
-
-> > I think the issue here is you're confusing this with other things like the
-> > rmap and refcounting, etc.
->
-> I think it all weirdly interacts.
->
-> In !vma_is_kernel_owned(), would we only expect ordinary folios
-> (anon/pagecache/hugetlb/dax, maybe shared zero folio)?
->
-> That's my best guess looking at
->
-> 	return vma_flags_test_any(flags, VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT,
-> 				  VMA_IO_BIT);
->
-> So one option would be to focus instead on that aspect (folios that are managed
-> by core-mm vs. random other stuff not managed by core-mm). But thinking about
-> it, I'd prefer if we can leave the "folio" bits out, because COW mappings also
-> map (some) folios. See below.
-
-Mostly it does indeed come down to 'can I rely on core mm to do the refcounting,
-mapcounting, rmap, etc.'
-
-But folios are not quite there yet until the memdesc stuff is done as you say,
-so best to leave that out of any description.
-
-> > VDSO/VVAR, perf ring buffers, shmem mapped via PFN map, uprobes, etc. are
-> > all in this category and I doubt people would consider those driver-owned.
->
-> Agreed. They are all special things and won't be folios in the future. (shmem
-> mapped through PFN tells us to ignore its folio background and treat it just as
-> some PFN range).
-
-Yep the shmem mapped via pfnmap is a special case of the 'hands off the folios'
-variety.
-
-> > The distinction is - who put them there and who's allowed to change them
-> > and who owns the lifecycle.
->
-> Lol, I asked AI for better names and it told me "vma_is_special_mapping()".
-> Thanks, I guess.
-
-Yeah you see my point? :)
-
-That's why I want to steer away from ordinary vs. 'not ordinary' (otherwise
-known as special).
-
-The semantics have to be meaningful more than that.
-
->
-> I assume for the reverse, we really just want to say "just an ordinary core-mm
-> vma that you would get from a simple mmap() as long as no weird non-mm drivers
-> or subsystems are involved. Core MM fully manages this thing.".
->
-> * vma_is_mm_managed()
-> * vma_is_mm_controlled()
-
-OK, great, that works!
-
-I think vma_is_mm_managed() works best out of those two.
-
-I'll update v4 to reflect that, I plan to send the respin out today before
-LPC :)
-
-> >>> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> >>> index 2a92193ac6a5..cab29d6e15c1 100644
-> >>> --- a/include/linux/mm.h
-> >>> +++ b/include/linux/mm.h
-
-> >>> +static inline bool vma_flags_is_kernel_owned(const vma_flags_t *flags)
-> >>> +{
-> >>> +	return vma_flags_test_any(flags, VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT,
-> >>> +				  VMA_IO_BIT);
+> Le 1/10/26 =C3=A0 16:45, Stephen Smalley a =C3=A9crit :
+> > On Thu, Oct 1, 2026 at 10:22=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> >> On Fri, Sep 18, 2026 at 11:46=E2=80=AFAM Stephen Smalley
+> >> <stephen.smalley.work@gmail.com> wrote:
+> >>> On Fri, Sep 18, 2026 at 6:44=E2=80=AFAM Laurent Bigonville<bigon@debi=
+an.org> wrote:
+> >>>> Hello,
+> >>>>
+> >>>> The other day I tried to troubleshoot (assisted with AI) why
+> >>>> "memory.pressure" files in the cgroup2 hierarchy were never getting
+> >>>> labeled memory_pressure_t, despite refpolicy defining:
+> >>>>
+> >>>>     type_transition init_t cgroup_t:file memory_pressure_t "memory.p=
+ressure";
+> >>>>
+> >>>> My understanding: selinux_kernfs_init_security() decides whether to
+> >>>> compute a transition for a new child by checking kernfs_xattr_get() =
+on
+> >>>> the parent =E2=80=94 kernfs's own private, per-node xattr store =E2=
+=80=94 and bails out
+> >>>> immediately if that returns -ENODATA. But /sys/fs/cgroup (and everyt=
+hing
+> >>>> under it) is still labeled cgroup_t for every other SELinux purpose,
+> >>>> including plain getxattr()/getfilecon() =E2=80=94 that value comes f=
+rom a
+> >>>> genfscon rule, resolved live, with no real stored xattr ever involve=
+d.
+> >>>> So the parent "has a label" as far as policy and every other check i=
+s
+> >>>> concerned, but not as far as this one specific kernel check is
+> >>>> concerned, and the type_transition never fires as a result.
+> >>>>
+> >>>> A simple way to confirm: force a real xattr to get persisted (e.g. c=
+hcon
+> >>>> system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/) and then
+> >>>> restart a service =E2=80=94 its memory.pressure then correctly shows=
+ up as
+> >>>> memory_pressure_t.
+> >>>>
+> >>>> Tested on kernel 7.1.13 (Debian), refpolicy main branch,
+> >>>> cgroup_seclabel/genfs_seclabel_wildcard policy caps active.
+> >>>>
+> >>>> Has anyone got a view on whether this is intentional, and whether it=
+'d
+> >>>> make sense for that check to fall back to a genfscon-resolved SID wh=
+en
+> >>>> there's no stored xattr on the parent?
+> >>> Added Ondrej to the cc as the originator of this hook, first
+> >>> introduced by commit ec882da5cda9 "selinux: implement the
+> >>> kernfs_init_security hook", which says "The hook applies the same
+> >>> logic as selinux_determine_inode_label(), with the exception of the
+> >>> super_block handling, which will be enforced on the actual inodes
+> >>> later by other hooks."
+> >>>
+> >>> I think this mixed model of some files labeled by genfscon, others
+> >>> explicit, directory hasn't been explicitly set wasn't possible or
+> >>> considered at the time. If we were to change it, we'd need to check
+> >>> for regressions not only on cgroup but all kernfs-based filesystems.
+> >> So there are two possible fixes for this that wouldn't require any
+> >> kernel changes:
+> >> 1. Enable the genfs_seclabel_wildcard policy capability (libsepol
+> >> 3.9+, kernel 6.16+) and add a genfscon cgroup2 "*/memory.pressure"
+> >> rule in your policy.
+> >> 2. chcon cgroup_t /sys/fs/cgroup at boot
 > >>
-> >> I thought we have cases where we drivers insert pages and neither set
-> >> VMA_PFNMAP_BIT nor VMA_MIXEDMAP_BIT.
-> >
-> > There were 4 - defio, cmt_speech, uprobes and the bpf arena, and I fixed
-> > all of them :)
+> >> We could modify the kernel as well but that will require some
+> >> additional plumbing beyond just modifying that one hook function. Can
+> >> you just use one of the two approaches above?
+> > I should note that only the first approach fully fixes the issue for
+> > all paths by which memory.pressure might be created in sub-trees. The
+> > second one won't fix that. So the purely policy-based approach is best
+> > if you can require libsepol 3.9+ and kernel 6.16+.
 >
-> Great, that helps to identify these things. I didn't look at all patches yet,
-> but we should definitely document that.
-
-You mean the fact that this is required? It's documented certainly insofar that
-this series makes it a literal WARN_ON() error to do that ;)
-
-I'm not sure exactly where you'd document it in the kernel documentation though.
-
-But having this enforced now as a strict requirement is very powerful, because
-it means core mm can assume things that before it couldn't due to drivers doing
-'weird stuff'.
-
-Which I think has been a large part of the problem with the VMA flags - not
-being certain that VM_xxx means y because hey I remember that driver z does
-weird stuff with it suddenly means the flag doesn't have a clear meaning any
-more.
-
-So this I think is a very useful step to take.
-
+> I can indeed confirm that adding "genfscon cgroup2 "/*/memory.pressure"
+> gen_context(system_u:object_r:memory_pressure_t,s0)" in the policy and
+> enabling "genfs_seclabel_wildcard" capability is fixing the labeling
 >
-> >
-> > Other than the DAX-only case below of course.
+> bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure -exec ls -Z
+> {} \;|grep  memory_pressure_t|wc -l
+> 176
+> bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure  -exec ls -Z
+> {} \;|wc -l
+> 177
 >
-> Right, as DAX uses real folios.
+> There is just one remaining one with the wrong label, not sure that's
+> intended=3D
+> bigon@fornost:~$ find /sys/fs/cgroup/ -name memory.pressure  -exec ls -Z
+> {} \;|grep -v memory_pressure_t
+> system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/memory.pressure
 
-Yup. And FUSE DAX now too :) Another 'weird byproduct of this series' that :P
+I assume you can fix this one too by adding a 'genfscon cgroup2
+"/memory.pressure"
+gen_context(system_u:object_r:memory_pressure_t,s0)' rule to your
+policy.
 
-> > I could also add a patch to this series to do that too if you wanted?
->
-> We can do a follow up. Not giving others the chance to abuse these interfaces
-> would be great.
+> I guess the rule can be added to the refpolicy?
 
-OK cool, will add to todo!
-
---
-Cheers, Lorenzo
+refpolicy recently reverted enabling of this policy capability because
+it requires kernel 6.16+. So this won't work for stock refpolicy yet;
+you'll need to apply it on top. The refpolicy minimum kernel version
+on main at the moment is Linux v6.8 (for userspace_initial_context).
+For comparison, the SELinux userspace minimum kernel version will be
+Linux v4.3 starting with the next userspace release (3.12) since we
+are setting the libsepol minimum supported kernel policy version to 30
+(xperms_ioctl).
