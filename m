@@ -1,127 +1,104 @@
-Received: from mail-yx2-f39.google.com (mail-yx2-f39.google.com [74.125.224.167])
+Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F7694A4839
-	for <selinux@vger.kernel.org>; Mon,  5 Oct 2026 14:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AE24B1D10
+	for <selinux@vger.kernel.org>; Mon,  5 Oct 2026 14:57:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791211332; cv=pass; b=BVDnDchLS5R+H0twVg4EPrE/zFW3J3TgR71qbs2eX5Y0HQFVAQnBJfFEsPca1FtyRuBbu7a+3ar8gLe00a6ZSzugwz7v0I7b98uy5DxKshWVrDi2RV6tP1T0KqG/7v2TGLZhapP6vkO4q9s+r1ICEguQz5QKHF0QcoECNQxL1IQ=
+	t=1791212271; cv=pass; b=j5qfxSiwxQdsZPYgNBpiKXZnBs5Wr7mydl9QcyG/uoFERlVZ/4vqb50TEitE/dXAfdsDOgZe2XUUG+pDJcS2Fxe3nKBYnzghKZYWgJer/m9u17QgiHhXuprF4RDwD4720QfxK++V1MZ/sNuT79hQIL/VW4KmItawa1siyrQW5Gc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791211332; c=relaxed/simple;
-	bh=zh4rd+EA8ZAJPDE0M5fiLZP32NOx5uRjooDyK4NVgms=;
+	s=arc-20240116; t=1791212271; c=relaxed/simple;
+	bh=NyfaJ6LqpPDeU83/vIvKX4dKNKbdA+hT9zA+yJ5zJdk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mKzvjuM+aumQOC1pstvWteuiLOeOqis5Xgol0Qwg+CwnLXQHL/NvhfeWC06CpT0iz1CT9TfPfybMZF3cVhS18o2Phtv8EM9s7oIoeFtVOoc2P39DhiSId42NIUwkedG605qj+WBcEnl6iYVvdt13XwkuaxcxzQqz4b3+zLM+uH0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tM8MoflZ; arc=pass smtp.client-ip=74.125.224.167
+	 To:Cc:Content-Type; b=sU8weo9jvttiiaU1h7nuecAMgRmhXz7IIyD3zwsgdMvXf5M0+zkF49daX9Ewwapm1xY+B56uVBHchIOx/V5l7J7ADz0Ya6soHycncv8LpCwNQg8q0Zkp4CP9BxP7eLu3GZsD/LSn2pq5fhO9RESOT034b3qK6cPm7kvZWlV7VMs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FjK0KIOk; arc=pass smtp.client-ip=74.125.224.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tM8MoflZ"
-Received: by mail-yx2-f39.google.com with SMTP id 956f58d0204a3-6755aad8a98so922323d50.1
-        for <selinux@vger.kernel.org>; Mon, 05 Oct 2026 07:41:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791211312; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjK0KIOk"
+Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-677d35fd1d2so1011443d50.1
+        for <selinux@vger.kernel.org>; Mon, 05 Oct 2026 07:57:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791212264; cv=none;
         d=google.com; s=arc-20260327;
-        b=d7lZO9nZ+wTz713+2PeoW8iRVuG8tAMIQuwv9jtDMxNzDCwOcZCe3x2MB/n31x75O/
-         PKcYMtEzteSA9y+nYA+d9bVE6p3DuN7/4qznqEr9a1ikhLbrdLGtQeXTKoCjBWmNYfBo
-         s0X6mHhFWU/wvsTwddfaYxVLojf/+9T8rkqRVyaDrUKqWTa+0m3iJw07+m7CsQ3+6D2H
-         GCEW4+xLQzb5IoNZ+Qd0G817Sq1ElmRpb5zbfr+STafjhvCB3Cxh+MrgIUgkbqWmvT2Q
-         d/0054VIm5ujPT8bpmN+WTWwPDS/oTPUAexA+4+zQhrXuB+clckLv8MhkUhpZzm5OiM+
-         ptuQ==
+        b=MW4FHlUahzsGD7OrdNJ37gnKcdGipm7aUfckjEmY0wkJEHS6CbYe3sR3yFNoSHv4J6
+         VCmZbQEy1GT2hJg0H2qNG8lySF2LjzbP6nEhb5wfNxoh7dBKxg0g/95L91+nlYazm4Fr
+         lFmpF36ZAuejaGFNwyXeJ33zyI0wFspedKG7jBTFnFnYRoP8Bfcdz7g+6Q2d1zo/0s2J
+         Hhe/CfdeKHXZMUKebKJ6KvXdmebSqSr3Tam9NRK9rYgZLKob/EeGDgKL3rHNRAyIqKhz
+         PrcEyGyAqypbdGLlDHsZoD2p7p5G65Z6jNubMeV+cVpej7VzKX/nZMDsWpL/d0eZ5u7U
+         mUUQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=9WZyq3SJEXr+2Jl5iE76y6KWO0wbgmKoBwYU+jo7Wyc=;
-        fh=0aauTkkY9gdUQEDRq122+k97CIOHX8c9tFrxWuWhTo8=;
-        b=OxwNpbpgwOqgbt0jNnB11aBbAHMo7MaPKGBDIrHW5WvppdNMcsdV0tT9qJTGSgh5uN
-         AzJvIzNpVvjD2voBFPz9GO6GvgmQZfpXqsF963dM03RKe4JSWhkyxGFVcQqyntRcE4o1
-         Uh3PL6hW6CXhiq+ojnXhWpvluaIb/2E5f5LeDzVZu24mJrMFcThsv4PlGUdVZOpr0kwM
-         Uk16N+L72O8vspSi6CTmS1uvrkmbP1fJD87xpEkxiENDMsEf9Uav41LBJ+GE49L2SQLo
-         aHqns+DuBqWDrnaxnpR0sd/bgbuCaQyVB7qD8RGt/7Mm4OAGQX/Aqbv4dvzt3SKkXVXJ
-         WklA==;
+        bh=NyfaJ6LqpPDeU83/vIvKX4dKNKbdA+hT9zA+yJ5zJdk=;
+        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
+        b=jAp/zM8o5wyiIWXpp1yWPiywS9IVsjlwZ33G9lQNlhcEN3AgWeN0fiSF090UKTvohC
+         A8LiRYcaJQVfSSRIRzbx5P+vHF4GjjrqPjJ6zJCrR9w7TfWZjxS3dQTuqqk7unLO3rMO
+         iHS7fo+PRhmrWzwgfHWRjP9dHg+DlRmHbhy+Y90V7NZTmCnjBwLueFfZDwxuyTeFAs5I
+         JA2eZp1JlimOuBgu/J55QRPqaxZZEhDA0IlBt3qRist6Y3rRF+76zEUGBGoKIFXT3W/M
+         wEtrBmGxOUAosrJDnBAX1jJby53CUdKci+2P3eJ3EFDGC5/nd7mxPZ7s6udOJKIc/jUg
+         ei9Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791211312; x=1791816112; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791212264; x=1791817064; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=9WZyq3SJEXr+2Jl5iE76y6KWO0wbgmKoBwYU+jo7Wyc=;
-        b=tM8MoflZB1KVoy2IT2sjbVod1zF+LjLiQc0NQkepawGw2QEwKvp+qQcDv8o7Nt92ol
-         TojgGvQIUEhE96o8VnzZEECXzpl1haoHihbyEqPZtyfokS/mZW02ZU4lR4aMacmJ4RRx
-         zOkvwdLB19G+6zVOudD53XcGYtR3T0A6aWnrUf+BwuKcpXYS5fumbFMXoGSPyekx3v0C
-         VuSeVuXWkb9DQ7ldRcnLCTzHhM8oXR1HL0qxlRTbxYpTXQC5sliX9SXVjJqgbKGRyy3p
-         3e9buUCYQ+cv58lXQ8AgVZROc4vYMpMiyP+Xbu8XUrEFwvRFm9/MoECPivKXlr2Ek7YZ
-         rJmw==
+        bh=NyfaJ6LqpPDeU83/vIvKX4dKNKbdA+hT9zA+yJ5zJdk=;
+        b=FjK0KIOklGFNdZojMO05zN3W1gsN9m96aJ8VraJAjxElqoAK7g3oVsuVmTDmoEHgi7
+         /CEknCpRcp/HuRMYw7nPAXvZtHhueIkcxCGI3T7pZ19TZt0DvMd0E5JrSCtRJpUv8LJR
+         VMFBopqkphA6QuHzkEux2/EevHpovv8WICIv1Km1S/FJI4xdGZgXoqsiXwtZS3WrtRD5
+         q18oG5JOjQcatR7i+bB8DB8Fyy9I92DnJBPYF6M/j1J4ol7TWgR4sbawAWFKkjIcwQ8/
+         +RMsIxrywkiw0/le3js8iT1QEoMe+QDlN5N/yXaEARvuPz8ChP9B0f+Z3J7kA9objlJJ
+         PJ3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791211312; x=1791816112;
+        d=1e100.net; s=20260707; t=1791212264; x=1791817064;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9WZyq3SJEXr+2Jl5iE76y6KWO0wbgmKoBwYU+jo7Wyc=;
-        b=d49aWL9MEY1Uhdtl79zloSJDuUWuYWAy+ffqm9qWvvYe3zP8GbTbkronm/6gqCnX35
-         NmE2hviFLchaGtBAYYf9GO9d5594gnmArqaDZZ6daMmZLe2woC+OLs3LwFslPjmyhWLL
-         vSXBrOqh11sQ0HCGtOPl1s1lZ3snWrR/t3MULagP23QrScfvAAGcSvPAETq43DiRrF0B
-         AP/tA1D8pqIJJaUrcbb4R01EyV6f/zhAro90O4yLxDjeYvRCCQwVPo9AY88A8KOQakhF
-         pWKrBPu6NA3S+9mxKbvwU8BUl6O3wH1flg6i4bqrlhtu9Li8WoZxaMGcoZeEd2u08bU8
-         ijgA==
-X-Forwarded-Encrypted: i=1; AKwUvBwl+9nPWCyWHvYtL+OgKpf++VO8subjYvrPXCH2jAtrcKHURiou3rDn0itKIikwqttsyg/X3KJE@vger.kernel.org
-X-Gm-Message-State: AFq9FYIcC2ch942ewpqAMZJ0Fr+atp5HxoV6oG2fGUqCi/w40rDZjID8
-	ihRI40btce+RX1O30hEfdUzS93V1f/nwUbdb3Ah+WDSGQNjgeG8wyg+3Ooh0DB3x7jRTdd+Oi2i
-	QzqDMAaMEncqy3mGab17KmMQvo2nIsoxqXI1l
-X-Gm-Gg: AYBFou1PY0EI7nUgH3MRt4bD4R2hYdZ/MFc9nCkfWXY9/iLnwUIy96JiQacmM7Bnqj2
-	oB4iKOXK8iURi92MqdYPsg+77M6XXDs17AaPqLuciAfKMwzWtDnIHCImL2IQuLbt/wsZqMJSSQN
-	+YzIWuD3DowtnxSv/C8b/UNOyqdMb7/xZ2xZ5JreaPnSc54ZF4zGgDR+vciN+X+fRBHFreAaw6m
-	21cMPdGu5ge9AIlcTwmnw5gVfMJIWBhS0HvnDt05rKL2o3Id0z3wBMIfHSUIaxnl6QE3nlMto7c
-	wlUXwPYyAO3FLFuxiIXyiAbBB1zCdgLARD0JEQOdbkY/8/pt9kC4treK
-X-Received: by 2002:a05:690e:11cc:b0:671:70d1:d6d6 with SMTP id
- 956f58d0204a3-677ac14a747mr4062711d50.72.1791211312012; Mon, 05 Oct 2026
- 07:41:52 -0700 (PDT)
+        bh=NyfaJ6LqpPDeU83/vIvKX4dKNKbdA+hT9zA+yJ5zJdk=;
+        b=bQJfRRRDupi0J0dH43owvGNwPoQbqZ4taNY1bLO2ZBZt+e1DwkorETVYaby2OP35mI
+         k6W+W/UJKaDIshz9Wo3fFXtq1JPI3DBDplXcwbQ4zHvk44E8QKFjl5hn5aZT+Viylc1a
+         VM95S4PbI5drY0Jr0rbSsPwUV4+muqjiXnK9owKXuq9c4ov/GB0LfqFA3ocw59bhHtdn
+         eo0z9nOrWtLIswX57FrWzkTeHthqx4azri6LHgBvrZoqYhwVU0eC92pdlCwqPzrfKxxw
+         uKTC4xkncKIF2iKYZ4+2dYgSyfvsGuUJyk7R7Am7vQJEssgQ4M7929HHtuqWnaSXxN/E
+         PSaQ==
+X-Gm-Message-State: AFuF++mEU63v8Z19H9ci+gpGvtwo3Dg0oyeiGaXJkan8+p3kb48jANzB
+	JOZYSnSuJJy8ZXO/i4V3bdlPnSdmEIyXSIRpHVo1ROnf2uhC69+qPmnfjyqQzzWsOSpH0R9wTyM
+	K3T4WBaREn1q8GL60O6pIZ1pP1zMmsjKyhQ==
+X-Gm-Gg: AYBFou1a5n7/MESaSdehiNFWS7jKRFm96Z6Xh8KHuLBxt0EBtjykzTlDK8qwZZTosda
+	uKSQgg8V2RVLiKGfPcwkRc7x453R8W0jhOIrksUaVvJVl1t9GFQaT2h3smQLMXVo+/uc2wmLybb
+	03WL4fXtFJRIEtcFwcCkaUhZRql+cW5Tp7ZQ35cPs9iE2IPsr+kkVyBXumpymM6fI7xyRt9MXRC
+	XkLi7sxzJIwNZ4c86Fc5SUXFx/HQqrJcVP3Dlk5wXEqLLFT/cG0R64V/6Opc6bj7ysDUsfEPPAa
+	7fHUDxGU0hy2nUNdbJpF1l4TjkUbHWCxV3FdmqFXksFn9bSCDfEPBspGKTOAqKWuqQ==
+X-Received: by 2002:a05:690e:4809:b0:675:5d61:840d with SMTP id
+ 956f58d0204a3-677bd2ceaa0mr1122879d50.32.1791212263879; Mon, 05 Oct 2026
+ 07:57:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ6Ria-P6quOcjwkGSGdEyFRVCiJ0b+mwsd=LXGR5oW-Cg@mail.gmail.com>
- <20261005133120.2552484-1-bgrech@redhat.com>
-In-Reply-To: <20261005133120.2552484-1-bgrech@redhat.com>
+References: <20261005133143.91648-1-lautrbach@redhat.com>
+In-Reply-To: <20261005133143.91648-1-lautrbach@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 5 Oct 2026 10:41:40 -0400
-X-Gm-Features: AclHuK89273wnaIyE8XrHG6M2WfmfBsybIhWMETRF2a1ROp74MDnXYSuGWjELZw
-Message-ID: <CAEjxPJ4KY+E58gPPqvaKW_cBY=j3OAq+XU4BU=SYD+MUAoCyog@mail.gmail.com>
-Subject: Re: [PATCH] tests: make IPv6 subtests optional on IPv4-only systems
-To: Brian Grech <bgrech@redhat.com>
-Cc: jonderka@redhat.com, selinux@vger.kernel.org
+Date: Mon, 5 Oct 2026 10:57:32 -0400
+X-Gm-Features: AclHuK9HbhBukNco2cdFlgy87O9O2YrdAY78_4QKuDitDhZGq3wLmMNBiIjkCqc
+Message-ID: <CAEjxPJ5euHUPhGL9vAO8x7AskG5zb8cuvvC6Zq+cE2yj8wu5wg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] libsemanage: backport sha256 WaterJuice/WjCryptLib
+ 3.0.0 fixes
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 5, 2026 at 9:31=E2=80=AFAM Brian Grech <bgrech@redhat.com> wrot=
-e:
+On Mon, Oct 5, 2026 at 9:41=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
+> wrote:
 >
-> Skip or adapt IPv6-dependent subtests (inet_socket, extended_socket_class=
-,
-> sctp) when the system has no usable IPv6 on loopback, instead of
-> assuming ::1 and ip6tables always work.
+> https://github.com/WaterJuice/WjCryptLib/releases/tag/Version_3.0.0
 >
-> - Add tests/has_ipv6, checking /proc/net/if_inet6 and disable_ipv6
->   sysctls.
-> - Gate IPv6-only cases behind $test_ipv6 and adjust test counts.
-> - inet_socket/server.c falls back to AF_INET when IPv6 is absent.
-> - Split IPv6 firewall rules into nftables-ipv6.load, invoked only when
->   has_ipv6 succeeds.
-> - Select address family via has_ipv6 before entering confined test
->   domains, rather than probing IPv6 from inside them: that probe can
->   itself be denied by policy, silently selecting IPv4 while the runner
->   keeps executing IPv6-only cases.
->
-> Co-developed-by: Jan Onderka <jonderka@redhat.com>
-> Signed-off-by: Jan Onderka <jonderka@redhat.com>
-> Signed-off-by: Brian Grech <bgrech@redhat.com>
-> ---
-
-For future reference, normally one would add a "v2" (or "v3", "v4",
-...) to the subject line and put a short changelog after the "---"
-before the diffstat describing what changed from the previous version.
-No need to re-spin this one though.
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
 Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
