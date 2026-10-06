@@ -1,54 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB80456E10
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20AB8456E10
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791291857; cv=none; b=Vw4UFGRBPcheEEeBgMDzyInkQcDYrwEBtO34sJT4Qt0NJpIwhkaqJMnkMxjkLYl/5onkGVz2HDxN7duSlWG9Db2sIIeTFbaERgpcOqJxBSXtuycJ1sXh4njfe5+ugdr/abmxpZJ+WKwm/5RQwSAPFSqNojGuOxLbDy7U0Ji4ngQ=
+	t=1791291860; cv=none; b=iNpyHVj2s77TmEvyLFmT0h4KNdQ3ieLyA2OXEjRUdJ3gAZaDSrnSr5bx0FhKBJ7GR8CTEQ8lzTOhpgX53mbR47p0vIyGvf3KrU+4YdHN7nObhqXoCPGwEQFSVPCeGjnsWxT+A+PB67bltPJeLKRJXmwaXf9IhX2k/LwkPyYUJOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791291857; c=relaxed/simple;
-	bh=Sd/f/8dUIdbiNjxZpm6CYaNHo3SiQ4oBnhuhYO+kwZU=;
+	s=arc-20240116; t=1791291860; c=relaxed/simple;
+	bh=1+78wfiqynhgI4EQf3b7k2d8wIMc61e/P8GFxsD+Z4s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gG+gDMjUbiCFuhfS16FBYH79zKePfDhuwZciXLOsKyUGLCwYVbdrVXB3hHIk5T62tYUYojLDpb3IUcva2HNbVYWmqO8IJPNToFg8DJq/9QcnhWEg43nqKm24i2NgAOgZ99WTuNbufQ6YiJm8SVbecYh7SIPlUjIt0WQbWG7IX1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I9vMXufw; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=NhLed1sXiW27L3SEygz7vqeMnkq1WdPNJbt/N8mNx+6gfpXcBeLaTm5CnMTGk3nFICYvDSudbVrNuAJSHlkByCPSNFaQOzUevHdpBoWsXZDmBct44T84SryQbBFd5MI5C5eve8RBRfW2GI6rgsr1JRCsNys+87+H1sDobOmS/jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J8j34f7r; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I9vMXufw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J8j34f7r"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791291853;
+	s=mimecast20190719; t=1791291856;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=62iLKgb2WUNUUkTrGchCYY8tPd3GAZUA5zsNQx1p/a8=;
-	b=I9vMXufwPyWJ4w0+lRgckYZcIlx/+B9VXZkq0GWUpWbhj6DYdxUT089i0ZLuqpHqxm+Lxe
-	7l6oBTDL0bGtwt1Dd2//wnrJZLS2hzzBsljl5KGrPG4/ufwLCGNkBbzSsUOOgHK4gzb87D
-	Lqap+iN1imvcrRlDmQxEFJ2hyt+sSbs=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=zqEDHRVTy2YWbcJpUzVCtqB9/WhCe2oU23uZQj/ZD0I=;
+	b=J8j34f7raDt4pdwgDEFQc6feVLZyKA+zm35MnEuNlG4JLVUiKhGoCp2U3Qnl587CMRHeOS
+	3Ev8eC1Fve+DDh7QrlVXRzr4jgUbGFXM4BtFhr0XZd6nzijyp1Q2y4HbJW4gxKb6g/JByB
+	WFtfDYP08cC8yX8FUnaxZ/XlpAx96Vg=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-25-GIAF4_rNMtyQqUibXsYw2Q-1; Tue,
- 6 Oct 2026 13:04:12 +0000
-X-MC-Unique: GIAF4_rNMtyQqUibXsYw2Q-1
-X-Mimecast-MFC-AGG-ID: GIAF4_rNMtyQqUibXsYw2Q_1791291851
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-614-zYHuwnmpNemKvrfbhqkgsQ-1; Tue,
+ 06 Oct 2026 09:04:14 -0400
+X-MC-Unique: zYHuwnmpNemKvrfbhqkgsQ-1
+X-Mimecast-MFC-AGG-ID: zYHuwnmpNemKvrfbhqkgsQ_1791291853
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 14313196F746;
-	Tue,  6 Oct 2026 13:04:11 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8DCBF1830304;
+	Tue,  6 Oct 2026 13:04:13 +0000 (UTC)
 Received: from jjanasek-thinkpadt14gen5.tpbc.com (unknown [10.44.48.38])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B4EBA1956047;
-	Tue,  6 Oct 2026 13:04:09 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6F1C61956047;
+	Tue,  6 Oct 2026 13:04:12 +0000 (UTC)
 From: jan janasek <jjanasek@redhat.com>
 To: selinux@vger.kernel.org
 Cc: jan janasek <jjanasek@redhat.com>,
 	Juraj Marcin <juraj@jurajmarcin.com>
-Subject: [RFC PATCH userspace 05/17] libsepol: add public user iterator and accessors
-Date: Tue,  6 Oct 2026 15:02:03 +0200
-Message-ID: <20261006130215.128405-6-jjanasek@redhat.com>
+Subject: [RFC PATCH userspace 06/17] libsepol: add public role record structure and iterator
+Date: Tue,  6 Oct 2026 15:02:04 +0200
+Message-ID: <20261006130215.128405-7-jjanasek@redhat.com>
 In-Reply-To: <20261006130215.128405-1-jjanasek@redhat.com>
 References: <20261006130215.128405-1-jjanasek@redhat.com>
 Precedence: bulk
@@ -60,749 +60,630 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Add sepol_user_iter for iterating users, sepol_user_value_to_name()
-and sepol_user_query_by_value() for resolving a 1-based user value,
-and harden the existing user_record accessors against NULL arguments.
+Introduce sepol_role_t with getter/setter API for role name, value,
+type membership, dominance, bounds, and flavor. Add sepol_role_iter,
+sepol_role_value_to_name(), and sepol_role_query_by_value().
 
 Co-developed-by: Juraj Marcin <juraj@jurajmarcin.com>
 Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
 Assisted-by: LLM Cursor
 Signed-off-by: Jan Janasek <jjanasek@redhat.com>
 ---
- libsepol/include/sepol/users.h   |  65 ++++-
- libsepol/src/user_record.c       | 100 +++++++-
- libsepol/src/users.c             | 416 ++++++++++++++++++++++++++++---
- libsepol/tests/test-iter-users.c | 115 +++++++++
- libsepol/tests/test-iter-users.h |   7 +
- libsepol/tests/test-iter.c       |   7 +
- 6 files changed, 659 insertions(+), 51 deletions(-)
- create mode 100644 libsepol/tests/test-iter-users.c
- create mode 100644 libsepol/tests/test-iter-users.h
+ libsepol/include/sepol/role_record.h        |  79 +++++
+ libsepol/include/sepol/roles.h              |  57 ++++
+ libsepol/src/role_record.c                  | 316 ++++++++++++++++++++
+ libsepol/src/roles.c                        | 253 ++++++++++++++++
+ libsepol/tests/policies/test-iter/iter.conf |   2 +
+ libsepol/tests/test-iter-roles.c            | 165 ++++++++++
+ libsepol/tests/test-iter-roles.h            |   7 +
+ libsepol/tests/test-iter.c                  |   7 +
+ 8 files changed, 886 insertions(+)
+ create mode 100644 libsepol/include/sepol/role_record.h
+ create mode 100644 libsepol/include/sepol/roles.h
+ create mode 100644 libsepol/src/role_record.c
+ create mode 100644 libsepol/src/roles.c
+ create mode 100644 libsepol/tests/test-iter-roles.c
+ create mode 100644 libsepol/tests/test-iter-roles.h
 
-diff --git a/libsepol/include/sepol/users.h b/libsepol/include/sepol/users.h
-index d1c7c5ff..e7b90721 100644
---- a/libsepol/include/sepol/users.h
-+++ b/libsepol/include/sepol/users.h
-@@ -1,16 +1,25 @@
- #ifndef _SEPOL_USERS_H_
- #define _SEPOL_USERS_H_
- 
-+#include <sepol/cat_set.h>
- #include <sepol/policydb.h>
- #include <sepol/user_record.h>
- #include <sepol/handle.h>
- #include <stddef.h>
-+#include <stdint.h>
- 
- #ifdef __cplusplus
- extern "C" {
- #endif
- 
--/* Modify the user, or add it, if the key is not found */
-+struct sepol_user_iter;
-+typedef struct sepol_user_iter sepol_user_iter_t;
+diff --git a/libsepol/include/sepol/role_record.h b/libsepol/include/sepol/role_record.h
+new file mode 100644
+index 00000000..4498a126
+--- /dev/null
++++ b/libsepol/include/sepol/role_record.h
+@@ -0,0 +1,79 @@
++#ifndef _SEPOL_ROLE_RECORD_H_
++#define _SEPOL_ROLE_RECORD_H_
 +
-+/* Modify the user, or add it, if the key is not found.
-+ * On failure when adding a new user, the user may still have been inserted
-+ * into the policydb with an incomplete role set; the policydb remains
-+ * memory-safe to use and destroy, but should not be relied upon to be
-+ * fully consistent for that user. */
- extern int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *policydb,
- 			     const sepol_user_key_t *key,
- 			     const sepol_user_t *data);
-@@ -29,6 +38,17 @@ extern int sepol_user_query(sepol_handle_t *handle, const sepol_policydb_t *p,
- 			    const sepol_user_key_t *key,
- 			    sepol_user_t **response);
- 
-+/* Resolve a user value to its name.  Returns non-zero on invalid value.
++#include <stdint.h>
++
++#include <sepol/handle.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++struct sepol_role;
++typedef struct sepol_role sepol_role_t;
++struct sepol_role_key;
++typedef struct sepol_role_key sepol_role_key_t;
++
++/* Key */
++extern int sepol_role_key_create(sepol_handle_t *handle, const char *name,
++				 sepol_role_key_t **key);
++extern void sepol_role_key_unpack(const sepol_role_key_t *key,
++				  const char **name);
++extern int sepol_role_key_extract(sepol_handle_t *handle,
++				  const sepol_role_t *role,
++				  sepol_role_key_t **key);
++extern void sepol_role_key_free(sepol_role_key_t *key);
++
++extern int sepol_role_compare(const sepol_role_t *role,
++			      const sepol_role_key_t *key);
++extern int sepol_role_compare2(const sepol_role_t *role,
++			       const sepol_role_t *role2);
++
++/* Role name */
++extern const char *sepol_role_get_name(const sepol_role_t *role);
++extern int sepol_role_set_name(sepol_handle_t *handle, sepol_role_t *role,
++			       const char *name);
++
++/* Authorized types */
++extern int sepol_role_has_type(const sepol_role_t *role, const char *type);
++extern int sepol_role_get_types(sepol_handle_t *handle,
++				const sepol_role_t *role, const char ***types,
++				uint32_t *num_types);
++extern int sepol_role_add_type(sepol_handle_t *handle, sepol_role_t *role,
++			       const char *type);
++extern int sepol_role_del_type(sepol_handle_t *handle, sepol_role_t *role,
++			       const char *type);
++
++/* Bounds role */
++extern const char *sepol_role_get_bounds(const sepol_role_t *role);
++extern int sepol_role_set_bounds(sepol_handle_t *handle, sepol_role_t *role,
++				 const char *bounds);
++
++/* Flavor */
++#define SEPOL_ROLE_ROLE 0
++#define SEPOL_ROLE_ATTRIB 1
++extern uint32_t sepol_role_get_flavor(const sepol_role_t *role);
++extern int sepol_role_set_flavor(sepol_handle_t *handle, sepol_role_t *role,
++				 uint32_t flavor);
++
++/* Subroles in attribute */
++extern int sepol_role_get_subroles(sepol_handle_t *handle,
++				   const sepol_role_t *role,
++				   const char ***subroles,
++				   uint32_t *num_subroles);
++extern int sepol_role_add_subrole(sepol_handle_t *handle, sepol_role_t *role,
++				  const char *subrole);
++extern int sepol_role_del_subrole(sepol_handle_t *handle, sepol_role_t *role,
++				  const char *subrole);
++
++/* Create/Clone/Destroy */
++extern int sepol_role_create(sepol_handle_t *handle, sepol_role_t **role_ptr);
++extern int sepol_role_clone(sepol_handle_t *handle, const sepol_role_t *role,
++			    sepol_role_t **role_ptr);
++extern void sepol_role_free(sepol_role_t *role);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+diff --git a/libsepol/include/sepol/roles.h b/libsepol/include/sepol/roles.h
+new file mode 100644
+index 00000000..f371755f
+--- /dev/null
++++ b/libsepol/include/sepol/roles.h
+@@ -0,0 +1,57 @@
++#ifndef _SEPOL_ROLES_H_
++#define _SEPOL_ROLES_H_
++
++#include <sepol/policydb.h>
++#include <sepol/role_record.h>
++#include <sepol/handle.h>
++#include <stdint.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++struct sepol_role_iter;
++typedef struct sepol_role_iter sepol_role_iter_t;
++
++/* Return the number of roles */
++extern int sepol_role_count(sepol_handle_t *handle, const sepol_policydb_t *p,
++			    unsigned int *response);
++
++/* Check if the specified role exists */
++extern int sepol_role_exists(sepol_handle_t *handle, const sepol_policydb_t *p,
++			     const sepol_role_key_t *key, int *response);
++
++/* Query a role - returns the role or NULL if not found */
++extern int sepol_role_query(sepol_handle_t *handle, const sepol_policydb_t *p,
++			    const sepol_role_key_t *key,
++			    sepol_role_t **response);
++
++/* Resolve a role value to its name.  Returns non-zero on invalid value.
 + * The returned pointer is borrowed from the policydb; do not free. */
-+extern int sepol_user_value_to_name(sepol_handle_t *handle,
++extern int sepol_role_value_to_name(sepol_handle_t *handle,
 +				    const sepol_policydb_t *p, uint32_t value,
 +				    const char **name);
 +
-+/* Query a user by value - returns the user or NULL if not found */
-+extern int sepol_user_query_by_value(sepol_handle_t *handle,
++/* Query a role by value - returns the role or NULL if not found */
++extern int sepol_role_query_by_value(sepol_handle_t *handle,
 +				     const sepol_policydb_t *p, uint32_t value,
-+				     sepol_user_t **response);
++				     sepol_role_t **response);
 +
- /* Iterate the users
-  * The handler may return:
-  * -1 to signal an error condition,
-@@ -39,6 +59,49 @@ extern int sepol_user_iterate(sepol_handle_t *handle,
- 			      int (*fn)(const sepol_user_t *user, void *fn_arg),
- 			      void *arg);
- 
 +/*
-+ * Users iterator. Iteration order follows ascending internal value
++ * Iterating roles. Iteration order follows ascending internal value
 + * assignment, which typically -- but is not guaranteed to -- match
 + * declaration order; callers should not treat it as a stable guarantee
 + * across policydb versions.
 + */
-+extern int sepol_user_iter_create(sepol_handle_t *handle,
++extern int sepol_role_iter_create(sepol_handle_t *handle,
 +				  const sepol_policydb_t *p,
-+				  sepol_user_iter_t **iter);
-+extern void sepol_user_iter_destroy(sepol_user_iter_t *iter);
-+extern int sepol_user_iter_next(sepol_handle_t *handle, sepol_user_iter_t *iter,
-+				sepol_user_t **item);
++				  sepol_role_iter_t **iter);
++extern void sepol_role_iter_destroy(sepol_role_iter_t *iter);
++extern int sepol_role_iter_next(sepol_handle_t *handle, sepol_role_iter_t *iter,
++				sepol_role_t **item);
 +
-+extern uint32_t sepol_user_get_dflt_level_sens(const sepol_policydb_t *p,
-+					       uint32_t user_value);
++#ifdef __cplusplus
++}
++#endif
 +
-+/*
-+ * NOTE on sepol_cat_set_iter_t **cat_iter parameters below: see the
-+ * ownership contract documented in cat_set.h. The callee always allocates
-+ * a new, caller-owned iterator that must be freed with
-+ * sepol_cat_set_iter_destroy().
-+ */
-+extern int sepol_user_get_dflt_level_cat(sepol_handle_t *handle,
-+					 const sepol_policydb_t *p,
-+					 uint32_t user_value,
-+					 sepol_cat_set_iter_t **cat_iter);
++#endif
+diff --git a/libsepol/src/role_record.c b/libsepol/src/role_record.c
+new file mode 100644
+index 00000000..cbc8f774
+--- /dev/null
++++ b/libsepol/src/role_record.c
+@@ -0,0 +1,316 @@
++#include <sepol/role_record.h>
 +
-+extern uint32_t sepol_user_get_range_low_sens(const sepol_policydb_t *p,
-+					      uint32_t user_value);
++#include <stdint.h>
++#include <stdlib.h>
++#include <string.h>
 +
-+extern uint32_t sepol_user_get_range_high_sens(const sepol_policydb_t *p,
-+					       uint32_t user_value);
++#include "sepol/policydb/util.h"
++#include "debug.h"
 +
-+extern int sepol_user_get_range_low_cat(sepol_handle_t *handle,
-+					const sepol_policydb_t *p,
-+					uint32_t user_value,
-+					sepol_cat_set_iter_t **cat_iter);
++struct sepol_role {
++	char *name; /* role name */
++	char **types; /* authorized types */
++	uint32_t num_types;
++	char *bounds; /* bounded role */
++	uint32_t flavor; /* role or attribute */
++	char **subroles; /* roles within attribute */
++	uint32_t num_subroles;
++};
 +
-+extern int sepol_user_get_range_high_cat(sepol_handle_t *handle,
-+					 const sepol_policydb_t *p,
-+					 uint32_t user_value,
-+					 sepol_cat_set_iter_t **cat_iter);
++struct sepol_role_key {
++	char *name;
++};
 +
- #ifdef __cplusplus
- }
- #endif
-diff --git a/libsepol/src/user_record.c b/libsepol/src/user_record.c
-index 4e14cbd4..87b2c629 100644
---- a/libsepol/src/user_record.c
-+++ b/libsepol/src/user_record.c
-@@ -1,4 +1,5 @@
- #include <errno.h>
-+#include <limits.h>
- #include <stdlib.h>
- #include <string.h>
- 
-@@ -31,12 +32,21 @@ struct sepol_user_key {
- int sepol_user_key_create(sepol_handle_t *handle, const char *name,
- 			  sepol_user_key_t **key_ptr)
- {
-+	if (!key_ptr)
++/* Key */
++int sepol_role_key_create(sepol_handle_t *handle, const char *name,
++			  sepol_role_key_t **key)
++{
++	if (!key)
 +		return STATUS_ERR;
 +	if (!name) {
 +		ERR(handle, "name is NULL");
-+		*key_ptr = NULL;
++		*key = NULL;
 +		return STATUS_ERR;
 +	}
-+
- 	sepol_user_key_t *tmp_key =
- 		(sepol_user_key_t *)malloc(sizeof(sepol_user_key_t));
- 
- 	if (!tmp_key) {
- 		ERR(handle, "out of memory, "
- 			    "could not create selinux user key");
-+		*key_ptr = NULL;
- 		return STATUS_ERR;
- 	}
- 
-@@ -44,6 +54,7 @@ int sepol_user_key_create(sepol_handle_t *handle, const char *name,
- 	if (!tmp_key->name) {
- 		ERR(handle, "out of memory, could not create selinux user key");
- 		free(tmp_key);
-+		*key_ptr = NULL;
- 		return STATUS_ERR;
- 	}
- 
-@@ -53,12 +64,17 @@ int sepol_user_key_create(sepol_handle_t *handle, const char *name,
- 
- void sepol_user_key_unpack(const sepol_user_key_t *key, const char **name)
- {
--	*name = key->name;
-+	*name = key ? key->name : NULL;
- }
- 
- int sepol_user_key_extract(sepol_handle_t *handle, const sepol_user_t *user,
- 			   sepol_user_key_t **key_ptr)
- {
-+	if (!user || !user->name) {
-+		ERR(handle, "user name is NULL");
-+		return STATUS_ERR;
-+	}
-+
- 	if (sepol_user_key_create(handle, user->name, key_ptr) < 0) {
- 		ERR(handle, "could not extract key from user %s", user->name);
- 		return STATUS_ERR;
-@@ -77,23 +93,31 @@ void sepol_user_key_free(sepol_user_key_t *key)
- 
- int sepol_user_compare(const sepol_user_t *user, const sepol_user_key_t *key)
- {
-+	if (!user || !key || !user->name || !key->name)
-+		return -1;
- 	return strcmp(user->name, key->name);
- }
- 
- int sepol_user_compare2(const sepol_user_t *user, const sepol_user_t *user2)
- {
-+	if (!user || !user2 || !user->name || !user2->name)
-+		return -1;
- 	return strcmp(user->name, user2->name);
- }
- 
- /* Name */
- const char *sepol_user_get_name(const sepol_user_t *user)
- {
--	return user->name;
-+	return user ? user->name : NULL;
- }
- 
- int sepol_user_set_name(sepol_handle_t *handle, sepol_user_t *user,
- 			const char *name)
- {
-+	if (!user || !name) {
-+		ERR(handle, "user or name is NULL");
-+		return STATUS_ERR;
-+	}
- 	char *tmp_name = strdup(name);
- 	if (!tmp_name) {
- 		ERR(handle, "out of memory, could not set name");
-@@ -107,12 +131,16 @@ int sepol_user_set_name(sepol_handle_t *handle, sepol_user_t *user,
- /* MLS */
- const char *sepol_user_get_mlslevel(const sepol_user_t *user)
- {
--	return user->mls_level;
-+	return user ? user->mls_level : NULL;
- }
- 
- int sepol_user_set_mlslevel(sepol_handle_t *handle, sepol_user_t *user,
- 			    const char *mls_level)
- {
-+	if (!user || !mls_level) {
-+		ERR(handle, "user or mls_level is NULL");
-+		return STATUS_ERR;
-+	}
- 	char *tmp_mls_level = strdup(mls_level);
- 	if (!tmp_mls_level) {
- 		ERR(handle, "out of memory, "
-@@ -126,12 +154,16 @@ int sepol_user_set_mlslevel(sepol_handle_t *handle, sepol_user_t *user,
- 
- const char *sepol_user_get_mlsrange(const sepol_user_t *user)
- {
--	return user->mls_range;
-+	return user ? user->mls_range : NULL;
- }
- 
- int sepol_user_set_mlsrange(sepol_handle_t *handle, sepol_user_t *user,
- 			    const char *mls_range)
- {
-+	if (!user || !mls_range) {
-+		ERR(handle, "user or mls_range is NULL");
-+		return STATUS_ERR;
-+	}
- 	char *tmp_mls_range = strdup(mls_range);
- 	if (!tmp_mls_range) {
- 		ERR(handle, "out of memory, "
-@@ -146,18 +178,26 @@ int sepol_user_set_mlsrange(sepol_handle_t *handle, sepol_user_t *user,
- /* Roles */
- int sepol_user_get_num_roles(const sepol_user_t *user)
- {
--	return user->num_roles;
-+	return user ? (int)user->num_roles : 0;
- }
- 
- int sepol_user_add_role(sepol_handle_t *handle, sepol_user_t *user,
- 			const char *role)
- {
--	char *role_cp;
-+	char *role_cp = NULL;
- 	char **roles_realloc = NULL;
- 
-+	if (!user || !role) {
-+		ERR(handle, "user or role is NULL");
-+		return STATUS_ERR;
-+	}
-+
- 	if (sepol_user_has_role(user, role))
- 		return STATUS_SUCCESS;
- 
-+	if (user->num_roles == UINT_MAX)
++	sepol_role_key_t *tmp_key = malloc(sizeof(sepol_role_key_t));
++	if (!tmp_key)
++		goto omem;
++	tmp_key->name = strdup(name);
++	if (!tmp_key->name)
 +		goto omem;
 +
- 	role_cp = strdup(role);
- 	if (!role_cp)
- 		goto omem;
-@@ -184,6 +224,9 @@ int sepol_user_has_role(const sepol_user_t *user, const char *role)
- {
- 	unsigned int i;
- 
-+	if (!user || !role)
++	*key = tmp_key;
++	return STATUS_SUCCESS;
++
++omem:
++	ERR(handle, "out of memory");
++	free(tmp_key);
++	*key = NULL;
++	return STATUS_ERR;
++}
++
++void sepol_role_key_unpack(const sepol_role_key_t *key, const char **name)
++{
++	*name = key ? key->name : NULL;
++}
++
++int sepol_role_key_extract(sepol_handle_t *handle, const sepol_role_t *role,
++			   sepol_role_key_t **key)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	if (!role->name) {
++		ERR(handle, "role name is NULL");
++		return STATUS_ERR;
++	}
++	return sepol_role_key_create(handle, role->name, key);
++}
++
++void sepol_role_key_free(sepol_role_key_t *key)
++{
++	if (!key)
++		return;
++	free(key->name);
++	free(key);
++}
++
++int sepol_role_compare(const sepol_role_t *role, const sepol_role_key_t *key)
++{
++	if (!role || !key || !role->name || !key->name)
++		return -1;
++	return strcmp(role->name, key->name);
++}
++
++int sepol_role_compare2(const sepol_role_t *role, const sepol_role_t *role2)
++{
++	if (!role || !role2 || !role->name || !role2->name)
++		return -1;
++	return strcmp(role->name, role2->name);
++}
++
++/* Role name */
++const char *sepol_role_get_name(const sepol_role_t *role)
++{
++	return role ? role->name : NULL;
++}
++
++int sepol_role_set_name(sepol_handle_t *handle, sepol_role_t *role,
++			const char *name)
++{
++	if (!role || !name) {
++		ERR(handle, "role or name is NULL");
++		return STATUS_ERR;
++	}
++	char *tmp_name = strdup(name);
++	if (!tmp_name) {
++		ERR(handle, "out of memory, could not set name");
++		return STATUS_ERR;
++	}
++	free(role->name);
++	role->name = tmp_name;
++	return STATUS_SUCCESS;
++}
++
++/* Authorized types */
++int sepol_role_has_type(const sepol_role_t *role, const char *type)
++{
++	if (!role)
 +		return 0;
++	return string_list_contains(role->types, role->num_types, type);
++}
 +
- 	for (i = 0; i < user->num_roles; i++)
- 		if (!strcmp(user->roles[i], role))
- 			return 1;
-@@ -196,9 +239,14 @@ int sepol_user_set_roles(sepol_handle_t *handle, sepol_user_t *user,
- 	unsigned int i;
- 	char **tmp_roles = NULL;
- 
-+	if (!user || (num_roles > 0 && !roles_arr)) {
-+		ERR(handle, "user or roles_arr is NULL");
++int sepol_role_get_types(sepol_handle_t *handle, const sepol_role_t *role,
++			 const char ***types, uint32_t *num_types)
++{
++	if (!types || !num_types)
++		return STATUS_ERR;
++	if (!role) {
++		*types = NULL;
++		*num_types = 0;
++		return STATUS_ERR;
++	}
++	return string_list_scopy(handle, role->types, role->num_types, types,
++				 num_types);
++}
++
++int sepol_role_add_type(sepol_handle_t *handle, sepol_role_t *role,
++			const char *type)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	return string_list_add_unique(handle, &role->types, &role->num_types,
++				      type);
++}
++
++int sepol_role_del_type(sepol_handle_t *handle, sepol_role_t *role,
++			const char *type)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	return string_list_del(role->types, &role->num_types, type);
++}
++
++/* Bounds role */
++const char *sepol_role_get_bounds(const sepol_role_t *role)
++{
++	return role ? role->bounds : NULL;
++}
++
++int sepol_role_set_bounds(sepol_handle_t *handle, sepol_role_t *role,
++			  const char *bounds)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
 +		return STATUS_ERR;
 +	}
 +
- 	if (num_roles > 0) {
- 		/* First, make a copy */
--		tmp_roles = (char **)calloc(1, sizeof(char *) * num_roles);
-+		tmp_roles = (char **)calloc(num_roles, sizeof(char *));
- 		if (!tmp_roles)
- 			goto omem;
- 
-@@ -238,8 +286,23 @@ int sepol_user_get_roles(sepol_handle_t *handle, const sepol_user_t *user,
- 			 const char ***roles_arr, unsigned int *num_roles)
- {
- 	unsigned int i;
--	const char **tmp_roles =
--		(const char **)calloc(user->num_roles, sizeof(char *));
-+	const char **tmp_roles;
-+
-+	if (!roles_arr || !num_roles)
-+		return STATUS_ERR;
-+	if (!user) {
-+		*roles_arr = NULL;
-+		*num_roles = 0;
-+		return STATUS_ERR;
-+	}
-+
-+	if (user->num_roles == 0) {
-+		*roles_arr = NULL;
-+		*num_roles = 0;
++	if (!bounds) {
++		free(role->bounds);
++		role->bounds = NULL;
 +		return STATUS_SUCCESS;
 +	}
 +
-+	tmp_roles = (const char **)calloc(user->num_roles, sizeof(char *));
- 	if (!tmp_roles)
- 		goto omem;
- 
-@@ -262,6 +325,10 @@ omem:
- void sepol_user_del_role(sepol_user_t *user, const char *role)
- {
- 	unsigned int i;
-+
-+	if (!user || !role)
-+		return;
-+
- 	for (i = 0; i < user->num_roles; i++) {
- 		if (!strcmp(user->roles[i], role)) {
- 			free(user->roles[i]);
-@@ -275,11 +342,16 @@ void sepol_user_del_role(sepol_user_t *user, const char *role)
- /* Create */
- int sepol_user_create(sepol_handle_t *handle, sepol_user_t **user_ptr)
- {
--	sepol_user_t *user = (sepol_user_t *)malloc(sizeof(sepol_user_t));
-+	sepol_user_t *user;
-+
-+	if (!user_ptr)
-+		return STATUS_ERR;
- 
-+	user = (sepol_user_t *)malloc(sizeof(sepol_user_t));
- 	if (!user) {
- 		ERR(handle, "out of memory, "
- 			    "could not create selinux user record");
-+		*user_ptr = NULL;
- 		return STATUS_ERR;
- 	}
- 
-@@ -300,6 +372,13 @@ int sepol_user_clone(sepol_handle_t *handle, const sepol_user_t *user,
- 	sepol_user_t *new_user = NULL;
- 	unsigned int i;
- 
-+	if (!user_ptr)
-+		return STATUS_ERR;
-+	if (!user) {
-+		*user_ptr = NULL;
++	char *tmp_bounds = strdup(bounds);
++	if (!tmp_bounds) {
++		ERR(handle, "out of memory");
 +		return STATUS_ERR;
 +	}
 +
- 	if (sepol_user_create(handle, &new_user) < 0)
- 		goto err;
- 
-@@ -325,6 +404,7 @@ int sepol_user_clone(sepol_handle_t *handle, const sepol_user_t *user,
- err:
- 	ERR(handle, "could not clone selinux user record");
- 	sepol_user_free(new_user);
-+	*user_ptr = NULL;
- 	return STATUS_ERR;
- }
- 
-diff --git a/libsepol/src/users.c b/libsepol/src/users.c
-index bd257dcd..d3e045ce 100644
---- a/libsepol/src/users.c
-+++ b/libsepol/src/users.c
-@@ -1,3 +1,6 @@
-+#include <sepol/users.h>
++	free(role->bounds);
++	role->bounds = tmp_bounds;
 +
-+#include <stdint.h>
- #include <stdlib.h>
- #include <stddef.h>
- #include <string.h>
-@@ -9,20 +12,33 @@
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/hashtab.h>
- #include <sepol/policydb/expand.h>
-+#include "sepol/policydb/util.h"
- #include "user_internal.h"
-+#include "cat_set_internal.h"
- #include "mls.h"
- 
-+struct sepol_user_iter {
++	return STATUS_SUCCESS;
++}
++
++/* Flavor */
++uint32_t sepol_role_get_flavor(const sepol_role_t *role)
++{
++	return role ? role->flavor : 0;
++}
++
++int sepol_role_set_flavor(sepol_handle_t *handle, sepol_role_t *role,
++			  uint32_t flavor)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	role->flavor = flavor;
++	return STATUS_SUCCESS;
++}
++
++/* Subroles in attribute */
++int sepol_role_get_subroles(sepol_handle_t *handle, const sepol_role_t *role,
++			    const char ***subroles, uint32_t *num_subroles)
++{
++	if (!subroles || !num_subroles)
++		return STATUS_ERR;
++	if (!role) {
++		*subroles = NULL;
++		*num_subroles = 0;
++		return STATUS_ERR;
++	}
++	return string_list_scopy(handle, role->subroles, role->num_subroles,
++				 subroles, num_subroles);
++}
++
++int sepol_role_add_subrole(sepol_handle_t *handle, sepol_role_t *role,
++			   const char *subrole)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	return string_list_add_unique(handle, &role->subroles,
++				      &role->num_subroles, subrole);
++}
++
++int sepol_role_del_subrole(sepol_handle_t *handle, sepol_role_t *role,
++			   const char *subrole)
++{
++	if (!role) {
++		ERR(handle, "role is NULL");
++		return STATUS_ERR;
++	}
++	return string_list_del(role->subroles, &role->num_subroles, subrole);
++}
++
++/* Create/Clone/Destroy */
++int sepol_role_create(sepol_handle_t *handle, sepol_role_t **role_ptr)
++{
++	sepol_role_t *tmp;
++
++	if (!role_ptr)
++		return STATUS_ERR;
++
++	tmp = malloc(sizeof(sepol_role_t));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*role_ptr = NULL;
++		return STATUS_ERR;
++	}
++	memset(tmp, 0, sizeof(sepol_role_t));
++	*role_ptr = tmp;
++	return STATUS_SUCCESS;
++}
++
++int sepol_role_clone(sepol_handle_t *handle, const sepol_role_t *role,
++		     sepol_role_t **role_ptr)
++{
++	if (!role_ptr)
++		return STATUS_ERR;
++	if (!role) {
++		*role_ptr = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_role_t *tmp = NULL;
++	if (sepol_role_create(handle, &tmp))
++		goto err;
++
++	if (sepol_role_set_name(handle, tmp, role->name))
++		goto err;
++	for (size_t i = 0; i < role->num_types; i++) {
++		if (sepol_role_add_type(handle, tmp, role->types[i]))
++			goto err;
++	}
++	if (sepol_role_set_bounds(handle, tmp, role->bounds))
++		goto err;
++	for (size_t i = 0; i < role->num_subroles; i++) {
++		if (sepol_role_add_subrole(handle, tmp, role->subroles[i]))
++			goto err;
++	}
++
++	if (sepol_role_set_flavor(handle, tmp, role->flavor))
++		goto err;
++
++	*role_ptr = tmp;
++	return STATUS_SUCCESS;
++
++err:
++	sepol_role_free(tmp);
++	*role_ptr = NULL;
++	return STATUS_ERR;
++}
++
++void sepol_role_free(sepol_role_t *role)
++{
++	if (!role)
++		return;
++
++	free(role->name);
++	for (size_t i = 0; i < role->num_types; i++)
++		free(role->types[i]);
++	free(role->types);
++	free(role->bounds);
++	for (size_t i = 0; i < role->num_subroles; i++)
++		free(role->subroles[i]);
++	free(role->subroles);
++	free(role);
++}
+diff --git a/libsepol/src/roles.c b/libsepol/src/roles.c
+new file mode 100644
+index 00000000..535ca28b
+--- /dev/null
++++ b/libsepol/src/roles.c
+@@ -0,0 +1,253 @@
++#include <sepol/roles.h>
++
++#include <sepol/policydb/expand.h>
++#include <sepol/policydb/policydb.h>
++
++#include "debug.h"
++#include "private.h"
++
++struct sepol_role_iter {
 +	const policydb_t *policydb;
 +	uint32_t idx;
 +};
 +
- static int user_to_record(sepol_handle_t *handle, const policydb_t *policydb,
--			  int user_idx, sepol_user_t **record)
-+			  uint32_t user_idx, sepol_user_t **record)
- {
--	const char *name = policydb->p_user_val_to_name[user_idx];
--	user_datum_t *usrdatum = policydb->user_val_to_struct[user_idx];
-+	const char *name;
-+	user_datum_t *usrdatum;
- 	ebitmap_t *roles;
- 	ebitmap_node_t *rnode;
- 	unsigned bit;
- 
- 	sepol_user_t *tmp_record = NULL;
- 
-+	if (user_idx >= policydb->p_users.nprim)
++static int role_datum_to_record(sepol_handle_t *handle,
++				const policydb_t *policydb,
++				const role_datum_t *role_datum,
++				sepol_role_t **record)
++{
++	sepol_role_t *new_role = NULL;
++
++	if (role_datum->s.value == 0 ||
++	    role_datum->s.value > policydb->p_roles.nprim) {
++		*record = NULL;
++		return STATUS_ERR;
++	}
++
++	if (sepol_role_create(handle, &new_role))
 +		goto err;
 +
-+	name = policydb->p_user_val_to_name[user_idx];
-+	usrdatum = policydb->user_val_to_struct[user_idx];
++	if (sepol_role_set_name(
++		    handle, new_role,
++		    policydb->p_role_val_to_name[role_datum->s.value - 1]))
++		goto err;
 +
- 	if (!usrdatum)
- 		goto err;
- 
-@@ -36,6 +52,8 @@ static int user_to_record(sepol_handle_t *handle, const policydb_t *policydb,
- 
- 	/* Extract roles */
- 	ebitmap_for_each_positive_bit(roles, rnode, bit) {
++	/*
++	 * role_datum->types is a type_set_t: its .types ebitmap alone is
++	 * only the *positive* member list as written in policy source and
++	 * is incomplete whenever the role's type set uses "*"/"~" wildcards
++	 * or attribute negation (role_datum->types.flags / .negset). Expand
++	 * it the same way the rest of libsepol does (see policydb_role_cache()
++	 * populating role_datum->cache) to get the actual, fully resolved
++	 * type membership rather than silently reporting a partial set.
++	 */
++	ebitmap_t expanded_types;
++	if (type_set_expand((type_set_t *)&role_datum->types, &expanded_types,
++			    (policydb_t *)policydb, 1)) {
++		/*
++		 * type_set_expand() always ebitmap_init()s expanded_types
++		 * before it can fail, and may have partially populated it
++		 * before hitting the failure (e.g. OOM partway through a
++		 * negated/attribute type set); destroy it here rather than
++		 * leaking those ebitmap nodes.
++		 */
++		ebitmap_destroy(&expanded_types);
++		goto err;
++	}
++
++	ebitmap_node_t *enode;
++	uint32_t bit;
++	ebitmap_for_each_positive_bit(&expanded_types, enode, bit) {
++		if (bit >= policydb->p_types.nprim) {
++			ebitmap_destroy(&expanded_types);
++			goto err;
++		}
++		if (sepol_role_add_type(handle, new_role,
++					policydb->p_type_val_to_name[bit])) {
++			ebitmap_destroy(&expanded_types);
++			goto err;
++		}
++	}
++	ebitmap_destroy(&expanded_types);
++
++	if (role_datum->bounds &&
++	    (role_datum->bounds > policydb->p_roles.nprim ||
++	     sepol_role_set_bounds(
++		     handle, new_role,
++		     policydb->p_role_val_to_name[role_datum->bounds - 1])))
++		goto err;
++
++	switch (role_datum->flavor) {
++	case ROLE_ROLE:
++		if (sepol_role_set_flavor(handle, new_role, SEPOL_ROLE_ROLE))
++			goto err;
++		break;
++	case ROLE_ATTRIB:
++		if (sepol_role_set_flavor(handle, new_role, SEPOL_ROLE_ATTRIB))
++			goto err;
++		break;
++	default:
++		/*
++		 * role_datum->flavor is read straight from the binary
++		 * policy (policydb_read()) without being validated against
++		 * this enum, so a corrupt/crafted policy could carry an
++		 * out-of-range value here. Reject it explicitly instead of
++		 * silently reporting the zero-initialized ROLE_ROLE default
++		 * from sepol_role_create(), which would misrepresent the
++		 * actual on-disk data to API callers.
++		 */
++		goto err;
++	}
++
++	ebitmap_for_each_positive_bit(&role_datum->roles, enode, bit) {
 +		if (bit >= policydb->p_roles.nprim)
 +			goto err;
- 		char *role = policydb->p_role_val_to_name[bit];
- 		if (sepol_user_add_role(handle, tmp_record, role) < 0)
- 			goto err;
-@@ -94,7 +112,7 @@ static int user_to_record(sepol_handle_t *handle, const policydb_t *policydb,
- 	return STATUS_SUCCESS;
- 
- err:
--	/* FIXME: handle error */
-+	*record = NULL;
- 	sepol_user_free(tmp_record);
- 	return STATUS_ERR;
- }
-@@ -102,7 +120,7 @@ err:
- int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 		      const sepol_user_key_t *key, const sepol_user_t *user)
- {
--	policydb_t *policydb = &p->p;
-+	policydb_t *policydb;
- 
- 	/* For user data */
- 	const char *cname, *cmls_level, *cmls_range;
-@@ -116,14 +134,45 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 	role_datum_t *roldatum;
- 	unsigned int i;
- 
-+	hashtab_key_t scope_key = NULL;
-+	scope_datum_t *scope_datum = NULL;
-+
- 	context_struct_t context;
- 	unsigned bit;
- 	int new = 0;
-+	int have_mls = 0;
- 
- 	ebitmap_node_t *rnode;
- 
-+	/*
-+	 * Resolved/validated new state, built up before touching any
-+	 * existing user_datum. This way a validation failure (e.g. an
-+	 * undefined role name, or a malformed MLS level/range -- both
-+	 * trivially caused by a bad caller argument, not just OOM) never
-+	 * leaves a previously-valid user blanked out or partially updated
-+	 * in the live policydb.
-+	 */
-+	ebitmap_t new_roles;
-+	ebitmap_t new_cache;
-+	mls_level_t new_dfltlevel;
-+	mls_range_t new_range;
-+
-+	ebitmap_init(&new_roles);
-+	ebitmap_init(&new_cache);
-+	mls_level_init(&new_dfltlevel);
-+	mls_range_init(&new_range);
-+
-+	if (!handle || !p || !key || !user)
-+		return STATUS_ERR;
-+
-+	policydb = &p->p;
-+
- 	/* First, extract all the data */
- 	sepol_user_key_unpack(key, &cname);
-+	if (!cname) {
-+		ERR(handle, "user key name is NULL");
-+		return STATUS_ERR;
-+	}
- 
- 	cmls_level = sepol_user_get_mlslevel(user);
- 	cmls_range = sepol_user_get_mlsrange(user);
-@@ -132,25 +181,6 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 	if (sepol_user_get_roles(handle, user, &roles, &num_roles) < 0)
- 		goto err;
- 
--	/* Now, see if a user exists */
--	usrdatum = hashtab_search(policydb->p_users.table, cname);
--
--	/* If it does, we will modify it */
--	if (usrdatum) {
--		int value_cp = usrdatum->s.value;
--		user_datum_destroy(usrdatum);
--		user_datum_init(usrdatum);
--		usrdatum->s.value = value_cp;
--
--		/* Otherwise, create a new one */
--	} else {
--		usrdatum = (user_datum_t *)malloc(sizeof(user_datum_t));
--		if (!usrdatum)
--			goto omem;
--		user_datum_init(usrdatum);
--		new = 1;
--	}
--
- 	/* For every role */
- 	for (i = 0; i < num_roles; i++) {
- 		/* Search for the role */
-@@ -164,7 +194,7 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 		/* Set the role and every role it dominates */
- 		ebitmap_for_each_positive_bit(&roldatum->dominates, rnode,
- 					      bit) {
--			if (ebitmap_set_bit(&(usrdatum->roles.roles), bit, 1))
-+			if (ebitmap_set_bit(&new_roles, bit, 1))
- 				goto omem;
- 		}
- 	}
-@@ -186,8 +216,8 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_level_cpy(&usrdatum->exp_dfltlevel,
--				  &context.range.level[0]) < 0) {
-+		if (mls_level_cpy(&new_dfltlevel, &context.range.level[0]) <
-+		    0) {
- 			ERR(handle, "could not copy MLS level %s", cmls_level);
- 			context_destroy(&context);
- 			goto err;
-@@ -197,7 +227,7 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 		/* MLS range */
- 		if (cmls_range == NULL) {
- 			ERR(handle,
--			    "MLS is enabled, but no MLS"
-+			    "MLS is enabled, but no MLS "
- 			    "range was defined for user %s",
- 			    cname);
- 			goto err;
-@@ -209,12 +239,14 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_range_cpy(&usrdatum->exp_range, &context.range) < 0) {
-+		if (mls_range_cpy(&new_range, &context.range) < 0) {
- 			ERR(handle, "could not copy MLS range %s", cmls_range);
- 			context_destroy(&context);
- 			goto err;
- 		}
- 		context_destroy(&context);
-+
-+		have_mls = 1;
- 	} else if (cmls_level != NULL || cmls_range != NULL) {
- 		ERR(handle,
- 		    "MLS is disabled, but MLS level/range "
-@@ -223,10 +255,97 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 		goto err;
- 	}
- 
-+	/*
-+	 * Pre-compute the expanded role cache from the validated,
-+	 * already-fully-expanded new_roles bitmap (flags=0, so this is
-+	 * just an OOM-checked deep copy -- see role_set_expand()). Doing
-+	 * this before touching the live user_datum means a failure here
-+	 * (the only way role_set_expand can fail with flags=0 and no
-+	 * rolemap) never leaves an existing, previously-valid user with
-+	 * its roles/MLS replaced but its cache blanked.
-+	 */
-+	{
-+		role_set_t tmp_role_set = { .roles = new_roles, .flags = 0 };
-+		if (role_set_expand(&tmp_role_set, &new_cache, policydb, NULL,
-+				    NULL)) {
-+			ERR(handle, "unable to expand role set for user %s",
-+			    cname);
-+			goto omem;
-+		}
-+	}
-+
-+	/*
-+	 * All names and MLS strings are validated; only now do we look up
-+	 * (and possibly destroy/reinitialize) the target user_datum.
-+	 */
-+	usrdatum = hashtab_search(policydb->p_users.table, cname);
-+
-+	/* If it does, we will modify it */
-+	if (usrdatum) {
-+		uint32_t value_cp = usrdatum->s.value;
-+		user_datum_destroy(usrdatum);
-+		user_datum_init(usrdatum);
-+		usrdatum->s.value = value_cp;
-+
-+		/* Otherwise, create a new one */
-+	} else {
-+		usrdatum = (user_datum_t *)malloc(sizeof(user_datum_t));
-+		if (!usrdatum)
-+			goto omem;
-+		user_datum_init(usrdatum);
-+		new = 1;
-+	}
-+
-+	/* Transfer ownership of the validated roles/MLS/cache data to usrdatum */
-+	usrdatum->roles.roles = new_roles;
-+	ebitmap_init(&new_roles);
-+	usrdatum->cache = new_cache;
-+	ebitmap_init(&new_cache);
-+	if (have_mls) {
-+		usrdatum->exp_dfltlevel = new_dfltlevel;
-+		usrdatum->exp_range = new_range;
-+		mls_level_init(&new_dfltlevel);
-+		mls_range_init(&new_range);
-+	}
-+
- 	/* If there are no errors, and this is a new user, add the user to policy */
- 	if (new) {
- 		void *tmp_ptr;
- 
-+		if (policydb->p_users.nprim == UINT32_MAX) {
-+			ERR(handle, "too many users");
++		if (sepol_role_add_subrole(handle, new_role,
++					   policydb->p_role_val_to_name[bit]))
 +			goto err;
-+		}
-+
-+		/*
-+		 * Prepare (but do not yet insert) a scope_datum for the new
-+		 * user up front, mirroring sepol_type_modify()'s scope
-+		 * bookkeeping in types.c (which in turn mirrors
-+		 * symtab_insert() in policydb.c): without a scope_datum,
-+		 * is_id_enabled() (avrule_block.c) treats a user as "not
-+		 * declared", so it would otherwise be silently dropped by
-+		 * any later expand_module()/link_modules() call even though
-+		 * it is fully present in p_users/user_val_to_struct. A user
-+		 * added through this public API is always an unconditional,
-+		 * top-level declaration -- there is no avrule-block/
-+		 * conditional context here -- which is exactly decl_id 1,
-+		 * the id checkpolicy assigns to the first declaration of a
-+		 * policy's global avrule block (see module_compiler.c's
-+		 * init_decl_stack()).
-+		 */
-+		scope_key = strdup(cname);
-+		if (!scope_key)
-+			goto omem;
-+		scope_datum = malloc(sizeof(*scope_datum));
-+		if (!scope_datum)
-+			goto omem;
-+		scope_datum->scope = SCOPE_DECL;
-+		scope_datum->decl_ids = NULL;
-+		scope_datum->decl_ids_len = 0;
-+		if (add_i_to_a(1, &scope_datum->decl_ids_len,
-+			       &scope_datum->decl_ids) == -1)
-+			goto omem;
-+
- 		/* Ensure reverse lookup array has enough space */
- 		tmp_ptr = reallocarray(policydb->user_val_to_struct,
- 				       policydb->p_users.nprim + 1,
-@@ -250,22 +369,36 @@ int sepol_user_modify(sepol_handle_t *handle, sepol_policydb_t *p,
- 			goto omem;
- 
- 		/* Store user */
--		usrdatum->s.value = ++policydb->p_users.nprim;
-+		usrdatum->s.value = policydb->p_users.nprim + 1;
- 		if (hashtab_insert(policydb->p_users.table, name,
- 				   (hashtab_datum_t)usrdatum) < 0)
- 			goto omem;
-+		policydb->p_users.nprim++;
- 
- 		/* Set up reverse entry */
- 		policydb->p_user_val_to_name[usrdatum->s.value - 1] = name;
- 		policydb->user_val_to_struct[usrdatum->s.value - 1] = usrdatum;
- 		name = NULL;
- 
--		/* Expand roles */
--		if (role_set_expand(&usrdatum->roles, &usrdatum->cache,
--				    policydb, NULL, NULL)) {
--			ERR(handle, "unable to expand role set");
--			goto err;
--		}
-+		/* policydb now owns usrdatum; prevent error path from freeing */
-+		new = 0;
-+
-+		/*
-+		 * The user itself is now fully committed above; register
-+		 * its scope so it survives a later expand/link pass. This
-+		 * insert can only fail on OOM here -- scope[SYM_USERS].table
-+		 * and p_users.table are kept in lockstep by every insertion
-+		 * path in this file and in policydb.c, so `cname` cannot
-+		 * already be present. On that (OOM) failure the user is
-+		 * left in the pre-existing documented, memory-safe-but-
-+		 * inconsistent partially-populated state described in
-+		 * users.h.
-+		 */
-+		if (hashtab_insert(policydb->scope[SYM_USERS].table, scope_key,
-+				   scope_datum) < 0)
-+			goto omem;
-+		scope_key = NULL;
-+		scope_datum = NULL;
- 	}
- 
- 	free(roles);
-@@ -275,27 +408,66 @@ omem:
- 	ERR(handle, "out of memory");
- 
- err:
--	ERR(handle, "could not load %s into policy", name);
-+	ERR(handle, "could not load %s into policy", cname);
- 
- 	free(name);
- 	free(roles);
-+	ebitmap_destroy(&new_roles);
-+	ebitmap_destroy(&new_cache);
-+	mls_level_destroy(&new_dfltlevel);
-+	mls_range_destroy(&new_range);
-+	free(scope_key);
-+	if (scope_datum) {
-+		free(scope_datum->decl_ids);
-+		free(scope_datum);
 +	}
- 	if (new && usrdatum) {
--		role_set_destroy(&usrdatum->roles);
-+		user_datum_destroy(usrdatum);
- 		free(usrdatum);
- 	}
- 	return STATUS_ERR;
- }
- 
-+DEFINE_VALUE_TO_NAME(sepol_user_value_to_name, "user", p_users,
-+		     p_user_val_to_name)
 +
-+int sepol_user_query_by_value(sepol_handle_t *handle, const sepol_policydb_t *p,
-+			      uint32_t value, sepol_user_t **response)
++	*record = new_role;
++	return STATUS_SUCCESS;
++
++err:
++	*record = NULL;
++	sepol_role_free(new_role);
++	return STATUS_ERR;
++}
++
++DEFINE_VALUE_TO_NAME(sepol_role_value_to_name, "role", p_roles,
++		     p_role_val_to_name)
++
++int sepol_role_query_by_value(sepol_handle_t *handle, const sepol_policydb_t *p,
++			      uint32_t value, sepol_role_t **response)
 +{
 +	if (!response)
 +		return STATUS_ERR;
@@ -811,54 +692,48 @@ index bd257dcd..d3e045ce 100644
 +		return STATUS_ERR;
 +	}
 +
-+	if (value < 1 || value > p->p.p_users.nprim) {
++	if (value < 1 || value > p->p.p_roles.nprim) {
 +		*response = NULL;
 +		return STATUS_SUCCESS;
 +	}
 +
-+	if (!p->p.user_val_to_struct[value - 1]) {
++	role_datum_t *role_datum = p->p.role_val_to_struct[value - 1];
++	if (!role_datum) {
 +		*response = NULL;
 +		return STATUS_SUCCESS;
 +	}
 +
-+	return user_to_record(handle, &p->p, value - 1, response);
++	return role_datum_to_record(handle, &p->p, role_datum, response);
 +}
 +
- int sepol_user_exists(sepol_handle_t *handle __attribute__((unused)),
- 		      const sepol_policydb_t *p, const sepol_user_key_t *key,
- 		      int *response)
- {
++int sepol_role_count(sepol_handle_t *handle __attribute__((unused)),
++		     const sepol_policydb_t *p, unsigned int *response)
++{
 +	if (!p || !response)
 +		return STATUS_ERR;
 +
- 	const policydb_t *policydb = &p->p;
- 
- 	const char *cname;
- 	sepol_user_key_unpack(key, &cname);
- 
--	*response = (hashtab_search(policydb->p_users.table, cname) != NULL);
-+	*response = cname &&
-+		    (hashtab_search(policydb->p_users.table, cname) != NULL);
- 
- 	return STATUS_SUCCESS;
- }
-@@ -303,8 +475,11 @@ int sepol_user_exists(sepol_handle_t *handle __attribute__((unused)),
- int sepol_user_count(sepol_handle_t *handle __attribute__((unused)),
- 		     const sepol_policydb_t *p, unsigned int *response)
- {
++	*response = p->p.p_roles.table->nel;
++	return STATUS_SUCCESS;
++}
++
++int sepol_role_exists(sepol_handle_t *handle __attribute__((unused)),
++		      const sepol_policydb_t *p, const sepol_role_key_t *key,
++		      int *response)
++{
 +	if (!p || !response)
 +		return STATUS_ERR;
 +
- 	const policydb_t *policydb = &p->p;
--	*response = policydb->p_users.nprim;
-+	*response = policydb->p_users.table->nel;
- 
- 	return STATUS_SUCCESS;
- }
-@@ -312,12 +487,24 @@ int sepol_user_count(sepol_handle_t *handle __attribute__((unused)),
- int sepol_user_query(sepol_handle_t *handle, const sepol_policydb_t *p,
- 		     const sepol_user_key_t *key, sepol_user_t **response)
- {
++	const char *name;
++	sepol_role_key_unpack(key, &name);
++
++	*response = name && (hashtab_search(p->p.p_roles.table, name) != NULL);
++
++	return STATUS_SUCCESS;
++}
++
++int sepol_role_query(sepol_handle_t *handle, const sepol_policydb_t *p,
++		     const sepol_role_key_t *key, sepol_role_t **response)
++{
 +	if (!response)
 +		return STATUS_ERR;
 +	if (!p) {
@@ -866,68 +741,53 @@ index bd257dcd..d3e045ce 100644
 +		return STATUS_ERR;
 +	}
 +
- 	const policydb_t *policydb = &p->p;
- 	user_datum_t *usrdatum = NULL;
- 
- 	const char *cname;
- 	sepol_user_key_unpack(key, &cname);
- 
-+	if (!cname) {
++	const char *name;
++	sepol_role_key_unpack(key, &name);
++
++	if (!name) {
 +		*response = NULL;
 +		return STATUS_SUCCESS;
 +	}
 +
- 	usrdatum = hashtab_search(policydb->p_users.table, cname);
- 
- 	if (!usrdatum) {
-@@ -340,6 +527,11 @@ int sepol_user_iterate(sepol_handle_t *handle, const sepol_policydb_t *p,
- 		       int (*fn)(const sepol_user_t *user, void *fn_arg),
- 		       void *arg)
- {
-+	if (!p || !fn) {
-+		ERR(handle, "policydb or callback is NULL");
-+		return STATUS_ERR;
++	role_datum_t *role_datum = hashtab_search(p->p.p_roles.table, name);
++	if (!role_datum) {
++		*response = NULL;
++		return STATUS_SUCCESS;
 +	}
 +
- 	const policydb_t *policydb = &p->p;
- 	unsigned int nusers = policydb->p_users.nprim;
- 	sepol_user_t *user = NULL;
-@@ -372,3 +564,147 @@ err:
- 	sepol_user_free(user);
- 	return STATUS_ERR;
- }
++	return role_datum_to_record(handle, &p->p, role_datum, response);
++}
 +
-+/* Users iterator */
-+int sepol_user_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
-+			   sepol_user_iter_t **iter)
++int sepol_role_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			   sepol_role_iter_t **iter)
 +{
 +	if (!iter)
 +		return STATUS_ERR;
 +	if (!handle || !p) {
++		ERR(handle, "invalid argument to sepol_role_iter_create");
 +		*iter = NULL;
 +		return STATUS_ERR;
 +	}
-+
-+	sepol_user_iter_t *new_iter = malloc(sizeof(sepol_user_iter_t));
-+	if (!new_iter) {
++	sepol_role_iter_t *tmp = malloc(sizeof(sepol_role_iter_t));
++	if (!tmp) {
 +		ERR(handle, "out of memory");
 +		*iter = NULL;
 +		return STATUS_ERR;
 +	}
-+	new_iter->policydb = &p->p;
-+	new_iter->idx = 0;
++	tmp->policydb = &p->p;
++	tmp->idx = 0;
 +
-+	*iter = new_iter;
++	*iter = tmp;
 +	return STATUS_SUCCESS;
 +}
 +
-+void sepol_user_iter_destroy(sepol_user_iter_t *iter)
++void sepol_role_iter_destroy(sepol_role_iter_t *iter)
 +{
 +	free(iter);
 +}
 +
-+int sepol_user_iter_next(sepol_handle_t *handle, sepol_user_iter_t *iter,
-+			 sepol_user_t **item)
++int sepol_role_iter_next(sepol_handle_t *handle, sepol_role_iter_t *iter,
++			 sepol_role_t **item)
 +{
 +	if (!item)
 +		return STATUS_ERR;
@@ -936,14 +796,15 @@ index bd257dcd..d3e045ce 100644
 +		return STATUS_ERR;
 +	}
 +
-+	while (iter->idx < iter->policydb->p_users.nprim) {
-+		unsigned int idx = iter->idx;
++	while (iter->idx < iter->policydb->p_roles.nprim) {
++		role_datum_t *datum =
++			iter->policydb->role_val_to_struct[iter->idx];
 +		iter->idx++;
-+		if (iter->policydb->user_val_to_struct[idx]) {
-+			sepol_user_t *user;
-+			int status = user_to_record(handle, iter->policydb, idx,
-+						    &user);
-+			*item = user;
++		if (datum) {
++			sepol_role_t *role;
++			int status = role_datum_to_record(
++				handle, iter->policydb, datum, &role);
++			*item = role;
 +			if (status)
 +				return status;
 +			return STATUS_SUCCESS;
@@ -953,248 +814,224 @@ index bd257dcd..d3e045ce 100644
 +	*item = NULL;
 +	return STATUS_SUCCESS;
 +}
-+
-+static const user_datum_t *user_datum_by_value(const sepol_policydb_t *p,
-+					       uint32_t value)
-+{
-+	if (!p || value < 1 || value > p->p.p_users.nprim)
-+		return NULL;
-+	return p->p.user_val_to_struct[value - 1];
-+}
-+
-+uint32_t sepol_user_get_dflt_level_sens(const sepol_policydb_t *p,
-+					uint32_t user_value)
-+{
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u)
-+		return 0;
-+	return u->exp_dfltlevel.sens;
-+}
-+
-+int sepol_user_get_dflt_level_cat(sepol_handle_t *handle
-+				  __attribute__((unused)),
-+				  const sepol_policydb_t *p,
-+				  uint32_t user_value,
-+				  sepol_cat_set_iter_t **cat_iter)
-+{
-+	if (!cat_iter)
-+		return STATUS_ERR;
-+
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u) {
-+		*cat_iter = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+	return cat_set_iter_create_from_ebitmap(&u->exp_dfltlevel.cat,
-+						cat_iter);
-+}
-+
-+uint32_t sepol_user_get_range_low_sens(const sepol_policydb_t *p,
-+				       uint32_t user_value)
-+{
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u)
-+		return 0;
-+	return u->exp_range.level[0].sens;
-+}
-+
-+uint32_t sepol_user_get_range_high_sens(const sepol_policydb_t *p,
-+					uint32_t user_value)
-+{
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u)
-+		return 0;
-+	return u->exp_range.level[1].sens;
-+}
-+
-+int sepol_user_get_range_low_cat(sepol_handle_t *handle __attribute__((unused)),
-+				 const sepol_policydb_t *p, uint32_t user_value,
-+				 sepol_cat_set_iter_t **cat_iter)
-+{
-+	if (!cat_iter)
-+		return STATUS_ERR;
-+
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u) {
-+		*cat_iter = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+	return cat_set_iter_create_from_ebitmap(&u->exp_range.level[0].cat,
-+						cat_iter);
-+}
-+
-+int sepol_user_get_range_high_cat(sepol_handle_t *handle
-+				  __attribute__((unused)),
-+				  const sepol_policydb_t *p,
-+				  uint32_t user_value,
-+				  sepol_cat_set_iter_t **cat_iter)
-+{
-+	if (!cat_iter)
-+		return STATUS_ERR;
-+
-+	const user_datum_t *u = user_datum_by_value(p, user_value);
-+	if (!u) {
-+		*cat_iter = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+	return cat_set_iter_create_from_ebitmap(&u->exp_range.level[1].cat,
-+						cat_iter);
-+}
-diff --git a/libsepol/tests/test-iter-users.c b/libsepol/tests/test-iter-users.c
+diff --git a/libsepol/tests/policies/test-iter/iter.conf b/libsepol/tests/policies/test-iter/iter.conf
+index 2c27f9d4..fd27f5e0 100644
+--- a/libsepol/tests/policies/test-iter/iter.conf
++++ b/libsepol/tests/policies/test-iter/iter.conf
+@@ -80,6 +80,8 @@ role ROLE1;
+ role ROLE1 types { TYPE1 };
+ role ROLE2;
+ role ROLE2 types { TYPE2 };
++role ROLE3;
++role ROLE3 types { ATTR1 -TYPE3 };
+ 
+ attribute_role ATTR_ROLE1;
+ roleattribute ROLE1 ATTR_ROLE1;
+diff --git a/libsepol/tests/test-iter-roles.c b/libsepol/tests/test-iter-roles.c
 new file mode 100644
-index 00000000..626a26f4
+index 00000000..e84a9b63
 --- /dev/null
-+++ b/libsepol/tests/test-iter-users.c
-@@ -0,0 +1,115 @@
-+#include "test-iter-users.h"
-+#include "helpers.h"
-+#include <sepol/handle.h>
-+#include <sepol/policydb.h>
-+#include <sepol/types.h>
-+#include <sepol/user_record.h>
-+#include <sepol/users.h>
++++ b/libsepol/tests/test-iter-roles.c
+@@ -0,0 +1,165 @@
++#include "test-iter-roles.h"
++
 +#include <CUnit/CUnit.h>
-+#include <stdint.h>
++#include <stdbool.h>
 +#include <stdlib.h>
++#include <string.h>
++
++#include <sepol/policydb.h>
++#include <sepol/role_record.h>
++#include <sepol/roles.h>
++
++#include "helpers.h"
 +
 +extern sepol_handle_t *handle;
 +extern sepol_policydb_t *empty_policy;
 +extern sepol_policydb_t *iter_policy;
 +
-+struct expected_user {
++struct expected_role {
 +	int seen;
 +
 +	const char *name;
-+	const char *mls_level;
-+	const char *mls_range;
-+	size_t nroles;
-+	const char *roles[32];
++	uint32_t ntypes;
++	const char *types[32]; /* authorized types */
++	char *bounds; /* bounded role */
++	uint32_t flavor; /* role or attribute */
++	uint32_t nsubroles;
++	const char *subroles[32]; /* roles within attribute */
 +};
 +
-+struct expected_user expected_users[] = {
-+	{ 0, "USER1", "s0", "s0-s0:c0.c3", 1, { "ROLE1" } },
-+	{ 0, NULL, NULL, NULL, 0, {} },
++struct expected_role expected_roles[] = {
++	{ 0, "ROLE1", 1, { "TYPE1" }, NULL, SEPOL_ROLE_ROLE, 0, {} },
++	{ 0, "ROLE2", 1, { "TYPE2" }, NULL, SEPOL_ROLE_ROLE, 0, {} },
++	/*
++	 * ROLE3's types are declared as "{ ATTR1 -TYPE3 }" (iter.conf), where
++	 * ATTR1 itself has members { TYPE2, TYPE3 }. This only resolves to
++	 * the correct authorized type set, { TYPE2 }, if the attribute
++	 * membership is expanded and the negset subtraction is applied
++	 * (type_set_expand()); naively reading type_set_t.types verbatim
++	 * would instead report a single bogus "type" named "ATTR1".
++	 */
++	{ 0, "ROLE3", 1, { "TYPE2" }, NULL, SEPOL_ROLE_ROLE, 0, {} },
++	{ 0,
++	  "ATTR_ROLE1",
++	  0,
++	  {},
++	  NULL,
++	  SEPOL_ROLE_ATTRIB,
++	  2,
++	  { "ROLE1", "ROLE2" } },
++	{ 0, "object_r", 0, {}, NULL, SEPOL_ROLE_ROLE, 0, {} },
++	{ 0, NULL, 0, {}, NULL, 0, 0, {} },
 +};
 +
 +static void unseen(void)
 +{
-+	for (struct expected_user *e = expected_users; e->name; e++) {
++	for (struct expected_role *e = expected_roles; e->name; e++) {
 +		e->seen = 0;
 +	}
 +}
 +
-+static void seen(sepol_user_t *item)
++static void seen(const sepol_role_t *item)
 +{
-+	const char *actual_name = sepol_user_get_name(item);
-+	const char *actual_mls_level = sepol_user_get_mlslevel(item);
-+	const char *actual_mls_range = sepol_user_get_mlsrange(item);
-+	uint32_t nactual_roles;
-+	const char **actual_roles;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_get_roles(handle, item, &actual_roles,
-+						   &nactual_roles),
++	const char *actual_name = sepol_role_get_name(item);
++	uint32_t nactual_types;
++	const char **actual_types;
++	CU_ASSERT_EQUAL_FATAL(sepol_role_get_types(handle, item, &actual_types,
++						   &nactual_types),
++			      0);
++	uint32_t actual_flavor = sepol_role_get_flavor(item);
++	const char *actual_bounds = sepol_role_get_bounds(item);
++	uint32_t nactual_subroles;
++	const char **actual_subroles;
++	CU_ASSERT_EQUAL_FATAL(sepol_role_get_subroles(handle, item,
++						      &actual_subroles,
++						      &nactual_subroles),
 +			      0);
 +
-+	struct expected_user *e;
-+	for (e = expected_users; e->name; e++) {
-+		if (!strcmp(actual_name, e->name))
++	struct expected_role *e;
++	for (e = expected_roles; e->name; e++) {
++		if (strcmp(actual_name, e->name) == 0)
 +			break;
 +	}
 +	CU_ASSERT_PTR_NOT_NULL_FATAL(e->name);
 +	e->seen = 1;
 +
-+	if (iter_policy->p.mls) {
-+		CU_ASSERT_STRING_EQUAL(actual_mls_level, e->mls_level);
-+		CU_ASSERT_STRING_EQUAL(actual_mls_range, e->mls_range);
-+	}
-+
-+	CU_ASSERT_EQUAL(nactual_roles, e->nroles);
++	CU_ASSERT_EQUAL(nactual_types, e->ntypes);
 +	/* qsort()'s base is declared nonnull; skip the call entirely for
 +	 * an empty (possibly NULL) array rather than relying on nmemb==0
 +	 * making the NULL harmless. */
-+	if (nactual_roles > 0)
-+		qsort(actual_roles, nactual_roles, sizeof(char *), qstrcmp);
-+	for (size_t i = 0; i < nactual_roles && i < e->nroles; i++) {
-+		CU_ASSERT_STRING_EQUAL(actual_roles[i], e->roles[i]);
++	if (nactual_types > 0)
++		qsort(actual_types, nactual_types, sizeof(char *), qstrcmp);
++	for (size_t i = 0; i < nactual_types && i < e->ntypes; i++) {
++		CU_ASSERT_STRING_EQUAL(actual_types[i], e->types[i]);
 +	}
 +
-+	free(actual_roles);
++	CU_ASSERT_EQUAL(actual_flavor, e->flavor);
++
++	CU_ASSERT_EQUAL(nactual_subroles, e->nsubroles);
++	/* qsort()'s base is declared nonnull; skip the call entirely for
++	 * an empty (possibly NULL) array rather than relying on nmemb==0
++	 * making the NULL harmless. */
++	if (nactual_subroles > 0)
++		qsort(actual_subroles, nactual_subroles, sizeof(char *),
++		      qstrcmp);
++	for (size_t i = 0; i < nactual_subroles && i < e->nsubroles; i++) {
++		CU_ASSERT_STRING_EQUAL(actual_subroles[i], e->subroles[i]);
++	}
++
++	if (e->bounds) {
++		CU_ASSERT_STRING_EQUAL(actual_bounds, e->bounds);
++	} else {
++		CU_ASSERT_PTR_NULL(actual_bounds);
++	}
++
++	free(actual_types);
++	free(actual_subroles);
 +}
 +
-+void test_iter_users_empty(void)
++void test_iter_roles_empty(void)
 +{
-+	unseen();
-+	sepol_user_iter_t *iter;
++	sepol_role_iter_t *role_iter;
 +	CU_ASSERT_EQUAL_FATAL(
-+		sepol_user_iter_create(handle, empty_policy, &iter), 0);
++		sepol_role_iter_create(handle, empty_policy, &role_iter), 0);
 +
-+	sepol_user_t *item;
-+	CU_ASSERT_EQUAL(sepol_user_iter_next(handle, iter, &item), 0);
-+	CU_ASSERT_PTR_NULL(item);
-+	/* all values after end should return NULL as item */
-+	CU_ASSERT_EQUAL(sepol_user_iter_next(handle, iter, &item), 0);
-+	CU_ASSERT_PTR_NULL(item);
-+
-+	sepol_user_iter_destroy(iter);
-+}
-+
-+void test_iter_users_non_empty(void)
-+{
-+	unseen();
-+	sepol_user_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_user_iter_create(handle, iter_policy, &iter), 0);
-+
-+	sepol_user_t *item;
++	/* object_r is always implicitly defined, so drain it */
++	sepol_role_t *item;
++	int count = 0;
 +	while (1) {
-+		CU_ASSERT_EQUAL(sepol_user_iter_next(handle, iter, &item), 0);
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_role_iter_next(handle, role_iter, &item), 0);
++		if (!item)
++			break;
++		sepol_role_free(item);
++		count++;
++	}
++	CU_ASSERT(count <= 1);
++
++	sepol_role_iter_destroy(role_iter);
++}
++
++void test_iter_roles_non_empty(void)
++{
++	unseen();
++	sepol_role_t *item;
++	sepol_role_iter_t *role_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_role_iter_create(handle, iter_policy, &role_iter), 0);
++
++	while (1) {
++		CU_ASSERT_EQUAL(sepol_role_iter_next(handle, role_iter, &item),
++				0);
 +		if (!item)
 +			break;
 +		seen(item);
-+		sepol_user_free(item);
++		sepol_role_free(item);
 +	}
-+	CU_ASSERT_EQUAL(sepol_user_iter_next(handle, iter, &item), 0);
++	CU_ASSERT_EQUAL(sepol_role_iter_next(handle, role_iter, &item), 0);
 +	CU_ASSERT_PTR_NULL(item);
 +
-+	for (struct expected_user *e = expected_users; e->name; e++) {
++	for (struct expected_role *e = expected_roles; e->name; e++) {
 +		CU_ASSERT_TRUE(e->seen);
 +	}
 +
-+	sepol_user_iter_destroy(iter);
++	sepol_role_iter_destroy(role_iter);
 +}
-diff --git a/libsepol/tests/test-iter-users.h b/libsepol/tests/test-iter-users.h
+diff --git a/libsepol/tests/test-iter-roles.h b/libsepol/tests/test-iter-roles.h
 new file mode 100644
-index 00000000..de6cb6ee
+index 00000000..dd5f2fdc
 --- /dev/null
-+++ b/libsepol/tests/test-iter-users.h
++++ b/libsepol/tests/test-iter-roles.h
 @@ -0,0 +1,7 @@
-+#ifndef TEST_ITER_USERS_H
-+#define TEST_ITER_USERS_H
++#ifndef TEST_ITER_ROLES_H
++#define TEST_ITER_ROLES_H
 +
-+void test_iter_users_empty(void);
-+void test_iter_users_non_empty(void);
++void test_iter_roles_empty(void);
++void test_iter_roles_non_empty(void);
 +
 +#endif
 diff --git a/libsepol/tests/test-iter.c b/libsepol/tests/test-iter.c
-index f9b8880f..83308d4d 100644
+index 83308d4d..7c58c36d 100644
 --- a/libsepol/tests/test-iter.c
 +++ b/libsepol/tests/test-iter.c
-@@ -11,6 +11,7 @@
- 
+@@ -12,6 +12,7 @@
  #include "parse_util.h"
  #include "test-iter-types.h"
-+#include "test-iter-users.h"
+ #include "test-iter-users.h"
++#include "test-iter-roles.h"
  
  extern int mls;
  
-@@ -92,5 +93,11 @@ int iter_add_tests(CU_pSuite suite)
- 	if (CU_add_test(suite, "iter_types_non_empty",
- 			test_iter_types_non_empty) == NULL)
+@@ -99,5 +100,11 @@ int iter_add_tests(CU_pSuite suite)
+ 	if (CU_add_test(suite, "iter_users_non_empty",
+ 			test_iter_users_non_empty) == NULL)
  		return CU_get_error();
-+	if (CU_add_test(suite, "iter_users_empty", test_iter_users_empty) ==
++	if (CU_add_test(suite, "iter_roles_empty", test_iter_roles_empty) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "iter_users_non_empty",
-+			test_iter_users_non_empty) == NULL)
++	if (CU_add_test(suite, "iter_roles_non_empty",
++			test_iter_roles_non_empty) == NULL)
 +		return CU_get_error();
  	return 0;
  }
