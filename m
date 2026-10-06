@@ -1,53 +1,53 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D8EC457E54
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE023DDDDD
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791291883; cv=none; b=qQz0NEbXrnQG+uAbDHL/5ygE3Q+E7XO8+HsMVSkXthmMJo75CqpZSb3qH0haW6tSUwAw0Sy5yy7rOmk4GMM/zcaTMZZd60dFWPKmdNJoxIdha8VRuZtuRHiEcG9zSfUUjs+8qBwe2P6zkRoFVOipykO/WZqblO2myXZTJW5lSNU=
+	t=1791291885; cv=none; b=rQeC7oZlZxkwHDXxd+fk+Czk/FtkPBV7Wycfl9Vs1l78cEHo76plRAxoIUJbnU+6TB/7sBA1mY+zemSgWroQGWYXmuXeT1ezPqesv4Q4DnZEXFslmLrrBl35Go/AKJZwvXiJcRA7MnCfYq4rkuX2olww0n3qfmNVLj7FzLt/t9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791291883; c=relaxed/simple;
-	bh=JGm5b2s5AgNb4eFsql6uNVDskvF3cKiuOLPsp6MaRis=;
+	s=arc-20240116; t=1791291885; c=relaxed/simple;
+	bh=Pk9UJHYvPkCcdpCPvxKwqye1lWUCeGFO1TOAMITEWPg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VAoSMB6WazvbMGTQu3kzhHTIQpt+fQMm2aqTEmVXFwqWBM45pqyX9sDLfjLP+9HOHXVCHE7TguZ3FrvyZUA5eyLmzpZyh92Vf8DFJw0hF9odWV8MVPDtUoA9dDwgE4AiWF2IAmMsiq5MGehb/q59LSF8YmckiBSUHz8RIjiJWeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hPh6cs/Z; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=WyeFHTECfxsWVLCLRLjJU52KtcaOri+Hw4/6yH0wU/jijvcNb3SA8BM1N9j+8kYrsBIY967YqW48x6HtiV02bYDnCuyLOXrqFkcUUPdAybqDDh8+YM8LKsgFrFAaAzULhISBswOXtmAFIgX+RFTubi947Q6ka7EomveFuJvI9zM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QpJo0Hn/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hPh6cs/Z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QpJo0Hn/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791291878;
+	s=mimecast20190719; t=1791291880;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4WlaPOJC7iW0POYP6TjJd6mi14fwreo1aJRVf2Y5GFU=;
-	b=hPh6cs/ZZVe9Ev0siqzwJQBBWAM1MSNe23xmD2ZAcjNRU33IOr95UYsGAAO6N+etSkzdAj
-	KvXe7OZUy+PWWVaFLdtAJXNtsg9Pi1cEbeinC06x5JLXy+Gr3CtUWR0z71KnOiuSudeYG1
-	tnMmv6l84wcw2Qay2qNzj2KnggucgU0=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=P1W6tatEVDwk/2yDcCQCSAyfUTlhLfKMbFdhOpieyRc=;
+	b=QpJo0Hn/TFtb64hBwl5+hIZdVmpRN6zgB+A+TO3392UGTdLMTCQuXCSZFbJ2S5OHdS0I55
+	70gxaTbh8mWtUWukIMxbKydftY86nZJZVoq50mlsc/JIztrZc0pCEuNPa9FT6dYYzcOt1P
+	3Jum9SgErbExEZ6HZRhm969DI2B2w+k=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-443-S8ejSSbLNVqHyQKjcalg4w-1; Tue,
- 06 Oct 2026 09:04:36 -0400
-X-MC-Unique: S8ejSSbLNVqHyQKjcalg4w-1
-X-Mimecast-MFC-AGG-ID: S8ejSSbLNVqHyQKjcalg4w_1791291875
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-131-mLfIOiLQP46rRXi4I_eQDg-1; Tue,
+ 06 Oct 2026 09:04:38 -0400
+X-MC-Unique: mLfIOiLQP46rRXi4I_eQDg-1
+X-Mimecast-MFC-AGG-ID: mLfIOiLQP46rRXi4I_eQDg_1791291878
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C43391841393
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:35 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F05161955F1F
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:37 +0000 (UTC)
 Received: from jjanasek-thinkpadt14gen5.tpbc.com (unknown [10.44.48.38])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A767E1956047;
-	Tue,  6 Oct 2026 13:04:34 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D2C3519772C6;
+	Tue,  6 Oct 2026 13:04:36 +0000 (UTC)
 From: jan janasek <jjanasek@redhat.com>
 To: selinux@vger.kernel.org
 Cc: jan janasek <jjanasek@redhat.com>
-Subject: [RFC PATCH userspace 15/17] libsepol: add record API tests for type, role, class, and user
-Date: Tue,  6 Oct 2026 15:02:13 +0200
-Message-ID: <20261006130215.128405-16-jjanasek@redhat.com>
+Subject: [RFC PATCH userspace 16/17] libsepol: add tier-2 integration tests
+Date: Tue,  6 Oct 2026 15:02:14 +0200
+Message-ID: <20261006130215.128405-17-jjanasek@redhat.com>
 In-Reply-To: <20261006130215.128405-1-jjanasek@redhat.com>
 References: <20261006130215.128405-1-jjanasek@redhat.com>
 Precedence: bulk
@@ -59,48 +59,48 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Cover the sepol_type_t/sepol_role_t/sepol_class_t/sepol_user_t
-getter/setter surface, key create/unpack/extract/compare, exists/
-query/query_by_value, and value_to_name for all four kinds, including
-NULL-argument and out-of-range value regression tests.
+Add broader integration coverage across ocontext, MLS/cat_set,
+common_perm, filename_trans, permissive, polcap, range_trans, and
+role_rule iterators together against the test-iter fixture, exercising
+combinations not covered by the per-feature unit tests.
 
 Assisted-by: LLM Cursor
 Signed-off-by: Jan Janasek <jjanasek@redhat.com>
 ---
  libsepol/tests/libsepol-tests.c |    2 +
- libsepol/tests/test-records.c   | 1630 +++++++++++++++++++++++++++++++
- libsepol/tests/test-records.h   |   10 +
- 3 files changed, 1642 insertions(+)
- create mode 100644 libsepol/tests/test-records.c
- create mode 100644 libsepol/tests/test-records.h
+ libsepol/tests/test-tier2.c     | 2100 +++++++++++++++++++++++++++++++
+ libsepol/tests/test-tier2.h     |   10 +
+ 3 files changed, 2112 insertions(+)
+ create mode 100644 libsepol/tests/test-tier2.c
+ create mode 100644 libsepol/tests/test-tier2.h
 
 diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
-index 707937cf..d3f33203 100644
+index d3f33203..cb4af493 100644
 --- a/libsepol/tests/libsepol-tests.c
 +++ b/libsepol/tests/libsepol-tests.c
-@@ -28,6 +28,7 @@
- #include "test-iter.h"
+@@ -29,6 +29,7 @@
  #include "test-context-api.h"
  #include "test-av-rule.h"
-+#include "test-records.h"
+ #include "test-records.h"
++#include "test-tier2.h"
  
  #include <CUnit/Basic.h>
  #include <CUnit/Console.h>
-@@ -80,6 +81,7 @@ static bool do_tests(int interactive, int verbose)
- 	DECLARE_SUITE(iter);
+@@ -82,6 +83,7 @@ static bool do_tests(int interactive, int verbose)
  	DECLARE_SUITE(context_api);
  	DECLARE_SUITE(av_rule);
-+	DECLARE_SUITE(records);
+ 	DECLARE_SUITE(records);
++	DECLARE_SUITE(tier2);
  
  	if (verbose)
  		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff --git a/libsepol/tests/test-records.c b/libsepol/tests/test-records.c
+diff --git a/libsepol/tests/test-tier2.c b/libsepol/tests/test-tier2.c
 new file mode 100644
-index 00000000..38c6157f
+index 00000000..9dd72fc3
 --- /dev/null
-+++ b/libsepol/tests/test-records.c
-@@ -0,0 +1,1630 @@
-+#include "test-records.h"
++++ b/libsepol/tests/test-tier2.c
+@@ -0,0 +1,2100 @@
++#include "test-tier2.h"
 +
 +#include <limits.h>
 +#include <stdlib.h>
@@ -108,24 +108,28 @@ index 00000000..38c6157f
 +
 +#include <CUnit/CUnit.h>
 +
-+#include <sepol/boolean_record.h>
 +#include <sepol/booleans.h>
-+#include <sepol/class_record.h>
++#include <sepol/cat_set.h>
 +#include <sepol/classes.h>
++#include <sepol/common_perm.h>
++#include <sepol/filename_trans.h>
++#include <sepol/users.h>
++#include <sepol/constants.h>
 +#include <sepol/handle.h>
++#include <sepol/mls_iter.h>
++#include <sepol/ocontext.h>
++#include <sepol/permissive.h>
++#include <sepol/polcap.h>
 +#include <sepol/policydb.h>
 +#include <sepol/policydb/expand.h>
++#include <sepol/policydb/ebitmap.h>
 +#include <sepol/policydb/hashtab.h>
 +#include <sepol/policydb/link.h>
 +#include <sepol/policydb/policydb.h>
-+#include <sepol/role_record.h>
++#include <sepol/range_trans.h>
++#include <sepol/role_rule.h>
 +#include <sepol/roles.h>
-+#include <sepol/context.h>
-+#include <sepol/context_record.h>
-+#include <sepol/type_record.h>
 +#include <sepol/types.h>
-+#include <sepol/user_record.h>
-+#include <sepol/users.h>
 +
 +#include "parse_util.h"
 +
@@ -135,7 +139,21 @@ index 00000000..38c6157f
 +static sepol_policydb_t *policy;
 +static policydb_t basemod;
 +
-+int records_test_init(void)
++/* Drains and destroys a category-set iterator returned by one of the
++ * ocontext `_get_mls_range_{low,high}_cat()` getters, sanity-checking
++ * that iteration itself is well-formed. The fixture's ocontext entries
++ * all use a bare `s0` MLS level (no explicit category list), so the
++ * iterator is expected to be empty; this only exercises the
++ * create/next/destroy plumbing for the getter in question. */
++static void drain_cat_iter(sepol_cat_set_iter_t *cat_iter)
++{
++	CU_ASSERT_PTR_NOT_NULL_FATAL(cat_iter);
++	uint32_t cat_val;
++	CU_ASSERT_EQUAL(sepol_cat_set_iter_next(handle, cat_iter, &cat_val), 0);
++	sepol_cat_set_iter_destroy(cat_iter);
++}
++
++int tier2_test_init(void)
 +{
 +	char filename[PATH_MAX];
 +	int basemod_inited = 0;
@@ -162,7 +180,7 @@ index 00000000..38c6157f
 +		     mls ? ".mls" : ".std") < 0)
 +		goto err;
 +
-+	if (read_source_policy(&basemod, filename, "test-records"))
++	if (read_source_policy(&basemod, filename, "test-tier2"))
 +		goto err;
 +
 +	if (link_modules(NULL, &basemod, NULL, 0, 0))
@@ -183,7 +201,7 @@ index 00000000..38c6157f
 +	return -1;
 +}
 +
-+int records_test_cleanup(void)
++int tier2_test_cleanup(void)
 +{
 +	sepol_policydb_free(policy);
 +	policydb_destroy(&basemod);
@@ -191,16 +209,6 @@ index 00000000..38c6157f
 +	return 0;
 +}
 +
-+/*
-+ * Helpers to look up a symbol's internal numeric value by name, needed
-+ * to exercise the _query_by_value()/_value_to_name() public API below:
-+ * there is no public "get value" accessor (by design -- callers are only
-+ * ever meant to obtain a value from a value-returning API, such as an
-+ * iterator or another query_by_value() call, not to mint one from a
-+ * name), so tests reach into the internal, already fully-expanded
-+ * (POLICY_KERN) `policy` fixture directly to get a known-good value to
-+ * round-trip through the public API.
-+ */
 +static uint32_t role_value(const char *name)
 +{
 +	role_datum_t *d = hashtab_search(policy->p.p_roles.table, name);
@@ -229,1521 +237,1983 @@ index 00000000..38c6157f
 +	return d->s.value;
 +}
 +
-+static void test_class_clone_deep_copy(void)
++static uint32_t perm_value(const class_datum_t *cls, const char *name)
 +{
-+	sepol_class_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_iter_create(handle, policy, &iter),
-+			      0);
-+
-+	sepol_class_t *orig;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_iter_next(handle, iter, &orig), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(orig);
-+
-+	sepol_class_t *clone;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_clone(handle, orig, &clone), 0);
-+
-+	CU_ASSERT_STRING_EQUAL(sepol_class_get_name(orig),
-+			       sepol_class_get_name(clone));
-+
-+	const char **orig_perms, **clone_perms;
-+	uint32_t orig_nperms, clone_nperms;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_get_perms(handle, orig, &orig_perms,
-+						    &orig_nperms),
-+			      0);
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_get_perms(handle, clone, &clone_perms,
-+						    &clone_nperms),
-+			      0);
-+	CU_ASSERT_EQUAL(orig_nperms, clone_nperms);
-+	free(orig_perms);
-+	free(clone_perms);
-+
-+	sepol_class_free(clone);
-+	sepol_class_free(orig);
-+	sepol_class_iter_destroy(iter);
++	perm_datum_t *d = hashtab_search(cls->permissions.table, name);
++	if (!d && cls->comdatum)
++		d = hashtab_search(cls->comdatum->permissions.table, name);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(d);
++	return d->s.value;
 +}
 +
-+static void test_class_free_no_leak(void)
++static void test_role_allow_iter(void)
 +{
-+	sepol_class_t *class;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &class), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_class_set_name(handle, class, "testclass"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_perm(handle, class, "perm1"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_perm(handle, class, "perm2"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_perm(handle, class, "perm3"), 0);
-+
-+	const char **perms;
-+	uint32_t nperms;
++	sepol_role_allow_iter_t *iter;
 +	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_get_perms(handle, class, &perms, &nperms), 0);
-+	CU_ASSERT_EQUAL(nperms, 3);
-+	free(perms);
++		sepol_role_allow_iter_create(handle, policy, &iter), 0);
 +
-+	sepol_class_free(class);
-+}
++	uint32_t role1_val = role_value("ROLE1");
++	uint32_t role2_val = role_value("ROLE2");
++	uint32_t role, new_role;
++	int count = 0, found = 0;
 +
-+static void test_type_set_alias_of_null(void)
-+{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_alias_of(handle, type, "primary"), 0);
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_alias_of(type), "primary");
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_alias_of(handle, type, NULL), 0);
-+	CU_ASSERT_PTR_NULL(sepol_type_get_alias_of(type));
-+
-+	sepol_type_free(type);
-+}
-+
-+static void test_type_set_bounds_null(void)
-+{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_bounds(handle, type, "parent"), 0);
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_bounds(type), "parent");
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_bounds(handle, type, NULL), 0);
-+	CU_ASSERT_PTR_NULL(sepol_type_get_bounds(type));
-+
-+	sepol_type_free(type);
-+}
-+
-+static void test_type_get_subtypes_empty(void)
-+{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	const char **subtypes;
-+	uint32_t nsub;
-+	CU_ASSERT_EQUAL(sepol_type_get_subtypes(handle, type, &subtypes, &nsub),
-+			0);
-+	CU_ASSERT_EQUAL(nsub, 0);
-+	CU_ASSERT_PTR_NULL(subtypes);
-+
-+	sepol_type_free(type);
-+}
-+
-+static void test_type_del_subtype_no_skip(void)
-+{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_add_subtype(handle, type, "dup"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_add_subtype(handle, type, "other"), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_del_subtype(handle, type, "dup"), 0);
-+	CU_ASSERT_FALSE(sepol_type_has_subtype(type, "dup"));
-+	CU_ASSERT_TRUE(sepol_type_has_subtype(type, "other"));
-+
-+	const char **subtypes;
-+	uint32_t nsub;
-+	CU_ASSERT_EQUAL(sepol_type_get_subtypes(handle, type, &subtypes, &nsub),
-+			0);
-+	CU_ASSERT_EQUAL(nsub, 1);
-+	CU_ASSERT_STRING_EQUAL(subtypes[0], "other");
-+	free(subtypes);
-+
-+	sepol_type_free(type);
-+}
-+
-+static void test_type_clone(void)
-+{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, type, "mytype"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_add_subtype(handle, type, "sub1"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_add_subtype(handle, type, "sub2"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_alias_of(handle, type, "primary"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_bounds(handle, type, "parent"), 0);
-+
-+	sepol_type_t *clone;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_clone(handle, type, &clone), 0);
-+
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_name(type),
-+			       sepol_type_get_name(clone));
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_alias_of(type),
-+			       sepol_type_get_alias_of(clone));
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_bounds(type),
-+			       sepol_type_get_bounds(clone));
-+
-+	const char **orig_sub, **clone_sub;
-+	uint32_t orig_nsub, clone_nsub;
-+	CU_ASSERT_EQUAL(sepol_type_get_subtypes(handle, type, &orig_sub,
-+						&orig_nsub),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_type_get_subtypes(handle, clone, &clone_sub,
-+						&clone_nsub),
-+			0);
-+	CU_ASSERT_EQUAL(orig_nsub, clone_nsub);
-+	free(orig_sub);
-+	free(clone_sub);
-+
-+	sepol_type_free(clone);
-+	sepol_type_free(type);
-+}
-+
-+static void test_role_clone_with_subroles(void)
-+{
-+	sepol_role_t *role;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_create(handle, &role), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_role_set_name(handle, role, "myrole"), 0);
-+	CU_ASSERT_EQUAL(sepol_role_add_subrole(handle, role, "sub_r1"), 0);
-+	CU_ASSERT_EQUAL(sepol_role_add_subrole(handle, role, "sub_r2"), 0);
-+
-+	sepol_role_t *clone;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_clone(handle, role, &clone), 0);
-+
-+	CU_ASSERT_STRING_EQUAL(sepol_role_get_name(role),
-+			       sepol_role_get_name(clone));
-+
-+	const char **orig_sub, **clone_sub;
-+	uint32_t orig_nsub, clone_nsub;
-+	CU_ASSERT_EQUAL(sepol_role_get_subroles(handle, role, &orig_sub,
-+						&orig_nsub),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_role_get_subroles(handle, clone, &clone_sub,
-+						&clone_nsub),
-+			0);
-+	CU_ASSERT_EQUAL(orig_nsub, clone_nsub);
-+	CU_ASSERT_EQUAL(orig_nsub, 2);
-+	free(orig_sub);
-+	free(clone_sub);
-+
-+	sepol_role_free(clone);
-+	sepol_role_free(role);
-+}
-+
-+static void test_constraint_clone_deep(void)
-+{
-+	sepol_constraint_t *con;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &con), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, con, "read"), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, con, "write"), 0);
-+
-+	sepol_constraint_expr_t *expr;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_create(handle, &expr), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_type(handle, expr,
-+						       SEPOL_CEXPR_TYPE_ATTR),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_attr(handle, expr,
-+						       SEPOL_CEXPR_ATTR_USER),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_op(handle, expr,
-+						     SEPOL_CEXPR_OP_EQ),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_insert_expr(handle, con, 0, expr), 0);
-+
-+	sepol_constraint_t *clone;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_clone(handle, con, &clone), 0);
-+
-+	CU_ASSERT_TRUE(sepol_constraint_has_perm(clone, "read"));
-+	CU_ASSERT_TRUE(sepol_constraint_has_perm(clone, "write"));
-+
-+	const sepol_constraint_expr_t **exprs;
-+	uint32_t nexprs;
-+	CU_ASSERT_EQUAL(
-+		sepol_constraint_get_exprs(handle, clone, &exprs, &nexprs), 0);
-+	CU_ASSERT_EQUAL(nexprs, 1);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_get_type(
-+				(sepol_constraint_expr_t *)exprs[0]),
-+			SEPOL_CEXPR_TYPE_ATTR);
-+	CU_ASSERT_TRUE(sepol_constraint_expr_has_attr(
-+		(sepol_constraint_expr_t *)exprs[0], SEPOL_CEXPR_ATTR_USER));
-+	free(exprs);
-+
-+	sepol_constraint_free(clone);
-+	sepol_constraint_free(con);
-+}
-+
-+/*
-+ * sepol_class_del_constraint() must match by pointer identity, not by
-+ * deep value equality: two distinct sepol_constraint_t objects that
-+ * happen to have identical perms/exprs are legitimate (add_constraint()
-+ * never deduplicates by value), so deleting one must never also delete
-+ * or otherwise disturb an unrelated, merely value-equal sibling -- doing
-+ * so would silently weaken the policy (fewer constraints than the
-+ * caller asked to keep) and risks a use-after-free/double-free if the
-+ * caller still holds a pointer to that sibling.
-+ */
-+static void test_constraint_del_uses_identity(void)
-+{
-+	sepol_class_t *class;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &class), 0);
-+	CU_ASSERT_EQUAL(sepol_class_set_name(handle, class, "testcls"), 0);
-+
-+	/* c1 and c2b are distinct objects with identical content ("read") */
-+	sepol_constraint_t *c1;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &c1), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, c1, "read"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_constraint(handle, class, c1), 0);
-+
-+	sepol_constraint_t *c2a;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &c2a), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, c2a, "write"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_constraint(handle, class, c2a), 0);
-+
-+	sepol_constraint_t *c2b;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &c2b), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, c2b, "write"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_constraint(handle, class, c2b), 0);
-+
-+	const sepol_constraint_t **cons;
-+	uint32_t ncons;
-+	CU_ASSERT_EQUAL(
-+		sepol_class_get_constraints(handle, class, &cons, &ncons), 0);
-+	CU_ASSERT_EQUAL(ncons, 3);
-+	free(cons);
-+
-+	/* A freshly-created, never-added, but value-equal object must not
-+	 * be found (and must not delete anything) purely on content match.
-+	 */
-+	sepol_constraint_t *not_added;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &not_added), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, not_added, "read"),
-+			0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_class_del_constraint(handle, class, not_added), 0);
-+
-+	CU_ASSERT_EQUAL(
-+		sepol_class_get_constraints(handle, class, &cons, &ncons), 0);
-+	CU_ASSERT_EQUAL(ncons, 3);
-+	free(cons);
-+
-+	/* Deleting c2a (by identity) must remove exactly c2a, leaving its
-+	 * value-equal sibling c2b (and unrelated c1) untouched.
-+	 */
-+	CU_ASSERT_EQUAL(sepol_class_del_constraint(handle, class, c2a), 0);
-+
-+	CU_ASSERT_EQUAL(
-+		sepol_class_get_constraints(handle, class, &cons, &ncons), 0);
-+	CU_ASSERT_EQUAL(ncons, 2);
-+	int seen_c1 = 0, seen_c2b = 0;
-+	for (uint32_t i = 0; i < ncons; i++) {
-+		if (cons[i] == c1)
-+			seen_c1 = 1;
-+		else if (cons[i] == c2b)
-+			seen_c2b = 1;
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_role_allow_iter_next(
++					      handle, iter, &role, &new_role),
++				      0);
++		if (role == 0)
++			break;
++		count++;
++		if (role == role1_val && new_role == role2_val)
++			found = 1;
 +	}
-+	CU_ASSERT_TRUE(seen_c1);
-+	CU_ASSERT_TRUE(seen_c2b);
-+	free(cons);
++	CU_ASSERT(count >= 1);
++	CU_ASSERT(found);
 +
-+	/* Delete the two remaining constraints (by identity) */
-+	CU_ASSERT_EQUAL(sepol_class_del_constraint(handle, class, c1), 0);
-+	CU_ASSERT_EQUAL(sepol_class_del_constraint(handle, class, c2b), 0);
-+
-+	CU_ASSERT_EQUAL(
-+		sepol_class_get_constraints(handle, class, &cons, &ncons), 0);
-+	CU_ASSERT_EQUAL(ncons, 0);
-+	CU_ASSERT_PTR_NULL(cons);
-+
-+	sepol_constraint_free(not_added);
-+	sepol_class_free(class);
++	sepol_role_allow_iter_destroy(iter);
 +}
 +
-+static void test_constraint_clone_null_args(void)
++static void test_role_trans_iter(void)
 +{
-+	sepol_constraint_t *con = NULL, *con_clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &con), 0);
-+	CU_ASSERT(sepol_constraint_clone(handle, NULL, &con_clone) != 0);
-+	CU_ASSERT_PTR_NULL(con_clone);
-+	CU_ASSERT(sepol_constraint_clone(handle, con, NULL) != 0);
-+	sepol_constraint_free(con);
++	sepol_role_trans_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_role_trans_iter_create(handle, policy, &iter), 0);
 +
-+	sepol_constraint_expr_t *expr = NULL, *expr_clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_create(handle, &expr), 0);
-+	CU_ASSERT(sepol_constraint_expr_clone(handle, NULL, &expr_clone) != 0);
-+	CU_ASSERT_PTR_NULL(expr_clone);
-+	CU_ASSERT(sepol_constraint_expr_clone(handle, expr, NULL) != 0);
-+	sepol_constraint_expr_free(expr);
++	uint32_t role1_val = role_value("ROLE1");
++	uint32_t type1_val = type_value("TYPE1");
++	uint32_t class01_val = class_value("CLASS01");
++	uint32_t role2_val = role_value("ROLE2");
++	uint32_t role, type, tclass, new_role;
++	int count = 0, found = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_role_trans_iter_next(handle, iter, &role, &type,
++						   &tclass, &new_role),
++			0);
++		if (role == 0)
++			break;
++		count++;
++		if (role == role1_val && type == type1_val &&
++		    tclass == class01_val && new_role == role2_val)
++			found = 1;
++	}
++	CU_ASSERT(count >= 1);
++	CU_ASSERT(found);
++
++	sepol_role_trans_iter_destroy(iter);
 +}
 +
-+static void test_type_modify_add_and_modify(void)
++static void test_filename_trans_iter(void)
 +{
-+	sepol_policydb_t *p;
-+	CU_ASSERT_EQUAL_FATAL(sepol_policydb_create(&p), 0);
-+	/* sepol_type_modify only supports source-format (base/module)
-+	 * policydbs; a freshly created policydb defaults to POLICY_KERN. */
-+	p->p.policy_type = POLICY_BASE;
++	sepol_filename_trans_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_filename_trans_iter_create(handle, policy, &iter), 0);
 +
-+	/* Add a new regular type */
-+	sepol_type_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, "member_t", &key),
-+			      0);
++	uint32_t type1_val = type_value("TYPE1");
++	uint32_t type2_val = type_value("TYPE2");
++	uint32_t type3_val = type_value("TYPE3");
++	uint32_t class01_val = class_value("CLASS01");
++	uint32_t source_type, target_type, target_class, default_type;
++	const char *filename;
++	int count = 0, found = 0;
 +
-+	sepol_type_t *data;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &data), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, data, "member_t"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flavor(handle, data, SEPOL_TYPE_TYPE),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flag(handle, data,
-+					    SEPOL_TYPE_FLAGS_PERMISSIVE),
-+			0);
++	/*
++	 * iter.conf declares a single named filename transition:
++	 *   type_transition TYPE1 TYPE3 : CLASS01 TYPE2 "testfile";
++	 * i.e. source=TYPE1, target=TYPE3, class=CLASS01, name="testfile",
++	 * default_type=TYPE2. The other (unnamed) type_transition rules in
++	 * the fixture are plain type-transition av rules, not filename
++	 * transitions, and must not show up here.
++	 */
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_filename_trans_iter_next(
++					      handle, iter, &source_type,
++					      &target_type, &target_class,
++					      &filename, &default_type),
++				      0);
++		if (source_type == 0) {
++			CU_ASSERT_PTR_NULL(filename);
++			break;
++		}
++		count++;
++		CU_ASSERT_PTR_NOT_NULL_FATAL(filename);
++		if (source_type == type1_val && target_type == type3_val &&
++		    target_class == class01_val && default_type == type2_val &&
++		    strcmp(filename, "testfile") == 0)
++			found = 1;
++	}
++	CU_ASSERT_EQUAL(count, 1);
++	CU_ASSERT(found);
 +
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_modify(handle, p, key, data), 0);
-+	sepol_type_free(data);
-+
-+	int exists = 0;
-+	CU_ASSERT_EQUAL(sepol_type_exists(handle, p, key, &exists), 0);
-+	CU_ASSERT_TRUE(exists);
-+
-+	sepol_type_t *queried = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_query(handle, p, key, &queried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_name(queried), "member_t");
-+	CU_ASSERT_EQUAL(sepol_type_get_flavor(queried), SEPOL_TYPE_TYPE);
-+	CU_ASSERT_TRUE(
-+		sepol_type_has_flag(queried, SEPOL_TYPE_FLAGS_PERMISSIVE));
-+	sepol_type_free(queried);
-+	sepol_type_key_free(key);
-+
-+	/* Add an attribute with "member_t" as a member type */
-+	sepol_type_key_t *akey;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, "myattr_t", &akey),
-+			      0);
-+
-+	sepol_type_t *adata;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &adata), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, adata, "myattr_t"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flavor(handle, adata, SEPOL_TYPE_ATTRIB),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_type_add_subtype(handle, adata, "member_t"), 0);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_modify(handle, p, akey, adata), 0);
-+	sepol_type_free(adata);
-+
-+	sepol_type_t *aqueried = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_query(handle, p, akey, &aqueried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(aqueried);
-+	CU_ASSERT_EQUAL(sepol_type_get_flavor(aqueried), SEPOL_TYPE_ATTRIB);
-+
-+	const char **subtypes;
-+	uint32_t nsub;
-+	CU_ASSERT_EQUAL(
-+		sepol_type_get_subtypes(handle, aqueried, &subtypes, &nsub), 0);
-+	CU_ASSERT_EQUAL(nsub, 1);
-+	if (nsub == 1)
-+		CU_ASSERT_STRING_EQUAL(subtypes[0], "member_t");
-+	free(subtypes);
-+	sepol_type_free(aqueried);
-+
-+	/* Modifying the attribute replaces its membership entirely */
-+	sepol_type_t *adata2;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &adata2), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, adata2, "myattr_t"), 0);
-+	CU_ASSERT_EQUAL(
-+		sepol_type_set_flavor(handle, adata2, SEPOL_TYPE_ATTRIB), 0);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_modify(handle, p, akey, adata2), 0);
-+	sepol_type_free(adata2);
-+
-+	sepol_type_t *aqueried2 = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_query(handle, p, akey, &aqueried2), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(aqueried2);
-+	CU_ASSERT_EQUAL(sepol_type_get_subtypes(handle, aqueried2, &subtypes,
-+						&nsub),
-+			0);
-+	CU_ASSERT_EQUAL(nsub, 0);
-+	CU_ASSERT_PTR_NULL(subtypes);
-+	sepol_type_free(aqueried2);
-+	sepol_type_key_free(akey);
-+
-+	/* Aliases are not supported */
-+	sepol_type_key_t *alkey;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, "alias_t", &alkey),
-+			      0);
-+	sepol_type_t *aldata;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &aldata), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, aldata, "alias_t"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flavor(handle, aldata, SEPOL_TYPE_ALIAS),
-+			0);
-+	CU_ASSERT(sepol_type_modify(handle, p, alkey, aldata) != 0);
-+	sepol_type_free(aldata);
-+	sepol_type_key_free(alkey);
-+
-+	sepol_policydb_free(p);
++	sepol_filename_trans_iter_destroy(iter);
 +}
 +
-+static void test_type_modify_rejects_kernel_maps(void)
++static void test_range_trans_iter(void)
 +{
-+	/* `policy` has already been through expand_module(), which builds
-+	 * the kernel-format attr_type_map/type_attr_map cross-reference
-+	 * tables; sepol_type_modify must refuse to mutate it. */
-+	sepol_type_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, "some_new_t", &key),
-+			      0);
++	sepol_range_trans_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_range_trans_iter_create(handle, policy, &iter), 0);
 +
-+	sepol_type_t *data;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &data), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, data, "some_new_t"), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flavor(handle, data, SEPOL_TYPE_TYPE),
-+			0);
++	uint32_t source_type, target_type, target_class;
++	int count = 0;
 +
-+	CU_ASSERT(sepol_type_modify(handle, policy, key, data) != 0);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_range_trans_iter_next(
++					      handle, iter, &source_type,
++					      &target_type, &target_class),
++				      0);
++		if (source_type == 0)
++			break;
++		count++;
 +
-+	sepol_type_free(data);
-+	sepol_type_key_free(key);
-+}
++		uint32_t low_sens = sepol_range_trans_iter_get_low_sens(iter);
++		uint32_t high_sens = sepol_range_trans_iter_get_high_sens(iter);
++		CU_ASSERT(low_sens > 0);
++		CU_ASSERT(high_sens > 0);
++		CU_ASSERT(high_sens >= low_sens);
++	}
 +
-+static int context_check(const char *user, const char *role, const char *type,
-+			 const char *mls_level)
-+{
-+	sepol_context_t *con;
-+	int ret;
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_context_create(handle, &con), 0);
-+	CU_ASSERT_EQUAL(sepol_context_set_user(handle, con, user), 0);
-+	CU_ASSERT_EQUAL(sepol_context_set_role(handle, con, role), 0);
-+	CU_ASSERT_EQUAL(sepol_context_set_type(handle, con, type), 0);
-+	if (mls_level)
-+		CU_ASSERT_EQUAL(sepol_context_set_mls(handle, con, mls_level),
-+				0);
-+
-+	ret = sepol_context_check(handle, policy, con);
-+	sepol_context_free(con);
-+	return ret;
-+}
-+
-+static void test_user_modify_preserves_existing_on_validation_failure(void)
-+{
-+	sepol_user_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_key_create(handle, "USER1", &key), 0);
-+
-+	sepol_user_t *orig = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_query(handle, policy, key, &orig), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(orig);
-+
-+	const char **orig_roles = NULL;
-+	unsigned int orig_num_roles = 0;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_get_roles(handle, orig, &orig_roles,
-+						   &orig_num_roles),
-+			      0);
-+	CU_ASSERT_EQUAL(orig_num_roles, 1);
-+
-+	sepol_user_t *broken;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_clone(handle, orig, &broken), 0);
-+	CU_ASSERT_EQUAL(sepol_user_add_role(handle, broken, "NO_SUCH_ROLE"), 0);
-+
-+	/* Modification must fail, and -- unlike the pre-fix behavior, which
-+	 * destroyed/reinitialized the user_datum before validating role
-+	 * names -- must leave the existing user completely untouched. */
-+	CU_ASSERT(sepol_user_modify(handle, policy, key, broken) != 0);
-+	sepol_user_free(broken);
-+
-+	sepol_user_t *after = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_query(handle, policy, key, &after), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(after);
-+
-+	const char **after_roles = NULL;
-+	unsigned int after_num_roles = 0;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_get_roles(handle, after, &after_roles,
-+						   &after_num_roles),
-+			      0);
-+	CU_ASSERT_EQUAL(after_num_roles, orig_num_roles);
-+	if (after_num_roles == orig_num_roles && orig_num_roles > 0)
-+		CU_ASSERT_STRING_EQUAL(after_roles[0], orig_roles[0]);
-+
-+	const char *orig_mlslevel = sepol_user_get_mlslevel(orig);
-+	const char *after_mlslevel = sepol_user_get_mlslevel(after);
-+	if (orig_mlslevel) {
-+		CU_ASSERT_STRING_EQUAL(after_mlslevel, orig_mlslevel);
++	if (mls) {
++		CU_ASSERT(count >= 1);
 +	} else {
-+		CU_ASSERT_PTR_NULL(after_mlslevel);
++		CU_ASSERT_EQUAL(count, 0);
 +	}
 +
-+	/* USER1's role cache must still validate exactly as before. */
-+	CU_ASSERT_EQUAL(context_check("USER1", "ROLE1", "TYPE1", orig_mlslevel),
-+			0);
-+
-+	free(orig_roles);
-+	free(after_roles);
-+	sepol_user_free(orig);
-+	sepol_user_free(after);
-+	sepol_user_key_free(key);
++	sepol_range_trans_iter_destroy(iter);
 +}
 +
-+static void test_user_modify_rebuilds_role_cache(void)
++static void test_isid_iter(void)
 +{
-+	sepol_user_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_key_create(handle, "USER1", &key), 0);
++	sepol_isid_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_isid_iter_create(handle, policy, &iter), 0);
 +
-+	sepol_user_t *orig = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_query(handle, policy, key, &orig), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(orig);
++	uint32_t sid;
++	int count = 0;
 +
-+	const char *mls_level = sepol_user_get_mlslevel(orig);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_isid_iter_next(handle, iter, &sid),
++				      0);
++		if (sid == 0)
++			break;
++		count++;
 +
-+	/* Baseline: USER1 is only authorized for ROLE1/TYPE1 before the
-+	 * modify below. */
-+	CU_ASSERT_EQUAL(context_check("USER1", "ROLE1", "TYPE1", mls_level), 0);
-+	CU_ASSERT(context_check("USER1", "ROLE2", "TYPE2", mls_level) != 0);
++		uint32_t user = sepol_isid_iter_get_context_user(iter);
++		uint32_t role = sepol_isid_iter_get_context_role(iter);
++		uint32_t type = sepol_isid_iter_get_context_type(iter);
++		CU_ASSERT(user > 0);
++		CU_ASSERT(role > 0);
++		CU_ASSERT(type > 0);
 +
-+	sepol_user_t *modified;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_clone(handle, orig, &modified), 0);
++		if (mls) {
++			uint32_t low_sens =
++				sepol_isid_iter_get_mls_range_low_sens(iter);
++			CU_ASSERT(low_sens > 0);
++		}
++	}
++	CU_ASSERT(count >= 1);
 +
-+	const char *new_roles[] = { "ROLE2" };
-+	CU_ASSERT_EQUAL(sepol_user_set_roles(handle, modified, new_roles, 1),
-+			0);
++	sepol_isid_iter_destroy(iter);
++}
 +
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_modify(handle, policy, key, modified),
++static void test_fsuse_iter(void)
++{
++	sepol_fsuse_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_fsuse_iter_create(handle, policy, &iter),
 +			      0);
-+	sepol_user_free(modified);
++
++	const char *name;
++	uint32_t behavior;
++	int found_ext3 = 0, found_devpts = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_fsuse_iter_next(handle, iter, &name,
++							    &behavior),
++				      0);
++		if (!name)
++			break;
++
++		uint32_t user = sepol_fsuse_iter_get_context_user(iter);
++		CU_ASSERT(user > 0);
++
++		if (strcmp(name, "ext3") == 0) {
++			found_ext3 = 1;
++			CU_ASSERT_EQUAL(behavior, SECURITY_FS_USE_XATTR);
++		}
++		if (strcmp(name, "devpts") == 0) {
++			found_devpts = 1;
++			CU_ASSERT_EQUAL(behavior, SECURITY_FS_USE_TRANS);
++		}
++	}
++	CU_ASSERT(found_ext3);
++	CU_ASSERT(found_devpts);
++
++	sepol_fsuse_iter_destroy(iter);
++}
++
++static void test_genfscon_iter(void)
++{
++	sepol_genfscon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_genfscon_iter_create(handle, policy, &iter),
++			      0);
++
++	const char *fstype, *path;
++	uint32_t sclass;
++	int found_root = 0, found_sys = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_genfscon_iter_next(handle, iter,
++							       &fstype, &path,
++							       &sclass),
++				      0);
++		if (!fstype)
++			break;
++
++		uint32_t user = sepol_genfscon_iter_get_context_user(iter);
++		uint32_t type = sepol_genfscon_iter_get_context_type(iter);
++		CU_ASSERT(user > 0);
++		CU_ASSERT(type > 0);
++
++		if (strcmp(fstype, "proc") == 0) {
++			if (strcmp(path, "/") == 0)
++				found_root = 1;
++			if (strcmp(path, "/sys") == 0)
++				found_sys = 1;
++		}
++	}
++	CU_ASSERT(found_root);
++	CU_ASSERT(found_sys);
++
++	sepol_genfscon_iter_destroy(iter);
++}
++
++static void test_polcap_iter(void)
++{
++	sepol_polcap_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_polcap_iter_create(handle, policy, &iter),
++			      0);
++
++	uint32_t cap_num;
++	const char *cap_name;
++	int found_netpeer = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_polcap_iter_next(handle, iter,
++							     &cap_num,
++							     &cap_name),
++				      0);
++		if (!cap_name)
++			break;
++		if (strcmp(cap_name, "network_peer_controls") == 0)
++			found_netpeer = 1;
++	}
++	CU_ASSERT(found_netpeer);
++
++	sepol_polcap_iter_destroy(iter);
++}
++
++static void test_common_iter(void)
++{
++	sepol_common_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_common_iter_create(handle, policy, &iter),
++			      0);
++
++	const char *name;
++	uint32_t value;
++	int found_common1 = 0;
++	uint32_t common1_value = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_common_iter_next(handle, iter, &name, &value), 0);
++		if (!name)
++			break;
++		CU_ASSERT(value > 0);
++		if (strcmp(name, "COMMON1") == 0) {
++			found_common1 = 1;
++			common1_value = value;
++		}
++	}
++	CU_ASSERT(found_common1);
++	sepol_common_iter_destroy(iter);
++
++	if (!found_common1)
++		return;
++
++	sepol_common_perm_iter_t *piter;
++	CU_ASSERT_EQUAL_FATAL(sepol_common_perm_iter_create(
++				      handle, policy, common1_value, &piter),
++			      0);
++
++	const char *perm_name;
++	int found_commonperm1 = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_common_perm_iter_next(handle, piter,
++								  &perm_name),
++				      0);
++		if (!perm_name)
++			break;
++		if (strcmp(perm_name, "COMMONPERM1") == 0)
++			found_commonperm1 = 1;
++	}
++	CU_ASSERT(found_commonperm1);
++	sepol_common_perm_iter_destroy(piter);
++}
++
++static void test_cat_iter(void)
++{
++	sepol_cat_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_cat_iter_create(handle, policy, &iter), 0);
++
++	const char *name;
++	uint32_t value;
++	int isalias;
++	int count = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_cat_iter_next(handle, iter, &name,
++							  &value, &isalias),
++				      0);
++		if (!name)
++			break;
++		CU_ASSERT(value > 0);
++		count++;
++	}
++
++	if (mls) {
++		CU_ASSERT(count >= 4);
++	} else {
++		CU_ASSERT_EQUAL(count, 0);
++	}
++
++	sepol_cat_iter_destroy(iter);
++}
++
++static void test_sens_iter(void)
++{
++	sepol_sens_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_sens_iter_create(handle, policy, &iter), 0);
++
++	const char *name;
++	uint32_t sens_value;
++	int isalias;
++	int count = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_sens_iter_next(handle, iter, &name,
++							   &sens_value,
++							   &isalias),
++				      0);
++		if (!name)
++			break;
++		CU_ASSERT(sens_value > 0);
++		count++;
++
++		sepol_cat_set_iter_t *cat_iter = NULL;
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_sens_iter_get_level_cat(handle, iter, &cat_iter),
++			0);
++		CU_ASSERT_PTR_NOT_NULL(cat_iter);
++		sepol_cat_set_iter_destroy(cat_iter);
++	}
++
++	if (mls) {
++		CU_ASSERT(count >= 1);
++	} else {
++		CU_ASSERT_EQUAL(count, 0);
++	}
++
++	sepol_sens_iter_destroy(iter);
++}
++
++static void test_permissive_iter(void)
++{
++	sepol_permissive_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_permissive_iter_create(handle, policy, &iter), 0);
++
++	uint32_t type1_val = type_value("TYPE1");
++	uint32_t type_val;
++	int found_type1 = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_permissive_iter_next(handle, iter, &type_val), 0);
++		if (type_val == 0)
++			break;
++		if (type_val == type1_val)
++			found_type1 = 1;
++	}
++	CU_ASSERT(found_type1);
++
++	sepol_permissive_iter_destroy(iter);
++}
++
++static void test_range_trans_mls_cat(void)
++{
++	if (!mls)
++		return;
++
++	sepol_range_trans_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_range_trans_iter_create(handle, policy, &iter), 0);
++
++	uint32_t src, tgt, cls;
++	int found_with_cats = 0;
 +
 +	/*
-+	 * After modifying an *existing* user, the expanded role cache used
-+	 * by sepol_context_check()/context_is_valid() must reflect the new
-+	 * role set -- not the empty cache left behind by
-+	 * user_datum_init(), and not the stale pre-modify cache.
++	 * Asserts inside this loop are intentionally non-fatal: a
++	 * CU_ASSERT_*_FATAL() here would longjmp out of the function on the
++	 * first failure and skip both sepol_cat_set_iter_destroy() calls
++	 * below and the final sepol_range_trans_iter_destroy(), leaking the
++	 * iterator(s) on top of the reported assertion failure. Guard every
++	 * subsequent dereference with an explicit check instead so the loop
++	 * (and the destroys) can still terminate safely.
 +	 */
-+	CU_ASSERT_EQUAL(context_check("USER1", "ROLE2", "TYPE2", mls_level), 0);
-+	CU_ASSERT(context_check("USER1", "ROLE1", "TYPE1", mls_level) != 0);
++	while (1) {
++		int rc = sepol_range_trans_iter_next(handle, iter, &src, &tgt,
++						     &cls);
++		CU_ASSERT_EQUAL(rc, 0);
++		if (rc != 0 || src == 0)
++			break;
 +
-+	/* Restore USER1 to its original role set: this suite's `policy`
-+	 * fixture is shared across all tests in this file. */
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_modify(handle, policy, key, orig), 0);
-+	CU_ASSERT_EQUAL(context_check("USER1", "ROLE1", "TYPE1", mls_level), 0);
++		sepol_cat_set_iter_t *high_cat = NULL;
++		CU_ASSERT_EQUAL(sepol_range_trans_iter_get_high_cat(iter,
++								    &high_cat),
++				0);
++		CU_ASSERT_PTR_NOT_NULL(high_cat);
++		if (high_cat) {
++			uint32_t cat_val;
++			CU_ASSERT_EQUAL(sepol_cat_set_iter_next(
++						handle, high_cat, &cat_val),
++					0);
++			if (cat_val > 0)
++				found_with_cats = 1;
++			sepol_cat_set_iter_destroy(high_cat);
++		}
 +
-+	sepol_user_free(orig);
-+	sepol_user_key_free(key);
++		sepol_cat_set_iter_t *low_cat = NULL;
++		CU_ASSERT_EQUAL(
++			sepol_range_trans_iter_get_low_cat(iter, &low_cat), 0);
++		CU_ASSERT_PTR_NOT_NULL(low_cat);
++		if (low_cat)
++			sepol_cat_set_iter_destroy(low_cat);
++	}
++	CU_ASSERT(found_with_cats);
++
++	sepol_range_trans_iter_destroy(iter);
 +}
 +
-+static void test_user_clone_unnamed(void)
++static void test_fsuse_context_values(void)
 +{
-+	sepol_user_t *user;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_create(handle, &user), 0);
-+
-+	/* A freshly created user has no name yet; cloning it must fail
-+	 * cleanly instead of calling strdup(NULL). */
-+	sepol_user_t *cloned = NULL;
-+	CU_ASSERT(sepol_user_clone(handle, user, &cloned) != 0);
-+	CU_ASSERT_PTR_NULL(cloned);
-+
-+	sepol_user_free(user);
-+}
-+
-+static void test_bool_clone_unnamed(void)
-+{
-+	sepol_bool_t *boolean;
-+	CU_ASSERT_EQUAL_FATAL(sepol_bool_create(handle, &boolean), 0);
-+
-+	/* A freshly created boolean has no name yet; cloning it must fail
-+	 * cleanly instead of calling strdup(NULL). */
-+	sepol_bool_t *cloned = NULL;
-+	CU_ASSERT(sepol_bool_clone(handle, boolean, &cloned) != 0);
-+	CU_ASSERT_PTR_NULL(cloned);
-+
-+	sepol_bool_free(boolean);
-+}
-+
-+static void test_class_exists_query_key_compare(void)
-+{
-+	sepol_class_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_key_create(handle, "CLASS1", &key),
++	sepol_fsuse_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_fsuse_iter_create(handle, policy, &iter),
 +			      0);
 +
-+	const char *keyname = NULL;
-+	sepol_class_key_unpack(key, &keyname);
-+	CU_ASSERT_STRING_EQUAL(keyname, "CLASS1");
++	uint32_t user1_val = hashtab_search(policy->p.p_users.table, "USER1") ?
++				     ((user_datum_t *)hashtab_search(
++					      policy->p.p_users.table, "USER1"))
++					     ->s.value :
++				     0;
++	uint32_t role1_val = role_value("ROLE1");
++	uint32_t type1_val = type_value("TYPE1");
 +
-+	int exists = 0;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_exists(handle, policy, key, &exists),
-+			      0);
-+	CU_ASSERT_TRUE(exists);
++	const char *name;
++	uint32_t behavior;
++	int found = 0;
 +
-+	sepol_class_t *queried = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_query(handle, policy, key, &queried),
-+			      0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_class_get_name(queried), "CLASS1");
-+	CU_ASSERT_EQUAL(sepol_class_compare(queried, key), 0);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_fsuse_iter_next(handle, iter, &name,
++							    &behavior),
++				      0);
++		if (!name)
++			break;
 +
-+	sepol_class_key_t *extracted = NULL;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_key_extract(handle, queried, &extracted), 0);
-+	CU_ASSERT_EQUAL(sepol_class_compare(queried, extracted), 0);
-+	sepol_class_key_free(extracted);
++		if (strcmp(name, "ext3") == 0) {
++			found = 1;
++			CU_ASSERT_EQUAL(sepol_fsuse_iter_get_context_user(iter),
++					user1_val);
++			CU_ASSERT_EQUAL(sepol_fsuse_iter_get_context_role(iter),
++					role1_val);
++			CU_ASSERT_EQUAL(sepol_fsuse_iter_get_context_type(iter),
++					type1_val);
 +
-+	sepol_class_t *clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_clone(handle, queried, &clone), 0);
-+	CU_ASSERT_EQUAL(sepol_class_compare2(queried, clone), 0);
-+	sepol_class_free(clone);
++			if (mls) {
++				uint32_t low_sens =
++					sepol_fsuse_iter_get_mls_range_low_sens(
++						iter);
++				CU_ASSERT(low_sens > 0);
++				CU_ASSERT_EQUAL(
++					sepol_fsuse_iter_get_mls_range_high_sens(
++						iter),
++					low_sens);
 +
-+	/* A non-existent key must report exists=0 and query=>NULL, not an
-+	 * error, and must not compare equal to CLASS1. */
-+	sepol_class_key_t *missing_key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_key_create(handle, "NO_SUCH_CLASS",
-+						     &missing_key),
-+			      0);
++				sepol_cat_set_iter_t *low_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_fsuse_iter_get_mls_range_low_cat(
++						iter, &low_cat),
++					0);
++				drain_cat_iter(low_cat);
 +
-+	exists = 1;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_exists(handle, policy, missing_key, &exists), 0);
-+	CU_ASSERT_FALSE(exists);
++				sepol_cat_set_iter_t *high_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_fsuse_iter_get_mls_range_high_cat(
++						iter, &high_cat),
++					0);
++				drain_cat_iter(high_cat);
++			}
++		}
++	}
++	CU_ASSERT(found);
 +
-+	sepol_class_t *missing_queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_query(handle, policy, missing_key,
-+						&missing_queried),
-+			      0);
-+	CU_ASSERT_PTR_NULL(missing_queried);
-+
-+	CU_ASSERT(sepol_class_compare(queried, missing_key) != 0);
-+
-+	sepol_class_key_free(missing_key);
-+	sepol_class_key_free(key);
-+	sepol_class_free(queried);
++	sepol_fsuse_iter_destroy(iter);
 +}
 +
-+static void test_class_query_by_value_and_value_to_name(void)
++static void test_genfscon_context_values(void)
 +{
-+	uint32_t value = class_value("CLASS1");
++	sepol_genfscon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_genfscon_iter_create(handle, policy, &iter),
++			      0);
 +
-+	const char *name = NULL;
-+	CU_ASSERT_EQUAL(sepol_class_value_to_name(handle, policy, value, &name),
-+			0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(name);
-+	CU_ASSERT_STRING_EQUAL(name, "CLASS1");
++	uint32_t type1_val = type_value("TYPE1");
 +
-+	sepol_class_t *queried = NULL;
-+	CU_ASSERT_EQUAL(
-+		sepol_class_query_by_value(handle, policy, value, &queried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_class_get_name(queried), "CLASS1");
-+	sepol_class_free(queried);
++	const char *fstype, *path;
++	uint32_t sclass;
++	int found = 0;
 +
-+	/* Out-of-range values: value_to_name is an error; query_by_value
-+	 * succeeds and reports "not found" via a NULL response. */
-+	name = (void *)0xdeadbeef;
-+	CU_ASSERT_NOT_EQUAL(sepol_class_value_to_name(handle, policy, 0, &name),
-+			    0);
-+	CU_ASSERT_PTR_NULL(name);
-+	name = (void *)0xdeadbeef;
-+	CU_ASSERT_NOT_EQUAL(sepol_class_value_to_name(handle, policy,
-+						      UINT32_MAX, &name),
-+			    0);
-+	CU_ASSERT_PTR_NULL(name);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_genfscon_iter_next(handle, iter,
++							       &fstype, &path,
++							       &sclass),
++				      0);
++		if (!fstype)
++			break;
 +
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_class_query_by_value(handle, policy, 0, &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_class_query_by_value(handle, policy, UINT32_MAX,
-+						   &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
++		if (strcmp(fstype, "proc") == 0 && strcmp(path, "/") == 0) {
++			found = 1;
++			CU_ASSERT_EQUAL(
++				sepol_genfscon_iter_get_context_type(iter),
++				type1_val);
++			CU_ASSERT(sepol_genfscon_iter_get_context_user(iter) >
++				  0);
++			CU_ASSERT(sepol_genfscon_iter_get_context_role(iter) >
++				  0);
 +
-+	/* NULL-argument handling */
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_class_value_to_name(handle, NULL, value, &name), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_class_value_to_name(handle, policy, value, NULL), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_class_query_by_value(handle, NULL, value, &queried), 0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_class_query_by_value(handle, policy, value, NULL), 0);
++			if (mls) {
++				uint32_t low_sens =
++					sepol_genfscon_iter_get_mls_range_low_sens(
++						iter);
++				CU_ASSERT(low_sens > 0);
++				CU_ASSERT_EQUAL(
++					sepol_genfscon_iter_get_mls_range_high_sens(
++						iter),
++					low_sens);
++
++				sepol_cat_set_iter_t *low_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_genfscon_iter_get_mls_range_low_cat(
++						iter, &low_cat),
++					0);
++				drain_cat_iter(low_cat);
++
++				sepol_cat_set_iter_t *high_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_genfscon_iter_get_mls_range_high_cat(
++						iter, &high_cat),
++					0);
++				drain_cat_iter(high_cat);
++			}
++		}
++	}
++	CU_ASSERT(found);
++
++	sepol_genfscon_iter_destroy(iter);
 +}
 +
-+static void test_class_set_default_roundtrip(void)
++static void test_sens_level_cat_bits(void)
 +{
-+	sepol_class_t *cls;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_set_name(handle, cls, "testclass"), 0);
++	if (!mls)
++		return;
 +
-+	/* Freshly created class defaults to all-zero defaults. */
-+	CU_ASSERT_EQUAL(sepol_class_get_default_user(cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_role(cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_type(cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_range(cls), 0);
++	sepol_sens_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_sens_iter_create(handle, policy, &iter), 0);
 +
-+	CU_ASSERT_EQUAL(sepol_class_set_default_user(
-+				handle, cls, SEPOL_CLASS_DEFAULT_SOURCE),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_user(cls),
-+			SEPOL_CLASS_DEFAULT_SOURCE);
-+
-+	CU_ASSERT_EQUAL(sepol_class_set_default_role(
-+				handle, cls, SEPOL_CLASS_DEFAULT_TARGET),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_role(cls),
-+			SEPOL_CLASS_DEFAULT_TARGET);
-+
-+	CU_ASSERT_EQUAL(sepol_class_set_default_type(
-+				handle, cls, SEPOL_CLASS_DEFAULT_SOURCE),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_type(cls),
-+			SEPOL_CLASS_DEFAULT_SOURCE);
-+
-+	CU_ASSERT_EQUAL(sepol_class_set_default_range(
-+				handle, cls,
-+				SEPOL_CLASS_DEFAULT_SOURCE_LOW_HIGH),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_class_get_default_range(cls),
-+			SEPOL_CLASS_DEFAULT_SOURCE_LOW_HIGH);
-+
-+	sepol_class_free(cls);
-+}
-+
-+static void test_class_has_perm_and_del_perm(void)
-+{
-+	sepol_class_t *cls;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_set_name(handle, cls, "testclass"), 0);
-+
-+	CU_ASSERT_FALSE(sepol_class_has_perm(cls, "read"));
-+	CU_ASSERT_EQUAL(sepol_class_add_perm(handle, cls, "read"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_perm(handle, cls, "write"), 0);
-+	CU_ASSERT_TRUE(sepol_class_has_perm(cls, "read"));
-+	CU_ASSERT_TRUE(sepol_class_has_perm(cls, "write"));
-+	CU_ASSERT_FALSE(sepol_class_has_perm(cls, "execute"));
-+
-+	CU_ASSERT_EQUAL(sepol_class_del_perm(handle, cls, "read"), 0);
-+	CU_ASSERT_FALSE(sepol_class_has_perm(cls, "read"));
-+	CU_ASSERT_TRUE(sepol_class_has_perm(cls, "write"));
-+
-+	const char **perms;
-+	uint32_t nperms;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_get_perms(handle, cls, &perms, &nperms), 0);
-+	CU_ASSERT_EQUAL(nperms, 1);
-+	if (nperms == 1)
-+		CU_ASSERT_STRING_EQUAL(perms[0], "write");
-+	free(perms);
-+
-+	sepol_class_free(cls);
-+}
-+
-+static void test_class_validatetrans_roundtrip(void)
-+{
-+	sepol_class_t *cls;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &cls), 0);
-+	CU_ASSERT_EQUAL(sepol_class_set_name(handle, cls, "testclass"), 0);
-+
-+	const sepol_constraint_t **vtrans;
-+	uint32_t nvtrans;
-+	CU_ASSERT_EQUAL(sepol_class_get_validatetrans(handle, cls, &vtrans,
-+						      &nvtrans),
-+			0);
-+	CU_ASSERT_EQUAL(nvtrans, 0);
-+	CU_ASSERT_PTR_NULL(vtrans);
-+
-+	sepol_constraint_t *vt;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &vt), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, vt, "transition"), 0);
-+	CU_ASSERT_EQUAL(sepol_class_add_validatetrans(handle, cls, vt), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_class_get_validatetrans(handle, cls, &vtrans,
-+						      &nvtrans),
-+			0);
-+	CU_ASSERT_EQUAL(nvtrans, 1);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(vtrans);
-+	CU_ASSERT_TRUE(sepol_constraint_has_perm(vtrans[0], "transition"));
-+	free(vtrans);
++	const char *name;
++	uint32_t sens_value;
++	int isalias;
++	int found_s0 = 0;
 +
 +	/*
-+	 * Like sepol_class_add_constraint()/del_constraint(), add_validatetrans()
-+	 * takes ownership of `vt` and del_validatetrans() matches by pointer
-+	 * identity and frees the internally-stored object itself -- `vt` must
-+	 * not be freed again here.
++	 * As in test_range_trans_mls_cat() above, asserts in this loop are
++	 * intentionally non-fatal so a failure can't skip
++	 * sepol_cat_set_iter_destroy()/sepol_sens_iter_destroy() and leak
++	 * the iterator(s).
 +	 */
-+	CU_ASSERT_EQUAL(sepol_class_del_validatetrans(handle, cls, vt), 0);
-+	CU_ASSERT_EQUAL(sepol_class_get_validatetrans(handle, cls, &vtrans,
-+						      &nvtrans),
-+			0);
-+	CU_ASSERT_EQUAL(nvtrans, 0);
-+	CU_ASSERT_PTR_NULL(vtrans);
++	while (1) {
++		int rc = sepol_sens_iter_next(handle, iter, &name, &sens_value,
++					      &isalias);
++		CU_ASSERT_EQUAL(rc, 0);
++		if (rc != 0 || !name)
++			break;
 +
-+	sepol_class_free(cls);
++		if (strcmp(name, "s0") == 0) {
++			found_s0 = 1;
++			CU_ASSERT(!isalias);
++
++			sepol_cat_set_iter_t *cat_iter = NULL;
++			CU_ASSERT_EQUAL(sepol_sens_iter_get_level_cat(
++						handle, iter, &cat_iter),
++					0);
++			CU_ASSERT_PTR_NOT_NULL(cat_iter);
++
++			if (cat_iter) {
++				uint32_t cat_val;
++				int cat_count = 0;
++				int found_cats[4] = { 0, 0, 0, 0 };
++				while (1) {
++					int cat_rc = sepol_cat_set_iter_next(
++						handle, cat_iter, &cat_val);
++					CU_ASSERT_EQUAL(cat_rc, 0);
++					if (cat_rc != 0 || cat_val == 0)
++						break;
++					cat_count++;
++					if (cat_val >= 1 && cat_val <= 4)
++						found_cats[cat_val - 1] = 1;
++				}
++				CU_ASSERT(cat_count >= 4);
++				CU_ASSERT(found_cats[0]);
++				CU_ASSERT(found_cats[1]);
++				CU_ASSERT(found_cats[2]);
++				CU_ASSERT(found_cats[3]);
++
++				sepol_cat_set_iter_destroy(cat_iter);
++			}
++		}
++	}
++	CU_ASSERT(found_s0);
++
++	sepol_sens_iter_destroy(iter);
 +}
 +
-+static void test_constraint_get_perms_del_perm_remove_expr(void)
++static void test_common_perm_iter_invalid(void)
 +{
-+	sepol_constraint_t *con;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_create(handle, &con), 0);
++	sepol_common_perm_iter_t *piter;
++	int rc = sepol_common_perm_iter_create(handle, policy, 0, &piter);
++	CU_ASSERT_NOT_EQUAL(rc, 0);
 +
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, con, "read"), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_add_perm(handle, con, "write"), 0);
-+
-+	const char **perms;
-+	uint32_t nperms;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_constraint_get_perms(handle, con, &perms, &nperms), 0);
-+	CU_ASSERT_EQUAL(nperms, 2);
-+	free(perms);
-+
-+	CU_ASSERT_EQUAL(sepol_constraint_del_perm(handle, con, "read"), 0);
-+	CU_ASSERT_FALSE(sepol_constraint_has_perm(con, "read"));
-+	CU_ASSERT_TRUE(sepol_constraint_has_perm(con, "write"));
-+
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_constraint_get_perms(handle, con, &perms, &nperms), 0);
-+	CU_ASSERT_EQUAL(nperms, 1);
-+	free(perms);
-+
-+	sepol_constraint_expr_t *e0, *e1;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_create(handle, &e0), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_type(handle, e0,
-+						       SEPOL_CEXPR_TYPE_ATTR),
-+			0);
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_create(handle, &e1), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_type(handle, e1,
-+						       SEPOL_CEXPR_TYPE_NOT),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_insert_expr(handle, con, 0, e0), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_insert_expr(handle, con, 1, e1), 0);
-+
-+	const sepol_constraint_expr_t **exprs;
-+	uint32_t nexprs;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_constraint_get_exprs(handle, con, &exprs, &nexprs), 0);
-+	CU_ASSERT_EQUAL(nexprs, 2);
-+	free(exprs);
-+
-+	/* Removing index 0 must shift the remaining expr down, not leave a
-+	 * gap or remove the wrong one. */
-+	CU_ASSERT_EQUAL(sepol_constraint_remove_expr(handle, con, 0), 0);
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_constraint_get_exprs(handle, con, &exprs, &nexprs), 0);
-+	CU_ASSERT_EQUAL_FATAL(nexprs, 1);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_get_type(exprs[0]),
-+			SEPOL_CEXPR_TYPE_NOT);
-+	free(exprs);
-+
-+	/* Out-of-range index must fail without side effects. */
-+	CU_ASSERT(sepol_constraint_remove_expr(handle, con, 5) != 0);
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_constraint_get_exprs(handle, con, &exprs, &nexprs), 0);
-+	CU_ASSERT_EQUAL(nexprs, 1);
-+	free(exprs);
-+
-+	sepol_constraint_free(con);
++	rc = sepol_common_perm_iter_create(handle, policy, 9999, &piter);
++	CU_ASSERT_NOT_EQUAL(rc, 0);
 +}
 +
-+static void test_constraint_expr_names_and_attr_accessors(void)
++static void test_role_allow_no_self(void)
 +{
-+	sepol_constraint_expr_t *expr;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_create(handle, &expr), 0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_type(handle, expr,
-+						       SEPOL_CEXPR_TYPE_NAMES),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_op(handle, expr,
-+						     SEPOL_CEXPR_OP_EQ),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_get_op(expr), SEPOL_CEXPR_OP_EQ);
++	sepol_role_allow_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_role_allow_iter_create(handle, policy, &iter), 0);
 +
-+	CU_ASSERT_FALSE(sepol_constraint_expr_has_name(expr, "TYPE1"));
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_add_name(handle, expr, "TYPE1"),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_add_name(handle, expr, "TYPE2"),
-+			0);
-+	CU_ASSERT_TRUE(sepol_constraint_expr_has_name(expr, "TYPE1"));
-+	CU_ASSERT_TRUE(sepol_constraint_expr_has_name(expr, "TYPE2"));
-+	CU_ASSERT_FALSE(sepol_constraint_expr_has_name(expr, "TYPE3"));
++	uint32_t role, new_role;
 +
-+	const char **names;
-+	uint32_t nnames;
-+	CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_get_names(handle, expr,
-+							      &names, &nnames),
-+			      0);
-+	CU_ASSERT_EQUAL(nnames, 2);
-+	free(names);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_role_allow_iter_next(
++					      handle, iter, &role, &new_role),
++				      0);
++		if (role == 0)
++			break;
++		CU_ASSERT(role > 0);
++		CU_ASSERT(new_role > 0);
++		CU_ASSERT(role != new_role);
++	}
 +
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_del_name(handle, expr, "TYPE1"),
-+			0);
-+	CU_ASSERT_FALSE(sepol_constraint_expr_has_name(expr, "TYPE1"));
-+	CU_ASSERT_TRUE(sepol_constraint_expr_has_name(expr, "TYPE2"));
-+
-+	/* Attribute bitmask accessors */
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_attr(handle, expr,
-+						       SEPOL_CEXPR_ATTR_TYPE),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_set_attr(handle, expr,
-+						       SEPOL_CEXPR_ATTR_TARGET),
-+			0);
-+	CU_ASSERT_TRUE(
-+		sepol_constraint_expr_has_attr(expr, SEPOL_CEXPR_ATTR_TYPE));
-+	CU_ASSERT_TRUE(
-+		sepol_constraint_expr_has_attr(expr, SEPOL_CEXPR_ATTR_TARGET));
-+
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_unset_attr(
-+				handle, expr, SEPOL_CEXPR_ATTR_TARGET),
-+			0);
-+	CU_ASSERT_TRUE(
-+		sepol_constraint_expr_has_attr(expr, SEPOL_CEXPR_ATTR_TYPE));
-+	CU_ASSERT_FALSE(
-+		sepol_constraint_expr_has_attr(expr, SEPOL_CEXPR_ATTR_TARGET));
-+
-+	CU_ASSERT_EQUAL(sepol_constraint_expr_clear_attr(handle, expr), 0);
-+	CU_ASSERT_FALSE(
-+		sepol_constraint_expr_has_attr(expr, SEPOL_CEXPR_ATTR_TYPE));
-+
-+	sepol_constraint_expr_free(expr);
++	sepol_role_allow_iter_destroy(iter);
 +}
 +
-+static void test_role_exists_query_key_compare(void)
++static void test_cat_value_to_name(void)
 +{
-+	sepol_role_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_key_create(handle, "ROLE1", &key), 0);
++	if (!mls)
++		return;
 +
-+	const char *keyname = NULL;
-+	sepol_role_key_unpack(key, &keyname);
-+	CU_ASSERT_STRING_EQUAL(keyname, "ROLE1");
++	sepol_cat_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_cat_iter_create(handle, policy, &iter), 0);
 +
-+	int exists = 0;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_exists(handle, policy, key, &exists),
-+			      0);
-+	CU_ASSERT_TRUE(exists);
++	const char *name;
++	uint32_t value;
++	int isalias;
++	int resolved = 0;
 +
-+	sepol_role_t *queried = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_query(handle, policy, key, &queried),
-+			      0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_role_get_name(queried), "ROLE1");
-+	CU_ASSERT_EQUAL(sepol_role_compare(queried, key), 0);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_cat_iter_next(handle, iter, &name,
++							  &value, &isalias),
++				      0);
++		if (!name)
++			break;
++		if (isalias)
++			continue;
 +
-+	sepol_role_key_t *extracted = NULL;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_key_extract(handle, queried, &extracted), 0);
-+	CU_ASSERT_EQUAL(sepol_role_compare(queried, extracted), 0);
-+	sepol_role_key_free(extracted);
++		const char *resolved_name = NULL;
++		CU_ASSERT_EQUAL_FATAL(sepol_cat_value_to_name(handle, policy,
++							      value,
++							      &resolved_name),
++				      0);
++		CU_ASSERT_PTR_NOT_NULL(resolved_name);
++		if (resolved_name) {
++			CU_ASSERT_STRING_EQUAL(resolved_name, name);
++			resolved++;
++		}
++	}
++	CU_ASSERT(resolved >= 4);
 +
-+	sepol_role_t *clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_clone(handle, queried, &clone), 0);
-+	CU_ASSERT_EQUAL(sepol_role_compare2(queried, clone), 0);
-+	sepol_role_free(clone);
++	const char *bad_name = NULL;
++	CU_ASSERT_NOT_EQUAL(
++		sepol_cat_value_to_name(handle, policy, 0, &bad_name), 0);
++	CU_ASSERT_PTR_NULL(bad_name);
++	CU_ASSERT_NOT_EQUAL(
++		sepol_cat_value_to_name(handle, policy, 9999, &bad_name), 0);
++	CU_ASSERT_PTR_NULL(bad_name);
 +
-+	sepol_role_key_t *missing_key;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_key_create(handle, "NO_SUCH_ROLE", &missing_key), 0);
-+
-+	exists = 1;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_exists(handle, policy, missing_key, &exists), 0);
-+	CU_ASSERT_FALSE(exists);
-+
-+	sepol_role_t *missing_queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_query(handle, policy, missing_key,
-+					       &missing_queried),
-+			      0);
-+	CU_ASSERT_PTR_NULL(missing_queried);
-+
-+	CU_ASSERT(sepol_role_compare(queried, missing_key) != 0);
-+
-+	sepol_role_key_free(missing_key);
-+	sepol_role_key_free(key);
-+	sepol_role_free(queried);
++	sepol_cat_iter_destroy(iter);
 +}
 +
-+static void test_role_query_by_value_and_value_to_name(void)
++static void test_sens_value_to_name(void)
 +{
-+	uint32_t value = role_value("ROLE1");
++	if (!mls)
++		return;
 +
 +	const char *name = NULL;
-+	CU_ASSERT_EQUAL(sepol_role_value_to_name(handle, policy, value, &name),
-+			0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(name);
-+	CU_ASSERT_STRING_EQUAL(name, "ROLE1");
-+
-+	sepol_role_t *queried = NULL;
-+	CU_ASSERT_EQUAL(
-+		sepol_role_query_by_value(handle, policy, value, &queried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_role_get_name(queried), "ROLE1");
-+	sepol_role_free(queried);
-+
-+	/* Out-of-range values: value_to_name is an error; query_by_value
-+	 * succeeds and reports "not found" via a NULL response. */
-+	name = (void *)0xdeadbeef;
-+	CU_ASSERT_NOT_EQUAL(sepol_role_value_to_name(handle, policy, 0, &name),
-+			    0);
-+	CU_ASSERT_PTR_NULL(name);
-+	name = (void *)0xdeadbeef;
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_role_value_to_name(handle, policy, UINT32_MAX, &name), 0);
-+	CU_ASSERT_PTR_NULL(name);
-+
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_role_query_by_value(handle, policy, 0, &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_role_query_by_value(handle, policy, UINT32_MAX,
-+						  &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+
-+	/* NULL-argument handling */
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_role_value_to_name(handle, NULL, value, &name), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_role_value_to_name(handle, policy, value, NULL), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_role_query_by_value(handle, NULL, value, &queried), 0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_role_query_by_value(handle, policy, value, NULL), 0);
-+}
-+
-+static void test_role_type_membership(void)
-+{
-+	sepol_role_t *role;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_create(handle, &role), 0);
-+	CU_ASSERT_EQUAL(sepol_role_set_name(handle, role, "testrole"), 0);
-+
-+	CU_ASSERT_FALSE(sepol_role_has_type(role, "type_a"));
-+	CU_ASSERT_EQUAL(sepol_role_add_type(handle, role, "type_a"), 0);
-+	CU_ASSERT_EQUAL(sepol_role_add_type(handle, role, "type_b"), 0);
-+	CU_ASSERT_TRUE(sepol_role_has_type(role, "type_a"));
-+	CU_ASSERT_TRUE(sepol_role_has_type(role, "type_b"));
-+
-+	const char **types;
-+	uint32_t ntypes;
 +	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_get_types(handle, role, &types, &ntypes), 0);
-+	CU_ASSERT_EQUAL(ntypes, 2);
-+	free(types);
++		sepol_sens_value_to_name(handle, policy, 1, &name), 0);
++	CU_ASSERT_PTR_NOT_NULL(name);
 +
-+	CU_ASSERT_EQUAL(sepol_role_del_type(handle, role, "type_a"), 0);
-+	CU_ASSERT_FALSE(sepol_role_has_type(role, "type_a"));
-+	CU_ASSERT_TRUE(sepol_role_has_type(role, "type_b"));
-+
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_get_types(handle, role, &types, &ntypes), 0);
-+	CU_ASSERT_EQUAL(ntypes, 1);
-+	if (ntypes == 1)
-+		CU_ASSERT_STRING_EQUAL(types[0], "type_b");
-+	free(types);
-+
-+	sepol_role_free(role);
++	const char *bad_name = NULL;
++	CU_ASSERT_NOT_EQUAL(
++		sepol_sens_value_to_name(handle, policy, 0, &bad_name), 0);
++	CU_ASSERT_PTR_NULL(bad_name);
++	CU_ASSERT_NOT_EQUAL(
++		sepol_sens_value_to_name(handle, policy, 9999, &bad_name), 0);
++	CU_ASSERT_PTR_NULL(bad_name);
 +}
 +
-+static void test_role_bounds_and_flavor(void)
++static void test_common_value_to_name(void)
 +{
-+	sepol_role_t *role;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_create(handle, &role), 0);
-+	CU_ASSERT_EQUAL(sepol_role_set_name(handle, role, "testrole"), 0);
-+
-+	CU_ASSERT_PTR_NULL(sepol_role_get_bounds(role));
-+	CU_ASSERT_EQUAL(sepol_role_set_bounds(handle, role, "parent_role"), 0);
-+	CU_ASSERT_STRING_EQUAL(sepol_role_get_bounds(role), "parent_role");
-+	CU_ASSERT_EQUAL(sepol_role_set_bounds(handle, role, NULL), 0);
-+	CU_ASSERT_PTR_NULL(sepol_role_get_bounds(role));
-+
-+	CU_ASSERT_EQUAL(sepol_role_get_flavor(role), SEPOL_ROLE_ROLE);
-+	CU_ASSERT_EQUAL(sepol_role_set_flavor(handle, role, SEPOL_ROLE_ATTRIB),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_role_get_flavor(role), SEPOL_ROLE_ATTRIB);
-+
-+	sepol_role_free(role);
-+}
-+
-+static void test_role_del_subrole(void)
-+{
-+	sepol_role_t *role;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_create(handle, &role), 0);
-+	CU_ASSERT_EQUAL(sepol_role_set_name(handle, role, "testattr"), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_role_add_subrole(handle, role, "sub_a"), 0);
-+	CU_ASSERT_EQUAL(sepol_role_add_subrole(handle, role, "sub_b"), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_role_del_subrole(handle, role, "sub_a"), 0);
-+
-+	const char **subroles;
-+	uint32_t nsub;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_role_get_subroles(handle, role, &subroles, &nsub), 0);
-+	CU_ASSERT_EQUAL(nsub, 1);
-+	if (nsub == 1)
-+		CU_ASSERT_STRING_EQUAL(subroles[0], "sub_b");
-+	free(subroles);
-+
-+	sepol_role_free(role);
-+}
-+
-+static void test_type_key_unpack_extract_and_compare(void)
-+{
-+	sepol_type_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, "TYPE1", &key), 0);
-+
-+	const char *keyname = NULL;
-+	sepol_type_key_unpack(key, &keyname);
-+	CU_ASSERT_STRING_EQUAL(keyname, "TYPE1");
-+
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, type, "TYPE1"), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_compare(type, key), 0);
-+
-+	sepol_type_key_t *extracted = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_key_extract(handle, type, &extracted),
++	sepol_common_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_common_iter_create(handle, policy, &iter),
 +			      0);
-+	CU_ASSERT_EQUAL(sepol_type_compare(type, extracted), 0);
-+	sepol_type_key_free(extracted);
 +
-+	sepol_type_t *other;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &other), 0);
-+	CU_ASSERT_EQUAL(sepol_type_set_name(handle, other, "TYPE2"), 0);
-+	CU_ASSERT(sepol_type_compare(other, key) != 0);
-+	CU_ASSERT(sepol_type_compare2(type, other) != 0);
++	const char *name;
++	uint32_t value;
++	int resolved = 0;
 +
-+	sepol_type_t *clone;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_clone(handle, type, &clone), 0);
-+	CU_ASSERT_EQUAL(sepol_type_compare2(type, clone), 0);
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_common_iter_next(handle, iter, &name, &value), 0);
++		if (!name)
++			break;
 +
-+	sepol_type_free(clone);
-+	sepol_type_free(other);
-+	sepol_type_free(type);
-+	sepol_type_key_free(key);
++		const char *resolved_name = NULL;
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_common_value_to_name(handle, policy, value,
++						   &resolved_name),
++			0);
++		CU_ASSERT_PTR_NOT_NULL(resolved_name);
++		if (resolved_name) {
++			CU_ASSERT_STRING_EQUAL(resolved_name, name);
++			resolved++;
++		}
++	}
++	CU_ASSERT(resolved >= 1);
++
++	sepol_common_iter_destroy(iter);
 +}
 +
-+static void test_type_query_by_value_and_value_to_name(void)
++static void test_isid_name(void)
 +{
-+	uint32_t value = type_value("TYPE1");
++	sepol_isid_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_isid_iter_create(handle, policy, &iter), 0);
 +
++	uint32_t sid;
++	int found_kernel = 0;
++
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_isid_iter_next(handle, iter, &sid),
++				      0);
++		if (sid == 0)
++			break;
++
++		const char *name = sepol_isid_iter_get_name(iter);
++		if (name && strcmp(name, "kernel") == 0) {
++			found_kernel = 1;
++			CU_ASSERT(sepol_isid_iter_get_context_user(iter) > 0);
++			CU_ASSERT(sepol_isid_iter_get_context_role(iter) > 0);
++			CU_ASSERT(sepol_isid_iter_get_context_type(iter) > 0);
++
++			if (mls) {
++				uint32_t low_sens =
++					sepol_isid_iter_get_mls_range_low_sens(
++						iter);
++				CU_ASSERT(low_sens > 0);
++				CU_ASSERT_EQUAL(
++					sepol_isid_iter_get_mls_range_high_sens(
++						iter),
++					low_sens);
++
++				sepol_cat_set_iter_t *low_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_isid_iter_get_mls_range_low_cat(
++						iter, &low_cat),
++					0);
++				drain_cat_iter(low_cat);
++
++				sepol_cat_set_iter_t *high_cat = NULL;
++				CU_ASSERT_EQUAL_FATAL(
++					sepol_isid_iter_get_mls_range_high_cat(
++						iter, &high_cat),
++					0);
++				drain_cat_iter(high_cat);
++			}
++		}
++	}
++	CU_ASSERT(found_kernel);
++
++	sepol_isid_iter_destroy(iter);
++}
++
++static void test_portcon_iter(void)
++{
++	sepol_portcon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_portcon_iter_create(handle, policy, &iter),
++			      0);
++
++	int count = 0;
++	uint8_t protocol;
++	uint16_t low_port, high_port;
++	int rc, has_next;
++	while (1) {
++		rc = sepol_portcon_iter_next(handle, iter, &protocol, &low_port,
++					     &high_port, &has_next);
++		CU_ASSERT_EQUAL_FATAL(rc, 0);
++		if (!has_next)
++			break;
++		CU_ASSERT(protocol == 6 || protocol == 17);
++		CU_ASSERT(sepol_portcon_iter_get_context_user(iter) > 0);
++		CU_ASSERT(sepol_portcon_iter_get_context_role(iter) > 0);
++		CU_ASSERT(sepol_portcon_iter_get_context_type(iter) > 0);
++
++		if (mls) {
++			uint32_t low_sens =
++				sepol_portcon_iter_get_mls_range_low_sens(iter);
++			CU_ASSERT(low_sens > 0);
++			CU_ASSERT_EQUAL(
++				sepol_portcon_iter_get_mls_range_high_sens(
++					iter),
++				low_sens);
++
++			sepol_cat_set_iter_t *low_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_portcon_iter_get_mls_range_low_cat(
++					iter, &low_cat),
++				0);
++			drain_cat_iter(low_cat);
++
++			sepol_cat_set_iter_t *high_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_portcon_iter_get_mls_range_high_cat(
++					iter, &high_cat),
++				0);
++			drain_cat_iter(high_cat);
++		}
++
++		count++;
++	}
++	CU_ASSERT(count >= 2);
++
++	sepol_portcon_iter_destroy(iter);
++}
++
++static void test_netifcon_iter(void)
++{
++	sepol_netifcon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_netifcon_iter_create(handle, policy, &iter),
++			      0);
++
++	int count = 0;
++	const char *name;
++	int rc;
++	while (1) {
++		rc = sepol_netifcon_iter_next(handle, iter, &name);
++		CU_ASSERT_EQUAL_FATAL(rc, 0);
++		if (!name)
++			break;
++		CU_ASSERT_STRING_EQUAL(name, "eth0");
++		CU_ASSERT(sepol_netifcon_iter_get_context_user(iter) > 0);
++		CU_ASSERT(sepol_netifcon_iter_get_context_role(iter) > 0);
++		CU_ASSERT(sepol_netifcon_iter_get_context_type(iter) > 0);
++		CU_ASSERT(sepol_netifcon_iter_get_msg_context_user(iter) > 0);
++		CU_ASSERT(sepol_netifcon_iter_get_msg_context_role(iter) > 0);
++		CU_ASSERT(sepol_netifcon_iter_get_msg_context_type(iter) > 0);
++
++		if (mls) {
++			uint32_t low_sens =
++				sepol_netifcon_iter_get_mls_range_low_sens(
++					iter);
++			CU_ASSERT(low_sens > 0);
++			CU_ASSERT_EQUAL(
++				sepol_netifcon_iter_get_mls_range_high_sens(
++					iter),
++				low_sens);
++
++			sepol_cat_set_iter_t *low_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_netifcon_iter_get_mls_range_low_cat(
++					iter, &low_cat),
++				0);
++			drain_cat_iter(low_cat);
++
++			sepol_cat_set_iter_t *high_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_netifcon_iter_get_mls_range_high_cat(
++					iter, &high_cat),
++				0);
++			drain_cat_iter(high_cat);
++
++			uint32_t msg_low_sens =
++				sepol_netifcon_iter_get_msg_mls_range_low_sens(
++					iter);
++			CU_ASSERT(msg_low_sens > 0);
++			CU_ASSERT_EQUAL(
++				sepol_netifcon_iter_get_msg_mls_range_high_sens(
++					iter),
++				msg_low_sens);
++
++			sepol_cat_set_iter_t *msg_low_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_netifcon_iter_get_msg_mls_range_low_cat(
++					iter, &msg_low_cat),
++				0);
++			drain_cat_iter(msg_low_cat);
++
++			sepol_cat_set_iter_t *msg_high_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_netifcon_iter_get_msg_mls_range_high_cat(
++					iter, &msg_high_cat),
++				0);
++			drain_cat_iter(msg_high_cat);
++		}
++
++		count++;
++	}
++	CU_ASSERT(count == 1);
++
++	sepol_netifcon_iter_destroy(iter);
++}
++
++static void test_nodecon_iter(void)
++{
++	sepol_nodecon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_nodecon_iter_create(handle, policy, &iter),
++			      0);
++
++	int count = 0;
++	uint32_t addr, mask;
++	int rc, has_next;
++	while (1) {
++		rc = sepol_nodecon_iter_next(handle, iter, &addr, &mask,
++					     &has_next);
++		CU_ASSERT_EQUAL_FATAL(rc, 0);
++		if (!has_next)
++			break;
++		CU_ASSERT(sepol_nodecon_iter_get_context_user(iter) > 0);
++		CU_ASSERT(sepol_nodecon_iter_get_context_role(iter) > 0);
++		CU_ASSERT(sepol_nodecon_iter_get_context_type(iter) > 0);
++
++		if (mls) {
++			uint32_t low_sens =
++				sepol_nodecon_iter_get_mls_range_low_sens(iter);
++			CU_ASSERT(low_sens > 0);
++			CU_ASSERT_EQUAL(
++				sepol_nodecon_iter_get_mls_range_high_sens(
++					iter),
++				low_sens);
++
++			sepol_cat_set_iter_t *low_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_nodecon_iter_get_mls_range_low_cat(
++					iter, &low_cat),
++				0);
++			drain_cat_iter(low_cat);
++
++			sepol_cat_set_iter_t *high_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_nodecon_iter_get_mls_range_high_cat(
++					iter, &high_cat),
++				0);
++			drain_cat_iter(high_cat);
++		}
++
++		count++;
++	}
++	CU_ASSERT(count >= 1);
++
++	sepol_nodecon_iter_destroy(iter);
++
++	sepol_nodecon6_iter_t *iter6;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_nodecon6_iter_create(handle, policy, &iter6), 0);
++
++	count = 0;
++	const uint32_t *addr6, *mask6;
++	while (1) {
++		rc = sepol_nodecon6_iter_next(handle, iter6, &addr6, &mask6);
++		CU_ASSERT_EQUAL_FATAL(rc, 0);
++		if (!addr6)
++			break;
++		CU_ASSERT(sepol_nodecon6_iter_get_context_user(iter6) > 0);
++		CU_ASSERT(sepol_nodecon6_iter_get_context_role(iter6) > 0);
++		CU_ASSERT(sepol_nodecon6_iter_get_context_type(iter6) > 0);
++
++		if (mls) {
++			uint32_t low_sens =
++				sepol_nodecon6_iter_get_mls_range_low_sens(
++					iter6);
++			CU_ASSERT(low_sens > 0);
++			CU_ASSERT_EQUAL(
++				sepol_nodecon6_iter_get_mls_range_high_sens(
++					iter6),
++				low_sens);
++
++			sepol_cat_set_iter_t *low_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_nodecon6_iter_get_mls_range_low_cat(
++					iter6, &low_cat),
++				0);
++			drain_cat_iter(low_cat);
++
++			sepol_cat_set_iter_t *high_cat = NULL;
++			CU_ASSERT_EQUAL_FATAL(
++				sepol_nodecon6_iter_get_mls_range_high_cat(
++					iter6, &high_cat),
++				0);
++			drain_cat_iter(high_cat);
++		}
++
++		count++;
++	}
++	CU_ASSERT(count >= 1);
++
++	sepol_nodecon6_iter_destroy(iter6);
++}
++
++static void test_ibpkeycon_iter(void)
++{
++	sepol_ibpkeycon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_ibpkeycon_iter_create(handle, policy, &iter), 0);
++
++	uint64_t subnet_prefix;
++	uint16_t low_pkey, high_pkey;
++	int has_next;
++	int count = 0;
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_ibpkeycon_iter_next(
++					      handle, iter, &subnet_prefix,
++					      &low_pkey, &high_pkey, &has_next),
++				      0);
++		if (!has_next)
++			break;
++
++		/* fe80:: subnet prefix; raw byte layout is host-endian
++		 * dependent, so just check it is non-zero. */
++		CU_ASSERT(subnet_prefix != 0);
++		CU_ASSERT_EQUAL(low_pkey, 0);
++		CU_ASSERT_EQUAL(high_pkey, 0xffff);
++		CU_ASSERT(sepol_ibpkeycon_iter_get_context_user(iter) > 0);
++		CU_ASSERT(sepol_ibpkeycon_iter_get_context_role(iter) > 0);
++		CU_ASSERT(sepol_ibpkeycon_iter_get_context_type(iter) > 0);
++
++		count++;
++	}
++	CU_ASSERT_EQUAL(count, 1);
++
++	sepol_ibpkeycon_iter_destroy(iter);
++}
++
++static void test_ibendportcon_iter(void)
++{
++	sepol_ibendportcon_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_ibendportcon_iter_create(handle, policy, &iter), 0);
++
++	const char *dev_name;
++	uint8_t port;
++	int count = 0;
++	while (1) {
++		CU_ASSERT_EQUAL_FATAL(sepol_ibendportcon_iter_next(
++					      handle, iter, &dev_name, &port),
++				      0);
++		if (!dev_name)
++			break;
++
++		CU_ASSERT_STRING_EQUAL(dev_name, "mlx4_0");
++		CU_ASSERT_EQUAL(port, 1);
++		CU_ASSERT(sepol_ibendportcon_iter_get_context_user(iter) > 0);
++		CU_ASSERT(sepol_ibendportcon_iter_get_context_role(iter) > 0);
++		CU_ASSERT(sepol_ibendportcon_iter_get_context_type(iter) > 0);
++
++		count++;
++	}
++	CU_ASSERT_EQUAL(count, 1);
++
++	sepol_ibendportcon_iter_destroy(iter);
++}
++
++static void test_bool_iter(void)
++{
++	sepol_bool_iter_t *iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_bool_iter_create(handle, policy, &iter), 0);
++
++	int count = 0;
++	int found_bool1 = 0;
++	sepol_bool_t *item;
++	int rc;
++	while (1) {
++		rc = sepol_bool_iter_next(handle, iter, &item);
++		CU_ASSERT_EQUAL_FATAL(rc, 0);
++		if (!item)
++			break;
++		const char *name = sepol_bool_get_name(item);
++		CU_ASSERT_PTR_NOT_NULL(name);
++		if (name && strcmp(name, "BOOL1") == 0)
++			found_bool1 = 1;
++		sepol_bool_free(item);
++		count++;
++	}
++	CU_ASSERT(count == 2);
++	CU_ASSERT(found_bool1);
++
++	sepol_bool_iter_destroy(iter);
++}
++
++static void test_permissive_flags(void)
++{
++	uint32_t type1_val = type_value("TYPE1");
++	uint32_t type2_val = type_value("TYPE2");
++	type_datum_t *type1_datum = policy->p.type_val_to_struct[type1_val - 1];
++	type_datum_t *type2_datum = policy->p.type_val_to_struct[type2_val - 1];
++	CU_ASSERT_PTR_NOT_NULL_FATAL(type1_datum);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(type2_datum);
++
++	/*
++	 * iter.conf declares "permissive TYPE1;", which sets both
++	 * permissive_map's bit and type_datum->flags at expansion time, so
++	 * the two are already in sync and this test cannot exercise the
++	 * resync logic by observing them together. It also can't be
++	 * observed through sepol_type_query_by_value()/sepol_type_has_flag()
++	 * -- type_datum_to_record() ORs in permissive_map regardless of
++	 * type_datum->flags (see type.c), so the public read path can never
++	 * distinguish a synced flag from a stale one. Desync the two
++	 * directly and assert on type_datum->flags itself, which is the
++	 * only thing sepol_policydb_set_permissive_flags() actually writes.
++	 */
++	type1_datum->flags &= ~(uint32_t)TYPE_FLAGS_PERMISSIVE;
++	CU_ASSERT_TRUE_FATAL(
++		ebitmap_get_bit(&policy->p.permissive_map, type1_val));
++	CU_ASSERT_FALSE((type1_datum->flags & TYPE_FLAGS_PERMISSIVE) != 0);
++	CU_ASSERT_FALSE((type2_datum->flags & TYPE_FLAGS_PERMISSIVE) != 0);
++
++	CU_ASSERT_EQUAL(sepol_policydb_set_permissive_flags(handle, policy), 0);
++
++	CU_ASSERT_TRUE((type1_datum->flags & TYPE_FLAGS_PERMISSIVE) != 0);
++	/* A non-permissive type must not be marked permissive as a
++	 * side effect. */
++	CU_ASSERT_FALSE((type2_datum->flags & TYPE_FLAGS_PERMISSIVE) != 0);
++}
++
++static void test_rebuild_attr_map(void)
++{
++	uint32_t type1_val = type_value("TYPE1");
++	uint32_t attr1_val = type_value("ATTR1");
++	type_datum_t *attr1_datum = policy->p.type_val_to_struct[attr1_val - 1];
++	CU_ASSERT_PTR_NOT_NULL_FATAL(attr1_datum);
++	CU_ASSERT_EQUAL_FATAL(attr1_datum->flavor, TYPE_ATTRIB);
++
++	/* iter.conf declares "attribute ATTR1;" with "typeattribute TYPE2
++	 * ATTR1;" and "typeattribute TYPE3 ATTR1;" -- TYPE1 is *not* a
++	 * member. Corrupt the derived reverse map as if it were stale from
++	 * before a membership change, so this test actually exercises the
++	 * rebuild logic instead of trivially passing on whatever the
++	 * initial expand-time state happened to be: falsely mark TYPE1 as
++	 * a member of ATTR1 in the reverse map (type_attr_map), while
++	 * ATTR1's real forward map (attr_type_map) still correctly omits
++	 * TYPE1. A correct rebuild must prune this stale reverse bit even
++	 * though it never touches attr_type_map itself. */
++	uint32_t type3_val = type_value("TYPE3");
++	CU_ASSERT_TRUE_FATAL(ebitmap_get_bit(
++		&policy->p.attr_type_map[attr1_val - 1], type3_val - 1));
++	CU_ASSERT_EQUAL_FATAL(
++		ebitmap_set_bit(&policy->p.type_attr_map[type1_val - 1],
++				attr1_val - 1, 1),
++		0);
++
++	sepol_type_t *type1 = NULL, *type3 = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_type_query_by_value(handle, policy,
++							type1_val, &type1),
++			      0);
++	CU_ASSERT_TRUE(sepol_type_has_subtype(type1, "ATTR1"));
++	sepol_type_free(type1);
++
++	/*
++	 * type_attr_map[i] must always have its own bit i set ("a type is
++	 * always a member of itself" -- the same "degenerate case" that
++	 * policydb_read() sets unconditionally for every valid type or
++	 * attribute at initial policy load, see policydb.c). This is *not*
++	 * observable via sepol_type_has_subtype()/type_datum_to_record():
++	 * that public conversion deliberately excludes the self-bit from
++	 * a type's reported subtype/attribute-membership list (it would
++	 * be nonsensical for a type to be listed as its own subtype), so
++	 * it cannot be used to catch a rebuild that drops this bit. Check
++	 * the internal ebitmap directly instead -- services.c's AV
++	 * decision hot path reads type_attr_map[] directly, so losing
++	 * this bit silently breaks matching for any allow rule written
++	 * against a literal (non-attribute) type.
++	 */
++	uint32_t attr1_val_for_self = attr1_val;
++	CU_ASSERT_TRUE_FATAL(ebitmap_get_bit(
++		&policy->p.type_attr_map[type1_val - 1], type1_val - 1));
++	CU_ASSERT_TRUE_FATAL(ebitmap_get_bit(
++		&policy->p.type_attr_map[type3_val - 1], type3_val - 1));
++	CU_ASSERT_TRUE_FATAL(ebitmap_get_bit(
++		&policy->p.type_attr_map[attr1_val_for_self - 1],
++		attr1_val_for_self - 1));
++
++	CU_ASSERT_EQUAL(sepol_policydb_rebuild_attr_map(handle, policy), 0);
++
++	/* After a correct rebuild, TYPE1's stale membership must be gone... */
++	type1 = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_type_query_by_value(handle, policy,
++							type1_val, &type1),
++			      0);
++	CU_ASSERT_FALSE(sepol_type_has_subtype(type1, "ATTR1"));
++	sepol_type_free(type1);
++
++	/* ...and TYPE3's real, unrelated membership must be intact. */
++	CU_ASSERT_EQUAL_FATAL(sepol_type_query_by_value(handle, policy,
++							type3_val, &type3),
++			      0);
++	CU_ASSERT_TRUE(sepol_type_has_subtype(type3, "ATTR1"));
++	sepol_type_free(type3);
++
++	/*
++	 * ...and every type/attribute's mandatory self-membership bit
++	 * must have survived the rebuild too (the actual regression this
++	 * covers: an earlier version of sepol_policydb_rebuild_attr_map()
++	 * cleared type_attr_map[] wholesale and only ever restored bits
++	 * for *attribute* membership, permanently losing the self-bit for
++	 * every plain type -- and for any attribute with no members --
++	 * in the policy).
++	 */
++	CU_ASSERT_TRUE(ebitmap_get_bit(&policy->p.type_attr_map[type1_val - 1],
++				       type1_val - 1));
++	CU_ASSERT_TRUE(ebitmap_get_bit(&policy->p.type_attr_map[type3_val - 1],
++				       type3_val - 1));
++	CU_ASSERT_TRUE(ebitmap_get_bit(
++		&policy->p.type_attr_map[attr1_val_for_self - 1],
++		attr1_val_for_self - 1));
++}
++
++static void test_bool_query_by_value(void)
++{
++	sepol_bool_t *b = NULL;
++	cond_bool_datum_t *d = hashtab_search(policy->p.p_bools.table, "BOOL1");
++	CU_ASSERT_PTR_NOT_NULL_FATAL(d);
++
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_bool_query_by_value(handle, policy, d->s.value, &b), 0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(b);
++	CU_ASSERT_STRING_EQUAL(sepol_bool_get_name(b), "BOOL1");
++	sepol_bool_free(b);
++
++	CU_ASSERT_EQUAL(sepol_bool_query_by_value(handle, policy, 0, &b), 0);
++	CU_ASSERT_PTR_NULL(b);
++	CU_ASSERT_EQUAL(sepol_bool_query_by_value(handle, policy, 9999, &b), 0);
++	CU_ASSERT_PTR_NULL(b);
++}
++
++static void test_user_mls_accessors(void)
++{
++	if (!mls)
++		return;
++
++	uint32_t uv = user_value("USER1");
++
++	uint32_t sens = sepol_user_get_dflt_level_sens(policy, uv);
++	CU_ASSERT(sens > 0);
++
++	sens = sepol_user_get_range_low_sens(policy, uv);
++	CU_ASSERT(sens > 0);
++
++	sens = sepol_user_get_range_high_sens(policy, uv);
++	CU_ASSERT(sens > 0);
++
++	/*
++	 * Asserts inside each draining loop below are intentionally
++	 * non-fatal: a CU_ASSERT_*_FATAL() here would longjmp out of the
++	 * function on the first failure and skip the corresponding
++	 * sepol_cat_set_iter_destroy(), leaking the iterator on top of the
++	 * reported assertion failure (see test_range_trans_mls_cat() and
++	 * test_sens_level_cat_bits() above for the same pattern).
++	 */
++	sepol_cat_set_iter_t *cat_iter = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_user_get_range_high_cat(handle, policy, uv,
++							    &cat_iter),
++			      0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(cat_iter);
++	int cat_count = 0;
++	uint32_t cat_val;
++	int rc;
++	while (1) {
++		rc = sepol_cat_set_iter_next(handle, cat_iter, &cat_val);
++		CU_ASSERT_EQUAL(rc, 0);
++		if (rc != 0 || cat_val == 0)
++			break;
++		cat_count++;
++	}
++	CU_ASSERT(cat_count == 4);
++	sepol_cat_set_iter_destroy(cat_iter);
++
++	cat_iter = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_user_get_dflt_level_cat(handle, policy, uv,
++							    &cat_iter),
++			      0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(cat_iter);
++	cat_count = 0;
++	while (1) {
++		rc = sepol_cat_set_iter_next(handle, cat_iter, &cat_val);
++		CU_ASSERT_EQUAL(rc, 0);
++		if (rc != 0 || cat_val == 0)
++			break;
++		cat_count++;
++	}
++	CU_ASSERT_EQUAL(cat_count, 0);
++	sepol_cat_set_iter_destroy(cat_iter);
++
++	cat_iter = NULL;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_user_get_range_low_cat(handle, policy, uv, &cat_iter), 0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(cat_iter);
++	cat_count = 0;
++	while (1) {
++		rc = sepol_cat_set_iter_next(handle, cat_iter, &cat_val);
++		CU_ASSERT_EQUAL(rc, 0);
++		if (rc != 0 || cat_val == 0)
++			break;
++		cat_count++;
++	}
++	CU_ASSERT_EQUAL(cat_count, 0);
++	sepol_cat_set_iter_destroy(cat_iter);
++
++	CU_ASSERT_EQUAL(sepol_user_get_dflt_level_sens(policy, 0), 0);
++	CU_ASSERT_EQUAL(sepol_user_get_dflt_level_sens(policy, 9999), 0);
++}
++
++static void test_class_perm_value_to_name(void)
++{
++	uint32_t cv = class_value("CLASS1");
++	class_datum_t *cls =
++		hashtab_search(policy->p.p_classes.table, "CLASS1");
++	CU_ASSERT_PTR_NOT_NULL_FATAL(cls);
++
++	uint32_t pv = perm_value(cls, "PERM1");
 +	const char *name = NULL;
-+	CU_ASSERT_EQUAL(sepol_type_value_to_name(handle, policy, value, &name),
++	CU_ASSERT_EQUAL_FATAL(sepol_class_perm_value_to_name(handle, policy, cv,
++							     pv, &name),
++			      0);
++	CU_ASSERT_PTR_NOT_NULL(name);
++	if (name)
++		CU_ASSERT_STRING_EQUAL(name, "PERM1");
++
++	uint32_t cpv = perm_value(cls, "COMMONPERM1");
++	name = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_class_perm_value_to_name(handle, policy, cv,
++							     cpv, &name),
++			      0);
++	CU_ASSERT_PTR_NOT_NULL(name);
++	if (name)
++		CU_ASSERT_STRING_EQUAL(name, "COMMONPERM1");
++
++	name = NULL;
++	CU_ASSERT_EQUAL(sepol_class_perm_value_to_name(handle, policy, cv, 9999,
++						       &name),
 +			0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(name);
-+	CU_ASSERT_STRING_EQUAL(name, "TYPE1");
++	CU_ASSERT_PTR_NULL(name);
 +
-+	sepol_type_t *queried = NULL;
-+	CU_ASSERT_EQUAL(
-+		sepol_type_query_by_value(handle, policy, value, &queried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_type_get_name(queried), "TYPE1");
-+	sepol_type_free(queried);
++	CU_ASSERT_NOT_EQUAL(
++		sepol_class_perm_value_to_name(handle, policy, 0, 1, &name), 0);
++	CU_ASSERT_PTR_NULL(name);
++}
 +
-+	/* Out-of-range values: value_to_name is an error; query_by_value
-+	 * succeeds and reports "not found" via a NULL response. */
-+	name = (void *)0xdeadbeef;
++static void test_xen_empty_iters(void)
++{
++	/* The test policy is SELinux, not Xen. Xen iterators should
++	 * reject non-Xen policies with an error. */
++	sepol_pirqcon_iter_t *pirq;
++	CU_ASSERT(sepol_pirqcon_iter_create(handle, policy, &pirq) != 0);
++
++	sepol_iomemcon_iter_t *iomem;
++	CU_ASSERT(sepol_iomemcon_iter_create(handle, policy, &iomem) != 0);
++
++	sepol_ioportcon_iter_t *ioport;
++	CU_ASSERT(sepol_ioportcon_iter_create(handle, policy, &ioport) != 0);
++
++	sepol_pcidevicecon_iter_t *pci;
++	CU_ASSERT(sepol_pcidevicecon_iter_create(handle, policy, &pci) != 0);
++
++	sepol_devicetreecon_iter_t *dt;
++	CU_ASSERT(sepol_devicetreecon_iter_create(handle, policy, &dt) != 0);
++}
++
++static void test_type_value_to_name(void)
++{
++	const char *name = NULL;
++	CU_ASSERT_EQUAL(sepol_type_value_to_name(handle, policy, 1, &name), 0);
++	CU_ASSERT_PTR_NOT_NULL(name);
++
++	name = NULL;
 +	CU_ASSERT_NOT_EQUAL(sepol_type_value_to_name(handle, policy, 0, &name),
 +			    0);
 +	CU_ASSERT_PTR_NULL(name);
-+	name = (void *)0xdeadbeef;
++
++	name = NULL;
 +	CU_ASSERT_NOT_EQUAL(
-+		sepol_type_value_to_name(handle, policy, UINT32_MAX, &name), 0);
++		sepol_type_value_to_name(handle, policy, 9999, &name), 0);
++	CU_ASSERT_PTR_NULL(name);
++}
++
++static void test_class_value_to_name(void)
++{
++	const char *name = NULL;
++	CU_ASSERT_EQUAL(sepol_class_value_to_name(handle, policy, 1, &name), 0);
++	CU_ASSERT_PTR_NOT_NULL(name);
++
++	name = NULL;
++	CU_ASSERT_NOT_EQUAL(sepol_class_value_to_name(handle, policy, 0, &name),
++			    0);
 +	CU_ASSERT_PTR_NULL(name);
 +
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_type_query_by_value(handle, policy, 0, &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_type_query_by_value(handle, policy, UINT32_MAX,
-+						  &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+
-+	/* NULL-argument handling */
++	name = NULL;
 +	CU_ASSERT_NOT_EQUAL(
-+		sepol_type_value_to_name(handle, NULL, value, &name), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_type_value_to_name(handle, policy, value, NULL), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_type_query_by_value(handle, NULL, value, &queried), 0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_type_query_by_value(handle, policy, value, NULL), 0);
++		sepol_class_value_to_name(handle, policy, 9999, &name), 0);
++	CU_ASSERT_PTR_NULL(name);
 +}
 +
-+static void test_type_unset_flag(void)
++static void test_role_value_to_name(void)
 +{
-+	sepol_type_t *type;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+
-+	CU_ASSERT_EQUAL(sepol_type_set_flag(handle, type,
-+					    SEPOL_TYPE_FLAGS_PERMISSIVE),
-+			0);
-+	CU_ASSERT_EQUAL(sepol_type_set_flag(handle, type,
-+					    SEPOL_TYPE_FLAGS_EXPAND_ATTR_TRUE),
-+			0);
-+	CU_ASSERT_TRUE(sepol_type_has_flag(type, SEPOL_TYPE_FLAGS_PERMISSIVE));
-+	CU_ASSERT_TRUE(
-+		sepol_type_has_flag(type, SEPOL_TYPE_FLAGS_EXPAND_ATTR_TRUE));
-+
-+	CU_ASSERT_EQUAL(sepol_type_unset_flag(handle, type,
-+					      SEPOL_TYPE_FLAGS_PERMISSIVE),
-+			0);
-+	CU_ASSERT_FALSE(sepol_type_has_flag(type, SEPOL_TYPE_FLAGS_PERMISSIVE));
-+	CU_ASSERT_TRUE(
-+		sepol_type_has_flag(type, SEPOL_TYPE_FLAGS_EXPAND_ATTR_TRUE));
-+
-+	sepol_type_free(type);
-+}
-+
-+static void test_user_exists(void)
-+{
-+	sepol_user_key_t *key;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_key_create(handle, "USER1", &key), 0);
-+
-+	int exists = 0;
-+	CU_ASSERT_EQUAL_FATAL(sepol_user_exists(handle, policy, key, &exists),
-+			      0);
-+	CU_ASSERT_TRUE(exists);
-+	sepol_user_key_free(key);
-+
-+	sepol_user_key_t *missing_key;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_user_key_create(handle, "NO_SUCH_USER", &missing_key), 0);
-+	exists = 1;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_user_exists(handle, policy, missing_key, &exists), 0);
-+	CU_ASSERT_FALSE(exists);
-+	sepol_user_key_free(missing_key);
-+}
-+
-+static void test_user_query_by_value_and_value_to_name(void)
-+{
-+	uint32_t value = user_value("USER1");
-+
 +	const char *name = NULL;
-+	CU_ASSERT_EQUAL(sepol_user_value_to_name(handle, policy, value, &name),
-+			0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(name);
-+	CU_ASSERT_STRING_EQUAL(name, "USER1");
++	CU_ASSERT_EQUAL(sepol_role_value_to_name(handle, policy, 1, &name), 0);
++	CU_ASSERT_PTR_NOT_NULL(name);
 +
-+	sepol_user_t *queried = NULL;
-+	CU_ASSERT_EQUAL(
-+		sepol_user_query_by_value(handle, policy, value, &queried), 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(queried);
-+	CU_ASSERT_STRING_EQUAL(sepol_user_get_name(queried), "USER1");
-+	sepol_user_free(queried);
++	name = NULL;
++	CU_ASSERT_NOT_EQUAL(sepol_role_value_to_name(handle, policy, 0, &name),
++			    0);
++	CU_ASSERT_PTR_NULL(name);
 +
-+	/* Out-of-range values: value_to_name is an error; query_by_value
-+	 * succeeds and reports "not found" via a NULL response. */
-+	name = (void *)0xdeadbeef;
++	name = NULL;
++	CU_ASSERT_NOT_EQUAL(
++		sepol_role_value_to_name(handle, policy, 9999, &name), 0);
++	CU_ASSERT_PTR_NULL(name);
++}
++
++static void test_user_value_to_name(void)
++{
++	const char *name = NULL;
++	CU_ASSERT_EQUAL(sepol_user_value_to_name(handle, policy, 1, &name), 0);
++	CU_ASSERT_PTR_NOT_NULL(name);
++
++	name = NULL;
 +	CU_ASSERT_NOT_EQUAL(sepol_user_value_to_name(handle, policy, 0, &name),
 +			    0);
 +	CU_ASSERT_PTR_NULL(name);
-+	name = (void *)0xdeadbeef;
++
++	name = NULL;
 +	CU_ASSERT_NOT_EQUAL(
-+		sepol_user_value_to_name(handle, policy, UINT32_MAX, &name), 0);
++		sepol_user_value_to_name(handle, policy, 9999, &name), 0);
 +	CU_ASSERT_PTR_NULL(name);
-+
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_user_query_by_value(handle, policy, 0, &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	queried = (void *)0xdeadbeef;
-+	CU_ASSERT_EQUAL(sepol_user_query_by_value(handle, policy, UINT32_MAX,
-+						  &queried),
-+			0);
-+	CU_ASSERT_PTR_NULL(queried);
-+
-+	/* NULL-argument handling */
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_user_value_to_name(handle, NULL, value, &name), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_user_value_to_name(handle, policy, value, NULL), 0);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_user_query_by_value(handle, NULL, value, &queried), 0);
-+	CU_ASSERT_PTR_NULL(queried);
-+	CU_ASSERT_NOT_EQUAL(
-+		sepol_user_query_by_value(handle, policy, value, NULL), 0);
 +}
 +
-+static void test_context_values_null_args(void)
++static void test_count_and_exists(void)
 +{
-+	CU_ASSERT(sepol_values_to_context_string(handle, NULL, 1, 1, 1, NULL,
-+						 NULL, NULL) != 0);
-+	CU_ASSERT(sepol_values_to_context_record(handle, NULL, 1, 1, 1, NULL,
++	unsigned int count = 0;
++	int exists = 0;
++
++	CU_ASSERT_EQUAL(sepol_type_count(handle, policy, &count), 0);
++	CU_ASSERT(count > 0);
++
++	CU_ASSERT_EQUAL(sepol_role_count(handle, policy, &count), 0);
++	CU_ASSERT(count > 0);
++
++	CU_ASSERT_EQUAL(sepol_class_count(handle, policy, &count), 0);
++	CU_ASSERT(count > 0);
++
++	CU_ASSERT_EQUAL(sepol_user_count(handle, policy, &count), 0);
++	CU_ASSERT(count > 0);
++
++	CU_ASSERT_EQUAL(sepol_bool_count(handle, policy, &count), 0);
++	CU_ASSERT(count > 0);
++
++	const char *tname = NULL;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_type_value_to_name(handle, policy, 1, &tname), 0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(tname);
++
++	sepol_type_key_t *tkey = NULL;
++	CU_ASSERT_EQUAL_FATAL(sepol_type_key_create(handle, tname, &tkey), 0);
++	CU_ASSERT_EQUAL(sepol_type_exists(handle, policy, tkey, &exists), 0);
++	CU_ASSERT(exists);
++	sepol_type_key_free(tkey);
++
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_type_key_create(handle, "nonexistent_t", &tkey), 0);
++	CU_ASSERT_EQUAL(sepol_type_exists(handle, policy, tkey, &exists), 0);
++	CU_ASSERT(!exists);
++	sepol_type_key_free(tkey);
++}
++
++static void test_query_by_value(void)
++{
++	sepol_type_t *type_rec = NULL;
++	CU_ASSERT_EQUAL(sepol_type_query_by_value(handle, policy, 1, &type_rec),
++			0);
++	CU_ASSERT_PTR_NOT_NULL(type_rec);
++	if (type_rec) {
++		CU_ASSERT_PTR_NOT_NULL(sepol_type_get_name(type_rec));
++		sepol_type_free(type_rec);
++	}
++
++	CU_ASSERT_EQUAL(sepol_type_query_by_value(handle, policy, 0, &type_rec),
++			0);
++	CU_ASSERT_PTR_NULL(type_rec);
++
++	sepol_role_t *role_rec = NULL;
++	CU_ASSERT_EQUAL(sepol_role_query_by_value(handle, policy, 1, &role_rec),
++			0);
++	CU_ASSERT_PTR_NOT_NULL(role_rec);
++	if (role_rec) {
++		CU_ASSERT_PTR_NOT_NULL(sepol_role_get_name(role_rec));
++		sepol_role_free(role_rec);
++	}
++
++	sepol_class_t *class_rec = NULL;
++	CU_ASSERT_EQUAL(
++		sepol_class_query_by_value(handle, policy, 1, &class_rec), 0);
++	CU_ASSERT_PTR_NOT_NULL(class_rec);
++	if (class_rec) {
++		CU_ASSERT_PTR_NOT_NULL(sepol_class_get_name(class_rec));
++		sepol_class_free(class_rec);
++	}
++
++	sepol_user_t *user_rec = NULL;
++	CU_ASSERT_EQUAL(sepol_user_query_by_value(handle, policy, 1, &user_rec),
++			0);
++	CU_ASSERT_PTR_NOT_NULL(user_rec);
++	if (user_rec) {
++		CU_ASSERT_PTR_NOT_NULL(sepol_user_get_name(user_rec));
++		sepol_user_free(user_rec);
++	}
++}
++
++static void test_policydb_getters(void)
++{
++	unsigned int vers = sepol_policydb_get_vers(policy);
++	CU_ASSERT(vers > 0);
++
++	unsigned int unknown = sepol_policydb_get_handle_unknown(policy);
++	CU_ASSERT_EQUAL(unknown, SEPOL_DENY_UNKNOWN);
++
++	int platform = sepol_policydb_get_target_platform(policy);
++	CU_ASSERT_EQUAL(platform, SEPOL_TARGET_SELINUX);
++}
++
++static void test_iter_next_null_output_args(void)
++{
++	/* _iter_create: NULL policydb must fail without touching *iter
++	 * on the fast path, and must clear *iter on later failure paths. */
++	sepol_isid_iter_t *isid_iter = (void *)0xdeadbeef;
++	CU_ASSERT(sepol_isid_iter_create(handle, NULL, &isid_iter) != 0);
++	CU_ASSERT_PTR_NULL(isid_iter);
++
++	/* isid_iter_next */
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_isid_iter_create(handle, policy, &isid_iter), 0);
++	CU_ASSERT(sepol_isid_iter_next(handle, isid_iter, NULL) != 0);
++	sepol_isid_iter_destroy(isid_iter);
++
++	/* fsuse_iter_next */
++	sepol_fsuse_iter_t *fsuse_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_fsuse_iter_create(handle, policy, &fsuse_iter), 0);
++	const char *name;
++	uint32_t behavior;
++	CU_ASSERT(sepol_fsuse_iter_next(handle, fsuse_iter, NULL, &behavior) !=
++		  0);
++	CU_ASSERT(sepol_fsuse_iter_next(handle, fsuse_iter, &name, NULL) != 0);
++	sepol_fsuse_iter_destroy(fsuse_iter);
++
++	/* genfscon_iter_next */
++	sepol_genfscon_iter_t *genfscon_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_genfscon_iter_create(handle, policy, &genfscon_iter), 0);
++	const char *fstype, *path;
++	uint32_t sclass;
++	CU_ASSERT(sepol_genfscon_iter_next(handle, genfscon_iter, NULL, &path,
++					   &sclass) != 0);
++	CU_ASSERT(sepol_genfscon_iter_next(handle, genfscon_iter, &fstype, NULL,
++					   &sclass) != 0);
++	CU_ASSERT(sepol_genfscon_iter_next(handle, genfscon_iter, &fstype,
++					   &path, NULL) != 0);
++	sepol_genfscon_iter_destroy(genfscon_iter);
++
++	/* portcon_iter_next */
++	sepol_portcon_iter_t *portcon_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_portcon_iter_create(handle, policy, &portcon_iter), 0);
++	uint8_t protocol;
++	uint16_t low_port, high_port;
++	int has_next;
++	CU_ASSERT(sepol_portcon_iter_next(handle, portcon_iter, NULL, &low_port,
++					  &high_port, &has_next) != 0);
++	CU_ASSERT(sepol_portcon_iter_next(handle, portcon_iter, &protocol, NULL,
++					  &high_port, &has_next) != 0);
++	CU_ASSERT(sepol_portcon_iter_next(handle, portcon_iter, &protocol,
++					  &low_port, NULL, &has_next) != 0);
++	CU_ASSERT(sepol_portcon_iter_next(handle, portcon_iter, &protocol,
++					  &low_port, &high_port, NULL) != 0);
++	sepol_portcon_iter_destroy(portcon_iter);
++
++	/* netifcon_iter_next */
++	sepol_netifcon_iter_t *netifcon_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_netifcon_iter_create(handle, policy, &netifcon_iter), 0);
++	CU_ASSERT(sepol_netifcon_iter_next(handle, netifcon_iter, NULL) != 0);
++	sepol_netifcon_iter_destroy(netifcon_iter);
++
++	/* cat_iter_next / sens_iter_next */
++	sepol_cat_iter_t *cat_iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_cat_iter_create(handle, policy, &cat_iter),
++			      0);
++	uint32_t value;
++	int isalias;
++	CU_ASSERT(sepol_cat_iter_next(handle, cat_iter, NULL, &value,
++				      &isalias) != 0);
++	CU_ASSERT(sepol_cat_iter_next(handle, cat_iter, &name, NULL,
++				      &isalias) != 0);
++	CU_ASSERT(sepol_cat_iter_next(handle, cat_iter, &name, &value, NULL) !=
++		  0);
++	sepol_cat_iter_destroy(cat_iter);
++
++	sepol_sens_iter_t *sens_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_sens_iter_create(handle, policy, &sens_iter), 0);
++	uint32_t sens_value;
++	CU_ASSERT(sepol_sens_iter_next(handle, sens_iter, NULL, &sens_value,
++				       &isalias) != 0);
++	CU_ASSERT(sepol_sens_iter_next(handle, sens_iter, &name, NULL,
++				       &isalias) != 0);
++	CU_ASSERT(sepol_sens_iter_next(handle, sens_iter, &name, &sens_value,
++				       NULL) != 0);
++	CU_ASSERT_EQUAL_FATAL(sepol_sens_iter_next(handle, sens_iter, &name,
++						   &sens_value, &isalias),
++			      0);
++	if (mls && name) {
++		/* cat_set_iter_next */
++		sepol_cat_set_iter_t *cat_set_iter = NULL;
++		CU_ASSERT_EQUAL_FATAL(sepol_sens_iter_get_level_cat(
++					      handle, sens_iter, &cat_set_iter),
++				      0);
++		CU_ASSERT_PTR_NOT_NULL_FATAL(cat_set_iter);
++		CU_ASSERT(sepol_cat_set_iter_next(handle, cat_set_iter, NULL) !=
++			  0);
++		sepol_cat_set_iter_destroy(cat_set_iter);
++	}
++	sepol_sens_iter_destroy(sens_iter);
++
++	/* permissive_iter_next */
++	sepol_permissive_iter_t *permissive_iter;
++	CU_ASSERT_EQUAL_FATAL(sepol_permissive_iter_create(handle, policy,
++							   &permissive_iter),
++			      0);
++	CU_ASSERT(sepol_permissive_iter_next(handle, permissive_iter, NULL) !=
++		  0);
++	sepol_permissive_iter_destroy(permissive_iter);
++
++	/* polcap_iter_next */
++	sepol_polcap_iter_t *polcap_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_polcap_iter_create(handle, policy, &polcap_iter), 0);
++	uint32_t cap_num;
++	const char *cap_name;
++	CU_ASSERT(sepol_polcap_iter_next(handle, polcap_iter, NULL,
++					 &cap_name) != 0);
++	CU_ASSERT(sepol_polcap_iter_next(handle, polcap_iter, &cap_num, NULL) !=
++		  0);
++	sepol_polcap_iter_destroy(polcap_iter);
++
++	/* range_trans_iter_next */
++	sepol_range_trans_iter_t *rt_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_range_trans_iter_create(handle, policy, &rt_iter), 0);
++	uint32_t rt_src, rt_tgt, rt_cls;
++	CU_ASSERT(sepol_range_trans_iter_next(handle, rt_iter, NULL, &rt_tgt,
++					      &rt_cls) != 0);
++	CU_ASSERT(sepol_range_trans_iter_next(handle, rt_iter, &rt_src, NULL,
++					      &rt_cls) != 0);
++	CU_ASSERT(sepol_range_trans_iter_next(handle, rt_iter, &rt_src, &rt_tgt,
++					      NULL) != 0);
++	sepol_range_trans_iter_destroy(rt_iter);
++
++	/* role_allow_iter_next / role_trans_iter_next */
++	sepol_role_allow_iter_t *ra_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_role_allow_iter_create(handle, policy, &ra_iter), 0);
++	uint32_t role, new_role;
++	CU_ASSERT(sepol_role_allow_iter_next(handle, ra_iter, NULL,
++					     &new_role) != 0);
++	CU_ASSERT(sepol_role_allow_iter_next(handle, ra_iter, &role, NULL) !=
++		  0);
++	sepol_role_allow_iter_destroy(ra_iter);
++
++	sepol_role_trans_iter_t *rtr_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_role_trans_iter_create(handle, policy, &rtr_iter), 0);
++	uint32_t rtr_type, rtr_tclass;
++	CU_ASSERT(sepol_role_trans_iter_next(handle, rtr_iter, NULL, &rtr_type,
++					     &rtr_tclass, &new_role) != 0);
++	CU_ASSERT(sepol_role_trans_iter_next(handle, rtr_iter, &role, NULL,
++					     &rtr_tclass, &new_role) != 0);
++	CU_ASSERT(sepol_role_trans_iter_next(handle, rtr_iter, &role, &rtr_type,
++					     NULL, &new_role) != 0);
++	CU_ASSERT(sepol_role_trans_iter_next(handle, rtr_iter, &role, &rtr_type,
++					     &rtr_tclass, NULL) != 0);
++	sepol_role_trans_iter_destroy(rtr_iter);
++
++	/* filename_trans_iter_next */
++	sepol_filename_trans_iter_t *ft_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_filename_trans_iter_create(handle, policy, &ft_iter), 0);
++	uint32_t ft_src, ft_tgt, ft_cls, ft_def;
++	const char *ft_name;
++	CU_ASSERT(sepol_filename_trans_iter_next(handle, ft_iter, NULL, &ft_tgt,
++						 &ft_cls, &ft_name,
++						 &ft_def) != 0);
++	CU_ASSERT(sepol_filename_trans_iter_next(handle, ft_iter, &ft_src, NULL,
++						 &ft_cls, &ft_name,
++						 &ft_def) != 0);
++	CU_ASSERT(sepol_filename_trans_iter_next(handle, ft_iter, &ft_src,
++						 &ft_tgt, NULL, &ft_name,
++						 &ft_def) != 0);
++	CU_ASSERT(sepol_filename_trans_iter_next(handle, ft_iter, &ft_src,
++						 &ft_tgt, &ft_cls, NULL,
++						 &ft_def) != 0);
++	CU_ASSERT(sepol_filename_trans_iter_next(handle, ft_iter, &ft_src,
++						 &ft_tgt, &ft_cls, &ft_name,
 +						 NULL) != 0);
++	sepol_filename_trans_iter_destroy(ft_iter);
++
++	/* common_iter_next / common_perm_iter_next */
++	sepol_common_iter_t *common_iter;
++	CU_ASSERT_EQUAL_FATAL(
++		sepol_common_iter_create(handle, policy, &common_iter), 0);
++	uint32_t common_value;
++	CU_ASSERT(sepol_common_iter_next(handle, common_iter, NULL,
++					 &common_value) != 0);
++	CU_ASSERT(sepol_common_iter_next(handle, common_iter, &name, NULL) !=
++		  0);
++	CU_ASSERT_EQUAL_FATAL(sepol_common_iter_next(handle, common_iter, &name,
++						     &common_value),
++			      0);
++	if (name) {
++		sepol_common_perm_iter_t *cp_iter;
++		CU_ASSERT_EQUAL_FATAL(
++			sepol_common_perm_iter_create(handle, policy,
++						      common_value, &cp_iter),
++			0);
++		CU_ASSERT(sepol_common_perm_iter_next(handle, cp_iter, NULL) !=
++			  0);
++		sepol_common_perm_iter_destroy(cp_iter);
++	}
++	sepol_common_iter_destroy(common_iter);
 +}
 +
-+static void test_null_args(void)
++/*
++ * All sepol_*_iter_destroy()/sepol_handle_destroy() implementations are
++ * thin wrappers around free(), so passing NULL is always safe (free(NULL)
++ * is a documented no-op). Genuinely destroying the same live object twice
++ * is a double-free and is not something these APIs can guard against,
++ * since destroy() only receives the pointer by value and cannot clear the
++ * caller's copy; that remains the caller's responsibility, exactly as
++ * with free(). This test only verifies the safe, well-defined case: that
++ * destroy() tolerates a NULL argument for a representative sample of
++ * iterator types plus sepol_handle_t.
++ */
++static void test_destroy_null_safety(void)
 +{
-+	/* _iter_create: NULL policydb must fail and clear *iter, even
-+	 * when the pointer previously held a bogus/stale value. */
-+	sepol_type_iter_t *titer = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_type_iter_create(handle, NULL, &titer) != 0);
-+	CU_ASSERT_PTR_NULL(titer);
-+	CU_ASSERT(sepol_type_iter_create(handle, policy, NULL) != 0);
++	sepol_handle_destroy(NULL);
 +
-+	sepol_role_iter_t *riter = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_role_iter_create(handle, NULL, &riter) != 0);
-+	CU_ASSERT_PTR_NULL(riter);
-+	CU_ASSERT(sepol_role_iter_create(handle, policy, NULL) != 0);
++	sepol_isid_iter_destroy(NULL);
++	sepol_fsuse_iter_destroy(NULL);
++	sepol_genfscon_iter_destroy(NULL);
++	sepol_portcon_iter_destroy(NULL);
++	sepol_netifcon_iter_destroy(NULL);
++	sepol_nodecon_iter_destroy(NULL);
++	sepol_nodecon6_iter_destroy(NULL);
++	sepol_ibpkeycon_iter_destroy(NULL);
++	sepol_ibendportcon_iter_destroy(NULL);
++	sepol_bool_iter_destroy(NULL);
++	sepol_role_iter_destroy(NULL);
++	sepol_type_iter_destroy(NULL);
++	sepol_class_iter_destroy(NULL);
++	sepol_user_iter_destroy(NULL);
++	sepol_common_iter_destroy(NULL);
++	sepol_common_perm_iter_destroy(NULL);
++	sepol_cat_iter_destroy(NULL);
++	sepol_sens_iter_destroy(NULL);
++	sepol_cat_set_iter_destroy(NULL);
++	sepol_permissive_iter_destroy(NULL);
++	sepol_polcap_iter_destroy(NULL);
++	sepol_role_allow_iter_destroy(NULL);
++	sepol_role_trans_iter_destroy(NULL);
++	sepol_filename_trans_iter_destroy(NULL);
++	sepol_range_trans_iter_destroy(NULL);
 +
-+	sepol_class_iter_t *citer = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_class_iter_create(handle, NULL, &citer) != 0);
-+	CU_ASSERT_PTR_NULL(citer);
-+	CU_ASSERT(sepol_class_iter_create(handle, policy, NULL) != 0);
-+
-+	/* _iter_next: any NULL output parameter must be rejected rather
-+	 * than dereferenced. */
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_iter_create(handle, policy, &titer),
-+			      0);
-+	CU_ASSERT(sepol_type_iter_next(handle, titer, NULL) != 0);
-+	sepol_type_iter_destroy(titer);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_iter_create(handle, policy, &riter),
-+			      0);
-+	CU_ASSERT(sepol_role_iter_next(handle, riter, NULL) != 0);
-+	sepol_role_iter_destroy(riter);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_iter_create(handle, policy, &citer),
-+			      0);
-+	CU_ASSERT(sepol_class_iter_next(handle, citer, NULL) != 0);
-+	sepol_class_iter_destroy(citer);
++	/* No assertions: success is simply not crashing. */
 +}
 +
-+static void test_clone_null_args(void)
++int tier2_add_tests(CU_pSuite suite)
 +{
-+	sepol_type_t *type = NULL, *type_clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_type_create(handle, &type), 0);
-+	CU_ASSERT(sepol_type_clone(handle, NULL, &type_clone) != 0);
-+	CU_ASSERT_PTR_NULL(type_clone);
-+	CU_ASSERT(sepol_type_clone(handle, type, NULL) != 0);
-+	sepol_type_free(type);
-+
-+	sepol_role_t *role = NULL, *role_clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_role_create(handle, &role), 0);
-+	CU_ASSERT(sepol_role_clone(handle, NULL, &role_clone) != 0);
-+	CU_ASSERT_PTR_NULL(role_clone);
-+	CU_ASSERT(sepol_role_clone(handle, role, NULL) != 0);
-+	sepol_role_free(role);
-+
-+	sepol_class_t *cls = NULL, *class_clone = NULL;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_create(handle, &cls), 0);
-+	CU_ASSERT(sepol_class_clone(handle, NULL, &class_clone) != 0);
-+	CU_ASSERT_PTR_NULL(class_clone);
-+	CU_ASSERT(sepol_class_clone(handle, cls, NULL) != 0);
-+	sepol_class_free(cls);
-+}
-+
-+int records_add_tests(CU_pSuite suite)
-+{
-+	if (CU_add_test(suite, "class_clone_deep_copy",
-+			test_class_clone_deep_copy) == NULL)
++	if (CU_add_test(suite, "role_allow_iter", test_role_allow_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_free_no_leak", test_class_free_no_leak) ==
++	if (CU_add_test(suite, "role_trans_iter", test_role_trans_iter) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "filename_trans_iter",
++			test_filename_trans_iter) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "range_trans_iter", test_range_trans_iter) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_set_alias_of_null",
-+			test_type_set_alias_of_null) == NULL)
++	if (CU_add_test(suite, "isid_iter", test_isid_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_set_bounds_null",
-+			test_type_set_bounds_null) == NULL)
++	if (CU_add_test(suite, "fsuse_iter", test_fsuse_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_get_subtypes_empty",
-+			test_type_get_subtypes_empty) == NULL)
++	if (CU_add_test(suite, "genfscon_iter", test_genfscon_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_del_subtype_no_skip",
-+			test_type_del_subtype_no_skip) == NULL)
++	if (CU_add_test(suite, "polcap_iter", test_polcap_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_clone", test_type_clone) == NULL)
++	if (CU_add_test(suite, "common_iter", test_common_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "role_clone_with_subroles",
-+			test_role_clone_with_subroles) == NULL)
++	if (CU_add_test(suite, "cat_iter", test_cat_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "constraint_clone_deep",
-+			test_constraint_clone_deep) == NULL)
++	if (CU_add_test(suite, "sens_iter", test_sens_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "constraint_del_uses_identity",
-+			test_constraint_del_uses_identity) == NULL)
++	if (CU_add_test(suite, "permissive_iter", test_permissive_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "context_values_null_args",
-+			test_context_values_null_args) == NULL)
++	if (CU_add_test(suite, "range_trans_mls_cat",
++			test_range_trans_mls_cat) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "null_args", test_null_args) == NULL)
++	if (CU_add_test(suite, "fsuse_context_values",
++			test_fsuse_context_values) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "clone_null_args", test_clone_null_args) == NULL)
++	if (CU_add_test(suite, "genfscon_context_values",
++			test_genfscon_context_values) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "constraint_clone_null_args",
-+			test_constraint_clone_null_args) == NULL)
++	if (CU_add_test(suite, "sens_level_cat_bits",
++			test_sens_level_cat_bits) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_modify_add_and_modify",
-+			test_type_modify_add_and_modify) == NULL)
++	if (CU_add_test(suite, "common_perm_iter_invalid",
++			test_common_perm_iter_invalid) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_modify_rejects_kernel_maps",
-+			test_type_modify_rejects_kernel_maps) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(
-+		    suite,
-+		    "user_modify_preserves_existing_on_validation_failure",
-+		    test_user_modify_preserves_existing_on_validation_failure) ==
++	if (CU_add_test(suite, "role_allow_no_self", test_role_allow_no_self) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "user_modify_rebuilds_role_cache",
-+			test_user_modify_rebuilds_role_cache) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "user_clone_unnamed", test_user_clone_unnamed) ==
++	if (CU_add_test(suite, "cat_value_to_name", test_cat_value_to_name) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "bool_clone_unnamed", test_bool_clone_unnamed) ==
++	if (CU_add_test(suite, "sens_value_to_name", test_sens_value_to_name) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_exists_query_key_compare",
-+			test_class_exists_query_key_compare) == NULL)
++	if (CU_add_test(suite, "common_value_to_name",
++			test_common_value_to_name) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_query_by_value_and_value_to_name",
-+			test_class_query_by_value_and_value_to_name) == NULL)
++	if (CU_add_test(suite, "isid_name", test_isid_name) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_set_default_roundtrip",
-+			test_class_set_default_roundtrip) == NULL)
++	if (CU_add_test(suite, "xen_empty_iters", test_xen_empty_iters) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_has_perm_and_del_perm",
-+			test_class_has_perm_and_del_perm) == NULL)
++	if (CU_add_test(suite, "portcon_iter", test_portcon_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "class_validatetrans_roundtrip",
-+			test_class_validatetrans_roundtrip) == NULL)
++	if (CU_add_test(suite, "netifcon_iter", test_netifcon_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "constraint_get_perms_del_perm_remove_expr",
-+			test_constraint_get_perms_del_perm_remove_expr) == NULL)
++	if (CU_add_test(suite, "nodecon_iter", test_nodecon_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "constraint_expr_names_and_attr_accessors",
-+			test_constraint_expr_names_and_attr_accessors) == NULL)
++	if (CU_add_test(suite, "ibpkeycon_iter", test_ibpkeycon_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "role_exists_query_key_compare",
-+			test_role_exists_query_key_compare) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "role_query_by_value_and_value_to_name",
-+			test_role_query_by_value_and_value_to_name) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "role_type_membership",
-+			test_role_type_membership) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "role_bounds_and_flavor",
-+			test_role_bounds_and_flavor) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "role_del_subrole", test_role_del_subrole) ==
++	if (CU_add_test(suite, "ibendportcon_iter", test_ibendportcon_iter) ==
 +	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_key_unpack_extract_and_compare",
-+			test_type_key_unpack_extract_and_compare) == NULL)
++	if (CU_add_test(suite, "bool_iter", test_bool_iter) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_query_by_value_and_value_to_name",
-+			test_type_query_by_value_and_value_to_name) == NULL)
++	if (CU_add_test(suite, "permissive_flags", test_permissive_flags) ==
++	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "type_unset_flag", test_type_unset_flag) == NULL)
++	if (CU_add_test(suite, "rebuild_attr_map", test_rebuild_attr_map) ==
++	    NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "user_exists", test_user_exists) == NULL)
++	if (CU_add_test(suite, "bool_query_by_value",
++			test_bool_query_by_value) == NULL)
 +		return CU_get_error();
-+	if (CU_add_test(suite, "user_query_by_value_and_value_to_name",
-+			test_user_query_by_value_and_value_to_name) == NULL)
++	if (CU_add_test(suite, "user_mls_accessors", test_user_mls_accessors) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "class_perm_value_to_name",
++			test_class_perm_value_to_name) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "type_value_to_name", test_type_value_to_name) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "class_value_to_name",
++			test_class_value_to_name) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "role_value_to_name", test_role_value_to_name) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "user_value_to_name", test_user_value_to_name) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "policydb_getters", test_policydb_getters) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "count_and_exists", test_count_and_exists) ==
++	    NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "iter_next_null_output_args",
++			test_iter_next_null_output_args) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "query_by_value", test_query_by_value) == NULL)
++		return CU_get_error();
++	if (CU_add_test(suite, "destroy_null_safety",
++			test_destroy_null_safety) == NULL)
 +		return CU_get_error();
 +	return 0;
 +}
-diff --git a/libsepol/tests/test-records.h b/libsepol/tests/test-records.h
+diff --git a/libsepol/tests/test-tier2.h b/libsepol/tests/test-tier2.h
 new file mode 100644
-index 00000000..d50b77b7
+index 00000000..817a200c
 --- /dev/null
-+++ b/libsepol/tests/test-records.h
++++ b/libsepol/tests/test-tier2.h
 @@ -0,0 +1,10 @@
-+#ifndef TEST_RECORDS_H
-+#define TEST_RECORDS_H
++#ifndef TEST_TIER2_H
++#define TEST_TIER2_H
 +
 +#include <CUnit/Basic.h>
 +
-+int records_test_init(void);
-+int records_test_cleanup(void);
-+int records_add_tests(CU_pSuite suite);
++int tier2_test_init(void);
++int tier2_test_cleanup(void);
++int tier2_add_tests(CU_pSuite suite);
 +
 +#endif
 -- 
