@@ -1,54 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89551457E53
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEA5B457E61
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791291867; cv=none; b=F89C26TPlgfLvV5ZQzV+0IDlZJT4N7O7Q0nGgdR1+WgqGxyFSYiEyAWChRVRznkm8i5sQwxMnl/5xYN4IEDk6K7+ztvY3NVEdzTsRYqiGeE2a+elhaHAvIouD/3221Kd0lgmrY3NktxHS4klxzxnwFoc4XoxClvbgaC9nTFHU3A=
+	t=1791291870; cv=none; b=BNzBRzXznApdO+WITvyz3VwG7ijUk67FpESBS71QE2jONtrXpn0EXqxNUn6MQbDx0IJQt+9NrkLf5Z0I31LRu2j2TpV6x1A8ggf704N/jvpFk1dxcoSjye3aJRcBOK0+/H1dflIN5Ba1d5l1AmzKCde3iTJdnz+nufDYXSbNhfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791291867; c=relaxed/simple;
-	bh=+PLP6GLUAB3wltuMtcDTwP5KbA4nYGQnPTkojClERrM=;
+	s=arc-20240116; t=1791291870; c=relaxed/simple;
+	bh=JNIU83Wg1LSvyxcj8QIunZw1Tu6nFzWO+1p6N0xwVSg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FWww7uvhwoaCwqvedQ65k1USuiLncxGHA8YBSFTjOrXMcWcyqNYXbiii72VjW6Tm+SuMzHW1OafUqlAmk81ZZHAch7PNWo2TqllTN+MzIjoCx4rK+kKd4+QR1crVC+E+Ks4TVg3dNnjgdJ+VABCJeo27CAvRw7VkjcswE6d3sso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iBMbt6Aw; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=BsjAo+5wgLejOB9zhrxB40I30wayNkoi0Mhb8iHZ53G8CT1LIr7Ay5uzTz/mH7bCyJdCcPZx5GIDXESZ8mDTgLGpAmmdgnDTKRnkzIRGvKpsa77A+ojQQgS8e3ZV1YyS3I+3FJKFX6D5oiBS54FUNdJ0+qzsMiFCRx8q1Wnq464=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=guYtkknS; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iBMbt6Aw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="guYtkknS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791291862;
+	s=mimecast20190719; t=1791291866;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hQsmDxiM/v/ZpueJfPUjvz9aU328FVZKJ13lYQTb99w=;
-	b=iBMbt6Aw81IDr8yDLp+22ctKXgc1iKMmhUYmNVfkk1Cw1E5FI3Zi8rdr+bSPsjy82x0HLI
-	lRT+bQvDD+FT+eNLZvX41YVBR+6MIIy9zxrrv0qx4Gk+b4xkEWcr3tauT/5jziLhsoCxdj
-	dzEsybLTSpfVqvNbydn7PbG6mkRYB8I=
+	bh=2ATwCu0WlLdZKpj1mOA94CtTFG+Wfv5XyXMi6J/5FSc=;
+	b=guYtkknS2svTBoJ8bPwimo0tKM3oT0BsHsg9m1qB5G+clIuDOXZDiJoAB7vbVVBTTDJ+ko
+	zcpesPC2lhD7/A0Ub3AhioosY035UBZmy/MqdU+rO80ywQEsNsfjtvMlSy1BuXBY7OSvoV
+	loAfS4CLlc1sm614vBJx/E3ifyQC9v4=
 Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-198-p1hxbjBwMHaSrE2eOvLBeA-1; Tue,
- 06 Oct 2026 09:04:20 -0400
-X-MC-Unique: p1hxbjBwMHaSrE2eOvLBeA-1
-X-Mimecast-MFC-AGG-ID: p1hxbjBwMHaSrE2eOvLBeA_1791291859
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-395-NiK7b3DjOSuswUT4IK7Jnw-1; Tue,
+ 06 Oct 2026 09:04:23 -0400
+X-MC-Unique: NiK7b3DjOSuswUT4IK7Jnw-1
+X-Mimecast-MFC-AGG-ID: NiK7b3DjOSuswUT4IK7Jnw_1791291862
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D1968195FD12;
-	Tue,  6 Oct 2026 13:04:19 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 753BD19361BB;
+	Tue,  6 Oct 2026 13:04:22 +0000 (UTC)
 Received: from jjanasek-thinkpadt14gen5.tpbc.com (unknown [10.44.48.38])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 22DFD197703E;
-	Tue,  6 Oct 2026 13:04:16 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 254FA1956047;
+	Tue,  6 Oct 2026 13:04:20 +0000 (UTC)
 From: jan janasek <jjanasek@redhat.com>
 To: selinux@vger.kernel.org
 Cc: jan janasek <jjanasek@redhat.com>,
 	Juraj Marcin <juraj@jurajmarcin.com>
-Subject: [RFC PATCH userspace 08/17] libsepol: add public class iterator and tests
-Date: Tue,  6 Oct 2026 15:02:06 +0200
-Message-ID: <20261006130215.128405-9-jjanasek@redhat.com>
+Subject: [RFC PATCH userspace 09/17] libsepol: add policy properties API and public constants
+Date: Tue,  6 Oct 2026 15:02:07 +0200
+Message-ID: <20261006130215.128405-10-jjanasek@redhat.com>
 In-Reply-To: <20261006130215.128405-1-jjanasek@redhat.com>
 References: <20261006130215.128405-1-jjanasek@redhat.com>
 Precedence: bulk
@@ -60,952 +60,796 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Add sepol_class_iter, sepol_class_value_to_name(),
-sepol_class_query_by_value(), and sepol_class_perm_value_to_name()
-for resolving classes and their permissions by value, with tests
-covering constraint and validatetrans data on real policy classes.
+Add sepol/constants.h re-exporting AVTAB_*, OCON_*,
+SECURITY_FS_USE_*, and related policydb constants under an SEPOL_
+namespace (with unprefixed aliases guarded to avoid redefinition
+conflicts for callers that also include internal headers), so
+consumers no longer need policydb/avtab.h or policydb/services.h just
+for these values.
+
+Add opaque-policydb properties: sepol_policydb_mls_enabled(),
+sepol_policydb_compat_net(), sepol_policydb_set_permissive_flags(),
+and sepol_policydb_rebuild_attr_map() for maintaining the type
+attribute map after modifying type/attribute membership.
 
 Co-developed-by: Juraj Marcin <juraj@jurajmarcin.com>
 Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
 Assisted-by: LLM Cursor
 Signed-off-by: Jan Janasek <jjanasek@redhat.com>
 ---
- libsepol/include/sepol/classes.h   |  69 ++++
- libsepol/src/classes.c             | 581 +++++++++++++++++++++++++++++
- libsepol/tests/test-iter-classes.c | 220 +++++++++++
- libsepol/tests/test-iter-classes.h |   7 +
- libsepol/tests/test-iter.c         |   7 +
- 5 files changed, 884 insertions(+)
- create mode 100644 libsepol/include/sepol/classes.h
- create mode 100644 libsepol/src/classes.c
- create mode 100644 libsepol/tests/test-iter-classes.c
- create mode 100644 libsepol/tests/test-iter-classes.h
+ libsepol/include/sepol/constants.h         | 231 +++++++++++++++++++++
+ libsepol/include/sepol/policydb.h          |  29 +++
+ libsepol/include/sepol/policydb/avtab.h    |  33 +--
+ libsepol/include/sepol/policydb/policydb.h |  68 +-----
+ libsepol/include/sepol/policydb/services.h |  19 +-
+ libsepol/src/policydb_public.c             | 203 ++++++++++++++++++
+ 6 files changed, 486 insertions(+), 97 deletions(-)
+ create mode 100644 libsepol/include/sepol/constants.h
 
-diff --git a/libsepol/include/sepol/classes.h b/libsepol/include/sepol/classes.h
+diff --git a/libsepol/include/sepol/constants.h b/libsepol/include/sepol/constants.h
 new file mode 100644
-index 00000000..3ca52b94
+index 00000000..69d29537
 --- /dev/null
-+++ b/libsepol/include/sepol/classes.h
-@@ -0,0 +1,69 @@
-+#ifndef _SEPOL_CLASSES_H_
-+#define _SEPOL_CLASSES_H_
++++ b/libsepol/include/sepol/constants.h
+@@ -0,0 +1,231 @@
++#ifndef _SEPOL_CONSTANTS_H_
++#define _SEPOL_CONSTANTS_H_
 +
-+#include <sepol/policydb.h>
-+#include <sepol/class_record.h>
-+#include <sepol/handle.h>
-+#include <stddef.h>
++/*
++ * Policy interpretation constants shared across libsepol and consumers
++ * (e.g. SETools) that need stable numeric tokens without pulling in full
++ * policydb, avtab, or service API headers.
++ *
++ * Values match the kernel / policy binary format and must stay in sync
++ * with libsepol's internal policy representation.
++ *
++ * Public API consumers should prefer the SEPOL_-prefixed aliases below.
++ * The unprefixed forms are provided for source compatibility with code
++ * that also includes internal policydb headers; #ifndef guards prevent
++ * redefinition conflicts.
++ */
++
 +#include <stdint.h>
 +
 +#ifdef __cplusplus
 +extern "C" {
 +#endif
 +
-+struct sepol_class_iter;
-+typedef struct sepol_class_iter sepol_class_iter_t;
++/* --- Namespace-safe constants for public API consumers --- */
 +
-+/* Return the number of classes */
-+extern int sepol_class_count(sepol_handle_t *handle, const sepol_policydb_t *p,
-+			     unsigned int *response);
++#define SEPOL_AVTAB_ALLOWED 0x0001
++#define SEPOL_AVTAB_AUDITALLOW 0x0002
++#define SEPOL_AVTAB_AUDITDENY 0x0004
++#define SEPOL_AVTAB_NEVERALLOW 0x0080
++#define SEPOL_AVTAB_AV \
++	(SEPOL_AVTAB_ALLOWED | SEPOL_AVTAB_AUDITALLOW | SEPOL_AVTAB_AUDITDENY)
++#define SEPOL_AVTAB_TRANSITION 0x0010
++#define SEPOL_AVTAB_MEMBER 0x0020
++#define SEPOL_AVTAB_CHANGE 0x0040
++#define SEPOL_AVTAB_TYPE \
++	(SEPOL_AVTAB_TRANSITION | SEPOL_AVTAB_MEMBER | SEPOL_AVTAB_CHANGE)
++#define SEPOL_AVTAB_XPERMS_ALLOWED 0x0100
++#define SEPOL_AVTAB_XPERMS_AUDITALLOW 0x0200
++#define SEPOL_AVTAB_XPERMS_DONTAUDIT 0x0400
++#define SEPOL_AVTAB_XPERMS_NEVERALLOW 0x0800
++#define SEPOL_AVTAB_XPERMS                                            \
++	(SEPOL_AVTAB_XPERMS_ALLOWED | SEPOL_AVTAB_XPERMS_AUDITALLOW | \
++	 SEPOL_AVTAB_XPERMS_DONTAUDIT)
++#define SEPOL_AVTAB_ENABLED_OLD 0x80000000
++#define SEPOL_AVTAB_ENABLED 0x8000
 +
-+/* Check if the specified class exists */
-+extern int sepol_class_exists(sepol_handle_t *handle,
-+			      const sepol_policydb_t *policydb,
-+			      const sepol_class_key_t *key, int *response);
++#define SEPOL_AVTAB_XPERMS_IOCTLFUNCTION 0x01
++#define SEPOL_AVTAB_XPERMS_IOCTLDRIVER 0x02
++#define SEPOL_AVTAB_XPERMS_NLMSG 0x03
 +
-+/* Query a class - returns the class or NULL if not found */
-+extern int sepol_class_query(sepol_handle_t *handle, const sepol_policydb_t *p,
-+			     const sepol_class_key_t *key,
-+			     sepol_class_t **response);
++#define SEPOL_AVRULE_ALLOWED SEPOL_AVTAB_ALLOWED
++#define SEPOL_AVRULE_AUDITALLOW SEPOL_AVTAB_AUDITALLOW
++#define SEPOL_AVRULE_AUDITDENY SEPOL_AVTAB_AUDITDENY
++#define SEPOL_AVRULE_DONTAUDIT 0x0008
++#define SEPOL_AVRULE_NEVERALLOW SEPOL_AVTAB_NEVERALLOW
++#define SEPOL_AVRULE_AV                                    \
++	(SEPOL_AVRULE_ALLOWED | SEPOL_AVRULE_AUDITALLOW |  \
++	 SEPOL_AVRULE_AUDITDENY | SEPOL_AVRULE_DONTAUDIT | \
++	 SEPOL_AVRULE_NEVERALLOW)
++#define SEPOL_AVRULE_TRANSITION SEPOL_AVTAB_TRANSITION
++#define SEPOL_AVRULE_MEMBER SEPOL_AVTAB_MEMBER
++#define SEPOL_AVRULE_CHANGE SEPOL_AVTAB_CHANGE
++#define SEPOL_AVRULE_TYPE \
++	(SEPOL_AVRULE_TRANSITION | SEPOL_AVRULE_MEMBER | SEPOL_AVRULE_CHANGE)
++#define SEPOL_AVRULE_XPERMS_ALLOWED SEPOL_AVTAB_XPERMS_ALLOWED
++#define SEPOL_AVRULE_XPERMS_AUDITALLOW SEPOL_AVTAB_XPERMS_AUDITALLOW
++#define SEPOL_AVRULE_XPERMS_DONTAUDIT SEPOL_AVTAB_XPERMS_DONTAUDIT
++#define SEPOL_AVRULE_XPERMS_NEVERALLOW SEPOL_AVTAB_XPERMS_NEVERALLOW
++#define SEPOL_AVRULE_XPERMS                                             \
++	(SEPOL_AVRULE_XPERMS_ALLOWED | SEPOL_AVRULE_XPERMS_AUDITALLOW | \
++	 SEPOL_AVRULE_XPERMS_DONTAUDIT | SEPOL_AVRULE_XPERMS_NEVERALLOW)
++#define SEPOL_AVRULE_XPERMS_IOCTLFUNCTION SEPOL_AVTAB_XPERMS_IOCTLFUNCTION
++#define SEPOL_AVRULE_XPERMS_IOCTLDRIVER SEPOL_AVTAB_XPERMS_IOCTLDRIVER
++#define SEPOL_AVRULE_XPERMS_NLMSG SEPOL_AVTAB_XPERMS_NLMSG
 +
-+/* Resolve a class value to its name.  Returns non-zero on invalid value.
-+ * The returned pointer is borrowed from the policydb; do not free. */
-+extern int sepol_class_value_to_name(sepol_handle_t *handle,
-+				     const sepol_policydb_t *p, uint32_t value,
-+				     const char **name);
++#define SEPOL_RULE_SELF (1U << 0)
++#define SEPOL_RULE_NOTSELF (1U << 1)
 +
-+/* Query a class by value - returns the class or NULL if not found */
-+extern int sepol_class_query_by_value(sepol_handle_t *handle,
-+				      const sepol_policydb_t *p, uint32_t value,
-+				      sepol_class_t **response);
++#define SEPOL_SECURITY_FS_USE_XATTR 1
++#define SEPOL_SECURITY_FS_USE_TRANS 2
++#define SEPOL_SECURITY_FS_USE_TASK 3
++#define SEPOL_SECURITY_FS_USE_GENFS 4
++#define SEPOL_SECURITY_FS_USE_NONE 5
 +
-+/* Resolve a permission value to its name within a class.
-+ * Returns non-zero on invalid class value.
-+ * The returned pointer is borrowed from the policydb; do not free. */
-+extern int sepol_class_perm_value_to_name(sepol_handle_t *handle,
-+					  const sepol_policydb_t *p,
-+					  uint32_t class_value,
-+					  uint32_t perm_value,
-+					  const char **name);
++#define SEPOL_SYM_COMMONS 0
++#define SEPOL_SYM_CLASSES 1
++#define SEPOL_SYM_ROLES 2
++#define SEPOL_SYM_TYPES 3
++#define SEPOL_SYM_USERS 4
++#define SEPOL_SYM_BOOLS 5
++#define SEPOL_SYM_LEVELS 6
++#define SEPOL_SYM_CATS 7
++#define SEPOL_SYM_NUM 8
++
++#define SEPOL_OCON_ISID 0
++#define SEPOL_OCON_FS 1
++#define SEPOL_OCON_PORT 2
++#define SEPOL_OCON_NETIF 3
++#define SEPOL_OCON_NODE 4
++#define SEPOL_OCON_FSUSE 5
++#define SEPOL_OCON_NODE6 6
++#define SEPOL_OCON_IBPKEY 7
++#define SEPOL_OCON_IBENDPORT 8
++#define SEPOL_OCON_XEN_ISID 0
++#define SEPOL_OCON_XEN_PIRQ 1
++#define SEPOL_OCON_XEN_IOPORT 2
++#define SEPOL_OCON_XEN_IOMEM 3
++#define SEPOL_OCON_XEN_PCIDEVICE 4
++#define SEPOL_OCON_XEN_DEVICETREE 5
++#define SEPOL_OCON_NUM 9
++
++#define SEPOL_EXTENDED_PERMS_LEN 8
++#define SEPOL_MAX_AVTAB_HASH_BITS 20
++#define SEPOL_MAX_AVTAB_HASH_BUCKETS (1 << SEPOL_MAX_AVTAB_HASH_BITS)
++#define SEPOL_MAX_AVTAB_SIZE (SEPOL_MAX_AVTAB_HASH_BUCKETS << 1)
 +
 +/*
-+ * Iterating classes. Iteration order is unspecified (currently
-+ * hash-bucket order of the internal symbol table) and may change between
-+ * library versions or policydb loads; callers must not rely on it
-+ * matching declaration order or being stable across calls.
++ * Unprefixed forms for backward compatibility with code that mixes
++ * public and internal headers.  Guarded to avoid redefinition warnings
++ * when policydb/avtab.h or similar internal headers are also included.
 + */
-+extern int sepol_class_iter_create(sepol_handle_t *handle,
-+				   const sepol_policydb_t *p,
-+				   sepol_class_iter_t **iter);
-+extern void sepol_class_iter_destroy(sepol_class_iter_t *iter);
-+extern int sepol_class_iter_next(sepol_handle_t *handle,
-+				 sepol_class_iter_t *iter,
-+				 sepol_class_t **item);
++
++#ifndef AVTAB_ALLOWED
++#define AVTAB_ALLOWED SEPOL_AVTAB_ALLOWED
++#define AVTAB_AUDITALLOW SEPOL_AVTAB_AUDITALLOW
++#define AVTAB_AUDITDENY SEPOL_AVTAB_AUDITDENY
++#define AVTAB_NEVERALLOW SEPOL_AVTAB_NEVERALLOW
++#define AVTAB_AV SEPOL_AVTAB_AV
++#define AVTAB_TRANSITION SEPOL_AVTAB_TRANSITION
++#define AVTAB_MEMBER SEPOL_AVTAB_MEMBER
++#define AVTAB_CHANGE SEPOL_AVTAB_CHANGE
++#define AVTAB_TYPE SEPOL_AVTAB_TYPE
++#define AVTAB_XPERMS_ALLOWED SEPOL_AVTAB_XPERMS_ALLOWED
++#define AVTAB_XPERMS_AUDITALLOW SEPOL_AVTAB_XPERMS_AUDITALLOW
++#define AVTAB_XPERMS_DONTAUDIT SEPOL_AVTAB_XPERMS_DONTAUDIT
++#define AVTAB_XPERMS_NEVERALLOW SEPOL_AVTAB_XPERMS_NEVERALLOW
++#define AVTAB_XPERMS SEPOL_AVTAB_XPERMS
++#define AVTAB_ENABLED_OLD SEPOL_AVTAB_ENABLED_OLD
++#define AVTAB_ENABLED SEPOL_AVTAB_ENABLED
++#define AVTAB_XPERMS_IOCTLFUNCTION SEPOL_AVTAB_XPERMS_IOCTLFUNCTION
++#define AVTAB_XPERMS_IOCTLDRIVER SEPOL_AVTAB_XPERMS_IOCTLDRIVER
++#define AVTAB_XPERMS_NLMSG SEPOL_AVTAB_XPERMS_NLMSG
++#endif
++
++#ifndef AVRULE_ALLOWED
++#define AVRULE_ALLOWED SEPOL_AVRULE_ALLOWED
++#define AVRULE_AUDITALLOW SEPOL_AVRULE_AUDITALLOW
++#define AVRULE_AUDITDENY SEPOL_AVRULE_AUDITDENY
++#define AVRULE_DONTAUDIT SEPOL_AVRULE_DONTAUDIT
++#define AVRULE_NEVERALLOW SEPOL_AVRULE_NEVERALLOW
++#define AVRULE_AV SEPOL_AVRULE_AV
++#define AVRULE_TRANSITION SEPOL_AVRULE_TRANSITION
++#define AVRULE_MEMBER SEPOL_AVRULE_MEMBER
++#define AVRULE_CHANGE SEPOL_AVRULE_CHANGE
++#define AVRULE_TYPE SEPOL_AVRULE_TYPE
++#define AVRULE_XPERMS_ALLOWED SEPOL_AVRULE_XPERMS_ALLOWED
++#define AVRULE_XPERMS_AUDITALLOW SEPOL_AVRULE_XPERMS_AUDITALLOW
++#define AVRULE_XPERMS_DONTAUDIT SEPOL_AVRULE_XPERMS_DONTAUDIT
++#define AVRULE_XPERMS_NEVERALLOW SEPOL_AVRULE_XPERMS_NEVERALLOW
++#define AVRULE_XPERMS SEPOL_AVRULE_XPERMS
++#define AVRULE_XPERMS_IOCTLFUNCTION SEPOL_AVRULE_XPERMS_IOCTLFUNCTION
++#define AVRULE_XPERMS_IOCTLDRIVER SEPOL_AVRULE_XPERMS_IOCTLDRIVER
++#define AVRULE_XPERMS_NLMSG SEPOL_AVRULE_XPERMS_NLMSG
++#endif
++
++#ifndef RULE_SELF
++#define RULE_SELF SEPOL_RULE_SELF
++#define RULE_NOTSELF SEPOL_RULE_NOTSELF
++#endif
++
++#ifndef SECURITY_FS_USE_XATTR
++#define SECURITY_FS_USE_XATTR SEPOL_SECURITY_FS_USE_XATTR
++#define SECURITY_FS_USE_TRANS SEPOL_SECURITY_FS_USE_TRANS
++#define SECURITY_FS_USE_TASK SEPOL_SECURITY_FS_USE_TASK
++#define SECURITY_FS_USE_GENFS SEPOL_SECURITY_FS_USE_GENFS
++#define SECURITY_FS_USE_NONE SEPOL_SECURITY_FS_USE_NONE
++#endif
++
++#ifndef SYM_COMMONS
++#define SYM_COMMONS SEPOL_SYM_COMMONS
++#define SYM_CLASSES SEPOL_SYM_CLASSES
++#define SYM_ROLES SEPOL_SYM_ROLES
++#define SYM_TYPES SEPOL_SYM_TYPES
++#define SYM_USERS SEPOL_SYM_USERS
++#define SYM_BOOLS SEPOL_SYM_BOOLS
++#define SYM_LEVELS SEPOL_SYM_LEVELS
++#define SYM_CATS SEPOL_SYM_CATS
++#define SYM_NUM SEPOL_SYM_NUM
++#endif
++
++#ifndef OCON_ISID
++#define OCON_ISID SEPOL_OCON_ISID
++#define OCON_FS SEPOL_OCON_FS
++#define OCON_PORT SEPOL_OCON_PORT
++#define OCON_NETIF SEPOL_OCON_NETIF
++#define OCON_NODE SEPOL_OCON_NODE
++#define OCON_FSUSE SEPOL_OCON_FSUSE
++#define OCON_NODE6 SEPOL_OCON_NODE6
++#define OCON_IBPKEY SEPOL_OCON_IBPKEY
++#define OCON_IBENDPORT SEPOL_OCON_IBENDPORT
++#define OCON_XEN_ISID SEPOL_OCON_XEN_ISID
++#define OCON_XEN_PIRQ SEPOL_OCON_XEN_PIRQ
++#define OCON_XEN_IOPORT SEPOL_OCON_XEN_IOPORT
++#define OCON_XEN_IOMEM SEPOL_OCON_XEN_IOMEM
++#define OCON_XEN_PCIDEVICE SEPOL_OCON_XEN_PCIDEVICE
++#define OCON_XEN_DEVICETREE SEPOL_OCON_XEN_DEVICETREE
++#define OCON_NUM SEPOL_OCON_NUM
++#endif
++
++#ifndef EXTENDED_PERMS_LEN
++#define EXTENDED_PERMS_LEN SEPOL_EXTENDED_PERMS_LEN
++#endif
++
++#ifndef xperm_test
++#define xperm_test(x, p) (1U & ((p)[(x) >> 5] >> ((x) & 0x1f)))
++#define xperm_set(x, p) ((p)[(x) >> 5] |= (1U << ((x) & 0x1f)))
++#define xperm_clear(x, p) ((p)[(x) >> 5] &= ~(1U << ((x) & 0x1f)))
++#endif
++
++#ifndef MAX_AVTAB_HASH_BITS
++#define MAX_AVTAB_HASH_BITS SEPOL_MAX_AVTAB_HASH_BITS
++#define MAX_AVTAB_HASH_BUCKETS SEPOL_MAX_AVTAB_HASH_BUCKETS
++#define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS - 1)
++#define MAX_AVTAB_SIZE SEPOL_MAX_AVTAB_SIZE
++#endif
 +
 +#ifdef __cplusplus
 +}
 +#endif
 +
-+#endif
-diff --git a/libsepol/src/classes.c b/libsepol/src/classes.c
-new file mode 100644
-index 00000000..2ec50e3b
---- /dev/null
-+++ b/libsepol/src/classes.c
-@@ -0,0 +1,581 @@
-+#include <sepol/classes.h>
-+
-+#include <sepol/policydb/policydb.h>
-+#include <stdlib.h>
-+
-+#include "debug.h"
-+#include "sepol/handle.h"
-+#include "sepol/policydb/constraint.h"
-+#include "sepol/policydb/ebitmap.h"
-+#include "sepol/policydb/hashtab.h"
-+#include "sepol/class_record.h"
-+#include "private.h"
-+
-+struct sepol_class_iter {
-+	const sepol_policydb_t *p;
-+	hashtab_iter_t hashtab_iter;
-+};
-+
-+struct class_add_perm_args {
-+	sepol_handle_t *handle;
-+	sepol_class_t *cls;
-+};
-+
-+static int class_add_perm(hashtab_key_t key,
-+			  hashtab_datum_t datum __attribute__((unused)),
-+			  void *arg)
-+{
-+	const char *perm = key;
-+	struct class_add_perm_args *args = arg;
-+
-+	return sepol_class_add_perm(args->handle, args->cls, perm);
-+}
-+
-+static char map_default(char from)
-+{
-+	switch (from) {
-+	case DEFAULT_SOURCE:
-+		return SEPOL_CLASS_DEFAULT_SOURCE;
-+	case DEFAULT_TARGET:
-+		return SEPOL_CLASS_DEFAULT_TARGET;
-+	}
-+	return 0;
-+}
-+
-+static int constraint_expr_datum_to_record(sepol_handle_t *handle,
-+					   const policydb_t *p,
-+					   const constraint_expr_t *expr_datum,
-+					   sepol_constraint_expr_t **expr)
-+{
-+	sepol_constraint_expr_t *tmp;
-+	if (sepol_constraint_expr_create(handle, &tmp))
-+		return STATUS_ERR;
-+
-+	/* Expr type */
-+	switch (expr_datum->expr_type) {
-+	case CEXPR_NOT:
-+		if (sepol_constraint_expr_set_type(handle, tmp,
-+						   SEPOL_CEXPR_TYPE_NOT))
-+			goto err;
-+		break;
-+	case CEXPR_AND:
-+		if (sepol_constraint_expr_set_type(handle, tmp,
-+						   SEPOL_CEXPR_TYPE_AND))
-+			goto err;
-+		break;
-+	case CEXPR_OR:
-+		if (sepol_constraint_expr_set_type(handle, tmp,
-+						   SEPOL_CEXPR_TYPE_OR))
-+			goto err;
-+		break;
-+	case CEXPR_ATTR:
-+		if (sepol_constraint_expr_set_type(handle, tmp,
-+						   SEPOL_CEXPR_TYPE_ATTR))
-+			goto err;
-+		break;
-+	case CEXPR_NAMES:
-+		if (sepol_constraint_expr_set_type(handle, tmp,
-+						   SEPOL_CEXPR_TYPE_NAMES))
-+			goto err;
-+		break;
-+	default:
-+		ERR(handle, "unknown constraint expression type %d",
-+		    expr_datum->expr_type);
-+		goto err;
-+	}
-+
-+	if (expr_datum->expr_type == CEXPR_ATTR ||
-+	    expr_datum->expr_type == CEXPR_NAMES) {
-+		/* Expr attr - use bitmask checks since attr can be a combined value */
-+		if (expr_datum->attr & CEXPR_USER)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_USER))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_ROLE)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_ROLE))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_TYPE)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_TYPE))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_TARGET)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_TARGET))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_XTARGET)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_XTARGET))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_L1L2)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_L1L2))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_L1H2)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_L1H2))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_H1L2)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_H1L2))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_H1H2)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_H1H2))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_L1H1)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_L1H1))
-+				goto err;
-+		if (expr_datum->attr & CEXPR_L2H2)
-+			if (sepol_constraint_expr_set_attr(
-+				    handle, tmp, SEPOL_CEXPR_ATTR_L2H2))
-+				goto err;
-+		/* Expr op */
-+		switch (expr_datum->op) {
-+		case CEXPR_EQ:
-+			if (sepol_constraint_expr_set_op(handle, tmp,
-+							 SEPOL_CEXPR_OP_EQ))
-+				goto err;
-+			break;
-+		case CEXPR_NEQ:
-+			if (sepol_constraint_expr_set_op(handle, tmp,
-+							 SEPOL_CEXPR_OP_NEQ))
-+				goto err;
-+			break;
-+		case CEXPR_DOM:
-+			if (sepol_constraint_expr_set_op(handle, tmp,
-+							 SEPOL_CEXPR_OP_DOM))
-+				goto err;
-+			break;
-+		case CEXPR_DOMBY:
-+			if (sepol_constraint_expr_set_op(handle, tmp,
-+							 SEPOL_CEXPR_OP_DOMBY))
-+				goto err;
-+			break;
-+		case CEXPR_INCOMP:
-+			if (sepol_constraint_expr_set_op(handle, tmp,
-+							 SEPOL_CEXPR_OP_INCOMP))
-+				goto err;
-+			break;
-+		default:
-+			ERR(handle, "unknown constraint expression operator %d",
-+			    expr_datum->op);
-+			goto err;
-+		}
-+	}
-+
-+	/* Expr names */
-+	if (expr_datum->expr_type == CEXPR_NAMES) {
-+		const ebitmap_t *names = &expr_datum->names;
-+		char **val_to_name = NULL;
-+		uint32_t nprim = 0;
-+		if (expr_datum->attr & CEXPR_USER) {
-+			val_to_name = p->p_user_val_to_name;
-+			nprim = p->p_users.nprim;
-+		} else if (expr_datum->attr & CEXPR_ROLE) {
-+			val_to_name = p->p_role_val_to_name;
-+			nprim = p->p_roles.nprim;
-+		} else if (expr_datum->attr & CEXPR_TYPE) {
-+			/*
-+			 * type_names->types is always populated here:
-+			 * constraint_expr_init() unconditionally allocates
-+			 * and initializes type_names, and both
-+			 * type_set_read()/type_set_write() (policydb.c,
-+			 * write.c) are called unconditionally for every
-+			 * CEXPR_NAMES expression regardless of policy
-+			 * version or policy_type. There used to be a
-+			 * version carve-out here for kernel policies older
-+			 * than POLICYDB_VERSION_CONSTRAINT_NAMES, but that
-+			 * constant (and the policy versions it gated) were
-+			 * removed upstream once POLICYDB_VERSION_MIN moved
-+			 * past it (see commit "libsepol: drop support for
-+			 * policy versions before xperms_ioctl/
-+			 * xen_devicetree") -- every policy version this
-+			 * library still supports already has it.
-+			 */
-+			if (expr_datum->type_names) {
-+				names = &expr_datum->type_names->types;
-+			} else {
-+				goto err;
-+			}
-+			val_to_name = p->p_type_val_to_name;
-+			nprim = p->p_types.nprim;
-+		}
-+		if (!val_to_name)
-+			goto err;
-+		ebitmap_node_t *n;
-+		uint32_t bit;
-+		ebitmap_for_each_positive_bit(names, n, bit) {
-+			if (bit >= nprim)
-+				goto err;
-+			if (sepol_constraint_expr_add_name(handle, tmp,
-+							   val_to_name[bit]))
-+				goto err;
-+		}
-+	}
-+
-+	*expr = tmp;
-+	return STATUS_SUCCESS;
-+err:
-+	sepol_constraint_expr_free(tmp);
-+	*expr = NULL;
-+	return STATUS_ERR;
-+}
-+
-+struct add_perm_helper_args {
-+	sepol_handle_t *handle;
-+	const constraint_node_t *datum;
-+	sepol_constraint_t *constraint;
-+};
-+
-+static int add_perm_helper(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	perm_datum_t *perm = datum;
-+	struct add_perm_helper_args *args = data;
-+
-+	if (args->datum->permissions & (UINT32_C(1) << (perm->s.value - 1)))
-+		return sepol_constraint_add_perm(args->handle, args->constraint,
-+						 key);
-+	return 0;
-+}
-+
-+static int constraint_datum_to_record(sepol_handle_t *handle,
-+				      const policydb_t *p,
-+				      const class_datum_t *class_datum,
-+				      const constraint_node_t *constraint_datum,
-+				      sepol_constraint_t **constraint)
-+{
-+	sepol_constraint_t *tmp;
-+	sepol_constraint_expr_t *expr = NULL;
-+	if (sepol_constraint_create(handle, &tmp))
-+		return STATUS_ERR;
-+
-+	struct add_perm_helper_args args = {
-+		.handle = handle,
-+		.datum = constraint_datum,
-+		.constraint = tmp,
-+	};
-+	if (hashtab_map(class_datum->permissions.table, add_perm_helper, &args))
-+		goto err;
-+	if (class_datum->comdatum &&
-+	    hashtab_map(class_datum->comdatum->permissions.table,
-+			add_perm_helper, &args))
-+		goto err;
-+
-+	constraint_expr_t *expr_datum = constraint_datum->expr;
-+	uint32_t index = 0;
-+	while (expr_datum) {
-+		if (constraint_expr_datum_to_record(handle, p, expr_datum,
-+						    &expr))
-+			goto err;
-+		int rc = sepol_constraint_insert_expr(handle, tmp, index, expr);
-+		if (rc)
-+			goto err;
-+		expr = NULL;
-+		index++;
-+		expr_datum = expr_datum->next;
-+	}
-+
-+	*constraint = tmp;
-+	return STATUS_SUCCESS;
-+err:
-+	sepol_constraint_free(tmp);
-+	sepol_constraint_expr_free(expr);
-+	*constraint = NULL;
-+	return STATUS_ERR;
-+}
-+
-+static int class_datum_to_record(sepol_handle_t *handle, const policydb_t *p,
-+				 const class_datum_t *class_datum,
-+				 sepol_class_t **cls)
-+{
-+	sepol_class_t *new_class = NULL;
-+	sepol_constraint_t *constraint = NULL;
-+
-+	if (sepol_class_create(handle, &new_class))
-+		goto err;
-+
-+	/* Copy name */
-+	if (class_datum->s.value == 0 ||
-+	    class_datum->s.value > p->p_classes.nprim)
-+		goto err;
-+	const char *name = p->p_class_val_to_name[class_datum->s.value - 1];
-+	if (sepol_class_set_name(handle, new_class, name))
-+		goto err;
-+
-+	/* Copy common */
-+	if (sepol_class_set_common(handle, new_class, class_datum->comkey))
-+		goto err;
-+
-+	/* Copy perms */
-+	struct class_add_perm_args args = {
-+		.handle = handle,
-+		.cls = new_class,
-+	};
-+	if (hashtab_map(class_datum->permissions.table, class_add_perm, &args))
-+		goto err;
-+
-+	for (constraint_node_t *constraint_datum = class_datum->constraints;
-+	     constraint_datum != NULL;
-+	     constraint_datum = constraint_datum->next) {
-+		if (constraint_datum_to_record(handle, p, class_datum,
-+					       constraint_datum, &constraint))
-+			goto err;
-+		if (sepol_class_add_constraint(handle, new_class, constraint))
-+			goto err;
-+		constraint = NULL;
-+	}
-+	for (constraint_node_t *validatetrans_datum =
-+		     class_datum->validatetrans;
-+	     validatetrans_datum != NULL;
-+	     validatetrans_datum = validatetrans_datum->next) {
-+		if (constraint_datum_to_record(handle, p, class_datum,
-+					       validatetrans_datum,
-+					       &constraint))
-+			goto err;
-+		if (sepol_class_add_validatetrans(handle, new_class,
-+						  constraint))
-+			goto err;
-+		constraint = NULL;
-+	}
-+
-+	/* Copy default */
-+	if (sepol_class_set_default_user(
-+		    handle, new_class, map_default(class_datum->default_user)))
-+		goto err;
-+	if (sepol_class_set_default_role(
-+		    handle, new_class, map_default(class_datum->default_role)))
-+		goto err;
-+	if (sepol_class_set_default_type(
-+		    handle, new_class, map_default(class_datum->default_type)))
-+		goto err;
-+	char default_range = 0;
-+	switch (class_datum->default_range) {
-+	case DEFAULT_SOURCE_LOW:
-+		default_range = SEPOL_CLASS_DEFAULT_SOURCE_LOW;
-+		break;
-+	case DEFAULT_SOURCE_HIGH:
-+		default_range = SEPOL_CLASS_DEFAULT_SOURCE_HIGH;
-+		break;
-+	case DEFAULT_SOURCE_LOW_HIGH:
-+		default_range = SEPOL_CLASS_DEFAULT_SOURCE_LOW_HIGH;
-+		break;
-+	case DEFAULT_TARGET_LOW:
-+		default_range = SEPOL_CLASS_DEFAULT_TARGET_LOW;
-+		break;
-+	case DEFAULT_TARGET_HIGH:
-+		default_range = SEPOL_CLASS_DEFAULT_TARGET_HIGH;
-+		break;
-+	case DEFAULT_TARGET_LOW_HIGH:
-+		default_range = SEPOL_CLASS_DEFAULT_TARGET_LOW_HIGH;
-+		break;
-+	case DEFAULT_GLBLUB:
-+		default_range = SEPOL_CLASS_DEFAULT_GLBLUB;
-+		break;
-+	}
-+	if (sepol_class_set_default_range(handle, new_class, default_range))
-+		goto err;
-+
-+	*cls = new_class;
-+	return STATUS_SUCCESS;
-+
-+err:
-+	*cls = NULL;
-+	if (new_class)
-+		sepol_class_free(new_class);
-+	sepol_constraint_free(constraint);
-+
-+	return STATUS_ERR;
-+}
-+
-+DEFINE_VALUE_TO_NAME(sepol_class_value_to_name, "class", p_classes,
-+		     p_class_val_to_name)
-+
-+int sepol_class_query_by_value(sepol_handle_t *handle,
-+			       const sepol_policydb_t *p, uint32_t value,
-+			       sepol_class_t **response)
-+{
-+	if (!response)
-+		return STATUS_ERR;
-+	if (!p) {
-+		*response = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	if (value < 1 || value > p->p.p_classes.nprim) {
-+		*response = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+
-+	class_datum_t *class_datum = p->p.class_val_to_struct[value - 1];
-+	if (!class_datum) {
-+		*response = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+
-+	return class_datum_to_record(handle, &p->p, class_datum, response);
-+}
-+
-+struct perm_search {
-+	uint32_t val;
-+	const char *name;
-+};
-+
-+static int match_perm_value(hashtab_key_t key, hashtab_datum_t datum,
-+			    void *data)
-+{
-+	struct perm_search *s = data;
-+	perm_datum_t *perm = (perm_datum_t *)datum;
-+	if (perm->s.value == s->val) {
-+		s->name = key;
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+int sepol_class_perm_value_to_name(sepol_handle_t *handle,
-+				   const sepol_policydb_t *p,
-+				   uint32_t class_value, uint32_t perm_value,
-+				   const char **name)
-+{
-+	if (!name)
-+		return STATUS_ERR;
-+	if (!p) {
-+		ERR(handle,
-+		    "invalid argument to sepol_class_perm_value_to_name");
-+		*name = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	if (class_value < 1 || class_value > p->p.p_classes.nprim) {
-+		ERR(handle, "invalid class value %u", class_value);
-+		*name = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	const class_datum_t *cladatum =
-+		p->p.class_val_to_struct[class_value - 1];
-+	if (!cladatum) {
-+		ERR(handle, "no class datum for value %u", class_value);
-+		*name = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	struct perm_search s = { .val = perm_value, .name = NULL };
-+	int rc = hashtab_map(cladatum->permissions.table, match_perm_value, &s);
-+	if (!rc && cladatum->comdatum)
-+		rc = hashtab_map(cladatum->comdatum->permissions.table,
-+				 match_perm_value, &s);
-+
-+	*name = (rc == 1) ? s.name : NULL;
-+	return STATUS_SUCCESS;
-+}
-+
-+/* Return the number of classes */
-+int sepol_class_count(sepol_handle_t *handle __attribute__((unused)),
-+		      const sepol_policydb_t *p, unsigned int *response)
-+{
-+	if (!p || !response)
-+		return STATUS_ERR;
-+
-+	*response = p->p.p_classes.table->nel;
-+	return STATUS_SUCCESS;
-+}
-+
-+/* Check if the specified class exists */
-+int sepol_class_exists(sepol_handle_t *handle __attribute__((unused)),
-+		       const sepol_policydb_t *policydb,
-+		       const sepol_class_key_t *key, int *response)
-+{
-+	if (!policydb || !response)
-+		return STATUS_ERR;
-+
-+	const char *name;
-+	sepol_class_key_unpack(key, &name);
-+
-+	*response = name &&
-+		    hashtab_search(policydb->p.p_classes.table, name) != NULL;
-+
-+	return STATUS_SUCCESS;
-+}
-+
-+/* Query a class - returns the class or NULL if not found */
-+int sepol_class_query(sepol_handle_t *handle, const sepol_policydb_t *p,
-+		      const sepol_class_key_t *key, sepol_class_t **response)
-+{
-+	if (!response)
-+		return STATUS_ERR;
-+	if (!p) {
-+		*response = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	const char *name;
-+	sepol_class_key_unpack(key, &name);
-+
-+	if (!name) {
-+		*response = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+
-+	class_datum_t *class_datum = hashtab_search(p->p.p_classes.table, name);
-+	if (!class_datum) {
-+		*response = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+
-+	return class_datum_to_record(handle, &p->p, class_datum, response);
-+}
-+
-+/* Iterators */
-+int sepol_class_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
-+			    sepol_class_iter_t **iter)
-+{
-+	if (!iter)
-+		return STATUS_ERR;
-+	if (!handle || !p) {
-+		ERR(handle, "invalid argument to sepol_class_iter_create");
-+		*iter = NULL;
-+		return STATUS_ERR;
-+	}
-+	sepol_class_iter_t *new = malloc(sizeof(sepol_class_iter_t));
-+	if (!new) {
-+		ERR(handle, "out of memory");
-+		*iter = NULL;
-+		return STATUS_ERR;
-+	}
-+	new->p = p;
-+	hashtab_iter_init(p->p.p_classes.table, &new->hashtab_iter);
-+
-+	*iter = new;
-+
-+	return STATUS_SUCCESS;
-+}
-+
-+void sepol_class_iter_destroy(sepol_class_iter_t *iter)
-+{
-+	free(iter);
-+}
-+
-+int sepol_class_iter_next(sepol_handle_t *handle, sepol_class_iter_t *iter,
-+			  sepol_class_t **item)
-+{
-+	char *key;
-+	class_datum_t *datum;
-+
-+	if (!item)
-+		return STATUS_ERR;
-+	if (!iter) {
-+		*item = NULL;
-+		return STATUS_ERR;
-+	}
-+
-+	hashtab_iter_next(&iter->hashtab_iter, &key, (hashtab_datum_t *)&datum);
-+	if (!key) {
-+		*item = NULL;
-+		return STATUS_SUCCESS;
-+	}
-+
-+	return class_datum_to_record(handle, &iter->p->p, datum, item);
-+}
-diff --git a/libsepol/tests/test-iter-classes.c b/libsepol/tests/test-iter-classes.c
-new file mode 100644
-index 00000000..0d6b83dd
---- /dev/null
-+++ b/libsepol/tests/test-iter-classes.c
-@@ -0,0 +1,220 @@
-+#include "test-iter-classes.h"
-+
-+#include <CUnit/CUnit.h>
-+#include <stdbool.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#include <sepol/policydb.h>
-+#include <sepol/class_record.h>
-+#include <sepol/classes.h>
-+#include <sepol/policydb/constraint.h>
-+#include <sepol/policydb/hashtab.h>
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/symtab.h>
-+
-+#include "helpers.h"
-+
-+extern sepol_handle_t *handle;
-+extern sepol_policydb_t *empty_policy;
-+extern sepol_policydb_t *iter_policy;
-+extern int mls;
++#endif /* _SEPOL_CONSTANTS_H_ */
+diff --git a/libsepol/include/sepol/policydb.h b/libsepol/include/sepol/policydb.h
+index 98357ee4..967bce3d 100644
+--- a/libsepol/include/sepol/policydb.h
++++ b/libsepol/include/sepol/policydb.h
+@@ -87,6 +87,11 @@ extern int sepol_policydb_set_typevers(sepol_policydb_t *p, unsigned int type);
+  */
+ extern int sepol_policydb_set_vers(sepol_policydb_t *p, unsigned int vers);
+ 
++/*
++ * Get the policy version.
++ */
++extern unsigned int sepol_policydb_get_vers(const sepol_policydb_t *p);
++
+ /* Set how to handle unknown class/perms. */
+ #define SEPOL_DENY_UNKNOWN 0
+ #define SEPOL_REJECT_UNKNOWN 2
+@@ -94,12 +99,19 @@ extern int sepol_policydb_set_vers(sepol_policydb_t *p, unsigned int vers);
+ extern int sepol_policydb_set_handle_unknown(sepol_policydb_t *p,
+ 					     unsigned int handle_unknown);
+ 
++/* Get how to handle unknown class/perms. */
++extern unsigned int
++sepol_policydb_get_handle_unknown(const sepol_policydb_t *p);
++
+ /* Set the target platform */
+ #define SEPOL_TARGET_SELINUX 0
+ #define SEPOL_TARGET_XEN 1
+ extern int sepol_policydb_set_target_platform(sepol_policydb_t *p,
+ 					      int target_platform);
+ 
++/* Get the target platform. */
++extern int sepol_policydb_get_target_platform(const sepol_policydb_t *p);
++
+ /*
+  * Optimize the policy by removing redundant rules.
+  */
+@@ -148,6 +160,23 @@ extern int sepol_policydb_mls_enabled(const sepol_policydb_t *p);
+  */
+ extern int sepol_policydb_compat_net(const sepol_policydb_t *p);
+ 
++/*
++ * Set permissive flags on types marked as permissive in the policy.
++ * Must be called after policy load to enable permissive type enforcement.
++ */
++extern int sepol_policydb_set_permissive_flags(sepol_handle_t *handle,
++					       sepol_policydb_t *p);
 +
 +/*
-+ * CLASS1's constraints, from policies/test-iter/iter.conf:
++ * Rebuild the type attribute mapping. Call after modifying type attributes
++ * to ensure consistency.
 + *
-+ *   constrain CLASS1 { PERM1 } ( t1 == { TYPE1 } );
-+ *   constrain CLASS1 { PERM1 } ( ( r1 == ROLE1 ) or ( u2 == USER1 ) );
-+ *   mlsconstrain CLASS1 { PERM1 } ( h1 dom h2 );   -- MLS builds only
-+ *
-+ * The middle constraint's expression is a boolean combination (`or`),
-+ * which is represented as multiple constraint_expr nodes in an
-+ * unspecified (postfix) order, so it is not practical to assert its
-+ * exact expression list here. Instead, verify_class1_constraints()
-+ * below checks the one property shared by every CLASS1 constraint
-+ * (permissions == {PERM1}) plus the exact expression contents of the
-+ * single unambiguous, single-expression constraint (`t1 == TYPE1`).
++ * On out-of-memory, returns -1; the map may be only partially rebuilt in
++ * that case, but the policydb is left in a self-consistent, usable state.
 + */
++extern int sepol_policydb_rebuild_attr_map(sepol_handle_t *handle,
++					   sepol_policydb_t *p);
 +
-+struct expected_class {
-+	int seen;
-+
-+	const char *name;
-+	const char *common;
-+	uint32_t nperms;
-+	const char *perms[32];
-+	char default_user;
-+	char default_role;
-+	char default_type;
-+	char default_range;
-+};
-+
-+struct expected_class expected_classes[] = {
-+	{ 0, "CLASS1", "COMMON1", 2, { "PERM1", "ioctl" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS01", NULL, 1, { "PERM01" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS02", NULL, 1, { "PERM02" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS03", NULL, 1, { "PERM03" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS04", NULL, 1, { "PERM04" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS05", NULL, 1, { "PERM05" }, 0, 0, 0, 0 },
-+	{ 0, "CLASS06", NULL, 1, { "PERM06" }, 0, 0, 0, 0 },
-+	{ 0, NULL, NULL, 0, { NULL }, 0, 0, 0, 0 },
-+};
-+
-+static void verify_class1_constraints(const sepol_constraint_t **constraints,
-+				      uint32_t nconstraints)
-+{
-+	int found_type_names_constraint = 0;
-+
-+	/* Two plain `constrain` statements always apply; the `mlsconstrain`
-+	 * only applies to MLS builds. */
-+	CU_ASSERT_EQUAL(nconstraints, mls ? 3u : 2u);
-+
-+	for (uint32_t i = 0; i < nconstraints; i++) {
-+		const char **perms = NULL;
-+		uint32_t nperms = 0;
-+		CU_ASSERT_EQUAL_FATAL(
-+			sepol_constraint_get_perms(handle, constraints[i],
-+						   &perms, &nperms),
-+			0);
-+		CU_ASSERT_EQUAL(nperms, 1);
-+		if (nperms == 1)
-+			CU_ASSERT_STRING_EQUAL(perms[0], "PERM1");
-+		free(perms);
-+
-+		const sepol_constraint_expr_t **exprs = NULL;
-+		uint32_t nexprs = 0;
-+		CU_ASSERT_EQUAL_FATAL(
-+			sepol_constraint_get_exprs(handle, constraints[i],
-+						   &exprs, &nexprs),
-+			0);
-+
-+		if (nexprs == 1 &&
-+		    sepol_constraint_expr_get_type(exprs[0]) ==
-+			    SEPOL_CEXPR_TYPE_NAMES &&
-+		    sepol_constraint_expr_get_op(exprs[0]) ==
-+			    SEPOL_CEXPR_OP_EQ &&
-+		    sepol_constraint_expr_has_attr(exprs[0],
-+						   SEPOL_CEXPR_ATTR_TYPE)) {
-+			const char **names = NULL;
-+			uint32_t nnames = 0;
-+			CU_ASSERT_EQUAL_FATAL(sepol_constraint_expr_get_names(
-+						      handle, exprs[0], &names,
-+						      &nnames),
-+					      0);
-+			if (nnames == 1 && names[0] &&
-+			    !strcmp(names[0], "TYPE1"))
-+				found_type_names_constraint = 1;
-+			free(names);
-+		}
-+		free(exprs);
-+	}
-+
-+	CU_ASSERT_TRUE(found_type_names_constraint);
-+}
-+
-+static void unseen(void)
-+{
-+	for (struct expected_class *e = expected_classes; e->name; e++) {
-+		e->seen = 0;
-+	}
-+}
-+
-+static void seen(const sepol_class_t *item)
-+{
-+	const char *actual_name = sepol_class_get_name(item);
-+	const char *actual_common = sepol_class_get_common(item);
-+	uint32_t nactual_perms;
-+	const char **actual_perms;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_get_perms(handle, item, &actual_perms,
-+						    &nactual_perms),
-+			      0);
-+	uint32_t nactual_constraints;
-+	const sepol_constraint_t **actual_constraints;
-+	CU_ASSERT_EQUAL_FATAL(sepol_class_get_constraints(handle, item,
-+							  &actual_constraints,
-+							  &nactual_constraints),
-+			      0);
-+	char actual_default_user = sepol_class_get_default_user(item);
-+	char actual_default_role = sepol_class_get_default_role(item);
-+	char actual_default_type = sepol_class_get_default_type(item);
-+	char actual_default_range = sepol_class_get_default_range(item);
-+
-+	struct expected_class *e;
-+	for (e = expected_classes; e->name; e++) {
-+		if (strcmp(actual_name, e->name) == 0)
-+			break;
-+	}
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(e->name);
-+	e->seen = 1;
-+
-+	if (e->common) {
-+		CU_ASSERT_STRING_EQUAL(actual_common, e->common);
-+	} else {
-+		CU_ASSERT_PTR_NULL(actual_common);
-+	}
-+
-+	CU_ASSERT_EQUAL(nactual_perms, e->nperms);
-+	/* qsort()'s base is declared nonnull; skip the call entirely for
-+	 * an empty (possibly NULL) array rather than relying on nmemb==0
-+	 * making the NULL harmless. */
-+	if (nactual_perms > 0)
-+		qsort(actual_perms, nactual_perms, sizeof(char *), qstrcmp);
-+	for (size_t i = 0; i < nactual_perms && i < e->nperms; i++) {
-+		CU_ASSERT_STRING_EQUAL(actual_perms[i], e->perms[i]);
-+	}
-+
-+	if (strcmp(e->name, "CLASS1") == 0)
-+		verify_class1_constraints(actual_constraints,
-+					  nactual_constraints);
-+	else
-+		CU_ASSERT_EQUAL(nactual_constraints, 0);
-+
-+	CU_ASSERT_EQUAL(actual_default_user, e->default_user);
-+	CU_ASSERT_EQUAL(actual_default_role, e->default_role);
-+	CU_ASSERT_EQUAL(actual_default_type, e->default_type);
-+	CU_ASSERT_EQUAL(actual_default_range, e->default_range);
-+
-+	free(actual_perms);
-+	free(actual_constraints);
-+}
-+
-+void test_iter_classes_empty(void)
-+{
-+	sepol_class_iter_t *class_iter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_iter_create(handle, empty_policy, &class_iter), 0);
-+
-+	sepol_class_t *item;
-+	CU_ASSERT_EQUAL(sepol_class_iter_next(handle, class_iter, &item), 0);
-+	CU_ASSERT_PTR_NULL(item);
-+	CU_ASSERT_EQUAL(sepol_class_iter_next(handle, class_iter, &item), 0);
-+	CU_ASSERT_PTR_NULL(item);
-+
-+	sepol_class_iter_destroy(class_iter);
-+}
-+
-+void test_iter_classes_non_empty(void)
-+{
-+	unseen();
-+	sepol_class_t *item;
-+	sepol_class_iter_t *class_iter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_class_iter_create(handle, iter_policy, &class_iter), 0);
-+
-+	while (1) {
-+		CU_ASSERT_EQUAL(
-+			sepol_class_iter_next(handle, class_iter, &item), 0);
-+		if (!item)
-+			break;
-+		seen(item);
-+		sepol_class_free(item);
-+	}
-+	CU_ASSERT_EQUAL(sepol_class_iter_next(handle, class_iter, &item), 0);
-+	CU_ASSERT_PTR_NULL(item);
-+
-+	for (struct expected_class *e = expected_classes; e->name; e++) {
-+		CU_ASSERT_TRUE(e->seen);
-+	}
-+
-+	sepol_class_iter_destroy(class_iter);
-+}
-diff --git a/libsepol/tests/test-iter-classes.h b/libsepol/tests/test-iter-classes.h
-new file mode 100644
-index 00000000..e85bab43
---- /dev/null
-+++ b/libsepol/tests/test-iter-classes.h
-@@ -0,0 +1,7 @@
-+#ifndef TEST_ITER_CLASSES_H
-+#define TEST_ITER_CLASSES_H
-+
-+void test_iter_classes_empty(void);
-+void test_iter_classes_non_empty(void);
-+
-+#endif
-diff --git a/libsepol/tests/test-iter.c b/libsepol/tests/test-iter.c
-index 7c58c36d..4c57459a 100644
---- a/libsepol/tests/test-iter.c
-+++ b/libsepol/tests/test-iter.c
-@@ -13,6 +13,7 @@
- #include "test-iter-types.h"
- #include "test-iter-users.h"
- #include "test-iter-roles.h"
-+#include "test-iter-classes.h"
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
+index 83e1033f..eb76c43c 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -43,6 +43,8 @@
+ #include <sys/types.h>
+ #include <stdint.h>
  
- extern int mls;
++#include <sepol/constants.h>
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -51,32 +53,11 @@ typedef struct avtab_key {
+ 	uint16_t source_type;
+ 	uint16_t target_type;
+ 	uint16_t target_class;
+-#define AVTAB_ALLOWED 0x0001
+-#define AVTAB_AUDITALLOW 0x0002
+-#define AVTAB_AUDITDENY 0x0004
+-#define AVTAB_NEVERALLOW 0x0080
+-#define AVTAB_AV (AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
+-#define AVTAB_TRANSITION 0x0010
+-#define AVTAB_MEMBER 0x0020
+-#define AVTAB_CHANGE 0x0040
+-#define AVTAB_TYPE (AVTAB_TRANSITION | AVTAB_MEMBER | AVTAB_CHANGE)
+-#define AVTAB_XPERMS_ALLOWED 0x0100
+-#define AVTAB_XPERMS_AUDITALLOW 0x0200
+-#define AVTAB_XPERMS_DONTAUDIT 0x0400
+-#define AVTAB_XPERMS_NEVERALLOW 0x0800
+-#define AVTAB_XPERMS                                      \
+-	(AVTAB_XPERMS_ALLOWED | AVTAB_XPERMS_AUDITALLOW | \
+-	 AVTAB_XPERMS_DONTAUDIT)
+-#define AVTAB_ENABLED_OLD 0x80000000
+-#define AVTAB_ENABLED 0x8000 /* reserved for used in cond_avtab */
+-	uint16_t specified; /* what fields are specified */
++	uint16_t specified; /* what fields are specified; see AVTAB_* in sepol/constants.h */
+ } avtab_key_t;
  
-@@ -106,5 +107,11 @@ int iter_add_tests(CU_pSuite suite)
- 	if (CU_add_test(suite, "iter_roles_non_empty",
- 			test_iter_roles_non_empty) == NULL)
- 		return CU_get_error();
-+	if (CU_add_test(suite, "iter_classes_empty", test_iter_classes_empty) ==
-+	    NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "iter_classes_non_empty",
-+			test_iter_classes_non_empty) == NULL)
-+		return CU_get_error();
+ typedef struct avtab_extended_perms {
+-#define AVTAB_XPERMS_IOCTLFUNCTION 0x01
+-#define AVTAB_XPERMS_IOCTLDRIVER 0x02
+-#define AVTAB_XPERMS_NLMSG 0x03
+-	/* extension of the avtab_key specified */
++	/* extension of the avtab_key specified; see AVTAB_XPERMS_* in sepol/constants.h */
+ 	uint8_t specified;
+ 	uint8_t driver;
+ 	uint32_t perms[8];
+@@ -139,12 +120,6 @@ extern avtab_ptr_t avtab_search_node(avtab_t *h, avtab_key_t *key);
+ 
+ extern avtab_ptr_t avtab_search_node_next(avtab_ptr_t node, int specified);
+ 
+-#define MAX_AVTAB_HASH_BITS 20
+-#define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
+-#define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS - 1)
+-/* avtab_alloc uses one bucket per 2-4 elements, so adjust to get maximum buckets */
+-#define MAX_AVTAB_SIZE (MAX_AVTAB_HASH_BUCKETS << 1)
+-
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index ae125fd5..5288af4e 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -57,6 +57,7 @@
+ #include <sepol/policydb.h>
+ 
+ #include <sepol/policydb/flask_types.h>
++#include <sepol/constants.h>
+ #include <sepol/policydb/symtab.h>
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/context.h>
+@@ -252,15 +253,9 @@ typedef struct class_perm_node {
+ 	struct class_perm_node *next;
+ } class_perm_node_t;
+ 
+-#define xperm_test(x, p) (UINT32_C(1) & ((p)[(x) >> 5] >> ((x) & 0x1f)))
+-#define xperm_set(x, p) ((p)[(x) >> 5] |= (UINT32_C(1) << ((x) & 0x1f)))
+-#define xperm_clear(x, p) ((p)[(x) >> 5] &= ~(UINT32_C(1) << ((x) & 0x1f)))
+-#define EXTENDED_PERMS_LEN 8
++/* xperm_*, EXTENDED_PERMS_LEN, AVRULE_*, RULE_*: <sepol/constants.h> */
+ 
+ typedef struct av_extended_perms {
+-#define AVRULE_XPERMS_IOCTLFUNCTION 0x01
+-#define AVRULE_XPERMS_IOCTLDRIVER 0x02
+-#define AVRULE_XPERMS_NLMSG 0x03
+ 	uint8_t specified;
+ 	uint8_t driver;
+ 	/* 256 bits of permissions */
+@@ -268,30 +263,8 @@ typedef struct av_extended_perms {
+ } av_extended_perms_t;
+ 
+ typedef struct avrule {
+-/* these typedefs are almost exactly the same as those in avtab.h - they are
+- * here because of the need to include neverallow and dontaudit messages */
+-#define AVRULE_ALLOWED AVTAB_ALLOWED
+-#define AVRULE_AUDITALLOW AVTAB_AUDITALLOW
+-#define AVRULE_AUDITDENY AVTAB_AUDITDENY
+-#define AVRULE_DONTAUDIT 0x0008
+-#define AVRULE_NEVERALLOW AVTAB_NEVERALLOW
+-#define AVRULE_AV                                                \
+-	(AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | \
+-	 AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
+-#define AVRULE_TRANSITION AVTAB_TRANSITION
+-#define AVRULE_MEMBER AVTAB_MEMBER
+-#define AVRULE_CHANGE AVTAB_CHANGE
+-#define AVRULE_TYPE (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
+-#define AVRULE_XPERMS_ALLOWED AVTAB_XPERMS_ALLOWED
+-#define AVRULE_XPERMS_AUDITALLOW AVTAB_XPERMS_AUDITALLOW
+-#define AVRULE_XPERMS_DONTAUDIT AVTAB_XPERMS_DONTAUDIT
+-#define AVRULE_XPERMS_NEVERALLOW AVTAB_XPERMS_NEVERALLOW
+-#define AVRULE_XPERMS                                       \
+-	(AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALLOW | \
+-	 AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS_NEVERALLOW)
++	/* specified: AVRULE_* (same bits as AVTAB_*); flags: RULE_* - sepol/constants.h */
+ 	uint32_t specified;
+-#define RULE_SELF (1U << 0)
+-#define RULE_NOTSELF (1U << 1)
+ 	uint32_t flags;
+ 	type_set_t stypes;
+ 	type_set_t ttypes;
+@@ -395,38 +368,7 @@ typedef struct genfs {
+ 	struct genfs *next;
+ } genfs_t;
+ 
+-/* symbol table array indices */
+-#define SYM_COMMONS 0
+-#define SYM_CLASSES 1
+-#define SYM_ROLES 2
+-#define SYM_TYPES 3
+-#define SYM_USERS 4
+-#define SYM_BOOLS 5
+-#define SYM_LEVELS 6
+-#define SYM_CATS 7
+-#define SYM_NUM 8
+-
+-/* object context array indices */
+-#define OCON_ISID 0 /* initial SIDs */
+-#define OCON_FS 1 /* unlabeled file systems */
+-#define OCON_PORT 2 /* TCP and UDP port numbers */
+-#define OCON_NETIF 3 /* network interfaces */
+-#define OCON_NODE 4 /* nodes */
+-#define OCON_FSUSE 5 /* fs_use */
+-#define OCON_NODE6 6 /* IPv6 nodes */
+-#define OCON_IBPKEY 7 /* Infiniband PKEY */
+-#define OCON_IBENDPORT 8 /* Infiniband End Port */
+-
+-/* object context array indices for Xen */
+-#define OCON_XEN_ISID 0 /* initial SIDs */
+-#define OCON_XEN_PIRQ 1 /* physical irqs */
+-#define OCON_XEN_IOPORT 2 /* io ports */
+-#define OCON_XEN_IOMEM 3 /* io memory */
+-#define OCON_XEN_PCIDEVICE 4 /* pci devices */
+-#define OCON_XEN_DEVICETREE 5 /* device tree node */
+-
+-/* OCON_NUM needs to be the largest index in any platform's ocontext array */
+-#define OCON_NUM 9
++/* SYM_*, OCON_*, OCON_NUM: <sepol/constants.h> */
+ 
+ /* section: module information */
+ 
+@@ -627,7 +569,7 @@ typedef struct policydb {
+ 	sepol_access_vector_t process_trans;
+ 	sepol_access_vector_t process_trans_dyntrans;
+ 
+-	/* avrules whose line markes will be printed. Defaults to neverallow and
++	/* avrules whose line markers will be printed. Defaults to neverallow and
+ 	   neverallowxperm */
+ 	uint32_t line_marker_avrules;
+ 
+diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
+index 4534c183..670bc1ab 100644
+--- a/libsepol/include/sepol/policydb/services.h
++++ b/libsepol/include/sepol/policydb/services.h
+@@ -12,6 +12,9 @@
+  * Security server interface.
+  */
+ 
++#include <sepol/constants.h>
++#include <sepol/context_record.h>
++#include <sepol/handle.h>
+ #include <sepol/policydb/flask_types.h>
+ #include <sepol/policydb/policydb.h>
+ #include <stddef.h>
+@@ -146,6 +149,16 @@ extern int sepol_sid_to_context(sepol_security_id_t sid, /* IN */
+ 				sepol_security_context_t *scontext, /* OUT */
+ 				size_t *scontext_len); /* OUT */
+ 
++/*
++ * Allocate and return a new sepol_context_t with the context associated
++ * with `sid'. The caller owns *record and must free it with
++ * sepol_context_free().
++ * Requires an active policydb and sidtab (see sepol_set_policydb / sepol_set_sidtab).
++ */
++extern int sepol_sid_to_context_record(sepol_handle_t *handle,
++				       sepol_security_id_t sid,
++				       sepol_context_t **record);
++
+ /*
+  * Return a SID associated with the security context that
+  * has the string representation specified by `scontext'.
+@@ -220,12 +233,8 @@ extern int sepol_node_sid(uint16_t domain, void *addr, size_t addrlen,
+  * Return a value indicating how to handle labeling for the
+  * the specified filesystem type, and optionally return a SID
+  * for the filesystem object.  
++ * (SECURITY_FS_USE_* constants are in <sepol/constants.h>.)
+  */
+-#define SECURITY_FS_USE_XATTR 1 /* use xattr */
+-#define SECURITY_FS_USE_TRANS 2 /* use transition SIDs, e.g. devpts/tmpfs */
+-#define SECURITY_FS_USE_TASK 3 /* use task SIDs, e.g. pipefs/sockfs */
+-#define SECURITY_FS_USE_GENFS 4 /* use the genfs support */
+-#define SECURITY_FS_USE_NONE 5 /* no labeling support */
+ extern int sepol_fs_use(const char *fstype, /* IN */
+ 			unsigned int *behavior, /* OUT */
+ 			sepol_security_id_t *sid); /* OUT  */
+diff --git a/libsepol/src/policydb_public.c b/libsepol/src/policydb_public.c
+index e45e1a70..21211bb5 100644
+--- a/libsepol/src/policydb_public.c
++++ b/libsepol/src/policydb_public.c
+@@ -1,8 +1,12 @@
++#include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ 
+ #include "debug.h"
++#include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/policydb.h>
+ #include "policydb_internal.h"
++#include "sepol/policydb.h"
+ 
+ /* Policy file interfaces. */
+ 
+@@ -130,6 +134,11 @@ int sepol_policydb_set_vers(sepol_policydb_t *sp, unsigned int vers)
  	return 0;
  }
+ 
++unsigned int sepol_policydb_get_vers(const sepol_policydb_t *sp)
++{
++	return sp ? sp->p.policyvers : 0;
++}
++
+ int sepol_policydb_set_handle_unknown(sepol_policydb_t *sp,
+ 				      unsigned int handle_unknown)
+ {
+@@ -148,6 +157,11 @@ int sepol_policydb_set_handle_unknown(sepol_policydb_t *sp,
+ 	return 0;
+ }
+ 
++unsigned int sepol_policydb_get_handle_unknown(const sepol_policydb_t *sp)
++{
++	return sp ? sp->p.handle_unknown : 0;
++}
++
+ int sepol_policydb_set_target_platform(sepol_policydb_t *sp,
+ 				       int target_platform)
+ {
+@@ -165,6 +179,11 @@ int sepol_policydb_set_target_platform(sepol_policydb_t *sp,
+ 	return 0;
+ }
+ 
++int sepol_policydb_get_target_platform(const sepol_policydb_t *sp)
++{
++	return sp ? sp->p.target_platform : SEPOL_TARGET_SELINUX;
++}
++
+ int sepol_policydb_optimize(sepol_policydb_t *p)
+ {
+ 	return policydb_optimize(&p->p);
+@@ -194,6 +213,8 @@ int sepol_policydb_to_image(sepol_handle_t *handle, sepol_policydb_t *p,
+ 
+ int sepol_policydb_mls_enabled(const sepol_policydb_t *p)
+ {
++	if (!p)
++		return 0;
+ 	return p->p.mls;
+ }
+ 
+@@ -204,6 +225,188 @@ int sepol_policydb_mls_enabled(const sepol_policydb_t *p)
+ #define PACKET_CLASS_NAME "packet"
+ int sepol_policydb_compat_net(const sepol_policydb_t *p)
+ {
++	if (!p)
++		return 0;
+ 	return (hashtab_search(p->p.p_classes.table, PACKET_CLASS_NAME) ==
+ 		NULL);
+ }
++
++int sepol_policydb_set_permissive_flags(sepol_handle_t *handle
++					__attribute__((unused)),
++					sepol_policydb_t *p)
++{
++	if (!p)
++		return -1;
++	policydb_t *pdb = &p->p;
++	ebitmap_node_t *node;
++	unsigned int bit;
++
++	ebitmap_for_each_positive_bit(&pdb->permissive_map, node, bit) {
++		if (bit < 1 || bit > pdb->p_types.nprim)
++			continue;
++		if (!pdb->type_val_to_struct[bit - 1])
++			continue;
++		pdb->type_val_to_struct[bit - 1]->flags |=
++			TYPE_FLAGS_PERMISSIVE;
++	}
++
++	return 0;
++}
++
++int sepol_policydb_rebuild_attr_map(sepol_handle_t *handle, sepol_policydb_t *p)
++{
++	if (!p)
++		return -1;
++	policydb_t *pdb = &p->p;
++	uint32_t nprim = pdb->p_types.nprim;
++	uint32_t i;
++	ebitmap_node_t *node;
++	unsigned int bit;
++	int rc = 0;
++
++	if (!pdb->attr_type_map)
++		return 0;
++
++	/*
++	 * Pass 1: pre-allocate synthetic names for unnamed attributes
++	 * before touching any ebitmaps.  Name installation is additive
++	 * (NULL -> non-NULL) and harmless, so early return on OOM here
++	 * leaves the policy in a consistent state.
++	 *
++	 * The synthetic name is inserted into p_types.table as the real
++	 * hashtab key for the attribute, and p_type_val_to_name[i] is set
++	 * to alias that same key -- exactly like every ordinarily-named
++	 * type/attribute (see type_datum insertion in policydb.c). This
++	 * way the name is freed exactly once, by the normal symtab
++	 * teardown in policydb_destroy(), instead of leaking (writing a
++	 * separately-owned allocation directly into p_type_val_to_name[]
++	 * would never be freed, since that array only ever holds borrowed
++	 * pointers into the hashtab).
++	 */
++	for (i = 0; i < nprim; i++) {
++		type_datum_t *datum = pdb->type_val_to_struct[i];
++		if (!datum || datum->flavor != TYPE_ATTRIB)
++			continue;
++		if (pdb->p_type_val_to_name[i])
++			continue;
++
++		char *synth = malloc(16);
++		if (!synth) {
++			ERR(handle, "out of memory");
++			return -1;
++		}
++		snprintf(synth, 16, "@ttr%010u", i + 1);
++		int hrc = hashtab_insert(pdb->p_types.table, synth,
++					 (hashtab_datum_t)datum);
++		if (hrc < 0) {
++			free(synth);
++			if (hrc == SEPOL_EEXIST)
++				ERR(handle,
++				    "synthetic attribute name already exists");
++			else
++				ERR(handle, "out of memory");
++			return -1;
++		}
++		pdb->p_type_val_to_name[i] = synth;
++	}
++
++	/*
++	 * Pass 2: clear every existing reverse-mapping entry first, so this
++	 * rebuild recomputes type_attr_map[] from scratch based solely on
++	 * the *current* attr_type_map[] contents, rather than monotonically
++	 * unioning in new bits on top of whatever a previous rebuild (or the
++	 * initial policy load) left behind. Without this, removing a type
++	 * from an attribute (or removing an attribute's last member) would
++	 * leave a stale bit in type_attr_map[] -- and since services.c's AV
++	 * computation reads type_attr_map[] directly to resolve a type's
++	 * attribute membership, a stale bit there is a real policy
++	 * correctness/security issue, not just an API bookkeeping nit.
++	 */
++	for (i = 0; i < nprim; i++)
++		ebitmap_destroy(&pdb->type_attr_map[i]);
++
++	/*
++	 * Pass 3: restore the mandatory "type/attribute is a member of
++	 * itself" bit that Pass 2 above just destroyed for every entry.
++	 * This mirrors policydb_read()'s "add the type itself as the
++	 * degenerate case" step, which unconditionally sets this bit for
++	 * every valid type_val_to_struct[i] (type *or* attribute) when a
++	 * kernel policy is first loaded (see policydb.c). It is not
++	 * optional bookkeeping: services.c's AV-decision hot path reads
++	 * type_attr_map[] directly to expand a context's type value into
++	 * every {type,attribute} value that can appear as an avtab key's
++	 * source/target, so without this bit any allow rule written
++	 * against a literal type (rather than through an attribute) would
++	 * silently stop matching after this rebuild -- and a type that is
++	 * not a member of any attribute at all would lose *all* direct AV
++	 * matches for it. Must run before Pass 4 below, so a type that is
++	 * also an attribute member still ends up with both bits set.
++	 */
++	for (i = 0; i < nprim; i++) {
++		if (!pdb->type_val_to_struct[i])
++			continue;
++		if (ebitmap_set_bit(&pdb->type_attr_map[i], i, 1) < 0) {
++			ERR(handle,
++			    "out of memory restoring self-membership bit");
++			rc = -1;
++		}
++	}
++
++	/*
++	 * Pass 4: copy (never move) the forward maps from attr_type_map
++	 * into datum->types and build reverse mappings. attr_type_map[i]
++	 * must remain intact afterwards: type_datum_to_record() reads
++	 * directly from p->attr_type_map/p->type_attr_map for a
++	 * POLICY_KERN policydb (the only policy_type for which this
++	 * function's early "!attr_type_map" guard lets it run at all),
++	 * so destructively moving the bitmap out of attr_type_map here
++	 * would silently zero out every subsequent
++	 * sepol_type_query()/sepol_type_query_by_value() result for
++	 * this attribute. Likewise, the reverse (type -> its attributes)
++	 * mapping consulted by type_datum_to_record() for a regular
++	 * type in POLICY_KERN mode is p->type_attr_map[], not that
++	 * type's own type_datum->types field (which is dead data for
++	 * POLICY_KERN) -- so the reverse map must be written into
++	 * type_attr_map[bit], not type_val_to_struct[bit]->types. If
++	 * ebitmap_cpy/ebitmap_set_bit fails (OOM), log the error but
++	 * continue to leave the policy in the most complete state
++	 * possible rather than returning mid-loop with some attributes
++	 * migrated and others not.
++	 *
++	 * datum->types is always reset first (even when attr_type_map[i]
++	 * is now empty) so an attribute that lost its last member ends up
++	 * with an accurately-empty membership set instead of retaining
++	 * stale entries from before the removal.
++	 */
++	for (i = 0; i < nprim; i++) {
++		type_datum_t *datum = pdb->type_val_to_struct[i];
++		if (!datum || datum->flavor != TYPE_ATTRIB)
++			continue;
++
++		ebitmap_destroy(&datum->types);
++
++		if (ebitmap_length(&pdb->attr_type_map[i]) == 0)
++			continue;
++
++		if (ebitmap_cpy(&datum->types, &pdb->attr_type_map[i]) < 0) {
++			ERR(handle, "out of memory copying attribute map");
++			rc = -1;
++			continue;
++		}
++
++		ebitmap_for_each_positive_bit(&datum->types, node, bit) {
++			if (bit >= nprim)
++				continue;
++			if (!pdb->type_val_to_struct[bit])
++				continue;
++			if (ebitmap_set_bit(&pdb->type_attr_map[bit], i, 1) <
++			    0) {
++				ERR(handle,
++				    "out of memory building reverse attr map");
++				rc = -1;
++			}
++		}
++	}
++
++	return rc;
++}
 -- 
 2.55.0
 
