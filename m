@@ -1,53 +1,53 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A58973DE456
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EFBF3DDDDD
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791291874; cv=none; b=bc7d6wseCX5/SeIYvoQ5lgwZ99zP2Uo2drtlIacq1sfNLhHAkb8RgvvR6U3+LbTk897QHPSX22bo0OfEFsK1KJgkrpctSEjuc0Ma6EjW9zogAW6D0Zr4st0ZFjhr/9HyIdpjKmh5ENcOkN7kGWrudw8oF9nkrT7d7bz4zW2WnRE=
+	t=1791291878; cv=none; b=twxHhOAGBrk4zZriUoKQOPMJuFutivyja9yi0JjxjrnoHoEyQj0erLN9aErAgbAHaLswIeAbz6q5spppABTlY97EJO/yMH3qufHClvWt4LOfDh5pY6J+4RPGdHFXcT3f/o/STpm+jPvhi/gNJUoV+Fyk/E0NAYOmSqweBU4RVww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791291874; c=relaxed/simple;
-	bh=4D5lKQAdNIvt8cfWosrBf1FMr8IRH+zC7g0cQ4FKgx0=;
+	s=arc-20240116; t=1791291878; c=relaxed/simple;
+	bh=PkZVwRxyhxDDhD93GI6I/zGQsBbcoMf8NHbJhzGoqKM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Nl/khRVz1z973yhUvNjijzuSGX5469SnTuh2DLtFcNyC/kB5gwHRslgKoas5aHGvEw1iDQJHQbsoxKvH478RZikEn6EJNvq323mvQp+kTcT9zgQerx9jKwCAsg1+raQHXZvHqnLBbRu9MQQjxavLYgooEq9jQGk9nhYjNocjPAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NkU4X+59; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=PX6+v09NTm5AduTUg81cYi1XLvY/3RGVSApdS0lUz9+40Cy2qIDEDytYldf56saEK1KTNixkD6lheWvDJnThroOvwtyzBPPvT/bVgaxoprxFXpXr2vjs3ve/er9rKRExObLrA/qqlx4vJWmAiRWRRD/RMPJAUoKDLn1eVZyWAGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HPmRVXo3; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NkU4X+59"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HPmRVXo3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791291871;
+	s=mimecast20190719; t=1791291874;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=923ZnBWwIMrdhEKxgxlxMbWvHtAE/ZEpGOW2vkE111o=;
-	b=NkU4X+596lXFWaxBnKBWoOFtHER+Cnuc3Zbf4SYSBVmN23k9EYTaxyG1G/wbAjlvyK2ZiT
-	q/MnFSDAmI7uLOQa61iYRyQDDO6JCnDYRW/THktGoDkiruhiA5fzr9LbpDCpWk0EZPQ4XF
-	VInJQC9kuW6BzxutIn2+sNQooz7HYd8=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=s0dSmu2EvnJdgqUfGCxEm2sGp9D520Wmd9WGPi4vCZ8=;
+	b=HPmRVXo3ROmR2JiVhZLzJDNYk2wUw1NWKY1Li9bAs9aPK2eQSlpZDAd+WYoR+E5BE0a4dU
+	pcVnSj/jRPveeIJl/cnhptSixbuHP/td1puN7smzXocJXEfUM5d7p6KpW5pQi+SfpPbSTk
+	Uskf3+3p/tYYdYPNSfGppniZhc/smjY=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-6-sAStibtKPFSToBqKFWUEtQ-1; Tue, 6
- Oct 2026 13:04:29 +0000
-X-MC-Unique: sAStibtKPFSToBqKFWUEtQ-1
-X-Mimecast-MFC-AGG-ID: sAStibtKPFSToBqKFWUEtQ_1791291869
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-204-x6LyVFuANUuRQFyYes_ChQ-1; Tue,
+ 06 Oct 2026 09:04:32 -0400
+X-MC-Unique: x6LyVFuANUuRQFyYes_ChQ-1
+X-Mimecast-MFC-AGG-ID: x6LyVFuANUuRQFyYes_ChQ_1791291871
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CD58D18007F3
-	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:28 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 606F11955F76
+	for <selinux@vger.kernel.org>; Tue,  6 Oct 2026 13:04:31 +0000 (UTC)
 Received: from jjanasek-thinkpadt14gen5.tpbc.com (unknown [10.44.48.38])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E45BE1956047;
-	Tue,  6 Oct 2026 13:04:27 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E544D1956047;
+	Tue,  6 Oct 2026 13:04:29 +0000 (UTC)
 From: jan janasek <jjanasek@redhat.com>
 To: selinux@vger.kernel.org
 Cc: jan janasek <jjanasek@redhat.com>
-Subject: [RFC PATCH userspace 12/17] libsepol: add AV rule and conditional iterator tests
-Date: Tue,  6 Oct 2026 15:02:10 +0200
-Message-ID: <20261006130215.128405-13-jjanasek@redhat.com>
+Subject: [RFC PATCH userspace 13/17] libsepol: add ocontext iterators for initial SIDs and named contexts
+Date: Tue,  6 Oct 2026 15:02:11 +0200
+Message-ID: <20261006130215.128405-14-jjanasek@redhat.com>
 In-Reply-To: <20261006130215.128405-1-jjanasek@redhat.com>
 References: <20261006130215.128405-1-jjanasek@redhat.com>
 Precedence: bulk
@@ -59,796 +59,1684 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Cover sepol_avtab_iter, sepol_perm_iter, sepol_xperm_iter,
-sepol_cond_iter/cond_expr_iter/cond_rule_iter, and sepol_bool_iter
-against the test-iter fixture, including NULL-argument and
-out-of-range value_to_name regression tests.
+Add per-kind ocontext iterators (initial SIDs, fs_use, genfscon,
+netifcon, node/node6, port, ibpkey, ibendport, pirq/iomem/ioport/
+pcidevice/devicetree for Xen) with context and name/address accessors,
+deduplicating ~100 near-identical accessor bodies into
+DEFINE_OCON_CONTEXT_GETTERS macro instances.
+
+Extract the initial-SID name table (indexed by SID value, not stored
+in the binary policy) into a shared libsepol/src/initial_sids.h, used
+by both sepol_isid_iter_get_name() here and the existing
+kernel_to_common.c CIL/conf writers, instead of duplicating the table.
 
 Assisted-by: LLM Cursor
 Signed-off-by: Jan Janasek <jjanasek@redhat.com>
 ---
- libsepol/tests/libsepol-tests.c |   2 +
- libsepol/tests/test-av-rule.c   | 733 ++++++++++++++++++++++++++++++++
- libsepol/tests/test-av-rule.h   |  10 +
- 3 files changed, 745 insertions(+)
- create mode 100644 libsepol/tests/test-av-rule.c
- create mode 100644 libsepol/tests/test-av-rule.h
+ libsepol/include/sepol/ocontext.h |  513 ++++++++++++++
+ libsepol/src/initial_sids.h       |   29 +
+ libsepol/src/kernel_to_common.h   |   22 +-
+ libsepol/src/ocontext.c           | 1058 +++++++++++++++++++++++++++++
+ 4 files changed, 1602 insertions(+), 20 deletions(-)
+ create mode 100644 libsepol/include/sepol/ocontext.h
+ create mode 100644 libsepol/src/initial_sids.h
+ create mode 100644 libsepol/src/ocontext.c
 
-diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
-index c404937b..707937cf 100644
---- a/libsepol/tests/libsepol-tests.c
-+++ b/libsepol/tests/libsepol-tests.c
-@@ -27,6 +27,7 @@
- #include "test-neverallow.h"
- #include "test-iter.h"
- #include "test-context-api.h"
-+#include "test-av-rule.h"
- 
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -78,6 +79,7 @@ static bool do_tests(int interactive, int verbose)
- 	DECLARE_SUITE(neverallow);
- 	DECLARE_SUITE(iter);
- 	DECLARE_SUITE(context_api);
-+	DECLARE_SUITE(av_rule);
- 
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff --git a/libsepol/tests/test-av-rule.c b/libsepol/tests/test-av-rule.c
+diff --git a/libsepol/include/sepol/ocontext.h b/libsepol/include/sepol/ocontext.h
 new file mode 100644
-index 00000000..49c54697
+index 00000000..195359fa
 --- /dev/null
-+++ b/libsepol/tests/test-av-rule.c
-@@ -0,0 +1,733 @@
-+#include "test-av-rule.h"
++++ b/libsepol/include/sepol/ocontext.h
+@@ -0,0 +1,513 @@
++#ifndef _SEPOL_OCONTEXT_H_
++#define _SEPOL_OCONTEXT_H_
 +
-+#include <limits.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#include <CUnit/CUnit.h>
-+
-+#include <sepol/av_rule.h>
-+#include <sepol/booleans.h>
-+#include <sepol/conditional.h>
-+#include <sepol/constants.h>
++#include <sepol/cat_set.h>
 +#include <sepol/handle.h>
 +#include <sepol/policydb.h>
-+#include <sepol/policydb/expand.h>
-+#include <sepol/policydb/hashtab.h>
-+#include <sepol/policydb/link.h>
-+#include <sepol/policydb/policydb.h>
++#include <stdint.h>
 +
-+#include "parse_util.h"
++#ifdef __cplusplus
++extern "C" {
++#endif
 +
-+extern int mls;
++/*
++ * NOTE on every sepol_cat_set_iter_t **cat_iter parameter below: see the
++ * ownership contract documented in cat_set.h. In short, the callee always
++ * allocates a new, caller-owned iterator that must be freed with
++ * sepol_cat_set_iter_destroy() -- do not skip destroying it just because
++ * the underlying category set turned out to be empty.
++ *
++ * NOTE on every `const char **`/`const uint32_t **` out-parameter
++ * populated by an `_iter_next()` function below (e.g. fsuse's name,
++ * genfscon's fstype/path, netifcon's name, ibendportcon's dev_name,
++ * devicetreecon's path, nodecon6's addr/mask): the returned pointer is
++ * borrowed from the policydb. It remains valid only until the next call
++ * on the same iterator (`_iter_next()` or `_destroy()`) and must not be
++ * freed by the caller.
++ */
 +
-+static sepol_handle_t *handle;
-+static sepol_policydb_t *policy;
-+static policydb_t basemod;
++/* Initial SID iterator */
 +
-+int av_rule_test_init(void)
-+{
-+	char filename[PATH_MAX];
-+	int basemod_inited = 0;
++typedef struct sepol_isid_iter sepol_isid_iter_t;
 +
-+	handle = sepol_handle_create();
-+	if (!handle)
-+		return -1;
++extern int sepol_isid_iter_create(sepol_handle_t *handle,
++				  const sepol_policydb_t *p,
++				  sepol_isid_iter_t **iter);
 +
-+	if (sepol_policydb_create(&policy)) {
-+		sepol_handle_destroy(handle);
-+		handle = NULL;
-+		return -1;
-+	}
++extern void sepol_isid_iter_destroy(sepol_isid_iter_t *iter);
 +
-+	if (policydb_init(&basemod))
-+		goto err;
-+	basemod_inited = 1;
++extern int sepol_isid_iter_next(sepol_handle_t *handle, sepol_isid_iter_t *iter,
++				uint32_t *sid);
 +
-+	basemod.policy_type = POLICY_BASE;
-+	basemod.policyvers = MOD_POLICYDB_VERSION_MAX;
-+	basemod.mls = mls;
++extern uint32_t sepol_isid_iter_get_context_user(const sepol_isid_iter_t *iter);
++extern uint32_t sepol_isid_iter_get_context_role(const sepol_isid_iter_t *iter);
++extern uint32_t sepol_isid_iter_get_context_type(const sepol_isid_iter_t *iter);
++extern uint32_t
++sepol_isid_iter_get_mls_range_low_sens(const sepol_isid_iter_t *iter);
++extern uint32_t
++sepol_isid_iter_get_mls_range_high_sens(const sepol_isid_iter_t *iter);
++extern int
++sepol_isid_iter_get_mls_range_low_cat(const sepol_isid_iter_t *iter,
++				      sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_isid_iter_get_mls_range_high_cat(const sepol_isid_iter_t *iter,
++				       sepol_cat_set_iter_t **cat_iter);
 +
-+	if (snprintf(filename, PATH_MAX, "policies/test-iter/%s%s", "iter.conf",
-+		     mls ? ".mls" : ".std") < 0)
-+		goto err;
++/* Returns the initial SID name.
++ * The pointer is borrowed from the policydb; do not free. */
++extern const char *sepol_isid_iter_get_name(const sepol_isid_iter_t *iter);
 +
-+	if (read_source_policy(&basemod, filename, "test-av-rule"))
-+		goto err;
++/* fs_use iterator */
 +
-+	if (link_modules(NULL, &basemod, NULL, 0, 0))
-+		goto err;
++typedef struct sepol_fsuse_iter sepol_fsuse_iter_t;
 +
-+	if (expand_module(NULL, &basemod, &policy->p, 0, 0))
-+		goto err;
++extern int sepol_fsuse_iter_create(sepol_handle_t *handle,
++				   const sepol_policydb_t *p,
++				   sepol_fsuse_iter_t **iter);
 +
-+	return 0;
++extern void sepol_fsuse_iter_destroy(sepol_fsuse_iter_t *iter);
 +
-+err:
-+	if (basemod_inited)
-+		policydb_destroy(&basemod);
-+	sepol_policydb_free(policy);
-+	policy = NULL;
-+	sepol_handle_destroy(handle);
-+	handle = NULL;
-+	return -1;
++extern int sepol_fsuse_iter_next(sepol_handle_t *handle,
++				 sepol_fsuse_iter_t *iter, const char **name,
++				 uint32_t *behavior);
++
++extern uint32_t
++sepol_fsuse_iter_get_context_user(const sepol_fsuse_iter_t *iter);
++extern uint32_t
++sepol_fsuse_iter_get_context_role(const sepol_fsuse_iter_t *iter);
++extern uint32_t
++sepol_fsuse_iter_get_context_type(const sepol_fsuse_iter_t *iter);
++extern uint32_t
++sepol_fsuse_iter_get_mls_range_low_sens(const sepol_fsuse_iter_t *iter);
++extern uint32_t
++sepol_fsuse_iter_get_mls_range_high_sens(const sepol_fsuse_iter_t *iter);
++extern int
++sepol_fsuse_iter_get_mls_range_low_cat(const sepol_fsuse_iter_t *iter,
++				       sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_fsuse_iter_get_mls_range_high_cat(const sepol_fsuse_iter_t *iter,
++					sepol_cat_set_iter_t **cat_iter);
++
++/* genfscon iterator */
++
++typedef struct sepol_genfscon_iter sepol_genfscon_iter_t;
++
++extern int sepol_genfscon_iter_create(sepol_handle_t *handle,
++				      const sepol_policydb_t *p,
++				      sepol_genfscon_iter_t **iter);
++
++extern void sepol_genfscon_iter_destroy(sepol_genfscon_iter_t *iter);
++
++extern int sepol_genfscon_iter_next(sepol_handle_t *handle,
++				    sepol_genfscon_iter_t *iter,
++				    const char **fstype, const char **path,
++				    uint32_t *sclass);
++
++extern uint32_t
++sepol_genfscon_iter_get_context_user(const sepol_genfscon_iter_t *iter);
++extern uint32_t
++sepol_genfscon_iter_get_context_role(const sepol_genfscon_iter_t *iter);
++extern uint32_t
++sepol_genfscon_iter_get_context_type(const sepol_genfscon_iter_t *iter);
++extern uint32_t
++sepol_genfscon_iter_get_mls_range_low_sens(const sepol_genfscon_iter_t *iter);
++extern uint32_t
++sepol_genfscon_iter_get_mls_range_high_sens(const sepol_genfscon_iter_t *iter);
++extern int
++sepol_genfscon_iter_get_mls_range_low_cat(const sepol_genfscon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_genfscon_iter_get_mls_range_high_cat(const sepol_genfscon_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++
++/* portcon iterator */
++
++typedef struct sepol_portcon_iter sepol_portcon_iter_t;
++
++extern int sepol_portcon_iter_create(sepol_handle_t *handle,
++				     const sepol_policydb_t *p,
++				     sepol_portcon_iter_t **iter);
++
++extern void sepol_portcon_iter_destroy(sepol_portcon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; the other
++ * out-parameters cannot be used to detect end-of-iteration since 0
++ * is a valid port value. */
++extern int sepol_portcon_iter_next(sepol_handle_t *handle,
++				   sepol_portcon_iter_t *iter,
++				   uint8_t *protocol, uint16_t *low_port,
++				   uint16_t *high_port, int *has_next);
++
++extern uint32_t
++sepol_portcon_iter_get_context_user(const sepol_portcon_iter_t *iter);
++extern uint32_t
++sepol_portcon_iter_get_context_role(const sepol_portcon_iter_t *iter);
++extern uint32_t
++sepol_portcon_iter_get_context_type(const sepol_portcon_iter_t *iter);
++extern uint32_t
++sepol_portcon_iter_get_mls_range_low_sens(const sepol_portcon_iter_t *iter);
++extern uint32_t
++sepol_portcon_iter_get_mls_range_high_sens(const sepol_portcon_iter_t *iter);
++extern int
++sepol_portcon_iter_get_mls_range_low_cat(const sepol_portcon_iter_t *iter,
++					 sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_portcon_iter_get_mls_range_high_cat(const sepol_portcon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++
++/* netifcon iterator */
++
++typedef struct sepol_netifcon_iter sepol_netifcon_iter_t;
++
++extern int sepol_netifcon_iter_create(sepol_handle_t *handle,
++				      const sepol_policydb_t *p,
++				      sepol_netifcon_iter_t **iter);
++
++extern void sepol_netifcon_iter_destroy(sepol_netifcon_iter_t *iter);
++
++extern int sepol_netifcon_iter_next(sepol_handle_t *handle,
++				    sepol_netifcon_iter_t *iter,
++				    const char **name);
++
++extern uint32_t
++sepol_netifcon_iter_get_context_user(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_context_role(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_context_type(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_mls_range_low_sens(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_mls_range_high_sens(const sepol_netifcon_iter_t *iter);
++extern int
++sepol_netifcon_iter_get_mls_range_low_cat(const sepol_netifcon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_netifcon_iter_get_mls_range_high_cat(const sepol_netifcon_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++
++extern uint32_t
++sepol_netifcon_iter_get_msg_context_user(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_msg_context_role(const sepol_netifcon_iter_t *iter);
++extern uint32_t
++sepol_netifcon_iter_get_msg_context_type(const sepol_netifcon_iter_t *iter);
++extern uint32_t sepol_netifcon_iter_get_msg_mls_range_low_sens(
++	const sepol_netifcon_iter_t *iter);
++extern uint32_t sepol_netifcon_iter_get_msg_mls_range_high_sens(
++	const sepol_netifcon_iter_t *iter);
++extern int
++sepol_netifcon_iter_get_msg_mls_range_low_cat(const sepol_netifcon_iter_t *iter,
++					      sepol_cat_set_iter_t **cat_iter);
++extern int sepol_netifcon_iter_get_msg_mls_range_high_cat(
++	const sepol_netifcon_iter_t *iter, sepol_cat_set_iter_t **cat_iter);
++
++/* nodecon IPv4 iterator */
++
++typedef struct sepol_nodecon_iter sepol_nodecon_iter_t;
++
++extern int sepol_nodecon_iter_create(sepol_handle_t *handle,
++				     const sepol_policydb_t *p,
++				     sepol_nodecon_iter_t **iter);
++
++extern void sepol_nodecon_iter_destroy(sepol_nodecon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; addr/mask cannot
++ * be used to detect end-of-iteration since 0.0.0.0/0.0.0.0 is a
++ * valid nodecon entry. addr and mask are each a single IPv4 address
++ * or mask in network byte order (big-endian), as they appear in the
++ * policy source (e.g. "nodecon 192.168.1.0 255.255.255.0 ..."). */
++extern int sepol_nodecon_iter_next(sepol_handle_t *handle,
++				   sepol_nodecon_iter_t *iter, uint32_t *addr,
++				   uint32_t *mask, int *has_next);
++
++extern uint32_t
++sepol_nodecon_iter_get_context_user(const sepol_nodecon_iter_t *iter);
++extern uint32_t
++sepol_nodecon_iter_get_context_role(const sepol_nodecon_iter_t *iter);
++extern uint32_t
++sepol_nodecon_iter_get_context_type(const sepol_nodecon_iter_t *iter);
++extern uint32_t
++sepol_nodecon_iter_get_mls_range_low_sens(const sepol_nodecon_iter_t *iter);
++extern uint32_t
++sepol_nodecon_iter_get_mls_range_high_sens(const sepol_nodecon_iter_t *iter);
++extern int
++sepol_nodecon_iter_get_mls_range_low_cat(const sepol_nodecon_iter_t *iter,
++					 sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_nodecon_iter_get_mls_range_high_cat(const sepol_nodecon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++
++/* nodecon6 IPv6 iterator */
++
++typedef struct sepol_nodecon6_iter sepol_nodecon6_iter_t;
++
++extern int sepol_nodecon6_iter_create(sepol_handle_t *handle,
++				      const sepol_policydb_t *p,
++				      sepol_nodecon6_iter_t **iter);
++
++extern void sepol_nodecon6_iter_destroy(sepol_nodecon6_iter_t *iter);
++
++/* addr and mask are each set to point at a borrowed, 4-element array
++ * of uint32_t (the 128-bit IPv6 address or mask split into four
++ * 32-bit words, each in network byte order (big-endian)), matching
++ * struct ocontext_t's u.node6.addr / u.node6.mask. The pointers are
++ * valid only until the next call on this iterator. */
++extern int sepol_nodecon6_iter_next(sepol_handle_t *handle,
++				    sepol_nodecon6_iter_t *iter,
++				    const uint32_t **addr,
++				    const uint32_t **mask);
++
++extern uint32_t
++sepol_nodecon6_iter_get_context_user(const sepol_nodecon6_iter_t *iter);
++extern uint32_t
++sepol_nodecon6_iter_get_context_role(const sepol_nodecon6_iter_t *iter);
++extern uint32_t
++sepol_nodecon6_iter_get_context_type(const sepol_nodecon6_iter_t *iter);
++extern uint32_t
++sepol_nodecon6_iter_get_mls_range_low_sens(const sepol_nodecon6_iter_t *iter);
++extern uint32_t
++sepol_nodecon6_iter_get_mls_range_high_sens(const sepol_nodecon6_iter_t *iter);
++extern int
++sepol_nodecon6_iter_get_mls_range_low_cat(const sepol_nodecon6_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_nodecon6_iter_get_mls_range_high_cat(const sepol_nodecon6_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++
++/* ibpkeycon iterator */
++
++typedef struct sepol_ibpkeycon_iter sepol_ibpkeycon_iter_t;
++
++extern int sepol_ibpkeycon_iter_create(sepol_handle_t *handle,
++				       const sepol_policydb_t *p,
++				       sepol_ibpkeycon_iter_t **iter);
++
++extern void sepol_ibpkeycon_iter_destroy(sepol_ibpkeycon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; the other
++ * out-parameters cannot be used to detect end-of-iteration since 0
++ * is a valid pkey value. */
++extern int sepol_ibpkeycon_iter_next(sepol_handle_t *handle,
++				     sepol_ibpkeycon_iter_t *iter,
++				     uint64_t *subnet_prefix,
++				     uint16_t *low_pkey, uint16_t *high_pkey,
++				     int *has_next);
++
++extern uint32_t
++sepol_ibpkeycon_iter_get_context_user(const sepol_ibpkeycon_iter_t *iter);
++extern uint32_t
++sepol_ibpkeycon_iter_get_context_role(const sepol_ibpkeycon_iter_t *iter);
++extern uint32_t
++sepol_ibpkeycon_iter_get_context_type(const sepol_ibpkeycon_iter_t *iter);
++extern uint32_t
++sepol_ibpkeycon_iter_get_mls_range_low_sens(const sepol_ibpkeycon_iter_t *iter);
++extern uint32_t sepol_ibpkeycon_iter_get_mls_range_high_sens(
++	const sepol_ibpkeycon_iter_t *iter);
++extern int
++sepol_ibpkeycon_iter_get_mls_range_low_cat(const sepol_ibpkeycon_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_ibpkeycon_iter_get_mls_range_high_cat(const sepol_ibpkeycon_iter_t *iter,
++					    sepol_cat_set_iter_t **cat_iter);
++
++/* ibendportcon iterator */
++
++typedef struct sepol_ibendportcon_iter sepol_ibendportcon_iter_t;
++
++extern int sepol_ibendportcon_iter_create(sepol_handle_t *handle,
++					  const sepol_policydb_t *p,
++					  sepol_ibendportcon_iter_t **iter);
++
++extern void sepol_ibendportcon_iter_destroy(sepol_ibendportcon_iter_t *iter);
++
++extern int sepol_ibendportcon_iter_next(sepol_handle_t *handle,
++					sepol_ibendportcon_iter_t *iter,
++					const char **dev_name, uint8_t *port);
++
++extern uint32_t
++sepol_ibendportcon_iter_get_context_user(const sepol_ibendportcon_iter_t *iter);
++extern uint32_t
++sepol_ibendportcon_iter_get_context_role(const sepol_ibendportcon_iter_t *iter);
++extern uint32_t
++sepol_ibendportcon_iter_get_context_type(const sepol_ibendportcon_iter_t *iter);
++extern uint32_t sepol_ibendportcon_iter_get_mls_range_low_sens(
++	const sepol_ibendportcon_iter_t *iter);
++extern uint32_t sepol_ibendportcon_iter_get_mls_range_high_sens(
++	const sepol_ibendportcon_iter_t *iter);
++extern int sepol_ibendportcon_iter_get_mls_range_low_cat(
++	const sepol_ibendportcon_iter_t *iter, sepol_cat_set_iter_t **cat_iter);
++extern int sepol_ibendportcon_iter_get_mls_range_high_cat(
++	const sepol_ibendportcon_iter_t *iter, sepol_cat_set_iter_t **cat_iter);
++
++/* Xen pirqcon iterator */
++
++typedef struct sepol_pirqcon_iter sepol_pirqcon_iter_t;
++
++extern int sepol_pirqcon_iter_create(sepol_handle_t *handle,
++				     const sepol_policydb_t *p,
++				     sepol_pirqcon_iter_t **iter);
++
++extern void sepol_pirqcon_iter_destroy(sepol_pirqcon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; irq cannot be
++ * used to detect end-of-iteration since 0 is a valid IRQ value. */
++extern int sepol_pirqcon_iter_next(sepol_handle_t *handle,
++				   sepol_pirqcon_iter_t *iter, uint32_t *irq,
++				   int *has_next);
++
++extern uint32_t
++sepol_pirqcon_iter_get_context_user(const sepol_pirqcon_iter_t *iter);
++extern uint32_t
++sepol_pirqcon_iter_get_context_role(const sepol_pirqcon_iter_t *iter);
++extern uint32_t
++sepol_pirqcon_iter_get_context_type(const sepol_pirqcon_iter_t *iter);
++extern uint32_t
++sepol_pirqcon_iter_get_mls_range_low_sens(const sepol_pirqcon_iter_t *iter);
++extern uint32_t
++sepol_pirqcon_iter_get_mls_range_high_sens(const sepol_pirqcon_iter_t *iter);
++extern int
++sepol_pirqcon_iter_get_mls_range_low_cat(const sepol_pirqcon_iter_t *iter,
++					 sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_pirqcon_iter_get_mls_range_high_cat(const sepol_pirqcon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++
++/* Xen iomemcon iterator */
++
++typedef struct sepol_iomemcon_iter sepol_iomemcon_iter_t;
++
++extern int sepol_iomemcon_iter_create(sepol_handle_t *handle,
++				      const sepol_policydb_t *p,
++				      sepol_iomemcon_iter_t **iter);
++
++extern void sepol_iomemcon_iter_destroy(sepol_iomemcon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; low_iomem/
++ * high_iomem cannot be used to detect end-of-iteration since 0 is a
++ * valid address value. */
++extern int sepol_iomemcon_iter_next(sepol_handle_t *handle,
++				    sepol_iomemcon_iter_t *iter,
++				    uint64_t *low_iomem, uint64_t *high_iomem,
++				    int *has_next);
++
++extern uint32_t
++sepol_iomemcon_iter_get_context_user(const sepol_iomemcon_iter_t *iter);
++extern uint32_t
++sepol_iomemcon_iter_get_context_role(const sepol_iomemcon_iter_t *iter);
++extern uint32_t
++sepol_iomemcon_iter_get_context_type(const sepol_iomemcon_iter_t *iter);
++extern uint32_t
++sepol_iomemcon_iter_get_mls_range_low_sens(const sepol_iomemcon_iter_t *iter);
++extern uint32_t
++sepol_iomemcon_iter_get_mls_range_high_sens(const sepol_iomemcon_iter_t *iter);
++extern int
++sepol_iomemcon_iter_get_mls_range_low_cat(const sepol_iomemcon_iter_t *iter,
++					  sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_iomemcon_iter_get_mls_range_high_cat(const sepol_iomemcon_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++
++/* Xen ioportcon iterator */
++
++typedef struct sepol_ioportcon_iter sepol_ioportcon_iter_t;
++
++extern int sepol_ioportcon_iter_create(sepol_handle_t *handle,
++				       const sepol_policydb_t *p,
++				       sepol_ioportcon_iter_t **iter);
++
++extern void sepol_ioportcon_iter_destroy(sepol_ioportcon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; low_ioport/
++ * high_ioport cannot be used to detect end-of-iteration since 0 is
++ * a valid address value. */
++extern int sepol_ioportcon_iter_next(sepol_handle_t *handle,
++				     sepol_ioportcon_iter_t *iter,
++				     uint32_t *low_ioport,
++				     uint32_t *high_ioport, int *has_next);
++
++extern uint32_t
++sepol_ioportcon_iter_get_context_user(const sepol_ioportcon_iter_t *iter);
++extern uint32_t
++sepol_ioportcon_iter_get_context_role(const sepol_ioportcon_iter_t *iter);
++extern uint32_t
++sepol_ioportcon_iter_get_context_type(const sepol_ioportcon_iter_t *iter);
++extern uint32_t
++sepol_ioportcon_iter_get_mls_range_low_sens(const sepol_ioportcon_iter_t *iter);
++extern uint32_t sepol_ioportcon_iter_get_mls_range_high_sens(
++	const sepol_ioportcon_iter_t *iter);
++extern int
++sepol_ioportcon_iter_get_mls_range_low_cat(const sepol_ioportcon_iter_t *iter,
++					   sepol_cat_set_iter_t **cat_iter);
++extern int
++sepol_ioportcon_iter_get_mls_range_high_cat(const sepol_ioportcon_iter_t *iter,
++					    sepol_cat_set_iter_t **cat_iter);
++
++/* Xen pcidevicecon iterator */
++
++typedef struct sepol_pcidevicecon_iter sepol_pcidevicecon_iter_t;
++
++extern int sepol_pcidevicecon_iter_create(sepol_handle_t *handle,
++					  const sepol_policydb_t *p,
++					  sepol_pcidevicecon_iter_t **iter);
++
++extern void sepol_pcidevicecon_iter_destroy(sepol_pcidevicecon_iter_t *iter);
++
++/* has_next is set to 0 once iteration is exhausted; device cannot
++ * be used to detect end-of-iteration since 0 is a valid device
++ * value. */
++extern int sepol_pcidevicecon_iter_next(sepol_handle_t *handle,
++					sepol_pcidevicecon_iter_t *iter,
++					uint32_t *device, int *has_next);
++
++extern uint32_t
++sepol_pcidevicecon_iter_get_context_user(const sepol_pcidevicecon_iter_t *iter);
++extern uint32_t
++sepol_pcidevicecon_iter_get_context_role(const sepol_pcidevicecon_iter_t *iter);
++extern uint32_t
++sepol_pcidevicecon_iter_get_context_type(const sepol_pcidevicecon_iter_t *iter);
++extern uint32_t sepol_pcidevicecon_iter_get_mls_range_low_sens(
++	const sepol_pcidevicecon_iter_t *iter);
++extern uint32_t sepol_pcidevicecon_iter_get_mls_range_high_sens(
++	const sepol_pcidevicecon_iter_t *iter);
++extern int sepol_pcidevicecon_iter_get_mls_range_low_cat(
++	const sepol_pcidevicecon_iter_t *iter, sepol_cat_set_iter_t **cat_iter);
++extern int sepol_pcidevicecon_iter_get_mls_range_high_cat(
++	const sepol_pcidevicecon_iter_t *iter, sepol_cat_set_iter_t **cat_iter);
++
++/* Xen devicetreecon iterator */
++
++typedef struct sepol_devicetreecon_iter sepol_devicetreecon_iter_t;
++
++extern int sepol_devicetreecon_iter_create(sepol_handle_t *handle,
++					   const sepol_policydb_t *p,
++					   sepol_devicetreecon_iter_t **iter);
++
++extern void sepol_devicetreecon_iter_destroy(sepol_devicetreecon_iter_t *iter);
++
++extern int sepol_devicetreecon_iter_next(sepol_handle_t *handle,
++					 sepol_devicetreecon_iter_t *iter,
++					 const char **path);
++
++extern uint32_t sepol_devicetreecon_iter_get_context_user(
++	const sepol_devicetreecon_iter_t *iter);
++extern uint32_t sepol_devicetreecon_iter_get_context_role(
++	const sepol_devicetreecon_iter_t *iter);
++extern uint32_t sepol_devicetreecon_iter_get_context_type(
++	const sepol_devicetreecon_iter_t *iter);
++extern uint32_t sepol_devicetreecon_iter_get_mls_range_low_sens(
++	const sepol_devicetreecon_iter_t *iter);
++extern uint32_t sepol_devicetreecon_iter_get_mls_range_high_sens(
++	const sepol_devicetreecon_iter_t *iter);
++extern int sepol_devicetreecon_iter_get_mls_range_low_cat(
++	const sepol_devicetreecon_iter_t *iter,
++	sepol_cat_set_iter_t **cat_iter);
++extern int sepol_devicetreecon_iter_get_mls_range_high_cat(
++	const sepol_devicetreecon_iter_t *iter,
++	sepol_cat_set_iter_t **cat_iter);
++
++#ifdef __cplusplus
 +}
-+
-+int av_rule_test_cleanup(void)
-+{
-+	sepol_policydb_free(policy);
-+	policydb_destroy(&basemod);
-+	sepol_handle_destroy(handle);
-+	return 0;
-+}
-+
-+static uint32_t type_value(const char *name)
-+{
-+	type_datum_t *d = hashtab_search(policy->p.p_types.table, name);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(d);
-+	return d->s.value;
-+}
-+
-+static uint32_t class_value(const char *name)
-+{
-+	class_datum_t *d = hashtab_search(policy->p.p_classes.table, name);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(d);
-+	return d->s.value;
-+}
-+
-+static void test_avtab_iter_all(void)
-+{
-+	sepol_avtab_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy, 0, &iter),
-+			      0);
-+
-+	int count = 0;
-+	uint32_t ruletype, src, tgt, cls;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_next(handle, iter,
-+							    &ruletype, &src,
-+							    &tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+		CU_ASSERT(src > 0);
-+		CU_ASSERT(tgt > 0);
-+		CU_ASSERT(cls > 0);
-+		count++;
-+	}
-+	CU_ASSERT(count >= 5);
-+
-+	sepol_avtab_iter_destroy(iter);
-+}
-+
-+static void test_avtab_iter_filtered(void)
-+{
-+	sepol_avtab_iter_t *iter;
-+	uint32_t ruletype, src, tgt, cls;
-+	int allow_count = 0, trans_count = 0;
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_ALLOWED, &iter),
-+			      0);
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_next(handle, iter,
-+							    &ruletype, &src,
-+							    &tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+		CU_ASSERT_EQUAL(ruletype, AVTAB_ALLOWED);
-+		allow_count++;
-+	}
-+	sepol_avtab_iter_destroy(iter);
-+	CU_ASSERT(allow_count >= 4);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_TRANSITION, &iter),
-+			      0);
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_next(handle, iter,
-+							    &ruletype, &src,
-+							    &tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+		CU_ASSERT_EQUAL(ruletype, AVTAB_TRANSITION);
-+		trans_count++;
-+	}
-+	sepol_avtab_iter_destroy(iter);
-+	CU_ASSERT(trans_count >= 1);
-+}
-+
-+static void test_avtab_iter_av_data(void)
-+{
-+	sepol_avtab_iter_t *iter;
-+	uint32_t ruletype, src, tgt, cls;
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_ALLOWED, &iter),
-+			      0);
-+
-+	int found_perm = 0;
-+	/*
-+	 * Asserts inside this loop are intentionally non-fatal once `iter`
-+	 * (and, further in, `piter`) is allocated: a CU_ASSERT_*_FATAL()
-+	 * here would longjmp out of the function and skip
-+	 * sepol_perm_iter_destroy()/sepol_avtab_iter_destroy(), leaking the
-+	 * iterator(s).
-+	 */
-+	while (1) {
-+		int rc = sepol_avtab_iter_next(handle, iter, &ruletype, &src,
-+					       &tgt, &cls);
-+		CU_ASSERT_EQUAL(rc, 0);
-+		if (rc != 0 || ruletype == 0)
-+			break;
-+
-+		uint32_t av_data = sepol_avtab_iter_get_av_data(iter);
-+		CU_ASSERT(av_data != 0);
-+
-+		sepol_perm_iter_t *piter = NULL;
-+		CU_ASSERT_EQUAL(sepol_perm_iter_create(handle, policy, cls,
-+						       av_data, &piter),
-+				0);
-+		if (piter) {
-+			const char *perm_name = NULL;
-+			CU_ASSERT_EQUAL(sepol_perm_iter_next(handle, piter,
-+							     &perm_name),
-+					0);
-+			CU_ASSERT_PTR_NOT_NULL(perm_name);
-+			if (perm_name)
-+				found_perm = 1;
-+			sepol_perm_iter_destroy(piter);
-+		}
-+	}
-+	sepol_avtab_iter_destroy(iter);
-+	CU_ASSERT(found_perm);
-+}
-+
-+static void test_avtab_iter_type_data(void)
-+{
-+	sepol_avtab_iter_t *iter;
-+	uint32_t ruletype, src, tgt, cls;
-+	uint32_t type3_val = type_value("TYPE3");
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_TRANSITION, &iter),
-+			      0);
-+
-+	int found = 0;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_next(handle, iter,
-+							    &ruletype, &src,
-+							    &tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+
-+		uint32_t default_type = sepol_avtab_iter_get_type_data(iter);
-+		CU_ASSERT(default_type > 0);
-+		if (default_type == type3_val)
-+			found = 1;
-+	}
-+	sepol_avtab_iter_destroy(iter);
-+	CU_ASSERT(found);
-+}
-+
-+static void test_perm_iter_class1(void)
-+{
-+	uint32_t cls1 = class_value("CLASS1");
-+	uint32_t all_perms = 0xFFFFFFFF;
-+
-+	sepol_perm_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_perm_iter_create(handle, policy, cls1,
-+						     all_perms, &iter),
-+			      0);
-+
-+	int found_perm1 = 0, found_commonperm1 = 0;
-+	const char *name;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_perm_iter_next(handle, iter, &name),
-+				      0);
-+		if (!name)
-+			break;
-+		if (strcmp(name, "PERM1") == 0)
-+			found_perm1 = 1;
-+		if (strcmp(name, "COMMONPERM1") == 0)
-+			found_commonperm1 = 1;
-+	}
-+	sepol_perm_iter_destroy(iter);
-+	CU_ASSERT(found_perm1);
-+	CU_ASSERT(found_commonperm1);
-+}
-+
-+static void test_bool_value_to_name(void)
-+{
-+	policydb_t *p = &policy->p;
-+	cond_bool_datum_t *b1 = hashtab_search(p->p_bools.table, "BOOL1");
-+	cond_bool_datum_t *b2 = hashtab_search(p->p_bools.table, "BOOL2");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(b1);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(b2);
-+
-+	const char *name;
-+	CU_ASSERT_EQUAL(sepol_bool_value_to_name(handle, policy, b1->s.value,
-+						 &name),
-+			0);
-+	CU_ASSERT_STRING_EQUAL(name, "BOOL1");
-+
-+	CU_ASSERT_EQUAL(sepol_bool_value_to_name(handle, policy, b2->s.value,
-+						 &name),
-+			0);
-+	CU_ASSERT_STRING_EQUAL(name, "BOOL2");
-+
-+	CU_ASSERT_NOT_EQUAL(sepol_bool_value_to_name(handle, policy, 0, &name),
-+			    0);
-+	CU_ASSERT_PTR_NULL(name);
-+
-+	CU_ASSERT_NOT_EQUAL(sepol_bool_value_to_name(handle, policy,
-+						     p->p_bools.nprim + 1,
-+						     &name),
-+			    0);
-+	CU_ASSERT_PTR_NULL(name);
-+}
-+
-+static void test_cond_iter(void)
-+{
-+	sepol_cond_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &iter), 0);
-+
-+	int has_next;
-+	int count = 0;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(
-+			sepol_cond_iter_next(handle, iter, &has_next), 0);
-+		if (!has_next)
-+			break;
-+		count++;
-+	}
-+	CU_ASSERT(count >= 1);
-+
-+	sepol_cond_iter_destroy(iter);
-+}
-+
-+static void test_cond_expr_iter(void)
-+{
-+	sepol_cond_iter_t *citer;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &citer),
-+			      0);
-+
-+	int has_next;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_next(handle, citer, &has_next),
-+			      0);
-+	CU_ASSERT_FATAL(has_next);
-+
-+	sepol_cond_expr_iter_t *eiter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_cond_expr_iter_create(handle, citer, &eiter), 0);
-+
-+	int bool_count = 0, and_count = 0;
-+	uint32_t expr_type, bool_value;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_cond_expr_iter_next(handle, eiter,
-+								&expr_type,
-+								&bool_value),
-+				      0);
-+		if (expr_type == 0)
-+			break;
-+		if (expr_type == SEPOL_COND_BOOL) {
-+			CU_ASSERT(bool_value > 0);
-+			bool_count++;
-+		}
-+		if (expr_type == SEPOL_COND_AND)
-+			and_count++;
-+	}
-+	CU_ASSERT_EQUAL(bool_count, 2);
-+	CU_ASSERT_EQUAL(and_count, 1);
-+
-+	sepol_cond_expr_iter_destroy(eiter);
-+	sepol_cond_iter_destroy(citer);
-+}
-+
-+static void test_cond_rule_iter(void)
-+{
-+	sepol_cond_iter_t *citer;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &citer),
-+			      0);
-+
-+	int has_next;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_next(handle, citer, &has_next),
-+			      0);
-+	CU_ASSERT_FATAL(has_next);
-+
-+	/* True list */
-+	sepol_cond_rule_iter_t *riter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_cond_rule_iter_create(handle, citer, 1, &riter), 0);
-+
-+	uint32_t ruletype, src, tgt, cls;
-+	int true_count = 0;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_cond_rule_iter_next(handle, riter,
-+								&ruletype, &src,
-+								&tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+		CU_ASSERT(src > 0);
-+		CU_ASSERT(tgt > 0);
-+		CU_ASSERT(cls > 0);
-+
-+		/* xperm rules don't populate the plain av_data field (their
-+		 * permission set lives in the xperms sub-structure instead),
-+		 * so only check av_data for non-xperm rule types. */
-+		if (!(ruletype & AVTAB_XPERMS)) {
-+			uint32_t av = sepol_cond_rule_iter_get_av_data(riter);
-+			CU_ASSERT(av != 0);
-+		}
-+		true_count++;
-+	}
-+	CU_ASSERT(true_count >= 1);
-+	sepol_cond_rule_iter_destroy(riter);
-+
-+	/* False list */
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_cond_rule_iter_create(handle, citer, 0, &riter), 0);
-+
-+	int false_count = 0;
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(sepol_cond_rule_iter_next(handle, riter,
-+								&ruletype, &src,
-+								&tgt, &cls),
-+				      0);
-+		if (ruletype == 0)
-+			break;
-+		CU_ASSERT(src > 0);
-+		uint32_t av = sepol_cond_rule_iter_get_av_data(riter);
-+		CU_ASSERT(av != 0);
-+		false_count++;
-+	}
-+	CU_ASSERT(false_count >= 1);
-+	sepol_cond_rule_iter_destroy(riter);
-+
-+	sepol_cond_iter_destroy(citer);
-+}
-+
-+static void test_xperm_iter(void)
-+{
-+	sepol_avtab_iter_t *iter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_XPERMS_ALLOWED,
-+						      &iter),
-+			      0);
-+
-+	uint32_t ruletype, src, tgt, cls;
-+	int xperm_count = 0;
-+	/*
-+	 * Asserts inside this loop are intentionally non-fatal once `iter`
-+	 * (and, further in, `xiter`) is allocated: a CU_ASSERT_*_FATAL()
-+	 * here would longjmp out of the function and skip
-+	 * sepol_xperm_iter_destroy()/sepol_avtab_iter_destroy(), leaking
-+	 * the iterator(s).
-+	 */
-+	while (1) {
-+		int rc = sepol_avtab_iter_next(handle, iter, &ruletype, &src,
-+					       &tgt, &cls);
-+		CU_ASSERT_EQUAL(rc, 0);
-+		if (rc != 0 || ruletype == 0)
-+			break;
-+		CU_ASSERT_EQUAL(ruletype, AVTAB_XPERMS_ALLOWED);
-+
-+		uint8_t xtype = sepol_avtab_iter_get_xperm_type(iter);
-+		CU_ASSERT(xtype == AVTAB_XPERMS_IOCTLFUNCTION ||
-+			  xtype == AVTAB_XPERMS_IOCTLDRIVER);
-+		CU_ASSERT(sepol_avtab_iter_get_xperm_driver(iter) > 0);
-+
-+		sepol_xperm_iter_t *xiter = NULL;
-+		CU_ASSERT_EQUAL(sepol_xperm_iter_create(handle, iter, &xiter),
-+				0);
-+		if (!xiter)
-+			continue;
-+
-+		uint16_t value;
-+		int has_next;
-+		int val_count = 0;
-+		while (1) {
-+			int xrc = sepol_xperm_iter_next(handle, xiter, &value,
-+							&has_next);
-+			CU_ASSERT_EQUAL(xrc, 0);
-+			if (xrc != 0 || !has_next)
-+				break;
-+			val_count++;
-+		}
-+		CU_ASSERT(val_count > 0);
-+		sepol_xperm_iter_destroy(xiter);
-+		xperm_count++;
-+	}
-+	CU_ASSERT(xperm_count >= 1);
-+
-+	sepol_avtab_iter_destroy(iter);
-+}
-+
-+static void test_cond_rule_xperm(void)
-+{
-+	sepol_cond_iter_t *citer;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &citer),
-+			      0);
-+
-+	int has_next;
-+	int found_xperm = 0;
-+
-+	/*
-+	 * Asserts inside these nested loops are intentionally non-fatal
-+	 * once the corresponding iterator (citer/riter/xiter) is allocated:
-+	 * a CU_ASSERT_*_FATAL() here would longjmp out of the function and
-+	 * skip sepol_xperm_iter_destroy()/sepol_cond_rule_iter_destroy()/
-+	 * sepol_cond_iter_destroy(), leaking the iterator(s).
-+	 */
-+	while (1) {
-+		int rc = sepol_cond_iter_next(handle, citer, &has_next);
-+		CU_ASSERT_EQUAL(rc, 0);
-+		if (rc != 0 || !has_next)
-+			break;
-+
-+		/* iter.conf's `allowxperm` is in the true list. */
-+		sepol_cond_rule_iter_t *riter = NULL;
-+		CU_ASSERT_EQUAL(sepol_cond_rule_iter_create(handle, citer, 1,
-+							    &riter),
-+				0);
-+		if (!riter)
-+			continue;
-+
-+		uint32_t ruletype, src, tgt, cls;
-+		while (1) {
-+			int rrc = sepol_cond_rule_iter_next(
-+				handle, riter, &ruletype, &src, &tgt, &cls);
-+			CU_ASSERT_EQUAL(rrc, 0);
-+			if (rrc != 0 || ruletype == 0)
-+				break;
-+			if (!(ruletype & AVTAB_XPERMS))
-+				continue;
-+
-+			found_xperm = 1;
-+			CU_ASSERT(src > 0);
-+			CU_ASSERT(tgt > 0);
-+			CU_ASSERT(cls > 0);
-+
-+			uint8_t xtype =
-+				sepol_cond_rule_iter_get_xperm_type(riter);
-+			CU_ASSERT(xtype == AVTAB_XPERMS_IOCTLFUNCTION ||
-+				  xtype == AVTAB_XPERMS_IOCTLDRIVER);
-+			CU_ASSERT(sepol_cond_rule_iter_get_xperm_driver(riter) >
-+				  0);
-+
-+			sepol_xperm_iter_t *xiter = NULL;
-+			CU_ASSERT_EQUAL(sepol_cond_rule_xperm_iter_create(
-+						handle, riter, &xiter),
-+					0);
-+			if (!xiter)
-+				continue;
-+
-+			uint16_t value;
-+			int xhas_next;
-+			int val_count = 0;
-+			while (1) {
-+				int xrc = sepol_xperm_iter_next(
-+					handle, xiter, &value, &xhas_next);
-+				CU_ASSERT_EQUAL(xrc, 0);
-+				if (xrc != 0 || !xhas_next)
-+					break;
-+				val_count++;
-+			}
-+			CU_ASSERT(val_count > 0);
-+			sepol_xperm_iter_destroy(xiter);
-+		}
-+		sepol_cond_rule_iter_destroy(riter);
-+	}
-+	CU_ASSERT(found_xperm);
-+
-+	sepol_cond_iter_destroy(citer);
-+}
-+
-+static void test_cond_rule_type_data(void)
-+{
-+	sepol_cond_iter_t *citer;
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &citer),
-+			      0);
-+
-+	int has_next;
-+	int found_type_trans = 0;
-+
-+	while (1) {
-+		CU_ASSERT_EQUAL_FATAL(
-+			sepol_cond_iter_next(handle, citer, &has_next), 0);
-+		if (!has_next)
-+			break;
-+
-+		/* Check both true and false lists */
-+		for (int branch = 0; branch <= 1; branch++) {
-+			sepol_cond_rule_iter_t *riter;
-+			CU_ASSERT_EQUAL_FATAL(
-+				sepol_cond_rule_iter_create(handle, citer,
-+							    branch, &riter),
-+				0);
-+
-+			uint32_t ruletype, src, tgt, cls;
-+			while (1) {
-+				CU_ASSERT_EQUAL_FATAL(sepol_cond_rule_iter_next(
-+							      handle, riter,
-+							      &ruletype, &src,
-+							      &tgt, &cls),
-+						      0);
-+				if (ruletype == 0)
-+					break;
-+				if (ruletype == AVTAB_TRANSITION) {
-+					uint32_t def_type =
-+						sepol_cond_rule_iter_get_type_data(
-+							riter);
-+					CU_ASSERT(def_type > 0);
-+					found_type_trans = 1;
-+				}
-+			}
-+			sepol_cond_rule_iter_destroy(riter);
-+		}
-+	}
-+	CU_ASSERT(found_type_trans);
-+
-+	sepol_cond_iter_destroy(citer);
-+}
-+
-+static void test_iter_null_output_args(void)
-+{
-+	/* _iter_create: NULL policydb must fail and clear *iter. */
-+	sepol_avtab_iter_t *aiter = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_avtab_iter_create(handle, NULL, 0, &aiter) != 0);
-+	CU_ASSERT_PTR_NULL(aiter);
-+
-+	sepol_cond_iter_t *citer = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_cond_iter_create(handle, NULL, &citer) != 0);
-+	CU_ASSERT_PTR_NULL(citer);
-+
-+	/* _iter_next: any NULL output parameter must be rejected rather
-+	 * than dereferenced. */
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_avtab_iter_create(handle, policy, 0, &aiter), 0);
-+	uint32_t ruletype, src, tgt, cls;
-+	CU_ASSERT(sepol_avtab_iter_next(handle, aiter, NULL, &src, &tgt,
-+					&cls) != 0);
-+	CU_ASSERT(sepol_avtab_iter_next(handle, aiter, &ruletype, NULL, &tgt,
-+					&cls) != 0);
-+	CU_ASSERT(sepol_avtab_iter_next(handle, aiter, &ruletype, &src, NULL,
-+					&cls) != 0);
-+	CU_ASSERT(sepol_avtab_iter_next(handle, aiter, &ruletype, &src, &tgt,
-+					NULL) != 0);
-+	CU_ASSERT_EQUAL(sepol_avtab_iter_next(handle, aiter, &ruletype, &src,
-+					      &tgt, &cls),
-+			0);
-+	sepol_avtab_iter_destroy(aiter);
-+
-+	/* _iter_create: an out-of-range class value must fail and clear
-+	 * *iter, matching sepol_common_perm_iter_create()'s equivalent
-+	 * validation. */
-+	sepol_perm_iter_t *piter = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_perm_iter_create(handle, policy, 0, ~0u, &piter) != 0);
-+	CU_ASSERT_PTR_NULL(piter);
-+	piter = (void *)0xdeadbeef;
-+	CU_ASSERT(sepol_perm_iter_create(handle, policy, 9999, ~0u, &piter) !=
-+		  0);
-+	CU_ASSERT_PTR_NULL(piter);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_perm_iter_create(handle, policy,
-+						     class_value("CLASS1"), ~0u,
-+						     &piter),
-+			      0);
-+	CU_ASSERT(sepol_perm_iter_next(handle, piter, NULL) != 0);
-+	sepol_perm_iter_destroy(piter);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_create(handle, policy,
-+						      AVTAB_XPERMS_ALLOWED,
-+						      &aiter),
-+			      0);
-+	CU_ASSERT_EQUAL_FATAL(sepol_avtab_iter_next(handle, aiter, &ruletype,
-+						    &src, &tgt, &cls),
-+			      0);
-+	CU_ASSERT(ruletype != 0);
-+	sepol_xperm_iter_t *xiter;
-+	CU_ASSERT_EQUAL_FATAL(sepol_xperm_iter_create(handle, aiter, &xiter),
-+			      0);
-+	uint16_t value;
-+	int has_next;
-+	CU_ASSERT(sepol_xperm_iter_next(handle, xiter, NULL, &has_next) != 0);
-+	CU_ASSERT(sepol_xperm_iter_next(handle, xiter, &value, NULL) != 0);
-+	sepol_xperm_iter_destroy(xiter);
-+	sepol_avtab_iter_destroy(aiter);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_create(handle, policy, &citer),
-+			      0);
-+	CU_ASSERT(sepol_cond_iter_next(handle, citer, NULL) != 0);
-+
-+	CU_ASSERT_EQUAL_FATAL(sepol_cond_iter_next(handle, citer, &has_next),
-+			      0);
-+	CU_ASSERT_TRUE_FATAL(has_next);
-+
-+	sepol_cond_expr_iter_t *eiter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_cond_expr_iter_create(handle, citer, &eiter), 0);
-+	uint32_t expr_type, bool_value;
-+	CU_ASSERT(sepol_cond_expr_iter_next(handle, eiter, NULL, &bool_value) !=
-+		  0);
-+	CU_ASSERT(sepol_cond_expr_iter_next(handle, eiter, &expr_type, NULL) !=
-+		  0);
-+	sepol_cond_expr_iter_destroy(eiter);
-+
-+	sepol_cond_rule_iter_t *riter;
-+	CU_ASSERT_EQUAL_FATAL(
-+		sepol_cond_rule_iter_create(handle, citer, 1, &riter), 0);
-+	CU_ASSERT(sepol_cond_rule_iter_next(handle, riter, NULL, &src, &tgt,
-+					    &cls) != 0);
-+	CU_ASSERT(sepol_cond_rule_iter_next(handle, riter, &ruletype, NULL,
-+					    &tgt, &cls) != 0);
-+	CU_ASSERT(sepol_cond_rule_iter_next(handle, riter, &ruletype, &src,
-+					    NULL, &cls) != 0);
-+	CU_ASSERT(sepol_cond_rule_iter_next(handle, riter, &ruletype, &src,
-+					    &tgt, NULL) != 0);
-+	sepol_cond_rule_iter_destroy(riter);
-+
-+	sepol_cond_iter_destroy(citer);
-+}
-+
-+int av_rule_add_tests(CU_pSuite suite)
-+{
-+	if (CU_add_test(suite, "avtab_iter_all", test_avtab_iter_all) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "avtab_iter_filtered",
-+			test_avtab_iter_filtered) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "avtab_iter_av_data", test_avtab_iter_av_data) ==
-+	    NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "avtab_iter_type_data",
-+			test_avtab_iter_type_data) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "perm_iter_class1", test_perm_iter_class1) ==
-+	    NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "bool_value_to_name", test_bool_value_to_name) ==
-+	    NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "cond_iter", test_cond_iter) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "cond_expr_iter", test_cond_expr_iter) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "cond_rule_iter", test_cond_rule_iter) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "cond_rule_xperm", test_cond_rule_xperm) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "xperm_iter", test_xperm_iter) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "cond_rule_type_data",
-+			test_cond_rule_type_data) == NULL)
-+		return CU_get_error();
-+	if (CU_add_test(suite, "iter_null_output_args",
-+			test_iter_null_output_args) == NULL)
-+		return CU_get_error();
-+	return 0;
-+}
-diff --git a/libsepol/tests/test-av-rule.h b/libsepol/tests/test-av-rule.h
-new file mode 100644
-index 00000000..7c0b9e47
---- /dev/null
-+++ b/libsepol/tests/test-av-rule.h
-@@ -0,0 +1,10 @@
-+#ifndef TEST_AV_RULE_H
-+#define TEST_AV_RULE_H
-+
-+#include <CUnit/Basic.h>
-+
-+int av_rule_test_init(void);
-+int av_rule_test_cleanup(void);
-+int av_rule_add_tests(CU_pSuite suite);
++#endif
 +
 +#endif
+diff --git a/libsepol/src/initial_sids.h b/libsepol/src/initial_sids.h
+new file mode 100644
+index 00000000..dfab9907
+--- /dev/null
++++ b/libsepol/src/initial_sids.h
+@@ -0,0 +1,29 @@
++#ifndef _SEPOL_INITIAL_SIDS_H_
++#define _SEPOL_INITIAL_SIDS_H_
++
++/*
++ * Initial SID (isid) name tables, indexed by SID value. Initial SID names
++ * aren't actually stored in the binary/pp policy files, so callers that
++ * need to print or look up an initial SID by name (kernel_to_common.c's
++ * CIL/conf writers, and the sepol_isid_iter_t public API in ocontext.c)
++ * share this single mapping, taken from the Linux kernel.
++ */
++static const char *const selinux_sid_to_str[] = {
++	NULL,	"kernel", "security",	"unlabeled", NULL,    "file",
++	NULL,	"init",	  "any_socket", "port",	     "netif", "netmsg",
++	"node", NULL,	  NULL,		NULL,	     NULL,    NULL,
++	NULL,	NULL,	  NULL,		NULL,	     NULL,    NULL,
++	NULL,	NULL,	  NULL,		"devnull",
++};
++
++#define SELINUX_SID_SZ \
++	(sizeof(selinux_sid_to_str) / sizeof(selinux_sid_to_str[0]))
++
++static const char *const xen_sid_to_str[] = {
++	"null",	  "xen",   "dom0", "domio",  "domxen", "unlabeled", "security",
++	"ioport", "iomem", "irq",  "device", "domU",   "domDM",
++};
++
++#define XEN_SID_SZ (sizeof(xen_sid_to_str) / sizeof(xen_sid_to_str[0]))
++
++#endif /* _SEPOL_INITIAL_SIDS_H_ */
+diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_common.h
+index f319ea50..5adf9d75 100644
+--- a/libsepol/src/kernel_to_common.h
++++ b/libsepol/src/kernel_to_common.h
+@@ -12,30 +12,12 @@
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/policydb.h>
+ 
++#include "initial_sids.h"
++
+ #define STACK_SIZE 16
+ #define DEFAULT_LEVEL "systemlow"
+ #define DEFAULT_OBJECT "object_r"
+ 
+-// initial sid names aren't actually stored in the pp files, need to a have
+-// a mapping, taken from the linux kernel
+-static const char *const selinux_sid_to_str[] = {
+-	NULL,	"kernel", "security",	"unlabeled", NULL,    "file",
+-	NULL,	"init",	  "any_socket", "port",	     "netif", "netmsg",
+-	"node", NULL,	  NULL,		NULL,	     NULL,    NULL,
+-	NULL,	NULL,	  NULL,		NULL,	     NULL,    NULL,
+-	NULL,	NULL,	  NULL,		"devnull",
+-};
+-
+-#define SELINUX_SID_SZ \
+-	(sizeof(selinux_sid_to_str) / sizeof(selinux_sid_to_str[0]))
+-
+-static const char *const xen_sid_to_str[] = {
+-	"null",	  "xen",   "dom0", "domio",  "domxen", "unlabeled", "security",
+-	"ioport", "iomem", "irq",  "device", "domU",   "domDM",
+-};
+-
+-#define XEN_SID_SZ (sizeof(xen_sid_to_str) / sizeof(xen_sid_to_str[0]))
+-
+ static const uint32_t avtab_flavors[] = {
+ 	AVTAB_ALLOWED,
+ 	AVTAB_AUDITALLOW,
+diff --git a/libsepol/src/ocontext.c b/libsepol/src/ocontext.c
+new file mode 100644
+index 00000000..b3b5ccab
+--- /dev/null
++++ b/libsepol/src/ocontext.c
+@@ -0,0 +1,1058 @@
++#include <sepol/ocontext.h>
++
++#include <sepol/policydb/context.h>
++#include <sepol/policydb/policydb.h>
++#include <stdlib.h>
++
++#include "cat_set_internal.h"
++#include "debug.h"
++#include "initial_sids.h"
++
++/*
++ * Macro to stamp out the seven standard context accessor functions for
++ * an ocontext iterator.  Each ocontext node carries context[0] (and
++ * context[1] for the netifcon message context).  The generated functions
++ * return user/role/type values, MLS sensitivity values, and category-set
++ * iterators from the context at index CTX_IDX of the most recently
++ * yielded ocontext node (iter->last).
++ *
++ * FN_PREFIX is pasted before _context_user, _context_role, etc.
++ * Example: FN_PREFIX = sepol_isid_iter_get
++ *      =>  sepol_isid_iter_get_context_user, ...
++ */
++#define DEFINE_OCON_CONTEXT_GETTERS(FN_PREFIX, ITER_TYPE, CTX_IDX)          \
++                                                                            \
++	uint32_t FN_PREFIX##_context_user(const ITER_TYPE *iter)            \
++	{                                                                   \
++		if (!iter || !iter->last)                                   \
++			return 0;                                           \
++		return iter->last->context[CTX_IDX].user;                   \
++	}                                                                   \
++                                                                            \
++	uint32_t FN_PREFIX##_context_role(const ITER_TYPE *iter)            \
++	{                                                                   \
++		if (!iter || !iter->last)                                   \
++			return 0;                                           \
++		return iter->last->context[CTX_IDX].role;                   \
++	}                                                                   \
++                                                                            \
++	uint32_t FN_PREFIX##_context_type(const ITER_TYPE *iter)            \
++	{                                                                   \
++		if (!iter || !iter->last)                                   \
++			return 0;                                           \
++		return iter->last->context[CTX_IDX].type;                   \
++	}                                                                   \
++                                                                            \
++	uint32_t FN_PREFIX##_mls_range_low_sens(const ITER_TYPE *iter)      \
++	{                                                                   \
++		if (!iter || !iter->last)                                   \
++			return 0;                                           \
++		return iter->last->context[CTX_IDX].range.level[0].sens;    \
++	}                                                                   \
++                                                                            \
++	uint32_t FN_PREFIX##_mls_range_high_sens(const ITER_TYPE *iter)     \
++	{                                                                   \
++		if (!iter || !iter->last)                                   \
++			return 0;                                           \
++		return iter->last->context[CTX_IDX].range.level[1].sens;    \
++	}                                                                   \
++                                                                            \
++	int FN_PREFIX##_mls_range_low_cat(const ITER_TYPE *iter,            \
++					  sepol_cat_set_iter_t **cat_iter)  \
++	{                                                                   \
++		if (!cat_iter)                                              \
++			return STATUS_ERR;                                  \
++		if (!iter || !iter->last) {                                 \
++			*cat_iter = NULL;                                   \
++			return STATUS_SUCCESS;                              \
++		}                                                           \
++		return cat_set_iter_create_from_ebitmap(                    \
++			&iter->last->context[CTX_IDX].range.level[0].cat,   \
++			cat_iter);                                          \
++	}                                                                   \
++                                                                            \
++	int FN_PREFIX##_mls_range_high_cat(const ITER_TYPE *iter,           \
++					   sepol_cat_set_iter_t **cat_iter) \
++	{                                                                   \
++		if (!cat_iter)                                              \
++			return STATUS_ERR;                                  \
++		if (!iter || !iter->last) {                                 \
++			*cat_iter = NULL;                                   \
++			return STATUS_SUCCESS;                              \
++		}                                                           \
++		return cat_set_iter_create_from_ebitmap(                    \
++			&iter->last->context[CTX_IDX].range.level[1].cat,   \
++			cat_iter);                                          \
++	}
++
++/* ---- Initial SID iterator ---- */
++
++struct sepol_isid_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++	int target_platform;
++};
++
++int sepol_isid_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			   sepol_isid_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_isid_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_ISID];
++	tmp->last = NULL;
++	tmp->target_platform = p->p.target_platform;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_isid_iter_destroy(sepol_isid_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_isid_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			 sepol_isid_iter_t *iter, uint32_t *sid)
++{
++	if (!iter || !sid)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*sid = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*sid = iter->cur->sid[0];
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_isid_iter_get, sepol_isid_iter_t, 0)
++
++const char *sepol_isid_iter_get_name(const sepol_isid_iter_t *iter)
++{
++	uint32_t sid;
++
++	if (!iter || !iter->last)
++		return NULL;
++
++	sid = iter->last->sid[0];
++
++	if (iter->target_platform == SEPOL_TARGET_XEN) {
++		if (sid < XEN_SID_SZ)
++			return xen_sid_to_str[sid];
++		return NULL;
++	}
++
++	if (sid < SELINUX_SID_SZ)
++		return selinux_sid_to_str[sid];
++	return NULL;
++}
++
++/* ---- fs_use iterator ---- */
++
++struct sepol_fsuse_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_fsuse_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			    sepol_fsuse_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "fsuse requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_fsuse_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_FSUSE];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_fsuse_iter_destroy(sepol_fsuse_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_fsuse_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			  sepol_fsuse_iter_t *iter, const char **name,
++			  uint32_t *behavior)
++{
++	if (!iter || !name || !behavior)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*name = NULL;
++		*behavior = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*name = iter->cur->u.name;
++	*behavior = iter->cur->v.behavior;
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_fsuse_iter_get, sepol_fsuse_iter_t, 0)
++
++/* ---- genfscon iterator ---- */
++
++struct sepol_genfscon_iter {
++	const genfs_t *cur_genfs;
++	const ocontext_t *cur_ocon;
++	const ocontext_t *last;
++};
++
++int sepol_genfscon_iter_create(sepol_handle_t *handle,
++			       const sepol_policydb_t *p,
++			       sepol_genfscon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_genfscon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur_genfs = p->p.genfs;
++	while (tmp->cur_genfs && !tmp->cur_genfs->head)
++		tmp->cur_genfs = tmp->cur_genfs->next;
++	tmp->cur_ocon = tmp->cur_genfs ? tmp->cur_genfs->head : NULL;
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_genfscon_iter_destroy(sepol_genfscon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_genfscon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			     sepol_genfscon_iter_t *iter, const char **fstype,
++			     const char **path, uint32_t *sclass)
++{
++	if (!iter || !fstype || !path || !sclass)
++		return STATUS_ERR;
++
++	if (!iter->cur_ocon) {
++		iter->last = NULL;
++		*fstype = NULL;
++		*path = NULL;
++		*sclass = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur_ocon;
++	*fstype = iter->cur_genfs->fstype;
++	*path = iter->cur_ocon->u.name;
++	*sclass = iter->cur_ocon->v.sclass;
++
++	iter->cur_ocon = iter->cur_ocon->next;
++	if (!iter->cur_ocon) {
++		iter->cur_genfs = iter->cur_genfs->next;
++		while (iter->cur_genfs && !iter->cur_genfs->head)
++			iter->cur_genfs = iter->cur_genfs->next;
++		if (iter->cur_genfs)
++			iter->cur_ocon = iter->cur_genfs->head;
++	}
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_genfscon_iter_get, sepol_genfscon_iter_t, 0)
++
++/* ---- Xen pirqcon iterator ---- */
++
++struct sepol_pirqcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_pirqcon_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			      sepol_pirqcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform != SEPOL_TARGET_XEN) {
++		ERR(handle, "pirqcon requires a Xen policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_pirqcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_XEN_PIRQ];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_pirqcon_iter_destroy(sepol_pirqcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_pirqcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			    sepol_pirqcon_iter_t *iter, uint32_t *irq,
++			    int *has_next)
++{
++	if (!iter || !irq || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*irq = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*irq = iter->cur->u.pirq;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_pirqcon_iter_get, sepol_pirqcon_iter_t, 0)
++
++/* ---- Xen iomemcon iterator ---- */
++
++struct sepol_iomemcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_iomemcon_iter_create(sepol_handle_t *handle,
++			       const sepol_policydb_t *p,
++			       sepol_iomemcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform != SEPOL_TARGET_XEN) {
++		ERR(handle, "iomemcon requires a Xen policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_iomemcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_XEN_IOMEM];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_iomemcon_iter_destroy(sepol_iomemcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_iomemcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			     sepol_iomemcon_iter_t *iter, uint64_t *low_iomem,
++			     uint64_t *high_iomem, int *has_next)
++{
++	if (!iter || !low_iomem || !high_iomem || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*low_iomem = 0;
++		*high_iomem = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*low_iomem = iter->cur->u.iomem.low_iomem;
++	*high_iomem = iter->cur->u.iomem.high_iomem;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_iomemcon_iter_get, sepol_iomemcon_iter_t, 0)
++
++/* ---- Xen ioportcon iterator ---- */
++
++struct sepol_ioportcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_ioportcon_iter_create(sepol_handle_t *handle,
++				const sepol_policydb_t *p,
++				sepol_ioportcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform != SEPOL_TARGET_XEN) {
++		ERR(handle, "ioportcon requires a Xen policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_ioportcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_XEN_IOPORT];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_ioportcon_iter_destroy(sepol_ioportcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_ioportcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			      sepol_ioportcon_iter_t *iter,
++			      uint32_t *low_ioport, uint32_t *high_ioport,
++			      int *has_next)
++{
++	if (!iter || !low_ioport || !high_ioport || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*low_ioport = 0;
++		*high_ioport = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*low_ioport = iter->cur->u.ioport.low_ioport;
++	*high_ioport = iter->cur->u.ioport.high_ioport;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_ioportcon_iter_get, sepol_ioportcon_iter_t, 0)
++
++/* ---- Xen pcidevicecon iterator ---- */
++
++struct sepol_pcidevicecon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_pcidevicecon_iter_create(sepol_handle_t *handle,
++				   const sepol_policydb_t *p,
++				   sepol_pcidevicecon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform != SEPOL_TARGET_XEN) {
++		ERR(handle, "pcidevicecon requires a Xen policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_pcidevicecon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_XEN_PCIDEVICE];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_pcidevicecon_iter_destroy(sepol_pcidevicecon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_pcidevicecon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++				 sepol_pcidevicecon_iter_t *iter,
++				 uint32_t *device, int *has_next)
++{
++	if (!iter || !device || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*device = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*device = iter->cur->u.device;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_pcidevicecon_iter_get,
++			    sepol_pcidevicecon_iter_t, 0)
++
++/* ---- Xen devicetreecon iterator ---- */
++
++struct sepol_devicetreecon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_devicetreecon_iter_create(sepol_handle_t *handle,
++				    const sepol_policydb_t *p,
++				    sepol_devicetreecon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform != SEPOL_TARGET_XEN) {
++		ERR(handle, "devicetreecon requires a Xen policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_devicetreecon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_XEN_DEVICETREE];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_devicetreecon_iter_destroy(sepol_devicetreecon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_devicetreecon_iter_next(sepol_handle_t *handle
++				  __attribute__((unused)),
++				  sepol_devicetreecon_iter_t *iter,
++				  const char **path)
++{
++	if (!iter || !path)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*path = NULL;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*path = iter->cur->u.name;
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_devicetreecon_iter_get,
++			    sepol_devicetreecon_iter_t, 0)
++
++/* ---- portcon iterator ---- */
++
++struct sepol_portcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_portcon_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			      sepol_portcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "portcon requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_portcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_PORT];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_portcon_iter_destroy(sepol_portcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_portcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			    sepol_portcon_iter_t *iter, uint8_t *protocol,
++			    uint16_t *low_port, uint16_t *high_port,
++			    int *has_next)
++{
++	if (!iter || !protocol || !low_port || !high_port || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*protocol = 0;
++		*low_port = 0;
++		*high_port = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*protocol = iter->cur->u.port.protocol;
++	*low_port = iter->cur->u.port.low_port;
++	*high_port = iter->cur->u.port.high_port;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_portcon_iter_get, sepol_portcon_iter_t, 0)
++
++/* ---- netifcon iterator ---- */
++
++struct sepol_netifcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_netifcon_iter_create(sepol_handle_t *handle,
++			       const sepol_policydb_t *p,
++			       sepol_netifcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "netifcon requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_netifcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_NETIF];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_netifcon_iter_destroy(sepol_netifcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_netifcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			     sepol_netifcon_iter_t *iter, const char **name)
++{
++	if (!iter || !name)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*name = NULL;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*name = iter->cur->u.name;
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_netifcon_iter_get, sepol_netifcon_iter_t, 0)
++DEFINE_OCON_CONTEXT_GETTERS(sepol_netifcon_iter_get_msg, sepol_netifcon_iter_t,
++			    1)
++
++/* ---- nodecon IPv4 iterator ---- */
++
++struct sepol_nodecon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_nodecon_iter_create(sepol_handle_t *handle, const sepol_policydb_t *p,
++			      sepol_nodecon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "nodecon requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_nodecon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_NODE];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_nodecon_iter_destroy(sepol_nodecon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_nodecon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			    sepol_nodecon_iter_t *iter, uint32_t *addr,
++			    uint32_t *mask, int *has_next)
++{
++	if (!iter || !addr || !mask || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*addr = 0;
++		*mask = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*addr = iter->cur->u.node.addr;
++	*mask = iter->cur->u.node.mask;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_nodecon_iter_get, sepol_nodecon_iter_t, 0)
++
++/* ---- nodecon6 IPv6 iterator ---- */
++
++struct sepol_nodecon6_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_nodecon6_iter_create(sepol_handle_t *handle,
++			       const sepol_policydb_t *p,
++			       sepol_nodecon6_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "nodecon6 requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_nodecon6_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_NODE6];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_nodecon6_iter_destroy(sepol_nodecon6_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_nodecon6_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			     sepol_nodecon6_iter_t *iter, const uint32_t **addr,
++			     const uint32_t **mask)
++{
++	if (!iter || !addr || !mask)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*addr = NULL;
++		*mask = NULL;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*addr = iter->cur->u.node6.addr;
++	*mask = iter->cur->u.node6.mask;
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_nodecon6_iter_get, sepol_nodecon6_iter_t, 0)
++
++/* ---- ibpkeycon iterator ---- */
++
++struct sepol_ibpkeycon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_ibpkeycon_iter_create(sepol_handle_t *handle,
++				const sepol_policydb_t *p,
++				sepol_ibpkeycon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "ibpkeycon requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_ibpkeycon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_IBPKEY];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_ibpkeycon_iter_destroy(sepol_ibpkeycon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_ibpkeycon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++			      sepol_ibpkeycon_iter_t *iter,
++			      uint64_t *subnet_prefix, uint16_t *low_pkey,
++			      uint16_t *high_pkey, int *has_next)
++{
++	if (!iter || !subnet_prefix || !low_pkey || !high_pkey || !has_next)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*subnet_prefix = 0;
++		*low_pkey = 0;
++		*high_pkey = 0;
++		*has_next = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*subnet_prefix = iter->cur->u.ibpkey.subnet_prefix;
++	*low_pkey = iter->cur->u.ibpkey.low_pkey;
++	*high_pkey = iter->cur->u.ibpkey.high_pkey;
++	iter->cur = iter->cur->next;
++	*has_next = 1;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_ibpkeycon_iter_get, sepol_ibpkeycon_iter_t, 0)
++
++/* ---- ibendportcon iterator ---- */
++
++struct sepol_ibendportcon_iter {
++	const ocontext_t *cur;
++	const ocontext_t *last;
++};
++
++int sepol_ibendportcon_iter_create(sepol_handle_t *handle,
++				   const sepol_policydb_t *p,
++				   sepol_ibendportcon_iter_t **iter)
++{
++	if (!iter)
++		return STATUS_ERR;
++	if (!handle || !p) {
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	if (p->p.target_platform == SEPOL_TARGET_XEN) {
++		ERR(handle, "ibendportcon requires a SELinux policy");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	sepol_ibendportcon_iter_t *tmp = malloc(sizeof(*tmp));
++	if (!tmp) {
++		ERR(handle, "out of memory");
++		*iter = NULL;
++		return STATUS_ERR;
++	}
++
++	tmp->cur = p->p.ocontexts[OCON_IBENDPORT];
++	tmp->last = NULL;
++
++	*iter = tmp;
++	return STATUS_SUCCESS;
++}
++
++void sepol_ibendportcon_iter_destroy(sepol_ibendportcon_iter_t *iter)
++{
++	free(iter);
++}
++
++int sepol_ibendportcon_iter_next(sepol_handle_t *handle __attribute__((unused)),
++				 sepol_ibendportcon_iter_t *iter,
++				 const char **dev_name, uint8_t *port)
++{
++	if (!iter || !dev_name || !port)
++		return STATUS_ERR;
++
++	if (!iter->cur) {
++		iter->last = NULL;
++		*dev_name = NULL;
++		*port = 0;
++		return STATUS_SUCCESS;
++	}
++
++	iter->last = iter->cur;
++	*dev_name = iter->cur->u.ibendport.dev_name;
++	*port = iter->cur->u.ibendport.port;
++	iter->cur = iter->cur->next;
++
++	return STATUS_SUCCESS;
++}
++
++DEFINE_OCON_CONTEXT_GETTERS(sepol_ibendportcon_iter_get,
++			    sepol_ibendportcon_iter_t, 0)
 -- 
 2.55.0
 
