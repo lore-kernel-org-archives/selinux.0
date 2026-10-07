@@ -1,206 +1,195 @@
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 018432D2381
-	for <selinux@vger.kernel.org>; Wed,  7 Oct 2026 20:06:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5BE342523
+	for <selinux@vger.kernel.org>; Wed,  7 Oct 2026 20:14:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791403615; cv=pass; b=UPremiWXzf+ec2ypws9pGRmwIuhDAdZIFSWzk4B/YYmvyShY8+o39Ku2Xox2+qhdHTPBDEHGoWb4S/XboZxutOW5TA6zJWP++lXys+w3jUuhS84l8XVnW/DlhgffQAWpLgVHDOxJOSSGJAXxX0DqDP3vhMuop86E9ICdtKkclCI=
+	t=1791404089; cv=pass; b=at0hKu1qLHBzflASJc5M4rBsko0Zvv/002iu+LxQZC7M6dU7FSqjJSGfMZJiLGZXXq9weK7+LJqd6BECbse5dlKYt6l4Dg3+TCS5JeeVhECGd4UPTw0/m6c/JcXaAYMWNOK2Ipsr3OH3wsE57x/9epbQRpXX1Bv8WW8IbQR1bBs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791403615; c=relaxed/simple;
-	bh=yE4ABThWVBNCVS7FzFUPf0Sbm6dqhDFLrbsjE8h3l1I=;
+	s=arc-20240116; t=1791404089; c=relaxed/simple;
+	bh=SoSpP8WSwH/gLmaXIUYUpzoSOKZVHLpgM5LyKeG6LH8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HZHQBjt2BumxKnVLdFgvX14oOYi1+FUkH2PkAJoF2uud+OYygT8RDvMuPIhJdDd48ch8w4AEh+8atAAEfwfP6nj0LlFf7N7wNFoAZ/iMSPA5a/7ZlO4syA+DNl8ZUGB3yCRQjnJf3rvKICczHaqGsPi9mWOKUNpR3eqYnhnWq4M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jj8DTXJS; arc=pass smtp.client-ip=74.125.224.47
+	 To:Cc:Content-Type; b=ZNmLNmdibBGMseI1ar0gTekmDH85IgyxxV9oUFvffjBbZheEyKtxgV4KIYgDAukM9coxg9SwQkkN+8iEA0Avo/aqxI0m72EOphQjTUFsJDDPucM3bx/K2pb42vRmKx4QROTH/bL1+LdJO98EgJpRz/aa63p4GNimk6O6ePYJN+8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nfQsJNHH; arc=pass smtp.client-ip=74.125.224.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jj8DTXJS"
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-677cc343120so4516311d50.0
-        for <selinux@vger.kernel.org>; Wed, 07 Oct 2026 13:06:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791403613; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nfQsJNHH"
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-6768403e9bbso2547985d50.1
+        for <selinux@vger.kernel.org>; Wed, 07 Oct 2026 13:14:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791404087; cv=none;
         d=google.com; s=arc-20260327;
-        b=Ae+OTUHpZOBJ94J3qDrjdXpCyaZVSyAP5apRrLJwkazGBURiJSr15Dtdc37YOivW+F
-         g/0NIeuwqzNjka1vQCRcrZQSmNPPwGkUA+yLav/1JC72MKyOPfW+R9PNYhhcfVI5z7+N
-         +DaQ7+beWdIe14hthSkRej3FdsP4LrBwlRGv4vIJKr+6eFqpGDBlK4N814vtLsnqShbm
-         Wn/JGPQq9VBcQrbbHcqKEZzh7dOJIuGA4uU2OYZK6EDWeCBjs5DsDfnpuMZF59HZ4k46
-         YgZnTvZhvz6sgwvutVYaQK1I8yDhth4hFWJVPVpm1Prp6uUHERGcu3/yRN9cAbXy+N0W
-         /NiQ==
+        b=kqwywPJBYEETQyYvlI2znBkEzeb9sIqSfQS/kqIiCjAq/k9rUsCB3CxN9ElcYC8ZW4
+         8pKPbQoEbsw5BlHUrgL9xgBwMmKAUMJsnjH+eEX/9oeu0mhNncXFiLdmgcWY3381D4wg
+         XL/0Z2TsNhhKKxGzOwxO4HOW6QtGfKiSZR4fNoAeOqlc7PPE7kzFmK6t9dthfHckzmmM
+         SaOQOOIgsLviNUKxlUGCYH3bbKVoVH3tB8r6SwE4HI67C6hLk8aWBF2Y2zkXFK86SUBV
+         5DiiuFf7GWB/YtJJ25LpnfE9DEj5vsAquSpC4r1DUrUZFBzL5nZ3r7gQkZ3fNoqPuvJ/
+         rvhQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=6IsUGgkKMJWbRleN+p3ZvgZy3ZOjtdECZ1I4oUq7bUI=;
-        fh=2l94eviRgWluv8ZsHF0iP/9Nklou1gUggUsUJ5BRhxs=;
-        b=UwRc4p3EbjEHwQ2nTBQCk0ksQOLZ0v25LqQOqTCZD1tkreMdVj5JUv23X9NhksC8fX
-         nznt1lSzshgppsa9LTToLnJ1tJMExckHPcYQBtDKd/E/ftgEBrDyKUDLWIKQPeoAnU/k
-         H+94ZrU8Nshn5tFd1mxUKCq85pjSJAGRVpYjo8ls7hU8VizzfFcgC8ExK/mfrt62ewNg
-         CMBwJUE5pF21JT86g7X2/IQCFMrM9qFGD9wp/PgmK5aRPg/k9MgyUSeRfKJuOit9ar45
-         E3SNrh/GlvUaPpyzOs/Bk+t2ZOy1ugp8iSlEir3ALmZ0dsXh/MUu8gaL1YX8UX7Zt5+u
-         59aw==;
+        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
+        fh=70ac3Nu/9NXKnHlYiwlzC0S2l6TozL9UGuJMqFYgbLA=;
+        b=MYMz3EMw+7R4IuHZW9rwQYXj4Fe+wzBInXaK3FY3t5FVPfbcp9FdlsEWS27NsKz5MX
+         PqTcjG2mOk+N9aYP31M8V+GxexSPhvEthFZQY7pApLrf2Tp/mTcMosEOmOm+b7JccD2D
+         9X/4lNeFoAqWNhPp0o3HzyRyUJTn4c/TCd86l8wfZTn2fKuDl6eXG+fKd2pZzV+d01c6
+         QVYk29lz7kjaMzEWjKdQNn34ji+uVFsIU8+hkqT7mXTUPlDbf9IAFsTiBb2H/whhvsQm
+         UGH6RbE4LL71nNvXamzE9Gw8Z57lgY5Ia5tS55lqqtBh3fx2STvw8nLHgD/Ea9U8xfBW
+         cIlQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791403613; x=1792008413; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791404087; x=1792008887; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=6IsUGgkKMJWbRleN+p3ZvgZy3ZOjtdECZ1I4oUq7bUI=;
-        b=jj8DTXJSK/qr+AZLWIwRRld2c/TnpNIsTz1ScP1+b+r+EdfhWxTpd0WGBD0zbHVaUt
-         CylSO7Nl2Pn9ahPZkxCz+CW0rticKQ9b5/jz5KHTeIE1/XgWnDnw9ShAdJ3AnYeZp5uO
-         D8GLBDPrLMpWaJDk/pG2/v430CYtWDoAVfeZzgQsruKkTL/uBp7ktaTjXK4JV92N5HJd
-         uXiIMI0pH6IriWo/H8G6WrhMJ78PP0/MD370cNYbjItByNIrEP97pnfQl08aZYnHOIJN
-         l5IOGh18YGijSszbTM0hztuDxjv8mlpebyAn+aDGli08dAEPJ1YO+3mHVpbwWGja/uFN
-         mBUg==
+        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
+        b=nfQsJNHHu2ZY2b02BLQDfGpBdDuiDtsYCn14aPKP8tRoSsqdKqpmDesN7utSj2Dq3t
+         y1+dM+DeCrgnOkmMn2Yq5iuba9Uhgt6Cex+PDj6SHrxNLKV+zyiBNXZOLw117Ol8+oR7
+         HrINQObwe5URO5zQifyNzwH0JFvR8CMs1WnP4rN7V2VUtOKEjt6T2n5s/201qPyvjJxQ
+         UQJ1tGc+6lK3W6ss3aWUdcCpGmwJgl6g/vZ6H0+349dZTyB+E66VJT+2WZG3rmop+KRb
+         PYMozD4OC0MqKr8AjCmuMij9ymMod65ozYKm732vCQKcjmUWSQAaWpZOx8ILTd9LIx2R
+         EsMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791403613; x=1792008413;
+        d=1e100.net; s=20260707; t=1791404087; x=1792008887;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6IsUGgkKMJWbRleN+p3ZvgZy3ZOjtdECZ1I4oUq7bUI=;
-        b=eMh5iUxQZ61qCUNtjI2cDNtYR0PWBPKzVWO1UVKKYR3+apNf1Ur2mdUfzSfRhOBLB3
-         6AMWhoel0DgHARCMaxQCcUsIzXyE82NGWugi3ObrkLq+zg0hUOukZju8L5nqvRmrZL2L
-         wG8OiWze54Dpl7kI21rEEbw4WKbav1phIVQVUcP5CbinsalPbmVwstq9pznCJm23Wf+y
-         HYGq/fT1MykhaD3bPlEgGjbPHYqltKUpL3utHfxzsfUKgHXK8x0DIWDJ7K/i0/fB9/Wo
-         qTrzgupGI014oFwyDGE+ZguHkFq5yH2yl4Qq74rr3PWDIeWJoRs16EZX7Cg2Sb+XOF3w
-         IBZA==
-X-Forwarded-Encrypted: i=1; AKwUvBxzzj+H6rYtS/Zdu80e8Fhf0ou7x5JM+vPlHxewOqkm5bsDSfBoKFxaT+eI/etHOMLqd1y7YBgL@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ2UbY8vlddVgGzQJVrtH7nrTSR5f2bN5u4LggHaSDCttbdh2Hd
-	dk/Ap/vZ/bFKmVeV1EaYzhXAX9sC6Liqp9FbJVHPOg5EvNBlqZhcxfd8iClQ5A1IIyqsx18sSNv
-	VlWhfuYWzvqFoIopXxr9jxC7iONSyp38=
-X-Gm-Gg: AYBFou040TBkGVSgWyCi3q1mGh3HFDOg+KJdt2t8voYkRjQ3dzwPOGyHyvWCzsYSo7V
-	nv18PgYZhcbrzDG27K2ygdGoNkqdYGbRGp7gkJQz6zQ6fz/nR2lQO1G64msS1LcaQSnb5dzxo4m
-	Nmr8wRWBVuXcFY0SZ2kx8JBQAHU6Hn+EXnllBtfTegfeafR/g1kmuBq2AMBxb41u1sGVHBuDUsa
-	qqNrDxk/eX31Gmd3Xhin621vYJR2OkeStE8+t9CA0LjfEnOZW+p6N+xoegicyflhxPfhCSwMRLF
-	8VmsFtRxdQxGjvHfYpnYXngC0khDN9QlG/DBXwxK8YDiWwavtRDjqvQ=
-X-Received: by 2002:a05:690e:484e:b0:675:3f33:b183 with SMTP id
- 956f58d0204a3-6790a3ba2cdmr1392711d50.24.1791403612620; Wed, 07 Oct 2026
- 13:06:52 -0700 (PDT)
+        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
+        b=nzxo1oDPrpK/365KLc0Cvnuev3zagk5yBkcSY6jcHH5g07kwCIIbBMfOu43DeUY/zW
+         ku/L830hK3sUzb1Qbj4ZCOZC094oH2ijSx49/PdvpPDxoOcJxKqKJQla3AqcI6pc/k/4
+         fvCsnZYzCvLQXtvbPFJwJTdt12kQChuldQarePJQM5GF+WwLoT79bb3xY1RsRDbDsAiH
+         M0vsAi75M3OSqPqAb+SkhbeQwpV23a2EQs7rQXSWY+nFbNzkQ4CePWSoj++cCju2ULo6
+         O6TTS0fatKWb7lkiByHdUZhXkASKgr5gFsrP5zau6jJQVrxl/lhwPhfeWlGWJ/OFWpeM
+         4owQ==
+X-Gm-Message-State: AFq9FYL38oGceXrW4HVil/OdfXqUS+ZFbdIg6sZF2ULWteVZ1kLB5uOP
+	srnQyntZut8/P5RSgXBO6OFb8vmT34RhqBVJe259XrP7V8586eFU8i28qzlFFrElWbRq5Z//RZJ
+	tQMFdFUcMZrgAZxOwnoAXpFspYRyCNdLY0glS
+X-Gm-Gg: AYBFou3l7Xmvknf8lt8g1HcU/SRh/FZHssnu+PtXzd1L41jTzBXQGfb2Lti7ta6Wnqt
+	QQT5jGWlg+UvzL5yvaRfge/+Tc/EaVePI395WDH7+LUroBvSJQNIW7dkXrPJOi0ukkHm6LPTP1F
+	rTZFs58MwRKgU62eCEruucxWERp1kM2pLcQw7QzlfMlx4huXm44uKnuNFL1e20KKLYw3aneQ11b
+	dD41eQrZM/bnI7xex2ElPQcBmOGGKf3vFebeG+Z1nI5HvQEX6Y9SkFAcd0ObsRGwDotU0EUVGG7
+	NHS/q584owd5sqsda/yadz7+Jm5ctNzV1kssfIMGcxVlSgsoLBKMh8jgP7NWBap77Q==
+X-Received: by 2002:a05:690e:168b:b0:677:d93e:ee69 with SMTP id
+ 956f58d0204a3-6790a2973cbmr2245502d50.94.1791404086742; Wed, 07 Oct 2026
+ 13:14:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261006130215.128405-1-jjanasek@redhat.com> <20261006130215.128405-10-jjanasek@redhat.com>
- <37badcb1-92f7-4289-a965-5fccec5638c4@ieee.org>
-In-Reply-To: <37badcb1-92f7-4289-a965-5fccec5638c4@ieee.org>
+References: <20261006130215.128405-1-jjanasek@redhat.com> <20261006130215.128405-11-jjanasek@redhat.com>
+In-Reply-To: <20261006130215.128405-11-jjanasek@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 7 Oct 2026 16:06:39 -0400
-X-Gm-Features: AclHuK-m93JHlBQztiagN3xnM2uC1Ajpws7TmPkQj5Bb1BVjhxD9jKRabaUFgJc
-Message-ID: <CAEjxPJ7b78wW3aE5w-pB-Da6RGXAy=CoHvkOQjumbt6jhdy+jA@mail.gmail.com>
-Subject: Re: [RFC PATCH userspace 09/17] libsepol: add policy properties API
- and public constants
-To: "Christopher J. PeBenito" <pebenito@ieee.org>
-Cc: jan janasek <jjanasek@redhat.com>, selinux@vger.kernel.org, 
-	Juraj Marcin <juraj@jurajmarcin.com>
+Date: Wed, 7 Oct 2026 16:14:35 -0400
+X-Gm-Features: AclHuK9lYmTWuQ5VQBxIGPv25ljnN5NTo6UC1dyzNX8QjhcqHWaGUeP1TCgHbg8
+Message-ID: <CAEjxPJ6tpzhZn7_KdK+BUZjuAamoeXFVKSAYRU-tzJY6zYUXTg@mail.gmail.com>
+Subject: Re: [RFC PATCH userspace 10/17] libsepol: add context resolution from
+ policy values and SIDs
+To: jan janasek <jjanasek@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 7, 2026 at 9:16=E2=80=AFAM Christopher J. PeBenito
-<pebenito@ieee.org> wrote:
+On Tue, Oct 6, 2026 at 9:08=E2=80=AFAM jan janasek <jjanasek@redhat.com> wr=
+ote:
 >
-> On 10/6/26 9:02 AM, jan janasek wrote:
-> > Add sepol/constants.h re-exporting AVTAB_*, OCON_*,
-> > SECURITY_FS_USE_*, and related policydb constants under an SEPOL_
-> > namespace (with unprefixed aliases guarded to avoid redefinition
-> > conflicts for callers that also include internal headers), so
-> > consumers no longer need policydb/avtab.h or policydb/services.h just
-> > for these values.
-> >
-> > Add opaque-policydb properties: sepol_policydb_mls_enabled(),
-> > sepol_policydb_compat_net(), sepol_policydb_set_permissive_flags(),
-> > and sepol_policydb_rebuild_attr_map() for maintaining the type
-> > attribute map after modifying type/attribute membership.
-> >
-> > Co-developed-by: Juraj Marcin <juraj@jurajmarcin.com>
-> > Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
-> > Assisted-by: LLM Cursor
-> > Signed-off-by: Jan Janasek <jjanasek@redhat.com>
-> > ---
-> >   libsepol/include/sepol/constants.h         | 231 ++++++++++++++++++++=
-+
-> >   libsepol/include/sepol/policydb.h          |  29 +++
-> >   libsepol/include/sepol/policydb/avtab.h    |  33 +--
-> >   libsepol/include/sepol/policydb/policydb.h |  68 +-----
-> >   libsepol/include/sepol/policydb/services.h |  19 +-
-> >   libsepol/src/policydb_public.c             | 203 ++++++++++++++++++
-> >   6 files changed, 486 insertions(+), 97 deletions(-)
-> >   create mode 100644 libsepol/include/sepol/constants.h
-> [...]
-> > diff --git a/libsepol/include/sepol/policydb.h b/libsepol/include/sepol=
-/policydb.h
-> > index 98357ee4..967bce3d 100644
-> > --- a/libsepol/include/sepol/policydb.h
-> > +++ b/libsepol/include/sepol/policydb.h
-> > @@ -87,6 +87,11 @@ extern int sepol_policydb_set_typevers(sepol_policyd=
-b_t *p, unsigned int type);
-> >    */
-> >   extern int sepol_policydb_set_vers(sepol_policydb_t *p, unsigned int =
-vers);
-> >
-> > +/*
-> > + * Get the policy version.
-> > + */
-> > +extern unsigned int sepol_policydb_get_vers(const sepol_policydb_t *p)=
-;
-> > +
-> >   /* Set how to handle unknown class/perms. */
-> >   #define SEPOL_DENY_UNKNOWN 0
-> >   #define SEPOL_REJECT_UNKNOWN 2
-> > @@ -94,12 +99,19 @@ extern int sepol_policydb_set_vers(sepol_policydb_t=
- *p, unsigned int vers);
-> >   extern int sepol_policydb_set_handle_unknown(sepol_policydb_t *p,
-> >                                            unsigned int handle_unknown)=
-;
-> >
-> > +/* Get how to handle unknown class/perms. */
-> > +extern unsigned int
-> > +sepol_policydb_get_handle_unknown(const sepol_policydb_t *p);
-> > +
-> >   /* Set the target platform */
-> >   #define SEPOL_TARGET_SELINUX 0
-> >   #define SEPOL_TARGET_XEN 1
-> >   extern int sepol_policydb_set_target_platform(sepol_policydb_t *p,
-> >                                             int target_platform);
-> >
-> > +/* Get the target platform. */
-> > +extern int sepol_policydb_get_target_platform(const sepol_policydb_t *=
-p);
-> > +
-> >   /*
-> >    * Optimize the policy by removing redundant rules.
-> >    */
-> > @@ -148,6 +160,23 @@ extern int sepol_policydb_mls_enabled(const sepol_=
-policydb_t *p);
-> >    */
-> >   extern int sepol_policydb_compat_net(const sepol_policydb_t *p);
-> >
-> > +/*
-> > + * Set permissive flags on types marked as permissive in the policy.
-> > + * Must be called after policy load to enable permissive type enforcem=
-ent.
-> > + */
-> > +extern int sepol_policydb_set_permissive_flags(sepol_handle_t *handle,
-> > +                                            sepol_policydb_t *p);
-> > +
-> > +/*
-> > + * Rebuild the type attribute mapping. Call after modifying type attri=
-butes
-> > + * to ensure consistency.
-> > + *
-> > + * On out-of-memory, returns -1; the map may be only partially rebuilt=
- in
-> > + * that case, but the policydb is left in a self-consistent, usable st=
-ate.
-> > + */
-> > +extern int sepol_policydb_rebuild_attr_map(sepol_handle_t *handle,
-> > +                                        sepol_policydb_t *p);
-> > +
+> Add sepol_values_to_context_string()/sepol_values_to_context_record()
+> to build a security context string or sepol_context_t from raw
+> user/role/type values plus an optional MLS range string, without the
+> caller ever touching context_struct_t.
 >
-> I'd suggest a single public function that calls functions like these
-> two, e.g. a function to initialize policy queries. Otherwise it exposes
-> internal details that users don't need to be aware of.
+> Add sepol_sid_table_t, an opaque wrapper around sidtab_t
+> (sepol_sid_table_new/load_isids/set_opaque/free), so callers can load
+> and install a policy's initial-SID table without including
+> policydb/sidtab.h directly.
+>
+> Add sepol_policydb_sid_to_context_string()/_record() to resolve a SID
+> to a context using only a given sepol_policydb_t, without requiring a
+> process-global active policydb/sidtab via sepol_set_policydb()/
+> sepol_set_sidtab().
+>
+> Assisted-by: LLM Cursor
+> Signed-off-by: Jan Janasek <jjanasek@redhat.com>
+> ---
 
-Agreed; see also my comments on the cover-letter for this one, and I
-spell xperm_* UINT32_C(1) as 1U usually.
+> diff --git a/libsepol/include/sepol/sid_table.h b/libsepol/include/sepol/=
+sid_table.h
+> new file mode 100644
+> index 00000000..64d08fc7
+> --- /dev/null
+> +++ b/libsepol/include/sepol/sid_table.h
+> @@ -0,0 +1,43 @@
+> +#ifndef _SEPOL_SID_TABLE_H_
+> +#define _SEPOL_SID_TABLE_H_
+> +
+> +#include <sepol/policydb.h>
+> +
+> +#ifdef __cplusplus
+> +extern "C" {
+> +#endif
+> +
+> +/*
+> + * Opaque SID table for use with the security server helpers (sepol_sid_=
+to_context,
+> + * sepol_context_to_sid, etc.) without exposing sidtab_t.
+> + */
+> +
+> +typedef struct sepol_sid_table sepol_sid_table_t;
+> +
+> +extern sepol_sid_table_t *sepol_sid_table_new(void);
+> +
+> +/*
+> + * Frees a SID table created by sepol_sid_table_new(). If this table is
+> + * currently installed as the process-global active table (via
+> + * sepol_sid_table_set_opaque()), it is automatically uninstalled first,
+> + * so subsequent calls into the security server helpers (sepol_sid_to_co=
+ntext,
+> + * sepol_context_to_sid, etc.) will not dereference the freed table.
+> + */
+> +extern void sepol_sid_table_free(sepol_sid_table_t *tab);
+> +
+> +extern int sepol_sid_table_load_isids(sepol_sid_table_t *tab,
+> +                                     sepol_policydb_t *policydb);
+> +
+> +/*
+> + * Installs tab as the process-global active SID table used internally b=
+y
+> + * the security server helpers (sepol_sid_to_context, sepol_context_to_s=
+id,
+> + * etc.). Only one table can be active at a time; calling this again wit=
+h
+> + * a different table replaces the previous one as the active table.
+> + */
+> +extern int sepol_sid_table_set_opaque(sepol_sid_table_t *tab);
+
+set_opaque() reads oddly; _install() or _activate() would say what it does.
+
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index fdd84078..a44eb395 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -127,6 +128,18 @@ int sepol_set_sidtab(sidtab_t *s)
+>         return 0;
+>  }
+>
+> +/*
+> + * Returns the sidtab currently installed via sepol_set_sidtab(), or NUL=
+L
+> + * if none is active. Used internally (e.g. by sepol_sid_table_free()) t=
+o
+> + * detect whether a given sidtab is the one actually in use, since
+> + * sepol_set_sidtab() can be called directly and bypass any bookkeeping
+> + * done by higher-level wrappers such as sepol_sid_table_set_opaque().
+> + */
+> +sidtab_t *sepol_get_sidtab(void)
+> +{
+> +       return sidtab;
+> +}
+
+Defined with no prior prototype; -Wmissing-prototypes flags it from a
+top-level build.
+Declare in src/private.h or similar.
