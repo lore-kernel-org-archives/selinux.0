@@ -1,97 +1,119 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765A03D75C9
-	for <selinux@vger.kernel.org>; Thu,  8 Oct 2026 07:27:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791444462; cv=none; b=MRVvUNcpcGzpRzlO6rxF2q6dFcVcSOhR9VZjNgeTZcckuLTFc/ONWQEul9suixz9fPAkKrU1VQUoPAIx89Q2b71RHhIUhl75luWKcFMrwrj6g5P36fSPIC2PzWBqlThi8GtKv1B+aQ9yxAofZMIsB9URk1yb3jGZnLNv9gkyWlg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791444462; c=relaxed/simple;
-	bh=kNfftGTuyKr5UntzEV5eXUutzYGpxdkwWK0DHyoWc3c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rWqq4xzEMgFShVgjTSix2vtwIeZ0KztJCpybTvxXNXDKoYE/yn3AKTHygyEgYjsd+3m9IYzJMJ0OshMCUWmteD3d/HwOFC9IUY//imbhUYsW0ql/XrHGn4dfDdk4LQ3IUNxViExOkDXL12xIbdD0sybmese94/dv84yuZBh5Vmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88C2949BD71
+	for <selinux@vger.kernel.org>; Thu,  8 Oct 2026 12:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791462927; cv=pass; b=O4ymvI10RPbQiwrQRPvqX35/Ki6XnYPaccU2XNOH33fHBzXCyjo4y+27PK4ratnZdwHXlrnA/QHjVlhPoGhzJVB1f5Rm+0/LpKw9SJFWhKzq4y1wkLr6iUOul0zm+Ato793+xs64QRrquRe2/wc9o8W2R9gMNLdJ8IustdMTq2A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791462927; c=relaxed/simple;
+	bh=F20yzCq4xPvsZPPZJIhpSA30ucuz/RlSko+jovuiDqw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dnNxJB2goqUk+8iLSgZSulDLn1ckGmpAacX4ykfsnoDSKN+9CK3ZLBczS6JoEeClH1Ni7ykM2YkXU4lyGQ+9YKm1JdbrLdPtOOkpN4+XUXLnUkZUqGAUxitakePeNwdY8q+f2a+A/DJxL4WhuHm9P4Yry1LxXjDJbzNqA+uV7G8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o1jhPM7a; arc=pass smtp.client-ip=74.125.224.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c315869241fso533044566b.0
-        for <selinux@vger.kernel.org>; Thu, 08 Oct 2026 00:27:40 -0700 (PDT)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o1jhPM7a"
+Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-67687f279b3so2951205d50.0
+        for <selinux@vger.kernel.org>; Thu, 08 Oct 2026 05:35:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791462923; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Rq3M1sIvvrOqjNKbqhhvKo21k9OtTdSJERaPr9ARPUeGzSEFwTljBJV6veSV9pHLjQ
+         mvxmBJGF3F3AgvYn6yoB1upZBMYlWL7OnuD5z3ulIWVR/DanbJJTLubltAloHAAeby/H
+         5Nwzt+2CkhzFj9DYLJBGQGtmTkFXK56ErgO1pvY9zPSB1GtG/KMDzVec4uHdkLz9RcwO
+         K/atBI0JqxUYibbO+PCIrCfmXXTEcNCo7M93iN3ZsFyFNHet/UkH1St3btN2DUOqizxz
+         doxeACI8GaiYfU8UhY+bTjoIp3ckJEvSj+7khB12JdoA14XfhpeEJLZPJXjrBRUGXVTh
+         uCIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=F20yzCq4xPvsZPPZJIhpSA30ucuz/RlSko+jovuiDqw=;
+        fh=70ac3Nu/9NXKnHlYiwlzC0S2l6TozL9UGuJMqFYgbLA=;
+        b=PvbmLrLLaysLAeR0Irqkr6JFBhz+aWAN2/JEAMB6LenmPa+KtTIeaLhUZmB70Dp3AU
+         /8BKVqb+qUDUZSgY+SEswEneQuuKa6Lsx1oR99aOQVccXwNktgoIqAa2sLjrVifpD4Vq
+         oRekyZxbr06hzwTAB3uK7v19dVCE9o1HuABsBBWP34ISEc28U3116kxJe0wLaO+RqL/O
+         H1xqa1q0NtZTVqfBzJ8S8j7CHg4DtP1LtKI6KES/7hq0yDGFo/pRYPDuRVHzd14scJeL
+         r7P0aCfmKbT6hHeTCybpNd/QeatsHckZjJ14Jx6/f2awsdYkPCd663a/XhYpQCDWUvJc
+         M7TA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791462923; x=1792067723; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=F20yzCq4xPvsZPPZJIhpSA30ucuz/RlSko+jovuiDqw=;
+        b=o1jhPM7aV3u+BoxUI/xz2c7ORwEaofSk4LlQXoVxvJE8bYsHR3wdh77SnOET0rtrmq
+         P6uR4CPXdye2FyMNaS0pUE4+TV5kdjk/s9nExDApVXa2YFIxHKhlFxem5hHCcOKj1tRX
+         QkQybw/InBTgwenyki74vxqWIN6WQWzjk2wDTpBPxlSmBYUSXT3yPp1wUZ59ryJrHgLY
+         8LoBE7i4RQswA3BOrAOJ3KvjLJft97YIP7+DImo+GVIB4kAxdq6QlcpfmLBBAQB+BoZl
+         8+77ej/EAeMG1XPJ653ZbLMmUksBln7j8EeKtj6BNs1F/MN7M0suzK/WAg29BnEgDeIg
+         aEGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791444459; x=1792049259;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=w2s7XFT1LYOjmY+81we/LCYwtE1UWFZH0fAjqntC1Tc=;
-        b=2tg2wvLv/dm2E/HvsYy9f6OOPUmSZZBuZQx1tY/Y+T3uJjvM2vPEVw/fi5D4oqYUdc
-         LbJuxrRgdILyQSSAUkr3DNSbLDwAQQTlb63JVbGApGKl6jaxURVvSVqokB+U2Jy0Yvfk
-         6/GJVGBpQfFXS6+gJ95v61kOO9R4PHaPpT9pPIhtZtkhudabCtbBZQ+NPXVuYCHcv7/2
-         KE4QPZbl4Bi6+TcVj+8cyrNDNQyOeI2w08wp1ndI3s0q1pWGhZZY8PxIhdWi9LYOMNO5
-         WTsbb1hVCAqYvoLvs5gsAZjCurmij43l1/kaBaFSU9K4q4VH5cgxd9xvBVd66YGiYxdO
-         69Aw==
-X-Gm-Message-State: AFuF++ltKrgh3+6SmT1lk29nG01scKHXS/0b95V2iNlSPX1+0waxrbnG
-	s7L71q1Qa6J4lqgrdSvRT2VH2drMI8eCUyNi0L9kPSxjkf6yRzuFMhvzP6ZhNA==
-X-Gm-Gg: AYBFou0GXFhUEdMkKssvwnO7Tmm80FjcQhokjUr6jdZA6yUmYoxANeEYYIS6VOqug4q
-	z/bzY6uNuGzDBzy3nSTsFak8dEVdbtNJ/QlVb3xy+Ve+gTUjXncrqgpmDdyqGpX7XUUtHSZJaGD
-	d68QudPzauGLjh+PaHYB89CmO8dKfRSWbPo7jKQEeSWnMpBuGl4WgsOv+VOcHYs0Kva2ngt1hL7
-	qRyYf6VBohQuNU88pTY3wnwZ3oXqc240J2juk6Uik+UeCgE3fOcZXMveBMLe5nWDXN8Hf05twVb
-	dx1Q8Usd9j7Am0qCN2cygFaleHgh/gyQGint666ihFC57vX6yAWTjKEwQYiDYwrr+CwZXDMBA2I
-	fHdc+12pRhpnVt/VBPuz2brQW4BMg+S4XiZS9EvfoTPCl0/XkzBW4y4+6xxgUx20RUTdw3mL/rP
-	KcvUFQgdLxrsX6w+sg+ANyXBYQ+5Fj9NakXTC1XjlyEnNXFi4GMFP98jxYgCxX6cWXE+qY9ivTA
-	KvzT6V6ZsExYc49v8L5hiLd2cHfDkWklXi/vimCog==
-X-Received: by 2002:a17:907:9723:b0:c2b:7686:4d7 with SMTP id a640c23a62f3a-c317c121daamr403731566b.39.1791444458594;
-        Thu, 08 Oct 2026 00:27:38 -0700 (PDT)
-Received: from honr (1594037-cn39285.twc1.net. [89.19.217.140])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c317c2fd772sm186095766b.54.2026.10.08.00.27.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 00:27:37 -0700 (PDT)
-From: Evgeniy Gorbanyov <esgor@altlinux.org>
-To: selinux@vger.kernel.org
-Cc: Evgeniy Gorbanyov <esgor@altlinux.org>
-Subject: [PATCH] libselinux: avcstat: reject out-of-range interval values
-Date: Thu,  8 Oct 2026 13:27:10 +0600
-Message-ID: <20261008072710.41831-1-esgor@altlinux.org>
-X-Mailer: git-send-email 2.50.1
+        d=1e100.net; s=20260707; t=1791462923; x=1792067723;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=F20yzCq4xPvsZPPZJIhpSA30ucuz/RlSko+jovuiDqw=;
+        b=FZCXsfV8qDkxQ9lKPZnZEn6vwJC3p3e6if5WUppu9SydU9kBtOMSbfj6kvp9UPkPm4
+         rBYnmOJ2QO+dOoeE19J4U/1KMrpGkwuLKm1Zl7neNZXA4UFw1LJJbd6jZamHTyU7WTSB
+         FJvCkBnuLdtFwTfsRjwYjdbgc8Xy9NyClyRpg7rf0HVrDHdIXroXookr4lOOSdv2o1eB
+         JPeCzSMiRLeIFJ9v+ke373O8kplIvHjUJ6E5DyR3hjgYFsSYUJGBzlqlDG6Te4b6iGXj
+         U4Z8Su+cdGhezeGkxNUgGtSuFWkySB5gYFEEVP5eYzdF2eadbCPXAaKNIhCEtHJcA380
+         2BOQ==
+X-Gm-Message-State: AFuF++nm7sqEr4SD9VKmZ6wy9aIWY2e6V0Vmm7Mh9yySM9t13poT011t
+	nmxL5P7J2VLgSJRhoTagUGe3pGdFfNgAyyEioHShhTqUsb2+z+s2balRMVgN3pmPjIQMbL96Et7
+	xJWsVB6Qm+wsC8hyCixWsC2xuafa2XEr5tbwC
+X-Gm-Gg: AYBFou3vApP0ZR6qw1kIhkWppE4l6kugmc7uHEZjYwb5ivkbjPZdKqBjSx2E75SDh9k
+	LH0G/EykN6aquhxBI6kC9PdUhFRCz5sf2MglkzEfTyZ2rbgSBv/3eVlzANxUzMb/BZjHAIO2OWA
+	rrZhFv6DuMmwlyasJmxA4P8+zYweQbKcWAMcN/WJgZV2ELcp2NHhKd/51UNEAK2Tu1E+dXH1HAB
+	CZjvgCVv1Z5x56WNEgnQoH+k6th+QORTkmlNWCzMdYFW4dTmKyYF0dYYM8CgklQcL8/D/pfVpkB
+	3gPCwR6+xyTodrZ67Mmrb232xLUxdDe+AsGgOK/aOC6yhty7IO088CBf/125rG3P6YM=
+X-Received: by 2002:a05:690e:80f:20b0:677:d4b0:47fa with SMTP id
+ 956f58d0204a3-6790a0a41d3mr2001076d50.65.1791462923482; Thu, 08 Oct 2026
+ 05:35:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20261006130215.128405-1-jjanasek@redhat.com> <20261006130215.128405-14-jjanasek@redhat.com>
+In-Reply-To: <20261006130215.128405-14-jjanasek@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 8 Oct 2026 08:35:10 -0400
+X-Gm-Features: AclHuK_0wuudl1YH3aHaqQ7oQ3s9eYnxdrwUB8Qw6uJzhs9gNcKBHJIbCzsn-UU
+Message-ID: <CAEjxPJ7kDd9oRxzmV4M-JVFcUoPP-MmNQQJjy6FPvHzSc4PdsA@mail.gmail.com>
+Subject: Re: [RFC PATCH userspace 13/17] libsepol: add ocontext iterators for
+ initial SIDs and named contexts
+To: jan janasek <jjanasek@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-strtoul() returns unsigned long, but avcstat stored the result in a
-signed int and passed it to sleep(). A value above INT_MAX becomes
-negative, and sleep() then treats it as a large unsigned duration.
-Compare the full strtoul() result with INT_MAX before narrowing it.
+On Tue, Oct 6, 2026 at 9:05=E2=80=AFAM jan janasek <jjanasek@redhat.com> wr=
+ote:
+>
+> Add per-kind ocontext iterators (initial SIDs, fs_use, genfscon,
+> netifcon, node/node6, port, ibpkey, ibendport, pirq/iomem/ioport/
+> pcidevice/devicetree for Xen) with context and name/address accessors,
+> deduplicating ~100 near-identical accessor bodies into
+> DEFINE_OCON_CONTEXT_GETTERS macro instances.
+>
+> Extract the initial-SID name table (indexed by SID value, not stored
+> in the binary policy) into a shared libsepol/src/initial_sids.h, used
+> by both sepol_isid_iter_get_name() here and the existing
+> kernel_to_common.c CIL/conf writers, instead of duplicating the table.
+>
+> Assisted-by: LLM Cursor
+> Signed-off-by: Jan Janasek <jjanasek@redhat.com>
 
-Signed-off-by: Evgeniy Gorbanyov <esgor@altlinux.org>
----
- libselinux/utils/avcstat.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/utils/avcstat.c b/libselinux/utils/avcstat.c
-index 640a7a05..0c534f51 100644
---- a/libselinux/utils/avcstat.c
-+++ b/libselinux/utils/avcstat.c
-@@ -13,6 +13,7 @@
- #include <libgen.h>
- #include <stdarg.h>
- #include <errno.h>
-+#include <limits.h>
- #include <string.h>
- #include <fcntl.h>
- #include <unistd.h>
-@@ -122,9 +123,9 @@ int main(int argc, char **argv)
- 
- 	if (optind < argc) {
- 		char *arg = argv[optind];
--		unsigned int n = strtoul(arg, NULL, 10);
-+		unsigned long n = strtoul(arg, NULL, 10);
- 
--		if (errno == ERANGE) {
-+		if (errno == ERANGE || n > INT_MAX) {
- 			usage();
- 			die("invalid interval \'%s\'", arg);
- 		}
--- 
-2.50.1
-
+As I noted on the cover letter, please document the KERN policy limitation.
+With this patch applied there is now overlap between the new raw-value
+sepol_portcon_iter_*() and the pre-existing record-based
+sepol_port_iterate()/sepol_port_t and likewise for
+node/iface/ipbkey/ibendport. Worth a sentence somewhere about which is
+preferred going forward.
