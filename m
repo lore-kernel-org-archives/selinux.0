@@ -1,195 +1,97 @@
-Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5BE342523
-	for <selinux@vger.kernel.org>; Wed,  7 Oct 2026 20:14:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791404089; cv=pass; b=at0hKu1qLHBzflASJc5M4rBsko0Zvv/002iu+LxQZC7M6dU7FSqjJSGfMZJiLGZXXq9weK7+LJqd6BECbse5dlKYt6l4Dg3+TCS5JeeVhECGd4UPTw0/m6c/JcXaAYMWNOK2Ipsr3OH3wsE57x/9epbQRpXX1Bv8WW8IbQR1bBs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791404089; c=relaxed/simple;
-	bh=SoSpP8WSwH/gLmaXIUYUpzoSOKZVHLpgM5LyKeG6LH8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZNmLNmdibBGMseI1ar0gTekmDH85IgyxxV9oUFvffjBbZheEyKtxgV4KIYgDAukM9coxg9SwQkkN+8iEA0Avo/aqxI0m72EOphQjTUFsJDDPucM3bx/K2pb42vRmKx4QROTH/bL1+LdJO98EgJpRz/aa63p4GNimk6O6ePYJN+8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nfQsJNHH; arc=pass smtp.client-ip=74.125.224.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765A03D75C9
+	for <selinux@vger.kernel.org>; Thu,  8 Oct 2026 07:27:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791444462; cv=none; b=MRVvUNcpcGzpRzlO6rxF2q6dFcVcSOhR9VZjNgeTZcckuLTFc/ONWQEul9suixz9fPAkKrU1VQUoPAIx89Q2b71RHhIUhl75luWKcFMrwrj6g5P36fSPIC2PzWBqlThi8GtKv1B+aQ9yxAofZMIsB9URk1yb3jGZnLNv9gkyWlg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791444462; c=relaxed/simple;
+	bh=kNfftGTuyKr5UntzEV5eXUutzYGpxdkwWK0DHyoWc3c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rWqq4xzEMgFShVgjTSix2vtwIeZ0KztJCpybTvxXNXDKoYE/yn3AKTHygyEgYjsd+3m9IYzJMJ0OshMCUWmteD3d/HwOFC9IUY//imbhUYsW0ql/XrHGn4dfDdk4LQ3IUNxViExOkDXL12xIbdD0sybmese94/dv84yuZBh5Vmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nfQsJNHH"
-Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-6768403e9bbso2547985d50.1
-        for <selinux@vger.kernel.org>; Wed, 07 Oct 2026 13:14:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791404087; cv=none;
-        d=google.com; s=arc-20260327;
-        b=kqwywPJBYEETQyYvlI2znBkEzeb9sIqSfQS/kqIiCjAq/k9rUsCB3CxN9ElcYC8ZW4
-         8pKPbQoEbsw5BlHUrgL9xgBwMmKAUMJsnjH+eEX/9oeu0mhNncXFiLdmgcWY3381D4wg
-         XL/0Z2TsNhhKKxGzOwxO4HOW6QtGfKiSZR4fNoAeOqlc7PPE7kzFmK6t9dthfHckzmmM
-         SaOQOOIgsLviNUKxlUGCYH3bbKVoVH3tB8r6SwE4HI67C6hLk8aWBF2Y2zkXFK86SUBV
-         5DiiuFf7GWB/YtJJ25LpnfE9DEj5vsAquSpC4r1DUrUZFBzL5nZ3r7gQkZ3fNoqPuvJ/
-         rvhQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
-        fh=70ac3Nu/9NXKnHlYiwlzC0S2l6TozL9UGuJMqFYgbLA=;
-        b=MYMz3EMw+7R4IuHZW9rwQYXj4Fe+wzBInXaK3FY3t5FVPfbcp9FdlsEWS27NsKz5MX
-         PqTcjG2mOk+N9aYP31M8V+GxexSPhvEthFZQY7pApLrf2Tp/mTcMosEOmOm+b7JccD2D
-         9X/4lNeFoAqWNhPp0o3HzyRyUJTn4c/TCd86l8wfZTn2fKuDl6eXG+fKd2pZzV+d01c6
-         QVYk29lz7kjaMzEWjKdQNn34ji+uVFsIU8+hkqT7mXTUPlDbf9IAFsTiBb2H/whhvsQm
-         UGH6RbE4LL71nNvXamzE9Gw8Z57lgY5Ia5tS55lqqtBh3fx2STvw8nLHgD/Ea9U8xfBW
-         cIlQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791404087; x=1792008887; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
-        b=nfQsJNHHu2ZY2b02BLQDfGpBdDuiDtsYCn14aPKP8tRoSsqdKqpmDesN7utSj2Dq3t
-         y1+dM+DeCrgnOkmMn2Yq5iuba9Uhgt6Cex+PDj6SHrxNLKV+zyiBNXZOLw117Ol8+oR7
-         HrINQObwe5URO5zQifyNzwH0JFvR8CMs1WnP4rN7V2VUtOKEjt6T2n5s/201qPyvjJxQ
-         UQJ1tGc+6lK3W6ss3aWUdcCpGmwJgl6g/vZ6H0+349dZTyB+E66VJT+2WZG3rmop+KRb
-         PYMozD4OC0MqKr8AjCmuMij9ymMod65ozYKm732vCQKcjmUWSQAaWpZOx8ILTd9LIx2R
-         EsMQ==
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c315869241fso533044566b.0
+        for <selinux@vger.kernel.org>; Thu, 08 Oct 2026 00:27:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791404087; x=1792008887;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+CGHcsSLS3zJVzOTaI344bI/xUHPzhVpipYvjPq7Uy4=;
-        b=nzxo1oDPrpK/365KLc0Cvnuev3zagk5yBkcSY6jcHH5g07kwCIIbBMfOu43DeUY/zW
-         ku/L830hK3sUzb1Qbj4ZCOZC094oH2ijSx49/PdvpPDxoOcJxKqKJQla3AqcI6pc/k/4
-         fvCsnZYzCvLQXtvbPFJwJTdt12kQChuldQarePJQM5GF+WwLoT79bb3xY1RsRDbDsAiH
-         M0vsAi75M3OSqPqAb+SkhbeQwpV23a2EQs7rQXSWY+nFbNzkQ4CePWSoj++cCju2ULo6
-         O6TTS0fatKWb7lkiByHdUZhXkASKgr5gFsrP5zau6jJQVrxl/lhwPhfeWlGWJ/OFWpeM
-         4owQ==
-X-Gm-Message-State: AFq9FYL38oGceXrW4HVil/OdfXqUS+ZFbdIg6sZF2ULWteVZ1kLB5uOP
-	srnQyntZut8/P5RSgXBO6OFb8vmT34RhqBVJe259XrP7V8586eFU8i28qzlFFrElWbRq5Z//RZJ
-	tQMFdFUcMZrgAZxOwnoAXpFspYRyCNdLY0glS
-X-Gm-Gg: AYBFou3l7Xmvknf8lt8g1HcU/SRh/FZHssnu+PtXzd1L41jTzBXQGfb2Lti7ta6Wnqt
-	QQT5jGWlg+UvzL5yvaRfge/+Tc/EaVePI395WDH7+LUroBvSJQNIW7dkXrPJOi0ukkHm6LPTP1F
-	rTZFs58MwRKgU62eCEruucxWERp1kM2pLcQw7QzlfMlx4huXm44uKnuNFL1e20KKLYw3aneQ11b
-	dD41eQrZM/bnI7xex2ElPQcBmOGGKf3vFebeG+Z1nI5HvQEX6Y9SkFAcd0ObsRGwDotU0EUVGG7
-	NHS/q584owd5sqsda/yadz7+Jm5ctNzV1kssfIMGcxVlSgsoLBKMh8jgP7NWBap77Q==
-X-Received: by 2002:a05:690e:168b:b0:677:d93e:ee69 with SMTP id
- 956f58d0204a3-6790a2973cbmr2245502d50.94.1791404086742; Wed, 07 Oct 2026
- 13:14:46 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791444459; x=1792049259;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=w2s7XFT1LYOjmY+81we/LCYwtE1UWFZH0fAjqntC1Tc=;
+        b=2tg2wvLv/dm2E/HvsYy9f6OOPUmSZZBuZQx1tY/Y+T3uJjvM2vPEVw/fi5D4oqYUdc
+         LbJuxrRgdILyQSSAUkr3DNSbLDwAQQTlb63JVbGApGKl6jaxURVvSVqokB+U2Jy0Yvfk
+         6/GJVGBpQfFXS6+gJ95v61kOO9R4PHaPpT9pPIhtZtkhudabCtbBZQ+NPXVuYCHcv7/2
+         KE4QPZbl4Bi6+TcVj+8cyrNDNQyOeI2w08wp1ndI3s0q1pWGhZZY8PxIhdWi9LYOMNO5
+         WTsbb1hVCAqYvoLvs5gsAZjCurmij43l1/kaBaFSU9K4q4VH5cgxd9xvBVd66YGiYxdO
+         69Aw==
+X-Gm-Message-State: AFuF++ltKrgh3+6SmT1lk29nG01scKHXS/0b95V2iNlSPX1+0waxrbnG
+	s7L71q1Qa6J4lqgrdSvRT2VH2drMI8eCUyNi0L9kPSxjkf6yRzuFMhvzP6ZhNA==
+X-Gm-Gg: AYBFou0GXFhUEdMkKssvwnO7Tmm80FjcQhokjUr6jdZA6yUmYoxANeEYYIS6VOqug4q
+	z/bzY6uNuGzDBzy3nSTsFak8dEVdbtNJ/QlVb3xy+Ve+gTUjXncrqgpmDdyqGpX7XUUtHSZJaGD
+	d68QudPzauGLjh+PaHYB89CmO8dKfRSWbPo7jKQEeSWnMpBuGl4WgsOv+VOcHYs0Kva2ngt1hL7
+	qRyYf6VBohQuNU88pTY3wnwZ3oXqc240J2juk6Uik+UeCgE3fOcZXMveBMLe5nWDXN8Hf05twVb
+	dx1Q8Usd9j7Am0qCN2cygFaleHgh/gyQGint666ihFC57vX6yAWTjKEwQYiDYwrr+CwZXDMBA2I
+	fHdc+12pRhpnVt/VBPuz2brQW4BMg+S4XiZS9EvfoTPCl0/XkzBW4y4+6xxgUx20RUTdw3mL/rP
+	KcvUFQgdLxrsX6w+sg+ANyXBYQ+5Fj9NakXTC1XjlyEnNXFi4GMFP98jxYgCxX6cWXE+qY9ivTA
+	KvzT6V6ZsExYc49v8L5hiLd2cHfDkWklXi/vimCog==
+X-Received: by 2002:a17:907:9723:b0:c2b:7686:4d7 with SMTP id a640c23a62f3a-c317c121daamr403731566b.39.1791444458594;
+        Thu, 08 Oct 2026 00:27:38 -0700 (PDT)
+Received: from honr (1594037-cn39285.twc1.net. [89.19.217.140])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c317c2fd772sm186095766b.54.2026.10.08.00.27.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 00:27:37 -0700 (PDT)
+From: Evgeniy Gorbanyov <esgor@altlinux.org>
+To: selinux@vger.kernel.org
+Cc: Evgeniy Gorbanyov <esgor@altlinux.org>
+Subject: [PATCH] libselinux: avcstat: reject out-of-range interval values
+Date: Thu,  8 Oct 2026 13:27:10 +0600
+Message-ID: <20261008072710.41831-1-esgor@altlinux.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261006130215.128405-1-jjanasek@redhat.com> <20261006130215.128405-11-jjanasek@redhat.com>
-In-Reply-To: <20261006130215.128405-11-jjanasek@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 7 Oct 2026 16:14:35 -0400
-X-Gm-Features: AclHuK9lYmTWuQ5VQBxIGPv25ljnN5NTo6UC1dyzNX8QjhcqHWaGUeP1TCgHbg8
-Message-ID: <CAEjxPJ6tpzhZn7_KdK+BUZjuAamoeXFVKSAYRU-tzJY6zYUXTg@mail.gmail.com>
-Subject: Re: [RFC PATCH userspace 10/17] libsepol: add context resolution from
- policy values and SIDs
-To: jan janasek <jjanasek@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 6, 2026 at 9:08=E2=80=AFAM jan janasek <jjanasek@redhat.com> wr=
-ote:
->
-> Add sepol_values_to_context_string()/sepol_values_to_context_record()
-> to build a security context string or sepol_context_t from raw
-> user/role/type values plus an optional MLS range string, without the
-> caller ever touching context_struct_t.
->
-> Add sepol_sid_table_t, an opaque wrapper around sidtab_t
-> (sepol_sid_table_new/load_isids/set_opaque/free), so callers can load
-> and install a policy's initial-SID table without including
-> policydb/sidtab.h directly.
->
-> Add sepol_policydb_sid_to_context_string()/_record() to resolve a SID
-> to a context using only a given sepol_policydb_t, without requiring a
-> process-global active policydb/sidtab via sepol_set_policydb()/
-> sepol_set_sidtab().
->
-> Assisted-by: LLM Cursor
-> Signed-off-by: Jan Janasek <jjanasek@redhat.com>
-> ---
+strtoul() returns unsigned long, but avcstat stored the result in a
+signed int and passed it to sleep(). A value above INT_MAX becomes
+negative, and sleep() then treats it as a large unsigned duration.
+Compare the full strtoul() result with INT_MAX before narrowing it.
 
-> diff --git a/libsepol/include/sepol/sid_table.h b/libsepol/include/sepol/=
-sid_table.h
-> new file mode 100644
-> index 00000000..64d08fc7
-> --- /dev/null
-> +++ b/libsepol/include/sepol/sid_table.h
-> @@ -0,0 +1,43 @@
-> +#ifndef _SEPOL_SID_TABLE_H_
-> +#define _SEPOL_SID_TABLE_H_
-> +
-> +#include <sepol/policydb.h>
-> +
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
-> +
-> +/*
-> + * Opaque SID table for use with the security server helpers (sepol_sid_=
-to_context,
-> + * sepol_context_to_sid, etc.) without exposing sidtab_t.
-> + */
-> +
-> +typedef struct sepol_sid_table sepol_sid_table_t;
-> +
-> +extern sepol_sid_table_t *sepol_sid_table_new(void);
-> +
-> +/*
-> + * Frees a SID table created by sepol_sid_table_new(). If this table is
-> + * currently installed as the process-global active table (via
-> + * sepol_sid_table_set_opaque()), it is automatically uninstalled first,
-> + * so subsequent calls into the security server helpers (sepol_sid_to_co=
-ntext,
-> + * sepol_context_to_sid, etc.) will not dereference the freed table.
-> + */
-> +extern void sepol_sid_table_free(sepol_sid_table_t *tab);
-> +
-> +extern int sepol_sid_table_load_isids(sepol_sid_table_t *tab,
-> +                                     sepol_policydb_t *policydb);
-> +
-> +/*
-> + * Installs tab as the process-global active SID table used internally b=
-y
-> + * the security server helpers (sepol_sid_to_context, sepol_context_to_s=
-id,
-> + * etc.). Only one table can be active at a time; calling this again wit=
-h
-> + * a different table replaces the previous one as the active table.
-> + */
-> +extern int sepol_sid_table_set_opaque(sepol_sid_table_t *tab);
+Signed-off-by: Evgeniy Gorbanyov <esgor@altlinux.org>
+---
+ libselinux/utils/avcstat.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-set_opaque() reads oddly; _install() or _activate() would say what it does.
+diff --git a/libselinux/utils/avcstat.c b/libselinux/utils/avcstat.c
+index 640a7a05..0c534f51 100644
+--- a/libselinux/utils/avcstat.c
++++ b/libselinux/utils/avcstat.c
+@@ -13,6 +13,7 @@
+ #include <libgen.h>
+ #include <stdarg.h>
+ #include <errno.h>
++#include <limits.h>
+ #include <string.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+@@ -122,9 +123,9 @@ int main(int argc, char **argv)
+ 
+ 	if (optind < argc) {
+ 		char *arg = argv[optind];
+-		unsigned int n = strtoul(arg, NULL, 10);
++		unsigned long n = strtoul(arg, NULL, 10);
+ 
+-		if (errno == ERANGE) {
++		if (errno == ERANGE || n > INT_MAX) {
+ 			usage();
+ 			die("invalid interval \'%s\'", arg);
+ 		}
+-- 
+2.50.1
 
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index fdd84078..a44eb395 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -127,6 +128,18 @@ int sepol_set_sidtab(sidtab_t *s)
->         return 0;
->  }
->
-> +/*
-> + * Returns the sidtab currently installed via sepol_set_sidtab(), or NUL=
-L
-> + * if none is active. Used internally (e.g. by sepol_sid_table_free()) t=
-o
-> + * detect whether a given sidtab is the one actually in use, since
-> + * sepol_set_sidtab() can be called directly and bypass any bookkeeping
-> + * done by higher-level wrappers such as sepol_sid_table_set_opaque().
-> + */
-> +sidtab_t *sepol_get_sidtab(void)
-> +{
-> +       return sidtab;
-> +}
-
-Defined with no prior prototype; -Wmissing-prototypes flags it from a
-top-level build.
-Declare in src/private.h or similar.
