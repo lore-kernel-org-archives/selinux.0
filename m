@@ -1,108 +1,111 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944F23F58EA
-	for <selinux@vger.kernel.org>; Fri,  9 Oct 2026 05:57:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791525461; cv=none; b=kUAugh4sUV1sOsnZ3fTWp9LDo/xjhAR5+7/7ek32s6iy2aqjVza9lqIOhDdZit76OdpUDj1LKMIWKe4HhmKqcGvoS63KQ0srxSWoJp33yx9+pPrkveAJvuTBsZnl5Zfd7eWnQBv7F/G7hNb4HL4XFeWd+8Be8vmvDIV+7rr9xqA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791525461; c=relaxed/simple;
-	bh=gwK7COpmh1DGrSrHtmZdR3/y7VZ8ifRurO00x4NOKO4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K7uCiTV+lF0HioJJ9x9bHeXuejFvffjrxZu0/cRS3PnQPlnJhHi+oZv2NOEjSeH2Tu8mY8/pAtZqZqMPm12f2nwx0ou6+Q2hZ12DzkDaAh5nnxnXspPWuQ1In2oGr74sW7wG+D0uHy/yDoNXb5wftCdnaWcNX8AysMGFNxYEG9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C3DB4DA9B3
+	for <selinux@vger.kernel.org>; Fri,  9 Oct 2026 12:30:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.178
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791549016; cv=pass; b=OrQz84j3aURXjD3jMx5dq3Ze4kpHxWLU/ZT8gLYYZ3aO5LxnGRi0wvNO72SlQZOsL8vqeVLQjVOmzfJe6Orzww0Dze3zUxqmGpx35wTbwduv53ItxdK8kySIH86taEfREtdH6qFOMk0hfygtYuGAXOmVyGGd2IAODY5Px7CkVx8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791549016; c=relaxed/simple;
+	bh=Xl0apDYJgM3vn1nys+iidPPtsOZH2es30W3H6QtHHxY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZBp+QcIu5rhPjISQTUE3FVEIq+SSkKVwFPj7fR0l7leneYGM7Tem+HbWr3NvyLj2hFHXhsF13hWhjkwbg4gL/iiwjFyiaJ8/Dm3jSBLHx7UBOOx3usx9J8bieYlVg1HEhJaqLBTt8oWtlMDt3L55VLtW6VvWdjuQVPCyVaEa3PQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UFQQq9NX; arc=pass smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c2533d83e3bso598453866b.2
-        for <selinux@vger.kernel.org>; Thu, 08 Oct 2026 22:57:39 -0700 (PDT)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UFQQq9NX"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-8726acc5eadso33007387b3.0
+        for <selinux@vger.kernel.org>; Fri, 09 Oct 2026 05:30:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791549009; cv=none;
+        d=google.com; s=arc-20260327;
+        b=j5di/hn7fkwVhwe6+kJaib9fkx+6QT6KNYAJW1fSMRGE2AuEqCpKlMy+y70CR+4hZj
+         R0IgW9TjIhEFj+D1g+ejW+hbPTHKeh/1b/meb1PDIAf2WU4hxRhuInmPi2YcLwwtyHDZ
+         aZhhhOyCprnLv/v8EZJD/ZLgWnnE5QJrUZOmnIFCd7G3/Nhwe7raFJpgOBtAgEUwBSvr
+         UTJpFsCWmoLp3G4bCWA7IU3vyepaBBpHp45mgvpWTA1XsO2XZckL40LpdgVU1+14q+Hn
+         tmJUcjLJS3nU9PKgvpqXtzNbS/x4NwsCC+NDucfIhwt/YEz7f8MlyFoT1sI4H7URNHl7
+         ssqA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Xl0apDYJgM3vn1nys+iidPPtsOZH2es30W3H6QtHHxY=;
+        fh=0lV2+1N9LYX6/0U2UvxMCkn2c0ttJ1RBNIVPFMYdkF4=;
+        b=JMoAtgHd8qCaHQkfjU0Y/faHp6tfTtE16DVAPfzE0/jymyYMl1+VdhfmmaiGmyBw13
+         oxNI0QuLoflSudNppmZDsWSmHJUZUeQ6f8/EfzoK+YI49HsK1wIM2cY3sSBI5GPwlwf0
+         5eWT0VFIcikh3Cg7YIjaLvuJz1t+ywRvA32HOnaHIRh3/QXPQhZB6o4nuUySBWI8K1EJ
+         yu2iQvskAeSRTGUsX+SGXbeRB1lRBHRDVuq1krWKLKozqFASVRIj7eXuYdKxpJVOdTF0
+         uOWKDMEZVvQReNiSE0DVLUGNSObf9XhGBQw2s2PqDCVGacTgxlDMCR3+eTo2MfP185ya
+         OVoQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791549009; x=1792153809; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Xl0apDYJgM3vn1nys+iidPPtsOZH2es30W3H6QtHHxY=;
+        b=UFQQq9NXngJXXFTXhDBXAGKDMeBor5xJJBiaknFT7EGybJ7YOImgzk9ZLHpOHA+a9G
+         DDblIkywmmulDxqKNELJr110VGno7sttnh3JTqSh3s1YTYjRT5N09nhLeY8dYZnyiaYW
+         AYfWMsjxqi3eHXB8YI362uKU8+XJyOXfjbsuiM5lRVquhZJ4QsW9tRwd5WPROaym2Kzr
+         KGbpobbizhrmm4PiioKcAPNi30pBEABERGVmCIEDXtGJdQUp8P5njAdNL169qBNvcmpK
+         stnb4gTWUIDAXTkRadtC62q2Y+o9Py6BA9YkJFqgC3W0ObAG2OkaxVaGjD9w0vGSHvSe
+         r90w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791525458; x=1792130258;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EP5TF+1lZILGSJhmIyFYsOTAm6QMG91unIgi4oqKPAg=;
-        b=gWszYK3grXOY5QYNtpOcmHnKsCHcIZgJgCJR6jpxP/d1qzzIGQXGSD+auV4e6S/k2C
-         r+TB6/q6Wy+zCcWI3XgWvTgo+VW2sGM0nL53u/cPNA6ha673C+tB3QCcaxLXdoxyDE4k
-         7zGC5fl3M7gr+hzaMKrPmaodnwFwFSexCazu7x4FtvaPlM8tofqUBIJ8lYGcMFFf865K
-         LEiLeCHdPCENV2kjzz0t4K2YhpWEpvo6EMGiQ7WJUoKXZQciLOaZJvHXCrQ6+p4k7Rv2
-         9dM8lOAM0+TRknUMHM6Pk9FKEv8Ev0TECvyKW2f7BVY3i0lPMgVt6JiaeInEm0GOrmAw
-         z1Gg==
-X-Gm-Message-State: AFq9FYIw06DMHi1vSNueLQuWkPXzdaG/35sLTNYn0MPPD+vhVJkzTxjh
-	tEERtOvDB/qrvGS9Gpr7S2RaLt5WKP88iTNxECOt0KndarHul3DiXlIU+hMPuC6K
-X-Gm-Gg: AYBFou2SobQ7W66MeqgC+vV4HKtIoEjTC9Zy7fM5VMU5cQVD8hZCwBch4MVCbME++pL
-	au5AR0Uv3bM7ouIdZQ7Cyd8vtcZGEtLnhBkYJGFQpu4YkDXWIxnAtstZnFl8Ku60E2f/4kEUaVL
-	Y41fUgfPfGGboPyqxvnFTq8OglQs40Ce7WBGs6aqvbJlnOf3r2B2MnWfDvkmEC+IGy2THPHYrI3
-	9x9m9WLPGgT8VfS44PsKjTkwNeoOS6AwDxe3llR1om+ZPZD6ag6FYAddsvCRSoSMHPMN4hLJvfG
-	yKYf88COtHbuGq9hFIOGSFK/Nz9zxloj8jRZTlkWlrdYRktJZL4nO305LPG9YsbydvQhW/NywBJ
-	CNdOzrPOEyChB4MvQ3LE8N2eDSQVM1gTOCYXPDuQi01j9tL3gNcurEgnl72FstDuqzWLwHeDmBc
-	y5rVc6RRU/wSCRuPhR1qkmTvqsLpS5qqpOs1hU6+4GoyQG7CW1bf8Mq/7dH7XHXZ3sHN2BcAzCa
-	aOCeqy2hdm/mF470TyZLrxzojfvUrkXw9k9vZICOA==
-X-Received: by 2002:a17:906:dc8c:b0:c25:2688:8212 with SMTP id a640c23a62f3a-c31a970483dmr70376266b.0.1791525457641;
-        Thu, 08 Oct 2026 22:57:37 -0700 (PDT)
-Received: from honr (1594037-cn39285.twc1.net. [89.19.217.140])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c31a9762af5sm44198766b.1.2026.10.08.22.57.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 22:57:37 -0700 (PDT)
-From: Evgeniy Gorbanyov <esgor@altlinux.org>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	Evgeniy Gorbanyov <esgor@altlinux.org>
-Subject: [PATCH v2] libselinux: avcstat: reject out-of-range interval values
-Date: Fri,  9 Oct 2026 11:57:13 +0600
-Message-ID: <20261009055713.16085-1-esgor@altlinux.org>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <CAEjxPJ4Uh+_GsevF3xtxeKPkz=KAgwj-=+JNq3Uc7SWrLDq04Q@mail.gmail.com>
-References: <CAEjxPJ4Uh+_GsevF3xtxeKPkz=KAgwj-=+JNq3Uc7SWrLDq04Q@mail.gmail.com>
+        d=1e100.net; s=20260707; t=1791549009; x=1792153809;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Xl0apDYJgM3vn1nys+iidPPtsOZH2es30W3H6QtHHxY=;
+        b=hlxbh34MMzYGIUGF/uzJmCr0v1Wr3iKza0aRyOugTUy6wn8brk2Z9KJ7Kv7exwdqiE
+         Tmb7cfV7OjGecgIjyTLJW8iicv0M8tFSbhKKwtsm0IhgJJCheP1h1ZpXGRk8LaZFnWV6
+         RXB9b0PsipHvqT65mxiDf78Vn2a/fD6i1OeDMe1pYGWWpxlEqGuYuqsih2YaKN5UR13o
+         a6iVlMzCTrq0ezcL+3zScwl1ecHi28wM7Iqry2aDt639e2tKFrbFyAxAJRTJSpMvxaAr
+         D5ZyNTajzzcHFy5yyvla2nqwP4hgxzk2in/cjbOoUwCT+9F/zCC4CLZdOMiflYgkG6mb
+         C+ZA==
+X-Gm-Message-State: AFq9FYIHZP08UjiTTssDEce/NVWAnPJyInsSZnRaRMr61Q5h4qjd6LYY
+	kAcqhl5mb21kGAyNgXbJf7WARNe2ThqJQi1RDbTMIsqI2aY5qsYgXPDxLkBt86g9BWyyqxqrwjt
+	5CtRXja41guG/8G7ELnexo+7iNCG1tjJu0i5E
+X-Gm-Gg: AYBFou0Mfu5sf0J9sTDYcP9qMBxNjqmhe06/6Y1/FUnoWhdw13Bxv/rJSMICuXELds/
+	eBCYGdzJB5WkMjUmKLWDt8UMn/qjfI8gysScxp1BMdMIdQLPgfOb8TYd7akBEGRhK1E+Z+I/e61
+	NHU1NImFeULfHtKDCs3C7G1WTWIzzbJqXABjGIoPowno7DGDRYYEkSdfCrOIH4kJWDOfsOND+7/
+	Sr0HEfqgA6NY/nEWa5XQ9buROgCAYNt8/rOMv/CU9g9FxIQriF/nfnIKiKcg41QHUDbTFWBnBdk
+	YToUeFTEFeStRi7Ehl/DRX9o4Zb0uJJ4nKaIgS7Yz77UvhdQTFC37kI=
+X-Received: by 2002:a05:690e:4853:b0:677:d6b1:d95f with SMTP id
+ 956f58d0204a3-67936a2eca2mr277195d50.75.1791549008676; Fri, 09 Oct 2026
+ 05:30:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ4Uh+_GsevF3xtxeKPkz=KAgwj-=+JNq3Uc7SWrLDq04Q@mail.gmail.com>
+ <20261009055713.16085-1-esgor@altlinux.org>
+In-Reply-To: <20261009055713.16085-1-esgor@altlinux.org>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 9 Oct 2026 08:29:57 -0400
+X-Gm-Features: AclHuK8z8FJECjDj5ci1ZLd4sWge_oTlZ73EwvDMptvuJ6os9Fk2BCVdcDdTlIg
+Message-ID: <CAEjxPJ6kCc5y8bbPnqVgjyGOpxKRrBKHv4b-EFregua3enYftw@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: avcstat: reject out-of-range interval values
+To: Evgeniy Gorbanyov <esgor@altlinux.org>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-strtoul() returns unsigned long, but avcstat stored the result in a
-signed int and passed it to sleep(). A value above INT_MAX becomes
-negative, and sleep() then treats it as a large unsigned duration.
-Compare the full strtoul() result with INT_MAX before narrowing it.
+On Fri, Oct 9, 2026 at 1:57=E2=80=AFAM Evgeniy Gorbanyov <esgor@altlinux.or=
+g> wrote:
+>
+> strtoul() returns unsigned long, but avcstat stored the result in a
+> signed int and passed it to sleep(). A value above INT_MAX becomes
+> negative, and sleep() then treats it as a large unsigned duration.
+> Compare the full strtoul() result with INT_MAX before narrowing it.
+>
+> Clear errno before strtoul() so a stale ERANGE cannot reject a valid
+> interval.
+>
+> Signed-off-by: Evgeniy Gorbanyov <esgor@altlinux.org>
+> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Clear errno before strtoul() so a stale ERANGE cannot reject a valid
-interval.
-
-Signed-off-by: Evgeniy Gorbanyov <esgor@altlinux.org>
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libselinux/utils/avcstat.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/utils/avcstat.c b/libselinux/utils/avcstat.c
-index 640a7a05..c7658792 100644
---- a/libselinux/utils/avcstat.c
-+++ b/libselinux/utils/avcstat.c
-@@ -13,6 +13,7 @@
- #include <libgen.h>
- #include <stdarg.h>
- #include <errno.h>
-+#include <limits.h>
- #include <string.h>
- #include <fcntl.h>
- #include <unistd.h>
-@@ -122,9 +123,12 @@ int main(int argc, char **argv)
- 
- 	if (optind < argc) {
- 		char *arg = argv[optind];
--		unsigned int n = strtoul(arg, NULL, 10);
-+		unsigned long n;
- 
--		if (errno == ERANGE) {
-+		errno = 0;
-+		n = strtoul(arg, NULL, 10);
-+
-+		if (errno == ERANGE || n > INT_MAX) {
- 			usage();
- 			die("invalid interval \'%s\'", arg);
- 		}
--- 
-2.50.1
-
+Thanks, merged.
