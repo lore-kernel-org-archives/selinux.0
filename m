@@ -1,83 +1,123 @@
-Received: from smtp.sws.net.au (smtp.sws.net.au [144.76.186.9])
+Received: from out203-205-221-240.mail.qq.com (out203-205-221-240.mail.qq.com [203.205.221.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86CCA383C86;
-	Sun, 11 Oct 2026 10:22:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.186.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A75D534B1AD;
+	Mon, 12 Oct 2026 14:38:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791714143; cv=none; b=pQgVvy/a+SGXI1nHGDXEtbDMROHjANNrUe5JAaLz6nisFCTYQ3BoLQXqs3Fpt/9FS91AC4ZS4wEiX7dB1ATp7z6BitvU+fxdeT9whvyVG7Iz/vBdv7VUW45jDIFMlYKIX4WwdZjoWbIZ2T3sl9pWMdNrZr/T1KykNHSb+O3RslM=
+	t=1791815914; cv=none; b=ljxzC5nH8U9z+BflMBFOCipCPmPce1I9+jCxJu+AXJ1z9fhWBOxre5ucxmy3Ed9pYVuS+9wGy/rLhU9hXsxY93frfVj+m9JlZAunnomuPExWXBAFfHctbkJMlHy+RNGUNQQ5rdBOwGIHQUgz7dM7472fXF5hXrSXKZ2dB3zh4G8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791714143; c=relaxed/simple;
-	bh=rWsBX3Tlje8BgHngc/Cs4wk666aps+c0CL8EtmGqct4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rqjypN+HzU0k3FRlLw6DlpEKI0Cp+LfuAEvHrA3Ah8MJ07m76sRj0i/fqqTJ5Y5a7V+Jz8KjweuKvgYKR3anzU4tp/YjVaRACEcBcfH2p5ardVPcOHt/G5mtO4TVXB/zMunatwKXKwvudoFb4k0k5KdWhbt2wXS9ozFVJyPn3Rg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=coker.com.au; spf=pass smtp.mailfrom=coker.com.au; dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b=nAyU+tnW; arc=none smtp.client-ip=144.76.186.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=coker.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=coker.com.au
+	s=arc-20240116; t=1791815914; c=relaxed/simple;
+	bh=fJT2LAsI+66sPFPMBf1dktBnPkHklTuThSGYqJPWSjE=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version:Content-Type; b=sM+BkrmCdOWULKSA3m5kfiRNpvBtK4QCjFpOZLz9JX4J9fb9QRgEXL92R0obFo76NclQSXD/n5xFe+Q1/QpUznPl6iYTB6m28QCg7UJ5o4w0e+e6CursR5GunB6GF/cMBQCbXlklZKrbrQOPUw2I2aGNEDuyb8YdtmisoiYKFTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=AlYcDTV/; arc=none smtp.client-ip=203.205.221.240
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b="nAyU+tnW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=coker.com.au;
-	s=2008; t=1791713815;
-	bh=f+JY1cL4u/NhUhrBJsrRVJmO12uPCrNem94uGEy7Ph0=; l=1058;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=nAyU+tnW27oT/aus5Hg2PVJMVsXDavgYrFmOUCy8zaxJKJiso1Sb2jf0kj9maWLru
-	 P0U1Nrpu538Foe3EJiJ1TrkiLDIXLc2wzc/oPrVE+QCvyPt7jRs4ZM0m52egGAFwqp
-	 mgH/nnFapf0hrr7vYqcegPRv7Kj0Gmh3AD/cLLns=
-Received: from liv.coker.com.au (unknown [IPv6:2001:4479:6100:d300:5256:b7c4:cae5:ca00])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: russell@coker.com.au)
-	by smtp.sws.net.au (Postfix) with ESMTPSA id 0783DEC38;
-	Sun, 11 Oct 2026 21:16:51 +1100 (AEDT)
-From: Russell Coker <russell@coker.com.au>
-To: Laurent Bigonville <bigon@debian.org>, Chris PeBenito <pebenito@ieee.org>,
- selinux-refpolicy@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="AlYcDTV/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1791815907; bh=LNKxzpmjCEP+a7Nq3MoOesUompTT9/8E11oGyH877mw=;
+	h=From:To:Cc:Subject:Date;
+	b=AlYcDTV/ZJGc7tH9shlyHISH2a2ej7jSMRs4n0K7oDzrA1FoykBJv7TAkKdA6uHel
+	 hsfiW0bAwX1kNzihTAuhUTKwZ0r2Byk4qd4UsvQp63kMPiparYH29nIkcVsiEvFtpK
+	 JnpdfSF+iM7JFERnsvleMXHyF2iqHT4xADctI4S0=
+Received: from [172.18.4.77] ([61.136.26.103])
+	by newxmesmtplogicsvrsza73-0.qq.com (NewEsmtp) with SMTP
+	id 998A66E1; Mon, 12 Oct 2026 22:38:24 +0800
+X-QQ-mid: xmsmtpt1791815906tn2pvg8za
+Message-ID: <tencent_96F9E846FDA4A67FF38C7C393D985A44690A@qq.com>
+X-QQ-XMAILINFO: MqswyhUqVe0CMd58NaO3KRHK5Me+Ff/PQx2OUdIRQGbYr0iTDfhHMoVzJesUVW
+	 YJDax+US8HQK/uWcO2/knzxf0Ueudc9AnOmYNmjrKq7JEPV7ixSNhulbssAhFG7ov2ibB3KGk8S4
+	 BnSkXmKmxWEawPDaZICN4wTqjMZz1HRHpn04btjfWverex5r1DBmfja7yy9tHH9VGoJjO8QHxIY1
+	 2jH5I1BNtfj+EGoVYAWNCdpyWpfnkaiIOFh5HX0wcWhA/f+wEfk+Pmj03ByQEyl2biBxeaNQA5Uu
+	 XeG11SSsBv7yEGFD28746ZNpTRn3IgwE/g9OU02N6fFl4bNtDRbyKGTpyLOR+Hx/9IvxuSe7KsBN
+	 JHIX9WpyI7VSNJqNOlce+vVf16rlkZVd+K+2fPxHeOUFTjwFzYwKIW0SzNeZ8MmPrYXHN7gyE6ka
+	 bXjHMrQImGHGgZKGggly0gCXrdjcNtxogIrZoBWwX9YdxpibYuyf6MaQ7N40C3cUWTKRIupHHvOQ
+	 F0UvgrCdPeAaRVg5ChUHoGCjFFdqMok0z6BzGyqavKywYYLHutTDItzDN40+pxcAZdK69ZIoWsXi
+	 biKTi1xfRNZ5kX6FJpL8/QO2rf6ZEkiVSrx7yO5ygOTqLI2ys/ZtlsgxiL2uf7AckY864TQdYIA2
+	 9Yt3v8D/+C0D5pUY17EUZLOE4DdGkCE9bdKxMurkyLRz0YEnFHDlETYQpmJ385GKGx+kxvpupFhD
+	 CTAuyXMektDavDUCOy8eroqMM/va+qOf4pVfyMayxCsn9r3MUNGzfyREfIgkXDFQhQYERBnLI3s2
+	 UX64Hgq9SS5E2dOnsUXLt4sqWxbBshUQJS8wdIunrOEHAYuA49Te5uCiP4yYWyt6+VqsgpuBKnyw
+	 IqaYXbIfdSFWkm5l92uwpwKqo8NwB9k5Hie8yIhzLnZwXv0rV0y8rQV4J/N2pNajqfUQxRkU2q/X
+	 jZVnrWQ7TUV6/PBnnwLi3mRByNSv83b0ZJBXL3d0L9Ig35vYRzhk5wk/QPz9RZcWeLc87t/I3Seo
+	 YlDdAx3im3j+cqe68peBzOCm3VOVdvoXo5K7wbaPTO09Qn1f/A
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+From: 1sh1ro <yangguikun19@qq.com>
+To: Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej =?UTF-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>,
- SElinux list <selinux@vger.kernel.org>, Paul Moore <paul@paul-moore.com>
-Subject:
- Re: selinux_kernfs_init_security() ignores genfscon-resolved parent label,
- breaks type_transition on cgroup2/sysfs
-Date: Sun, 11 Oct 2026 21:16:47 +1100
-Message-ID: <pB9muNcGQZ6P-vJnlrrTKg@coker.com.au>
-In-Reply-To:
- <CAEjxPJ60od3GG5wqEYuoQQjtW+3VykX2J9L1e4uX0z7yAhRxRQ@mail.gmail.com>
-References:
- <6ab19069-a348-42d0-89c3-3387b5d38c30@debian.org>
- <833bdec5-3935-4f86-961c-f179e5f8fb9c@debian.org>
- <CAEjxPJ60od3GG5wqEYuoQQjtW+3VykX2J9L1e4uX0z7yAhRxRQ@mail.gmail.com>
+Cc: Ondrej Mosnacek <omosnacek@gmail.com>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [BUG REPORT] selinux: general protection fault in avtab_search_node() during an AVC lookup
+Date: Mon, 12 Oct 2026 22:38:24 +0800
+X-OQ-MSGID: <20261012223824.41804-2-selinux-avtab@yangguikun19.qq.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Saturday, 3 October 2026 22:45:30 AEDT Stephen Smalley wrote:
-> > I guess the rule can be added to the refpolicy?
-> 
-> refpolicy recently reverted enabling of this policy capability because
-> it requires kernel 6.16+. So this won't work for stock refpolicy yet;
-> you'll need to apply it on top. The refpolicy minimum kernel version
-> on main at the moment is Linux v6.8 (for userspace_initial_context).
-> For comparison, the SELinux userspace minimum kernel version will be
-> Linux v4.3 starting with the next userspace release (3.12) since we
-> are setting the libsepol minimum supported kernel policy version to 30
-> (xperms_ioctl).
+Hi Paul, Stephen,
 
-Debian/Forky is expected to be released in the second half of 2027 with a 
-kernel version of 7.2.x or greater.  For upgrade purposes we want the policy 
-to work on the kernel from the previous release.
+fuzzing with syzkaller on a 7.3.0-rc5 KASAN kernel (SELinux enabled,
+permissive) produced a general protection fault in avtab_search_node() from
+the AVC lookup path.  The policy's avtab appears to contain garbage: the
+first fault reads a non-canonical address, and it is followed by thousands
+of further Oopses (8850 in this run) as later lookups keep hitting the
+broken structure.
 
-In late 2027 will anyone still be supporting a kerne <6.16 that needs 
-compatibility with the latest refpolicy?
+The crash
+---------
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Oops: general protection fault, probably for non-canonical address 0xe06f3dc280000000: 0000 [#1] SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0x037a0e1400000000-0x037a0e1400000007]
+CPU: 1 UID: 0 PID: 14271 Comm: systemd-udevd Not tainted 7.3.0-rc5 #2 PREEMPT(lazy)
+Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+RIP: 0010:avtab_search_node+0x24d/0x4d0
+Call Trace:
+ <TASK>
+ cond_compute_av+0x59/0x340
+ context_struct_compute_av+0x7f2/0x11f0
+ security_compute_av+0x558/0xd60
+ avc_compute_av+0x86/0x820
+ avc_perm_nonode+0x9b/0x170
+ avc_has_perm+0x27b/0x2f0
+ selinux_inode_follow_link+0x226/0x380
+ security_inode_follow_link+0x96/0xe0
+ pick_link+0x447/0x1570
+ step_into_slowpath+0x928/0xdd0
+ link_path_walk+0xdae/0x1b20
+ path_lookupat+0x70/0xb80
+ filename_lookup+0x213/0x5e0
+ filename_setxattr+0x89/0x1b0
+ path_setxattrat+0x1cc/0x2a0
+ __x64_sys_setxattr+0xc6/0x140
+ do_syscall_64+0xec/0x4e0
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+ </TASK>
 
+Context
+-------
 
+- The task is systemd-udevd (uid 0) in setxattr() (ORIG_RAX 0xbc), which
+  follows a symlink while walking the path; the first AVC decision for the
+  symlink hits the corrupt avtab.
+- The same crash appeared on three runs of this fuzzing instance:
+  2026-10-08 23:39 UTC, 2026-10-12 04:50 UTC and 2026-10-12 10:48 UTC.
+- The kernel log of the crashing run shows only avc denials
+  (permissive=1) and no policy (re)load, so the avtab was already corrupt
+  when this lookup happened.  From this run alone I cannot tell whether the
+  corruption originates in SELinux or comes from an unrelated memory
+  corruption bug in the same fuzzing session (that instance also produced
+  unrelated memory-safety crashes around the same time).
+- No reproducer: the instance ran with syzkaller's reproduce disabled.  I
+  can rerun it with reproduce enabled if you would like one.
+
+7.3-rc5 already contains the recent policy-load validation fixes (class and
+permission counts, level category sets, boolean values), so this looks like
+a separate instance of the avtab-corruption family rather than one of those.
+
+Thanks,
+1sh1ro
 
