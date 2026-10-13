@@ -1,142 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D9934D7D4D;
-	Tue, 13 Oct 2026 11:46:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776CE3FDBF7
+	for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 13:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791892015; cv=none; b=ZSlTsb2a4eWTRL0lOGXyAQLn5+BxjTCak8i7wB+RQTUnDU6XQBTpflXpHCcvTO7oB+Ydy6ydrAvnxre9BdpAze2X8yGRySyS1odVTCFenAWbxrA7BAXU6m6QQaJFjE9WKjClRb4GqsqwThF1J95esSXVBGD0sEGE82CD1mW6HSY=
+	t=1791899463; cv=none; b=Eu9nzQDY6c+S93PguK0uepS5s2SvjuMCeyZqFIBBXIXv8JG3P6W9o/NvrY4xXznfmeqzyV0olMXdI16E+Mo5Xpo/hJDrfUP1JOZcWI5K0iZ45zxWqWJUH+xJJRUHFxrj/NtX81V980kXGwWIcg3p+mvB7sOiYhlGlphppoCggjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791892015; c=relaxed/simple;
-	bh=o5iE1cDO1gBt+uh4eIByivuwm67StlAGtlYV2hAA2DM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cTh8O7ZwzavUmyWDSCmfn9pNhWdKnYBenj1z0Mmmhlu/OFqED3sDlKy2V0gPQ7DsOnbSdk6gtYjls1TZBhHUMkS6u8A0RZ8Yl5nMuJeXcQZs9DYJp+G5oyT+4Dv52LJe3EPuoF0gD+HWKj7GI2vv8NU//O/2ww2+7jzALhilBwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JsNwWiGG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791899463; c=relaxed/simple;
+	bh=lTPxVD4FKtGSfc6M/7fQEPAQGvVDGpPcbOgzrDV9S0E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VtC/tX+MftxNVTZwBXM8pPqpQAucIQb2Jy133OcqWeYmJKpcCg9Tcd5lcnIqwC/6jW9faD8MF9UTQSbZKj/JQH5vFNdg/9c8zhQbB6x5rgU5YqgK/p3jmuqxBkPChyFe6/hOC6qipciowRTeWx7asVHBrD3wEh6s4gbm7KescDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D6RGejQU; arc=none smtp.client-ip=209.85.219.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JsNwWiGG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E65921F00898;
-	Tue, 13 Oct 2026 11:46:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791892013;
-	bh=1nnF4ZhcdJUlBWxekcjOronR2NcHp1dKz5EHoMfEfXk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JsNwWiGGPLpQBTVRJ0pxyv5sreFzDIh4DL9er2BIPqypmeADQ3+kGufnoG9MayGsG
-	 Ow2kvpxaWsj31kCiNI6YI1xtxB6jAuvoFeSUehIJRSSr8PvPf39/J2JL8+Q8gZNKpw
-	 hpaiLridC4NDmbtWtYCSXMnVcXUvRVpYaXF7fuyaM4cd4pfx2vv7Fp6hIZ2715U51o
-	 41ifwXQLKGxBc/H0/rQD53V5RTXy4cc2VVaIpPP3J14KY9KrW96ntrahOMVdTN4KO/
-	 TSAFtr+2bjHgQH5lauCoZ5P/rczb+ytBLkrNPZZt6Dfwz5bTKu9NMmntqhvn+1eShm
-	 h0kZ4EeW1vuHA==
-Date: Tue, 13 Oct 2026 12:46:21 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, 
-	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev, 
-	Ihor Solodrai <ihor.solodrai@linux.dev>, Bert Karwatzki <spasswolf@web.de>
-Subject: Re: [PATCH v5 35/38] mm: avoid use of VMA_SPECIAL_FLAGS in
- migrate_vma_setup()
-Message-ID: <as4Z_ASrMbQ-eMTn@gremlin>
-References: <20261009-b4-mmap-prepare-vma-flag-sanify-v5-0-923b70125b1e@kernel.org>
- <20261009-b4-mmap-prepare-vma-flag-sanify-v5-35-923b70125b1e@kernel.org>
- <214514be-a935-485b-8925-07d84c1063f9@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D6RGejQU"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-91b83459526so21237516d6.2
+        for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 06:51:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791899461; x=1792504261; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Tq8+Rs7vGqU1gEycC+0Cg0m1KWF6jJ1JE080Kr96dP0=;
+        b=D6RGejQUwwI5fPpHc9Gd2uSB+SiQeQuvwYtPTnwB7A0bHN4KhTUW5vmzqYFFIYAXph
+         cevRYa6WoAmLqZcJQGUDohBK0CO16ocpFSWFxo5lSB80E0BByADBMM9SLpSh5m3tWJnr
+         4xTAhamdi/fuEZNqUjdtbT8hPQqC7Ta8mBKV9qB8TGO/j5EPKlanZxF/wJRY8pcQnJRR
+         vQxOtRCDG8pXot8dWuuBBgDy54dAFC/x620ah7gHhIc+HR4A9nC7RZykTSfG1xiLqQXv
+         J++v3Rc1uBdo54Txp+JAoIa2kG7JjiR/luJs1sewe0v0H1did0B1NQCN7HLeqVePw/JV
+         SiTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791899461; x=1792504261;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Tq8+Rs7vGqU1gEycC+0Cg0m1KWF6jJ1JE080Kr96dP0=;
+        b=i3E0i+Mciae3w2zIClJsEEyaRx1Zww/eWpG7fWZG+A8J3eYlmChvjvHnE8MXeFt5eX
+         jHJFZ8aVjpzlxbc/QRfg3188y6TbQa6dIpjyLiSyFXh7TUHA9M4BBFM14ESslCCBExFU
+         lnyQHdhgVA1iR3BX6bJ4jrT7djlR4krIP+mI/IekM5mu1SNFqPZ/bfhpapUW3tMsSS1h
+         fGeiV9krPiVGLnhyPmHnGd7/8O+mZUmTe1BFl/OPmfFI4av4vbjSkzyXSHRdJH06uA4p
+         g87BG1qwGnK0aGDrHjDOKmakncBFllLfOvySfTENkOovAqrBV6WjtX/jTFNN2+6qW0pG
+         kBgg==
+X-Gm-Message-State: AFq9FYI+asiyvmoSHD2PCDwAX+CEvJ3p0LJ/c6ip30SdbMIaVxT2TTgR
+	JqjKjhV6kQ+cpN6TO/E3bkZGKtr03DbMw4SgfhzE40EoPBJMQTpQ5wLJCGbYHqxj
+X-Gm-Gg: AYBFou379MBv9Ua4EJxWiN4O9wI8tgsDFkWR+cVjFU7eZw6kDfgwsWTIHHIWfnRKFvh
+	TT2EoVBi+6dUbV2sJ43c+oWvcO0BqQH/YyqTFk6WlOt0VVHMjaY1Q/kqCLKAPG6aOKc0BkMI5K4
+	Kp/k2tDYjWAgZVawQuro35MfGaeQy++KOO9dIBm/W5iE5n/gzBJg+5YU611w0C+0umwXBF1a2PK
+	+T/aM5PAqyHiUnRdHrDLrXHJC67eWPmYlTasIC5UH6L0R7XSTb7dk7Q0SfjBvR+KXfEKodQD+/y
+	zZay2qiarTks6dTY29YkO+i9i3y9eChy4LBqRU08ySTqpEVtMzgWYCaoWQU/d8x7F9RkM6Xt09C
+	7sQmMOcBp6vUtTt5chnpyARB/cKzRNUVQ/xPWa9ErYAlzA3Gk6lwqwFFYXvHczYlxRb2XkYDbV7
+	D1JxRmXYuuufOaJkJzmrEVWwku1Phyl1ja4kpxvHXIZLuh1Orw08uY+J0SmL+EbHLG/l4zWTfz/
+	BjQGl1bIPKgavkT8JSaq4ayLgQ4PeN756tlKSjweIlRojQgLobndkqR7ET0/gOv2SfmBMYpO1M=
+X-Received: by 2002:a05:620a:44d0:b0:939:f978:c1aa with SMTP id af79cd13be357-93ebd0d1425mr1921493885a.11.1791899461175;
+        Tue, 13 Oct 2026 06:51:01 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93ef4f4986dsm245505385a.2.2026.10.13.06.51.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 06:51:00 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol: clear attribute member set after building type_attr_map
+Date: Tue, 13 Oct 2026 09:50:42 -0400
+Message-ID: <20261013135042.217207-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <214514be-a935-485b-8925-07d84c1063f9@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Oct 12, 2026 at 08:52:07PM +0200, David Hildenbrand (Arm) wrote:
-> On 10/9/26 20:04, Lorenzo Stoakes (ARM) wrote:
+expand_module() populates each attribute's type_datum.type via
+attr_convert_callback() and then uses that set to build the kernel
+policydb's attr_type_map/type_attr_map in type_attr_map(). The ebitmap
+is left in place on the datum afterward.
 
-> > diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-> > index b9c453c28795..289d7b08ace4 100644
-> > --- a/mm/migrate_device.c
-> > +++ b/mm/migrate_device.c
+type_write() does not emit type_datum.types for a kernel policy, so a
+policydb produced by policydb_read() always has it empty, and
+policydb_validate() rejects a kernel-policy attribute whose types set
+is non-empty. This makes a freshly expanded policydb fail validation
+while the same policy round-tripped through a policy file passes.
+Both in-tree fuzzers call policydb_validate() on the output of
+expand_module(): the binpolicy fuzzer bails out before exercising the
+write and decompile paths on the expanded policy, and the checkpolicy
+fuzzer would abort() on any source policy that associates a type with
+an attribute.
 
-> >  int migrate_vma_setup(struct migrate_vma *args)
-> >  {
-> > +	const struct vm_area_struct *vma = args->vma;
-> >  	long nr_pages = (args->end - args->start) >> PAGE_SHIFT;
-> >
-> >  	args->start &= PAGE_MASK;
-> >  	args->end &= PAGE_MASK;
-> > -	if (!args->vma || vma_test_any_mask(args->vma, VMA_SPECIAL_FLAGS) ||
-> > -	    vma_is_dax(args->vma))
-> > +	if (!vma)
-> > +		return -EINVAL;
-> > +	if (!vma_is_mm_managed(vma) || vma_is_fixed_mapping(vma) ||
-> > +	    vma_is_dax(vma))
->
-> Same here, with the droppable thing changed this would be
->
-> !vma_is_mm_backed() || vma_is_dax(vma)
->
-> I guess.
+Destroy the ebitmap once the maps are built so the in-memory kernel
+policydb has the same shape as one read back from a binary. This
+covers both the kept and the expand-away (TYPE_FLAGS_EXPAND_ATTR_TRUE)
+cases.
 
-I think we need a hugetlb carveout too (ugh), will update in v6!
+Adjust the expander CUnit test helper to read attribute membership
+from attr_type_map on a kernel policydb, which is where it now lives
+(and what is actually written out).
 
->
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsepol/src/expand.c        |  6 ++++++
+ libsepol/tests/test-common.c | 12 +++++++++++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-Thanks!
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index f7ff61cd..153b609f 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2669,6 +2669,12 @@ static int type_attr_map(hashtab_key_t key __attribute__((unused)),
+ 				goto oom;
+ 			}
+ 		}
++		/*
++		 * The member set now lives in attr_type_map; drop it from the
++		 * datum so the kernel policydb matches what policydb_read()
++		 * would produce (type_write() does not emit it for KERN).
++		 */
++		ebitmap_destroy(&type->types);
+ 	} else {
+ 		if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1,
+ 				    1)) {
+diff --git a/libsepol/tests/test-common.c b/libsepol/tests/test-common.c
+index 20449cf3..61a8fb6b 100644
+--- a/libsepol/tests/test-common.c
++++ b/libsepol/tests/test-common.c
+@@ -246,6 +246,7 @@ void test_attr_types(policydb_t *p, const char *id, avrule_decl_t *decl,
+ 		     const char **types, int len)
+ {
+ 	ebitmap_node_t *tnode;
++	const ebitmap_t *members;
+ 	int j, new, found = 0;
+ 	unsigned int i;
+ 	type_datum_t *attr;
+@@ -265,7 +266,16 @@ void test_attr_types(policydb_t *p, const char *id, avrule_decl_t *decl,
+ 	CU_ASSERT(attr->flavor == TYPE_ATTRIB);
+ 	CU_ASSERT(attr->primary == 1);
+ 
+-	ebitmap_for_each_positive_bit(&attr->types, tnode, i) {
++	/*
++	 * On a kernel policydb attribute membership lives in attr_type_map;
++	 * type_datum.types is only populated on BASE/MOD or per-decl.
++	 */
++	if (!decl && p->policy_type == POLICY_KERN)
++		members = &p->attr_type_map[attr->s.value - 1];
++	else
++		members = &attr->types;
++
++	ebitmap_for_each_positive_bit(members, tnode, i) {
+ 		new = 0;
+ 		for (j = 0; j < len; j++) {
+ 			if (strcmp(p->sym_val_to_name[SYM_TYPES][i],
+-- 
+2.55.0
 
---
-Cheers, Lorenzo
