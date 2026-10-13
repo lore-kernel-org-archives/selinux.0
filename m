@@ -1,158 +1,110 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776CE3FDBF7
-	for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 13:51:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791899463; cv=none; b=Eu9nzQDY6c+S93PguK0uepS5s2SvjuMCeyZqFIBBXIXv8JG3P6W9o/NvrY4xXznfmeqzyV0olMXdI16E+Mo5Xpo/hJDrfUP1JOZcWI5K0iZ45zxWqWJUH+xJJRUHFxrj/NtX81V980kXGwWIcg3p+mvB7sOiYhlGlphppoCggjA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791899463; c=relaxed/simple;
-	bh=lTPxVD4FKtGSfc6M/7fQEPAQGvVDGpPcbOgzrDV9S0E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VtC/tX+MftxNVTZwBXM8pPqpQAucIQb2Jy133OcqWeYmJKpcCg9Tcd5lcnIqwC/6jW9faD8MF9UTQSbZKj/JQH5vFNdg/9c8zhQbB6x5rgU5YqgK/p3jmuqxBkPChyFe6/hOC6qipciowRTeWx7asVHBrD3wEh6s4gbm7KescDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D6RGejQU; arc=none smtp.client-ip=209.85.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2CA23F58F5
+	for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 14:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791900260; cv=pass; b=aj6U+qFH4iekmYBErKsLKuAbR54qCZ5absYgwDK4yUu0Q9ivQJNRDy8IfcMxioDaFs4QkkmqnZsV8Cov/1ZgCfjmoCJwPR2jpRFjiSf1yCN2XzPO+Id8px1CtI02NoTvKwde78JQKLMmBLTbBFYYkIbVhL8Ikglf8B5dXKc/jis=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791900260; c=relaxed/simple;
+	bh=1C9elWmJ6mk2W7lq2kn6pe4d1bvzLuWDZOrDSDnXKqc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dbXQaK9GtEyUK+NOp5yvD/t2u/A0JQskHD9U6luTwmAgXLd6vKheKfzJIdJFOedelM8CS5EBgHjq6IfOLx0kRbWDNv6WnISi4fYjlPyEZbp9P7Rp/EvEb2GEn7kOOE7QNlJxiIYuYyyeiOPlYs8dYnQwRP9Nm4fm9H78MIoRums=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jDQtY5IP; arc=pass smtp.client-ip=74.125.224.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D6RGejQU"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-91b83459526so21237516d6.2
-        for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 06:51:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jDQtY5IP"
+Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-67718201466so2191812d50.3
+        for <selinux@vger.kernel.org>; Tue, 13 Oct 2026 07:04:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791900258; cv=none;
+        d=google.com; s=arc-20260327;
+        b=FE5zhOlYveKA2bG3VcoSyaDvp5yfLVVNExNL5+jGafW3qWKrhJxnkNzKA5SmxZxFp2
+         UzjxWxxgsR+qpG+5epJCCeHBZxUnMnf+ub7Kbd920EDLjYRa8PQKF4quTpPmjt2SMJTX
+         RbPac36BwQzrjB7qzYQfilsmySm4sHJnoOhinR3+xDPgM72MqSOhO8/D04qCMgzPb6NR
+         gM7e9J3Hb7AvRgIpx42fxMhu0caGEW0E+9Yq6ZSVlMu+GLp5QpTY6CYFZ/XpwE4fjlap
+         hrxO3KUtHpoBq+mDCTgnVWdcDtKDIH7wPsNQ9OEKCCTVYnRwteKuOUPbGa0ZBN0lx/l/
+         7aqw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1C9elWmJ6mk2W7lq2kn6pe4d1bvzLuWDZOrDSDnXKqc=;
+        fh=OwAMYJB7jfWJkONZCoaW1jFPjG00CJVq/UYDauTm7j4=;
+        b=iJ9/YTlJKVK9K84ANo/fLoulNAotpcUeyQt5SeV41lQ9o/nWnXA+phDMcWBQWSVDSL
+         h+ziUnacaJfeSLcesO509HHHcfLrYEEGHwvYDAV4GK28M/dFpWzU7RJRYKologzoc2U8
+         n9Zo7XhRfM6YuJG4UAUL7bkxFMuhXU99QJecl/2Qh0o+tuUrwDPPDQ6hY77QnpES0Y7o
+         Tui07E2PkYavAuCVoNflOZVWHuojwdq88mCDsurAESGFt2DQnU2Ojt+TzEFRAfB//Jpm
+         rnHFkCU6IDCgUwYfulFnArJCQbGZpW41j6hf6+CE6/K1NuYcNNGOimofRwF2xD3UJ8rz
+         rEow==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791899461; x=1792504261; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Tq8+Rs7vGqU1gEycC+0Cg0m1KWF6jJ1JE080Kr96dP0=;
-        b=D6RGejQUwwI5fPpHc9Gd2uSB+SiQeQuvwYtPTnwB7A0bHN4KhTUW5vmzqYFFIYAXph
-         cevRYa6WoAmLqZcJQGUDohBK0CO16ocpFSWFxo5lSB80E0BByADBMM9SLpSh5m3tWJnr
-         4xTAhamdi/fuEZNqUjdtbT8hPQqC7Ta8mBKV9qB8TGO/j5EPKlanZxF/wJRY8pcQnJRR
-         vQxOtRCDG8pXot8dWuuBBgDy54dAFC/x620ah7gHhIc+HR4A9nC7RZykTSfG1xiLqQXv
-         J++v3Rc1uBdo54Txp+JAoIa2kG7JjiR/luJs1sewe0v0H1did0B1NQCN7HLeqVePw/JV
-         SiTg==
+        d=gmail.com; s=20251104; t=1791900258; x=1792505058; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=1C9elWmJ6mk2W7lq2kn6pe4d1bvzLuWDZOrDSDnXKqc=;
+        b=jDQtY5IPUjksofvToP1Kx2mMcT13a8OH7lCKPIg6Jnd4kt4IyEIKXNqY+6xlkaHYvX
+         H4mFVjna2y5TRYd3Vet0hcgGeGnXRsuQoCHA57nAJJ5JvEO7ED4tgT3jb0cpiT6LrEIV
+         jQqLY2m7ymwP1BRR02PxAD53EIs7UF9J+FohtNv8UljIc0LVhkk5/T3eQrCJYkf6CfT/
+         Yk0EiYtxa4B1r++oViymSwolx8zSAru4ob9LNgcpmHB1hH/N0Zge1Ey1cCNEYKuyhahQ
+         vhhS4PMmrCjT4HcuCpDwBUmxQiwFAWfBFFmEf3T7h8bGRq7VadwKKeiESmt6FlU5rLOC
+         9r4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791899461; x=1792504261;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Tq8+Rs7vGqU1gEycC+0Cg0m1KWF6jJ1JE080Kr96dP0=;
-        b=i3E0i+Mciae3w2zIClJsEEyaRx1Zww/eWpG7fWZG+A8J3eYlmChvjvHnE8MXeFt5eX
-         jHJFZ8aVjpzlxbc/QRfg3188y6TbQa6dIpjyLiSyFXh7TUHA9M4BBFM14ESslCCBExFU
-         lnyQHdhgVA1iR3BX6bJ4jrT7djlR4krIP+mI/IekM5mu1SNFqPZ/bfhpapUW3tMsSS1h
-         fGeiV9krPiVGLnhyPmHnGd7/8O+mZUmTe1BFl/OPmfFI4av4vbjSkzyXSHRdJH06uA4p
-         g87BG1qwGnK0aGDrHjDOKmakncBFllLfOvySfTENkOovAqrBV6WjtX/jTFNN2+6qW0pG
-         kBgg==
-X-Gm-Message-State: AFq9FYI+asiyvmoSHD2PCDwAX+CEvJ3p0LJ/c6ip30SdbMIaVxT2TTgR
-	JqjKjhV6kQ+cpN6TO/E3bkZGKtr03DbMw4SgfhzE40EoPBJMQTpQ5wLJCGbYHqxj
-X-Gm-Gg: AYBFou379MBv9Ua4EJxWiN4O9wI8tgsDFkWR+cVjFU7eZw6kDfgwsWTIHHIWfnRKFvh
-	TT2EoVBi+6dUbV2sJ43c+oWvcO0BqQH/YyqTFk6WlOt0VVHMjaY1Q/kqCLKAPG6aOKc0BkMI5K4
-	Kp/k2tDYjWAgZVawQuro35MfGaeQy++KOO9dIBm/W5iE5n/gzBJg+5YU611w0C+0umwXBF1a2PK
-	+T/aM5PAqyHiUnRdHrDLrXHJC67eWPmYlTasIC5UH6L0R7XSTb7dk7Q0SfjBvR+KXfEKodQD+/y
-	zZay2qiarTks6dTY29YkO+i9i3y9eChy4LBqRU08ySTqpEVtMzgWYCaoWQU/d8x7F9RkM6Xt09C
-	7sQmMOcBp6vUtTt5chnpyARB/cKzRNUVQ/xPWa9ErYAlzA3Gk6lwqwFFYXvHczYlxRb2XkYDbV7
-	D1JxRmXYuuufOaJkJzmrEVWwku1Phyl1ja4kpxvHXIZLuh1Orw08uY+J0SmL+EbHLG/l4zWTfz/
-	BjQGl1bIPKgavkT8JSaq4ayLgQ4PeN756tlKSjweIlRojQgLobndkqR7ET0/gOv2SfmBMYpO1M=
-X-Received: by 2002:a05:620a:44d0:b0:939:f978:c1aa with SMTP id af79cd13be357-93ebd0d1425mr1921493885a.11.1791899461175;
-        Tue, 13 Oct 2026 06:51:01 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93ef4f4986dsm245505385a.2.2026.10.13.06.51.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 06:51:00 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	jwcart2@gmail.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsepol: clear attribute member set after building type_attr_map
-Date: Tue, 13 Oct 2026 09:50:42 -0400
-Message-ID: <20261013135042.217207-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20260707; t=1791900258; x=1792505058;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1C9elWmJ6mk2W7lq2kn6pe4d1bvzLuWDZOrDSDnXKqc=;
+        b=kAdY2EiyIBZbEZeRZa6KdyXU547eAqJFFq2tmuz+o5HZ8uzqFQ5xASN7zuJK/RxqWA
+         /piI1Z0OYL8nZg26mpJbeg/m0AdNAOjtm1j6WnzxkuKot7/bq5bUpIZl53NnPWH50Su9
+         kmB02qATSrEtjx6/sVxqjdrd1GwEaDMjJpILF7yXKSm1oUGsFEvnVPPXMtZUJmhMl8+M
+         sFBIfNfy1eOEtpcY5bjss7SZpTD4ubwzL5dvjborD3ULJsRfS+0RYLZ1zKcikppaDSsj
+         qNixjhBFqf68/xbZOCHSEoWejLLkbOPovbQZHfUWszBGJKHa78tNxs8oVQHaAfDDU9aj
+         x3EA==
+X-Gm-Message-State: AFq9FYLmgk3TZPWZMPriV2VzknWAyfwaeppL7dQrA51vtKup6UxAUckx
+	8PoNseExJOspFQFiekV5NFjHi+m0dzGHGNWgntFUekSoC/ZszAdNhfY3QC+mOavSRFKMenN2PwN
+	KFNKiR15N8i10npdOGSo7YwFrSJKtg54ERRAo
+X-Gm-Gg: AYBFou1ib8nmv8MrzpNwkLwaQ7u0Tx57LmvLmK+NtkAoRImDMpMtQ4B3AYRxnWilUa6
+	5b1KvqLb8iJna0EPmWkblTqB7I4D9A9yAF/8SEvcn7e+/kGSHJ7LQm4Hntc/opmbVDt9PET9rSA
+	PhSyvnuPFsSjpf0Oek+qvktZgc4HF4ixAMnN98sroLqM5+CdF/ZIHbL27o86qK8+mfAZyf09KWj
+	ZvHmMzSXDHE5hZkImjJQyd0UuyG7Y5vJ7YiRj+OZolW1dCZdk7oY82l+J26C6jgaSLpDphG+AZv
+	nCh3cKjp16J94jeOz86ovc3uWHpjxnH7ofEK1IE8MGJwlDvfxjqp0AI=
+X-Received: by 2002:a05:690e:1685:b0:676:85db:8e3b with SMTP id
+ 956f58d0204a3-67936a05f58mr5809626d50.57.1791900257867; Tue, 13 Oct 2026
+ 07:04:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20261009123638.182622-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261009123638.182622-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 13 Oct 2026 10:04:05 -0400
+X-Gm-Features: AclHuK_OHEbnlohb749q5Tn9aZ_CyCzLZSpIuDd4QxiuEfi-MQx80Vaxmow0zc0
+Message-ID: <CAEjxPJ6PyeUEAFk9FF3rUUwEXdXwRdM=2-WwQjkyDNNLCjSmaw@mail.gmail.com>
+Subject: Re: [PATCH v2] sestatus: avoid self-referential symlink
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
+	jwcart2@gmail.com, Joe-Ju-Alpha <joe_ju@alphanetworks.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-expand_module() populates each attribute's type_datum.type via
-attr_convert_callback() and then uses that set to build the kernel
-policydb's attr_type_map/type_attr_map in type_attr_map(). The ebitmap
-is left in place on the datum afterward.
+On Fri, Oct 9, 2026 at 8:36=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> From: Joe-Ju-Alpha <joe_ju@alphanetworks.com>
+>
+> Otherwise, install will break in customized openwrt 22.03 build or
+> other non-GNU-coreutils environments.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/pull/545
+> Signed-off-by: Joe-Ju-Alpha <joe_ju@alphanetworks.com>
 
-type_write() does not emit type_datum.types for a kernel policy, so a
-policydb produced by policydb_read() always has it empty, and
-policydb_validate() rejects a kernel-policy attribute whose types set
-is non-empty. This makes a freshly expanded policydb fail validation
-while the same policy round-tripped through a policy file passes.
-Both in-tree fuzzers call policydb_validate() on the output of
-expand_module(): the binpolicy fuzzer bails out before exercising the
-write and decompile paths on the expanded policy, and the checkpolicy
-fuzzer would abort() on any source policy that associates a type with
-an attribute.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Destroy the ebitmap once the maps are built so the in-memory kernel
-policydb has the same shape as one read back from a binary. This
-covers both the kept and the expand-away (TYPE_FLAGS_EXPAND_ATTR_TRUE)
-cases.
-
-Adjust the expander CUnit test helper to read attribute membership
-from attr_type_map on a kernel policydb, which is where it now lives
-(and what is actually written out).
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsepol/src/expand.c        |  6 ++++++
- libsepol/tests/test-common.c | 12 +++++++++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index f7ff61cd..153b609f 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2669,6 +2669,12 @@ static int type_attr_map(hashtab_key_t key __attribute__((unused)),
- 				goto oom;
- 			}
- 		}
-+		/*
-+		 * The member set now lives in attr_type_map; drop it from the
-+		 * datum so the kernel policydb matches what policydb_read()
-+		 * would produce (type_write() does not emit it for KERN).
-+		 */
-+		ebitmap_destroy(&type->types);
- 	} else {
- 		if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1,
- 				    1)) {
-diff --git a/libsepol/tests/test-common.c b/libsepol/tests/test-common.c
-index 20449cf3..61a8fb6b 100644
---- a/libsepol/tests/test-common.c
-+++ b/libsepol/tests/test-common.c
-@@ -246,6 +246,7 @@ void test_attr_types(policydb_t *p, const char *id, avrule_decl_t *decl,
- 		     const char **types, int len)
- {
- 	ebitmap_node_t *tnode;
-+	const ebitmap_t *members;
- 	int j, new, found = 0;
- 	unsigned int i;
- 	type_datum_t *attr;
-@@ -265,7 +266,16 @@ void test_attr_types(policydb_t *p, const char *id, avrule_decl_t *decl,
- 	CU_ASSERT(attr->flavor == TYPE_ATTRIB);
- 	CU_ASSERT(attr->primary == 1);
- 
--	ebitmap_for_each_positive_bit(&attr->types, tnode, i) {
-+	/*
-+	 * On a kernel policydb attribute membership lives in attr_type_map;
-+	 * type_datum.types is only populated on BASE/MOD or per-decl.
-+	 */
-+	if (!decl && p->policy_type == POLICY_KERN)
-+		members = &p->attr_type_map[attr->s.value - 1];
-+	else
-+		members = &attr->types;
-+
-+	ebitmap_for_each_positive_bit(members, tnode, i) {
- 		new = 0;
- 		for (j = 0; j < len; j++) {
- 			if (strcmp(p->sym_val_to_name[SYM_TYPES][i],
--- 
-2.55.0
-
+Thanks, merged.
