@@ -1,66 +1,72 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 921FA3E5A32;
-	Tue, 13 Oct 2026 20:13:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81CEA5427FF;
+	Tue, 13 Oct 2026 20:21:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791922413; cv=none; b=huL+cz+bziyhNXpFvjwm6AJWQGstehvYtqVdTgEV/B88rJre5/6B0HLsJSA6QPReHkUI43zO9FhHiC5IYqQtHUsOURxFvM8Jvn0GYRcnGAignBGT0CW84mkzWxr6woc/Yk9sC649XN0hFW3krG0ynxrZQi04XbiHJrnPKSDuAQA=
+	t=1791922909; cv=none; b=cCyJWfhTnefuUD3dK1BQMWLdSaLjWtyYSKJXz/xLPHQV2Hm22PqjaeRxkhG+KA3FBEMdh2OZmWgG65oyxOV5vmlbW/WcJfb8U3vfAQFcPxmyjhEklJT4edvMyCWa+mWrlY2b0scjcEeoJtJzivrXdkwP2VY8Y3JUXRoJBRUqzKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791922413; c=relaxed/simple;
-	bh=o1UtWiq0Djo+zQyAVSKITV0ZCoSN+FXabkAiVFK6KWw=;
+	s=arc-20240116; t=1791922909; c=relaxed/simple;
+	bh=eA9VirkcFHLEx/i/r5oniinu7vAbSaMLW2lhOS1T6U4=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=VzwWiuKwkze/kMptPBXlFkKFy6EE4/tBeE88wpRd5r1mjfORDqzL/VAyE/gJPq6k3NTZWCx1hrfePUd7ZWumULsjTX8IoxxPyp8pXtAeFtY2znvyz5ARrRVJ/tCTDOShAtyLekrjphMgpzAE+BHsIVWACnXUXh/or64wTltqckg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mNTiLSP1; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=eavhQkun7eabPbV6RoERGD9pAk2f8xj1QU1oQjEFUcdctgKnOF9mGKTiHea741mskHRwWc4OfCyplIYceWV2gCnfrFi/6aCFzKcEh4ggOUIyV+uuBoVVPmU8tLTdr3R1k9ZttxeNvwqbKEz8YX9OYIW9yQXoMqGrncZ1Lh3mO8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fFdNt49G; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mNTiLSP1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B39381F000FF;
-	Tue, 13 Oct 2026 20:13:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fFdNt49G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9537D1F000FF;
+	Tue, 13 Oct 2026 20:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791922412;
-	bh=o1UtWiq0Djo+zQyAVSKITV0ZCoSN+FXabkAiVFK6KWw=;
+	s=k20260515; t=1791922907;
+	bh=BfGjPbQzAAmcVRFzQREf0xWg92scQMV5S8yw/1yzbGA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mNTiLSP1F6VBzdXl/UtybMW8Num81BCgYs8umxO2WUgqnl/0fX9wEuN5E9+yLsJbL
-	 2kRvkUSl4SFNRVwvpP+Q0Qye+JAKHhFBIka5y73GLp7WtpYUwAV96PuR7jQWgVumjy
-	 W28jp1EAvQGmQqU6Dhw95nncxdpCRpvUJQqqCiZVpOJfqZEEwHiCEx+t/GVhZhoGX+
-	 Wcy4o9re6vDvg60b7WsYQEg1Z8p6JT+PRB33r2FLIsw4WjXJceZyjkNJYPcOJIF6LW
-	 8EGHrGaSJqS6esBi5gXf8mbxTyaKP/i39Ki4vjgnyup83neTWDivn/pQOJda3a70TC
-	 R09xj9hksx5CQ==
-Message-ID: <sashiko-outbox-170441@kernel.org>
+	b=fFdNt49GVCBCQUwT6VB7SNUJDLa5vXBJBn6JIyh8nVQA7jMmU7sMGGESbLWY0Vb9f
+	 JhrzpiZbPBKDjikdLeDm/RYOISkPaF9xgTG+2o9ZVvJw9d1MSWE7dk5YH8PCCcsGxG
+	 oOqxxRGYeePAz+0stbkwdq09hAnzUFa1gFTxhFqsJvj2P3VlpkUVQARhlUUOW13Do1
+	 qBDebDQ9Os+HiOyz5Zg+OxF8a47hrYStWFH+zJQCubxEHryNv36yVjw0xsTT6oovEJ
+	 qEb7oAbPMcOiAErD6AClQh4V/PhR3u5y/PeOYu34YEMZaEn4oikzN7RxEIJm3PkQGm
+	 SUZxr6LOCvLMg==
+Message-ID: <sashiko-outbox-170448@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 28/39] mm: rename is_vm_hugetlb_page() to
- vma_is_hugetlb()
+Subject: Re: [PATCH v6 29/39] mm: drop some redundant checks around hugetlb
+ VMAs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
 Cc: linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-28-1aa3c9b139f9@kernel.org>
+In-Reply-To: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-29-1aa3c9b139f9@kernel.org>
 References: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
- <20261013-b4-mmap-prepare-vma-flag-sanify-v6-28-1aa3c9b139f9@kernel.org>
+ <20261013-b4-mmap-prepare-vma-flag-sanify-v6-29-1aa3c9b139f9@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 20:13:31 +0000
+Date: Tue, 13 Oct 2026 20:21:46 +0000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-> The is_vm_hugetlb_page() predicate is badly named - the mapping can span
-> more than a page and it is inconsistent with other VMA predicates that
-> typically are prefixed by vma_.
+> Adjust code which inadvertently perform redundant checks on hugetlb VMAs
+> and clean them up:
 >=20
-> Rename to vma_is_hugetlb() for consistency, and while we're here update
-> some VM_BUG_ON_VMA() to VM_WARN_ON_ONCE_VMA() as to avoid unnecessary
-> oopses.
+> * hugetlb VMAs have VMA_DONTEXPAND_BIT set so a VMA_SPECIAL_FLAGS check
+>   suffices. (migrate_vma_setup() regains an explicit hugetlb test later in
+>   the series, once VMA_SPECIAL_FLAGS is removed.)
+>=20
+> * hugetlb VMAs unconditionally set vma->vm_ops, so they are never
+>   anonymous.
+>=20
+> * hugetlb VMAs do not set VMA_PFNMAP_BIT so checking for this is redundan=
+t.
+>=20
+> While we're here also drop a VM_BUG_ON() which the simplified check above
+> makes unreachable, and use the new VMA flag API.
 >=20
 > No functional change intended.
 >=20
 > Acked-by: Marc Zyngier <maz@kernel.org>
-> Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Acked-by: Anup Patel <anup@brainfault.org>
-> Acked-by: Zi Yan <ziy@nvidia.com>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
@@ -68,5 +74,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-mmap-pr=
-epare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org?part=3D28
+epare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org?part=3D29
 
