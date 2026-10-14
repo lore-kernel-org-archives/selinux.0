@@ -1,127 +1,114 @@
-Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88546501F49
-	for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 12:51:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AAF22E5B2D
+	for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 12:52:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791982336; cv=pass; b=shQRrRtvg+YNfGrXqBCxn3KNAjj7QBpqgbQRMaTYEPv4eEUYcMB5S5pU2t7f+/5jEiLWjbega2kOCrhB9bqigjYcLfzfYZ4Pq/elwx0+7hJgMeETjAvyxhB7orbKM9Wc1WY7nMJypy2NIR0uEaIudaIdvTYLwYDL8xe3WLxpUZo=
+	t=1791982378; cv=pass; b=F3E5vH0Mh8bOzl5GGRyTZVag23PorNH5JGIpO8DV8jmye5ChxpdZvSrNKBOQj+RwL7jXMnl34WlL9/PyHvVg9EjIiOsu+jVd1wFhPikJXIdTpY4KtPfxWyyMGecX/lrbpb03zByoWjokCzOW6RETV+aAW/uSLl6cXbbsH0icAwA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791982336; c=relaxed/simple;
-	bh=CMHQ9sHNrSPoHtKhqT1JWoto98t9CAzU6IFT3QrD0d4=;
+	s=arc-20240116; t=1791982378; c=relaxed/simple;
+	bh=sDnFcWAmn4obUi+S2Zvl5YioXEcpUNKy0vwyHW8HP7c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jDCyvArAkEliYMPK5bIMa1oxTMmDRuuskx9bPfNebMwgK2PeeO5E60s3MZ6K3e/jRNiZyfTcoyzdYAhYoYzZzaqdY2wkpBlawDbdnbMTQmW+/0Ss79GeSx73WagijuAmyhXZayLQZbHBFcRJ9jiWi33AVYw5QV7UDK8YlA4CJrw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YMMeinXc; arc=pass smtp.client-ip=74.125.224.41
+	 To:Cc:Content-Type; b=FnQc08LbZJ5dspGWzKX4Chth9UUFIPVpymuqK1u02l8zcrWuHpO2qejnzg0VkkAitzdu7Ppj3ST4MzcUvuT/jvMNyXi4AWWUh36VBOdoxlpEuVuEk6hjSNplB+uRQTj4xTFn+clH7gYX4DYGYa8SOAfe0hgZaklvEqbuRuke59A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hv/MAafT; arc=pass smtp.client-ip=74.125.224.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YMMeinXc"
-Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-6768403e9bbso3479357d50.1
-        for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 05:51:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791982270; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hv/MAafT"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-6740e7ae219so3190581d50.1
+        for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 05:52:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791982327; cv=none;
         d=google.com; s=arc-20260327;
-        b=lUpSq5eGwHpwVKL51uMg65W2GDyjqC3ttECIY540IOkBuzUlzrGC7HlmW/ntTg/doz
-         BpwMFomgQgzkxxbNw8YFJ1HUPUJixVSMLtvOCX60g0snYEa3wkTFqmcyVvCTPioWcno8
-         sYXfe/GpgCdX3rjK467SND8EPPG0S1HpXXzcx7R2iangYYfsIsd0Boi7tdqllns284In
-         +HJCsyza+qeID1rHiJp57WdJUFYrJwVo4eAX/4hn0rir1ZfNu1sLHuKSSfsNkr7TiyCL
-         Ofkr/bBAxx0dqz9zDTpK4VsBSK8eGWUryEH7YzlKFDOrb474JHFt4pyD0sRcqWizhdwz
-         PPrw==
+        b=INiVCxlbi1bJSWuE1Mb+JkxVlt1r+3Eb+uK3kxXfTObw6vyd8OQtUE9dguDcMzleY7
+         1CGOr1qPs0BZYOxuwNI00dGEdAHt8Lo5jI91pyax7Tq+94/iTSmnY9QYIkEL5YD+ICLR
+         b60+wxUFsBZEmxYueQXHm4LsmNibXU1op28PamJw1VzX3Swwts7ymme6d+0mVwcRCZJd
+         KNRPZMD/Ms3EsiJeQhBaHSo2Xul45h1o8RvvXa85Y5i41YL0ZPugBA634lml6AtlOPlF
+         Jg7xx7ymK7mrvoccoiQGXKeqE15dLe4g3PeCIqKCzwS2PuzO91eMQvMMD1b7gBknrqGr
+         Z2zQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=CMHQ9sHNrSPoHtKhqT1JWoto98t9CAzU6IFT3QrD0d4=;
+        bh=sDnFcWAmn4obUi+S2Zvl5YioXEcpUNKy0vwyHW8HP7c=;
         fh=9CvfyTln6mlGi4sBe9JH0kMBicdx1bffQat4jneQZt8=;
-        b=hZxbozcTB+u7g2bh5YNuDQcfV05YZh7lx2tSWrMr2oxY9a+Ta6Okr1mRD/NR1ZvmYp
-         aZODQSTgkpTpab1k3HaVYvpXRh98UlkiKpUr3oy6KX8EiYwqKTsaps7IvGo4SI0ALVvR
-         nrwOZY9RRFqYXLrugrwSzeY9FkyT6dFZy4IrPUmOzfPeklLGsJVUVfu2qkJJ6EKks+6z
-         136f49AlLSaWJwXP/VEQpt+ItR93JiroQ/veFMZnodGZ+2M2q9WmXsSKfeuu2K9z5t3e
-         5jGlFwSl14sIvW8fvZvMIIXend2uuPSIQ8bUHJYFVWfimIIeTrfYTNkCLrIGPJGp0UhD
-         gsoQ==;
+        b=C8uMm5/UW95WhUN7UZZPDdjfVO1AEdWT07i3a0BIPNcdx5SAB2FgXsOIzwhVvy4NUk
+         aFaCOH19YnoFzugw0L4GRTGFQ1sSCqCuQv9VidjmbFXxKzvwWcgp+rk669NTxo1Ngfon
+         uTIHk2JhFh++pSUSoU0a/8oCBaJrIz+zZAjLTENxedQoAIgsWIcMebbfP9i+wazYRS46
+         BgrepTehYcBYtPJvxXisVKTk6idvcNQLpmjeVzXXkiAH0VyqaBAZnfE6UTImexrevvC3
+         R2zv3sfU1JLDBFqeAbBNeFXEno/L3GI8OoeRTpHpbc/pVrUfIiGInS20nafWuLqxsd9u
+         nLtQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791982270; x=1792587070; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791982327; x=1792587127; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=CMHQ9sHNrSPoHtKhqT1JWoto98t9CAzU6IFT3QrD0d4=;
-        b=YMMeinXcqdj8VXjvX/D4+dIsYPAgAFtdv7Fh07kVhYRz0HhE94mlyAU+pZwTbeWQOl
-         UrYUxVPxKWw89rL5waGUC2VMi8CI2DEtXVtbWAXH6zQeF0SNxX7CKSGJAfNBrlSTi0Xb
-         v7sILXdYRioD3WOpQyQK9fOJAYcTWxrw0Mh6uaLy/gt2Dq25Q5ouVMAcEIr5CiJv3jRL
-         kRsuIgIbAavfX9gFUSla0KdLnlrsSCen8r7KgixYxT655Xepa9YP6S2JGcQllB8+9+pR
-         QXgiiMJQjYlAMdtQEPKuzE0ySofo2iOoqrPzAM1W4TuHCv6f5yFumqvKxn+os4OBMA78
-         SSnA==
+        bh=sDnFcWAmn4obUi+S2Zvl5YioXEcpUNKy0vwyHW8HP7c=;
+        b=Hv/MAafTG3nui6a/7yxXiuLFdG/ms20CL99BaQbYF8bojDrxJIq8Vex0EtkZH+HGRB
+         d7pwy6wVY5I3SxzZAsBbUmb1ssJd6XbzAeFs93Zloi3u7x87DOpyIkiMJWRT0+qu4lF6
+         YdYvWEmE+Xh1et1tVyQvNDFwhZvlJcAzxMD0yBTxKg+FfCehtMrPfGimKA9bc4xxaeqb
+         GNcEOk/kKmYKLvqh4AA24cGEquZ90xT65QLl2qENi5lf0AzcxMtStwbkoxg9RUIbEU+E
+         HJ/Y94eGClaArW+CzPV6TQiQBfCSA+9uZZQEg0TX7Mw7IU3MfM1YVBGZ9+8BgNYSguYa
+         5iJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791982270; x=1792587070;
+        d=1e100.net; s=20260707; t=1791982327; x=1792587127;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=CMHQ9sHNrSPoHtKhqT1JWoto98t9CAzU6IFT3QrD0d4=;
-        b=ZTzGPpxP86J8OvkH3acsKqTqWdklLFobhl7X4WhPNAZx9TsHKR7T3Eig+yY6k2LAeU
-         +ko+itkpQZ+5JHVwDlEmtSCgw3yDOY1FcUYkOEFvvvTDgO64RCxJz0CDfTgHu4+8q5o3
-         DGoWss/QKSY9rv21tYoU/gMnrC7ZwEBE3hEY5VRpIyFiqtLfYpi/kDmnqBztbbwUHtlP
-         zcgiRz6FClWwTJK8dSd3u+TwVwN1VZT0ow4uqIsjgITdElyOmLXSfjhySAr/FHApCLKn
-         dojGklOAwYPb6pZPU2TQK52WPorX7upX1rnJLC48UX7gmDVbtLu/R1BaPqbYuXy1wPm7
-         H/ZA==
-X-Gm-Message-State: AFq9FYI/ID9HO3zILlIy0hn6gzTiiKd3JCA479En+eRg3kzTq4tb1zIF
-	g8EttImI16VIXpbM3yGJjhlfxxRGaPM+x3GjGo2Olg4fmpkRMN5WC1Q6iYUUQIlp7E6wSOuX+kY
-	SQ555Z1RqFOEY5mJOngahawc9MCYFOgckr/cW
-X-Gm-Gg: AYBFou3rzRcK+s/PT86H3rUfsknl5Q2XW3Uclglt6lIciE7lOIoIr1aQqDdxCr3/8gU
-	d2fJFzUtA5HQM6Ke2RnMi8ZkVc3FistRZ88VFHKjdigywOz44Jnsek8prcnjvOei927g3gZ2sg0
-	QM8FxIb/uJ0eD7CAKKNpCqzCM27xE0BgZCC3BYStreWRIcFpmerEbnh5Lks4Z00obD4s6Fwiem5
-	OcHY5l5CEd0Pfg3xHCbFvs0sGmXFuYK/4MHzkFUfevlfm1UEQSobHcjjFTIayQpjlx/M5Cd9jA2
-	pThiI5EAQSLZf1K9GpR1mEfz3tL4q3dhlNmAxxl2ccvDu1hppOi7Yzo=
-X-Received: by 2002:a05:690e:dcc:b0:677:c075:a57a with SMTP id
- 956f58d0204a3-67936b17d30mr5711961d50.108.1791982269857; Wed, 14 Oct 2026
- 05:51:09 -0700 (PDT)
+        bh=sDnFcWAmn4obUi+S2Zvl5YioXEcpUNKy0vwyHW8HP7c=;
+        b=znfrD9z4N09kuBbpNAsdwpMRIDhH9zz8rldMLstQyQ3snG580grHqlfRIb6AcAxzps
+         Mm1FFlQuAtdUKj6zA7fc25BB4aYuoZsYkUDYTUA571CHUQxs3vD6VytyWPZdDgmYBtrp
+         p2nXbCd6g53jDcbdCPxVNPDlL/NYepCuDsVSnFfEW1pkJsfiLp923/o1Y0U73p2HJH5T
+         cbEWCptscC9EkM8r0a8fhULtb79gdZirIPwPTsv5vbRM26GhepM87uyzxg+gIdmj44Nb
+         RQgHPcWzmtClRbqlLRZ9xatBf5Ig4X5XpznCm2sv0rNX2T9MTfnf0/kvTYhaBSghTx39
+         MNPg==
+X-Gm-Message-State: AFq9FYLlU4H/fZTLTB4/V+dAtUacN4Z4HInicrx3ubAQvuJsrbyp/A7q
+	vYM0jQGifBFjtFETkExifzutc/D669iVnErxCipm0Vk65PpsROGKdHAnHvEij9+221nyWYr/KvO
+	J0MmIN22zWN59/h3Iv8LU7RkWD0LYH0nY1UX0hSQ=
+X-Gm-Gg: AYBFou11u17MCdiBUa0UiWqspmSeoxxdaH/d7zJBc9/qSLK6oSc+UM+ev6NRIgTmj/W
+	KVO0ECEn+KIqbKcs+tjc0pmdVQJGaRQTgq9nJLYGJ50sR6SS3cC4LJ/QGDwMfQjAYeysJVGqgHi
+	6hnYmcIPTzvS5tUlya7XniSSPlPvChnw/QIWh1ZEJshNyAbsFTRsa3NN2yFuwyI7U8AOmGNT/VH
+	bKwb63c3bxX9yiqX3OuB6RoV46wvIG4FcGCXKd+1XzSdYtHCfGueQexHjCudndaAJV8N3oyETS5
+	RFsdD7m2y4aqzfIjPqWUfqjkbEwB7Lmxg7ZnV4TrcZTT1ytaVDYF1tY=
+X-Received: by 2002:a53:ba43:0:b0:677:c29d:4fa8 with SMTP id
+ 956f58d0204a3-679362ba447mr3926881d50.138.1791982326690; Wed, 14 Oct 2026
+ 05:52:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261013135042.217207-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261013135042.217207-1-stephen.smalley.work@gmail.com>
+References: <20261013154625.218930-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261013154625.218930-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 14 Oct 2026 08:50:58 -0400
-X-Gm-Features: AclHuK-nYGUkqWgjbr49MSC2VeY1amnxe74P03q6W7dEeVkguoJnEjoJ1kQlGBs
-Message-ID: <CAEjxPJ5TneMP7GwEWa7upXouktb8+NawhCMxdhKFtvc2MgJfAQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: clear attribute member set after building type_attr_map
+Date: Wed, 14 Oct 2026 08:51:55 -0400
+X-Gm-Features: AclHuK9lTsvO3mjImW7uXJ7x-42ErzvdjjQYCTlVkFCIL8TzDijDHo98WfSX048
+Message-ID: <CAEjxPJ5G_nwqSR0ZQou8-z9VACK2i5bk8HrOo47_0-K7BhMoKg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: compare policy_type, not policyvers, with POLICY_KERN
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
 	jwcart2@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 13, 2026 at 9:51=E2=80=AFAM Stephen Smalley
+On Tue, Oct 13, 2026 at 11:46=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> expand_module() populates each attribute's type_datum.type via
-> attr_convert_callback() and then uses that set to build the kernel
-> policydb's attr_type_map/type_attr_map in type_attr_map(). The ebitmap
-> is left in place on the datum afterward.
+> The RULE_SELF checks in validate_avrules() and
+> validate_filename_trans_rules() guard the SELF_TYPETRANS version test
+> with p->policyvers !=3D POLICY_KERN, but POLICY_KERN is a policy_type
+> value, not a version. Since POLICY_KERN is zero and policyvers is
+> never zero, the current incorrect guard is always true.
 >
-> type_write() does not emit type_datum.types for a kernel policy, so a
-> policydb produced by policydb_read() always has it empty, and
-> policydb_validate() rejects a kernel-policy attribute whose types set
-> is non-empty. This makes a freshly expanded policydb fail validation
-> while the same policy round-tripped through a policy file passes.
-> Both in-tree fuzzers call policydb_validate() on the output of
-> expand_module(): the binpolicy fuzzer bails out before exercising the
-> write and decompile paths on the expanded policy, and the checkpolicy
-> fuzzer would abort() on any source policy that associates a type with
-> an attribute.
+> No functional change: both callers walk avrule_t lists that only carry
+> RULE_SELF with AVRULE_TYPE / filename_trans on BASE/MOD policies,
+> where either expression is true.
 >
-> Destroy the ebitmap once the maps are built so the in-memory kernel
-> policydb has the same shape as one read back from a binary. This
-> covers both the kept and the expand-away (TYPE_FLAGS_EXPAND_ATTR_TRUE)
-> cases.
->
-> Adjust the expander CUnit test helper to read attribute membership
-> from attr_type_map on a kernel policydb, which is where it now lives
-> (and what is actually written out).
->
+> Fixes: 1c91bc84 ("libsepol: reject self flag in type rules in old policie=
+s")
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 This patch has been merged.
