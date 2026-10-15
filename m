@@ -1,128 +1,94 @@
-Received: from fout-a7-smtp.messagingengine.com (fout-a7-smtp.messagingengine.com [103.168.172.150])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53B6534D926
-	for <selinux@vger.kernel.org>; Thu, 15 Oct 2026 01:45:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E118261B9E
+	for <selinux@vger.kernel.org>; Thu, 15 Oct 2026 05:45:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792028710; cv=none; b=UpU1nIhIbpu50U9jJtmcZdvmydtm6wq/EZAq35/v2W0Ujg+f6BnTGwQk5sDZP2kirCxqOLTcf5foFh9ZnC//ELsrmxIEJpswbqKun7VOMZFoJPFog4TCR5mOZDYNVvy4dIwJZeu4EAgeqfZ/xYlw348d1nyJwqkWxUraptLO2YE=
+	t=1792043150; cv=none; b=WmsnkV5NE9TJxfxeefp8VUPLVD/OTvWqeEDfdcvLdAof1t3zg3kUvP/c9W/VeGeoQev3/ieK00apr3OP6L1/fJ9fkylzAfWiuFhhdGLDTrSLLYJ26ihjCdNWZPaEI39Ho3QPjr/m/3ouyO/++3Bdcy828IGNXmOuFEeUle+FmDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792028710; c=relaxed/simple;
-	bh=gwqT8EbrfpSvJgzKH2sGVXHjGpdhZkkj72jj5Ote3L8=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LCMEm/i6Aou9BSA7pVIiv+6sf8cuYB3xSfzOf+kjWP81QjQN0fLkz8qiQpsCFX6RjmGFl4Vx7qSgdafrc0p/wPVXeoKOCncsQTFhQ9jFJSEMrXVPCfmiKXhRgsSlYRPts8ZGmnO3ELSVGqK9aDPInN7jAgUoHCECFDEHQGfxEng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pobox.com; spf=pass smtp.mailfrom=pobox.com; dkim=pass (2048-bit key) header.d=pobox.com header.i=@pobox.com header.b=o6ywkPK1; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Xlbzw+MC; arc=none smtp.client-ip=103.168.172.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pobox.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pobox.com
+	s=arc-20240116; t=1792043150; c=relaxed/simple;
+	bh=t0Fsxt7MKE3arJIPm9lUU+0KCO8LtWu2GPf40W6p9zQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=CEvehGs3kn114VwO24rK0ihZectUb7nX0wUae4hyU+Eaeo4DBOdbLWHk3PcY28+pyWVEe2uOQxxC05i5i3C5ySffpsfn4Aij6FdJWhB95amWZlvJb4ZsFXREr9I7gCMAMfx7UEvX9bww5H3nwMN5dZhGObfK5nl798SYCH5aeSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RCfdsoCI; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pobox.com header.i=@pobox.com header.b="o6ywkPK1";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Xlbzw+MC"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 939D7EC0366
-	for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 21:45:08 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Wed, 14 Oct 2026 21:45:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pobox.com; h=cc
-	:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm1; t=1792028708; x=
-	1792115108; bh=EaXbolfhrJ0j6N8jWWbXzyFvjflttfTdh24JaZblaN4=; b=o
-	6ywkPK15c5UXh30KQGRPVr0dd1lu2TPdZF3EOlvrL6Ill8uBzsu2ObVtXhNk+meN
-	ocYMGcFpUSm/4j5F6BjRI7iRrsEC0CcKTeqfWRAGimyGp3+o5ObtYSQdM7jZ+mjt
-	gdqvnFUOixPHN3DohzQZ/MVwr6JyPlW3VCwUTDZ0ixDutsVmjIlGIMrN+4FsrCbH
-	MUUFOpk3r1W33PPihLrdNNEKKF88K0FvizC57zWlOOIiPrDg5qeYsGKTFagEuARP
-	BOJD9pRwC0fFdna8y2/OJrRvszFJH9/c8CB+QteWzYmyOIKVr7MRqaZLDX2SURlD
-	AuS2z0o4qnkCU9vFYGXHA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-transfer-encoding:content-type
-	:date:date:feedback-id:feedback-id:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1792028708; x=1792115108; bh=EaXbolfhrJ0j6N8jWWbXzyFvjflt
-	tfTdh24JaZblaN4=; b=Xlbzw+MCCogvjGhgn8chofFqm7hb3aY/hMBhAgcRkcCY
-	QHgaU03YmoxVkRh0tbBjoCgnHaxnt9ObQQWLnId3wWKdBDwVo6UDJyrv2iUuxmif
-	8TsL2eB1HH3RqsprilnLj05QAQWYMjf+wT+5cBG9vWeGrur60wkFVIyOXgKn74f8
-	dALtKsZOemM5NIJ0O3/H6YSveJP40G/OJGqXoVyXvzatZHiXvBohOPprlSnrnkW0
-	/3kST/lO392HavRRwVU16asht7YJkJCEtc4NK+b0c3rih0SVPXKZhTEzUM+RaZfP
-	OWy84Swq2iOyQuKfVms5NJCR6AvAk7LQgpAtOF8aJA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-10-04; sw=lmtpprox;
-	action=sign d=pobox.com a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1792028708; d=pobox.com;
-	mf=PHRtekBwb2JveC5jb20+;
-	rt=PHNlbGludXhAdmdlci5rZXJuZWwub3JnPg==;
-	s=fm1:rsa-sha256:N7I2UsFqCmpubjdcEqtyiRRjbACZgerN0tqN/3PQgwJqWiN
-	/Z0oSe09M68EdYPWIQvg3BKC5rXg9hYV9olXzKx1j42z+n6gZcLM6pX1hEMImG6R
-	czfXXy84P6nQ7k9gmOLIBxCCj6BwsN29vBR/4Pqx81BGm2875K17TiUnUOXGFeRC
-	gupLwIc638xqol+o33ql57slv6AuR9hsc38iCX11e/x+45U+7zi9raVRDqISoRJ5
-	Gfl75boetRV+og/aK8rnNyYuez4wfZwG5+Sgv+G1jO0Zh0WnnDBPhBOug4LkE0X7
-	VeJ6tgT6c06+ey1m2rwbAgpdVpnD/EoQdMbwnTg==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-10-04; sw=lmtpprox;
-	action=mi-m=1; hc=10;
-	hn=content-transfer-encoding,date,feedback-id,from,in-reply-to,
-	message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:atj0ieifXf1MvB5PJgVZ3hDI00KqZO5SdlHCKEKLqsI=:gwqT8EbrfpSvJgzKH2sGVXHjGpdhZkkj72jj5Ote3L8=;
-X-ME-Sender: <xms:JDDQaklLUDODLPky9sxylwxFC4jT4b3dyTtMxoyEi2r0gi8ofA3MEw>
-    <xme:JDDQaqy4v1jpJd_AUkFSsv12Nh9BNOUYYse3Tsbnws4DD_5xsuDJ1_woBd74KSqDt
-    d6Cap_5ndNAi1Jul02HWSBLMvfhwK2LFsh4YQkVy-cPRUnqxy6Wjrk>
-X-ME-Received: <xmr:JDDQaoSUPuxvOqOpam5RvIHMlE2wjAgjzn5V6VrRHB6VevW7M2b0HJdTQZzjU1rDU8A1mk6RSeWh6nSKiZwjUVRSroknD909JQ-GW9c3e4ETQgXbYwT6pzALh62bBOlAkTcZY0F6ZnPKojmq>
-X-ME-Proxy-Cause: dmFkZTE0vJokWS8xRf3zf+vyOCP06Vk37MbgeXR11HabD3ZrhRUiUQXCdFUg/PhGQafbNP
-    j4EHtYsf6dOzPtjMeyUA7q6e4OOsJ5sBGdY7G5ioX8jAPF1Q+ANrCsvAd2NJ/P/hILRUcN
-    ds2L3DjFAWcXwASyJn29Zu6fqarYukqcXf8rhGrV0uPWOyiNAHEr2xe69+FYO6h5gq9drz
-    vLJXE2cVRo5s6Utj/zySoUctot9irPLFResjiBWJl5kq0PMn7CDvgclgRk2j1797bGaPL6
-    vQ8YcqZ07eQU6ORhNrKsDsbiwwFu4rcd3MZgaJCIbEbcvZcWyOo+GxQFQk2behRTRZbXsJ
-    FvM3Qf1Jd9NjChIgMrXoX+wo3/SNe31FCGq/TdCowUwZ9K5ml0oLGodhK2/iNploNZCQrG
-    Hkeu2sNNdBmbh52iTtp6UW1XI4qbLM0d/K1rHXXgxWeJ2s30DLlsTECx/5DjM/nmlHDHt2
-    9rPtqkev/IKb7l1pZf7101xYeAVJ2xhpbmK63HUo3wUtTTVjLywpAoQkykMgxRCkBB/Gqj
-    XrLahZ/BXUMDZnIzbeOgdPqm1ItCOgCWYtJpklaFCQ8N8+u/uHNQMRN9m4FkMbSOQGc19s
-    1TPZeF1v4wM+/Lk6ZEh2hh50/DNQ7m6XBxSa+aEsQTPesDTGOkmPa3bDAvpw
-X-ME-Proxy: <xmx:JDDQaltVOZoPB6A1q6UvsxkiG_27yXybiT_vYVIu8MnukW56tRpDtw>
-    <xmx:JDDQaisPImhFWMF7CgbXwWcF4-gIwImLAHmiNWewaAY3QEDNb4t8Ig>
-    <xmx:JDDQajwEcPf_lOosOk9Wcz1T9NYDMuGuGlNn5gsAdxjFwfjrUFWYpQ>
-    <xmx:JDDQagi_zvyvGhDvxLVom6mbgRfKh27aE7kPYaDw0-PbZnN_QxL-bA>
-    <xmx:JDDQao2xacq0YecWj3U5qBVZM3rQ7gyoGtvnpyZ3AKqKUR356lrwNd7f>
-Feedback-ID: ia13843cf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA for
- <selinux@vger.kernel.org>; Wed, 14 Oct 2026 21:45:08 -0400 (EDT)
-From: Todd Zullinger <tmz@pobox.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RCfdsoCI"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a1ad2e2391so18921275e9.0
+        for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 22:45:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792043148; x=1792647948; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3h9x58mhlFPARMJmWsyLCU2+ECaqeJPNd+7pH27kE2U=;
+        b=RCfdsoCIIOALRyRT+wiIoO0rTGaGs6Pj5m0Yxe1A0gqXlCY2wRjWwZFm1KFzXpf3ek
+         3+DmW3PPGpqE5l3RvqXvkq55U14LFhYi++jHDC4j1jv24SbeEwSIcuzP9LVQXh1gejrE
+         58kdKP3aD+0RCH3V1FzMtBjm9ZD6xmQubUfTtZhwxOcsqXe5800svgzusoDeB1wgbjNf
+         QPK0PRDC5VkHAlyI6imFUmj5Dq2tFEUfPQdcbsVQQZa+wpBUNSW3ZRQii69aVkF0Ut5F
+         2FUWelL1vx3looFxqAPq0jpCVNntDY5NLNWJjE2RmY07ufbUkgnymihAsaL+ORdRCuvO
+         Xh3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792043148; x=1792647948;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3h9x58mhlFPARMJmWsyLCU2+ECaqeJPNd+7pH27kE2U=;
+        b=da22tbnhV9OFs9syTthtzyJMDzwwv0PDhTqepKOBsFwb/sFMKeGz26V9VVH3Q2llpA
+         jVDETAKyXMnV7vFizn5QQ9ccMJPGAh4maJewAtVeJbM9mzjREfCD2t4R2EwvikoPuHll
+         BT05Nj9pR5deWGlhpyuDurwaOB2lKBt7aogWKjEHeq1m6nJ8pf9+9JsXzjEwoenvYaNF
+         86ZA9WWfpw9cnWdZUyLJ2cm6zkR6OlNDaBGY3Iy7cW3cCdPkpDk6gLJrnZegKCm3U1V6
+         05mSNkIJ6NTxFPh3VN3brAChtCpVRoZgREzgm0CpWLYLuqaMYPS7Irl6PSwqMu/Jqf2g
+         i0ag==
+X-Gm-Message-State: AFq9FYLmyyufoZ9CRTaLlZ/0Hw5FQPl0nIYqULA6TOeALPqTRC3w9Sdd
+	flv1Nyt8q0yaQ94yu60fHwU2YtHmSSh+vnfNF5gigEEAcUl3CNsOqpDVjg1TVQ==
+X-Gm-Gg: AYBFou0nJMshkrC/0bUsuzWr3b+WgHoBb8WEZeq06KvM5JV+S+SsH65ee46RYhb27ea
+	ICpeOLz4ArB0JbFPXxVslhVR7+GizXaJDZS4F0BWoXA0xzZkEX+ph4r0MHc71JR19x/C7TIgmUC
+	OaC1eCNS/xQi7HU8o+m+XdUFuPoIpSx4Xt8Hf5iFAR6il6Y0kmeNLixUEKaLnl3kGNrqLqfkyw6
+	V2vQr7os1FKlGayZRG4B4hFGqBv6187TLxAj+YMFrymebMYXxS6/Ag6vXCTyXG5q8EvjFlgNoRM
+	H+NWJ8keWlwkp5qewSaR0Si7w2lQ5U9u3QA3eviDZCQMeeGH/Cv1DMzerzx8bFF1wzh1/c55CST
+	/XyfNVaHSzN+Zx6zo3vjkJsJzGtQnveB8iH2xu9iDD4Hjf57Jn6Ux5a34aWsFDDhkbbL+EvyaxG
+	qHrkemKCDi3tO6ko58Z4ybhppFPxoknXfeVGrGYfdPe5KlagCifuLrtHk7+wF5pyjkiGl34tohb
+	9XF7NQ9CezPV2RccGL4zI+hsg==
+X-Received: by 2002:a05:600c:1c21:b0:49c:cee0:f383 with SMTP id 5b1f17b1804b1-4a18e4b6241mr427989725e9.16.1792043147627;
+        Wed, 14 Oct 2026 22:45:47 -0700 (PDT)
+Received: from omos-acer ([213.175.46.86])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bdbb4a30sm41982805e9.15.2026.10.14.22.45.44
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2026 22:45:44 -0700 (PDT)
+From: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 3/3] libselinux: add -V option to sefcontext_compile.8
-Date: Wed, 14 Oct 2026 21:44:55 -0400
-Message-ID: <20261015014457.877322-4-tmz@pobox.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261015014457.877322-1-tmz@pobox.com>
-References: <20261015014457.877322-1-tmz@pobox.com>
+Subject: [PATCH testsuite 0/5] Misc CI fixes
+Date: Thu, 15 Oct 2026 07:45:30 +0200
+Message-ID: <20261015054535.844874-1-omosnacek@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The -V option was added in 92306daf (libselinux: rework selabel_file(5)
-database, 2024-11-05), but the man page was not update accordingly.
+This series works around/fixes four issues that are currently making the
+testsuite CI fail. The last patch additionally tweaks the Testing Farm
+settings to make the CI a bit faster.
 
-Signed-off-by: Todd Zullinger <tmz@pobox.com>
----
- libselinux/man/man8/sefcontext_compile.8 | 3 +++
- 1 file changed, 3 insertions(+)
+Ondrej Mosnáček (5):
+  tmt: raise duration of the prepare-system test to 10 minutes
+  nfs.sh: work around NFS hangs with nfs-utils 2.9+
+  tmt: rework sysadm_t testing
+  tmt: work around missing rule for sysadm_t
+  ci: disable guest setup in Testing Farm requests
 
-diff --git a/libselinux/man/man8/sefcontext_compile.8 b/libselinux/man/man8/sefcontext_compile.8
-index 13192e85..e298b1da 100644
---- a/libselinux/man/man8/sefcontext_compile.8
-+++ b/libselinux/man/man8/sefcontext_compile.8
-@@ -59,6 +59,9 @@ architecture identifier.  Arch identifier format (PCRE2):
- .br
- .in
- e.g., "8-8-el" for x86_64.
-+.TP
-+.B \-V
-+Print binary output format version and exit.
- 
- .SH "RETURN VALUE"
- On error -1 is returned.  On success 0 is returned.
+ .github/workflows/checks.yml |  2 ++
+ tmt/tests.fmf                | 47 +++++++++++++++++++++++++++++-------
+ tools/nfs.sh                 |  3 +++
+ 3 files changed, 43 insertions(+), 9 deletions(-)
+
 -- 
-2.56.0
+2.54.0
 
