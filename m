@@ -1,46 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B713751FCBD;
-	Thu, 15 Oct 2026 12:37:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E651052189B;
+	Thu, 15 Oct 2026 12:39:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792067861; cv=none; b=O/s3qIeK0bJoRQkLiIkN6ww5KJzLR8BfwUJxfrbTsHkv/LgFyaR4QIXoXJiYtkf7DjB3S0zODv6kT7gCjBY0dPstEXIXO91RqGiuWfqZdWEEk2bTuWFQNe9ooFT3mEK7wCqWaCNExNH/BU1QUlgPl5n52UitFM2rCIK3g/0oQmM=
+	t=1792067968; cv=none; b=PEpmzqxhdtH3ChZS+WMHR+m/bEuj0n/xFVtAPlwWAZAy0KB02V3eVCoFeNAU6qgiixIXoZDVnXKaWyosF89AQ9Iw/TTpuU7FzyIp7c9j9f0LoTXglBMI+A9W5VKIQuPJUsg1m8D1JaWBwhuZ7dGVZBZz3skTgVjWTBdeXZqva48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792067861; c=relaxed/simple;
-	bh=LD3Ztg9cv0ddO1V2sIPXAhJi+NxPDc7m/Mv2q82dBpw=;
+	s=arc-20240116; t=1792067968; c=relaxed/simple;
+	bh=akN7Bna5gRbWfB3XLMaSyhCBmYH9yrdV2cejM9SoijE=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=FFKY3QVWYCXmMdvQIsKQfjmQgOXuojdQ2qkucKo36RyxDEAXan6mFX0jNAYenduZqOAnkkKB1/rQZaWf9mSHDaEmikRqPHbe8wzHM/aoDrN/D+CH6aoVudc68eGVGrZhEexpA7vsczUUmsENm3DGLuFrr0EFgNH8A1xHZdvtA4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FMY1jlUX; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=l8kSvn4QJIU6wm8UA444+Iq7Sp2yH3/dqg7B4aJWD41/geKdQZ/3tsyr+2BCmvWbTYQYGA7O/BnaMD3IKWYWyixDth+CwPwpAadgLYruOuKfa0EnZKVMaFu0Q7xbk0Iw8wJ26kLq/PWSrdWTQGJJGJ7/+KyrrFYURK8Na+GH8WM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DLqtMe0B; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FMY1jlUX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF6C41F000C4;
-	Thu, 15 Oct 2026 12:37:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DLqtMe0B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C02A1F000C4;
+	Thu, 15 Oct 2026 12:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792067860;
-	bh=yJmmWdNrbpRgpOsCbKnCDWVaF8jNDcw4SzuqFALBVGQ=;
+	s=k20260515; t=1792067967;
+	bh=hMWDw3wGB+And8jSS38SbQ7urgevZyOha/etbU1he18=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FMY1jlUXnBI73bGY1uthD81LRQWXXXIQNY6EyaQ9dS/FhEmCgxZH3pb+K3eI6g4Qb
-	 l5VhsFDooNbrjdDS1ZvyUbnEpAFhTXzxT8SDrh/icO0A6AHZ8P80cn4c1NdxKLtrRp
-	 GMOf0kuMk/AfvhekZa5AXN7q/MXWIlPF47SFvcGfrJJ8aAd5JuiENJ4KQ0ITZ8znpS
-	 T4NYUQZkhdz2WUDveWbIsCifyWj41dGow3p+yvKlsftj/IP9IFC2ZaUOTV3UtTeJav
-	 Wlz3F0eruPOwYJifrZQy11+yEQIct3CCJ1JdqBJktIv9BSEDejoQl/H8VAH1pPaNq2
-	 xx6+wBAvYpLKA==
-Message-ID: <sashiko-outbox-172819@kernel.org>
+	b=DLqtMe0B2vGLQt9pVsnsLe+O6BNKMJoWqMsrYjICJJK/1A27SD5ostEfo2sUKZH85
+	 OmHn3CzTLD8rm6GRt2EtV3qOoni45pFtEK7kBCdzmna5f4kIwi3ek5Xs0EeepOdB9n
+	 6JhQ7Bfi91ijb4QWkVwqj/ydsIuFvdInpDc3KgIOZMgOOA2HWDhvhk7rLN0u/ClH4b
+	 KNKdyQdXcfzTbgufiS7QXhGJwM7S/Q4PcyCrR7k0NqCq21t8MCmf+mtfz182bMx/JJ
+	 X0EVfr7Nj3wxsntYgCNxixOfovcj5pUdb1GyWQj6qX51yl03sPa9lPEXekxD2bR1kl
+	 qKvF+Upv1Ddlw==
+Message-ID: <sashiko-outbox-172821@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 -next 09/18] landlock: Add READ_METADATA and
- WRITE_METADATA access rights
+Subject: Re: [PATCH v2 -next 18/18] Documentation: Update landlock doc for
+ metadata rights
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
 Cc: bpf@vger.kernel.org, linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, selinux@vger.kernel.org, "Chuck
  Lever" <cel@kernel.org>, "Jeff Layton" <jlayton@kernel.org>, "Anna
  Schumaker" <anna@kernel.org>
-In-Reply-To: <20261015125425.3246251-10-caixinchen1@huawei.com>
+In-Reply-To: <20261015125425.3246251-19-caixinchen1@huawei.com>
 References: <20261015125425.3246251-1-caixinchen1@huawei.com>
- <20261015125425.3246251-10-caixinchen1@huawei.com>
+ <20261015125425.3246251-19-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 15 Oct 2026 12:37:39 +0000
+Date: Thu, 15 Oct 2026 12:39:26 +0000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -49,113 +49,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] landlock: MAC bypass for SUID stripping via chown()
+- [Medium] docs: landlock: missing case 12 in ABI fallback switch example
 --
 
-commit 229580d85eb842f4fd8d395335278d79b5773959
+commit ffdbac73c2bfbb47b618cd72408a33f8fb82d15b
 Author: Cai Xinchen <caixinchen1@huawei.com>
 
-landlock: Add READ_METADATA and WRITE_METADATA access rights
+    Documentation: Update landlock doc for metadata rights
    =20
-Add two new filesystem access rights to control file metadata access:
-- LANDLOCK_ACCESS_FS_READ_METADATA
-- LANDLOCK_ACCESS_FS_WRITE_METADATA
+    Update the user space documentation for the new
+    LANDLOCK_ACCESS_FS_READ_METADATA and
+    LANDLOCK_ACCESS_FS_WRITE_METADATA access rights.
 
-Link: https://lore.kernel.org/all/abc960a1-e66e-792e-6869-cfd201c29dbe@digi=
-kod.net/
+> diff --git a/Documentation/userspace-api/landlock.rst b/Documentation/use=
+rspace-api/landlock.rst
+> index 3d45b956b6407..62fe39a8b61e6 100644
+> --- a/Documentation/userspace-api/landlock.rst
+> +++ b/Documentation/userspace-api/landlock.rst
 
->     hook_inode_setattr only restricts explicit metadata changes, i.e. it
->     checks WRITE_METADATA only when the ia_valid mask contains
->     ATTR_MODE, ATTR_UID, ATTR_GID, ATTR_TIMES_SET or ATTR_TOUCH.
->     Metadata changes that the kernel performs implicitly, such as
->     timestamp updates on write(2) or size changes on truncate(2), are
->     therefore not restricted, and neither are chmod(2)/chown(2) calls
->     that do not change any attribute (e.g. chown(2) with -1/-1, which is
->     a no-op that never reaches the hook), matching the behavior of the
->     SELinux inode_setattr hook.
+[ ... ]
+
+> @@ -159,6 +161,10 @@ version, and only use the available subset of access=
+ rights:
+>          ruleset_attr.handled_permissions &=3D
+>              ~(LANDLOCK_PERMISSION_NAMESPACE_USE |
+>                LANDLOCK_PERMISSION_CAPABILITY_USE);
+> +        /* Removes metadata rights for ABI < 13 */
+> +        ruleset_attr.handled_access_fs &=3D
+> +            ~(LANDLOCK_ACCESS_FS_READ_METADATA |
+> +              LANDLOCK_ACCESS_FS_WRITE_METADATA);
+>      }
+> =20
+>  This enables the creation of an inclusive ruleset that will contain our =
+rules.
 
 [Severity: Medium]
-Is this description accurate for all file types?
+Does this documentation example skip the removal of metadata rights when the
+Landlock ABI version is exactly 12?
 
-If a restricted user invokes chown(-1, -1) on an owned SUID file,
-chown_common() unconditionally sets ATTR_KILL_SUID without ATTR_FORCE when
-acting on a non-directory:
+If a developer copies this example and runs it on a kernel providing Landlo=
+ck
+ABI 12, the switch statement will fail to match any case since there is no
+case 12 label.
 
-fs/open.c:chown_common() {
-    ...
-	if (!S_ISDIR(inode->i_mode))
-		newattrs.ia_valid |=3D ATTR_KILL_SUID | ATTR_KILL_PRIV |
-				     setattr_should_drop_sgid(idmap, inode);
-    ...
-}
+This means it will bypass the removal of the ABI 13 features
+(LANDLOCK_ACCESS_FS_READ_METADATA and LANDLOCK_ACCESS_FS_WRITE_METADATA),
+which will subsequently cause landlock_create_ruleset() to fail with -EINVA=
+L.
 
-> diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-> index a8fa8f77e775d..f56277c67a247 100644
-> --- a/security/landlock/fs.c
-> +++ b/security/landlock/fs.c
-[ ... ]
-> @@ -1676,6 +1678,119 @@ static int hook_path_truncate(const struct path *=
-const path)
-[ ... ]
-> +static int hook_inode_setattr(const struct path *const path,
-> +			      struct iattr *const attr)
-> +{
-> +	unsigned int ia_valid =3D attr->ia_valid;
-> +
-> +	/*
-> +	 * Only explicit metadata changes are checked: implicit
-> +	 * timestamp updates never go through notify_change(), and size
-> +	 * changes (ATTR_SIZE) are governed by the truncate hooks
-> +	 * instead.  See the "File metadata" section in the user space
-> +	 * documentation for the full semantics.
-> +	 *
-> +	 * Clearing the setuid and setgid bits on write(2) or
-> +	 * truncate(2) is also an implicit change: callers request it
-> +	 * with ATTR_KILL_S[UG]ID, and do_notify_change() then adds a
-> +	 * synthesized ATTR_MODE (with these bits removed) before
-> +	 * calling this hook.  As do_notify_change() makes it a bug for
-> +	 * callers to pass ATTR_MODE together with a kill flag, an
-> +	 * ATTR_MODE seen along with ATTR_KILL_S[UG]ID is always
-> +	 * kernel-synthesized and must not be checked.  An explicit
-> +	 * chmod(2) never sets a kill flag, and an explicit chown(2) on
-> +	 * a privileged file is still checked thanks to ATTR_UID and
-> +	 * ATTR_GID.
-> +	 */
-> +	if (ia_valid & (ATTR_KILL_SUID | ATTR_KILL_SGID))
-> +		ia_valid &=3D ~ATTR_MODE;
-> +
-> +	if (!(ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
-> +			  ATTR_TIMES_SET | ATTR_TOUCH)))
-> +		return 0;
-
-[Severity: Medium]
-Will this logic erroneously clear ATTR_MODE without checking for ATTR_FORCE?
-
-When chown(-1, -1) sets ATTR_KILL_SUID, the VFS notify_change() helper then
-synthesizes ATTR_MODE. Because ATTR_KILL_SUID is present, this hook clears
-ATTR_MODE. Since user and group are -1, neither ATTR_UID nor ATTR_GID is se=
-t.
-
-The final check will evaluate to true, silently bypassing the WRITE_METADATA
-access check and allowing an explicit chown(2) SUID-clear request.
-
-By comparison, SELinux avoids this regression by checking ATTR_FORCE before
-stripping ATTR_MODE for implicit SUID drops:
-
-security/selinux/hooks.c:selinux_inode_setattr() {
-    ...
-	/* ATTR_FORCE is just used for ATTR_KILL_S[UG]ID. */
-	if (ia_valid & ATTR_FORCE) {
-		ia_valid &=3D ~(ATTR_KILL_SUID | ATTR_KILL_SGID | ATTR_MODE |
-			      ATTR_FORCE);
-    ...
-}
-
-> +
-> +	return current_check_access_path(path,
-> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
-> +}
+Should this modification be introduced under a new case 12 label with a
+fallthrough from case 11, rather than being appended to the existing case 11
+block?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261015125425.3246=
-251-1-caixinchen1@huawei.com?part=3D9
+251-1-caixinchen1@huawei.com?part=3D18
