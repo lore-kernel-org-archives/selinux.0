@@ -1,69 +1,73 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32928231A23
-	for <selinux@vger.kernel.org>; Thu, 15 Oct 2026 05:49:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D94713DA7F1
+	for <selinux@vger.kernel.org>; Thu, 15 Oct 2026 05:49:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792043385; cv=none; b=HXLVrbg/z2LjNmdYzlJrSNV2e8860/wI0DLtu8M8MO8o82BLzFJWBq9j/SJWXIWc330E358FNIBKNVXStAMg5A+57WzuIlvHGkPXBly9zqK3a0rZf3iOP+5Sd1a7oIwl5clX+8kVuYDlWjgeOnQqrsnWRsSJsWt5urjIVkAeP4E=
+	t=1792043387; cv=none; b=it11ozk25ERIq0NxCnoT5Z+zF5o07yYDCo7f5PZsxs61aOe8G0w7zESeCwpbbVZvwB5VtkzCPEz/MG3lCQZ4yjJ9KTURkfMeDLQ3T/a3zlaMIRdcpilNEVL/RBuxaYsVj6KTkX6kWF8M8UaUmXVGs46WxjYad15Yu9qg+8drFLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792043385; c=relaxed/simple;
-	bh=0pjXUwO+KMLVEaUIxtTMhctpAlqqq8gZCjbw8kmKRQo=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FyPGX9/eQN4q9OzuV498VWG3/o6+KZ86iWLM2tf7fc0D1qj2Hz7dp3EWWjaWRKMJinZE+tU33wyme+gv6JPLRZQK+dHdnmIN+pzJlBXf3i6gs+Lt0hL462PmSZM7nvNMQqCnKwwYGo/H/Jqc6XJAW3ZBwEGtFJsYU6fKNZpaL7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=amgJozWs; arc=none smtp.client-ip=209.85.221.54
+	s=arc-20240116; t=1792043387; c=relaxed/simple;
+	bh=hlwrmUbF0lKMW/ArvGFNG051iogCXlWyGKgkp2OosZQ=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ItAEQJci0B8eld3V+2mmYtoABeNzR8Rs411ooAQPaD29ijhTPcCmJgylEKb2SL/FYfrNOhEF4EX7mHLpRWaBHA6VEZYpw+0hTuDjs8F+HUmki7EBoYkczfhUHFxcJYn8WnaiW2MQO/wCbWKXC/RJ7JrBDkjDZSSEaWhdWht5ccc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=innKMZ8c; arc=none smtp.client-ip=209.85.221.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="amgJozWs"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-48afcfc4bf5so35591f8f.1
-        for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 22:49:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="innKMZ8c"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48c4be28b82so1213216f8f.2
+        for <selinux@vger.kernel.org>; Wed, 14 Oct 2026 22:49:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792043382; x=1792648182; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZToUedNxhh9aWR1+3eve/YREqzKQP3A6cR3Un1gFpWk=;
-        b=amgJozWsjBcGhp+eaUt1O2x/nWlmZvtUlkEMcrilwmd1czpDacTkv7TSIprbUBI5D8
-         riSLuoOMQM1wyWh0v4DZhsqlI7zLO/BZ0SWXeNtYOVlijlH+gLKrhjBJlZL+uatT6vwV
-         pImgpJDzYpt4rIunG1/1J9AnhnTw4P/SnF3p0HDwjHDuicfayzstJpOjHN/7h21gFT23
-         9XWRyE5FSeXtUg2l9GdkX3ScYPwvGvxoxVMGSPCEq4QsTslyO3vlSuBl8SD0XoIk0Ay7
-         5QWDtu8im6gYnlLqlPCZKdiRbzv6tLOTOruAoEPs6nOJFsrf0sriF0S8AkweRO7swTns
-         FeRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792043382; x=1792648182;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1792043384; x=1792648184; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ZToUedNxhh9aWR1+3eve/YREqzKQP3A6cR3Un1gFpWk=;
-        b=otVNxaiQvFSTvlBDx7YImMHONg51T1yi26eYXk9af6aG4Fx1hvF6wuJgy6PhIs9LMe
-         4HyZOmNmuMD4eGkWlPfXbU0kQeM8gVE4bPKDq6nTigrnPd646Y6O1ikPZQ+x/aN1Hm0t
-         uvqOy6pK+LVaYyLjWCF0Txpy+FtDPOfeG+7NDHlOt/FEScN/5ueMA+ng1DhJOeWidtu0
-         V6Xki2cvDSSk38BD3DDD0R5w5UBTFZ9vhxigcXAkdlydvoC1UShZvA3t01XRmUsU+OPS
-         AI4gLlSroh0h+VR+ffW0RY53XQljeOKlzi2Wn9+c9615ZPSVP2n9MelSUMxs8st9FF5c
-         eRdg==
-X-Gm-Message-State: AFq9FYImoz2eG5mX44f3iWbOd9tdHE1YCs8+RLMt7hnAFd7Frxmrp4Yz
-	FqpccYLrNj/Vlef73WdLrf8WJJfDbdwhrKkKdlCykLerxKvzal6lKPVpGlExZw==
-X-Gm-Gg: AYBFou178Iawwlno5DFc/9b6T3A5k9YHlCDPU18+/4WuPWYP7yNgL4R/tXEmcuhzGY3
-	pNCKOCZTtDVa8MKYyfupbJNppNAFdBEhmMBojZxfASDL3zfhEu0JKvheWo6bzEqeoaGUJOiPMNa
-	jiU0JHHKMfOaQUO6+BksWENcirV0sB7XUAKdmdhyPJyKOnpr2Hqu5nZMLcFEJPUJOaSZXLJaDrE
-	b9FUOdBaBEeuoOn0JJ4Cl8qOn7IXjx2ZIbXBqVWAcG6crjFxDHQYi0Erv3AfO+b6WVVrj9vJ1uh
-	IExE1tVgssi/xYAl93E4uLJdHfByK0cKFfW1GQ89W9v6uEkxiEc5V6+gel2Ff4W1SXQ+OFnHiiR
-	Xw4uRzaQNFXjxD/xhHIHvRc4QI5/P4FoOVlQpvKggWhz0+IOD4B5ReNCR8soW/yBPzmDCDeEvmY
-	4IsEAk0v3+TUEIIPNhoTxFi0n3dJ0KXA5YtrSpIBbo4WsMzMdFR6KcUQwmf1g1bNJ4OKjgUFCU+
-	h33cu1ZM4Ydk4Ba84e/KWASeQ==
-X-Received: by 2002:adf:f549:0:b0:487:489:7af0 with SMTP id ffacd0b85a97d-48dbaadde34mr26894966f8f.17.1792043382157;
-        Wed, 14 Oct 2026 22:49:42 -0700 (PDT)
+        bh=q4p+5EQhHIkEhoLifIPKgy3b1mLBI2XvwIKCd9LwIOY=;
+        b=innKMZ8ceoVTUkSkumMju4QTHsO2vLjNHY80qKzTeTNFwlhZ3UJBiNixXqMRlcBJ7D
+         nG89SVvyei9quGcwyBmFEyC4I1szXFkcXiuaCQrLyA60xkMAdvoEwCYVmoNKCqu+Xxg6
+         4HQW/tUJ24E+5Yws/GmK6Cp6ayEBxlQ2d3Rvux8pIF2skCOECq5NtPsOJM6JB1IQeB4V
+         QCI0X/5mgudX8H+TsbhjPYoXL+xUsPcS0aSoPFYUKe7s3jm0o1a9hi2T9wj0j6mUg/76
+         DBAv/bcVtzLF6UE20+M/uOFdMTps1nORqc/JXDZr3+ULe0X9GZhUPxXTorp633R83Vwm
+         3vSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792043384; x=1792648184;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=q4p+5EQhHIkEhoLifIPKgy3b1mLBI2XvwIKCd9LwIOY=;
+        b=cRfAAfUTQJvwxhbzfnefBiWse5XpRpmSBGNSaXPb/64w448HVEssAu2vjqK04hzxQx
+         YU8iAq1BqsY7/EeFGkvU1TeR/isBPz427SfMoUhlxjJHpIiXIRVDKlcQuoDMGMQCqyXe
+         VzSwMziXFYyi+6GEercpYV970xGfJ82eqmKbbSvjhKrySrSMAsrwnVijp770mQczHztQ
+         hc4F+rpUunY+Rx9Z1Crko+DYjgZl6lglxZQj45FBHG5ZOVgmm7lcOYlRmcT434ja9ekI
+         STjbFYBiSsQicT00lHHaapbE4ecjjwLwfRawWX5BPmJCsGnetojgdQY8PYUuhXSON/3R
+         9JIA==
+X-Gm-Message-State: AFq9FYJ1SRiCY5XtowC7sUJXY8xyMpLpSgWtDRVerq4mby9DzsBPVg8u
+	/CyOHn1UxltCOGNk8HDCpCAXeJ8CikvY4TzWDAFp2vgp2FIaAyFDUJ61FvAqjQ==
+X-Gm-Gg: AYBFou1o3jfaZkFUYLhRxd6xXoRQDPS4oLyrjU/N9xGUdzWZx9/ucbyW9VmBC1MaiZl
+	cVoDPUZxkI4YD3W36D0h49NVg7BjzwOltQ3UDoN43J0StYD1D1kKRANphebLGax0xa3fTjs44L0
+	bhZ13XyAlQTvgC2rDBmYc945GyiP9+pKC16HcX+PBmlov77Qq4ANb+Qe/sZ2d6w+AGJwei3LCaW
+	K3rWIy1QJokTP+nGzOElFtgwTaDW1eiNzC2JGe66sazKniP7iOgYa4DyBxP2pQOzdE/wA/Zz9BZ
+	y+VAmyiRPDygzjRz9uBkHoQ7i9byXPV5wQQ0CrsswamQZM5N2MgjI+KgaYyr7mX5i/FkSBSu3IW
+	d1IWn+lfzc+FnFRU3Qy/d20fz4qRKUZG4LiG/ooHCEmFBkyv7YnbqsRCSeewFltvumldhjEqQcn
+	aBnn/cKZFKqMVxFiUsFh18Mo7G+/MRmVeTCbO8T/cezWQcm+T24Rew4Q6UqwBcm/u6onUmmAeVP
+	WVid32wcP2gl5E=
+X-Received: by 2002:a05:6000:298e:10b0:48c:7f53:9603 with SMTP id ffacd0b85a97d-48dba77d033mr27131966f8f.7.1792043384180;
+        Wed, 14 Oct 2026 22:49:44 -0700 (PDT)
 Received: from omos-acer ([213.175.37.14])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48deeadc0b5sm6901587f8f.6.2026.10.14.22.49.41
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48deeadc0b5sm6901587f8f.6.2026.10.14.22.49.43
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2026 22:49:41 -0700 (PDT)
+        Wed, 14 Oct 2026 22:49:43 -0700 (PDT)
 From: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH testsuite 0/4] Fix build warnings on ppc64le and s390x
-Date: Thu, 15 Oct 2026 07:49:28 +0200
-Message-ID: <20261015054932.845406-1-omosnacek@gmail.com>
+Subject: [PATCH testsuite 2/4] tests/perf_event: fix compiler warnings on ppc64le
+Date: Thu, 15 Oct 2026 07:49:30 +0200
+Message-ID: <20261015054932.845406-3-omosnacek@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20261015054932.845406-1-omosnacek@gmail.com>
+References: <20261015054932.845406-1-omosnacek@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -73,31 +77,28 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This series fixes build warnings on some architectures that became fatal
-after -Werror was added to build flags. It also adds a simple compile
-test to the CI that runs `make all` on all architectures supported by
-Fedora, so that they can be discovered earlier in the future.
+Use the correct format specifiers and casts to make sure that the code
+compiles and works correctly on all architectures. This particularly
+fixes a compiler warning on ppc64le, which is now treated as an error.
 
-Ondrej Mosnáček (4):
-  tests/binder: fix compiler warnings on ppc64le
-  tests/perf_event: fix compiler warnings on ppc64le
-  tests/filesystem/statfs_test.c: fix a compiler warning on s390x
-  tmt,ci: add a mutli-arch compile test
+Signed-off-by: Ondrej Mosnáček <omosnacek@gmail.com>
+---
+ tests/perf_event/perf_event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- .github/workflows/checks.yml    | 13 ++++++++
- tests/binder/binder_common.c    | 36 +++++++++++-----------
- tests/binder/check_binder.c     |  8 ++---
- tests/binder/check_binderfs.c   | 10 +++---
- tests/binder/client.c           | 36 +++++++++++-----------
- tests/binder/manager.c          | 37 +++++++++++-----------
- tests/binder/service_provider.c | 22 +++++++-------
- tests/filesystem/statfs_test.c  |  2 +-
- tests/perf_event/perf_event.c   |  2 +-
- tmt/README.md                   |  2 +-
- tmt/plans.fmf                   | 11 ++++++-
- tmt/tests.fmf                   | 54 +++++++++++++++++++++++++++++++++
- 12 files changed, 155 insertions(+), 78 deletions(-)
-
+diff --git a/tests/perf_event/perf_event.c b/tests/perf_event/perf_event.c
+index 0e8bdce..97e1e63 100644
+--- a/tests/perf_event/perf_event.c
++++ b/tests/perf_event/perf_event.c
+@@ -161,7 +161,7 @@ int main(int argc, char **argv)
+ 		if (verbose) {
+ 			pe_page = base;
+ 			printf("perf mmap(2) return value: %lld\n",
+-			       pe_page->offset);
++			       (long long)pe_page->offset);
+ 		}
+ 
+ 		munmap(base, mmap_size);
 -- 
 2.54.0
 
