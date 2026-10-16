@@ -1,138 +1,132 @@
 Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9C624CF468
-	for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 19:11:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC56487CD2
+	for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 19:13:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.50
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792177876; cv=pass; b=ZhEbWZnKfvA0NPRWPE5y1LLVORt1hq4yP5+O0V0Lpa8mz25Uybb1UAGRaKb6woTTvT9z1mtkdEywFSC87oDcYwVeHWIfCO2X4NNPviKqw6ICOPu4FnBSGH8/ABFMw/YzurfBXkHKKMTYuPzbEUeANhdbwY19Hp6miGwN8kXBP/4=
+	t=1792178013; cv=pass; b=pa6UWWznTL774VN9hmkRkp1MC2z79V3l+qhMzcsJk6kQaPyw7Blx26O0mSSUsoMrGNvbwzX8VnaCFLA43taoSolKhbdHK7MFOvF7DktagMJBb/uYcR3TGsIyjbko+FuDqoM9RUzhJP0ku+s+DISeAOExGbf48K4lOG9eZ69dbOo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792177876; c=relaxed/simple;
-	bh=qppVgsYFvGGhHcWK5q8fwgXEoXbm8x8Kajt5Kyll45Y=;
+	s=arc-20240116; t=1792178013; c=relaxed/simple;
+	bh=6ktSvGIwbdz8Ai1JNZDpjSbfOwvuiBoXWuWA91ZMggI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GxgCexgAt0/E4orv77ao9c4+JOFLV3kxfPC+OklC99NgLC/HkEnxFAtjwbxvw+KiAU7nrcltc4SS69E2k8JCbZGnO3URczc7uUtMIfGUtpfpBNVrkEjpyLAWK2KJO3bRMAjOfSjN2srVJ4hmKgdS1196iiTxpb2WFpZh0hw+OzA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lNYHVnir; arc=pass smtp.client-ip=74.125.224.50
+	 To:Cc:Content-Type; b=fZvLLbjqr+UImzp6YMe8fxvW/iQ9YMwox1J0KX0UOMJnAZ7gG9z3NVPVs7q+preZmp7p80zuj1wwdAdwxNED02mDFgoCyEpLbzpM3SVdQ84T+zsZuzLe8NSS9JzbEaB3K0Mt/Y9awOTjopCgJcEin/2f0jR+ku5GUdlllocvA2w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P9iVB3jW; arc=pass smtp.client-ip=74.125.224.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lNYHVnir"
-Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-679a2297c55so318597d50.1
-        for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 12:11:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792177874; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P9iVB3jW"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-6711f05fb14so300570d50.2
+        for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 12:13:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792178010; cv=none;
         d=google.com; s=arc-20260327;
-        b=Z4WJZx5zpI8eYWMPbcyQJ0lwntsofilX3NQ/PB5j3R7eG2MyzNZ4L+NYTjyI4J3Edg
-         OAN9Xk+SJDwEMcLcWOG8xM6sOOFgDapATYZpDTSNEwXiPbby9khrzKhImLnoLlpLzPtc
-         ys6WHFrBDTTtaMPwZzw/inkXU9TK5qM5xYj1uIJGC+hgqU0Br6OS2TmuG9JNyNW7KkvJ
-         3UwBO7VM166JgS6KEUI2p2lF3yIpFUJtZVdB9EKds/i59D5+Ovll95VpIZq5WlnHqK+l
-         VwhCEuVoQm8UhUeSQsfuDb4J+lb9g3sMm36XboChl5psLo15XsP6Sm4pdvE88gzuJ3KZ
-         ZzAw==
+        b=BW/pIx4qvhRhAQHVpb0fi+KyUbDo0uWsGDi09/xCmHIzkwtVfw/TiVF/DfpkRXvv8d
+         sbFeJYyFl7tYNhH5lBNyZnU9e+EV4QQJBt0fm4UIzRq7aCKR5pUFTsl5jJyleN05cirV
+         Wi4sIA4apxaUHND9RyfTWm61vzlbhJOXPkR51dr7HkUruste70VndeVjGlnBkiFYkS7l
+         JQnvjLNBiQ/aoLMjTKceEHmRnoJQpLYnmyFBjl9k+aBH7KtXOMX2TMWDktQgQW/KzRYl
+         Vu/QZmed8hH4z6k33y4RZ8WHzP3hQ/pcrnxM0SSG4DIGRQZlIMXUm5oTPu24tohuh3Dq
+         mOuQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rcM0e5h6kl2DJj3y8GjJ9yn5THeHomwVF5DySO9cYxc=;
-        fh=dt5mjYvea+JGGF7ASAwgqMTV7ERVW7J7tt/yqEZ+xJA=;
-        b=Mnfq18iJsvsCxpVBY35cHDPAGiZtxAuj+1i7PAMsirAnxzYJxSCnrFXAVgtUIcjdz7
-         pTWoOaMlfe69mts4tNAYmivTd/HiI9LMH5tzAexvoZnaGDEAGfm0WERmQOTfIZ8Sj5H8
-         unKVdIeEYc2jdvoxrBsMbjSVWb9PrMCNSrH4oKVNxNLfmVcALLK6n7eo2cfkDDK/Aa1z
-         HwVKXUzjonFsmJkoBTf9SRS1Hxn46ZvSieh2Zcp2detNAu/ODD5kTGtY/djKx6UZWuY1
-         ocWN8oC+8rlUf8d7vm6EYn053mDlGIHIaxG2CUHlM70Sw9p2aIMoy1EDtCyTLAO/jVJH
-         t8mw==;
+        bh=hpcJ2shC51nTcuuSPEvKzG5kdGJKAufNaVaxdolIBn4=;
+        fh=g69bfMTktTCXTxlZPNSulZ5mbEffnTZ5V4LJ4Ze5+98=;
+        b=jbpRuOVNI/cyrchp/hb1PAxmW4id+a6YfZO0sur2HUMYwkwNfkOrjrQKjQVx3AW88s
+         J3Xu7LCbOxeTmzu2vvP2xxqnOlp/bJfI9P24t16z8INWNHzrwYVSGRZRDwMFJiIZQujV
+         RxqjxUaycRt+KGrkeRlMkFUl5GsbbmHHNnn9yWpjXHS7b48m9ntO3nQcO+envWUK5//8
+         0HStJ6nFxQcHRXRGDiQvttTapl0I+j/B9INIKoBt9lOVlHi81r7zqIlncGynMyboXGOc
+         CaLPW3tb31LQUP8pXBQHw/RPUaZXm4zcr5Yw32tRaPdp8o9FeWSfaS/oFtQis96vEz6Y
+         08LQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792177874; x=1792782674; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792178010; x=1792782810; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=rcM0e5h6kl2DJj3y8GjJ9yn5THeHomwVF5DySO9cYxc=;
-        b=lNYHVnirjmv/XVzkDQrJJrtTF9KNDAbXxawbFWCxJHjZruMMjPqAmhqeKnvX8Dhuvl
-         FqHZWxxeA1e6BytDa6B6qWm88wVrLzwDEykURFCxQx3GhLCfSWQ8hX24aL5jkY+DOSeW
-         a5LUkceNq6eXRyJXYk91Xsrolvl4ZLVSW09ID+JiLAiBJwZlMk/9roGrfDRIobieGdYA
-         zRTfkxGvy0mJEEGWG7b8rFrA2HM049eB2dHGCNYgNMRsupgebUZYB35BuuWYyM+WZMB3
-         UzicVHJkTFg9yRS0FeittYF0id7wNbKhs14p7mRXpKok2DzsraiYLJVstHVmYBs5nriU
-         CoeQ==
+        bh=hpcJ2shC51nTcuuSPEvKzG5kdGJKAufNaVaxdolIBn4=;
+        b=P9iVB3jWVOVr9c/KPZYnND7xJ/jlAIG9JuoncSK/Le9SJ9nSYy9vCOyuiEmqGck+iY
+         98pATnxg4u6LNl/zswXejEahjVwKjPStWTI07pxTnnqUikVJ43MOTG54X4e8IouseJW8
+         Aba0mVgwNpIbCRab+3AMLR1By1LBgRjPq+e7qjt8/Q+bEKPN54SZt6cM3agTY3LbtTCA
+         fj+b0Rd17h8SlBaYo6qQYrk25sGLE8OXzUo6210QgKDtdMW1NehojXNiNprsIvZ0cZyD
+         Svkf6Z+WnCUkcm31l8I9ANmIMR79KZy7GfgaOMsONDb2Nt9+EKULpf/llNnfu8a0ymLZ
+         25Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792177874; x=1792782674;
+        d=1e100.net; s=20260707; t=1792178010; x=1792782810;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=rcM0e5h6kl2DJj3y8GjJ9yn5THeHomwVF5DySO9cYxc=;
-        b=kUZszXKiP1brSFgkkohTuLNlJRw/NwhL2DQw00+FyXI7zt3AIGkjuzcEMwly7vMWzE
-         CA6pD86hwJvZdByz7LFeXn+IReCeGBSqu3WmeBhTe7PuphqOTJB7s43ABJDSMmVrYpxW
-         WB9GGVBSSdNgYB2AnHciFSfem3d3pQ1S0su5Zypt1Ts2JTbWBD0Me0cLvqd6aHEBpRwD
-         0WBRT837eP6HkM7mPHKEYWz+CcNOsTVYGL4ppd4IuStMxGADfof1iaZljY21Rn/ospNh
-         wSMrn1HFCFzdKjaQeWBWd31VJO/qCajGNw4dCvAnmzX/0n4Zk4k6tlO/oU0xNomJH0gg
-         dmfg==
-X-Forwarded-Encrypted: i=1; AKwUvBztevhW01seBWXH4xiw9MkGB2g1lAk6htOt/9IQJgLrFJWF4+kHOAL9feNPiT1F+mHesu9pc4CO@vger.kernel.org
-X-Gm-Message-State: AFq9FYL/RAe/AsDPWpUEshuJzMhEsViG9bs0BOWHOygaER5dGZtCBsu+
-	ag+8tkNB+pUJJbr8SGKqLX9pJVJjzv75y7SyUx86dKtmIgvKQGZYC/neZBLfyAGfykrdz5N3SIU
-	IZH0COk9YeH3tx9pyBvK6Wp/sosWwxbk=
-X-Gm-Gg: AYBFou3raiY0FzZJN5IqwJf54OgO9uPLdDmNiPJ/8b4KHu8hwTzReRcmdOdUsFn1mWA
-	HOl9PqLEP7leQuAW07YINPgYT8e/F2FUBr2/Bes8Uiblwm6mF/BntWWx5qLmQGMyTRlYz/GbOIa
-	ITd2SUZPmZQCdqUYgcwOf7YfGc0YCTSaRbrhn5X1kljj2sVciOVyzNH7n7K42xuFLD3dnEhnpUf
-	KIxjwpYvOx6REPhgSeCTlQ5V490V8XDMKdDHgjJH1X8x3UoWH2tYzikVvkrD9TJVm+xRfQCzKO8
-	81CbMSqrTThP4fKlIuAM8Ac0hjHp3fWRVmZy6bfonVgW37e0MtLuxfU4fsMLnDqSWg==
-X-Received: by 2002:a05:690e:138a:b0:679:c9af:6d51 with SMTP id
- 956f58d0204a3-679ca86652fmr108710d50.69.1792177873691; Fri, 16 Oct 2026
- 12:11:13 -0700 (PDT)
+        bh=hpcJ2shC51nTcuuSPEvKzG5kdGJKAufNaVaxdolIBn4=;
+        b=f48PyEPKHYdX5yAxrlwNJW0mR/2+zvNhXsYgWoColvHlfsLHSlb0uz35W01aO6Ihxa
+         hiwvxOU0XEfJvWksk4umOHjLH/ktIoYHW2FSZglopcDV3rrcNXiK8uK2sDX1IoWC3XId
+         5YZJxZx6CLO7v9WXQ7r+2d3F/mNkWiF7BAn/Nlsr0Ez7PJe9f+OYVFkP4ffERVsazYTA
+         aB9Kz5ycHZzkNiqGcz3AcvRsPjg7Qy9ZbtJ9Qrh+LemgFNCpBg8ThIUyjdCwxsI4cUMV
+         6BOoPJnCZBthivn4qXBnT0QWr/c+brcBNMainsmyzNNnslKMrDGBZ/cAzDbe2TE3K/O5
+         zjYg==
+X-Gm-Message-State: AFq9FYIB3Xo3uOG7+7WF771QXj14zL2BbwvqLcsDGi5w6dSxg1BcZm02
+	wlWba1twVhF6IiR3w93HW3jm4DxDIC9ViG//Bxu+OwwMuxmw+LjEXR5RlefwQ0LU2wuq+nD5Y7w
+	DL8kokzbMQqYmd9ZFF2Cdp3AxBek5zX8=
+X-Gm-Gg: AYBFou3CWHYNJdxPQihntcd0LmyIaAZvjq+uE5FWsHSrtuKfqOTwbFM3YRN9vsjZBYa
+	iW3aL0d6E4TMaI/wFSyuKEbIN68XBQNDF3oyn/iM7Cu2UohGoJhD3TH0amKvU4kmgVU8RkGjKMi
+	7Z42nSeSOjO1xlUDIx/DS1pCwpTkn1c4WvyNT8ufD4C9H1r6ihCkHUYaktPBN9BdlyVWI+FiY84
+	FjPNBSfc8eX1wQJJuHMesYVdCNbXS5qF4G5Ku33Q1Azmcqje6InXEDVI0HPfgLLqtwHHusNPZ6u
+	JVRIktVMxt86VTnmSCVrhN/uFIadtIGnwYEZN9YGgalsqJ2wpLs5lMU=
+X-Received: by 2002:a05:690e:4813:b0:679:c12b:ec24 with SMTP id
+ 956f58d0204a3-679ca7bfc2cmr89768d50.51.1792178010595; Fri, 16 Oct 2026
+ 12:13:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <179216146138.25460.7866279004288174372@gmail.com>
-In-Reply-To: <179216146138.25460.7866279004288174372@gmail.com>
+References: <179216341681.27711.14564271122957760636@gmail.com>
+In-Reply-To: <179216341681.27711.14564271122957760636@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 16 Oct 2026 15:11:02 -0400
-X-Gm-Features: AclHuK82Reo9t1Q_XYkamM6mGKm-uUZWL-8Kv3QM6WU-oPDk-hAS-2iAswxeKCA
-Message-ID: <CAEjxPJ7fLbBANfjcgN7Xa+axbQFE5ZALWzXxRz_kQ8zGvmw4Rw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: don't label bridged packets in selinux_ip_forward()
+Date: Fri, 16 Oct 2026 15:13:18 -0400
+X-Gm-Features: AclHuK-esjaifBzyGlF46wGCtDfFZbbGSj-YSFW0n7q2GqwIWuz-GE2CtaIiGZY
+Message-ID: <CAEjxPJ4A=3_Wx74deVjVNjt3NLK291BqR8v6X_DUXNJnVVkN0Q@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/inet_socket: test CALIPSO over the IPv6
+ forwarding path
 To: Joas Antonio dos Santos <joasantonio108@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnacek@gmail.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
-	Phil Sutter <phil@nwl.cc>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
+	Ondrej Mosnacek <omosnacek@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 16, 2026 at 10:37=E2=80=AFAM Joas Antonio dos Santos
+On Fri, Oct 16, 2026 at 11:10=E2=80=AFAM Joas Antonio dos Santos
 <joasantonio108@gmail.com> wrote:
 >
-> With br_netfilter and bridge-nf-call-ip{,6}tables enabled, bridged IP
-> packets go through the NF_INET_FORWARD hook, where selinux_ip_forward()
-> calls selinux_netlbl_skbuff_setsid() and NetLabel may add or remove a
-> CIPSO or CALIPSO option.  cipso_v4_skbuff_setattr(),
-> calipso_skbuff_setattr() and calipso_skbuff_delattr() move the IP
-> header and reset the network header, but the Ethernet header stays
-> where it was; when the bridge pushes it back in front of the packet it
-> picks up stale bytes and the frame goes out with a garbage destination
-> MAC and EtherType.
+> The existing CALIPSO tests only run over loopback, so the code that
+> rewrites the IPv6 header of forwarded packets (calipso_skbuff_delattr()
+> and calipso_skbuff_setattr(), called from selinux_ip_forward()) is not
+> covered.
 >
-> Labeling a bridged packet based on its IP addresses is not what we want
-> here anyway, so leave bridged packets alone.  Add a stub of
-> nf_bridge_info_exists() for CONFIG_BRIDGE_NETFILTER=3Dn.
+> Add two subtests that build a client -- router -- server topology out
+> of network namespaces and send traffic through the router:
 >
-> Tested with QEMU, two veths enslaved to a bridge with br_netfilter in
-> the middle, SELinux and a NetLabel DOI 16 configuration, 5 UDP packets
-> per case:
+> - the client labels its packets with CALIPSO and the router, mapped to
+>   unlabeled, removes the option;
+> - the client sends unlabeled packets and the router adds a CALIPSO
+>   option.
 >
->   case                                        before        after
->   CALIPSO packet, unlabeled destination       MAC garbage   5/5
->   unlabeled IPv6, CALIPSO destination         MAC garbage   5/5
->   unlabeled IPv4, CIPSO destination           MAC garbage   5/5
+> The first one catches the payload_len bug fixed by "calipso: update
+> payload_len when removing the CALIPSO option": without the fix the
+> server drops the forwarded packet as truncated (Ip6InTruncatedPkts).
 >
-> Routed packets are still labeled (an unlabeled packet forwarded towards
-> a CALIPSO destination gets the option, 5/5).
+> Commands inside the namespaces use nsenter(1) as "ip netns exec" and
+> "ip -n" remount /sys, which is denied when running as sysadm_t.  The
+> policy now allows unlabeled_t traffic on the generic interface and
+> node, needed for the unlabeled packets the router forwards.
 >
-> Fixes: 948bf85c1bc9 ("netlabel: Add functionality to set the security att=
-ributes of a packet")
-> Link: https://lore.kernel.org/netdev/CAHC9VhS+bdL_YnLQtd0sPmKKfy9BvS-LWV_=
-6EhAuu4qfUFe_mw@mail.gmail.com/
-> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Tested on Fedora 44 (aarch64), as unconfined_t and sysadm_t:
+> - 6.19.10-300.fc44: the new removal subtest fails (udp, tcp, mptcp),
+>   the new addition subtest passes;
+> - 7.3-rc6 with the fix: all inet_socket and sctp tests pass.
+>
 > Signed-off-by: Joas Antonio dos Santos <joasantonio108@gmail.com>
-> Assisted-by: Claude:claude-opus-5-5
 
+Agree that we may want this to be bracketed with a kvercmp guard to
+avoid breaking testing older kernels but otherwise:
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
