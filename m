@@ -1,167 +1,449 @@
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83FD74E36D6
-	for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 14:37:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7754D1791
+	for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 14:44:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792161475; cv=none; b=H6+Vc3IrsmMrSre7nrUy3gY0X0Sk62r3/enyo0C36sJnrzlSNuTKMuHuJxHLpRO94c3b/FcmchTZdYUsC0W1Cfk34Zt3Hk7XuNTWMWekC6ldb+vVS+Nif9bamAQcMHXoya6MtTUSW9iATxH8Edh5ohO4wOLHjUsPIj9ndMozXgM=
+	t=1792161865; cv=none; b=SFpm2HVbsPuxLm6omDw0yKhTxjpJLRk8JtrM5jLyaVLe/a9933BSKUJP+15dxfpS+ZW4WIn+pcnguxbQOfESY41EoraoVumbUL5nLsU2SG+CV9U6+U8H6Awzb+ikFJsuItyTGrSQNhL7pj7c/VtENQ121uuryrnZ1u8wFfzoAVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792161475; c=relaxed/simple;
-	bh=wAp7afOfTC8HUwyazn0LOftlGcbyrbQpAQhvKDn+ea4=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=mn3x3Y1ByZoP0/kO7UMxT7eLSKHc2YaINE8l+1G+vttf6U1Y0OTWvfZozI/qYE5v7CfnncYNeRavFNokX6O3yaeBlpdr8qz7SFzwbuFDu+e1mc3YFlFUUtIKqGHkMpCuQpq8lqZOH0ajwVa3igvvmDCXIs6nrfkP6+UY+caQ8gc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UL3b9nrb; arc=none smtp.client-ip=209.85.222.52
+	s=arc-20240116; t=1792161865; c=relaxed/simple;
+	bh=TOIiJPI34vCinEaBrduHlT9a71FAHO435ctrN82VAoE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XJtGmLYvAdBWj+Ntp6+hMcBq993b48ZioNhk8cuwkCHegd/9Tp+Yui7rduaf9zBQQdqrwLF+559Foos7SnHw1ntQ7ZRsH6dgLEVDcU+5o8kJWJwH4HGwliHyv3VPl2sjpfhjjq7y21fH3RhuXt/fe5WCDnhzVYaE57vyOoLYSRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gTKfLCJY; arc=none smtp.client-ip=209.85.128.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UL3b9nrb"
-Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-9851592ada1so11605241.0
-        for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 07:37:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gTKfLCJY"
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8ab38a051aaso56981917b3.3
+        for <selinux@vger.kernel.org>; Fri, 16 Oct 2026 07:44:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792161469; x=1792766269; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OvFMfxSzYVJ2lOTMgtJEulD+6aZKmETG2qDahrWDVzI=;
-        b=UL3b9nrbT8FhDYiBNNTYMQ0g2P11ovzC/D+iI3qA4y96nANAG1iq0ojqMX+/39b0y/
-         9yPzrDqw4LCorPMdnBZ9IQyzBRf37IGvuAMPhixVqu2Cf6AIYaM6N6yi4mLyNHM+9VMI
-         JlQ+rI+YpN66ADhcxVN2SK+ONvAoPnuE0mHLJ76SUoSfQm0k4m4zpOwb0C6uNhN9RzQF
-         K7CINHUyZFay7mfeADRsrvzs6YwLdwPYcdN5/dc+C9jet4vXdYSPXG3w91NqCgmUXFFV
-         lnnwxThvbmRG12eP9WCBod6Xn1fTqDS4F2wmXoJ25pvJMvj0PmO3kyXsdJMVzaTTOvOm
-         a4Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792161469; x=1792766269;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1792161860; x=1792766660; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=OvFMfxSzYVJ2lOTMgtJEulD+6aZKmETG2qDahrWDVzI=;
-        b=TRfcwxaQiywprGWktD7zCPCW/mSRdcQXBsEhS/V5Yjus9AGcDUEs/FC+79jBqFX9un
-         5coDtS1TnssofWY39bj0VMRw/lwDwTdAt1/ZE+CqA13+0MV86Jq4EBzv8BXDR5SP9alC
-         6H0gRHq8WRyV4vUtVovNGFACM7XdSt38mBUF/cwf3RgCBNoRE2VDOVRHWqSo3dPkNLpc
-         i5l6hDUJVCigMiSL+FaLn2yMrhUirYU49ofnK5NS86+SblBdlKj8+x0F7tGq/DwvysR3
-         loVKWd1FIVPxQSX13QSS/znDqbCC+x/NPoPWw7drkGcttgsWqLZXvGIG1wJMnA7r46mf
-         uYpA==
-X-Forwarded-Encrypted: i=1; AKwUvBxtiuswLSikQMcO/hyeq9N9ipqYJ4NfOy0XtL8dg3iCeZtx2Z8gknNbIj6PebOAQ3Qoqn549NA2@vger.kernel.org
-X-Gm-Message-State: AFq9FYLk3xinhRV1e8GydzI0j0gjuYgHJTc3CWQe9AmMm4/H6h94NUh1
-	cKMlFD9yaUVWNOxovf9W3nztAb8mAS9XJfyosfeVVro+KF+9PdIpi51Z
-X-Gm-Gg: AYBFou2wyxKx0ie/pgL9jI3BqmrZBZshVmZs42oaazGbIu6zIql/AMUT8PenepJZ6wf
-	1JPycnFW8x+dpor4kJpfPG09rYOLN8fp6WwYMquNA3Hqd9iu5tQc2b93HqEKoQJyM5uAXgzArT8
-	gIT6OsYNf/uT5Vw2sTaTZLde0N/Fy12IP7Yp5XaBiOmoNIW9hNP/YQkdEmhti6IcvR9kmdMoE+2
-	E+OfDVetj7bm4fw9TRmzDEL4Z6LzVKUtBYaVxHxf2Gn1WUFZ3sle0HB+MWkuEC2TdIxirmcgAb/
-	9bIV2MlIMDltWwbZjVMWu2PEQc7vDvkbJ9hP3nWGuT0CPr23dG72uTcq/Rv1Pb1vajQ+U948SC7
-	8grQuHUOqtC5gNAfhEtgbfyRRnkz3aPstlzgjbKSJE67jJfNxgZT4M5aRx1vsdTJg5SGhhfwepc
-	UnazLP7MVUNno2E4G0zOI2qU0e/kKC1ZcbGVmYQy0qJpgGEgAyin7TEeM2huxpnTGTuGFUkWHC0
-	Rxp5qoydrTj1Sc0EIrZMBl3K+p6Bvq6lFecrJczj7qL3tU2N7F95S3Lt1sODXod6nsicsoSlGdy
-	X3r9m/Z5KxX0kb68jX2Q+WpKcJmqTP6weBO+eAejMGZtmZPKWLo9cjao
-X-Received: by 2002:a05:6102:c48:b0:7c8:3b8c:82ba with SMTP id ada2fe7eead31-7cb373de301mr5673762137.32.1792161468460;
-        Fri, 16 Oct 2026 07:37:48 -0700 (PDT)
-Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa ([2804:7f0:b100:ece0:b5:bb23:a54:ce61])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7cc1983af93sm2248453137.8.2026.10.16.07.37.43
+        bh=b5mPysmOg/X2gxFC8sSeZVp+7zx/SSikTAHOJ0n/l4g=;
+        b=gTKfLCJYZqf9Va4X2gK4hWvh8JGoXo5O8GFEPbdK5EGPNk1+nMF69RBEbV56m7VuOa
+         u1/uUe52eoiqI9sJYiLcG8LRb7athiBY4YQdiuquYPDED6zea7ip1ow8YfUiVI5ALhmQ
+         L+EQJFBIjJ6HUsDnxw+ITN5Q1ujd38a6+1giBhswT7LZd0r5VyP94zQOvnzn4r3xOOHD
+         g+hmZ1QF9i+dNNoRfoqKzDPfpDjJ/fdl/Ygmq//k/M8kIvU278oZpbQ8rILnv2tqpwXL
+         3A2dYomZAyKqfrfk8w7PFMNPIFePM/8IocWMtWX19I88Ccq3Nfrz7GCPL0+eCWDnKAFR
+         Xiiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792161860; x=1792766660;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=b5mPysmOg/X2gxFC8sSeZVp+7zx/SSikTAHOJ0n/l4g=;
+        b=ZbNp3AbDu6sRdV7Vhi9dFY30lZc9DUoxDeTN5sv7isCykh4t8TcDN/0sdfHDiCDXsy
+         OSQR3omId6jdU3BBd34G3YLJfNTMyZenZFKCUBGfkA9XOManOxhSQSFBriV4qTiT8t9d
+         CCk7Jy2cD6PTYia8V4c6nRmK+ieIl7BspnqK3XKaI8HMvzEjvGWvpOzAM4IanybSPdAJ
+         EkoJHgeZUcy6CWZXyXqzlmO59pezkYZ89h/cB3PCBmCVlwE3oVYom+M4P1sUAt7uF/qi
+         ppBKC2S18Pe72ahvnKfsctQ7suHgqx7k2K+bRGif3dJO+j3tNXg0nymPDGPOKcRn5OBP
+         XaYQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwaGTUF5cX0N21HiT9lXO33YbI82yiHaekQQmv/Wo9QBy4anxiZMms9PHHBZntXqq+7/xC2TUTq@vger.kernel.org
+X-Gm-Message-State: AFq9FYJZdL5I8xmftj825Pt12uq/k7jAPp8F8lHfoyx9BGaQCF7u01ck
+	BOuAhgDBKkt3Z7+jMjrgY+nQgj7o1WWkiry532I+Xp8XEYbHzLbof+FJ
+X-Gm-Gg: AYBFou3wgddSHY2ZL8cn1C2/+dtJcVAmhfXNUyZSwpDFApbHjTM7ma8aVrBGgGMkQW3
+	AO15+wHtxY8cD1FUHXlQ8tihH/btrpr4JoFnWgJP8BsHUZYls/1b2MQDkdsbAqGzGA/AmRroiBL
+	oD10gYiTV8DQl62FnfZw1BG0b7+cVHK2u7mFkTW+B9uM0J3b26rcxu+dSiUADWqg3WzWtLYOvDt
+	u9lAfpZT0sPlfCdhVJ06/M0OmeBVdglDchYl6y1JBR9obXOPJzE8nTEN3HTvwsvNWulbV8Qlac8
+	k5aJopHNr20vJ+BQ19Z4YbacuRK/TSsYTOYRlqgTzWfLd1h7aV9NOafGvf6pCeFWMJXb5kpk4uq
+	+7nlNncCBbmsJOUQCdnlSEp/3eFNX4h9/uUI+zMcBlrilpZMjZnRwAcE9YYECkvqz1Il9BBqSzE
+	B+XDTlop17j13BMf2cEfOPj7epyNj/TYRwglq5mTqWoixyhKtdnnAVpROliP1wZkdORSId0aUY
+X-Received: by 2002:a05:690c:a4d4:b0:8ae:8d28:77be with SMTP id 00721157ae682-8b0f205d6dfmr777507b3.1.1792161858531;
+        Fri, 16 Oct 2026 07:44:18 -0700 (PDT)
+Received: from zenbox ([2600:1700:18fb:6011:1002:ecef:6e38:613d])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8b0e5888166sm9663717b3.14.2026.10.16.07.44.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 07:37:47 -0700 (PDT)
-From: Joas Antonio dos Santos <joasantonio108@gmail.com>
-To: Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnacek@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
- Phil Sutter <phil@nwl.cc>, selinux@vger.kernel.org,
- linux-security-module@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: don't label bridged packets in selinux_ip_forward()
-Date: Fri, 16 Oct 2026 11:37:41 -0300
-Message-ID: <179216146138.25460.7866279004288174372@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        Fri, 16 Oct 2026 07:44:17 -0700 (PDT)
+Date: Fri, 16 Oct 2026 10:44:16 -0400
+From: Justin Suess <utilityemal77@gmail.com>
+To: Cai Xinchen <caixinchen1@huawei.com>
+Cc: mic@digikod.net, gnoack@google.com, paul@paul-moore.com, 
+	jmorris@namei.org, serge@hallyn.com, corbet@lwn.net, skhan@linuxfoundation.org, 
+	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, eddyz87@gmail.com, 
+	memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, yonghong.song@linux.dev, 
+	jolsa@kernel.org, emil@etsalapatis.com, ihor.solodrai@linux.dev, 
+	rdunlap@infradead.org, gregkh@linuxfoundation.org, rafael@kernel.org, dakr@kernel.org, 
+	johan@kernel.org, dlemoal@kernel.org, hch@lst.de, axboe@kernel.dk, 
+	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, dhowells@redhat.com, 
+	code@tyhicks.com, linkinjeon@kernel.org, sj1557.seo@samsung.com, 
+	yuezhang.mo@sony.com, hirofumi@mail.parknet.co.jp, cel@kernel.org, jlayton@kernel.org, 
+	neil@brown.name, okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com, 
+	hyc.lee@gmail.com, miklos@szeredi.hu, amir73il@gmail.com, senozhatsky@chromium.org, 
+	chenxiaosong@chenxiaosong.com, kpsingh@kernel.org, matt@bobrowski.net, rostedt@goodmis.org, 
+	mhiramat@kernel.org, mathieu.desnoyers@efficios.com, john.johansen@canonical.com, 
+	georgia.garcia@canonical.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
+	dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, stephen.smalley.work@gmail.com, 
+	omosnacek@gmail.com, casey@schaufler-ca.com, takedakn@nttdata.co.jp, 
+	penguin-kernel@i-love.sakura.ne.jp, xiujianfeng@huawei.com, nanx95726@gmail.com, djwong@kernel.org, 
+	lujialin4@huawei.com, bpf@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	driver-core@lists.linux.dev, linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	netfs@lists.linux.dev, ecryptfs@vger.kernel.org, exfat@lists.linux.dev, 
+	linux-nfs@vger.kernel.org, ntfs@lists.linux.dev, linux-unionfs@vger.kernel.org, 
+	linux-cifs@vger.kernel.org, linux-trace-kernel@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v2 -next 09/18] landlock: Add READ_METADATA and
+ WRITE_METADATA access rights
+Message-ID: <atI20Vs7Du9-g1Hz@zenbox>
+References: <20261015125425.3246251-1-caixinchen1@huawei.com>
+ <20261015125425.3246251-10-caixinchen1@huawei.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261015125425.3246251-10-caixinchen1@huawei.com>
 
-With br_netfilter and bridge-nf-call-ip{,6}tables enabled, bridged IP
-packets go through the NF_INET_FORWARD hook, where selinux_ip_forward()
-calls selinux_netlbl_skbuff_setsid() and NetLabel may add or remove a
-CIPSO or CALIPSO option.  cipso_v4_skbuff_setattr(),
-calipso_skbuff_setattr() and calipso_skbuff_delattr() move the IP
-header and reset the network header, but the Ethernet header stays
-where it was; when the bridge pushes it back in front of the packet it
-picks up stale bytes and the frame goes out with a garbage destination
-MAC and EtherType.
+On Thu, Oct 15, 2026 at 08:54:15PM +0800, Cai Xinchen wrote:
+> Add two new filesystem access rights to control file metadata access:
+> 
+> - LANDLOCK_ACCESS_FS_READ_METADATA: Read file or directory metadata
+>   (e.g. inode attributes, extended attributes and POSIX ACLs) through
+>   stat(2), fstat(2), lstat(2), newfstatat(2), getxattr(2) and
+>   friends, listxattr(2) and friends, and the POSIX ACL read
+>   operations.
+> - LANDLOCK_ACCESS_FS_WRITE_METADATA: Change file or directory
+>   metadata through chmod(2) and friends, chown(2) and friends,
+>   utimensat(2) and friends, setxattr(2) and friends, removexattr(2)
+>   and friends, and the POSIX ACL set and remove operations.
+> 
+> This follows the coarse-grained grouping approach discussed in the
+> mailing list [1], where file metadata operations are grouped by
+> security relevance rather than by individual syscall.
+> 
+> Implement the two rights by hooking the inode_getattr,
+> inode_file_getattr, inode_setattr, inode_file_setattr,
+> inode_setxattr, inode_getxattr, inode_listxattr, inode_removexattr,
+> inode_set_acl, inode_get_acl and inode_remove_acl LSM hooks, which
+> now receive a struct path thanks to the preceding VFS and LSM
+> refactoring.  The following system calls are now controlled:
+> 
+> - stat(2), fstat(2), lstat(2), newfstatat(2), getxattr(2) and
+>   friends, listxattr(2) and friends, POSIX ACL reads, and the
+>   chattr(1)/xfs_io style reads: ioctl(FS_IOC_GETFLAGS),
+>   ioctl(FS_IOC_FSGETXATTR) and file_getattr(2) via inode_getattr,
+>   inode_getxattr, inode_listxattr, inode_get_acl and
+>   inode_file_getattr (READ_METADATA)
+> - chmod(2), fchmod(2), fchmodat(2), fchmodat2(2), chown(2), fchown(2),
+>   lchown(2), fchownat(2), chgrp(2), utimensat(2), futimens(2),
+>   utime(2), setxattr(2) and friends, removexattr(2) and friends,
+>   POSIX ACL set and remove, and the chattr(1)/xfs_io style writes:
+>   ioctl(FS_IOC_SETFLAGS), ioctl(FS_IOC_FSSETXATTR) and
+>   file_setattr(2) via inode_setattr, inode_file_setattr,
+>   inode_setxattr, inode_removexattr, inode_set_acl and
+>   inode_remove_acl (WRITE_METADATA)
+> 
+> Both new rights are added to ACCESS_FILE as they apply to both files
+> and directories.
+> 
+> hook_inode_setattr only restricts explicit metadata changes, i.e. it
+> checks WRITE_METADATA only when the ia_valid mask contains
+> ATTR_MODE, ATTR_UID, ATTR_GID, ATTR_TIMES_SET or ATTR_TOUCH.
+> Metadata changes that the kernel performs implicitly, such as
+> timestamp updates on write(2) or size changes on truncate(2), are
+> therefore not restricted, and neither are chmod(2)/chown(2) calls
+> that do not change any attribute (e.g. chown(2) with -1/-1, which is
+> a no-op that never reaches the hook), matching the behavior of the
+> SELinux inode_setattr hook.
+> 
+> Stacking filesystems forward fileattr operations to underlying inodes
+> without calling the LSM hooks again (see the preceding patch), so a
+> fileattr operation on an overlayfs file is checked once on the
+> user-facing merged path and is not spuriously denied because of the
+> kernel-side creator credentials used for the forward.
+> 
+> Kernel-internal accesses performed with override_creds() (e.g.
+> overlayfs and cachefiles) are not affected because Landlock domains
+> are attached to credentials, and kernel threads without a Landlock
+> domain (e.g. nfsd and ksmbd) are not restricted either.
+> 
+> Remove stat(2), chmod(2), chown(2), setxattr(2) and utime(2) from the
+> list of file-related actions that cannot be restricted yet, and add
+> the names of the new rights to _LANDLOCK_ACCESS_FS_NAMES in
+> include/linux/landlock.h, which is shared by audit records and trace
+> events, so that denied accesses can be reported with a human-readable
+> name and the static assertion on fs_access_strings in
+> security/landlock/audit.c stays valid.
+> 
+> Increment the Landlock ABI version from 12 to 13, and update the ABI
+> version check in tools/testing/selftests/landlock/base_test.c
+> accordingly.
+>
+LANDLOCK_ACCESS_FS_*_METADATA should be checked at open time and follow
+the mechanic for the truncate right. Otherwise the access for already
+opened file descriptors would be changed. See hook_file_open in
+security/landlock/fs.c and this discussion here [1]
 
-Labeling a bridged packet based on its IP addresses is not what we want
-here anyway, so leave bridged packets alone.  Add a stub of
-nf_bridge_info_exists() for CONFIG_BRIDGE_NETFILTER=n.
+It should have clear documentation for this as well.
 
-Tested with QEMU, two veths enslaved to a bridge with br_netfilter in
-the middle, SELinux and a NetLabel DOI 16 configuration, 5 UDP packets
-per case:
+Justin
+[1] https://lore.kernel.org/all/20260929.Ahgoo4yeetai@digikod.net/
 
-  case                                        before        after
-  CALIPSO packet, unlabeled destination       MAC garbage   5/5
-  unlabeled IPv6, CALIPSO destination         MAC garbage   5/5
-  unlabeled IPv4, CIPSO destination           MAC garbage   5/5
 
-Routed packets are still labeled (an unlabeled packet forwarded towards
-a CALIPSO destination gets the option, 5/5).
-
-Fixes: 948bf85c1bc9 ("netlabel: Add functionality to set the security attributes of a packet")
-Link: https://lore.kernel.org/netdev/CAHC9VhS+bdL_YnLQtd0sPmKKfy9BvS-LWV_6EhAuu4qfUFe_mw@mail.gmail.com/
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Joas Antonio dos Santos <joasantonio108@gmail.com>
-Assisted-by: Claude:claude-opus-5-5
----
- include/linux/netfilter_bridge.h |  5 +++++
- security/selinux/hooks.c         | 13 ++++++++-----
- 2 files changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/include/linux/netfilter_bridge.h b/include/linux/netfilter_bridge.h
-index 743475ca7..c1f7c3cb2 100644
---- a/include/linux/netfilter_bridge.h
-+++ b/include/linux/netfilter_bridge.h
-@@ -79,6 +79,11 @@ static inline bool nf_bridge_in_prerouting(const struct sk_buff *skb)
- }
- #else
- #define br_drop_fake_rtable(skb)	        do { } while (0)
-+static inline bool nf_bridge_info_exists(const struct sk_buff *skb)
-+{
-+	return false;
-+}
-+
- static inline bool nf_bridge_in_prerouting(const struct sk_buff *skb)
- {
- 	return false;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 30776b010..1e4f02f99 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -49,6 +49,7 @@
- #include <linux/fs_parser.h>
- #include <linux/netfilter_ipv4.h>
- #include <linux/netfilter_ipv6.h>
-+#include <linux/netfilter_bridge.h>
- #include <linux/tty.h>
- #include <net/icmp.h>
- #include <net/ip.h>		/* for local_port_range[] */
-@@ -6145,11 +6146,13 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
- 				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
- 			return NF_DROP;
- 
--	if (netlbl_enabled())
--		/* we do this in the FORWARD path and not the POST_ROUTING
--		 * path because we want to make sure we apply the necessary
--		 * labeling before IPsec is applied so we can leverage AH
--		 * protection */
-+	/* we do this in the FORWARD path and not the POST_ROUTING path
-+	 * because we want to make sure we apply the necessary labeling
-+	 * before IPsec is applied so we can leverage AH protection; bridged
-+	 * packets are skipped as changing their IP options would leave the
-+	 * Ethernet header behind
-+	 */
-+	if (netlbl_enabled() && !nf_bridge_info_exists(skb))
- 		if (selinux_netlbl_skbuff_setsid(skb, family, peer_sid) != 0)
- 			return NF_DROP;
- 
--- 
-2.43.0
-
+> [1]
+> https://lore.kernel.org/all/abc960a1-e66e-792e-6869-cfd201c29dbe@digikod.net/
+> 
+> Assisted-by: opencode: glm-5.3
+> Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+> ---
+>  include/linux/landlock.h      |   4 +-
+>  include/uapi/linux/landlock.h |  25 ++++++-
+>  security/landlock/fs.c        | 126 ++++++++++++++++++++++++++++++++++
+>  security/landlock/limits.h    |   2 +-
+>  security/landlock/syscalls.c  |   2 +-
+>  5 files changed, 153 insertions(+), 6 deletions(-)
+> 
+> diff --git a/include/linux/landlock.h b/include/linux/landlock.h
+> index 0ee4880988ba..ee1234fbc9f0 100644
+> --- a/include/linux/landlock.h
+> +++ b/include/linux/landlock.h
+> @@ -41,7 +41,9 @@
+>  	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_REFER, "refer"), \
+>  	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_TRUNCATE, "truncate"), \
+>  	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_IOCTL_DEV, "ioctl_dev"), \
+> -	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_RESOLVE_UNIX, "resolve_unix")
+> +	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_RESOLVE_UNIX, "resolve_unix"), \
+> +	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_READ_METADATA, "read_metadata"), \
+> +	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_FS_WRITE_METADATA, "write_metadata")
+>  
+>  #define _LANDLOCK_ACCESS_NET_NAMES \
+>  	_LANDLOCK_NAME_ENTRY(LANDLOCK_ACCESS_NET_BIND_TCP, "bind_tcp"), \
+> diff --git a/include/uapi/linux/landlock.h b/include/uapi/linux/landlock.h
+> index 24510e5d8479..36dfb499e48e 100644
+> --- a/include/uapi/linux/landlock.h
+> +++ b/include/uapi/linux/landlock.h
+> @@ -429,6 +429,25 @@ struct landlock_capability_attr {
+>   *
+>   *   The rationale for this design is described in
+>   *   :ref:`Documentation/security/landlock.rst <scoped-flags-interaction>`.
+> + * - %LANDLOCK_ACCESS_FS_READ_METADATA: Read file or directory metadata (e.g.
+> + *   inode attributes, extended attributes, and POSIX ACLs) through
+> + *   :manpage:`stat(2)`, :manpage:`fstat(2)`, :manpage:`lstat(2)`,
+> + *   :manpage:`newfstatat(2)`, :manpage:`getxattr(2)`, and
+> + *   :manpage:`listxattr(2)`.
+> + *
+> + *   This access right is available since the thirteenth version of the
+> + *   Landlock ABI.
+> + * - %LANDLOCK_ACCESS_FS_WRITE_METADATA: Change file or directory metadata
+> + *   (e.g. inode attributes, extended attributes, and POSIX ACLs) through
+> + *   :manpage:`chmod(2)`, :manpage:`chown(2)`, :manpage:`utimensat(2)`,
+> + *   :manpage:`setxattr(2)`, and :manpage:`removexattr(2)`, as well as related
+> + *   system calls.  Implicit metadata changes performed by the kernel (e.g.
+> + *   timestamp updates with :manpage:`write(2)`, or set-user-ID and
+> + *   set-group-ID bit clearing with :manpage:`write(2)` or
+> + *   :manpage:`truncate(2)`) are not restricted by this access right.
+> + *
+> + *   This access right is available since the thirteenth version of the
+> + *   Landlock ABI.
+>   *
+>   * Whether an opened file can be truncated with :manpage:`ftruncate(2)` or used
+>   * with `ioctl(2)` is determined during :manpage:`open(2)`, in the same way as
+> @@ -493,9 +512,7 @@ struct landlock_capability_attr {
+>   *
+>   *   It is currently not possible to restrict some file-related actions
+>   *   accessible through these syscall families: :manpage:`chdir(2)`,
+> - *   :manpage:`stat(2)`, :manpage:`flock(2)`, :manpage:`chmod(2)`,
+> - *   :manpage:`chown(2)`, :manpage:`setxattr(2)`, :manpage:`utime(2)`,
+> - *   :manpage:`fcntl(2)`, :manpage:`access(2)`.
+> + *   :manpage:`flock(2)`, :manpage:`fcntl(2)`, :manpage:`access(2)`.
+>   *   Future Landlock evolutions will enable to restrict them.
+>   */
+>  /* clang-format off */
+> @@ -516,6 +533,8 @@ struct landlock_capability_attr {
+>  #define LANDLOCK_ACCESS_FS_TRUNCATE			(1ULL << 14)
+>  #define LANDLOCK_ACCESS_FS_IOCTL_DEV			(1ULL << 15)
+>  #define LANDLOCK_ACCESS_FS_RESOLVE_UNIX			(1ULL << 16)
+> +#define LANDLOCK_ACCESS_FS_READ_METADATA		(1ULL << 17)
+> +#define LANDLOCK_ACCESS_FS_WRITE_METADATA		(1ULL << 18)
+>  /* clang-format on */
+>  
+>  /**
+> diff --git a/security/landlock/fs.c b/security/landlock/fs.c
+> index a8fa8f77e775..f56277c67a24 100644
+> --- a/security/landlock/fs.c
+> +++ b/security/landlock/fs.c
+> @@ -318,6 +318,8 @@ static struct landlock_object *get_inode_object(struct inode *const inode)
+>  	LANDLOCK_ACCESS_FS_EXECUTE | \
+>  	LANDLOCK_ACCESS_FS_WRITE_FILE | \
+>  	LANDLOCK_ACCESS_FS_READ_FILE | \
+> +	LANDLOCK_ACCESS_FS_READ_METADATA | \
+> +	LANDLOCK_ACCESS_FS_WRITE_METADATA | \
+>  	LANDLOCK_ACCESS_FS_TRUNCATE | \
+>  	LANDLOCK_ACCESS_FS_IOCTL_DEV | \
+>  	LANDLOCK_ACCESS_FS_RESOLVE_UNIX)
+> @@ -1676,6 +1678,119 @@ static int hook_path_truncate(const struct path *const path)
+>  	return current_check_access_path(path, LANDLOCK_ACCESS_FS_TRUNCATE);
+>  }
+>  
+> +static int hook_inode_getattr(const struct path *const path)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_READ_METADATA);
+> +}
+> +
+> +static int hook_inode_file_getattr(const struct path *const path,
+> +				   struct file_kattr *const fa)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_READ_METADATA);
+> +}
+> +
+> +static int hook_inode_setattr(const struct path *const path,
+> +			      struct iattr *const attr)
+> +{
+> +	unsigned int ia_valid = attr->ia_valid;
+> +
+> +	/*
+> +	 * Only explicit metadata changes are checked: implicit
+> +	 * timestamp updates never go through notify_change(), and size
+> +	 * changes (ATTR_SIZE) are governed by the truncate hooks
+> +	 * instead.  See the "File metadata" section in the user space
+> +	 * documentation for the full semantics.
+> +	 *
+> +	 * Clearing the setuid and setgid bits on write(2) or
+> +	 * truncate(2) is also an implicit change: callers request it
+> +	 * with ATTR_KILL_S[UG]ID, and do_notify_change() then adds a
+> +	 * synthesized ATTR_MODE (with these bits removed) before
+> +	 * calling this hook.  As do_notify_change() makes it a bug for
+> +	 * callers to pass ATTR_MODE together with a kill flag, an
+> +	 * ATTR_MODE seen along with ATTR_KILL_S[UG]ID is always
+> +	 * kernel-synthesized and must not be checked.  An explicit
+> +	 * chmod(2) never sets a kill flag, and an explicit chown(2) on
+> +	 * a privileged file is still checked thanks to ATTR_UID and
+> +	 * ATTR_GID.
+> +	 */
+> +	if (ia_valid & (ATTR_KILL_SUID | ATTR_KILL_SGID))
+> +		ia_valid &= ~ATTR_MODE;
+> +
+> +	if (!(ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
+> +			  ATTR_TIMES_SET | ATTR_TOUCH)))
+> +		return 0;
+> +
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+> +static int hook_inode_file_setattr(const struct path *const path,
+> +				   struct file_kattr *const fa)
+> +{
+> +	/*
+> +	 * The chattr(2) style flags (e.g. FS_IMMUTABLE_FL) and fsxattr
+> +	 * fields are metadata: writing them requires WRITE_METADATA.  The
+> +	 * user-facing path is checked here; stacking filesystems skip this
+> +	 * hook on their internal forwards because they were already
+> +	 * checked on the user-facing path.
+> +	 */
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+> +static int hook_inode_setxattr(const struct path *const path,
+> +			       const char *const name,
+> +			       const void *const value, const size_t size,
+> +			       const int flags)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+> +static int hook_inode_getxattr(const struct path *const path,
+> +			       const char *const name)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_READ_METADATA);
+> +}
+> +
+> +static int hook_inode_listxattr(const struct path *const path)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_READ_METADATA);
+> +}
+> +
+> +static int hook_inode_removexattr(const struct path *const path,
+> +				  const char *const name)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+> +static int hook_inode_set_acl(const struct path *const path,
+> +			      const char *const acl_name,
+> +			      struct posix_acl *const kacl)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+> +static int hook_inode_get_acl(const struct path *const path,
+> +			      const char *const acl_name)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_READ_METADATA);
+> +}
+> +
+> +static int hook_inode_remove_acl(const struct path *const path,
+> +				 const char *const acl_name)
+> +{
+> +	return current_check_access_path(path,
+> +					LANDLOCK_ACCESS_FS_WRITE_METADATA);
+> +}
+> +
+>  /**
+>   * unmask_scoped_access - Remove access right bits in @masks in all layers
+>   *                        where @client and @server have the same domain
+> @@ -2100,6 +2215,17 @@ static struct security_hook_list landlock_hooks[] __ro_after_init = {
+>  	LSM_HOOK_INIT(path_unlink, hook_path_unlink),
+>  	LSM_HOOK_INIT(path_rmdir, hook_path_rmdir),
+>  	LSM_HOOK_INIT(path_truncate, hook_path_truncate),
+> +	LSM_HOOK_INIT(inode_getattr, hook_inode_getattr),
+> +	LSM_HOOK_INIT(inode_file_getattr, hook_inode_file_getattr),
+> +	LSM_HOOK_INIT(inode_setattr, hook_inode_setattr),
+> +	LSM_HOOK_INIT(inode_file_setattr, hook_inode_file_setattr),
+> +	LSM_HOOK_INIT(inode_setxattr, hook_inode_setxattr),
+> +	LSM_HOOK_INIT(inode_getxattr, hook_inode_getxattr),
+> +	LSM_HOOK_INIT(inode_listxattr, hook_inode_listxattr),
+> +	LSM_HOOK_INIT(inode_removexattr, hook_inode_removexattr),
+> +	LSM_HOOK_INIT(inode_set_acl, hook_inode_set_acl),
+> +	LSM_HOOK_INIT(inode_get_acl, hook_inode_get_acl),
+> +	LSM_HOOK_INIT(inode_remove_acl, hook_inode_remove_acl),
+>  	LSM_HOOK_INIT(unix_find, hook_unix_find),
+>  
+>  	LSM_HOOK_INIT(file_alloc_security, hook_file_alloc_security),
+> diff --git a/security/landlock/limits.h b/security/landlock/limits.h
+> index ddd300e10689..ed606ee3102f 100644
+> --- a/security/landlock/limits.h
+> +++ b/security/landlock/limits.h
+> @@ -21,7 +21,7 @@
+>  #define LANDLOCK_MAX_NUM_LAYERS		16
+>  #define LANDLOCK_MAX_NUM_RULES		U32_MAX
+>  
+> -#define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_RESOLVE_UNIX
+> +#define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_WRITE_METADATA
+>  #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
+>  #define LANDLOCK_NUM_ACCESS_FS		__const_hweight64(LANDLOCK_MASK_ACCESS_FS)
+>  
+> diff --git a/security/landlock/syscalls.c b/security/landlock/syscalls.c
+> index fb5af318b69b..11d3a2abcec1 100644
+> --- a/security/landlock/syscalls.c
+> +++ b/security/landlock/syscalls.c
+> @@ -191,7 +191,7 @@ static const struct file_operations ruleset_fops = {
+>   * If the change involves a fix that requires userspace awareness, also update
+>   * the errata documentation in Documentation/userspace-api/landlock.rst .
+>   */
+> -const int landlock_abi_version = 12;
+> +const int landlock_abi_version = 13;
+>  
+>  /**
+>   * sys_landlock_create_ruleset - Create a new ruleset
+> -- 
+> 2.18.0.huawei.25
+> 
+> 
