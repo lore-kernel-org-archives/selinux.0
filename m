@@ -1,98 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792430087;
-	b=nOydpmKn3d/CnXEFQ0pQ0a5zt+HBoY3mSXKjUweJu/1R5biVjq6tasgfXxWUZhpuRqC/
-	 94b18p+PZjKjtd/9/jLvBbArZJpGq6LZxrFb15cL8kJIjmdTT23/Auc+2QkVWzFYXhK4S
-	 TAyO3IsdOoN8j+Q/dObE2L5uxaRfOhks9EzYt5tOguLBkeQrQsA/jQZ0PyBJ+DI/nZ1oA
-	 p4AlIXFT7uV5Jul0Dax9p/gpSfMw2PIVCspVZH/1qGUboK6cvU9fvAeWnY6rgKkz1M+aH
-	 VJgtSYFjAG7d7jAW+vf7D6GuAQqDFx1lYH3+7teSJH3swwaLP6GUYncRzGiDfc9gSdQ==
+	t=1792430594;
+	b=GTiJ+DSxJJLpLlFoTmQvrOAhxUcvPqsvjx/MOYeNZtdRRTM7RXjprMlDuAkimwefFrNy
+	 uaFdN8X012Y0MXWbcTTExXUNjwmPimDpmRiAK8D/+GmGblImgRZHNhwx3YCwh9Xg90aRz
+	 ADTXvy23QaFMlK67oOgB59065boDsJh2rjR3mb4c3GsCyVJIJzePce1Xkdv36wcwG8wnl
+	 LkgEPyezgqT1wybvHpx8rIheTW7NWUT/FneH28SRkHqbSFp4LME03924VBMLQwuiSjBYJ
+	 CuDDwW8tvwzG9zL+1s8gWafDZd58kMzJksirjXZ3SBZ7A18jXUb7lzgx6n1XuHur66A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792430087;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792430594;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=sn/Dg2nRYypdg9K6AS/WuQNlTgdEjyASXFDLC9W2h50=;
-	b=LQgAZOLA8PiCV6jEX2IHxO1UgxbJscUsoxJY/TBo5IPwJB+wdSCW/cDnTRvviNwuYavm
-	 lu0CL1SWa7Z++DnFbMnKodihioX4RraUmUKkWXoevjmtEJTK2AUW7xf7Z4ayWVOJh2mqG
-	 d3/YaY2c1KxL2HOjdrW/0I/OwlWoyGFQKv7tCK1qHDEyzp5SGz+o3BbUZaIOpXVFrlm9q
-	 RuC2GTmJVPgy3QovPD+3llTjjt/jNghu+xV6yEZDy1VyAyHUlkqCa44scuG1NKnkhAsnv
-	 FqDRunhNI8GYJyJYaihEHO4DyxgNQktgZagQDXo4JW1jI0eZNg3Ab3vOugIJxumyNUw==
+	bh=XyDLh/OZ7L+0+0Z20pt671q5f2HtDROtE4kYqg2+KMU=;
+	b=X8AY9+Ivs54UqSOv8KQ3sleTSr4uMjDhHLzVm+NB2kG+PllcdXh1yHttCLg3oRrtFu2F
+	 VD95t9mKzUgHXaWZ+axJsD/0lwFtDyT97d2Er9BaTNzaZePJjqIGyQARp+YayXkwd7AdB
+	 +mqZ+akA5zknohfDzFoWnwMsPyqTbtq/fWadDhVVICd/6ydu4SYTUdKV0jlcG4z/d31aM
+	 Den2Tj/+EcX9LqGp8vBcbBf7VpREIzjGSWB5thNEtxrly+NHQzdmXkpkdIIYJN1WvYMGM
+	 bxfHV/W3dXyXPxaz/BC0ACZhmakwa8WMV7AzjpnYqMNq4A7mGlIq8EaPdLdCExIz7/Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BO8xEt2F;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="GPhRW/dy";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
+Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE6C606A31F
-	for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 17:14:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1CE6C606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9399A606A31E
+	for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 17:23:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9399A606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BO8xEt2F
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-67921b515a7so2459001d50.2
-        for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 10:14:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792430086; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=GPhRW/dy
+Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-679334baa1fso2242325d50.2
+        for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 10:23:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792430592; cv=none;
         d=google.com; s=arc-20260327;
-        b=HKw+NCj8DcbE+1CkzQEbP2vM1viCeQEPMKuTMxOVbSCBzyyWqy+m1j1LR9qZZkE7fF
-         UENWKnCKi8Kud5RQrUVBMHdIziYE+olvqW1Y2e0jzZ8ntF6cSD7orZzgNEBGAGG+rMDL
-         B/HBSHrQo96cGfHzg2P9boxxKwT9oBlioKpj2Get9Ed4wNvc8+nHXzWKgBOjeo/R5gxp
-         LdTn97sf93IiQpUyv4eiHfQ0myZugJLiDLAEJi6wbc9IfvmjTJ3/WL9RyOE1RFU/hqId
-         mRvaBo9lSvMWnuGMFZUIwOCiQu5/4eEERbloCc0oFnVPC6Slz+As5bck8k1p74LO9SxV
-         mKzA==
+        b=I+ik317zxNGRwyYS39MtevakoxGF4fqsx+OQsld3XZewWx7raO3l5+XCdvMufLEDG9
+         U90vG/8X5KLneWrcVZvs9fB3THA82GYR31L7VXqGanFdthl7HwJMCTXyIx+GDPjO9/NI
+         ScdX5HbH0RedqIvpq5CVNLVk/hucrQ/hbOMC2LLU2hgEKvPfkKiSERDILf3+6RI9RLsM
+         pLj6+ZhzaUl2QHcUZuinfdBlKRkSPtjHZwnYaYID5u/6iOCUiYE1BQ90RpGgFKFimKLX
+         ltaoYmF/AmvX4nOuvxrm4ALq8mlBHgdD9NmN9AAybABqoDpzG0GAhydlA9q+I4lTkxHe
+         7Ebg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=sn/Dg2nRYypdg9K6AS/WuQNlTgdEjyASXFDLC9W2h50=;
-        fh=dJFGPQcIdBSKfAGSkBBiK4EUt5+B5+Lca+i7TUzU1Gg=;
-        b=mF759iIxPKY1RqvrwtISGjujcUUEQ08Y50CtS+iGNyQncjqiDFWETBPQqLXPbtw2v4
-         GWGqB9QpHZAre1OtA6wFKzycmI4oyccqqStk41JNywyWiF7BvRDmP3Yq9YpMwD6+jVyI
-         MSRYKmql3fhkbXbvzYGfU7ewpz+2C86AAYSSXOOrpQgzRHgyKYinrcjN3NhxNqP78agM
-         q/6RSWVrjNfXgpGcKiQg/E2QX38ymWVo9q5dnUsICfT83VK3XF7DTgHXedmmZHW7ut2R
-         bWJQhlN8W2qrlyh5djE8GTbf/zmF4EVbII7zhAXTtDfwDHjISvzUdS5qZoJ4GzRgeY9d
-         SrdA==;
+        bh=XyDLh/OZ7L+0+0Z20pt671q5f2HtDROtE4kYqg2+KMU=;
+        fh=dOK3+QzSPN7gzn1PlS8ptJJmK6YYk6mhFKVaSQ0dNqc=;
+        b=O0sflhYVJCAyxpAHgyMUyH1tezApeXxJAvniEQT7DqqsX+hWfYY7wB1Gkg+DUmpYpX
+         5BdgP+eqsp10yXyRnifTdeu9fRjd/OaCO2Sc2zIP418wjo0Do1WZBGRCgGae/lSO9gAk
+         5K/cEdR0E5agePj7W4vE3lLXlZMX06cnQu5HTm0XcyyXeOOlnuPvYmxvRLqUahj4whho
+         DEzqgqbngdgBo5Aw9ppbEXD2IOkhbufh+ZwvUa8hPwIp3K8hxyYYqIHDCnalsZIcu+/n
+         0R+XaWi93DDuupdI9/QKr8cwPQ3o2ng44iLRq9dump+Bm8e4tZJQFdsgfEZ4VH+cI5+k
+         3GGg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792430086; x=1793034886; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792430592; x=1793035392; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=sn/Dg2nRYypdg9K6AS/WuQNlTgdEjyASXFDLC9W2h50=;
-        b=BO8xEt2FzdghnWZlwfWXlESIgAAVUHpz0DdP7iPt73d0SvGf1ryX2dwHjgj4IDP/02
-         goiJRD1pFmgkPJ6wqk6XBRDXWac1a+bVHDej0jrU4nIIV9RCFFJoIpVvncfO5UdBCgY9
-         SPmS/w+fmR9knxbcDUBfx/n/nucV4feKzV/9JDFFrQdB3lk6Q0oKF82hd2MJ0PcwJLPK
-         fsBh6Czh6Cznt0mRs65l6BDuiuXJD44pXXtE/0m0oGX3sey9pFWwYfgJlDDZ1et3I+q9
-         gsYcM5E/eb0unOy8osDnj54Bl3glQuTmxGwV6HYRVzKaGkPL2tLcS48Z+ZRy98MNYW2Q
-         d7Wg==
+        bh=XyDLh/OZ7L+0+0Z20pt671q5f2HtDROtE4kYqg2+KMU=;
+        b=GPhRW/dyeZTdA8MqpZ0+NnnOTSgyw3DF+1a6asevw5Lz7NLx3OlBHalILypuVSQbB/
+         K+LEO/LeCCKli7nV8FGN0oL5wieHGUP2SAkZiTwW8orh5xnSqJkaOhCXOVU1OrQKuqQI
+         DSF5JvPVJpZ/qStKJasesyWxqOAOs5++FiUAjmjAixt89JYe0KbRmZ+WhgUwsDde+9W6
+         KXIx38yeTqLqmic2CrOCgzHp89da5QFPJKbGCBcgBz1UVqBSIe4S5un2NH6S2w5ZgrUd
+         DO0ImCXi9NV+UsYj82+lytn7cUl0uMns6IMFBLZXlWGKS8qlHdxDKCr/iaDscK1gAfZ5
+         +JpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792430086; x=1793034886;
+        d=1e100.net; s=20260707; t=1792430592; x=1793035392;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=sn/Dg2nRYypdg9K6AS/WuQNlTgdEjyASXFDLC9W2h50=;
-        b=Y5XoT6i8rkw0KvyE/banKrs4v+DQhDJ1GJk2l/absjJBgY6nGrJDma4x21qT7DkIMV
-         dCojiZWyjGLT5nZy32Jc87W+5/jNWlYyfyZX1kbRmxVXPZw55M+WiJxfKxrXXrK1nLng
-         wj9f9Ku5+G3PaEb4C9wtqTitGn0dnHWRM9Xw39CoyNd5KuAe+mHiuPrTa7aUOM72Vgrg
-         ffYmSQTxEU9mRq8+q7H9B58B5sCQvoUfqyIk4PHngjK+IflTqJMTMt06Qu41kkaf4bPu
-         KujmiP7m4Ad0oolgGt9fQGQtK8Pj3x9fR9kAvImb/QiOlvWuN+bpz/tDH9GijaEkjDOQ
-         typQ==
-X-Gm-Message-State: AFq9FYKekU9JI0XkoJ2qSflr8kPV2zVh+NrTuVoEAuwU4CIipsg2TBD0
-	oemWVZQE+fULb5XPmKT9Sthv5ZHPJdQrxODVtQhDJT7609G0nsdB0aIR+EWd6s9BxWKZ2DMJNqv
-	m9k17e6vy57p+s9WA/se3iqbruXys2Ow=
-X-Gm-Gg: AYBFou33GqYppvukUekqRum0+rVK5vpFBx6S4ylGkO34hOSYVqHH2A2BwXZF6nxhUzS
-	z5AHWTzZy9Cz1e+RfZkJz0+QUUUXcwMdaeDSKGZSbvFY4QRIbtR3y4ASFZzode/i//cAtFl+Ptq
-	vRyaqBjEN1PVfuTk49mnRY11QRVrXdx7+qEy+3qJdB7TOrb/khAKgMPZu8+Ky+RejBCHbPls+kM
-	QlLeFXemLm2Ua0zmzE81MRNsb/eL2mUt8JlhltRtx71jEGNGYcL3OIiRrGraRDI9H27myI54YW6
-	iw1iU6MSAEsng6jpH+GRnHxNF5h5GZkfpgOFz15iTJxtQjtyjBWW4FU=
-X-Received: by 2002:a05:690e:1208:b0:679:c6ba:9208 with SMTP id
- 956f58d0204a3-679ca9098f1mr3094738d50.102.1792430085981; Mon, 19 Oct 2026
- 10:14:45 -0700 (PDT)
+        bh=XyDLh/OZ7L+0+0Z20pt671q5f2HtDROtE4kYqg2+KMU=;
+        b=2roFJtCEy9qlMjwni92qw0QnS/UwjS2upov/MlMsAQcaSS12Pq1DnZSo/f0S+yrUGw
+         i0X672t3X57mUbOSufSt8vbJ41KuSajN0TYT715ssnhv6ZCUk/uE1WtCRF7liept0Grj
+         CrQllIwTA46H39skhKfJHf2VciMP2Usng5zmHkm9f5KAcOfYECDLFTDbSkBSA3YdU3yK
+         1UbFKdhZw5djN4D0d3MJ9hQCh6YodR8DPGDPQL7UVfvQdipdHbW3jhoARCMz2AV55hQ/
+         yJgXYdJ+vaL6JSu2iZLsbZmZvT8EKS+K+PoQZuJeMy+4xQzJI7hzKahGVoSR+IYqdBVP
+         hs9g==
+X-Gm-Message-State: AFq9FYKIULDQ0kR5qV1lh5ggdRSEehQr66VFZNJSF3BaSRg4w7jFxEdb
+	UOZ6gJnaljZj8l1MF15yYhQjLBBW66XPdNLamBb7M/ezh7EJuumI09SGJlA5k9LPlS2GrsgEUdP
+	4sKZpcfPLjA8lMhixTEYdPiagek1qQEhmxNcY
+X-Gm-Gg: AYBFou1zAq05GJIqxHOCyG8a+xZ6yjrFC+h3BeMI715LZ9I8QNCTzc2cWURHavFX2P8
+	T8+J2q/c0SeJUiqDT8VYZqKFQPT+OeEINvFgmOnB5lwUNUGqcBmQAnMlka00peDrgc5Eog83j5a
+	p4IIbSfnCUc2OEzS6hEiVxk58VKNThcdZW53Vc9VYyBYMJayEFLvY149e7VIMevbTyfHI3eMRUb
+	WxPEDGj+KKeY+ZnV0F3iA1KC2BSQw/owQnyHrktXgdT8phmYLioj6zeKZUIpMjYLv0LWLo57nRp
+	nJSgUPW3AwjILf+hQBq2r57Ds1IiRQCJwvfscuHLEg2GUr8UkXCQUow=
+X-Received: by 2002:a05:690e:144c:b0:679:95cd:1aed with SMTP id
+ 956f58d0204a3-679ca85a67amr2013825d50.60.1792430592462; Mon, 19 Oct 2026
+ 10:23:12 -0700 (PDT)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -102,45 +102,62 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <71419b5cb9dc6c289ac7a64b9fe44a3b29bb5d56.camel@infradead.org>
-In-Reply-To: <71419b5cb9dc6c289ac7a64b9fe44a3b29bb5d56.camel@infradead.org>
+References: <20261019140249.30088-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261019140249.30088-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 19 Oct 2026 13:14:34 -0400
-X-Gm-Features: AclHuK9PfeA7ARDy42YF9_odhK4q4kbcJjQuwjMFFlUHlsxoNwZb_YKkVqeK5YI
-Message-ID: <CAEjxPJ4fydhRXZTxcbu+d-Gzw9qa-u65cqB2gD0Qs6TT++MrRg@mail.gmail.com>
-Subject: Re: [PATCH] tests/tun_tap: set an owner on the device for the relabel tests
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: selinux@vger.kernel.org, Andrew Lutomirski <luto@kernel.org>, 
-	Willem de Bruijn <willemb@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Date: Mon, 19 Oct 2026 13:23:01 -0400
+X-Gm-Features: AclHuK8ByR0FE9TBIOdJl5yh0wvtLAwgJAQZEaLkEox3urYQbjt8GgVx9Kyisf4
+Message-ID: <CAEjxPJ4tY5cpYMN4CwPoS5RN=+=P9RwzPiHGG0uTX2dRKWU-gw@mail.gmail.com>
+Subject: Re: [PATCH] policycoreutils: omit excluded mounts from the fixfiles
+ relabel list
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
+	jwcart2@gmail.com, Pragati Hatkamkar <phatkamk@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 19, 2026 at 12:05=E2=80=AFPM David Woodhouse <dwmw2@infradead.o=
-rg> wrote:
+On Mon, Oct 19, 2026 at 10:03=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> From: David Woodhouse <dwmw@amazon.co.uk>
+> From: Pragati Hatkamkar <phatkamk@redhat.com>
 >
-> tun_relabel creates a persistent tun device with neither an owner nor
-> a group, then reattaches to it from a new context without
-> CAP_NET_ADMIN, exercising the tun_socket { relabelfrom relabelto }
-> checks. That reattach only works because the kernel permits anyone at
-> all to attach to an ownerless device.
+> fixfiles logs directories from fixfiles_exclude_dirs and passes them
+> to setfiles with -e, but the Relabeling line and the per-mount progress
+> output still come from every read-write seclabel mount. setfiles prints
+> a 100% line for each of those arguments even when -e makes the walk
+> return immediately.
 >
-> Kernel commit 3ca459eaba1b ("tun: fix group permission check") made
-> such an attach require CAP_NET_ADMIN, and all six relabel tests failed
-> with EPERM from the kernel's capability check before the LSM hooks
-> were reached. That commit was reverted in a70c7b3cbc06 ("tun: revert
-> fix group permission check"), but these tests should not depend on
-> which way the kernel resolves that question.
+> restore, check, verify, and relabel all use this list. Leave excluded
+> mounts, and mounts underneath them, out of the list that is printed and
+> passed to setfiles. Keep passing -e so those paths are still skipped
+> when reached from a parent mount.
 >
-> Set an owner on the device before making it persistent. The reattach
-> is then permitted by the kernel's owner check either way, with no
-> capability required, and control reaches the LSM relabel checks that
-> these tests exist to exercise.
->
-> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+> Signed-off-by: Pragati Hatkamkar <phatkamk@redhat.com>
 
+Other than some whitespace nits noted below (not blocking),
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+We probably need a standard formatting script for our shell and python
+scripts like we already do for our C code,
+with a top-level make format fixing up any divergence for those as well.
+
+> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/f=
+ixfiles
+> index 45f2d5ce..e266da77 100755
+> --- a/policycoreutils/scripts/fixfiles
+> +++ b/policycoreutils/scripts/fixfiles
+> @@ -259,14 +285,18 @@ case "$RESTORE_MODE" in
+>      *)
+>         if [ -n "${FILESYSTEMSRW}" ]; then
+>             LogReadOnly
+> -           echo "${OPTION}ing `echo ${FILESYSTEMSRW}`"
+> +           FILESYSTEMS_TO_RELABEL=3D"`filesystems_to_relabel`"
+> +            if [ -z "${FILESYSTEMS_TO_RELABEL}" ]; then
+> +               echo >&2 "fixfiles: No suitable file systems found"
+> +            else
+> +            echo "${OPTION}ing `echo ${FILESYSTEMS_TO_RELABEL}`"
+
+The four new lines added here use spaces where the surrounding block
+uses a tab plus four spaces, and the last line above therefore shows
+with the wrong indentation.
+Cosmetic only but would be happy to take a v2 patch.
