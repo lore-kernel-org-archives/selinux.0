@@ -1,100 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792488273;
-	b=HiWAqgSfCJ84iqs0xzjRRy6h7slqvvpkHYdBR4hhadA8UFXyDq07vFI2WxPduznIODox
-	 vXJjDJHhfLk8//hR12KWwe0rzimwreKexzrCNfe7eLev7rzvWtjn72FSMCGYQRloGoOsg
-	 XcVs9Ie6ZOY2RDk8k/ggx8tmRUrBq/Vo60TMcy/Q66eQyHIsGT7FKKuIIi8ghfhHZZxOp
-	 98bQwym8iUWZAVzbX+SDcrv/GZ7C46HIYF+aLEhjdyg8nXCajbLG6we/bezTEpq1CymS/
-	 VaSBis0AIP0oxNVVwDBYk+sBdZLbX6iLhDzkc+NT9eF9PlupL9NTTj6IJ0lYLT/3mVw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792488273;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792511391;
+	b=b9zFhJMKgRpXGqlgPc9BJkX9xjBBuwpPtzNrsXfUU1rvdykg+fbLNrCsj0nFVDtGMScm
+	 ZO5FMLfwSba4JH+uignrd48qipsopftR/8fF+BJaLvgMamX7KufvzGKvv+8NLYexn/qqa
+	 EHVp6pZsQK+KVMEmTwQxqYRVGuR+M697aBuJKPlfDKwSxaOu4KHNEe1Frd1MsFmpYR4/O
+	 IK9X2DUVz+vCRd/thGAlNnXNg/3/Kd9LEob7OYyZG9gLkDB5wySYdTrSUaOla4DR3NV6Z
+	 w7x7VgVznRJo8AY+GB/ZLTwzguOdIj7c+hh0Sb8AsgP4+//a0DxkG5Uw+lv4e9MIAmg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792511391;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=Iwgl8oQ5K8L9pT3sKlAx6LPcaTSPSfXlf0AhtaIEwaE=;
-	b=Vh0TeRp5t85OtpsoBt8FenjHenOIJxyXDJ7lS9i5U6YHlRWndeK39medxLGKaUbdBfaj
-	 nOPvIbwuPtHkm+bJ3bMh/GkV9uU1QfG+nz4hAlTMwraGbSv+TmrfKxDX8qLwC+6Td9EnR
-	 mod+MPEc1VnttLWJdGZwI3SgpXid6VIWI7TSdE9/H5TUYrPhOpzckXxzjjt1pvph/WMCu
-	 IqovnLpM3CFrbhXFW9MfN7+z0pZ1Cds7SDCpfTWh1fCwXJccBy+f5FqSFDcohrZ/AZXmN
-	 gw7VJEFCz9UPhZpo/OnI2hPs5AREOa+nrJs0UVxn6VYvhIaTAi758F1HsCg/Nzk+fUQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=dqL6e/qgC44nxdvq/NXaAcnazS7c9AufKTjsEyj3lis=;
+	b=PkTHYyirazCIMRCrpVXyf5b5lA7YqOVroES3epmCESQt8C7LwGsxjb/D7R8Hr3fiwr9i
+	 jReYPePFcmxp6VwRa0q8ZKEPK4c9sIoSbeZbly5GnWGsnYLvif3pF0/6xALiRzFKDDf8H
+	 Ux+PPrrIOdD4/LVOEQKrzsFLpJMHfEssygzNtYCkRd9evQ5dXL9pkP3VdXvq2SYTVUaXa
+	 M2Zbp+rjRdyUAWKPesmid+TD3ip5LUxaFDGN/tOh3uJcRKDOxXIg4G0rPV6uBjduG53+p
+	 rl04BJ7KQV7FP/lL4xmAMfZf0JhHOJypfsuuQYyrDq6DaP73gpA5fojHRQ1VbCETpdg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FliO3Hfy;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BXGH+Oka;
+	arc=none smtp.remote-ip=209.85.128.41
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9640C60A263A
-	for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 09:24:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9640C60A263A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2CB6606A31C
+	for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 15:49:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2CB6606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FliO3Hfy
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-35cd4e8bdbdso7254368eec.1
-        for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 02:24:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792488273; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ien3M06hXD6z+1WlOkJWlyj8mrf0J3A5HzlJzWUcMzOoWsfQSswfGUadt7ovpnvGWi
-         YU295OCBQNT8ggsOlyVXI1loDr5U66ZQJ98bw0ZVz0QJxg1hXoF9TtBQc8XaPcIbLh7M
-         e5AfUNKS8uDs4JXucXVnZW3VmrVCVAuIMDY7YweKZplMm9kpwP5BrPJdS5uaYZiwnQsl
-         2HAbYTlrlTJMsYxuIxGnv3O8gB9t+zFf0JknJ+poxNShe4AeS09Lr3r0ulUTkiBWabOc
-         7D2WfaK/U7Ydt3TzxGkxEem/ywTuWz7rNqS47Tcs6RFKPSXTrufgN2O0xom0FT9cn3kL
-         1mqA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Iwgl8oQ5K8L9pT3sKlAx6LPcaTSPSfXlf0AhtaIEwaE=;
-        fh=3eImBoZARjQuUN1pu+W5Y7ExGSAVCZmCCZ+5eUEaZ5A=;
-        b=RqwZngg2modp8PgLHmL7rYk3fqn21budZX1axwTkQ/BUyICdKZGQdpj8CTDMlprtCC
-         U5NqVSZKR2uDrC9QondYYyujhymgxPLbFv8Trao3rCpj6qDHrOgX13A/1y0Buyo+BLu0
-         UYGITdzUfdfDV2W/3EZVA1ueryfsY9J4xx10Js7v/Eiez4Pmxt2cj8qH8RHNzwdIt/AS
-         d4AglfsSl6HbBobgyBzY6ujQjL2EvIEe3YWYwljU8yhgKdePWWw6kF5CVUjP9TXvhtRU
-         RfT3YgygUrGold3z6JkuYZstN5hC+h3ZCpDniNAHGB1fRAKt4NoD1qtVwZVDUF/BmV+I
-         Au3A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BXGH+Oka
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4a1698ea378so25889535e9.2
+        for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 08:49:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792488273; x=1793093073; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Iwgl8oQ5K8L9pT3sKlAx6LPcaTSPSfXlf0AhtaIEwaE=;
-        b=FliO3HfyN4XLFfTl5kfd8wqdjKyygSzHDqDP3xBwrLpOK86m78ZWvCpPXhb1UxODdz
-         27inJWSka3XyZU+5kCcXYuuUSO5fyDzvwMejIhKdGj4OQRK7wHWlvBExlAr6jlc5KQmB
-         Zahv8qliGCmIAkbbpNmum45s0T2OWTt8k0+DoCTJaTorGEEcIgjnxMQrvPpeajcu7aJn
-         GK1Hk34yK/Syl/HFYjQa9m4rTJI6BXvJvB7pIrumC+gYzEURNbeqhrp6VzYvA4O/BUpR
-         faB7UNOk2SKSaYmnMTdDrlJL+hmPeM2i2RsInSULVeGhIARfZcwnUnhTdOugov2ASQot
-         P9hQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792488273; x=1793093073;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1792511389; x=1793116189; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Iwgl8oQ5K8L9pT3sKlAx6LPcaTSPSfXlf0AhtaIEwaE=;
-        b=fO9JFrq99aBRwAaTTaw3jB+AmjbrkyeMYRT2F6VfiDvza9uoS6FOIfZDDFOmJ7ccgW
-         gjodQUvs23Q3nvTiG3djIoVtpFqWb8Y8rbeKtDfdakNhmaAYF/5kxz+sj93krkm5t1IA
-         87GNwnInhkDdsby/LI1dkIm8nfRiBkL075kaomDSBx20WUoKcQkBQXcjkOwWcrwibig4
-         MP+SqBytStJGYQS3a0NUN0szbB/oftL1blkrg+83TN+3i35LSZTn45VwpoiI56z0tAVI
-         coOmwlIH+kxackTu/zoEBAJnup6zpIWopIIYNY6MvPfy+BEesZnXwTRePIVuktAkF//F
-         0+hQ==
-X-Forwarded-Encrypted: i=1; AKwUvByOPx6sRnm9qOgz7hs6w2jGuMeGAPtCHQbnLHsCmKzKYI0yz28s+YawnsN2G3jl9cMBqjJMPTBW@vger.kernel.org
-X-Gm-Message-State: AFq9FYKyAY5VB6n0V7fo+Lc+iA02vZJFAzpGuNHGk20Se5uY++2LjtPA
-	PY54FoLfjFpz86M1xpeQKo3AIRIdQ5zXHqDAfcKXfThVq7yno5v4ayhA5U/C9+lAh9nqt9WK+Ka
-	JRkyIccOcCSyZgZLOSfjJSgZyLYh+NPk=
-X-Gm-Gg: AYBFou1CVfjgMfLzxuOan7wPzrMrI6KNash0/k8Gi6YRboIAbql3kxDvfZ5pkASvWoe
-	srBo0Xn6MYSo46U44Kt+B4pFftyrjy+gtSRaTpeWf6Q6sfFZD81r0gp+Mqqha7yxckO+moDF4iM
-	ZlApEp0k2ap3O8jFtMUN3ijT4YUwR6XQ9i+bjLhpZeAO5U6gWb/Awd9tMV+lf3JnLYOpE0h0sMc
-	Q6vzyOtObxOSl5DGuqfq5SmChG4VzgobPPgnnBJh9BI9Wv1puc1hjVFpBYO8UwTSliAa2iDng5p
-	xFNL2GQwbE/oX/3s03a6iujRUIz0cvqbweyUGLHbq14Lq4wOJJAbZNhNMUxDoV7H73a+NOLqKUU
-	oBL+AsGel
-X-Received: by 2002:a05:7022:ea46:10b0:144:fb31:a597 with SMTP id
- a92af1059eb24-185150c9622mr14969915c88.47.1792488272389; Tue, 20 Oct 2026
- 02:24:32 -0700 (PDT)
+        bh=dqL6e/qgC44nxdvq/NXaAcnazS7c9AufKTjsEyj3lis=;
+        b=BXGH+Oka/ppwhlxI3ADa1N9ncsG6OktYMlWQWQueudYuzt895QHpNXs0HiIgCUKtg6
+         CqPvHwMehcg0LKThomaK3h3UAA8pCoKAPXAKQWJkaPPTnfhsPPN4xW9zf1dPlYogI8Lg
+         skRNrFqUJynqXW25iVAN4lVKUDaAHwi+KezHvUu9QxI1lKAS0XeswkCOK4n94vm5bR6s
+         ugk3FnZikbkUNGDdtA5Kl9u8NYKpt2KyGeVWdlkCCflIb2kxlNr7rlv0gko7eARHtRgv
+         LBOBxM4D2NHIE4+IcklS0fKZ+LgBtZLk4R6xVFTCSWAW+SVdzGgXWk1vS1EKTU0wnm6A
+         fktA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792511389; x=1793116189;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=dqL6e/qgC44nxdvq/NXaAcnazS7c9AufKTjsEyj3lis=;
+        b=yu4DfUChXIuV3ShnDuDWdExStjP1aC+5DixT29Ktzvfy1Nii5U8wygus0e+wqF2mAs
+         kBAjLkJ8u5VrbrDTV5gF4VwdYwnqn16UvUXikFYfcYZdzgvHCn5NP/bHkwPsvgt9ckNY
+         5W/KX2IZi5FLIa6Ca/exgGIoaVK19cVXghO1ryFE2+crXa9SIloviY9KffOHMmKPmR+Q
+         8aLTNQqomFyBGPqi6Kj/AxAWAz19c8Tcyer35W0Deau0XWyLnLgoVa00Iof1zC2Q+ivq
+         X2I0UDfBe9yokpcua9C6I2NSA25Yfi/Gjew70g7Y9uMby/3Bk+k98gXe2/+CcUmbSTTU
+         my2w==
+X-Gm-Message-State: AFq9FYI+TPvAODLtTE7LCXoFKUxA4ec+VCtN7+0tGO6y0lx0glwwK7VG
+	MAjYMD713K/2LLAxumtGpv6LtFtxn3SMY3/816MGDQA16u4At6bO69cUDwUBrsQv
+X-Gm-Gg: AYBFou0u/Bk5YH3MmNBn2zGnY/6OacWImvxlKNqKvSB8vskC2CLbRYkK4P8LYgooEQb
+	TVc60rSSOysWYJJxiYSwr4eRY51j07LDwkIMvnIVjmzgHFQZwJQPcXTnr61kafDgrfxEuyK1iLu
+	xFHxuCeteGphazxQpumG0tLDQudyk7X0Dvjz2+sohhaqLhORbRtbdr7NzOw1DWR5tCLpN6VTxbD
+	bLlCgWyGZM+XDW0qcyYnX9AjYAjFA3jlv9aLTAizyZ3lGr7y6OL96m/TwyUihcPH31NO2VOWrgb
+	RWu5aSg7twLyLJ1et7EuT1xsODxztWMavcxFT5pNpWRZHzOYtYe6v+ikAkpqqIpdUOmVu0XsYVE
+	oUwj6aMQPKN437fd+hisKRCtpLoDOQUpxafdqBAxD6wZORX6X3+i5qHtHfnCbn5VOLyIV5+ASrJ
+	E234Q58tilvSisEsqLlpvGamKpFY+MZCAFYZFYyiWyFh5yOPpQgkRKzYOgt9zWH81+G6VzzfQsa
+	CqwJSkibU+xqIAwAzoejfcBk0RKKZ50jjVlSp4VDw1Zd7ys
+X-Received: by 2002:a05:600c:c166:b0:4a1:f736:79f3 with SMTP id 5b1f17b1804b1-4a1f7367b83mr40925165e9.5.1792511389141;
+        Tue, 20 Oct 2026 08:49:49 -0700 (PDT)
+Received: from omos-acer.lan (109-81-22-0.rct.o2.cz. [109.81.22.0])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d8315a3sm6388796f8f.56.2026.10.20.08.49.45
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 08:49:45 -0700 (PDT)
+From: =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/binder: add missing parentheses in print_trans_data()
+Date: Tue, 20 Oct 2026 17:49:43 +0200
+Message-ID: <20261020154943.2408020-1-omosnacek@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,69 +92,37 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <179216341681.27711.14564271122957760636@gmail.com> <CAEjxPJ4A=3_Wx74deVjVNjt3NLK291BqR8v6X_DUXNJnVVkN0Q@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4A=3_Wx74deVjVNjt3NLK291BqR8v6X_DUXNJnVVkN0Q@mail.gmail.com>
-From: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
-Date: Tue, 20 Oct 2026 11:24:20 +0200
-X-Gm-Features: AclHuK-s2GNCnyVUETxFr79-HbS9GBatvBSVkG5bOpabcMssuA0g3hqykq3waUo
-Message-ID: <CAAUqJDvLLerV__ihp3AMtbrEuiOafTDs+FQC2S1RUs9zz1-q1g@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: test CALIPSO over the IPv6
- forwarding path
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Joas Antonio dos Santos <joasantonio108@gmail.com>, selinux@vger.kernel.org, 
-	Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, 16 Oct 2026 at 21:13, Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Oct 16, 2026 at 11:10=E2=80=AFAM Joas Antonio dos Santos
-> <joasantonio108@gmail.com> wrote:
-> >
-> > The existing CALIPSO tests only run over loopback, so the code that
-> > rewrites the IPv6 header of forwarded packets (calipso_skbuff_delattr()
-> > and calipso_skbuff_setattr(), called from selinux_ip_forward()) is not
-> > covered.
-> >
-> > Add two subtests that build a client -- router -- server topology out
-> > of network namespaces and send traffic through the router:
-> >
-> > - the client labels its packets with CALIPSO and the router, mapped to
-> >   unlabeled, removes the option;
-> > - the client sends unlabeled packets and the router adds a CALIPSO
-> >   option.
-> >
-> > The first one catches the payload_len bug fixed by "calipso: update
-> > payload_len when removing the CALIPSO option": without the fix the
-> > server drops the forwarded packet as truncated (Ip6InTruncatedPkts).
-> >
-> > Commands inside the namespaces use nsenter(1) as "ip netns exec" and
-> > "ip -n" remount /sys, which is denied when running as sysadm_t.  The
-> > policy now allows unlabeled_t traffic on the generic interface and
-> > node, needed for the unlabeled packets the router forwards.
-> >
-> > Tested on Fedora 44 (aarch64), as unconfined_t and sysadm_t:
-> > - 6.19.10-300.fc44: the new removal subtest fails (udp, tcp, mptcp),
-> >   the new addition subtest passes;
-> > - 7.3-rc6 with the fix: all inet_socket and sctp tests pass.
-> >
-> > Signed-off-by: Joas Antonio dos Santos <joasantonio108@gmail.com>
->
-> Agree that we may want this to be bracketed with a kvercmp guard to
-> avoid breaking testing older kernels but otherwise:
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The newly added casts were meant to convert the result of the '&'
+operation, not just the left operand. Add parentheses to fix that.
 
-If we assume that the kernel fix eventually goes to stable kernels, I
-don't think a version check is necessary. Tracking exactly which
-kernels have the fix would be tedious and hard to keep in sync with
-reality (esp. if we wanted to take various cherry-picked distro
-kernels into account...), so I think it's better to leave that logic
-out of selinux-testsuite (for backportable fixes, that is) and leave
-it up to the users to work around if the fix is missing in the kernels
-they are testing.
+Fixes: 705ddfdc5ae5 ("tests/binder: fix compiler warnings on ppc64le")
+Signed-off-by: Ondrej Mosnáček <omosnacek@gmail.com>
+---
+ tests/binder/binder_common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I would normally just wait with merging the testsuite patch until the
-corresponding fix is merged and shipped at least in the Fedora kernels
-we test in the CI, but otherwise I think a kvercmp guard is not
-necessary here.
+diff --git a/tests/binder/binder_common.c b/tests/binder/binder_common.c
+index 62af7b6..891ce9d 100644
+--- a/tests/binder/binder_common.c
++++ b/tests/binder/binder_common.c
+@@ -127,12 +127,12 @@ void print_trans_data(const struct binder_transaction_data *txn_in)
+ 		}
+ #if HAVE_BINDERFS
+ 		printf("\tflags: priority: 0x%lx accept FDS: %s request security CTX: %s\n",
+-		       (long unsigned)obj->flags & FLAT_BINDER_FLAG_PRIORITY_MASK,
++		       (long unsigned)(obj->flags & FLAT_BINDER_FLAG_PRIORITY_MASK),
+ 		       obj->flags & FLAT_BINDER_FLAG_ACCEPTS_FDS ? "YES" : "NO",
+ 		       obj->flags & FLAT_BINDER_FLAG_TXN_SECURITY_CTX ? "YES" : "NO");
+ #else
+ 		printf("\tflags: priority: 0x%lx accept FDS: %s\n",
+-		       (long unsigned)obj->flags & FLAT_BINDER_FLAG_PRIORITY_MASK,
++		       (long unsigned)(obj->flags & FLAT_BINDER_FLAG_PRIORITY_MASK),
+ 		       obj->flags & FLAT_BINDER_FLAG_ACCEPTS_FDS ? "YES" : "NO");
+ #endif
+ 		printf("\tcookie: %llx\n", (long long unsigned)obj->cookie);
+-- 
+2.54.0
+
