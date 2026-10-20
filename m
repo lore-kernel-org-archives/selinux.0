@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.43
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792431925;
-	b=0jM7+iizPBsKlvZAZjyb2LFkz3tZF2TAGVv1JJmB3WF9o11Yy26lZuetgUU/FVs59NJM
-	 sVIB/T6vdkTbaC6hGhiABvsSGFBHI0sccvfdwvQN3X/5vZtslFLeGa/BRTO5At55WScr7
-	 vVC38/v1gMsRfDH0xM+4jZnXEV56h9HcPogrxLI09ld3AFnk6DyyuW9bwHyHqOS2jvNCq
-	 8O6R8mcR9QC3cEyLxqhh8Cdq6oUrqiIIte7rDslTLkW8GAKtlqzfOurTa9lef/mERYACK
-	 AKkX0jYob6U4uH4i0DrPJ9Sq0+IkY9BITYU8qiap4o/zQKcTE8GcTkY9cUHbqyKiioQ==
+	t=1792486687;
+	b=hg7hBHwjtrFr5dRSEDPFzXZMIMCD7QUeYPAikpYbrNM0nob++UUAXqj3BLkl7zy6w1EL
+	 Jfc/HZOTi/O58bQMSDfGThqbYYQIQxzSt5XhGXmqDnZYCuhQ+14FIKsN0l7G12y2q6M7V
+	 W/78ubUzgC5rPc81TAr9KRJMe0y2LfPj3fe5YDDj6vasaz7Z0LDmWQ+/aDo+2EzcRNZGs
+	 r1JSGK2c4lJqqbQAnHe7kz1xQHx+Bq2smQJqwK1FjdsWHxWaTu45ZcSNyhmK9pOMdDxUw
+	 T1gqsyAE3UAuwiQDPOtsZoyphzN7V2fwoyImOPA6g2g3Q0DIwldfp/IsDz8SgTIVmGg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792431925;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792486687;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
 	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=uHhz8edqGfRSRr1qX/tHz5Qnqw+Nw4GhhVe2mW6VnCk=;
-	b=j5/vUMtSaOdWWjv7CZ0F2nG8RN9L16WyOM8lVlj+XyzHA9pz557eAOK6fqYnfAJLbgiP
-	 yOA76VxQC/h1uP3hVJ0tZAX4s/EcBfZ9TTMizFPHNOncxVQmszyED0zzaLClM+zZC9rpn
-	 inCH1ZHNieFavynN1MIFYud/NIYiYXlZGMqqOtGjhOxj/YmHBvJAhjH4dQwAYJ52uRQeD
-	 lqyHhLwyiRhV5GOAmZ9ywYngYP9xL5jhsAqmBRMSWV5KjAK8blrmJesj/dCqUlTMbWuzg
-	 DuRcOC1zMTD3qo7IwdxCP7Nnv70sxF8AH+/Fd/43c2UOSAPW4b6sqMlhsFASjkZvFPw==
+	bh=9aUHTgQzEfQ6Sfeuz9ccraiLrRuU9LL7ogb4r7d6tek=;
+	b=zX/sTzXht5LO0GzCW6CMLqa0V2pLPod8yLqv6E2A5tVtYKtUiC8k/lZrffguUj8B97ep
+	 +LzQ+kSU55Dsdrp1FpQdVMSwleSuozQCp91ksjvRQ3tT+3SdRbCmNkNVqqpgJpGRZROVz
+	 McDh7/h/Ug32wLWLnKJpWw/wNLXJ9zDyC9SXGozIDurtlDQyabnam73uzJZtuLwhrf7Dd
+	 NSAmSq1IoFwAKBwVEYXyKpi1h+w+1sC10yAWYflq6MZUH9HbklNhvFhfavSfSl7bg8k3H
+	 YahUq+2xwozYhxbIv2dgf9FIep4ooLEJkbzh8MnK8vHYQqmtEhFxmajWdv5RIBjOOmw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hZkqtp9p;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=GwVXMbdB;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.43
+Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4791B606A31D
-	for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 17:45:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4791B606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552A6606A322
+	for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 08:58:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 552A6606A322
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hZkqtp9p
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-679a2297c55so1698947d50.1
-        for <selinux@vger.kernel.org>; Mon, 19 Oct 2026 10:45:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792431923; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=GwVXMbdB
+Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-15dd124bbe7so108152c88.1
+        for <selinux@vger.kernel.org>; Tue, 20 Oct 2026 01:58:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792486686; cv=none;
         d=google.com; s=arc-20260327;
-        b=VJe9/4FxBjp0qOfySepu9UIkbViS3t7xkjdPpamCP5349kQyyB+Ry5x65LPA6HtD1J
-         BGvUwsBbiTc2pt8GIT3x5BYW/eY1aCR3Cv5HRSDApZ2uooRlDr2wuTyKsDaOVnfqdhpT
-         bM3DbpSRwkoEkQ5U+t6clkc4Yyk9yVDEqUU+YOLGNXmpGK3gRmDtuKoniPARc0X0y+DU
-         UgBCkG1GbjPqQ2QnCai5Eg/PMnDGyExVcqQeIbq+3gy5YWiPLAjo1yqFb1Jvv5Wp8Idy
-         xbHFBKIScH0p3+m5Bk4RYr0XUmWwP1RBgu2OfOK6mKKXNPsO8aLX+I74r7lOORaUKoIm
-         j+1g==
+        b=EoS9w/LWgvtNBdOylJ0OdMurTKFDkou+X0Jl177mI7TjiD6+ATawxq1KuUPHsMBx28
+         JQV28BUJd4mL9bCltLpXIDmNse0nk14jAsI9iTvz+o8CooqzCEDP/yK85JPnOJLfSNhj
+         t8U1/z1Wx51mPglNvISof8pWR/EWGSQ1VUklx2QUO1mh3pVxY2v8UO/s6qaRk30zujjC
+         j0snr0Xhn5TKQGKp+jsoaOX1A3yh6sJUcNAxjJY4dUoOIYL7opwe9zM9VF4iwWTUu4tW
+         x3Z8uhUeJnscqfNphvIzWv91Zma3HsqrEAkVRnl9XfyrXNAviWY6GUn8MQROQn6MTMcl
+         RoTg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=uHhz8edqGfRSRr1qX/tHz5Qnqw+Nw4GhhVe2mW6VnCk=;
-        fh=5YbereN3JiRiJAKEH+m98inKm1ymEGq0JDGlNWo/Tc8=;
-        b=d3NjiMrJ+Dk41HrsStEr1WPtXYiH0r79toqoLmUxFebqS8eCGoltIb1kxSNzFf0kRw
-         wwa0suYV032tGOqtCAQYO4Ad6mTNmK9/CC5bvUcucJIz5+2sccL152QTR7R25lrnQLGm
-         yPH4npAvcSzJ3CYRZjN717rVzNVuHt1o4cmSwpegB1bCealn7onoNrbm0iCKWXZSe48v
-         xkJzTePGKIWVhYI0Ci0UzDV6W5bTL+86UFbeeyoezBQpwREMgr+SWA4nZO+QHTzp5YYf
-         pO513gVioEq/aWGYOGQWVaRXrhyassjo2HcmjnoYOL1lnMb5Uwic+RQNNOXYolgjLzlw
-         km7A==;
+        bh=9aUHTgQzEfQ6Sfeuz9ccraiLrRuU9LL7ogb4r7d6tek=;
+        fh=OYYLSdKdCb1E2hU04QiDJsDCCeLIx0b5+nT1ENbKYx0=;
+        b=YDgDVJ7llKTtZsuMXlZb8LBLLtA5HeL7ZY4DgdBx0+z9LaV0HpktCfHUpurmg92/2S
+         Y1yfTcZPS1nlMZfIhgdfXCiZ6fz/WujHp+HJhJIl6G1XvZZIQJPU8Zdxoa9CKEbTln6R
+         PmGafH28hhwaClt0Djs3xuMBSb7cLtF0Noazde7yqYehog+B/FkC/ins2kbF8iBI8VTP
+         MKLoEybheyZd2C4qD6fupimBuMkzINKCoyUHU/c98VwqbuBll6aprcN+nDLqJfXdxNxY
+         tMcq5eCs2eBBdAG1jBYMy/5Pk4yoJFrlTOJ5xtbvf2NoCcfwU9gGwjwe6mR8O0Ip2kAr
+         3zTw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792431923; x=1793036723; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792486686; x=1793091486; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=uHhz8edqGfRSRr1qX/tHz5Qnqw+Nw4GhhVe2mW6VnCk=;
-        b=hZkqtp9p7zWP2rp4sPkFkMKPwrurSWfBhIqN2awqtYmm3NqydM752J9f9wlXcS2B51
-         0kA9XU2IU7yrnx/jrZE1qJHVa0rj2Xhqxk+fuezDynNJosWbKc+fClpR+hxmbWk3BTzZ
-         MJXnU0Df2q8y3sk0AA5VjAn+rskFIPL7bWAHSKDwC9Q9Kk/Z1wLGm1isYoWWPZC+lulK
-         zAvmMya4xPLk0gUqOuBqBB+7NOF8R0vl3PAQmZI29w3hsRP7lrY2f/3mIqxwlwF8Hx0x
-         sr+C79lyk6MR7NWoFmHDbXLxxBAFWAK9gANbdmk5tEJjjTGXhMCGhoiUKEE7XXpKnw0S
-         mfOQ==
+        bh=9aUHTgQzEfQ6Sfeuz9ccraiLrRuU9LL7ogb4r7d6tek=;
+        b=GwVXMbdB+vJhO6RnoxdOMmJ97b1ypd3FQCJJqPnB7QZTmaxWzveS6hFe8vJ2Mmiimr
+         4PHJMSqhf4sVkD7jNjZV5tJLw1J+iVG4kW7VllP2Lc6ESRN7J/UW7LzB4tPunwvtxmZS
+         nKkYOC3pmLoemfrdM2vtUnYI/Fkg32h8xV8QsPJyBKRf3sWyAMXb+1hr+i5+9QVfpL/t
+         2GtHEAdFrCtfUObFIWk6xiVRZ44Gmj5fO7En7LnaGJzGMLDxiAZdtUFPZfqQaKT/Aiqc
+         PKVDCBXJNW673s0JEmlfyK+EnS0MqZnEZhjZ7jWECwx0LTYl90IGjj4QYN4mDorDjLDg
+         VIAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792431923; x=1793036723;
+        d=1e100.net; s=20260707; t=1792486686; x=1793091486;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=uHhz8edqGfRSRr1qX/tHz5Qnqw+Nw4GhhVe2mW6VnCk=;
-        b=rSYZT1w9KFiWhLhEg2j0eaNIe3zGK6Ne34j4fRmnlHWYH0UVd55ufOfRZ/7hEafBnX
-         s+Ts3R24IGGwkff1U9TJnlfFnqFRTJUE7hdx3iPGr6AvWzpPQeZB3RXJUcpE/+70siBc
-         FJ6c7CIH+2KZngM1Ktj3/XJpgy2+fDvlrvB77eg307gLAFzplcn/zWTO1BrO2nQIsu1I
-         S9XpNeqGGAQSiyz8qK1rjT1DifGIyYpLKBFzX3MR0dIMdETxdlhM+jDZc3W7z5oOd7Qy
-         MWd7oQmNZM4mun8zcX39U7hUqwhiCRRxkUM0npgO+Ec+EsFXFVkz6G/IlaDEqMXfa8+T
-         1UXQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxbkvRUmahhfgi3c+KgEewkWrddaMlFPQjUSsy2ftiMq3KUoJc7PNRxQjusYIUn3Pq+oBuLxJdV@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ782niPBJts1sLv3lUIfPA0TeZ8bJY+3L/3vp/3Pf2uKKKD78B
-	G+yW2uXMg2x4gs1Hz+YSYWbaVK20BmyDlJmMRsuXAROfyVuHBm2QTSswo6s/aoX5YiSMlc9d+RE
-	BKeDK3idY/vTPxa14Hw5KWbHbLtYQRQc=
-X-Gm-Gg: AYBFou3hkH+rgnWspoMgtkhelMOtxZlo7KD9GfpiIBAMxwHHdnFcF1RTt+Brq8SvDUZ
-	srl2WHtfhyC2lvgB40bakazEjQMzWm549nyqyx3Vg23EKr9+6zGxr51LehlaMeDsCxwvx4yfAqI
-	pmg9qSBM1F/iocGNgKFMfGJaHX0fhccQu8ZN9ZXeio6nEG0XGMAyPsnv6X1D+W61Xc97lzvDIip
-	i7uWon85HZvhyHKxkOMUwGm9wvIW2JIEKSvhTweH2kgN25fvxbQiNadFDCKh31ILoc9qBm5wpt8
-	HJsCsOvu+vS0kF5OJSg/DDj9MvEk32C6SWuBCRI93Bz3GtDWhVtwl58gicajVOmLRt6JRD2OvtY
-	luiQyAxF2TxNfFpxtulr3nEDjh/vbWRhc3IZA
-X-Received: by 2002:a53:bb52:0:b0:679:8835:a554 with SMTP id
- 956f58d0204a3-679ca8c7ce2mr1821558d50.94.1792431923051; Mon, 19 Oct 2026
- 10:45:23 -0700 (PDT)
+        bh=9aUHTgQzEfQ6Sfeuz9ccraiLrRuU9LL7ogb4r7d6tek=;
+        b=vwoJgEdhOyf7AgFhgm6w2YEXcmLb2ddiyaryFNkF/PKUXqwlDxy793cXu96mWGZz2/
+         FonUkuQIm6hqTP6ZSM0dQ6XMzt8tZihl7e/ChmhgIe/QXbK2XBTkDP96yglX0UURCUgz
+         8YtxH3JT7uqqRLavIpoKqbc5CVPZnr/DJn3fNLId/OFTwOdPn3LuOSA6MflsRCLb3bXO
+         uPQ6kS/AuXOF5hnORj3h8ww9ebOxqyjAi1hU3T8aB4hQCq0h9UpZHCGveONSY9WPPEr3
+         3kOynx2ZinrFgb0EZtjBDm532lt7Ui+TC0sqLtfed7cZcoXSskon6M4U+d+Xxq/3tdOH
+         3aJg==
+X-Forwarded-Encrypted: i=1; AKwUvBz8/uFkshXSH50Sje+In3x+32C7GDsmYnprueXj9VIw/hCEYATTlhTEIGZTe7Gxqkr79IW/XBmd@vger.kernel.org
+X-Gm-Message-State: AFq9FYIGKceDxBofXCZtgyP+XTFPK+AjXj59D+pQuu41k3KiZZKK28ex
+	bdVC8iTfp0b6XGgh1lNtX0BXph94z3fhIbSOQBStB1H8PIeV2mv2fDBGH4R4nag/1sRXWA1Pe7E
+	Nufmh0N7YB0mm8WS8wpK1XWZNglPAQs9szoD2
+X-Gm-Gg: AYBFou0dD6m30G0ItHSJ6Ila71TrqrrQNQci4XqN9uFPXwM7DVfpMsomWGx1M3glBPG
+	hVl4sioBLyeXIsfOufj3hW02aX/2OEgVOJJWFVEsM6P0LbGMUoRZGDRLyXOsKgqPu2mhj7V3xxR
+	drbGf/LZTpMqlSyCIG7w+XpHB1N3yHn8nW2eUZRBZJuAhRE5hKYGLSLPkCLJN3Tep8E+cY4Sn+F
+	Z82yHAuAV+RW1k7vun/Xm45ME3VjqZNcYVAhwwj616newjCRJirijakgr8dmuhZ6yjkOJyUG8K3
+	DKBSmej2A/n6WqRpLqV5khznw4ShVu4JPxIWKtImZnXIeAFDhdAtq7dipGxuEXj3hC0BmNjb3Pi
+	HwukliqJW
+X-Received: by 2002:a05:701b:2903:b0:177:9a5b:a89 with SMTP id
+ a92af1059eb24-185134ddbd3mr15890994c88.29.1792486686344; Tue, 20 Oct 2026
+ 01:58:06 -0700 (PDT)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,68 +104,42 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <CAAUqJDt1pXQ2KVBvMoMiDrzz8ishonqhQ0nnQLEppot4nmv9Bw@mail.gmail.com>
- <2026101814-strut-endnote-a0b5@gregkh> <atYj06gmgCa40q6T@google.com>
-In-Reply-To: <atYj06gmgCa40q6T@google.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 19 Oct 2026 13:45:12 -0400
-X-Gm-Features: AclHuK_-8oCMVYCMfn6OWm_mzIhewJqrVvI2D-1Z_lvoMQQq2xMophpcFyo4duc
-Message-ID: <CAEjxPJ4zV-YE9vRJ0=DgjuQY5gjXwRa8hcd0KpgVtyK_9AM+oA@mail.gmail.com>
-Subject: Re: BUG: selinux-testsuite binder tests fail with CONFIG_ANDROID_BINDER_IPC_RUST=y
-To: Alice Ryhl <aliceryhl@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
-	Carlos Llamas <cmllamas@google.com>, =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>, 
-	Todd Kjos <tkjos@android.com>, Christian Brauner <christian@brauner.io>, 
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, SElinux list <selinux@vger.kernel.org>
+References: <20261018012909.1795176-1-phugen@redhat.com> <CAEjxPJ4t=_CDnXYqSf2atEG7WODadR1zKMJVvwXWG5g+zBb0bA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4t=_CDnXYqSf2atEG7WODadR1zKMJVvwXWG5g+zBb0bA@mail.gmail.com>
+From: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Date: Tue, 20 Oct 2026 10:57:53 +0200
+X-Gm-Features: AclHuK8aGQskaPj-TEDgIZNgwXsuZXGvD0W7djpwnjWuCoGcTXtkoGtz8GopLBI
+Message-ID: <CAAUqJDsKaSpS=rzNA7dTgs9rLg5vNdTot+eu3p-rOykVkCBCGg@mail.gmail.com>
+Subject: Re: [PATCH] tests: fix format string mismatches on s390x/ppc64le
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Pablo Alessandro Santos Hugen <phugen@redhat.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 19, 2026 at 12:58=E2=80=AFPM Alice Ryhl <aliceryhl@google.com> =
-wrote:
+On Mon, 19 Oct 2026 at 19:13, Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Sun, Oct 18, 2026 at 06:53:49PM +0200, Greg Kroah-Hartman wrote:
-> > On Sun, Oct 18, 2026 at 06:36:04PM +0200, Ondrej Mosn=C3=A1=C4=8Dek wro=
-te:
-> > > Hello Android binder maintainers,
-> > >
-> > > Fedora Linux has recently enabled CONFIG_ANDROID_BINDER_IPC_RUST [1],
-> > > which turns out to cause the binder tests of selinux-testsuite [2] to
-> > > fail.
-> > >
-> > > Minimal reproducer (no SELinux involved):
-> > > # git clone https://github.com/SELinuxProject/selinux-testsuite
-> > > # cd selinux-testsuite/tests/binder
-> > > # make
-> > > # ./init_binder.sh
-> > > # setenforce 0   ### <-- may be needed if SELinux is enabled
-> > > # ./manager -n &
-> > > # sleep 1
-> > > # ./service_provider -n &
-> > > # sleep 1
-> > > # ./client -n -c -r 3
-> > > Client ioctl BINDER_WRITE_READ error: Invalid argument
-> > > #
-> > >
-> > > With only CONFIG_ANDROID_BINDER_IPC=3Dy the last command succeeds.
-> > >
-> > > The issue reproduces even on a kernel compiled from commit
-> > > eafedbc7c050, so it seems to date back to the origin of the Rust
-> > > implementation. I'm not sure if it's a bug in the new kernel code or
-> > > some bug/wrong assumption in the testsuite code - can you please look
-> > > into it?
+> On Sat, Oct 17, 2026 at 9:29=E2=80=AFPM Pablo Alessandro Santos Hugen
+> <phugen@redhat.com> wrote:
 > >
-> > Given that the "real" binder client works, perhaps the test is wrong an=
-d
-> > should be fixed?
+> > Cast printf arguments to match format specifiers across
+> > filesystem/statfs_test.c, binder/{binder_common,client,manager,
+> > service_provider}.c, and perf_event/perf_event.c. Types like
+> > __fsword_t, binder_uintptr_t, binder_size_t and __s64 differ
+> > in width across architectures, triggering -Wformat under -Werror.
+> >
+> > Fixes: cb49040 ("tests: fail on compiler warnings and enable Wextra")
+> > Signed-off-by: Pablo Alessandro Santos Hugen <phugen@redhat.com>
 >
-> Apparently there is a divergence of behavior if the SELinux permission
-> `binder { impersonate }` is granted to a process, though Android never
-> uses this permission anywhere.
->
-> Thanks for the report.
+> This looks like it was prepared against a tree before Ondrej's series lan=
+ded.
+> As far as I can tell, all of these fixes are already addressed on the
+> main branch except for one residual cast that isn't actually needed.
 
-I would treat Android as authoritative here and fix the
-selinux-testsuite to match unless you think there is an actual bug in
-the Rust driver.
-We originally implemented the binder impersonate check just to make
-sure no one ever impersonated a different sender without us noticing.
+Yes, this is already fixed by:
+https://github.com/SELinuxProject/selinux-testsuite/commit/705ddfdc5ae52173=
+44eecc8d4352e7f3dc52e772
+https://github.com/SELinuxProject/selinux-testsuite/commit/6fa2143aec27d0ac=
+3ad4cb3fd76f747ab198ac1f
+https://github.com/SELinuxProject/selinux-testsuite/commit/bf477b4e3df60b63=
+553712fce6e07c97881dc6b6
