@@ -1,101 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792592704;
-	b=ZSzl/2rsi6eFeBDv7BwYLY/KCrhaRnb2wUkfUpo5VfYZJWtP2q16QfX+DD7LsH7WUSpu
-	 MQyyV0kN+lYGZh4pFjl+Rx8ECAKWbx3LBJZjKrYvmt7w28J0J/6o1ZeyuMjFaPG7DIbLS
-	 Dv44lT+2UYPUboX5OUfkBJvzTGwlwlKaWK4DKe9CAlozmNG9Tv7YZmJjrCHJ6Kcc/jDu0
-	 074+pDKgzJAigbqI4+le990BPJb8Y7H1EMLI0LUJbHDLdK/PT2oegbJyO5g1CrUnshn21
-	 0l2inMS5kjHKRZHAmyD3WYUD+EKf33tIB8UTZUpRL25zm7uP5eU87VglCbzCrDd91Gw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792592704;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=zWlhld2jCjLC++teHS9dMcnjJdJbSduV7gmt7hEljfg=;
-	b=5ECnKdOqj/I4zAjVNhIjpbNq5rhV8XwZEsZpMrqyIeBAqZ9LJscGXalGTsRsfCcOpyBO
-	 GV+KKPAUb9dGbMJdpjPOHzv0ocl0eiqAf4bHSLV/nrbPcE/wAeeesm07KxRXFFHHNMKUL
-	 OtNdScjp36mm21J+AXx+DslYXJ8xlHsuwk25f5YGUcs3/rbqCt6iVhp26ya/Qq11FhPx5
-	 PSGfpSqmeItll+QO9oEZuvwVtwvHMexApUj9G2nMGXGIwy/REs3QQsi9o4N+plwlKGe+9
-	 9SLF/TYl8kH5yVAgTsu7GuiK3Px3R9qljlYtzRTe2yPJFPqj+Gp4dttGSA3d0gyuCgA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=NQADWO7O;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792597380;
+	b=WE1Xmz18WtMAfe0hghw2E7yKKME3dwSlacBgZ/BaJqbg11cSHVTJshsxpbOao3UTzh5f
+	 wX8DpCCvr/KHymCCMqcOYtPTmIrvVwIcB1AJC4X4OUcx0R1UTwrFL6i8Jj5i2t99M5pi1
+	 1AGyijnV24xwcy+BU5SwoICaUovzYQIFkDOoKDYdDEcUOm0uqmjqjcAUwXKG3F46v0fK/
+	 t+amrwPdHx2LmXmZrGqzweSl/vRMHbGgtbMjDPyET8XstbtARG65zE6WafgWIOne0DLaK
+	 AfjDD70/WyXmLZK16XB57klYu+vtvpfOoDXcBKof5XSoPLXZqRziDRbBchUy+GYPZRg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792597380;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Developer-Signature:X-Developer-Key:X-Scanned-By;
+	bh=Zq0meheIWFxmeUOFFDG2C2Iy+OUkZpOHMmtcorZaUXs=;
+	b=NrkjUVqasPk2OEm1rhSxIx1nPbI0DlxdBLSqOCTz/G3mWE6qaagrDKQNseq38WM339HF
+	 DaOfXses1MnU60OWfKPS2+8Wfux5nX6trzagB/oHhFbN22CTPBg5UVoE8IuDgl9Cd45Nf
+	 vtYe9hKxBDJYj3Icel1P82xkUYt5GbAKO7/usEYKnZcaNpbSr7vtnFKx3NH6vZ/uoA1EJ
+	 AcRtsuRP+Bbj/9Le2wa1JSjTeXtmaGENMWbYr3SckEsjbL80LVDWanylhdYh4kgtqlPbj
+	 5LlAZAnKOe8NJNZ+FatS/aF+DjSvmQ8ZbbLg/0nTFn+x5uXKtWZepMcn1rcPnJHmO6A==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RU61zTPD;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94AE0606A31D
-	for <selinux@vger.kernel.org>; Wed, 21 Oct 2026 14:25:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 94AE0606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB7EB606A31E
+	for <selinux@vger.kernel.org>; Wed, 21 Oct 2026 15:42:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB7EB606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=NQADWO7O
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-675617e81f9so678690d50.3
-        for <selinux@vger.kernel.org>; Wed, 21 Oct 2026 07:25:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792592702; cv=none;
-        d=google.com; s=arc-20260327;
-        b=l8UCDlhb5TRvHYNFm+Yo7xF6f9qsng+xrEgHiFEVtcx2AOleKtfOOlLBNGMKco2MIC
-         ghEvfkTOAe2Ajxb6oLJ9jO6mcRTyTUY+/j7F3csIU+lyOx4r3QgL1ll7ERb9O07p8Yk7
-         AgNi0p0yzhANEEeJyx1/ILMQ7NFBxJFABpjXk1gin/GYP7a+u9GSjVFo3MGJUxC/Cuzg
-         zgEB4Us2ZFiV1SzDsiElmOWQipo+/lQn+ip6d4beqMp07/LLpHVIwugEdonQyzRAoTSt
-         WODpY0araJBxoK+9VT2axGeoayL2EVn7/k8M9aDNdTLOsyOa2ZFb4xLqg3Sh+AuAEjZ/
-         TErg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=zWlhld2jCjLC++teHS9dMcnjJdJbSduV7gmt7hEljfg=;
-        fh=PvPsygu8J6KKMV3RJxkYbr4VnvzlGPzli5Ytfb5PsAw=;
-        b=Jl086KZSVycUBMIIuuImFfh81e58ZTNh20PfS7y7MDRjTzwtKyQy1kJW/Y4UTns83M
-         Jr0FzZYW97Ldvh8x+zOcT1EAOmDhQ6aTyfhv7ulgEV2aEy8/H2amfoLuyhUGPMLK5UfO
-         AD4rSrzgNpGWXD8vNe6aLTV+dx2qkH19RfD1yy68p6+g5wI6o8RULxhO7LrVPCeEIgZ/
-         7AOtd5qimCuVxCVWVRUefutmXjO8U4Bt5Mr87YYK2D5aGWEFIdcqdFWLnUBiUS/7jcU0
-         uTggZAeZXL+RHHpj/Ru85WS4NIXfO8HrKZY/UavzYbOkbIZ2pbhNkl7ji1e4ywNc+QB8
-         E/Qg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792592702; x=1793197502; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=zWlhld2jCjLC++teHS9dMcnjJdJbSduV7gmt7hEljfg=;
-        b=NQADWO7O6VD6FcCKC4KrMpjvJ/MffRqlQVW3uUJMCC/Mfk4URwRd1/sMqQFYTDcfSa
-         pYqIe8DuCoCdk6GdrsGrnsv8LQ4jtNTYsVfT18AXeQx/Sm0BnDWeaK0n7hzoW1oWeBAF
-         p/7MINJSYKKQnatoBUIS/qx6ZslytBNDqrfaxIPRqa6NijuuPx/R+H4tDW9+GtgudARS
-         2IitPLZxXgJPzSIYQ0ddXxOthgGtb7JzLhgEZPvInuDbJEuu4hm9pc0gflPhkebTM2hy
-         xFLk4pYMLf9M4IsysNNEBRHuOqYKpteAzGO638P3ssfRLjInNzRaz4RpQZpysqpT5t76
-         DGoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792592702; x=1793197502;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=zWlhld2jCjLC++teHS9dMcnjJdJbSduV7gmt7hEljfg=;
-        b=i72dGyoHqLq2EHlgVUqxDtMF9/7K9m+Fo4b5B1Duk0qY/6yQkSjt3nmyNJdJYuccmv
-         KYdKJcfJGHTpP5DBvHtBAdUndvd8rnWaJFlduDp87VxS2fv8mSnSjJHvpW5dT7XfVOdx
-         CGKkRK/RIaERr8jLYTfnp10VO5AzmThYSU577ANa8gjixIwO/j8qf7wrpQ1qmuPAgJEc
-         CZS5o7P8DBjrpeMRGhiuijxqqHXrvLMqb4oRz4OGazV6nU2iqtMgoazhyQskEYNcd7p0
-         ev2+iZOiT7J5HIQCUL5hTnTaYmqifU32nOcHuz17JpsNcbRlZccpqGoKZQ6pMCjTceWA
-         WqMg==
-X-Forwarded-Encrypted: i=1; AKwUvBwnVWDPpxFBg0x9+yIxnteFJQCFNlgBpog/XgAKbPkaONNaMh6fnPscgojlUs8wlWipfiZCeNxs@vger.kernel.org
-X-Gm-Message-State: AFq9FYLELkfJqyRq4kl1P019bQMuzeF4OC+HuKV5p1rbrXZycytCYssQ
-	Lntp5Njfykcm7x184wVGVF5AeKLuXW6T1CvqIUkOq+svmuNgFFmj0fD4kfdmmvK1bJm4OfKU3Zd
-	oS93fBRU7Q2l8IjpedWXMs1xTAW+f9Jv2RmfRtE8=
-X-Gm-Gg: AYBFou1L+7eWFDyFwa3dcD0QEsmbxhYSBdmRcX4XzeKuO121lihhXwESAUkyL8DkiEc
-	5XTGHQnYLNEBEVPxjGuhaarCyYIHfhyh9CrxYwktnPgBQCiA8fcuAFjiUo/Otfh2GqKyr0Y3gGJ
-	NjWSSVB4r56FCe/XUpLxzldNyAdcZTDZlFyAyJOY+BfR3izFzqki6x5dOp5hx1nyl5CYnkLBmTr
-	yEfg+/TonVaCpZ3E16Jm4tU5OxhiRU1Pg9OZk/iEkYFTphyOYTLJmaMp0QhXuZXOhew0/tFkLVv
-	u9p9ZrUTTT3wi7LlyLu64vwoQLxNUBiTfXWmhahcxzy9NEnr6YZ7E6spA3Kqg1f7oVSQmpPaocc
-	lwlrrz9cEAVack/c74nZYJQbg3f/SO/hllvxy3BzPIdTW3Y3ZfzUofmzVnlDZPfLJCz0EcshgIS
-	71ujwoOuAqk1GYBX7ka8TItA==
-X-Received: by 2002:a53:d04a:0:20b0:675:68f4:67cc with SMTP id
- 956f58d0204a3-67a0e57904cmr722888d50.80.1792592702534; Wed, 21 Oct 2026
- 07:25:02 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RU61zTPD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792597378;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Zq0meheIWFxmeUOFFDG2C2Iy+OUkZpOHMmtcorZaUXs=;
+	b=RU61zTPDJEkBlDkw44FKUfHRuKMrB2ILdzxIelgp0wvSNY8UZxhMmT+lKvv+OxTDz0P0mk
+	6HMYjIslyBacAkdKckGfGay1fRUhxDQ+8tH1AMfPnzkNmuY69OZORv1ZQ1FK3XVM/kfkI+
+	yQlQqVZnDnwHjdwSNpoyS1O8Nh+mUeU=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-646-EmzSbsWyOMaIy7nlffsu5w-1; Wed,
+ 21 Oct 2026 15:42:55 +0000
+X-MC-Unique: EmzSbsWyOMaIy7nlffsu5w-1
+X-Mimecast-MFC-AGG-ID: EmzSbsWyOMaIy7nlffsu5w_1792597371
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9A3731955F40;
+	Wed, 21 Oct 2026 15:42:49 +0000 (UTC)
+Received: from aesteve-thinkpadp1gen8.rmtes.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4760518002B1;
+	Wed, 21 Oct 2026 15:42:39 +0000 (UTC)
+From: Albert Esteve <aesteve@redhat.com>
+Subject: [PATCH RFC v2 0/8] memcg: dma-buf cgroup accounting and charge
+ transfer
+Date: Wed, 21 Oct 2026 17:42:21 +0200
+Message-Id: <20261021-v2_20230123_tjmercier_google_com-v2-0-ef6ee2dd8c5c@redhat.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -105,116 +73,153 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260930111444.192037-2-lautrbach@redhat.com> <CAEjxPJ4a9r0Um3ufA16spvB6raYSQhaJbzwyWCvz4zkZeigjRg@mail.gmail.com>
- <CAEjxPJ7Ktrj4Vv-HeQyop_JJoHDE1sc76YW0t5Dz1_Z9iwkC7Q@mail.gmail.com>
- <pjda4ox8pw0.fsf@plautrba-thinkpadp16vgen1.rmtcz.csb> <CA+zpnLdODz8bLBgJY8LOSZuQOz2OHZYr2qK7eJQ-drB1WYrZng@mail.gmail.com>
-In-Reply-To: <CA+zpnLdODz8bLBgJY8LOSZuQOz2OHZYr2qK7eJQ-drB1WYrZng@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 21 Oct 2026 10:24:51 -0400
-X-Gm-Features: AclHuK_K3IQvYUEIC90AR6C1LdEFycWWwgV9CeJP_JLf3FVrRcJ7p7feVrkxYHI
-Message-ID: <CAEjxPJ4k0iyQDwx_CV-+mcxeXpAXEqJVLR+6JsfgfzroAiaaEw@mail.gmail.com>
-Subject: Re: [PATCH] Replace SHA-1 with SHA-256
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org, 
-	Jason Zaman <jason@perfinion.com>, Russell Coker <russell@coker.com.au>, Cathy Hu <cahu@suse.de>, 
-	Johannes Segitz <jsegitz@suse.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WNTQrCMBSEr1Le2kjy0saflSB4ALdSQk1f2ohtJ
+ ClBKb27oR7A3cx8MN8MkYKjCMdihkDJRefHXHBTgOmbsSPm2twBOSpe8T1LqHOWXKDU02OgYBw
+ F3XnfPUkbPzBbltbYu1CV5JBvXoGse6+KG1wvZ6jz2Ls4+fBZtUms6GcQ+N+QBONMSVQ7LoxUB
+ 3EK1PbNtM0Q6mVZvsLwuMfWAAAA
+X-Change-ID: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+To: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Albert Esteve <aesteve@redhat.com>, mripard@kernel.org, echanude@redhat.com
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792597359; l=5394;
+ i=aesteve@redhat.com; s=20260827; h=from:subject:message-id;
+ bh=MS4zwLlyVCfwhsSvb1IeSKwj4iG/Qm98gmNYNJOwbsM=;
+ b=agyIVdfvg7HqBQCD4OxEOrWUHQwfY+kfAKV8I5NR48qkBfOIAqjk9GzNSjeD7lsMVDMJTFUqg
+ g2gQ3mohTjRADVTwZUpCc8K+uUr31IpGojhy7WEy0K4qRkTd2hYgodF
+X-Developer-Key: i=aesteve@redhat.com; a=ed25519;
+ pk=zI2RBeZgocwYm3AkJW4CtjoJnKoDZrfBl1xe5Ed6h+U=
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Tue, Oct 20, 2026 at 10:51=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
-le.com> wrote:
->
-> On Fri, Oct 2, 2026 at 12:19=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
-> >
-> > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
-> >
-> > > On Wed, Sep 30, 2026 at 9:44=E2=80=AFAM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > >>
-> > >> On Wed, Sep 30, 2026 at 7:18=E2=80=AFAM Petr Lautrbach <lautrbach@re=
-dhat.com> wrote:
-> > >> >
-> > >> > From: Petr Lautrbach <plautrba@redhat.com>
-> > >> >
-> > >> > SHA-1 is considered obsolete so move to SHA-256 as the default dig=
-est algorithm.
-> > >> >
-> > >> > Import the public-domain SHA-256 implementation from WjCryptLib an=
-d use it for
-> > >> > label digest handling.
-> > >> >
-> > >> > The original source of sha256.c is
-> > >> > https://github.com/WaterJuice/WjCryptLib/releases/tag/Version_3.0.=
-0
-> > >> >
-> > >> > Ignore sha256.{c,h} in make-format and check-format targets in ord=
-er to adopt
-> > >> > possible future changes in WaterJuice/WjCryptLib simpler.
-> > >> >
-> > >> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
-> > >> > ---
-> > >>
-> > >> A few comments below regarding compatibility / versioning and code
-> > >> formatting inconsistency, but otherwise
-> > >> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > >>
-> > >> 1. selabel_hash_all_partial_matches() output size grows from 20 to 3=
-2
-> > >> bytes. selabel_hash_all_partial_matches() is a public exported symbo=
-l
-> > >> (libselinux.map, LIBSELINUX_2.9) whose prototype is uint8_t *digest
-> > >> with no length parameter and no man page. Any external caller sized
-> > >> for the old SHA-1 output gets a 12-byte OOB write from
-> > >> hash_all_partial_matches(). This interface/functionality was based o=
-n
-> > >> Android-specific functionality and I don't see any distro users, so
-> > >> this is probably fine to break, but it should be a stated decision a=
-nd
-> > >> called out in the commit message and the 3.12 release notes. I will
-> > >> defer to the distros on whether it requires a libselinux.so version
-> > >> bump; I am fine either way.
-> > >
-> > > Actually, if someone cares, we could just use symbol versioning for
-> > > this and fallback on the old symbol to only write the first 20-bytes
-> > > of the SHA256 hash to the output buffer to avoid a compatibility
-> > > break. That said, the only user of this function that I see is in
-> > > Android's libselinux and that wouldn't be helped by that.
-> > >
-> >
-> > I guess it's related to
-> > https://android.googlesource.com/platform/external/selinux/+/refs/heads=
-/main/libselinux/src/android/android_device.c#394
-> >
-> > It seems to me that symbol versioning would not help if android just
-> > pulled new libselinux and left other code intact.
-> >
->
-> Thanks for the patch.
->
-> Changing the content of security.sehash has a strong impact for us:
-> during a regular update, if /data needs to be relabeled (because the
-> hash optimization is skipped), the boot time increases significantly,
-> leading to reports from our users and partners.
->
-> It is also worth discussing why this migration is required. There is
-> nothing wrong with treating SHA1 as a regular digest. On Android, the
-> file_contexts used as input are all backed by dm-verity read-only
-> partitions.
->
-> If we still want to move forward, I recommend using a different set of
-> functions that explicitly uses SHA256 (or have a schema to support
-> future hashing functions). To ease the transition, we could add an
-> option to restorecon to trigger a migration from SHA1 to SHA256 (we
-> could potentially run this as a background thread after boot).
+This series adds memory cgroup accounting for dma-buf allocations,
+building on T.J. Mercier's earlier series [1] and incorporating
+feedback from the v1 and LPC discussions.
 
-Have a look at revised version of this patch and my suggested
-Android-specific fix in:
-https://lore.kernel.org/selinux/CAEjxPJ4Mqw=3DwjktVfZDBkwQ_h9mO8oP4uPEHJL=
-=3DM8z+5V84mbw@mail.gmail.com/
+Patch 1 introduces the MEMCG_DMABUF stat and charge/uncharge helpers.
+Rather than charging at the page level via __GFP_ACCOUNT (which would
+require every dma-buf exporter to implement charging, and makes
+cross-cgroup transfer impractical without access to backing pages),
+we track charges externally on struct dma_buf via a MEMCG_DMABUF stat
+counter and route all accounting through a single path, removing the
+__GFP_ACCOUNT flag from system-heap allocations to avoid double
+counting.
 
-I think that would address your compatibility concern. WRT to whether
-or not to transition at all, Fedora has been shipping a version of
-this patch for years now and regrettably certain compliance frameworks
-complain about any usage of SHA-1 regardless of whether it is
-security-relevant.
+Patch 2 adds a charge_fd field to DMA_HEAP_IOCTL_ALLOC, accepting
+either a pidfd or a cgroupfd to identify the target cgroup at
+allocation time. If the target cgroup cannot accommodate the charge,
+the allocation returns -ENOMEM.
+
+Patches 3-4 add LSM hooks for the two charge_fd flavours:
+security_dma_buf_charge_task() gates the pidfd path (target
+identified by task credentials) and security_dma_buf_charge_cgroup()
+gates the cgroupfd path (target identified by cgroup directory label).
+
+Patches 5-6 implement the SELinux side under a dma_buf object class
+with charge_task and charge_cgroup permissions. For charge_cgroup,
+the target SID is derived from the cgroup directory's SELinux label.
+
+Patch 7 adds DMA_BUF_IOCTL_XFER_CHARGE, a general ioctl on any
+dma-buf fd to transfer charges (or charge) post-allocation. This
+covers the double-hop allocator case (SurfaceFlinger -> gralloc) and
+works for buffers from any exporter (DRM, V4L2, etc.). If the
+receiving cgroup lacks capacity for the charge, the ioctl returns
+-ENOMEM and the original charge is preserved.
+
+Patch 8 adds selftests.
+
+Known limitations:
+
+- Single-owner model: a dma-buf carries one memcg charge regardless
+  of how many processes share it.
+- Only memcg accounting. CMA heaps would additionally need dmem
+  controller integration.
+- Charging CMA-backed heaps to memcg charges unreclaimable memory:
+  when a cgroup hits its limit, try_charge_memcg() may trigger a
+  reclaim pass that cannot free CMA pages. A future version could
+  move charging into per-heap callbacks.
+- If a transfer of an uncharged buffer fails, the buffer remains
+  uncharged. The allocator (userspace) is expected to handle this
+  (e.g., retry, free, ...).
+- The LSM hook is intentionally narrow. Broader cgroup access controls
+  could be a separate effort.
+
+[1] https://lore.kernel.org/cgroups/20230109213809.418135-1-tjmercier@google.com/
+
+Signed-off-by: Albert Esteve <aesteve@redhat.com>
+---
+Changes in v2:
+- Move charge_pid_fd to charge_fd, accepting cgroupfd in addition
+  to pidfd per Christian König.
+- New DMA_BUF_IOCTL_XFER_CHARGE ioctl for post-allocation charge
+  transfer on any dma-buf, not just dma-heap buffers per Christian König
+  and T.J. Mercier.
+- Moved __GFP_ACCOUNT removal to patch 1 per Barry Song.
+- dma-buf charge/uncharge helpers take struct dma_buf * directly
+  to avoid the need for caller to manage size calculations.
+- Added test_xfer_charge_cgroupfd_self to dmabuf-heap selftests.
+- Added LSM and SELinux hooks for cgroupfd-based charging.
+- Rebased to v7.3-rc7.
+- Link to v1: https://lore.kernel.org/r/20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com
+
+---
+Albert Esteve (7):
+      dma-heap: charge dma-buf memory via explicit memcg
+      security: dma-buf: Add dma_buf_charge_task LSM hook
+      security: dma-buf: Add dma_buf_charge_cgroup LSM hook
+      selinux: Restrict cross-cgroup dma-buf charging
+      selinux: Restrict dma-buf direct cgroup charging
+      dma-buf: transfer memcg charges via DMA_BUF_IOCTL_XFER_CHARGE
+      selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+
+T.J. Mercier (1):
+      memcg: Add MEMCG_DMABUF accounting infrastructure
+
+ Documentation/admin-guide/cgroup-v2.rst            |   5 +
+ drivers/dma-buf/dma-buf.c                          |  80 ++++++++
+ drivers/dma-buf/dma-heap.c                         |  72 ++++++-
+ drivers/dma-buf/heaps/system_heap.c                |   2 -
+ include/linux/dma-buf.h                            |   4 +
+ include/linux/lsm_hook_defs.h                      |   2 +
+ include/linux/memcontrol.h                         |  29 +++
+ include/linux/security.h                           |  14 ++
+ include/uapi/linux/dma-buf.h                       |  26 +++
+ include/uapi/linux/dma-heap.h                      |   7 +
+ mm/memcontrol.c                                    |  94 +++++++++
+ security/security.c                                |  32 +++
+ security/selinux/hooks.c                           |  40 ++++
+ security/selinux/include/classmap.h                |   1 +
+ tools/testing/selftests/cgroup/Makefile            |   2 +-
+ tools/testing/selftests/cgroup/test_memcontrol.c   | 145 +++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/config        |   1 +
+ tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c | 222 ++++++++++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/vmtest.sh     | 205 +++++++++++++++++++
+ 19 files changed, 974 insertions(+), 9 deletions(-)
+---
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+change-id: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+
+Best regards,
+-- 
+Albert Esteve <aesteve@redhat.com>
+
