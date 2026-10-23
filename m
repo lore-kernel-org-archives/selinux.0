@@ -1,81 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792780862;
-	b=gUaiH0juqxOJh4l95Bq90QDySthIMvLfNDGP75ztjSSUF7BmxqkSU2W6mxUMXwHSIoLk
-	 d0GLFQcaViSXujGeIgXTZYhKoAEylU2jpmuh7y8zRa4ZFwYMCC/X5qymkJPEFkB5r2MvB
-	 NNwl16uiMxzG9KXIqBtSz5M7QpPd8nxKAGsB9seqvwl73cFQgMfjzoJWYVhhPGtIQxHMn
-	 5YDHC77wTVLQDFx6yOe4A9qAH9pXGZR9v9bkP9HkJKvj22iPTNxEw9vLCs/9jhroe1Vol
-	 CdGSi8lK/jNP1A1gJBvk1WAiv+Hi8B9VzbXu98tJOGmctDCKyAibEox0qfT6s+R+ouQ==
+	t=1792781412;
+	b=uuRlnIXzKJYP5ZyEMdgMqTt4yefeApRxMQFd4vm2eteavn2+yidYHCUnd7O9CwjBSEhb
+	 I/jW/Dq1Y5mg/TSTcRB4Q2t/NTM+cJYEXib8jsxuW1+ThJcD0Cy5MEUg2H2hHwa8jfy7X
+	 CwM3RjsQCKVouBzGUuAScs/unDsPe1TXTFsevJ7aS4UiwksgnR5QyZEquqxAhH1mUgIwS
+	 WOepxEK8REdHiMOU+BvOP7xUXCQ5sVgV1THWEYgo6SXxql61krmn5jKkwo82F3x8zpaD/
+	 nWHvKlQkUl88glmdakYSn/VMZPNgHjNKpsbDjXNOqas7/sEosmUERR38h9XQxrch6yQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792780862;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792781412;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=qDhlNeSbA4SUsMn35b6n2Jy5uDtFzgV48+b8rX40LE4=;
-	b=VCcjw3p7LUf0XjqOIuaD1fDNaBzq6FlilAGmgV4gkAL31T77B3hWj6c+/uIYPO5qO3Or
-	 q6q/sahFJifWTnm402Gi/C+gpsf106S0Qi3ThQhzQS+T9+BLqxZNdB9heIctW8R1Ko2+g
-	 o1Teg37rxru0mno9HzIamBkfJo6X6G/IaUGszfPJ5M9Fob8CYl4xz1ID7ts5I2HvhkKPk
-	 gu6lrn7rw923O4OyRXbQL9q8R4GD7oQzh7Rn+aCoNK0ACiBUJdfmFQNgf589HSd5UCmR/
-	 ftO5z8KZnGxnnB7xk2xUEk3Tx98G8bXTlgjSHG1gO1AuG3gO3ap1DtkxKf1crHyUIhQ==
+	bh=I2NMPXemvrYaThAydloCRFXdD/kg0bGqfivS5Ekz6vY=;
+	b=r5AqIWozluUFzogdrMW6WzFVDVnJqXQoJIpYQ3YDFqodI36IzAFE9QiufDEnX7862DpD
+	 gbVYYn6HAGIHQkwk+gTLd4v8ziagHvTPAnrQt7max4Bn7ZMV7Z1f5v8wwAyr2YE9I2tNd
+	 VXgx5GO/ugBLaXaSnXM4UhK8/MbKTVUmGuM4f+vaVQ/TLFHNhbaHFnttX2ZTSD0Mg9qw3
+	 dQgs0yTaA0MwxSaND1ohhp0N3JVK5L9f0ZYagN33vPt1ANscnomvgSUlYUL1o7xCMuiDu
+	 3CSjAANHupYEptTopmxLRmEMxj0OXrbryYqJ5356LZbC9KFU5VszV70CxTRZHpBrMSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LwKNSBZX;
-	arc=none smtp.remote-ip=209.85.219.48
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lN3U7cCJ;
+	arc=none smtp.remote-ip=209.85.222.175
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF8C4606A31A
-	for <selinux@vger.kernel.org>; Fri, 23 Oct 2026 18:41:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BF8C4606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9554B606A31A
+	for <selinux@vger.kernel.org>; Fri, 23 Oct 2026 18:50:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9554B606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LwKNSBZX
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-917b78dfe30so17003646d6.0
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2026 11:41:01 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lN3U7cCJ
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-93f2493c28bso99094185a.0
+        for <selinux@vger.kernel.org>; Fri, 23 Oct 2026 11:50:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792780861; x=1793385661; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792781410; x=1793386210; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qDhlNeSbA4SUsMn35b6n2Jy5uDtFzgV48+b8rX40LE4=;
-        b=LwKNSBZX+3tmO4wuuSb/00EAAKUFMqnbuWcRxanL8y64Xe0dJqLkvLmaF8WP7iadQX
-         pK2DV33UZKV8ghD05QNmKxlg/XDlplAd9BTJCNqhjg+ceQfaFNciQfGPfCXdjg/RJZlQ
-         5wSBR+pjHvxp4wF4gE1uSjRx3oPcz8/Hyt3usdERR1YjHpBYzlcD2Dz3sP2zhLDDNr4g
-         5PGzxu2l/hkNOnthlcYVSasaSxsHB25wJIUqENPD63OSUK1x2m/KU0Etl23D/KTdyHcX
-         gsxMv3x5G+1DYExFwcr6ghSwSmjbJwHGhRiLCFBnBZXIx3LaiGLISR2fVudLL97glIZm
-         Z6jQ==
+        bh=I2NMPXemvrYaThAydloCRFXdD/kg0bGqfivS5Ekz6vY=;
+        b=lN3U7cCJW3v1WwAzrmQUETT+HwvPCzC5YzOHIaM1nGlEPfxKPOwdOYvAiSW2oUrSN1
+         eQkn4ce7/njqrBzaYq0m9++JJCqXucqSlvx6+daUaH5iVfX4C1Z5XLpkhwyOutrZxf4T
+         vlQC6GeDYFi3u7RP0jB+02ywRZf0w49h6kYVP5u8ULEyzg3WyaIL0wa/1z+K3NrvzCda
+         QcVH8TTkakt3xZ1wnSnAwqpVMPpsPGU2PtdT1AetyIVJvxFP+Co11CGzZ1+QbsIdinyJ
+         qo1n3NkzQCD/Rn82hgN9GxJZkOqZe3vL5E+LIt+rN8X5Hs4LRoQN/eAbus3HjF1t0UUF
+         DnJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792780861; x=1793385661;
+        d=1e100.net; s=20260707; t=1792781410; x=1793386210;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=qDhlNeSbA4SUsMn35b6n2Jy5uDtFzgV48+b8rX40LE4=;
-        b=nO/UknoHvHwxi0U65sxft/iXOU3zIStmOvNqfEK26ZDNI/rphAryD7WX71nCtFZ0RB
-         DXc/QQIT4JfkiJGJG7jxeVstuzygalyXO+Rvs+5N3Rl2OaX+qayrvyKCql1Htj9MSk7h
-         aAWpG43AsJqJt4ZL8wClm09J7thtRbajhGbroYux/mSyxXNwwM0J/CfNJawkjWIE0YSN
-         JnlMcQ+LsOJLmDRIxLmon2rc6TAKg+i8UV5FwfEsQBek4vuBjS7Pb9hOqfOj+kjp1Rr2
-         qEHcgbF1smDTpPs3JjSrX6YRIf4GR2SjoX1wvalakkTxgUqgbQVBIII3rKpupVR7U6+u
-         auQA==
-X-Gm-Message-State: AFq9FYIFmGv1kcSo010fjYeLj1p++tBr4Xo4ZmSMgwONSX8Db6Moelkg
-	HczZuJA6uq4oqNRgfn8+1qsEhI2kgqpujCEjF/RaOdtHpikAE4g8sxkQNfW2eMP/
-X-Gm-Gg: AYBFou2iwgEEmu4CTh4l0J4TCPXcTfBfge4yCo8ty7m2DuhXwiEg5t0Sbr/HadBJBPl
-	6Bu3ahfWv+AOlMpnLQyQFBYv2ftgJzRi2LLxtVi+4Bxv1rbI4iiVYFgIdHkbmkdTbn9DPKg9Q0K
-	XSrmBxNVvUS1FX4Xii2acrV9tWTypTJJUWQyVefsltmXFVdTSZc4LzQd4J6SSOZCGGDIG23bCbn
-	DBkPdEeLv8k1EP9NZlOCyqhDRFuPsVNF04xGVAqnpNyJ12+t/2xsT3mun4gbudD04y7yJS2W1Yi
-	3YWaMO2/o/PWFokI8bUETedvb4hXJvT0dwN5UJBYjvTLRxGuiZjMGbUbsRxDVEWDnT+jz9E7+dd
-	lbxoP32s6LkTQ2EDvfGvdI++9BwYWe7ctVghE/23hldH8rBopyt2aIgW+rRUK1b+du/V0LE7GxL
-	B2A0Ej9Xf1VbnfnvfpthDppi1J1acmTxDOhPrhjAKOrZs3OvSJi8gFG5/AOgKuFSQMuQKfPqCnp
-	gLC/PGuD7WvGcecpUnyGvE8MZqF08M2wrbNRna4kS7fbH0Jh/CGmZD1z6uA0NB/6qjTURC+qRNe
-	UuxNV0cAh6JLCU0TOTqPbO+8Ya5/PVYCTZL86GB3se255ow4DtfkVyqfz9HhEXvJluxlVQVBlMr
-	ecfHHAvStTJQace0oMTZqag4OdZJbWt9IgmQXFLjw2YtLpgFtl+mvaY3hKOerbCo=
-X-Received: by 2002:a05:6214:76b:b0:919:96b8:d1cd with SMTP id 6a1803df08f44-91c3a9cdfbcmr42657206d6.26.1792780860515;
-        Fri, 23 Oct 2026 11:41:00 -0700 (PDT)
+        bh=I2NMPXemvrYaThAydloCRFXdD/kg0bGqfivS5Ekz6vY=;
+        b=eLiHaWfgXYGqIvAyJdlKvTI9EtZ1UIaGAV6H0kOw9fz8B7lQe/rAgleP5qg0jOYGmj
+         6Ng3D5TlOk0QwJKnGIpmRChaxBHbS8b1sFeE1as7OaPvZoQL7/mGwqBQS+Wvt+jjv4UX
+         ShkcEiIh4Aj0mFTgqb5l/+kg84jszHVPmZbGA+Y62h9MbJC5IZ2RDb0YFL1zEM2NjDNb
+         qtDhYcN2CJFDZ/6esA9D63eFk7sabAOnxITcPCbtaGfjapuUCwmx3dnFuiXLKWivAkh4
+         rGruFzvyrrmAKQ0+96gnAHLudk1dm7fEKHgYVFDj7eHtKfT3CMwo/g/K1gKUgptduY4g
+         jsaA==
+X-Gm-Message-State: AFq9FYKldFBHvNF4L7aoxO4pPcEmflQDdtbAbug7nlpUI6j+fNLyPD94
+	t9qpefrAuum5hftkUwp4yByUB7/QkxKVxbFjX3Czk5REOQV5eT7mERrspgrwzwtk
+X-Gm-Gg: AYBFou2sw02HQfRUs1WBxlRYqQiiWiGT2qoTyj4qykUQylP35H/XbbARl6zPrFPtgGh
+	B7lhS3NWnkQq8dfzKeIRm/ySWnczT2pF0vwlN1VrKny6UPDU0wzghU/rEzlvVFSu9IKpwGPFGPv
+	sDAc3taFg6ukPAOWyPWbOLtPP3iNbaeadTHcxJOxSMy8VzXMEGsGPk0/RYT89xb9uGNn3V2paMF
+	G133MW3JtwlI6foqfSYEC/6PJnXLi3pyuXFdgSVBlb66+wL803b7HWE0dLMtOorf0ZBtVn4B9pP
+	0t05xp2pVs2q4xz/jj1QKywSHJX6mTcMvPsIGyyQPJkdz4lGNkwCGumn1FkzmNu3ObK31cB8kxQ
+	bHzElbM5mnjMNb0Ez8diAEyUBznMGO3Hhvj7Bl3NTRqskFo47ANaXUzg2PuBTuK8Qz3wXF12sTh
+	xF2RZi0HOgE3riIG3V8UtMXKi/Tm3bLMZtD3r6OvhtuL5OwnjZPIyNFb+55X6eKxbwCfIpWhbPV
+	IGXMmvGiqKdE/Q73zV8Pc2S233gn0LdQ8oKrxFwrb51nkBvvW9CVGk4MxhGBeff4Xi+8GkiOhk5
+	zvmkkMGWheA2YT+EvISc53t27ae1zA2PiMPpMs9OokEGBPOljEFa5DIr+JSKZ4teZMnZHHKKHzW
+	Ogpzl3bPRDqRezfaHBWl5K6DgmbxO8zeCNE5LaRduPg==
+X-Received: by 2002:a05:620a:2b92:b0:93c:c2c2:40eb with SMTP id af79cd13be357-93f6f84ff78mr556788885a.66.1792781410516;
+        Fri, 23 Oct 2026 11:50:10 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91c47c0fd12sm1662536d6.17.2026.10.23.11.41.00
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-94047b1c97esm86280285a.30.2026.10.23.11.50.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2026 11:41:00 -0700 (PDT)
+        Fri, 23 Oct 2026 11:50:10 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -84,9 +84,9 @@ Cc: plautrba@redhat.com,
 	jwcart2@gmail.com,
 	cathy.hu@suse.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsemanage: release the transaction lock when setup fails
-Date: Fri, 23 Oct 2026 14:40:46 -0400
-Message-ID: <20261023184046.61448-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: clear freed keys during component merges
+Date: Fri, 23 Oct 2026 14:49:56 -0400
+Message-ID: <20261023184956.62086-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -99,46 +99,42 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-After acquiring the transaction lock, direct_begintrans() can fail
-while creating the sandbox or final output directory. The public begin
-function sets is_in_transaction only on success, so disconnect does
-not release the lock after such a failure. Destroying the handle then
-loses the descriptor without closing it. Other writers can remain
-blocked until the process exits.
+clear_obsolete() and load_records() free the current key after each
+successful iteration but leave the pointer unchanged. If extracting
+the next key fails, the error path frees the previous key again.
+Record key constructors such as sepol_bool_key_create() leave their
+output untouched on allocation failure, so cleanup accesses freed
+memory instead of simply returning the merge error.
 
-Release the transaction lock on both post-acquisition setup failures.
-The existing release helper preserves errno and resets the descriptor.
-Leave the lock-acquisition failure path and successful transactions
-unchanged, so a failed contender cannot release another owner's lock.
+Reset each key pointer to NULL immediately after freeing it. This
+keeps cleanup valid when a later extraction fails without changing
+which records are merged or how errors propagate to the caller.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/direct_api.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ libsemanage/src/policy_components.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 05c9392c..db74fe93 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -422,12 +422,16 @@ static int semanage_direct_begintrans(semanage_handle_t *sh)
- 		return -1;
- 	}
- 	if ((semanage_make_sandbox(sh)) < 0) {
--		return -1;
-+		goto err_unlock;
- 	}
- 	if ((semanage_make_final(sh)) < 0) {
--		return -1;
-+		goto err_unlock;
- 	}
- 	return 0;
-+
-+err_unlock:
-+	semanage_release_trans_lock(sh);
-+	return -1;
- }
+diff --git a/libsemanage/src/policy_components.c b/libsemanage/src/policy_components.c
+index 767c083b..cd4b500a 100644
+--- a/libsemanage/src/policy_components.c
++++ b/libsemanage/src/policy_components.c
+@@ -44,6 +44,7 @@ static int clear_obsolete(semanage_handle_t *handle, record_t **records,
+ 		}
  
- /********************* utility functions *********************/
+ 		rtable->key_free(key);
++		key = NULL;
+ 	}
+ 
+ 	return STATUS_SUCCESS;
+@@ -81,6 +82,7 @@ static int load_records(semanage_handle_t *handle, dbase_config_t *dst,
+ 			goto err;
+ 
+ 		rtable->key_free(rkey);
++		rkey = NULL;
+ 	}
+ 
+ 	return STATUS_SUCCESS;
 -- 
 2.56.0
 
