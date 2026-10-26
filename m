@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793022324;
-	b=qcR1oiN3wrL1l32KTnuZRDJKC1pPLfF4ZFwsdFZ8aGLQ0dvjwkytjBzqGDlSTAGA/pO9
-	 aRrMI91PphpST/SLVt+zKBf9NSV0ODu6kvP+0q6s6GAWMzILGBtUKDanwcIeL2qd9EHl/
-	 VwcYf8IOxw/1Q2l+XC+QNDhAz0dPZCR4T9HwzDEQCnKwx+njyO5l4AjQOt+FXsNREtbtv
-	 iXBxTZjWuHeEkSxgTrpA1cAwGy9rK1NVV4OraW2iYFaTLfzLKIT1Ug19pbUZ+7cPQ09Lu
-	 6s56tUKh6cLoDJx/G7ce3wXOkFWJNejtcDjPXK6AYS1DyD8MqxSmOVpeXd4u/AnUc4g==
+	t=1793022375;
+	b=xlqTOISP1f0Mrk/ygA+K/u7oYlEa8MWV7hoACijUXc+pbMYOQSEnrJE9zGEzc4sgpdPO
+	 +xNoihV/OVULdG907s0XcsgRnB0HObkbzOG8cYr9P2d7ww2jsNZzyjqorB9Qkp9HjInas
+	 86OH3dmc5OkvabiPHhBS0qqAVbty3xkY/ypZE4rMx3vU819xqSY3SvUDqamXor4eaTauI
+	 tT9aSgrUJTk1Ff7fh709IgCExal3d6nUup5Eqz+sBbkw6prla0veJ5RXHF5125LD5tjVX
+	 v8gTZsZ/PvVWPOu10myPSdChANRClcUncN1YtAtxjW/qnii2vteDfr3M9Te3agrmhOQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793022324;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793022375;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=boYaRaakD3uOQzdBZF/nw9GlvnqRJU3zpejMnxH+L6U=;
-	b=2ykmXaw/a5zG/GxIgHEkUyPhq+3SsfOgVmTMd2+rjTZlZabv1OEox6ZyAC1+IzUUJebS
-	 uDx++z1cZMjgnCd50ZZdWvsabx8M5n5USNuBCYqLhNB/1HmaBKgoUTTLL0rI42q8dtZx5
-	 x+QjBa5Qwu5C8yLTLYYmbOvXciTQJxIzy+EQlh44jE+HAGkzqjhweu0Y/l7g9HX7IfAjC
-	 jxLtCaYX8dX0PhpTFZtIqZvsDr4F1H3PN1wCcroMa85X8fC3rUce4YxDvP85himfKkLGw
-	 yvH49e9VWZyqhP0OSMfabTIa2y6b02IKvRRUd8NY+bl54JT8bl+baGXe03GdOKHJwWw==
+	bh=fSIH3Idnbme5KjmN3IM0sSilw9A/JCHKG35LNvPVbAo=;
+	b=k9UBMqb63g/gjw3erMZHWcdeEEim0xi62dE5yajYc3jDB2KkSxLiYeY8+DcYVDPsciLA
+	 uLrnZ+FpyBYp+3XLMhM6cbX1XdgkAUo1njME7hTiEe2IYorkB7J2E5VfCxoZ88ygMO1KK
+	 iXDUIIfJcDLbeops65VW/Vvo2zTYBc14kxX3VmXu/xMdtLrixn3P8/z0z0eR9yK50w2lG
+	 lESR0zwRQ6CfEIRGn53iPpQgYHSPqmIB0m5Uel7hwgH1CuPMU74JZF9USi8Dxkox/a86O
+	 oBoX1V3yimQJNY+AAjoIS99gIkNjn+eMDOKlmLPG2TKPTavtgIG2h2Evtx2S7veys1g==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FTkMQAsm;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
-Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="Wekrzm/D";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
+Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC413606A31F
-	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 13:45:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC413606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D198D606A31F
+	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 13:46:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D198D606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FTkMQAsm
-Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-66fca0709caso2377760d50.1
-        for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 06:45:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793022323; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Wekrzm/D
+Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-679e6ab6471so3622662d50.0
+        for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 06:46:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793022374; cv=none;
         d=google.com; s=arc-20260327;
-        b=YVN3akAABQnSEBmSWDKe+C4pVL6luv9avxiDAhqq0HRkv9qwZ2+0q8M0ne36iKf7O7
-         JyIFTl569EAmt2eE/m87CnD6nomQGrvOmIkHffzXVrBIAz4zUb9kVHQqt+M0A4W8PXBW
-         +Z9FVJAv+kiH/E5mUbmbJP+VC3JrzAjoZFAeaZGO3bWC0TvOTtOwiqiTA6ZdkyC1zk8q
-         MXXxGPTmHSkKZgfzS3D8JDFECHSzS4XoRu0RH0Pc/gqrt2F7Buk4hENvFjLRcOIAOsJs
-         2L1dxbhMAT7MXzQEnCzwdcPkBTMG14OP00ddGXlm7s6GlT9KlOZnFoaH+2GWFVzkQlaS
-         QW7w==
+        b=QIKBERvA9QB7LQOiewk5FahVbxdAi19c5PU+sJJPMe+e5lrAQQ0sZ4HHlQlK4UUOBC
+         /VPzBoeFFBXLAlMxa24S9MxGD+erm89Y7x7VKmLOpEkuyuXB2ms/nnWMUvibP0IvkjQF
+         TyDE9k7Mp4g/PJKIVKUF68ufMBXj55/1kUOXTc+6svNJKZU0QyN1tkcpW3UjayZOk63g
+         7/bLukkQcXiJ1frGL1PIvEWUVk7y6JCQ6/vqTDKSlNWnjZy2har9RRR4foOLTta2Es8e
+         6KMB0lChefeLBlq/zJf9Pb+u37djV7KoEtwIz3H8geWo5kpweQ9BcX108ln/XVMjb3Jh
+         s62w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=boYaRaakD3uOQzdBZF/nw9GlvnqRJU3zpejMnxH+L6U=;
+        bh=fSIH3Idnbme5KjmN3IM0sSilw9A/JCHKG35LNvPVbAo=;
         fh=oY3YJwlQJe6qc1tfsT1YP2sL1SDhL9BUcCb87gGht54=;
-        b=bZZ4frqjM5F2iQS1o0OOzvd1jSpe1FBSbjT81Ogg9baGXlTAHpuuiwRm5BAlyE+2Ee
-         6UF8u4WvP6AFuWrxJoVe9Q7CanRSKMfe/DBeajbbeJwap/kLp3AMd57lHt+qFV451bJ6
-         dI4lLeX3eH5Y/yR+gdOTVd/gFRb1tRQeOsUcnP+v+iBwK0p4oaj+WsM2t33IT5Gm6FPu
-         oPZ/8Z8UOmaWnA72FKYme9cbxV4V5Py+tfPDbI76I/jq9wtkF1VRaaZV94KKZr/vijcy
-         1k2/+dyPazbzmmD6TBfgmL6jwUJz3tiu2ktdKREldePWT+lLCdIx6ldC1HQjT8rgAXR/
-         hX2A==;
+        b=nxmCf18utAUcf0HiYYS6umq+FAOxLVicd5Vs8dDB5ICGgaCyfMt/8P4VgLPOS1PGaa
+         bJY0L0Zh5xWeozZK5q7Y6mYAkVeie26GOmd0/Ckjmwvsu8Vj5GrYsBS5psqofylTBN8c
+         11NyRo+rBy/EFuEcmjqyu4nsTHhX1BJhpckz6/A6zA3m16e6jUPSPd6nV8ZfL+Q//lMs
+         MIvYX9+/VHQIczjoxC6SsBW64D/nD2n/rwzvnb2rGI4lRFB2SV/pVZuZjis+VVgNeZ+9
+         GvHRQVXe3gXZyFZsBAvtrVrJh0WisHzvHrD4ex0q+bx7iHvB9vw4HRyPKa/UMOJzTPdP
+         4vjQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1793022323; x=1793627123; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1793022374; x=1793627174; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=boYaRaakD3uOQzdBZF/nw9GlvnqRJU3zpejMnxH+L6U=;
-        b=FTkMQAsmeNpUfj7AAzO+a3+QDAlTPye2HDn41gnlyWac2x5K9OCOqgnqoXK2PyCYAl
-         KjIInSW+/d5h7gln7jpuPjOhPsC94HOZ1DWCDdIbpC4TjMjhi3UllOPpSD6fKhVO7VA/
-         hlRiNA+/pzfHyx99N1/tQjl0iYukP3s1knhUw+gNJM5JdtYxGpe6CBP8d1sH87Cwb9/e
-         vKUMvNx4pnTB22wK8dIxwBQD/Rx7unL1eyL3KItAm3tAFMqhqGhGNLomwQqR6TwFNY01
-         vMTQVS9lu/UHmPRp8GGtefcBL/LeN3OK3lattx2epVyW/sCWEDqks0Fiqm00wVTPQwMC
-         Yvyw==
+        bh=fSIH3Idnbme5KjmN3IM0sSilw9A/JCHKG35LNvPVbAo=;
+        b=Wekrzm/DNjiGCJIlBgR2K9xHX2ddSaJkeHMjRyeXefa7pHb1nM9HTkMBKCOZ97tiTE
+         jSvz5TbIw/A3U/vsXGOF3lyop3fDUZJYzdEETU920sx/MUBE0XfNH+JtfFgZPD6wkfQH
+         v+InoMkwRcqI/rj21XwTWdp0q3bAG5ZEX4W23paV6HMVxO6wLH2auAAyaykXAve642z/
+         3ZPM51U2KgQPZJXfdQf6s+zqb9Qmod9pNGQ76AwrQgxobaqzM4MBS0vMl4xtuSddgyxX
+         F3zKj82cuFe3qhiQvou9blV3VKR9L02On0B1XNZC3usHXDyy46+b58OkdloKKJFgsSiL
+         Km+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793022323; x=1793627123;
+        d=1e100.net; s=20260707; t=1793022374; x=1793627174;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=boYaRaakD3uOQzdBZF/nw9GlvnqRJU3zpejMnxH+L6U=;
-        b=ISIM2N9ITSRdklQlzr0sO1TENdkwAgsaJAtNJyQZVjJ1DQkVpWVVX2eIRInNkj9fdo
-         /Uez30Dxrl8jMSRLNIpOvT2+X9ySgENkUweNY/xzCNJvJ5jyf656S3svdVpb7gA+EOfA
-         v5DOhNOf8pd82k+SoAMK7lFjV38wFqUCoHprmuX8EsjG8OlIs/lq+NP5/uCuJEOov6pj
-         VgYYWX7KvQVu0OfeFCrQzv0zolkFBljmDApmpXUZjzVXGVE9yXu0Z9zv+bFPDFUUUryj
-         hln/IXc4yf6vcYMv7839cbzCc38DlTwRKLFky43yF+6V3wSQo8np0MO1HuZWaZDXhYLq
-         NCag==
-X-Gm-Message-State: AFq9FYIDb8ULuVXzAVnIWS0dfPVrSdTztqojR3Zo2fDuelGDCEaqsBsz
-	6YLekf0Yhz5m+UxMalgrRh3jpau5B/x6PtcaEx1hRfWWYQDhEF/eryhfnnLgYrUpsWMG96xzgHs
-	RPmZv5vvYli8IQzipxJgtlv0+TRYgJ8xbg2XtqcU=
-X-Gm-Gg: AYBFou13fgdkk7nCG2rX50/iUIUTEb8I96f1leJP3ul/i060he1qTA0pq1XGR7hDDNb
-	g929EpWjf+sd6sJ1s7n88MPAo1yOUYLpGN6tHD8F8yQB0M46l00z0Zz3SNvprRoYOQfDAR6SMJp
-	kCp8EVPe3nLJ2CE82+Jk/9Ze7hohkMwHhqOqVEmeUSzbuZkfPxOEQufpfo7O0iPyPJLX+gCQQOd
-	GYcJLd6937479EfbR7scVAd0BgE8L5nWuhVVUbZ02opBHjX+T7JWf0VQpfCnlAX2gXZDxi3KziY
-	qF0dk9fISAnRPx6InDI7WX90WkyeWdfVlKinIFbqdeIoek7hHXgmRCxp52SwNdbbtFw3b1TGdv6
-	qq/YHem7BLOGLtO3HUmJ3DfSGJTGfCEKePIdYxndNfaSak5JSJzYFJNybpc2q159jNXqc9iJ85q
-	yKUydK/Zom1GkANJrHVlheew==
-X-Received: by 2002:a05:690e:b84:b0:679:b48d:4adc with SMTP id
- 956f58d0204a3-67a4e796a8fmr4340630d50.88.1793022322566; Mon, 26 Oct 2026
- 06:45:22 -0700 (PDT)
+        bh=fSIH3Idnbme5KjmN3IM0sSilw9A/JCHKG35LNvPVbAo=;
+        b=WPokdPInu7/dbOowy1Pzh1AfvDYyyDVZnMa8GE/sHhXPveVGtUQuK1yDpks4nAIy4B
+         eR2Y+ejh8mWjAIf5jxPLxM68g8TmJpw8nHKYUzYVoopr1buDzQbq4X7okK4oMPX0/aZB
+         e919DSZ+VpO14sgCrq5+GL6y2OKtX+RVG0uBra9ci88qQyV6bZnb7ZBHPpSx6yNsjeFR
+         A1H1Vnd+34RgLqghg3C6yj1X0DCmqf7HHhyGn7T+b2K0tLiGSih84aHu5X6qCrGnAQY8
+         IC6MxReYicS6pUpjioYv9/JL1jXWjNSLQNq0kuWtG3dTroN8gA9EK5tds+otR2o59AJz
+         ixVQ==
+X-Gm-Message-State: AFq9FYIGiw97hBThKB8FuHzX909IMyF3M9mGQe6hQjUrX7XzxTZjt4MA
+	TRyKD7+mmE75mCrOsGXx4Iqjxaw/2qNGI6aAAnzCEu6DsnGBkdCFQwt1zL5oXlmVuxU2DldK1Hi
+	mw+qFX5sbovkDPlG6swKNoGwzAKBw9YVOni4oBvg=
+X-Gm-Gg: AYBFou0cNTEj7yvqhW9IjOA15MRExQhR7mNDzB2n38lFsH2sBKxtyNDrg2vaJZuE6P6
+	Dxj5uHPNNhiLYJnpCJpdLleQnmtNzuPn8lf/00tgf0sgtmwdtj2l1lTLXqWqZO45hEY+p31MA22
+	3u0BW8XjTAq6Mr5eswt4Mo+/DI8JQEkcd9GyYgxjI59BpLJH8ZX74abNVk9jg3Ey6uyjUrszzE5
+	6a8fTEd0bBUHgnpKmyte+un02rWX5COHLMXvxb4bnqVt/JTUIF23OQqQHdhvG8Em6uYCsJPacN9
+	G8nQiLVmYvVcBRT2KnfnAQ9D8f1wlGGCVSy7Web6ckNY0vFuU9Zve+6yhu9CQLZEAduHWXvsL9k
+	+eSmEiIF50dXRsW2P0kia8KN4gkMvfljFSjBGsHJIPQbfbSqurqu4G1Ku4QBBoW97OS3dO2px+6
+	yC1ifEKcd6dUTanLQg8r+dzA==
+X-Received: by 2002:a05:690e:d84:b0:677:b2d9:de8a with SMTP id
+ 956f58d0204a3-67a45938d76mr4257772d50.43.1793022373940; Mon, 26 Oct 2026
+ 06:46:13 -0700 (PDT)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,32 +104,32 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261023192133.63279-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261023192133.63279-1-stephen.smalley.work@gmail.com>
+References: <20261023193159.63971-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261023193159.63971-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 26 Oct 2026 09:45:11 -0400
-X-Gm-Features: AclHuK9RoWqY-IPvR8vC96WmaKS2wrqrxwCz0SlsXaA8GIEG8u4AxWOeW-nThdw
-Message-ID: <CAEjxPJ6ZgA4Req5HN6bpMs6FSn7fs9=VdONmrxofEKzvvAfrKg@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: handle module writer close and cleanup errors
+Date: Mon, 26 Oct 2026 09:46:02 -0400
+X-Gm-Features: AclHuK8JqDL65o542nyF9WuFu5hT89nD3ZkhxApHYh05gfk0OZAtoOF0iT8LuA0
+Message-ID: <CAEjxPJ5kZV8fG2GYazFXMgbYkVu4Etaj2GOo9Hj4XH=E-79Gpg@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: use the availabe user name when a join fails
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
 	jwcart2@gmail.com, cathy.hu@suse.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 23, 2026 at 3:21=E2=80=AFPM Stephen Smalley
+On Fri, Oct 23, 2026 at 3:32=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> The plain module writer ignores fclose(), so a buffered write to a
-> full device can report success despite ENOSPC. Check final stream
-> closure in both plain and bzip modes and propagate errors to callers.
+> A user join may only have an extra-data record. Its error diagnostic
+> unconditionally calls semanage_user_base_get_name(record1), which
+> dereferences a NULL base record before the logging callback runs.  An
+> allocation failure with diagnostics enabled therefore crashes instead
+> of returning an error.
 >
-> Also release bzip state when finalization fails. BZ2_bzWriteClose()
-> returns early on ferror(), even with abandon set, so clear the stream
-> error before abandon-close on both mid-write and finalization I/O
-> failures. Preserve errno and return failure after cleanup. Without
-> this, a failed compressed write leaks its compression allocations.
+> Resolve the name from whichever input record exists before allocating
+> the joined record, and reuse that name in the error message. This
+> covers failure of the first allocation as well as later cleanup paths.
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-This has been merged.
+This has been merged with a typo in the subject line fixed.
