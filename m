@@ -1,138 +1,135 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793026442;
-	b=h+/YcEcfj4uujIDYj4jIJ3co6g3g6Lf9OUtLWjDed/DpEs/wOAfexFUedKS2Q9YGkBN0
-	 AXA6UqlIFh+9VtLQyjJbjZvb0evSAyvE4rkI0p9o5bwqgilhYK4EghFMQYUKoUCBBoRxP
-	 F29tV1XpInyCoXRDlg3ShxTgpeH0LIDq7zO5S04V/Y/BiD6dZESnYG/6rsHh/j5kAyzdV
-	 LTiuajMXuB809bCqUHS9nrgT4otkdlrCSSZo7pqq4y6OeLNbs6DF2SB0UnCdsl6PLqoWw
-	 Jl2HbJjFnX+ZbL/fUpPGfD5GqBI3ueGBfZ+itb3XrTIXsRivSnc1SNIY6NBOojF+wRA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793026442;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=OKz8jQo/auRPZNzdWHUdE6yB8Ix7XlP0akY/URWqfWs=;
-	b=EDoXDc86YF8ywJiYZTPLJJ/6C7OYNYNQicQXYyZ5ujCBsPU0bDjiKqb/W0eugZCzypm/
-	 KcCMBDB0NhLw7IPSXC898uzvprh3g9J0IwavDSNd0ZsSxibfueXMCLSgmI912VGoBFebb
-	 Nib1/eYX4qQ4OmJTkSmlt969cXm9pG24IEE1daQBVLvsd9zU6OfPUsDMEF0POgc6P+vHW
-	 bifrg+tDh4OfWzb//ID4SOiGOLlM2HH4SvEA92hPRyNPwCOEgRhv0PlrnBTcBNLYCTdwW
-	 nS9rjojqmlqbf6YExt7OWlS8YH11RVivwoddpQzASSIWOM4tZpd7BGNnunZvMNcK2iA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ERkprg9R;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=Pc9MiCKq;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=23.103.209.41
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793036133;
+	b=LcGzZMlVU6IoanJHW+kXqEimf6LX86rTw2KH8m9hzksVChzGm1d4Fksvqf/ok28p21El
+	 0KmUfsl7dAdSA1kYB7cegeImDjcePlw0ZqkIljP4Bny4m+wCRKJf5koi2nemIJ773H6sk
+	 EBzfjDo1astT12HAWW52ektRwEDS1panKkB//2X/ynZdHTn8FwRp8maN559Tzws0V2AZH
+	 B6/cej1Np2Gy6E40IAyJofNw3ujIKyBS72zpN2g21+cywu3obmxXtznfdeRhVjetHf1rU
+	 w/1+j1xx2TdXcmrOguW20cMIS+bexzZZUL/BFWVluK07vskw/nZHYFJN2uJnvLfz60A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793036133;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Subject:
+	 Thread-Topic:Thread-Index:Date:Message-ID:Accept-Language:
+	 Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
+	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
+	 x-ms-office365-filtering-correlation-id:
+	 x-ms-exchange-atpmessageproperties:x-ms-exchange-senderadcheck:
+	 x-microsoft-antispam:x-microsoft-antispam-message-info:
+	 x-forefront-antispam-report:
+	 x-ms-exchange-antispam-messagedata-chunkcount:
+	 x-ms-exchange-antispam-messagedata-0:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-AuthAs:X-MS-Exchange-CrossTenant-AuthSource:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-originalarrivaltime:
+	 X-MS-Exchange-CrossTenant-fromentityheader:
+	 X-MS-Exchange-CrossTenant-id:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=F6pS3Cr4UarszYyXSyIm68SCDn803WoNrv0MDBtbLPE=;
+	b=pFUbQu6TwjRHeVwLh3y4JWftnqmzv9eMzDQ0KWeETqppJSosarfNokQ3A6uAuFEqxneF
+	 JUuT9/JytxgPGZ706yvsv97hAaRs5RDtHKHYtFLymq5cZqvZOO6HJc/O2q9v7u/2+0HNf
+	 wNP/2yvKroEGr40K4hnkC2buSZdyJ+nRd+URNgK2bVQqMX7e4b6Xt97RTwHfgdeN8WE1u
+	 onjJxbb1ICyaRbT6rU0SLm//YJFz/NnXVtcyMkb2fusSkEzS/p3TXTOdOISmYcl9Puq3E
+	 pUPQt4zd4NYrX0lWLH9frUaTypnDlG+VE5FTwR8ygJoKkTfrKhgNoGN9ZtggxKC9cew==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=owlcyberdefense.com;
+	spf=pass smtp.mailfrom=owlcyberdefense.com;
+	dkim=pass header.d=owlcyberdefense.com header.i=@owlcyberdefense.com header.a=rsa-sha256 header.s=selector2 header.b=KkJfxbw9;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=23.103.209.41
+Received: from USG02-CY1-obe.outbound.protection.office365.us (mail-cy1usg02on0041.outbound.protection.office365.us [23.103.209.41])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C196606A321
-	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 14:54:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5C196606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF03606A31A
+	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 17:35:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DDF03606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=owlcyberdefense.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=owlcyberdefense.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ERkprg9R;
-	dkim=pass (2048-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=Pc9MiCKq
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793026440;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OKz8jQo/auRPZNzdWHUdE6yB8Ix7XlP0akY/URWqfWs=;
-	b=ERkprg9RQDF0hLYEQEK6W4YCQtJjEBAQ2TsbjX0HNA7pDMMr9hxWvnDrf1AwjvOcUkPO8A
-	i4B0XAr3Rm4srBQh/5THFEiFYLs7Necl9hh9WEIafQRRXJuQAtKtSphr0iU99grbeYdyuW
-	Pjp5DevJWYd9DUES5b6nE5M3FfVpMkQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-64-7OE4e27LNRW8oOFil-X7kg-1; Mon, 26 Oct 2026 10:53:58 -0400
-X-MC-Unique: 7OE4e27LNRW8oOFil-X7kg-1
-X-Mimecast-MFC-AGG-ID: 7OE4e27LNRW8oOFil-X7kg_1793026438
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a1e489f97fso33424215e9.0
-        for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 07:53:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1793026437; x=1793631237; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OKz8jQo/auRPZNzdWHUdE6yB8Ix7XlP0akY/URWqfWs=;
-        b=Pc9MiCKqE0msVu74Tx017Mw+KW3FsGKwWFAxBwQAsxfSZfSn7YV0p6hsIQmhVyg95c
-         I55gfIWUtRH0+Z89RUqw7vYbrcdiUswYUovW+VqnbZe2COp3AfO8GmHh5t68PdbIUiqP
-         ZGcQLITOX1M4hJfQKat0OH7bF5gy3vR47tAqBoMhM6Ed5xIWiVxWhS9RV+fgtFZx5AFL
-         35TIGaoWS+O4g9NDAjZ6JZilcO8SlqCCUHYWylZs3bUmu6csQCweADibPnSHgiTaWHN+
-         eA0onWu6+Ja5+Rmsb5tKCb4pvigJscq9iVI0WsOHEDxvyGZ+/ASgZP/P6BPuthvrfkIH
-         Yyjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793026437; x=1793631237;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=OKz8jQo/auRPZNzdWHUdE6yB8Ix7XlP0akY/URWqfWs=;
-        b=ry+T0QLRfqG67FiVEoKnOqd2L4y08roigbrv69Ik+L44Z5p570vJhie7+pQOkkD1kL
-         uu9clxlEx2xKokgcmxSxqyvm3dC/ewdob9v1ignsQ/PNZhx3CexVxSs5rRooQAz8OoIy
-         CGPVkjDHBAagt3HVBSwG+BK3HJEHrn38LYxJg3M6DKPBSkO2mtBFJWZ4clLGYC6+rKCh
-         MI99KJhqRtn1KYH9dK0VuS1aAHPui5yy0IG/vuU4bPADKdWD+uITT8/pj+XRMwMckzqM
-         EOoTArtdi5G3MuX/yz/RU+1KyhoyOwIz82+gqZiJvbsavhBDJjMAcyQYA1SeamsVN0Xt
-         VNwg==
-X-Forwarded-Encrypted: i=1; AKwUvBwTubpvjMdQk3RRK8fXAL+zBndtUdpz6F9/SdPd6rz5VwTHH5gmcn6JX+UmQHYcl92i9HyMwhjg@vger.kernel.org
-X-Gm-Message-State: AFq9FYKfT+SvY+miZkhsnYR+V6cxHYd45bi4D8CHDz3cuMBVF6IsT8x/
-	/gzOOismdY0H75UPoYv4AT14sIl7jhlkB7VvJimCBcSoImMwDeBnbLyt6oOA+0Twd9Wt8p4qsnU
-	gdeN0jl0Wlhc+g5H5/RQFP2s+5cGUCcWkMbfJ2IyICVysFtsvEEMqsQyTZdU=
-X-Gm-Gg: AYBFou37jTlvG8Geyrnv7GSdc8nAOX6TgH+QXJOe7yyW82aS8//E5mNS5+YMyDClyH+
-	z8mi6WDKmdm1P1lUsalTW0BhQEeaE7q+vUFJVYsym1AA3pcM8irdvon6JPCy4CHWJg+fGNl/6/z
-	Kwf0/DIeGUJBRjNf+NQh0JZdQXbncK1kQBY5gzDZbFJnew3BcIRuIEd00ThtcgpP8r7MlUi0YxS
-	CkiUXcHq5t3LzouO2es8B6EEK016ro0PfigOl/qyUoNGljc3ivhSKE9hvY4BmuViMflJibZmfJY
-	0RRoW1G2dCTxA6CioVjgdZH8T7CQr76dsho9n+ENx14xR4czq++cQrHvyM/HBlFfITk=
-X-Received: by 2002:a05:600c:3487:b0:4a1:fba8:b13d with SMTP id 5b1f17b1804b1-4a35ac8c231mr138381685e9.9.1793026437545;
-        Mon, 26 Oct 2026 07:53:57 -0700 (PDT)
-X-Received: by 2002:a05:600c:3487:b0:4a1:fba8:b13d with SMTP id 5b1f17b1804b1-4a35ac8c231mr138381105e9.9.1793026437038;
-        Mon, 26 Oct 2026 07:53:57 -0700 (PDT)
-Received: from localhost ([46.6.57.114])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a35a0bac37sm213564065e9.6.2026.10.26.07.53.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2026 07:53:56 -0700 (PDT)
-Date: Mon, 26 Oct 2026 15:53:54 +0100
-From: Albert Esteve <aesteve@redhat.com>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
-	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>,
-	Brian Starkey <Brian.Starkey@arm.com>,
-	John Stultz <jstultz@google.com>,
-	"T.J. Mercier" <tjmercier@google.com>,
-	Christian Brauner <brauner@kernel.org>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
-	Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>,
-	cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-mm@kvack.org, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	mripard@kernel.org, echanude@redhat.com
-Subject: Re: [PATCH RFC v2 7/8] dma-buf: transfer memcg charges via
- DMA_BUF_IOCTL_XFER_CHARGE
-Message-ID: <at9pgl9sC8__GHlZ@aesteve-thinkpadp1gen8.rmtes.csb>
-References: <20261021-v2_20230123_tjmercier_google_com-v2-0-ef6ee2dd8c5c@redhat.com>
- <20261021-v2_20230123_tjmercier_google_com-v2-7-ef6ee2dd8c5c@redhat.com>
- <9e54354d-b037-47e1-9390-86d5e25444a7@amd.com>
+	dkim=pass (2048-bit key, unprotected) header.d=owlcyberdefense.com header.i=@owlcyberdefense.com header.a=rsa-sha256 header.s=selector2 header.b=KkJfxbw9
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector5401; d=microsoft.com; cv=none;
+ b=mk5fSIiuS0/1ZhJn2UkppGsDbRcuxG1GzQQSOxm2N173NLS5W5+XvNTLJ2G7VdkG+kS86pRHSyFfnKnIeBjTcmd7VWafHUFCCs0ZDsnUAa9CEHf4wvj9azvHxf8VJZ6ffCUPYT6zPGVGq9Mr1QdzDL/bTuPNf6M+5ub57HP5ZGF1Z1Sp9Suwz+UOulF0Bf59z4MwnwC0xXUzl1MTev6bRwtXstX1wy4uRD6vvwo4FgibuX7J24LRgstP+br6JLzfIkExK7PTwqlEXzjL+DR7RZn5jJV2gh6Swc/T6rM8CUFhqaW1CJwbfzw8naMtPmCTrHbr+wgkO2d35hmDENxhvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector5401;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=F6pS3Cr4UarszYyXSyIm68SCDn803WoNrv0MDBtbLPE=;
+ b=dzXr/ZifOcJaD0wFwO33yDT0U1JxzW6wyDZMgwD7dh96hHMu/wkT3TTOvHLpgzKMbMmL0UrTgioYBmp9ZJtR24Ljo0E2VkkqVJqW2Vzt1Ekn4izqH8HvfHbF0LNFIePo2pWkiqkCt4P6ROwcv+I+HT5AD5DtTKkQMTGsN6iPHAwnC1ty4t3C2ZzJbB06a36u2ayaGOFYbp6wGzSq6adYVpt6JyrIWeREr9ZTSqvg8mkX9GQMnk73trDas38o/TMf04O0CQQJ5Hy8aFMZSq29S9udt1Zy3fA0XduMjBE8XmU9LwZOYByJawYfDd2pRQJv/IWlOQWVxleza76iLxy3nw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=owlcyberdefense.com; dmarc=pass action=none
+ header.from=owlcyberdefense.com; dkim=pass header.d=owlcyberdefense.com;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=owlcyberdefense.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=F6pS3Cr4UarszYyXSyIm68SCDn803WoNrv0MDBtbLPE=;
+ b=KkJfxbw9ZA1skBShOaWh3lSRHdwtOTupHf2VmQzPW/a7w0PSY5FKaEHFceyg8Rp874Nj48fiFlSiMzxUSeUMVIqshYxw9pkuETMt5//UJLBZEpU7SqAWJ0LIYlYn8gQE506HuIQzhKfaxS80P6tDUgZkbzV9bDbhLUW5KLYU35UPjMO7PL30yjR13fkvDSyvPCh4V6orHP6w/ElsNHg6xfRxMIj+KcfPZsvxglKNnetMnAWYe5nFMAAndM2DklB7LbAc+8YBuNte6JgPipGw/Qqgrntkg6SEZy34U9Oh/B7pT8c4gyV9ElMlka5ssJsvevlf9gLw627DnzGqViS6KQ==
+Received: from SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM (2001:489a:200:195::18)
+ by PH3P110MB1988.NAMP110.PROD.OUTLOOK.COM (2001:489a:200:1b5::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.546.22; Mon, 26 Oct
+ 2026 17:35:24 +0000
+Received: from SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM
+ ([fe80::1bbe:c51b:38ca:2a40]) by SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM
+ ([fe80::1bbe:c51b:38ca:2a40%5]) with mapi id 15.21.0546.021; Mon, 26 Oct 2026
+ 17:35:24 +0000
+From: "Sloane, Brandon" <bsloane@owlcyberdefense.com>
+To: "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: [PATCH] libselinux: Allow unknown permissions in permissive mode
+Thread-Topic: [PATCH] libselinux: Allow unknown permissions in permissive mode
+Thread-Index: Ad1lcGBM37W2q52QQMuz9tEkixFn5Q==
+Date: Mon, 26 Oct 2026 17:35:24 +0000
+Message-ID:
+ <SA1P110MB166157581CF3D150601ED288AC61A@SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=owlcyberdefense.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SA1P110MB1661:EE_|PH3P110MB1988:EE_
+x-ms-office365-filtering-correlation-id: f5b39d44-a2bb-48d0-6c41-08df33878431
+x-ms-exchange-atpmessageproperties: SA
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|10070799003|1800799024|23010399003|41320700013|366016|261026140227099003|38070700021|5023799004|56012099006|261026121527099003|261021123027099003|261021121427099003|261022105027099003|261022075727099003|261009223027099003|10067099003|55112099003|18002099003|6133799003;
+x-microsoft-antispam-message-info:
+ 0WHiN4brHSGdzzKktsqjz3YMnOmPyhkqLvG9TCThCTc/xly2iN9IxDgHA9pYTttuFyqJx8HqLAck0RbpQ4ndPgoUGYYEjWTDVzkbjNN9chsiJeaQOPZ6bz9Mop1JeKPSWE8ulZgOGwiq7VLoWDCoTGrzfg7UUE82guvUHGbe35p4ohycmWQTTyPq1oplq9njmQUT3T1tkbgiO+94QssT6nWdcUcvM5FdAn4PyChjAk064ncDKe2jexOzAjeZl8GWrPaqhqJw4gXatrGzOxE8iqrMfTSCgZA/AVKHhDbKGYcCo2RrRzy7nO3NgDcfGm1r4E28z+0D4dmWC0kUf4gObXTX9sXRh3SQdHbIYfu/APYxxovlYVebKeGuKKdXEANaI+dh/YLNVvjavSsNu6sjyGsh5wbAI0G7/GdHoidet2IasSG91LmjDzxsgBei6hJfJB7rGgPYdM157hii+cZFI3/opCDrNFIpYBkizSQpBzmeW8EqhjVFwXiLeQxEitFmIvOv7vy7/pAd4hjEWQY6GT92PzvafgmGETYgCbezz2Vl9szmGoHN4dojCrPuPo6Bk8Rx2PEUZ37GLTGAQ9pS9p69fKDzK1s0TdXo1FzErlTakae9S5NMiaxn9a3bDN5ngZIAglcdw5EGuJ1nC/JvO5dslmmIWGNQnEq1nNDDQir7zmnqceOMuYVbyqsRT4z26b4lXwHWJkalCO2MLEjWOmyIMXj3v6PpX/Wuy1XU6Og=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(1800799024)(23010399003)(41320700013)(366016)(261026140227099003)(38070700021)(5023799004)(56012099006)(261026121527099003)(261021123027099003)(261021121427099003)(261022105027099003)(261022075727099003)(261009223027099003)(10067099003)(55112099003)(18002099003)(6133799003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?MU26D6SSJjZm8PG4JuZQ2R6Xs9t9JlahGvGoV/BpDbTsAA8nBg51kYAQH33P?=
+ =?us-ascii?Q?cFrI33NFG8FSsV0lalFCQSSffB5oykM3dn4BP2FYp1VDoR/xUf3Drf1U8TVs?=
+ =?us-ascii?Q?UlrZ8WlKzXo0r9vTtQ3IkwxR1l9aL7594KVd58wNXzX+Hbh2QyWpjRYP815j?=
+ =?us-ascii?Q?6bij5PF2zzSUFZ7pnXvyrHVCj5rWFJEVm6oepANA5d7VFBG7G0gH4utA093F?=
+ =?us-ascii?Q?l5To1k7uPci8ndVu7DAeP8l92pTUGIDoPqIIVStkc2rwoxJLEl6MClmdk7Yi?=
+ =?us-ascii?Q?bRTyzx72mNNIb9BKKPec0orfeRQPCm2AG14+c9xnqiz1G8K8JDXdJS8QjoR1?=
+ =?us-ascii?Q?fQXlkcdRH+jFYdVDucgu1mU7ABM1xGzk036LCYiNuI/IfeathjktxHAUO72z?=
+ =?us-ascii?Q?Z4pi1hyG0wj2kDGoWalKz896lPrn0iEEvvXyOZxaN5n3FTrvpjxGfabLFuAn?=
+ =?us-ascii?Q?noD13I9GpE+m3sI0LmGTiLzZAxh1navLNi7S9OmAdurcTgzdiF36oYNT8Mbh?=
+ =?us-ascii?Q?e+2vOVtnBH0vebu/OUwbPCXuNWDHLXLi9nV7kUxCs4/UGyMLjmITEVj9YMPB?=
+ =?us-ascii?Q?OSFNF7/UkC/uFU58EZtTM6ScN/8+XiEYYqOZYCO55JbUhh+DXFL19TYtKCR3?=
+ =?us-ascii?Q?fnc1emOxa5zjV6JZi+kf45XzZNGvNro+picO27K15GtuEigDhz+fNrenyKrk?=
+ =?us-ascii?Q?VYjzOuzIDp1SerFyvhjdaNhY1HgcQQVVU9tDA2ZtA9L1YF7Raoa4NBv55STi?=
+ =?us-ascii?Q?BvyHBBnhi9Y3xGnCeqRqZ+wxmWmc6+bFF7UbF2nruG9M2Smnc35o0/uNtFEu?=
+ =?us-ascii?Q?isFYvBqqctxcVecualETkhcSMn1a0s/2WY91aMNELlvVSZMQfDdcZ021egL4?=
+ =?us-ascii?Q?pt0jZYVwvc3OrbcYEQWGHC8EpEoAzV92249P8tUYIhZ7/s0I21VO8dcBdD8h?=
+ =?us-ascii?Q?nqCS4Owo9KDEQ729G7gxzAxc/WHCmIOCWIjxRI1oyZJRpgt5tnj7W8CZn2/n?=
+ =?us-ascii?Q?CDdsnrBp3BGf+srvF9H0+zcjb/32aVoz34UPQ2KA3uRuvJcY2bc/skdQuEU+?=
+ =?us-ascii?Q?cFSJNIU3uihYULa2Tml9a7AqQXHusi7rwSro+bWhpbBB/2Mcv0Ins6KVOGN9?=
+ =?us-ascii?Q?yrIXdyOe5zlM2mw1U06vb4TSv0mje/dMMCVqiBDrW2AlEzsoISg/USa2A2kX?=
+ =?us-ascii?Q?sEJL/NFJAM9iutCscTG+d5nUpnBKipooeL/jGk94ra3gBL0jG/8hF2mTrsR3?=
+ =?us-ascii?Q?rJGG9vnRsBTv1aTd3HqxptwVFWZHfffNgNUtxG25TYk/Nf/qkTzaQlaPZ6Q8?=
+ =?us-ascii?Q?WjALe20AC2E8ttXfc3KmB9TvXj98ieE+3gMDLW8b+7IzfUDZqwRy0CJHJAUe?=
+ =?us-ascii?Q?ot+A4M+unsJm+ryDfa3XOTgV6+oyLiGgQ7RxgBmQlFghUy+FJB+eZwy73vVf?=
+ =?us-ascii?Q?+hwoF/fEzKNcUAhxzcdQ4NYKqQhv/V0PPeIXuDPBTGaRUKiJtw21H23IzJHl?=
+ =?us-ascii?Q?hmeH2M+7k/+LxbypcCg4Ha/HveM3ZfKqJIPBvhYniyAjBL4HzeHYopLEsWLF?=
+ =?us-ascii?Q?XMHfza0fi6juWQuyE4QOz/6SI50QPZqUCsr4upzyTj+t3SpYwrL4OPDgc+Cl?=
+ =?us-ascii?Q?wMGwRvQiI+syobp31LT7mDTLowr46bhVEs4rKy+zxxmd/Sxhyov/PbdFyQwG?=
+ =?us-ascii?Q?2bBAjEpxR9ztB/8n8DXOGy1oboikuz3U93dtSXSyGVtfwPYa0Sz/Jg4w7SdG?=
+ =?us-ascii?Q?exNg2TDYbA=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -142,306 +139,77 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9e54354d-b037-47e1-9390-86d5e25444a7@amd.com>
+X-OriginatorOrg: owlcyberdefense.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA1P110MB1661.NAMP110.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: f5b39d44-a2bb-48d0-6c41-08df33878431
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Oct 2026 17:35:24.0868
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 0c7a5d8a-53f7-44d2-b6c9-63bab40ba995
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH3P110MB1988
 
-On Thu, Oct 22, 2026 at 12:23:57PM +0200, Christian König wrote:
-> On 10/21/26 17:42, Albert Esteve wrote:
-> > dma-heap already supports charging a specific cgroup at allocation
-> > time via charge_fd in DMA_HEAP_IOCTL_ALLOC. However, dma-bufs can
-> > originate from any exporter (DRM, V4L2, etc.), and the allocator may
-> > not know the final owner at allocation time.
-> > 
-> > Add DMA_BUF_IOCTL_XFER_CHARGE to transfer a dma-buf's memcg charge
-> > to a different cgroup after allocation. The target is identified by
-> > charge_fd, which may be a cgroupfd or a pidfd.
-> > 
-> > The transfer charges the new cgroup before uncharging the old one,
-> > preserving the original charge on failure. An atomic cmpxchg on
-> > dmabuf->memcg prevents races with concurrent transfers.
-> > 
-> > Usage example:
-> >   int cg_fd = open("/sys/fs/cgroup/clients/app1", O_RDONLY | O_DIRECTORY);
-> > 
-> >   struct dma_buf_transfer_charge xfer = {
-> >       .charge_fd = cg_fd,
-> >   };
-> >   ioctl(dmabuf_fd, DMA_BUF_IOCTL_XFER_CHARGE, &xfer);
-> >   /* charge now on app1's cgroup */
-> >   close(cg_fd);
-> > 
-> > Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> > ---
-> >  drivers/dma-buf/dma-buf.c    | 77 ++++++++++++++++++++++++++++++++++++++++++++
-> >  include/linux/memcontrol.h   |  9 ++++++
-> >  include/uapi/linux/dma-buf.h | 26 +++++++++++++++
-> >  mm/memcontrol.c              | 40 +++++++++++++++++++++++
-> >  4 files changed, 152 insertions(+)
-> > 
-> > diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> > index f31f49ebd0af..7fa607d9bf65 100644
-> > --- a/drivers/dma-buf/dma-buf.c
-> > +++ b/drivers/dma-buf/dma-buf.c
-> > @@ -540,6 +540,80 @@ static long dma_buf_import_sync_file(struct dma_buf *dmabuf,
-> >  }
-> >  #endif
-> >  
-> 
-> A single line code comment what this is all about would be nice to have.
-> 
-> Some note to look at struct dma_buf_transfer_charge for details is most likely good enough.
+In selinux_check_access, we first check security_deny_unknown, and allow
+unknown permissions if that is not set. If the permission is known, we=20
+proceed to invoke avc_has_perm, which handles permissive mode.=20
 
-Sure, will add it for next version.
+The above leaves a gap when security_deny_unknown is set and the system
+is in permissive mode. Under such a configuration, selinux_check_access=20
+would fail on unknown permissions prior to invoking avc_has_perm. This=20
+commit updates that behaviour so that selinux_check_access treats=20
+security_deny_unknown as unset when in permissive mode.=20
 
-> 
-> > +static long dma_buf_xfer_charge(struct dma_buf *dmabuf,
-> > +				const void __user *user_data)
-> > +{
-> > +	struct cgroup *cgrp;
-> > +	struct cgroup_subsys_state *css;
-> > +	struct dma_buf_transfer_charge arg;
-> > +	struct mem_cgroup *memcg;
-> > +	struct task_struct *task;
-> > +	const struct cred *tcred;
-> > +	unsigned int pidfd_flags;
-> > +	int ret = 0;
-> > +
-> > +	if (copy_from_user(&arg, user_data, sizeof(arg)))
-> > +		return -EFAULT;
-> > +
-> > +	if (!IS_ENABLED(CONFIG_MEMCG))
-> > +		return 0;
-> > +
-> > +	if (arg.__padding != 0)
-> > +		return -EINVAL;
-> > +
-> > +	cgrp = cgroup_get_from_fd(arg.charge_fd);
-> > +	if (!IS_ERR(cgrp)) {
-> > +		/* charge_fd is a cgroupfd */
-> > +		rcu_read_lock();
-> > +		css = cgroup_css(cgrp, &memory_cgrp_subsys);
-> > +		if (!css || !css_tryget_online(css)) {
-> > +			rcu_read_unlock();
-> > +			cgroup_put(cgrp);
-> > +			return -ENOENT;
-> > +		}
-> > +
-> > +		memcg = mem_cgroup_from_css(css);
-> > +		rcu_read_unlock();
-> > +
-> > +		ret = security_dma_buf_charge_cgroup(current_cred(), cgrp);
-> > +		cgroup_put(cgrp);
-> > +		if (ret) {
-> 
-> 
-> > +			mem_cgroup_put(memcg);
-> > +			return ret;
-> 
-> Maybe use goto skip_transfer; instead?
+This new behaviour is consistent with the Linux kernel's behaviour,=20
+which allows access in permissive mode for unknown permissions, even=20
+when deny_unknown is set.=20
 
-Yeah. This is a copy from the ALLOC part sharing this logic.
-I will refactor all this logic (extracting memcg from the fd)
-into a function in memcontrol to clean up this mess.
+Signed-off-by: Brandon Sloane <bsloane@owlcyberdefense.com>=20
+---=20
+ libselinux/src/checkAccess.c | 7 +++++--=20
+ 1 file changed, 5 insertions(+), 2 deletions(-)=20
 
-> 
-> > +		}
-> > +	} else {
-> > +		/* charge_fd is a pidfd  */
-> > +		task = pidfd_get_task(arg.charge_fd, &pidfd_flags);
-> > +		if (IS_ERR(task))
-> > +			return PTR_ERR(task);
-> > +
-> > +		tcred = get_task_cred(task);
-> > +		ret = security_dma_buf_charge_task(current_cred(), tcred);
-> > +		put_cred(tcred);
-> > +		if (ret) {
-> > +			put_task_struct(task);
-> > +			return ret;
-> > +		}
-> > +
-> > +		memcg = get_mem_cgroup_from_mm(task->mm);
-> > +		put_task_struct(task);
-> > +	}
-> > +
-> > +	if (dmabuf->memcg == memcg)
-> > +		goto skip_transfer;
-> > +
-> > +	if (!mem_cgroup_transfer_dmabuf_charge(dmabuf, memcg)) {
-> > +		ret = -ENOMEM;
-> > +		goto skip_transfer;
-> > +	}
-> > +
-> > +	return 0;
-> > +
-> > +skip_transfer:
-> > +	mem_cgroup_put(memcg);
-> > +	return ret;
-> > +}
-> > +
-> >  static long dma_buf_ioctl(struct file *file,
-> >  			  unsigned int cmd, unsigned long arg)
-> >  {
-> > @@ -590,6 +664,9 @@ static long dma_buf_ioctl(struct file *file,
-> >  		return dma_buf_import_sync_file(dmabuf, (const void __user *)arg);
-> >  #endif
-> >  
-> > +	case DMA_BUF_IOCTL_XFER_CHARGE:
-> > +		return dma_buf_xfer_charge(dmabuf, (const void __user *)arg);
-> > +
-> >  	default:
-> >  		return -ENOTTY;
-> >  	}
-> > diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-> > index aa08fbb0c26c..3a6acfda1423 100644
-> > --- a/include/linux/memcontrol.h
-> > +++ b/include/linux/memcontrol.h
-> > @@ -674,6 +674,9 @@ int mem_cgroup_swapin_charge_folio(struct folio *folio, unsigned short id,
-> >  bool mem_cgroup_charge_dmabuf(struct dma_buf *dmabuf, struct mem_cgroup *memcg,
-> >  			      gfp_t gfp_mask);
-> >  
-> > +bool mem_cgroup_transfer_dmabuf_charge(struct dma_buf *dmabuf,
-> > +				       struct mem_cgroup *new_memcg);
-> > +
-> >  void __mem_cgroup_uncharge(struct folio *folio);
-> >  
-> >  /**
-> > @@ -1183,6 +1186,12 @@ static inline bool mem_cgroup_charge_dmabuf(struct dma_buf *dmabuf,
-> >  	return true;
-> >  }
-> >  
-> > +static inline bool mem_cgroup_transfer_dmabuf_charge(struct dma_buf *dmabuf,
-> > +						     struct mem_cgroup *new_memcg)
-> > +{
-> > +	return true;
-> > +}
-> > +
-> >  static inline void mem_cgroup_uncharge(struct folio *folio)
-> >  {
-> >  }
-> > diff --git a/include/uapi/linux/dma-buf.h b/include/uapi/linux/dma-buf.h
-> > index e827c9d20c5d..4970a7b8e08e 100644
-> > --- a/include/uapi/linux/dma-buf.h
-> > +++ b/include/uapi/linux/dma-buf.h
-> > @@ -168,6 +168,31 @@ struct dma_buf_import_sync_file {
-> >  	__s32 fd;
-> >  };
-> >  
-> > +/**
-> > + * struct dma_buf_transfer_charge - Transfer a dma-buf's memcg charge
-> > + *
-> > + * Any holder of a dma-buf file descriptor can perform a
-> > + * DMA_BUF_IOCTL_XFER_CHARGE to attribute the buffer's memory
-> > + * cost to a specific cgroup, or move it from one cgroup to
-> > + * another.  The ioctl charges the new cgroup before uncharging
-> > + * the old one atomically.  On failure the original charge is
-> > + * preserved.  If the buffer has no existing charge, a new
-> > + * charge is established.
-> > + */
-> > +struct dma_buf_transfer_charge {
-> > +	/**
-> > +	 * @charge_fd: File descriptor identifying the target cgroup.
-> > +	 *
-> > +	 * May be either a pidfd, in which case the charge moves to the
-> > +	 * memory cgroup of the referenced process, or a cgroupfd obtained
-> > +	 * by opening a cgroup v2 directory, in which case the charge moves
-> > +	 * directly to that cgroup's memory controller.
-> > +	 */
-> > +	__u32 charge_fd;
-> > +	/** @__padding: Reserved, must be zero */
-> > +	__u32 __padding;
-> 
-> Maybe rename to flags, put before charge_fd and add "/* unused for now */".
-
-Agreed.
-
-> 
-> > +};
-> > +
-> >  #define DMA_BUF_BASE		'b'
-> >  #define DMA_BUF_IOCTL_SYNC	_IOW(DMA_BUF_BASE, 0, struct dma_buf_sync)
-> >  
-> > @@ -179,5 +204,6 @@ struct dma_buf_import_sync_file {
-> >  #define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, __u64)
-> >  #define DMA_BUF_IOCTL_EXPORT_SYNC_FILE	_IOWR(DMA_BUF_BASE, 2, struct dma_buf_export_sync_file)
-> >  #define DMA_BUF_IOCTL_IMPORT_SYNC_FILE	_IOW(DMA_BUF_BASE, 3, struct dma_buf_import_sync_file)
-> > +#define DMA_BUF_IOCTL_XFER_CHARGE	_IOW(DMA_BUF_BASE, 4, struct dma_buf_transfer_charge)
-> >  
-> >  #endif
-> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> > index e94222237d31..d994a4b2d35e 100644
-> > --- a/mm/memcontrol.c
-> > +++ b/mm/memcontrol.c
-> > @@ -5688,6 +5688,46 @@ bool mem_cgroup_charge_dmabuf(struct dma_buf *dmabuf, struct mem_cgroup *memcg,
-> >  	return true;
-> >  }
-> >  
-> > +/**
-> > + * mem_cgroup_transfer_dmabuf_charge - move a dma-buf charge
-> > + * @dmabuf: buffer to transfer charge
-> > + * @new_memcg: target memcg; caller must hold a reference
-> > + *
-> > + * Transfers the charge for @dmabuf to @new_memcg and, on
-> > + * success, stores @new_memcg in @dmabuf->memcg.
-> > + * Returns %true on success, %false if the charge against @new_memcg
-> > + * failed or a concurrent transfer raced on @dmabuf->memcg.
-> > + * On failure the caller retains its reference to @new_memcg.
-> > + */
-> > +bool mem_cgroup_transfer_dmabuf_charge(struct dma_buf *dmabuf,
-> > +				       struct mem_cgroup *new_memcg)
-> > +{
-> > +	struct mem_cgroup *old_memcg = READ_ONCE(dmabuf->memcg);
-> > +	unsigned int nr_pages = PAGE_ALIGN(dmabuf->size) >> PAGE_SHIFT;
-> 
-> That doesn't work as easily as this.
-> 
-> DMA-buf can contain litterally *anything*, ranging from system memory over device memory all the way to functional HW blocks. In other words doorbell, GWS, GDS, OA, I2C, I2S, any random data consuming or providng HW block...
-> 
-> For memory the "size" is the actually number of bytes the buffer represents, but for everything else it is just an arbitary number given by the exporter. In most cases just 1 or actually number of HW blocks/channels, but for GDS for example it is actually a pretty large number.
-
-I don't think I was completely aware of all these uses for dma-bufs and
-the specific meanings of the size for all them. Thanks for pointing this
-out.
-
-> 
-> Saying that you most likely need some flag from the exporter if charging and/or the changing of charging should be possible or not. Otherwise you can potentially do quite a bunch of nonsense with that.
-
-Yes, a flag seems to be simple solution for the problem at hand. I can
-focus on the system heap for now, and it can be easily extended in the
-future for other allocators as needed.
-
-> 
-> Regards,
-> Christian.
-> 
-> > +
-> > +	if (!mem_cgroup_disabled() && try_charge(new_memcg, GFP_KERNEL, nr_pages))
-> > +		return false;
-> > +
-> > +	if (cmpxchg(&dmabuf->memcg, old_memcg, new_memcg) != old_memcg) {
-> > +		if (!mem_cgroup_is_root(new_memcg))
-> > +			refill_stock(new_memcg, nr_pages);
-> > +		return false;
-> > +	}
-> > +
-> > +	mod_memcg_state(new_memcg, MEMCG_DMABUF, nr_pages);
-> > +
-> > +	if (old_memcg) {
-> > +		/* Uncharge old cgroup */
-> > +		mod_memcg_state(old_memcg, MEMCG_DMABUF, -nr_pages);
-> > +		if (!mem_cgroup_is_root(old_memcg))
-> > +			refill_stock(old_memcg, nr_pages);
-> > +		/* unref from buffer - buffer keeps new ref to new_memcg */
-> > +		mem_cgroup_put(old_memcg);
-> > +	}
-> > +
-> > +	return true;
-> > +}
-> > +
-> >  /**
-> >   * mem_cgroup_uncharge_dmabuf - uncharge a dma-buf from its memcg
-> >   * @dmabuf: buffer to uncharge
-> > 
-> 
+diff --git a/libselinux/src/checkAccess.c
+b/libselinux/src/checkAccess.c=20
+index 3cdd2413..18e4abda 100644=20
+--- a/libselinux/src/checkAccess.c=20
++++ b/libselinux/src/checkAccess.c=20
+@@ -26,6 +26,7 @@ int selinux_check_access(const char *scon, const char
+*tcon, const char *class,=20
+        security_id_t tcon_id;=20
+        security_class_t sclass;=20
+        access_vector_t av;=20
++       bool allow_unknown;=20
+ =20
+        __selinux_once(once, avc_init_once);=20
+ =20
+@@ -47,11 +48,13 @@ int selinux_check_access(const char *scon, const
+char *tcon, const char *class,=20
+ =20
+        (void)selinux_status_updated();=20
+ =20
++       allow_unknown =3D !security_deny_unknown() ||
+!security_getenforce();=20
++=20
+        sclass =3D string_to_security_class(class);=20
+        if (sclass =3D=3D 0) {=20
+                rc =3D errno;=20
+                avc_log(SELINUX_ERROR, "Unknown class %s", class);=20
+-               if (security_deny_unknown() =3D=3D 0)=20
++               if (allow_unknown)=20
+                        return 0;=20
+                errno =3D rc;=20
+                return -1;=20
+@@ -62,7 +65,7 @@ int selinux_check_access(const char *scon, const char
+*tcon, const char *class,=20
+                rc =3D errno;=20
+                avc_log(SELINUX_ERROR, "Unknown permission %s for class
+%s",=20
+                        perm, class);=20
+-               if (security_deny_unknown() =3D=3D 0)=20
++               if (allow_unknown)=20
+                        return 0;=20
+                errno =3D rc;=20
+                return -1;=20
+--=20
+2.55.0.windows.5=20
 
