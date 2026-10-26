@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.51
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793021957;
-	b=Jh/IGrnCYYmquG9/XJwbRR88hgJ32M5k3PlB42SmqlPD/d3BTvR7NRPTHxGRLJiGz+sB
-	 +TMGsYaKl4oTRq0PyLSEAxBgTy6M1/9w/K5bt/+43Y4vSqQCun1q6OjTe3XvJ0a/D613e
-	 8SL28JIrY0NyBdgs9ZX7imcpV3wUPfVDCTvpQcxU5bHCv4PDc6Inw5QiR7oniEpCyO7SV
-	 zGyY4uPPzT7SLjBJv6e6gSSPoyR+9gH2/HkzAo4uw+IN9kZw0RXsT9cmpEI08gu2oFv3z
-	 Uc277HokM/6ia3YK3sDV4JzJHGRnMsUny7WNV3fFaB4+vP1e4E+A2hgZYr4yj7y9o1Q==
+	t=1793022077;
+	b=RYzPwOHCLPrEmweDjgRPrhJh+Ri4UaCniCeN23/vWjeONEspeLxfrqionVPG/mC7e76C
+	 lihmgIYnEzYVBtts62IVvU/3e4/XcbW+e55ZQZYtGGlk7gBD/F1hJ2Ntpg1YXidH7yLqr
+	 +2Ilh577mGV9UwDijlDcHZrsimpqs4vR86xT1bkZ1E5EHwEIbMypwGVnQxK+wpGWvbugM
+	 klic2xsTNRW0O6ScWRIRHBd2NBnibAYYwke90Z+gUj6IgRiGJMrsjqhLTWdY+ftwlot+m
+	 n5//IuhNr4zkJoc2BZOrtiWwGGOFHsNBH/AgDyQOiY6e8vHFXNK5PZ/hzdr5AGtyd1g==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793021957;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793022077;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=9/gHEXhccl7K2s0awxWPnx0p2EajS2lp/1uW2BHXLX8=;
-	b=JI/gGTtA7bjjz8OjA9XXfS2OuqzSGD2dGsZiLI5YH3i6eXBDEOn2CXExCxF+B0SWlZ93
-	 vgn3WzgVqa951HUgirhmqqBAh5GgM6I6p3gmpR/rsl13xa+vqYZisfp0J05nRLd7JQzsD
-	 kMLTInm9AmAkMZLZJ3oZEIPQQZgS9xEFm9jk6RvtFpChbhxgHnswU00eJ1ilecCXP41sc
-	 nhzgdM0WGKid6/AWKNgyuCSzh7vc5rCo55IIQU6bFIxvyi3Hg6AP/NMVm9z8BYQgFuQiJ
-	 gX3HmdIzMbVmquSrgNpA3UqaNBQynJdO+xtlWCpTrLRN/ps/lc5+IWt+UC8FQRTpEAQ==
+	bh=b3ynvQQWB7ocdlTzwqkWvrAEm8/ZVJMqte37ZoiXWyU=;
+	b=bI6OmDTwXtfA5aMQkkXa/maikPONSADpbzP5m+ymLlKmvGmZisjdiAYVedDv3kdJDNQz
+	 BRnbOR0YKznsnzakZJfQpRh8/Y1C2XKL0Szw7cMXTVOl3xbvp/M5wb+czoPPhlNg65mT7
+	 n3phZIwfXL8qzGRDfbVHAzuqtb25ZZ2GfGmXJzzPxvKwNcDGvtqdW9Yn1YiHG5HTQ6aJB
+	 vU1/LkPE6BkKxI+6DU+IpQsKSutnzaRP3KvdiYn6nfAlrEQZ9q9FAgoMVR3QM8jY5hWDn
+	 4ysdKhZWMs9Iclr3kRBNiEARtiPjiLF1i7t1O7xy7ZRztziYME6vy4koKUOeJGIdD3Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LFvxKXCd;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
-Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=T7CTricN;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.51
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91583606A328
-	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 13:39:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91583606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C9E3606A31B
+	for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 13:41:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5C9E3606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LFvxKXCd
-Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-679a2b540f3so2582060d50.2
-        for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 06:39:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793021955; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=T7CTricN
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-679a2297c55so3549794d50.1
+        for <selinux@vger.kernel.org>; Mon, 26 Oct 2026 06:41:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793022076; cv=none;
         d=google.com; s=arc-20260327;
-        b=NtF+Nhd3ZZA+hzESfmL+Xc8S4+LwOdYKGILixM/LRtkRfkJ6U4fAqgSj2p7NHsHaGE
-         L9fx2q4Wn1pNHyWl494Srsiyndv9H9emZgME3owypWFRL5o0Z7EpYYYt8GFZcLNDMz9Q
-         WI7ryNfPWjdl+Y+G4yG3NZKcxK9ZslvcyQgopuMX1CqioKC1P3pToi5v3xDIx3sF+Eff
-         ht149EYNFxpwNhc6+qVL5bPQvtcYuNw85PTnr1hoocv7k0BmEqhVEmA1Bad3LZUN9vLa
-         obIbi9IytZd4H7u/bRhlqtti3m/DuF2Bv/gzBMXiXh82s6+f2ZtzgxD5EZQHIx0jpwjG
-         hhRQ==
+        b=s87CTFszbckjpwB+5k7bauLL/mfS0hh4p9iQhKsk/3aOHYwNcz5kQdkvNuzdsxnuyd
+         uYkgxCdoFdoqM/n/TlSwufMqqx8vn+Wwa2JK80sRcBRsYEGNKLqqPqcM/4Pi+yqU//m+
+         Lle5evGltiW0bhyP9OJuk4Xg2b523aIZ2qRf0oWyfsiJspRrc2ysv1xnx/Na6OEMQtrG
+         qEoW399721aUpJ3BmIFPNKyebNq7alcZQe4d66yhR2P6TL4D9ppfHNbSXON1boKgq7NB
+         XXS/rv4fKC4NWh47XK3Korz/luLkaEC/di72IgJlCOyBtSrqCcferCHNLWAYFNhQjauX
+         knbA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=9/gHEXhccl7K2s0awxWPnx0p2EajS2lp/1uW2BHXLX8=;
-        fh=dOK3+QzSPN7gzn1PlS8ptJJmK6YYk6mhFKVaSQ0dNqc=;
-        b=cyJQ9drzd6qcdeqAxTehUbjPukI277sDF/kk2chP5LUTIbA1PrUynKWEPxTrtUyClD
-         sowufm+jEa5QgeGalPDXe6RphL16yNQ42djznakjpSlIQLxh3B6ZghkTe1AbxdKjMBu7
-         eUmtuLdNQMzmuOopqZpSlHSTGFFL2OkrhSz8JBp36b/RewCPNwUTQ+sV/WpIzmlV/1Ia
-         bQy5urv7B/dlgzY9sFpKmbE/7QNHhhd0gziU6+EbQ9ksByXi1Svf+OeCwcId3Lqn7YxB
-         PE4Tkkn8Er4cG2WDaXsjqZUQ/hNMaF5Npr+VCBoJ2xZvzBwE4trzR4GDjrzmePReTdXd
-         0gnw==;
+        bh=b3ynvQQWB7ocdlTzwqkWvrAEm8/ZVJMqte37ZoiXWyU=;
+        fh=oY3YJwlQJe6qc1tfsT1YP2sL1SDhL9BUcCb87gGht54=;
+        b=OawkuUGEcboHGkvdspKIyFTckXX4AaTulJN1/aUfhv4o4KT5suxAgiiYXbnmiD2bkS
+         dvGfUBUp7xEdaJ8zK2DS2cXDZODVdOa0mFPiQnFhyZit0xFIJ5jFvJUzjqwCLTVOT5c4
+         w53Uq4rq2qeOnK5tWynepfpObISszblvNGP4MLD8xu7lQCIrM7KmlERQMuasLJdbnRtX
+         JuQjMmYjarxsweKVzGt69xmQceds+tQRrrEPUw9KswnwlDe7OzwjVGZcm5qoBZN11fxQ
+         pv1t5matadkmeG6D854MSzSZ99pBrpIsmDrvMQxUFcmdbVaD+cLz6A1x4X3e3aVzP7eI
+         GmgA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1793021955; x=1793626755; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1793022076; x=1793626876; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=9/gHEXhccl7K2s0awxWPnx0p2EajS2lp/1uW2BHXLX8=;
-        b=LFvxKXCd5LTDiYOAmtmvXKgyqlwDeTPvlwm81OgySHrRTgFsWX0D2XdFMfwY+9Lo+/
-         EhotmjcBwklG9cYlWCAGMeJaMSM1qKJP8TtC9bgsscSjF/TQf191mYmDpZJv9H1belm/
-         PK9cEOd1u4k01TURQmQVHfjZe0ZNjUxR7hqsDHyWvSRRSUiWl/ETLx6O6Zo0ZGH8OU/k
-         EIyfhYYMcoMbVwuijPI2c15YVKWiPtGWYns/EbRlQ8yYCzg0jTN+nbUmu+Zew1csgt6l
-         ochj8CutkzujTMsACW2/LCjwPyz9zwlj1DvX/CXuWobNmYTaM3UgOLoDzqdeYCeF5E7M
-         xnvg==
+        bh=b3ynvQQWB7ocdlTzwqkWvrAEm8/ZVJMqte37ZoiXWyU=;
+        b=T7CTricNaIVRkK/7h7t+2vIg+6J6n7L0c05uKvytaUSZC4ch+LQK+r/idlU9Ri6olF
+         zJFEPmMyDB6MC7pv6ogJa5aMUIJ0Kbg4pR8qXRN/k/w79g4A3t6eXqsB5wXw79pay6I+
+         0ocaBcNZbBAM4eSbCVNp/q7UpXJJTsdIMJ+YUt6QuOSmFNAUOWUEsOkzqfhvUBW+TEI3
+         x6mHu0q3ib014i6OfBHD1PwpWuzbxfp4GC8ubGww6XzE7njfjbooub8f8Mk52xYRmCCB
+         GCtWl1hQVe7B5+Za1+REb5V3uCiqSYDhinx1gXXjvIyGUEqHMZB/BqiM3+S+1xIOLSCT
+         rz9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793021955; x=1793626755;
+        d=1e100.net; s=20260707; t=1793022076; x=1793626876;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9/gHEXhccl7K2s0awxWPnx0p2EajS2lp/1uW2BHXLX8=;
-        b=TW3zTlKhksW8hMqNNMEyVGvwuuDRLEjtHIWM+xPKYnLCGHe1KIdEZaPJLUIt3ejjs8
-         6UPUjd3CI4nd9Ikmw8jDUF+dHKvBRwOYx7PO2pDPemagR50yam2URiWu6hMry5cF4YSU
-         tzcRwkGuzrXZeimefbv5SzT8y9bb3cSlZA7f49ARtNkL7J1XOW8AJcGD+FBsmruO8AFL
-         vB+9PUMIMrGwajPv0IX8N3eUtox3ggd5AZFpTe/wa+LRZRd2oLRaTtxx+A99N+CSr5QA
-         Nr8b1AaL822gUgGV0xrZS8LA48nJDsDMio7BHCOH0trAnS7vu7a5YQqKQoGrcc0Tx4sS
-         joSA==
-X-Gm-Message-State: AFq9FYJphlYM8mxKz/R18qnTSozUkiRd5eH3Ppdwj0EwWR0XaV3sq3Sp
-	1tNMPzpcxXhVI24Ga+pywt4XV+4q+u5aq3o1XSNko3+zgi1mlaCTX48bK0TYMydLXECAwC3kXbT
-	G2IkPdcXBmzET+Lr0gfSGEezMqHkD7l+3fNU6
-X-Gm-Gg: AYBFou0XhRRRabZHu6ZRbK8CAqzpUtX3jbD/BdmLm83nFpMqbHiWFfdAp4nIoSL4zQs
-	dNBrFLwPrNISmZ+5um7FDiDxHG0VU24qyxM9rHyIL5RKIXShiPz2yNY0UpaQV/8wM+ccUvXnd2j
-	l9WYxNmsSMtzb6Q/V/f4hStDD6jFJbI7QUeMhEjFWUWlxGDGxQQDOaJxkoiHk0LyoxYTj4iv4Pf
-	93kyc3yo5po/juy3Q/0VkUqkjDITUe/nmdlN3VmLnAfYyKFAKCSi1213bfnNV5NzufRdH7ZV10f
-	SCc5d++IU8MoE5GATNxUFDNLWyhGT/kDQzNFePg8rDmFO0T4S+S1wgAeB5ah7TjrVjT6F+Tba+N
-	Un/Dvmi4FuN5q2eb99Y1k0e/XRP/VwqWKCsgTgsEe1qI4DvY/NcueRmpDD4AuKYy6tHe+JcLSmr
-	2xHghxgVaFmMNjyaavopIo70oURJDR+yQ3ozJCW6Onq/E=
-X-Received: by 2002:a05:690e:1510:b0:679:a2c3:b2e9 with SMTP id
- 956f58d0204a3-67a454aa148mr3793753d50.101.1793021955445; Mon, 26 Oct 2026
- 06:39:15 -0700 (PDT)
+        bh=b3ynvQQWB7ocdlTzwqkWvrAEm8/ZVJMqte37ZoiXWyU=;
+        b=rUytSUdO96QYzARJwLx9OE2azg6lLjXYStSn3FMCrb7oEFk8FwNXg3cKkSiJbvQb51
+         YL5Fe0+j1FIQmfY/y4uM65rhW7xDJET3G1pS8/7LsRgcqAgVAEP+h/Ons0VJ5DQiKLOd
+         jQLYVMrY+pJ8q/5wCqhNmZiyVHCMs7fD+GOCjT25uZcnj2DwUX6LfX5fNLeb4gXf6sSX
+         +lfEjonSommlymLYyqxBo1bfaE01uBB4UhvAGcNHmuxMtEUKeRVydR16xLOIZDy/94Aj
+         Wc8Lh+W58QQy6GMjiEQcBbK5JfLKPAvkoLDAIo2chHivSQAu7oDXVVOPKt4YjpmCXhF5
+         sqCw==
+X-Gm-Message-State: AFq9FYJrbOsvxU76zZDUDMch6uyNvDohUTnWGIkW6eazQeKNL8PzDYYi
+	4IA8SNEgCNC9IT/jqKahDl+DNtaIEKR5Dy7Bwv641N4efCqj+prF6MmyemSXFjsganHpKsx2i+j
+	UQU5dKFN5x+ju2zYJHJVt6qBwHef47paJ10tz
+X-Gm-Gg: AYBFou0lxyU+ZPl+HEKTxV/kV9iEGLNTphLr+xdQubbAOxZRLNIDYp43cPtL+cNnoBy
+	LbnpepGTs42C3VVD65+9u5Z6Gsd7GFhobWotioCbYuDHuoPK7nwZv6GxxugNHaW2iR0t72+czjv
+	II0crVvDiCC6lhKMkUa90gjZ56WRwqYTg+5Vn7f/qAQRpmZdn9VR16OLC4Fj1O6GBrVbxsmkDHz
+	yInWWY1opN6t32dzg4Sy6+n2ob1dKEi+AjpUEICJ08EXAfJAC+sUP/KCLbyikwKKOKZpPcu8cos
+	xjVQKpM/t5XmJYKn5UZwDkSWoyKTpYq2S9tOBGcWUoAZU1c1v5aTnNQT7vhkB/7k7Ig/jb/4Jse
+	8j8Disd2DjoGOFrI92aOSZUV9JuTg0HTctQvPMVB8Udrq2/wk27zQhwueNCE95zAVMrgwrthxVU
+	D3Pj5Cmw97iv2XC+NNrELSCQ==
+X-Received: by 2002:a05:690e:e84:b0:672:ede8:d1f4 with SMTP id
+ 956f58d0204a3-67a4544ea56mr4382878d50.62.1793022076343; Mon, 26 Oct 2026
+ 06:41:16 -0700 (PDT)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,67 +104,47 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261019140249.30088-1-stephen.smalley.work@gmail.com> <CAEjxPJ4tY5cpYMN4CwPoS5RN=+=P9RwzPiHGG0uTX2dRKWU-gw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4tY5cpYMN4CwPoS5RN=+=P9RwzPiHGG0uTX2dRKWU-gw@mail.gmail.com>
+References: <20261023180442.60362-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261023180442.60362-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 26 Oct 2026 09:39:04 -0400
-X-Gm-Features: AclHuK9k1c4YIYQqziYFUn3I0UB7Ghq3KbcAfUD7838rGKTi09mv2wloqQcn6Ho
-Message-ID: <CAEjxPJ6EbWx-t6zCQ6mX8nDErjnLyd7uTABCern=+wRuD_5zOQ@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils: omit excluded mounts from the fixfiles
- relabel list
+Date: Mon, 26 Oct 2026 09:41:03 -0400
+X-Gm-Features: AclHuK85QwHmM4WEYNeoxUu69-VFYbjkQuaAloW5lm8BtV2L0Ah_GFjS2Y1Ma1o
+Message-ID: <CAEjxPJ5tUTLmbhXPPXkepXpc7OOGUtGmq5hz5rRkW47QiwT5Zw@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: preserve read-only store overrides
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, Pragati Hatkamkar <phatkamk@redhat.com>
+	jwcart2@gmail.com, cathy.hu@suse.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 19, 2026 at 1:23=E2=80=AFPM Stephen Smalley
+On Fri, Oct 23, 2026 at 2:04=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Oct 19, 2026 at 10:03=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > From: Pragati Hatkamkar <phatkamk@redhat.com>
-> >
-> > fixfiles logs directories from fixfiles_exclude_dirs and passes them
-> > to setfiles with -e, but the Relabeling line and the per-mount progress
-> > output still come from every read-write seclabel mount. setfiles prints
-> > a 100% line for each of those arguments even when -e makes the walk
-> > return immediately.
-> >
-> > restore, check, verify, and relabel all use this list. Leave excluded
-> > mounts, and mounts underneath them, out of the list that is printed and
-> > passed to setfiles. Keep passing -e so those paths are still skipped
-> > when reached from a parent mount.
-> >
-> > Signed-off-by: Pragati Hatkamkar <phatkamk@redhat.com>
+> Keep per-file store fallback, but stop CIL lookup at an earlier HLL
+> source whose cache is missing. Create writable module directories
+> before compiling vendor-only HLL, refresh the extraction path after
+> compilation, and report enabled state from RO-aware module metadata.
 >
-> Other than some whitespace nits noted below (not blocking),
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> RO HLL can change independently of a writable derived CIL cache.
+> Recompile externally sourced HLL when processing it for a build or CIL
+> extraction; retain normal caching for writable HLL.
 >
-> We probably need a standard formatting script for our shell and python
-> scripts like we already do for our C code,
-> with a top-level make format fixing up any divergence for those as well.
+> Resolve store-backed file databases at cache time rather than pinning
+> the first active path at connect. Permit TMP fallbacks only for local
+> record files and invalidate cached views across transaction-state
+> changes.  Existing flush-on-modification provides file-level
+> copy-on-write, including an empty file that shadows vendor records
+> after deleting the last entry.  Use the same fallback when publishing
+> local file contexts.
 >
-> > diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts=
-/fixfiles
-> > index 45f2d5ce..e266da77 100755
-> > --- a/policycoreutils/scripts/fixfiles
-> > +++ b/policycoreutils/scripts/fixfiles
-> > @@ -259,14 +285,18 @@ case "$RESTORE_MODE" in
-> >      *)
-> >         if [ -n "${FILESYSTEMSRW}" ]; then
-> >             LogReadOnly
-> > -           echo "${OPTION}ing `echo ${FILESYSTEMSRW}`"
-> > +           FILESYSTEMS_TO_RELABEL=3D"`filesystems_to_relabel`"
-> > +            if [ -z "${FILESYSTEMS_TO_RELABEL}" ]; then
-> > +               echo >&2 "fixfiles: No suitable file systems found"
-> > +            else
-> > +            echo "${OPTION}ing `echo ${FILESYSTEMS_TO_RELABEL}`"
+> For ACTIVE as well as TMP, stop fallback when checking the writable
+> path fails for a reason other than ENOENT, so errors are not hidden by
+> a read-only copy.
 >
-> The four new lines added here use spaces where the surrounding block
-> uses a tab plus four spaces, and the last line above therefore shows
-> with the wrong indentation.
-> Cosmetic only but would be happy to take a v2 patch.
+> This prevents replacement HLL from silently using vendor CIL, stale
+> vendor-derived policy after rebuild, and loss of RO local overrides
+> during transactions. No public API or policy format change is needed.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 This has been merged.
