@@ -1,99 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.227
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793101172;
-	b=NYLOH0CUUFVlw7dSAPEiWPApLJkOGS444tootSDNwYcNtbBnEmeYlgNaJFK0RUbX8LrD
-	 4CZDRR6SFGpHjTy8R/CHi5BI7Ck5Lb7WKD7isGwPRn8fp4VbYZ9RCp60DE49jx2lcPQjx
-	 IdNOqtT6B2nmPvB8E/hi5kkW5Go0VEQHvPQ62/ed6TcLn9xzRc7KdRklEk78wf75gdQFJ
-	 vgbiZrb2UFGhM9ry1AJBzyqSGsigUQ7WSkPZ3i03mkeBjPsY2nAMbCCJkHM+6r2woVsnu
-	 KbOO0joN4X1dHs30lflvmXYZpbtYKeBkedg+moSpgid3rzT5R9u1mTPgyCJK0JwYsvg==
+	t=1793102850;
+	b=G36RzLEWWLYGEoPRpf5Se/n3dbgGfuSgdS8uou8kOHE3uL6QTBa6Ec6pZsvLM4zJBZ7C
+	 Gg08gmRBx0IZ4WflNPeZJYHvyezWTWwtV9oBzQLlNK72+haWr3YGNAYmJhH3OqKfw4yqa
+	 VhA2+IXC/dCu9Y85nW0eFjTZ0w4hElk+MkHVK0S4tkFhUbTphyUNOQCXOzuH3EdnuNiMO
+	 QtyAJHMmvrCBo8Q4kJVeC/dds3ukCuO826zAGx3/2kJIv/d6/bavMdVdpyPIC1FlmgBCd
+	 3PPxeChQ2l6UOydbtFVEH39PPxdXLT3RvTExGU7c0DBEWXl4HwnyAHX+2Iog5Tb5++g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793101172;
-	h=DMARC-Filter:dkim-signature:Received:Received:Received:From:To:CC:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Type:X-Originating-IP:X-ClientProxiedBy;
-	bh=4gnQWBth/c177Bb08YOlMXVK4RtND6n6IeYO3twMeyU=;
-	b=XOZDy4W0pK9L9C5znw4HKXNBnd+uBjEdq5Bt5/3RNkMjX+goV2MjdmQJSvwIXZy9lqcs
-	 iZ1ezqffof3Bk/GLmDC8VgA4t8UbgQ8Oy4V3/bOPB9T6zZLJtNKXXYaXzaGmFXEqaxMPH
-	 bKl+iXKLKmUZjIM9ASQtk+bDqcBCyuh+DWhPHVprtjZjbiddpxRKWpzTnVipPP3gaWgdT
-	 /C6kRoD+BTqjCzd3u8CkHVDOY2UlcNaMsBxIRTI09hm1FPiLjzaosYjXK17USNVwChr+v
-	 0COAud3cqUoej3crRONL/T3OwgzDSXRdg7xCkpdAapGWWjJW0ClSk2FnVbnrXXPFBdQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793102850;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=XuAqvW/17/K4S72P6BveYIRMwFq7nJ4rumTZEaNiaZo=;
+	b=vpKpD62UjQKgHGSTxpTgVtWfUPhi7s4x7P/o+spoO/Bk1Jul2gnClgXaVJtIuOZaIAIm
+	 49Wnu/ENNCQa679SkxftqGUPIn1TwlVJvUyP3v4ZZAN5/ReFhnv94rbjDkJ/bErrGaw72
+	 +tL73/CW5mcbJBgYR0nuoFVRoUonQh0q6YMg4z71TyuIYs+Xu41Dq9fNcWF/42RJEAUPn
+	 cQOj7tVpAt4kfOv5hvxGV0k7U9vMaJUi+9j28M8YV1wA7fN1nxAMtitdFqn+j5SfJWAB7
+	 AntQdEYcRqIKMi2iY+gaP6FvZ8wLrnP0wPc+Y872GdLxYBDJ5mMaccPryopgj3hXXdw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=huawei.com;
-	spf=pass smtp.mailfrom=huawei.com;
-	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=G1SVNDWK;
-	arc=none smtp.remote-ip=113.46.200.227
-Received: from canpmsgout12.his.huawei.com (canpmsgout12.his.huawei.com [113.46.200.227])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Aepiy6Pr;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3C1860A6F6A;
-	Tue, 27 Oct 2026 11:39:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3C1860A6F6A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04F4F606A320;
+	Tue, 27 Oct 2026 12:07:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=G1SVNDWK
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=4gnQWBth/c177Bb08YOlMXVK4RtND6n6IeYO3twMeyU=;
-	b=G1SVNDWKcr2QNUjgbDuLk2jxeAvYkuwkX30tA9oqTeZ9bxwp8KDbS69GSj1q9vmV4sEvUVlQJ
-	exZ/ffSO072HZRgGFDNZn4Cz6xPeMgbwA5WACDIBNiJxd63MLTs9hqd7q7iB8W9AF+yFvmrW9c1
-	OfYeTX7VY/CksdLR+h2BeMI=
-Received: from mail.maildlp.com (unknown [172.19.163.200])
-	by canpmsgout12.his.huawei.com (SkyGuard) with ESMTPS id 4jDT6s6LwDznTZW;
-	Tue, 27 Oct 2026 19:39:33 +0800 (CST)
-Received: from whupemk100010.china.huawei.com (unknown [7.152.184.41])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9DBE64055B;
-	Tue, 27 Oct 2026 19:39:28 +0800 (CST)
-Received: from octopus.huawei.com (10.67.174.191) by
- whupemk100010.china.huawei.com (7.152.184.41) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Tue, 27 Oct 2026 19:39:23 +0800
-From: Cai Xinchen <caixinchen1@huawei.com>
-To: <mic@digikod.net>, <gnoack@google.com>, <paul@paul-moore.com>,
-	<jmorris@namei.org>, <serge@hallyn.com>, <corbet@lwn.net>,
-	<skhan@linuxfoundation.org>, <utilityemal77@gmail.com>,
-	<caixinchen1@huawei.com>
-CC: <ast@kernel.org>, <daniel@iogearbox.net>, <andrii@kernel.org>,
-	<eddyz87@gmail.com>, <memxor@gmail.com>, <martin.lau@linux.dev>,
-	<song@kernel.org>, <yonghong.song@linux.dev>, <jolsa@kernel.org>,
-	<emil@etsalapatis.com>, <ihor.solodrai@linux.dev>, <rdunlap@infradead.org>,
-	<gregkh@linuxfoundation.org>, <rafael@kernel.org>, <dakr@kernel.org>,
-	<johan@kernel.org>, <dlemoal@kernel.org>, <hch@lst.de>, <axboe@kernel.dk>,
-	<viro@zeniv.linux.org.uk>, <brauner@kernel.org>, <jack@suse.cz>,
-	<dhowells@redhat.com>, <code@tyhicks.com>, <linkinjeon@kernel.org>,
-	<sj1557.seo@samsung.com>, <yuezhang.mo@sony.com>,
-	<hirofumi@mail.parknet.co.jp>, <cel@kernel.org>, <jlayton@kernel.org>,
-	<neil@brown.name>, <okorniev@redhat.com>, <Dai.Ngo@oracle.com>,
-	<tom@talpey.com>, <hyc.lee@gmail.com>, <miklos@szeredi.hu>,
-	<amir73il@gmail.com>, <senozhatsky@chromium.org>,
-	<chenxiaosong@chenxiaosong.com>, <dsterba@suse.com>, <mason@kernel.org>,
-	<kpsingh@kernel.org>, <matt@bobrowski.net>, <rostedt@goodmis.org>,
-	<mhiramat@kernel.org>, <mathieu.desnoyers@efficios.com>,
-	<john.johansen@canonical.com>, <georgia.garcia@canonical.com>,
-	<zohar@linux.ibm.com>, <roberto.sassu@huawei.com>,
-	<dmitry.kasatkin@gmail.com>, <eric.snowberg@oracle.com>,
-	<stephen.smalley.work@gmail.com>, <omosnacek@gmail.com>,
-	<casey@schaufler-ca.com>, <takedakn@nttdata.co.jp>,
-	<penguin-kernel@I-love.SAKURA.ne.jp>, <xiujianfeng@huawei.com>,
-	<nanx95726@gmail.com>, <djwong@kernel.org>, <lujialin4@huawei.com>,
-	<bpf@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
-	<driver-core@lists.linux.dev>, <linux-block@vger.kernel.org>,
-	<linux-btrfs@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-	<netfs@lists.linux.dev>, <ecryptfs@vger.kernel.org>, <exfat@lists.linux.dev>,
-	<linux-nfs@vger.kernel.org>, <ntfs@lists.linux.dev>,
-	<linux-unionfs@vger.kernel.org>, <linux-cifs@vger.kernel.org>,
-	<linux-trace-kernel@vger.kernel.org>, <apparmor@lists.ubuntu.com>,
-	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>,
-	<linux-kselftest@vger.kernel.org>
-Subject: [PATCH v3 -next 17/18] samples/landlock: Add metadata rights to sandboxer
-Date: Tue, 27 Oct 2026 20:11:50 +0800
-Message-ID: <20261027121151.1887650-18-caixinchen1@huawei.com>
-X-Mailer: git-send-email 2.18.0.huawei.25
-In-Reply-To: <20261027121151.1887650-1-caixinchen1@huawei.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Aepiy6Pr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E471F031E1;
+	Tue, 27 Oct 2026 12:07:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793102849;
+	bh=XuAqvW/17/K4S72P6BveYIRMwFq7nJ4rumTZEaNiaZo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Aepiy6PrXjWdKUfE1o3JOEWJ7QmDYyGMp0xIKeaRQaEYFFNU92l9eHWmpaMPc8Ih/
+	 DA5ZKcUt2BtnnUjrwlLYkVXwDhpKkO+Al0REzcpyIChrmEhBfe2Ll6TGsRRG2bD/vI
+	 Z2AgSZxCxN1PgBF63gUcbSsQzWohxYoPp4mShCuJdsHDzcHrUxWa61Y4iU/efFP8sg
+	 FpLtK9TcNBpnPr+VNIX4ABCaGtIRa8NJIdIQiNzPKhCq5nBY3UGMFqedBs3a6agh9f
+	 kGinMsLibqXunAF+WpYhUlIdxSASW5ndy23WeVEZv5sId0RHUhPRCIAr+nsI83yLK8
+	 MiAdek65P3GcQ==
+Message-ID: <sashiko-outbox-186508@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 -next 01/18] fs: pass struct path to notify_change()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Cai Xinchen" <caixinchen1@huawei.com>
+Cc: bpf@vger.kernel.org, linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, selinux@vger.kernel.org, dsterba@suse.cz, "Chuck
+ Lever" <cel@kernel.org>, "Jeff Layton" <jlayton@kernel.org>, "Anna
+ Schumaker" <anna@kernel.org>
+In-Reply-To: <20261027121151.1887650-2-caixinchen1@huawei.com>
 References: <20261027121151.1887650-1-caixinchen1@huawei.com>
+ <20261027121151.1887650-2-caixinchen1@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 27 Oct 2026 12:07:28 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -102,79 +61,132 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
- whupemk100010.china.huawei.com (7.152.184.41)
 
-Handle the new LANDLOCK_ACCESS_FS_READ_METADATA and
-LANDLOCK_ACCESS_FS_WRITE_METADATA access rights in the sandboxer:
-READ_METADATA is added to the read-only set, WRITE_METADATA to the
-read-write set, and both to ACCESS_FILE.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] fs: __notify_change() in ntfs_stream_setattr_common() bypasses bas=
+e inode LSM checks
+- [Low] nfsd: stale @dentry kernel-doc parameter in nfsd4_deleg_getattr_con=
+flict()
+--
 
-Update the ABI version fallback switch to remove the metadata rights
-for ABI < 13, and bump LANDLOCK_ABI_LAST to 13.
+commit 205fb5135661a50181cb638aff919af8443d55ff
+Author: Cai Xinchen <caixinchen1@huawei.com>
 
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
----
- samples/landlock/sandboxer.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+fs: pass struct path to notify_change()
 
-diff --git a/samples/landlock/sandboxer.c b/samples/landlock/sandboxer.c
-index 1362f08ff14b..29965ef90bed 100644
---- a/samples/landlock/sandboxer.c
-+++ b/samples/landlock/sandboxer.c
-@@ -137,6 +137,8 @@ static int parse_path(char *env_path, const char ***const path_list)
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
-+	LANDLOCK_ACCESS_FS_READ_METADATA | \
-+	LANDLOCK_ACCESS_FS_WRITE_METADATA | \
- 	LANDLOCK_ACCESS_FS_TRUNCATE | \
- 	LANDLOCK_ACCESS_FS_IOCTL_DEV | \
- 	LANDLOCK_ACCESS_FS_RESOLVE_UNIX)
-@@ -487,7 +489,8 @@ static bool check_ruleset_scope(const char *const env_var,
- #define ACCESS_FS_ROUGHLY_READ ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
--	LANDLOCK_ACCESS_FS_READ_DIR)
-+	LANDLOCK_ACCESS_FS_READ_DIR | \
-+	LANDLOCK_ACCESS_FS_READ_METADATA)
- 
- #define ACCESS_FS_ROUGHLY_WRITE ( \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
-@@ -503,7 +506,8 @@ static bool check_ruleset_scope(const char *const env_var,
- 	LANDLOCK_ACCESS_FS_REFER | \
- 	LANDLOCK_ACCESS_FS_TRUNCATE | \
- 	LANDLOCK_ACCESS_FS_IOCTL_DEV | \
--	LANDLOCK_ACCESS_FS_RESOLVE_UNIX)
-+	LANDLOCK_ACCESS_FS_RESOLVE_UNIX | \
-+	LANDLOCK_ACCESS_FS_WRITE_METADATA)
- 
- /* clang-format on */
- 
-@@ -570,7 +574,7 @@ static int add_quiet_access(const char *const env_var,
- 	return 0;
- }
- 
--#define LANDLOCK_ABI_LAST 12
-+#define LANDLOCK_ABI_LAST 13
- 
- #define XSTR(s) #s
- #define STR(s) XSTR(s)
-@@ -780,6 +784,12 @@ int main(const int argc, char *const argv[], char *const *const envp)
- 		ruleset_attr.handled_permissions &=
- 			~(LANDLOCK_PERMISSION_NAMESPACE_USE |
- 			  LANDLOCK_PERMISSION_CAPABILITY_USE);
-+		__attribute__((fallthrough));
-+	case 12:
-+		/* Removes metadata rights for ABI < 13 */
-+		ruleset_attr.handled_access_fs &=
-+			~(LANDLOCK_ACCESS_FS_READ_METADATA |
-+			  LANDLOCK_ACCESS_FS_WRITE_METADATA);
- 		/* Must be printed for any ABI < LANDLOCK_ABI_LAST. */
- 		fprintf(stderr,
- 			"Hint: You should update the running kernel "
--- 
-2.18.0.huawei.25
+This commit updates notify_change() and do_truncate() to accept a struct pa=
+th
+pointer instead of a struct dentry pointer alongside the mount idmap. It al=
+so
+introduces __notify_change() without the security_inode_setattr() check and
+uses it in ntfs_stream_setattr_common() when forwarding attribute updates to
+the base inode.
 
+> diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+> index 1de6c6d757c3e..3a08c56a27c60 100644
+> --- a/fs/nfsd/nfs4state.c
+> +++ b/fs/nfsd/nfs4state.c
+
+[ ... ]
+
+> @@ -10531,7 +10533,7 @@ static int cb_getattr_update_times(struct dentry =
+*dentry, struct nfs4_delegation
+>   * caller must put the reference.
+>   */
+>  __be32
+> -nfsd4_deleg_getattr_conflict(struct svc_rqst *rqstp, struct dentry *dent=
+ry,
+> +nfsd4_deleg_getattr_conflict(struct svc_rqst *rqstp, const struct path *=
+path,
+>  			     struct nfs4_delegation **pdp)
+
+[Severity: Low]
+Since the second parameter of nfsd4_deleg_getattr_conflict() in
+fs/nfsd/nfs4state.c was changed from dentry to path, should the kernel-doc
+comment right above it also be updated from @dentry to @path to avoid
+scripts/kernel-doc warnings when building with W=3D1 or htmldocs?
+
+[ ... ]
+
+> diff --git a/fs/ntfs/named_stream.c b/fs/ntfs/named_stream.c
+> index 95a3c05f98211..f0b577a6f7c3e 100644
+> --- a/fs/ntfs/named_stream.c
+> +++ b/fs/ntfs/named_stream.c
+> @@ -897,7 +897,7 @@ static int ntfs_stream_setattr_common(const struct mn=
+t_idmap *idmap,
+>  			goto out;
+>  		}
+>  		if (base_attr.ia_valid)
+> -			err =3D notify_change(idmap, base_dentry, &base_attr,
+> +			err =3D __notify_change(idmap, base_dentry, &base_attr,
+>  					NULL);
+>  		else
+>  			err =3D 0;
+
+[Severity: High]
+Does switching to __notify_change() in ntfs_stream_setattr_common() skip
+required LSM and EVM checks on the base inode when a user calls chmod, chow=
+n,
+or utimensat on an NTFS named stream?
+
+The stream inode (vi) and the base inode (base_vi) are separate struct inode
+objects with distinct security state and potentially different file types.
+
+First, NTFS permits named data streams on directories, and
+ntfs_stream_setattr_common() preserves base_vi's S_IFMT when forwarding mode
+changes:
+
+    else if (base_attr.ia_valid & ATTR_MODE)
+        base_attr.ia_mode =3D (base_attr.ia_mode & ~S_IFMT) |
+                (base_vi->i_mode & S_IFMT);
+
+However, ntfs_read_locked_attr_inode() and ntfs_stream_inode_refresh() alwa=
+ys
+force the stream inode's mode to S_IFREG:
+
+    base_vi =3D VFS_I(ni->ext.base_ntfs_ino);
+    vi->i_uid =3D base_vi->i_uid;
+    vi->i_gid =3D base_vi->i_gid;
+    vi->i_mode =3D (base_vi->i_mode & ~S_IFMT) | S_IFREG;
+
+In SELinux, the initial notify_change() on the stream dentry checks the
+stream inode with sclass SECCLASS_FILE, whereas base_vi has sclass
+SECCLASS_DIR. Skipping security_inode_setattr() on base_dentry via
+__notify_change() allows a caller with file setattr permission (but not dir
+setattr permission) to modify the base directory's mode, ownership, or
+timestamps through a directory stream.
+
+Second, ntfs_setxattr() rejects stream inodes with -EOPNOTSUPP while allowi=
+ng
+security.* xattr changes on base_vi. If base_vi is relabeled via setxattr()
+while a stream inode is cached in memory (such as via an open stream file
+descriptor), security_inode_post_setxattr() (including
+selinux_inode_post_setxattr(), smack_inode_post_setxattr(), and
+evm_reset_status()) only updates base_vi's security state, leaving the stre=
+am
+inode's cached label and EVM status stale.
+
+Furthermore, in fs/attr.c, do_notify_change() skips security_inode_setattr()
+when path is NULL, but still runs security_inode_post_setattr() at the end:
+
+    if (path) {
+        error =3D security_inode_setattr(idmap, dentry, attr);
+        if (error)
+            return error;
+    }
+    ...
+    if (!error) {
+        fsnotify_change(dentry, ia_valid);
+        security_inode_post_setattr(idmap, dentry, ia_valid);
+    }
+
+Wouldn't calling __notify_change() on base_dentry bypass
+selinux_inode_setattr(), smack_inode_setattr(), and evm_inode_setattr() on
+base_dentry while still invoking evm_inode_post_setattr(), causing EVM to
+write a new valid security.evm HMAC onto base_dentry without prior integrity
+verification on base_dentry?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027121151.1887=
+650-1-caixinchen1@huawei.com?part=3D1
