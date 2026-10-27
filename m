@@ -1,85 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793113313;
-	b=QGx+X4EstDpalZm/AQvnBJNMGoZNgadwK5vVZVJda0eC6wrmtmYoq5Vx4f+OPm3melYf
-	 uAxuw84IrdEQat2fgm1SIZ0iY+nEPr82SqeVoh+CGxr2beOgEwxmkMdRe4fIBLy20ZLQZ
-	 RJWEBg9jwzawIdhfKGi5/KX5PENnuKqMuluMH2BOO2tg0K+TtoehFcZiV/F0ZMSQajCj4
-	 7vz3EfMfZCxaKtBoeKGVEpQvRt0qKyMKHUTyKXrqiAQsY+6s/6hST/jJMsSPL2drrPUax
-	 udT7Yfs/ObOp8H1lav+WC4VAulX+8YsceVo+WqDA7bPrA/YFn4W4lhfh5TyuwSnQwuA==
+	t=1793113401;
+	b=J9CVafc6ZwCKMSurZBEub2KkpGcpyCRvOoQuA1hkE47X5gEZU56Xrrm5yXrRNR+M2DcV
+	 y1WZb5qxTvzgRDJWDBATvyDx3sY2IFGmQ+sgktNqtvZuVwHoiNAo8rSCtQyMgbM3nAOzy
+	 yz7BlT0t/MolrtZX4BCgrl5hWmxC65zVvrwPiFmszv9iW3hqy6oSuAhNmsEBVOhvgVM7N
+	 03GhVutGgizv6Wn0EmlGfBH+hTpvF2qVWFfx6ODj7xX8D+6dYUoDRqieeq9RlGvgnO7qT
+	 kxH1zbNs0r3mELBbqWOX1wr61jle0q7p2Wqz8w+CWJez0y/jaUn1WBntLZy3VLSHjiw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793113313;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Mime-Version:Content-Transfer-Encoding:Content-Type:Date:Message-Id:
-	 To:Cc:Subject:From:X-Mailer:References:In-Reply-To;
-	bh=4JSSeMn7jD3hzJLmiAPL5D8xsSZOgnxpk+LkLJ9f9Go=;
-	b=UI3bYAI0Q7th7GvimrWPWYORGcUXAtNNqqhyHvubxtSmvRDT5bL42qZ0/va90Y21z1qx
-	 6DJydKcwsnHjU4lmXoFNPadz88Mcxmr3XFGvO25eusU5wfY9molLYskQIMw5xW/7a0IMq
-	 xsosnQE6MlyIgUZQd3H0pvCoqWG2jHItvkTKj5oXQhYYoip8i4g3BKcMWoZqXh5HIANIF
-	 b2FKId9sPTq8FP24cn4Mz7z21kpwTOlybqzzsDbWgSUOujEI9IuibcmT1XG6OiHCFdU2s
-	 10f5k2DVLzyLgHkDZdNUWIVCq1VbSllAA3BzeNkS/x8JP+CcQMTFL3cAwfR5GEHLsow==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793113401;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Developer-Signature:X-Developer-Key:X-Scanned-By;
+	bh=aOf0mUhnEWGXt/wT5adZbPR4knhMHoXNhBntHVrI1Yw=;
+	b=32NRU7FzOmZUxzu6WEp61RK0/Je7zObA40GO/SIQcCrp9K/K7mTZ4ItscDtvS5yNKtjJ
+	 cmOrwtaeNA5IsviRI0+NBXDu2NhkZkHiG0Be8HLvQykkXlepTWUa1ZbKtLHLrdqwTQchS
+	 WFsuJvmZKUy/c8/pkQQOw/UN1cHcQ/a0ZaJh8j+vfxXcGQOPDBjNGDXVUFr1eOD2F+0iZ
+	 G677qiNTvZuSv1rsToY9RtCHkhekbZOgpMg/PN0wXbUfOf/pf32pW/HXEd/8SKn2IIvuo
+	 yY4s7i6vX+UL5Bi+YpEyVhNuQaIVWC9GwMtprk1MmfKZ61jTVy4M7HaAwxarhrMokJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y4RCI7rt;
-	arc=none smtp.remote-ip=209.85.215.181
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="ZnCOBL/7";
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49FC4606BA9B
-	for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 15:01:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49FC4606BA9B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE11606A31A
+	for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 15:03:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFE11606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y4RCI7rt
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cc4aa18f9afso8645a12.3
-        for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 08:01:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793113313; x=1793718113; darn=vger.kernel.org;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-type:content-transfer-encoding:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=4JSSeMn7jD3hzJLmiAPL5D8xsSZOgnxpk+LkLJ9f9Go=;
-        b=Y4RCI7rtBOy5b9y0FhCXLw7TxjLGKoqP7U6NlrFD6q8Ld/t9Vb2wuRj4d5nvLDYNmW
-         zMd4eYz+V4fCXjWsiScL3PR0/jOkJbs4iZB/1XrWm7L4dnIYl6zkHE/78s3Hrx1q6Waj
-         oRJIZTMGG7SO+raSfVOtWoAkLKKYIlEQb+1KLlQzDppE2+agB1IrvZx0fPK0fPBmKjT9
-         tmPkvXERI+kZg+dU9H69n1AXCmu2e6B/KgFFjnm96LtaYjcsqwxw+UdhXxmTEqT0+3z8
-         iwxmEvIrStDaVsjlO8tSuKQpCLA7DgHptE2QvFviEIcgFaBknjMXm9B00tSUipyu0hGO
-         dOSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793113313; x=1793718113;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-type:content-transfer-encoding:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4JSSeMn7jD3hzJLmiAPL5D8xsSZOgnxpk+LkLJ9f9Go=;
-        b=t0S6FP6wghU1IrBujLM1+sCRNxL6hC+rVhfqeKRxZQlHm8YSftzx/I3IuTlYgWHEXS
-         BpeCW9wp7RsMm/6RrRNbjRxepxO/Q1NhFb7fNnBdLInyleq7/W0Gc+GLV4+RCm7a3ZCs
-         ivYJ/mAzyEGcQ88B/lpdnYWxpCqWK240ZkG/k3DXusZxpzV8kTdt+bPe8p/Frb+jSshu
-         3HDe6omJHPA97cIXNt7EzyxDgjiYMMH55p2o1Cgh3wMg0MyrIvgxuL6eWvTq0AndpV8C
-         4uRc5XE3xF2UhQvLyya1LIuwhLkYTzlZZI9HNbIAJujStO8WB5WeuK6xeRrynCiJZxN5
-         PrqA==
-X-Forwarded-Encrypted: i=1; AKwUvBzkznC47qPoKA6z3/yAXOC5dGOjgIIrSv1melfr06hv7VqCWuRVk5WK6In0twSttDpZXVDuJ7V/@vger.kernel.org
-X-Gm-Message-State: AFq9FYIrtm2/tvgtRV4DtD4d76nxHD2tDAyVWLsUxXNkHOlLc1wlm811
-	BWzZOHJDZqEobsxwT09rtrlb+e/qvUSgbiPZHlIrfuhUMmEmF1bEPf5o
-X-Gm-Gg: AYBFou3yLunASbBv+o+TEMhAO04G7jrzLpsDaFI+V5XGk4dnCctyh3Yl76OvpA2LsGV
-	7Or1h5JwqxEJ+F4AtZ0kSQiPfZqshpoX6ftQNHSUjujcwWEipyxpbOj647GXmtenrpD9Uvfn0BK
-	9JnWmSmKULFdtTrlihNGV+UddBSCSAduZVzzUEoiWvUxRQgg/x9dKuvAn+a4QuMjjopLPAeQPng
-	AbUSZiJ7L3HS552xVfk7IMoAaR41kuUrekUt6DvZNPREdG2mmKztP8wmIOS03xdnBVsUu7yqbZn
-	HNO6f/MDDiYnhbJGBi3aJ/XAr5Gvi6jVTAKSOz/oDvsjDBG7SLdIHXsyNY/8aTJ9pxbjobD4/m+
-	JchbGnb2Zm21hjMeTvEt4qOndzKRBe3zJrq/EGuI5LCwMCRe0qu4cPwOKJN6yMVmRCTETqM5Iex
-	+IDlQT1T+rDsqHfDCyX4BiomTOioBghT1NDmX8KwcvEW9Ek+L9rXqjdSoyLHR7AjvwuF5uYqpXu
-	uiKtyyQrdktThLO1wVoTB1Aimcc3aonINnouAHAbGGSdb4lgyTLDSqSjopY9upN091gg+r62KQR
-	8vqyMzcCWupJ5ulaaDr6DpvmF7S1MBj1EdBJTsFzF2jk3oLNrX91ZZ2cQRyjk1Is2KbXU4VAnoN
-	dRvm6NVSyYSp4kaKu++3gDtFs00ua5HcR2hgqCLsn/TGvzy9sLCnGT/Q=
-X-Received: by 2002:a05:6a21:71cb:b0:3e0:c102:33d8 with SMTP id adf61e73a8af0-3e7cd5014c5mr6505768637.56.1793113312516;
-        Tue, 27 Oct 2026 08:01:52 -0700 (PDT)
-Received: from localhost ([153.61.198.252])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cd8cccd63b6sm2848985a12.29.2026.10.27.08.01.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2026 08:01:51 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZnCOBL/7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793113399;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=aOf0mUhnEWGXt/wT5adZbPR4knhMHoXNhBntHVrI1Yw=;
+	b=ZnCOBL/7jdmm3dcWh0xdKHNcVcyKm5FG31tKMDpJ/2FTHReZ7aC/uTE7yWqjIBZFc3b7b6
+	RXLHkR+TQu8Mka3ka6kEx0zVkUptL/NjztdHxaXBGr/K++xugIxe4Tev+BstAaM6ENmA2A
+	NJDYbcfVHz/FhdMGCyjSwEFN8+r0fBQ=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-630-UjIdhJ72O6-uXk9AZAUySw-1; Tue,
+ 27 Oct 2026 11:03:16 -0400
+X-MC-Unique: UjIdhJ72O6-uXk9AZAUySw-1
+X-Mimecast-MFC-AGG-ID: UjIdhJ72O6-uXk9AZAUySw_1793113392
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DFCFA18009F0;
+	Tue, 27 Oct 2026 15:03:09 +0000 (UTC)
+Received: from aesteve-thinkpadp1gen8.rmtes.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D01D018002B1;
+	Tue, 27 Oct 2026 15:02:59 +0000 (UTC)
+From: Albert Esteve <aesteve@redhat.com>
+Subject: [PATCH v3 0/8] memcg: dma-buf cgroup accounting and charge
+ transfer
+Date: Tue, 27 Oct 2026 16:02:43 +0100
+Message-Id: <20261027-v2_20230123_tjmercier_google_com-v3-0-78d2c4cb8647@redhat.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -88,34 +72,177 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 27 Oct 2026 15:01:50 +0000
-Message-Id: <DMFPMAYUPSDU.2AW3225P0W0ON@gmail.com>
-To: <sashiko-reviews@lists.linux.dev>, "Cai Xinchen"
- <caixinchen1@huawei.com>
-Cc: <bpf@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
- <linux-trace-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
- <dsterba@suse.cz>, "Chuck Lever" <cel@kernel.org>, "Jeff Layton"
- <jlayton@kernel.org>, "Anna Schumaker" <anna@kernel.org>
-Subject: Re: [PATCH v3 -next 06/18] LSM: pass struct path and struct file to
- the inode xattr hooks
-From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
-X-Mailer: aerc 0.20.1-349-gb940a4174a3e-dirty
-References: <20261027121151.1887650-1-caixinchen1@huawei.com>
- <20261027121151.1887650-7-caixinchen1@huawei.com>
- <sashiko-outbox-186599@kernel.org>
-In-Reply-To: <sashiko-outbox-186599@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43NQQrCMBAF0KuUrI1kJm2srryHSKnppI3YRpISl
+ NK7mxYRXOlu/nx4f2KBvKXADtnEPEUbrBtSkJuM6a4eWuK2SZmhQCUKUfKIVbqlAJTVeO3Ja0u
+ +ap1rb1Rp13OT50abC6hCCpaYuydjH+vE6ZxyZ8Po/HNdjLB83zjgbzwCF1xJVDsBWqo9HD01X
+ T1uU8kWPeJHBIHwh4hJJKOIsGlKXegvcZ7nF8pnAWwjAQAA
+X-Change-ID: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+To: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ op-tee@lists.trustedfirmware.org, Albert Esteve <aesteve@redhat.com>, 
+ echanude@redhat.com, mripard@kernel.org
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793113379; l=6757;
+ i=aesteve@redhat.com; s=20260827; h=from:subject:message-id;
+ bh=SbSaiBkIq+YUC6r+fSuC8xTCAnJdm8Vr2zNeXnNL3ao=;
+ b=rMh42d3K7ZdvbxPJmt30LjOl76ZkQ62Z6Ul1YgWdi/7V4axPrJSy681qwSjEcG3Y17eHAsv1y
+ +LmSEK2BvnsDaNYSlWiHuv0bXrBqtI3n02cWTu6Y6kXEFNbK6b8jRpu
+X-Developer-Key: i=aesteve@redhat.com; a=ed25519;
+ pk=zI2RBeZgocwYm3AkJW4CtjoJnKoDZrfBl1xe5Ed6h+U=
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Tue Oct 27, 2026 at 1:02 PM UTC, sashiko-bot wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issu=
-e(s) to consider:
-> - [Critical] bpf: missing __nullable on file arg in inode xattr LSM hooks=
- allows NULL deref
+Shared-memory allocator services (e.g., Android's gralloc)
+allocate dma-bufs on behalf of client processes in different
+cgroups. Today those allocations are charged to the allocator's
+own cgroup, leaving client cgroups with no visibility into their
+actual memory consumption and defeating resource limits.
 
-bot is correct.
-Please see commit 94e948b7e684 ("bpf: annotate file argument as __nullable =
-in bpf_lsm_mmap_file")
-and add to kernel/bpf/bpf_lsm_proto.c when args can be NULL.
-That's how verifier knows.
+This series adds memory cgroup accounting for dma-buf allocations,
+building on T.J. Mercier's earlier series [1] and incorporating
+feedback from previous versions and LPC discussions [2].
+
+Patch 1 introduces the MEMCG_DMABUF stat and reserve/commit/cancel
+and uncharge helpers. Rather than charging at the page level via
+__GFP_ACCOUNT (which would require every dma-buf exporter to implement
+charging, and makes cross-cgroup transfer impractical without access
+to backing pages), we track charges externally on struct dma_buf via
+a MEMCG_DMABUF stat counter and route all accounting through a single
+path, removing the __GFP_ACCOUNT flag from system-heap allocations
+to avoid double counting.
+
+Patch 2 adds a charge_fd field to DMA_HEAP_IOCTL_ALLOC, accepting
+either a pidfd or a cgroupfd to identify the target cgroup at
+allocation time. If the target cgroup cannot accommodate the charge,
+the allocation returns -ENOMEM.
+
+Patches 3-6 add access control for cross-cgroup charging. Letting
+userspace decide who to charge needs to be a privileged operation
+because it has material impact on OOM decission and resource limits.
+We gate it via LSM hooks for the two charge_fd flavours:
+security_dma_buf_charge_task() gates the pidfd path (target
+identified by task credentials) and security_dma_buf_charge_cgroup()
+gates the cgroupfd path (target identified by cgroup directory label),
+with SELinux implementations under a dma_buf object class.
+
+Patch 7 adds DMA_BUF_IOCTL_XFER_CHARGE, a general ioctl on any
+dma-buf fd to transfer charges post-allocation. This covers the
+double-hop allocator case (SurfaceFlinger -> gralloc -> kernel)
+and works for buffers from any exporter (DRM, V4L2, etc.). A new
+memcg_account flag is added for dma_buf_export() to ensure that
+transfer/charge is only applied for buffers backed by reclaimable
+system memory. If the receiving cgroup lacks capacity for the charge,
+the ioctl returns -ENOMEM and the original charge is preserved.
+
+Patch 8 adds selftests.
+
+Known limitations:
+
+- Single-owner model: a dma-buf carries one memcg charge regardless
+  of how many processes share it.
+- Only memcg accounting. CMA heaps would additionally need dmem
+  controller integration.
+- If a transfer of an uncharged buffer fails, it remains uncharged.
+  The allocator (userspace) is expected to handle this (retry, free, ...).
+- The LSM hooks are intentionally narrow. Broader cgroup access controls
+  (e.g. for the memfd/kexec handover case [2]) could be a separate effort
+  reusing the same pattern.
+- Only system heap sets memcg_account today. Other exporters
+  (DRM, V4L2, etc.) can opt in by setting the flag, but are not
+  covered by this series.
+
+[1] https://lore.kernel.org/cgroups/20230109213809.418135-1-tjmercier@google.com/
+[2] https://lpc.events/event/20/contributions/2416/
+
+Signed-off-by: Albert Esteve <aesteve@redhat.com>
+---
+Changes in v3:
+- Split mem_cgroup_charge_dmabuf() into reserve/commit/cancel three-phase API
+- Extract mem_cgroup_get_from_fd() helper shared by allocate and xfer paths
+- Rename __padding to flags in struct dma_buf_transfer_charge
+- Fix UAF race: move mod_memcg_state() before cmpxchg in transfer
+- Add memcg_account opt-in flag; xfer returns -EOPNOTSUPP if unset
+- Wrap dma_buf_charge_cgroup hook in #ifdef CONFIG_CGROUPS
+- Fix TOCTOU in SELinux charge_cgroup xattr length handling
+- Link to v2: https://lore.kernel.org/r/20261021-v2_20230123_tjmercier_google_com-v2-0-ef6ee2dd8c5c@redhat.com
+
+Changes in v2:
+- Move charge_pid_fd to charge_fd, accepting cgroupfd in addition
+  to pidfd per Christian König.
+- New DMA_BUF_IOCTL_XFER_CHARGE ioctl for post-allocation charge
+  transfer on any dma-buf, not just dma-heap buffers per Christian König
+  and T.J. Mercier.
+- Moved __GFP_ACCOUNT removal to patch 1 per Barry Song.
+- dma-buf charge/uncharge helpers take struct dma_buf * directly
+  to avoid the need for caller to manage size calculations.
+- Added test_xfer_charge_cgroupfd_self to dmabuf-heap selftests.
+- Added LSM and SELinux hooks for cgroupfd-based charging.
+- Rebased to v7.3-rc7.
+- Link to v1: https://lore.kernel.org/r/20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com
+
+---
+Albert Esteve (7):
+      dma-heap: charge dma-buf memory via explicit memcg
+      security: dma-buf: Add dma_buf_charge_task LSM hook
+      security: dma-buf: Add dma_buf_charge_cgroup LSM hook
+      selinux: Restrict cross-cgroup dma-buf charging
+      selinux: Restrict dma-buf direct cgroup charging
+      dma-buf: transfer memcg charges via DMA_BUF_IOCTL_XFER_CHARGE
+      selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+
+T.J. Mercier (1):
+      memcg: Add MEMCG_DMABUF accounting infrastructure
+
+ Documentation/admin-guide/cgroup-v2.rst            |   5 +
+ drivers/dma-buf/dma-buf.c                          |  46 ++++
+ drivers/dma-buf/dma-heap.c                         |  28 +-
+ drivers/dma-buf/heaps/cma_heap.c                   |   3 +-
+ drivers/dma-buf/heaps/system_heap.c                |  22 +-
+ drivers/tee/tee_heap.c                             |   3 +-
+ include/linux/dma-buf.h                            |   9 +
+ include/linux/dma-heap.h                           |   3 +-
+ include/linux/lsm_hook_defs.h                      |   4 +
+ include/linux/memcontrol.h                         |  52 ++++
+ include/linux/security.h                           |  18 ++
+ include/uapi/linux/dma-buf.h                       |  26 ++
+ include/uapi/linux/dma-heap.h                      |   7 +
+ mm/memcontrol.c                                    | 192 ++++++++++++++
+ security/security.c                                |  34 +++
+ security/selinux/hooks.c                           |  44 ++++
+ security/selinux/include/classmap.h                |   1 +
+ tools/testing/selftests/cgroup/Makefile            |   2 +-
+ tools/testing/selftests/cgroup/test_memcontrol.c   | 290 ++++++++++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/config        |   1 +
+ tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c | 227 +++++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/vmtest.sh     | 226 ++++++++++++++++
+ 22 files changed, 1228 insertions(+), 15 deletions(-)
+---
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+change-id: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+
+Best regards,
+-- 
+Albert Esteve <aesteve@redhat.com>
+
