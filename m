@@ -1,100 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793127736;
-	b=DgPefeDA8ZydPhOhKtKlZfPiQCarackbPWpSgFXZhp8GR/NznSEwSMpnpT8ahlN8amTZ
-	 KN9J5MbZFH+HAlffRoI/Ly+UTS6XbHUaF4TM9hf6Lvk2Pw0SNo3U/AY91bgSmEQtjGwKh
-	 /DGU0s+MagV/RhjNYV1ayr4Ay9VyCR1MaTTsyFrVAvGh0JAbO72RN9yDJeaOeuE9DXUqQ
-	 DwWgLZIaz6I80cRy85uFYmdcEjKpx0KogYVpRIG6ZRV0G61Kn/UPw/jYZTMahcr1a3C/+
-	 9X+Hv2DNpvGO2T47uAus2DbJkWeCKaMd7hFb7DElaDlWp4BN3AVfP3mS/zTsIDDmkyg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793127736;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.45
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793128441;
+	b=lPw37HgB6r1h1qCnOvGjVf5s1HbROJAmcjrr1PacEb9nXeG92nevDKqQvCGj85ct0cn5
+	 I/3BA2mQ4VW5v1pSc785W6bxhQoDgmXuJeOcYGVfDNqVLeEyOvhMBYdPX1c7pvQTCH/Y/
+	 MuTseB4LHv2YstabA0rqRlEFfiLfYZ0L5B1oU/FyiGofA3qcbAzcoKz9IYNmu6nPpaVMy
+	 K5OglX7/FgZSPIWjzDDZdvDQilROi+Z0JEn0KgiHkcTk9BpYiBkNaohszYtLo2LP1gjzD
+	 HieQAleMvc/TyDy8CKavShfe8ZyYjmBUSb3G67je8mK0kMXhI9DmH00Pj8L7f19dK1Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793128441;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=qmCHWL7vWUY3vj1605uFBJsC6d9Tv6esIfz2iSWqW/8=;
-	b=OTj3CohWZPzp/L23OUXEGEIQ7QG3Y1BNrmV7CLh8zNQTyeFngXgG1uW2QKbLQzMqQRA6
-	 gh9baT4DyzqGdZi4/Y92d1lef/j8zfbsGfFwWh2vq0CMOyy6hLouZ9c5oZA3hLTSkI9De
-	 IuzXDhchGADx4vYiwmr8igYuNxwg6ujzSc39iz/hiQrxWKEvkMzOGnUehUNVNE1eALNsZ
-	 5ce9y33kdta39U9zavzQPdCGnJhH89XewYyl0zVSSWHr+VlAIas4ii41qdHji5OfTzZfK
-	 jJ1Xt5Aa+2l56P8jOLKqIXhqSvCTGS8R9X/8j6GaQC3qZ0jM8G/yBRnai2EUlUPeBoQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=usSkbCGttkT+Py0pUuej3kU6UM2y+V8P1vd7m6BHpII=;
+	b=cA6R+VnVZChyk26yjwllownfqFdvrG8nqdXqv3u0NcreQzOupL8F13lQqxqINBqf2ziR
+	 VOhZvxJPP/AHeVOsY9CMf6iDnzNskY9t4tCxwNw/9+GdUtuWAmeMEWb5gL0oKfwzWDk8e
+	 O1c17qjFxawDjDZ/HwNMl6eZtJPXbny2M5ngYN1Vp39b0XdemBLZtOODWu9Svn6t0Lj2m
+	 KfXl8YamlAwDt1CC/DnVcVAJSa4hOOomNms+vEcZbFJrk/7lbwKqp5EVWT+IjhnXpjlEh
+	 fjw7RdVOnJDptLdr3EpgHo+naGAw94Xd3kufkMpSwb8p6SWwX0NU/QG3MSypY1kG5OA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="rX7L+SX/";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="SJHg03D/";
+	arc=none smtp.remote-ip=209.85.219.45
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21BCF606A320
-	for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 19:02:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 21BCF606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CD47606A31A
+	for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 19:14:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0CD47606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rX7L+SX/
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-67583c777abso262527d50.1
-        for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 12:02:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793127735; cv=none;
-        d=google.com; s=arc-20260327;
-        b=q8+S0WEMft9xKsWtR1PJ6IgYnD2LD1HuNn6khR/9iEx+T+Z1eWZhlVhUlepspJqDO9
-         v4Wd7DGqCegDi7+5uxiSyo1tcr6zaMviosXhfW/XcvPHTdku5bjatBzt/B1DV/xKRHpt
-         jMJIcj6j14xfShIl1tsHm+Jm0Fyb5Q96pR64TdBj7O2BR72RRPv9kqypOz/gGwwteWCE
-         nEOuwMatjqPfBJ9MjaWAy2SrxH+05tQOVzx+0Shu3K0UUWKZQorZ1KjugICmG0l+yn0K
-         4pt9ZOgvU09YP8FEDl40ZkYM6KctisxRD/WFUix2NOhqpSljLY0KFxn+/yF7Z2lc2ky1
-         bSuw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=qmCHWL7vWUY3vj1605uFBJsC6d9Tv6esIfz2iSWqW/8=;
-        fh=88SD3A1r43C8ue1eh/tUY31otzODxDx4N77mxCQa0yI=;
-        b=KowusILDU0q6xWUaEDfvVEZX6QtPRL4QLSWzKnny2n3HntBaGwh/ShU8oPMA2SG+6N
-         NK+d0ov6LVv490O9Obzp+RFHf/N8ld3i2YqCroiQ+QWCJ6oEpPWtN5nmlXHVjxSfkq/s
-         Q2JIIdiRZwQ03j/z6kb360KZhEdBG3LlPFACpMXKgvmAaZvDpyxswRmACSLU1dgU4wo0
-         W1Oda7LnpTn/jJjeLkx/0Z3UnFiXDgVBQXUgIiyy24WszFbVJMIxIarAylmRWC0DZMs6
-         1W6bHoZpGVTMShBQZ0uyI24DLgsfzeZ76XTP1VOu2YpQIJoABdAPTdPYztXzwbpbGSbZ
-         BlcQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SJHg03D/
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-91c7b00a75fso2780356d6.2
+        for <selinux@vger.kernel.org>; Tue, 27 Oct 2026 12:14:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793127735; x=1793732535; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=qmCHWL7vWUY3vj1605uFBJsC6d9Tv6esIfz2iSWqW/8=;
-        b=rX7L+SX/yHdpWOKOh3+m1FNoNqqCV9ONIhxC3ioLzSjMStZR+Ks2yorxH0M+cikD9L
-         IIVpCJpBLQjUk+nWdNuLDfmc2SmId6w+u5hZWtcG4hkpP5ZiYDxYD2BlTuzoQZkzpLdf
-         KkgaI+uF/V+BsLL/S2RWhBtoacI5/z5caRaDIaKrcRxqioXiw1kKSLmsry0OWN+NdsEw
-         CwviDRItr2fS3SgJU6G+sxrI9acm1hfDQoy+rnCaBDMay3rFVJudsbvnjOvmxTovNSmc
-         Nvyt5cuuDdD8UO0hDr8OzsyW1XZtivRQIv0ecXXxTVR+Nad9GsZ3KAQKsk/rRgIHvbLq
-         qK0w==
+        d=gmail.com; s=20260707; t=1793128440; x=1793733240; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=usSkbCGttkT+Py0pUuej3kU6UM2y+V8P1vd7m6BHpII=;
+        b=SJHg03D/C5NfrPXOJ+cNnDQb6c18iHwsyodFMN0+oFKPt91BQKgfK2Uwc86lrGipeV
+         z2epMEjuxcFAeGvs5m9rfY59LthGfYsa/CQ2BlC1ePbMf9ZQcE9u5ZkRcAF00S1P343E
+         iIkO5l4ojq/YYGNCXiAgc3o+3ZxsqQlqL29Y9BTm5YV3CT+0nRH94RthOKY9ki3qmI6L
+         rLn2NJQzf5cofheJfAgnOMvUtOYNJ6l3RgVL7YIenRlDao2co9hiWB5iydPsR+XMVmjn
+         +NgNxDj95lpp+BzdIkDVKzmjP5LlTlh7UzHCd/xjWMgi/tg3XC7v9hSqTVNwPf02Xxww
+         xWeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793127735; x=1793732535;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qmCHWL7vWUY3vj1605uFBJsC6d9Tv6esIfz2iSWqW/8=;
-        b=G6NJsVfdx6X57SAXu1z0JF3JbhW2styHfCUZS6QEGHMvS+M2KSV+3rAS+HlpkiV3uy
-         lzk+XRXmmByLz0GED3WFTNoNGbwtuPxlDI7bncwnxFZm5IuQgw76SUFeX9juvI6q0pML
-         e4EcTx6/TevHWpymx2Qq76rSmaCIyrTUzR17xTfnRaPwH67LAg8OGlDnkjMutSq2WylG
-         RwgInLmKesdEUFJvT0sQAvk6tH4wVV6l83Py55JC22ivKT6veDaEdXIdjspZAY1+gaZX
-         Ns9uWSwr0riM51Ld0zy9ffvqRlaDm5lHOC2++lRMVj1C++kkkaXj+HaB3F4Up8mdE0lC
-         hjpg==
-X-Gm-Message-State: AFq9FYJQ1P9KPqsf0+jdJ80Y4dHXSjHErxStdZORU2IbFIym9L4NB1qA
-	zwRhe+fLVLS8wJ4TUkX03QdQr4Xx7oLrrFRtkU+nbFp7iTceCNSKCvB0A4brRqPty2kl8ZsSRkh
-	c/aKab8r4yorBW4dOtbzO3lbaXyCw3lqgJMDn
-X-Gm-Gg: AYBFou2xRTqKQliHj8740kdDBU8RrY19VHqmDOYXJea9EsHZkKpj5mQJ9j2B4ZiUfVy
-	kU8Nj+PQM8TP+hTayIZRr/j+I8iH9u0H38Eqc7zzKClxonAoXzeHqqk6R5g6HGqFA9NsAqqSVUc
-	vJpMKs2L2xGbnagPirB0fD3we0VO3WvNTbXzzEiF9wwD0OqVOGSKJYuND5J8Xu31zPhgL2oVzNB
-	4az8pmFd0eVqe73cOuDKhe+prszecfRSXZgyknzu0DKdKTMQDz/xCFuncar7owSxMhJbcc0ZWGf
-	ld+uCM/f7lfPPkdSh+kqs0bwF6IfrjGGMTtVKrJwI82hyEhNUflQZ5UvaCx/Y9nqE+2Y5mn0Ikf
-	d6GxqksaasQ2fL7nUHAb5BAgNQ3qez8wxddsKEteq9xrq/8slXW+gHOw2qvRGbBbOnOOq7a4/F9
-	b5/CmeydGqPrKCoM79QvxAWA==
-X-Received: by 2002:a05:690e:80a:10b0:677:b2d9:de8a with SMTP id
- 956f58d0204a3-67a7bd0ca00mr252571d50.43.1793127734936; Tue, 27 Oct 2026
- 12:02:14 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1793128440; x=1793733240;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=usSkbCGttkT+Py0pUuej3kU6UM2y+V8P1vd7m6BHpII=;
+        b=iafAuPXEcY1qU61p4NcrK9aOIuqaHGkdlV8l8O8WQXWnX/8Ql3jZcPj+I6eqw+0zOe
+         Y9ZEZcdf1Ge9wVcR8JtcYSTgjGqxWPxh8I4mvO2BD54W9OuG0tySHGZnsuL2jOk0WLdO
+         7IOjvBPz9bUCULQ8PC8AlYDikRqAf/irEwDDMH/pP38JSi2zDswdtqjp0TAqSTBYT6cm
+         RiQJI8rXpaCwCs1UaqAAxrDLFUr9tmIE5D2oL/jPkhvnasf3ZMO86zrn0MzAYAxAW17V
+         UVefu3AHP1MkZZXkz/bZ7owiGEZWSxE1VHwkAIZ3He5Vc3XgvwF/Cj964DD3CYzFVwbP
+         oCmw==
+X-Gm-Message-State: AFq9FYLN1oTAqN8QGyFk9DxilchbpAKOo44h9mX1JKsUeVHnD0P7KSD6
+	aqDsOkSPQn7FhQz1IUi8/jubrgODM/zmD6/qCFLyXBXkVTG+sHw41jbCTuXxSDkl
+X-Gm-Gg: AYBFou3T3fXxqSFJcnQMSlGUd8moC6CjLtXiJH6FacKKhgp+6sIW/3dg+XeHYBobhaO
+	6gJtPHMCuvoClBx5PLM+RULw/bJ2kQX6d1TituVJ4pXh0adMe0S8tmRIQq805Pupyg8ZtlL8D/f
+	31SZozg2rUHvmne70XhSPNRoOiYUnVcEjwyfxIcPVXTilFvwb6MrTJJtGhl1qjk73rgG0mcRtlG
+	I4CHQsW6GgL3nioh6cV+c6Qbi/NfIF2vZmuitj8InRf9OHWpXhKGMpKjlh46u1T7Bz0wfyPDySc
+	VlbnABD7IvphqzsfcDWx6smupSGwoSaEL9SopKNYIlqEFMuT2SIwIROQalLi/D6A/Ik7jI/aqpP
+	jdYJvoK+3WultBemeBb4Bj+4QVV/3buVCX60RCXf0wI4pyWrMA7cJgxDOdQrtPSFUa6V5n0To4D
+	TJfrERee716ZgBwE/dqjztjaCcXxxizo7pKGbRyxCDq1mkNZQ/CssloXl39d9kuvWH1Uvjn0fMx
+	UShJFDus5Yz8BgvTLyGjhNut/JkaUiqe9V7Cd56gcca1myvmRVfBdrDvrJY+LvUivtRAAibIpn1
+	uJUGKQyX/fgvEISJhMQMpZplP0AjD1GsQUwTZyZIN2ilRSU7yVthwVfY2KENdFHFD6Jse7DKyh+
+	Pr2p6Zy0uJObGrNphdyA8IH2UqIvjtJcfqf0DjOOiuQ==
+X-Received: by 2002:a05:620a:45a1:b0:93e:c12c:f124 with SMTP id af79cd13be357-940ef96bc00mr1607004285a.80.1793128439983;
+        Tue, 27 Oct 2026 12:13:59 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-940f0a8164asm1048272285a.38.2026.10.27.12.13.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Oct 2026 12:13:41 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: synchronize user join caches across transactions
+Date: Tue, 27 Oct 2026 15:13:27 -0400
+Message-ID: <20261027191327.91854-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,31 +99,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261027161833.90630-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261027161833.90630-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 27 Oct 2026 15:02:02 -0400
-X-Gm-Features: AclHuK9tUG-7A_sI3YtMzyylbcFH8JOmgt1pdVLJTDpCbKmt7N1QxunTxNQQwoM
-Message-ID: <CAEjxPJ5xdgskV4SRhEc-N2eAvjS5T6PAQUfDOEjA9AFcnRfpdA@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils: fixfiles: honor last exclude line
- without newline
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com, 
-	Vaibhav Bhope <vbhope@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 27, 2026 at 12:19=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> From: Vaibhav Bhope <vbhope@redhat.com>
->
-> exclude_dirs_from_relabelling() uses `while read`, which exits with
-> status 1 at EOF when the final line lacks a trailing newline, so that
-> entry is silently dropped from -e exclusions. Process the leftover
-> buffer with `|| [ -n "$i" ]` so the last path is still applied.
->
-> Signed-off-by: Vaibhav Bhope <vbhope@redhat.com>
+A local user query before beginning a transaction can leave the join
+and its child databases cached at the same store serial. The join then
+skips the child cache synchronization when modified inn the
+transaction. Commit splits the updated records into the children, but
+the transaction state check subsequently drops those changes when
+merging local components.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Track transaction state in the join cache and invalidate it before the
+serial fast path when that state changes. Rebuilding the join
+synchronizes the child caches before mutation, preserving the split
+records through commit.
+
+Fixes: fe595f540127 ("libsemanage: preserve read-only store overrides")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsemanage/src/database_join.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/libsemanage/src/database_join.c b/libsemanage/src/database_join.c
+index 5daa1c02..d6ef6d62 100644
+--- a/libsemanage/src/database_join.c
++++ b/libsemanage/src/database_join.c
+@@ -28,6 +28,7 @@ struct dbase_join {
+ 	 * thing being joined  */
+ 	dbase_config_t *join1;
+ 	dbase_config_t *join2;
++	int cache_in_transaction;
+ 
+ 	/* JOIN extension */
+ 	const record_join_table_t *rjtable;
+@@ -51,6 +52,11 @@ static int dbase_join_cache(semanage_handle_t *handle, dbase_join_t *dbase)
+ 	record2_t **records2 = NULL;
+ 	unsigned int rcount1 = 0, rcount2 = 0, i = 0, j = 0;
+ 
++	/* Synchronize child caches before mutating a join in a new transaction */
++	if (dbase->cache_in_transaction != handle->is_in_transaction)
++		dbase_llist_drop_cache(&dbase->llist);
++	dbase->cache_in_transaction = handle->is_in_transaction;
++
+ 	/* Already cached */
+ 	if (!dbase_llist_needs_resync(handle, &dbase->llist))
+ 		return STATUS_SUCCESS;
+@@ -249,6 +255,7 @@ int dbase_join_init(semanage_handle_t *handle, const record_table_t *rtable,
+ 	tmp_dbase->rjtable = rjtable;
+ 	tmp_dbase->join1 = join1;
+ 	tmp_dbase->join2 = join2;
++	tmp_dbase->cache_in_transaction = handle->is_in_transaction;
+ 
+ 	*dbase = tmp_dbase;
+ 
+-- 
+2.56.0
+
