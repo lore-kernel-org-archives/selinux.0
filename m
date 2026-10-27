@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793108739;
-	b=1iDmAolP75QMbx5f+2dawkIJy1MLsINLivepRcCvVqi9y002ul8yPB2k3SJggzxBdYVK
-	 eCZx4cgBjRPGp/SqeSmlRAJgMesRWx9gHCuYM9UZm8m5Tbl1Pe8HTUl2EsmRXwV14Pgqo
-	 NGEUfXLRfUk6YXpmlhKwVRk0kax1pNi3Lm/2I612Lk/t9qxqev20Ivenx/uvJnS/xUPO9
-	 yV/6LMWzxj3DApcNZxaMRhAWOfS8W1npoYZ1j4Eqr9d4y8vgZwndB+coSpzF2RUpo/r7e
-	 dwgAL2uLet+c9chyp8eNDNELMFQJyZ4pfoYmKkAfcSkaDBG/cgSJ331Y3CB9uh3Pprg==
+	t=1793109681;
+	b=r+1BLRy0PinqMj7eS8kBL141cqgy7CPoAhzZyjUSfl+fXP4pv45HzDfDG4fjS5HbGsyr
+	 kgz5UgeDtC8fpzd3E/po8y7yPQ4TrrkWJb62lJZ3cswaHakgqtogZXNoWjaVb3BzTdeLk
+	 jr3aURc9b3e8dg60c32S0zhgUrK5zVl88k/H1YamIqeSViKXara4hqISpkJmLWks/gYS3
+	 SPRxGra8iFHxhhWhA5koUwRvbMa7/0i0RULz0L1DyTOu9EBO37Ap+hB+QRZMiRYeWRAng
+	 Nap4lUJtPXAzY9yd5iwH1FiZNSnvem/4qQRsfohgUt7nuOSbDLnRcgtoBDs5zIqF2Qg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793108739;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793109681;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0xTTV2LlXzhh+YL+DnIceW8Od0RkrWLTRt8+p/f2sP8=;
-	b=n77/jA8AP5U5dDLap46o7JfL9xAYUnRgztCkpGI2mNDtzRPXm98RM14jKHem2eaechQt
-	 EVA28yWuxOi/q1J+RFOc1FPDyDlLD4qehAAsVCu8pw4UU500dz+AawQET00RgS2qiCVA3
-	 FVtwGLvu4sL/Ors8/IaRyEoCKOWAtTHl+ZF/gRcZif/3/c0okI7nZ98zgpIWB0guEN8dZ
-	 R3VntyYcyUKBbmp7yzlDyenCNuBJyY4Bzq0/c4LEQ4j0BcIrjLfMaYMWzdtKmIdIkKhqV
-	 5aRIF6PWfYwUhpekJI0Pb+6p+AeHor1XGbU9EsLlLFxXP1g2GyzZchz2/gaX+U4rVeA==
+	bh=M/y2iGPGqnOInEfAT6KNTRdsf2PIAzJoNzC+BVcHG8E=;
+	b=ieQ+jUYo9MSK8kjIfCupFzddnUYftGoBWhXlDOmVgMXDzwpIyBql5RSCzqnfK6AyC2Ge
+	 F2L/KH6/60lRSDUqYxCK+jdTioynt8bBWr+O813WqK44BYziNxbC3AkZsg+a8lbUDwXS/
+	 +a4S4R8wsWKu+J5h+6Zs12jvrt+BA/67zLWI4OV4kjw3TYxOrqMigMPRRUGYQ4ns/Wqz5
+	 83ckDaFMfDvMR9E0YXUyyP/FPDnIUsea7u632iRaHJzhQJ6tnsywZO3hYjvjCQOngz0nH
+	 EDaG09x3+PGY+xmUNs8skTH74Y4BLQPtQzemSu23AMfLuc61AifZpyee+Uu6Rtl2iCQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oliOqBmk;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LXxaE4Lb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9D21606A31A;
-	Tue, 27 Oct 2026 13:45:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D21606A31B;
+	Tue, 27 Oct 2026 14:01:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oliOqBmk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CADD01F01825;
-	Tue, 27 Oct 2026 13:45:37 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LXxaE4Lb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E018D1F01825;
+	Tue, 27 Oct 2026 14:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793108738;
-	bh=0xTTV2LlXzhh+YL+DnIceW8Od0RkrWLTRt8+p/f2sP8=;
+	s=k20260515; t=1793109680;
+	bh=M/y2iGPGqnOInEfAT6KNTRdsf2PIAzJoNzC+BVcHG8E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oliOqBmk9jrj7oNPmH6X8wky8AOEwhzKXQdpbQFZQDJrs0jwI+nmjQOpT5hWkl6YP
-	 HdfmzXXWEtzgFYFpw8Md+YOSjF7G5Yr04IdwhA/57fVpCZC9836M5Z62v/p2XMv+65
-	 NrDkYTmqh7TP8EgRZKjZs21qB2goWWyAA4UuOuQ2DTLNJD+rj16SmUty6x7MQ4eTeF
-	 3yFGcomi4JyL+zZvHa8ZBgzTxiGaWexd4wH95woxI77JMCV8oFmtK3OhZB2TxsHZ34
-	 FDfHK7zlR3yPraOZ9jZenoaz/qwfayCJnQ07tFVHehWcLOeYZSun5KJuOmwCuWEeAn
-	 W0vZ9SFvJZvfw==
-Message-ID: <sashiko-outbox-186665@kernel.org>
+	b=LXxaE4Lbg8WK49qsT405ak5hZRgTuQ5GAFU9NMDtW7nGvjsiGy7SkQrVqk2z4NKCF
+	 c5PhEa11t2/365oUcxiMpGToUDBY5M6VXy3rDKPsjP+iSuTZXEco1di1Lewq6VZoBL
+	 Gox6NWj/GgoXYfWS5N1O3BIwZ/5Rz24H7WtQ14PPII1VgQLWcEUKCGakcbTvLP/83Z
+	 mckh2IWHovfagXKx4cIqVolgup5sAURxDK9ij+ywmmqJrdWgudCWe2i2Ge0Ae35aO0
+	 NmNqaWxbvtjJ0UMl7Id8jRPgrhj2XDQ7RGbUZHo0NSWBYzXrgZDPU9SqvkT4zg6Fd0
+	 VTkfMyLRpec6g==
+Message-ID: <sashiko-outbox-186681@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 -next 08/18] LSM: pass struct path and struct file to
- the inode fileattr hooks
+Subject: Re: [PATCH v3 -next 09/18] LSM: rename inode_getattr to
+ path_getattr and pass struct file
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
 Cc: bpf@vger.kernel.org, linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, selinux@vger.kernel.org, dsterba@suse.cz, "Chuck
  Lever" <cel@kernel.org>, "Jeff Layton" <jlayton@kernel.org>, "Anna
  Schumaker" <anna@kernel.org>
-In-Reply-To: <20261027121151.1887650-9-caixinchen1@huawei.com>
+In-Reply-To: <20261027121151.1887650-10-caixinchen1@huawei.com>
 References: <20261027121151.1887650-1-caixinchen1@huawei.com>
- <20261027121151.1887650-9-caixinchen1@huawei.com>
+ <20261027121151.1887650-10-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 13:45:37 +0000
+Date: Tue, 27 Oct 2026 14:01:19 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -65,267 +65,105 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] ovl: bypass of underlying LSM checks in ovl_real_fileattr_get() an=
-d set
-- [Medium] vfs: vfs_fileattr_get() runs LSM hook before checking i_op->file=
-attr_get
+- [High] bpf, lsm: missing __nullable on file arg in bpf_lsm_path_getattr()
+- [Low] tomoyo: missing @file kernel-doc in tomoyo_path_getattr()
 --
 
-commit 2d42ade8215536e97143b2105a207c59391b323b
+commit b5ecf79579b44f0d69e46ecb8c8c91e302299f23
 Author: Cai Xinchen <caixinchen1@huawei.com>
 
-LSM: pass struct path and struct file to the inode fileattr hooks
+LSM: rename inode_getattr to path_getattr and pass struct file
 
-This commit updates vfs_fileattr_get(), vfs_fileattr_set(), and the
-inode_file_getattr and inode_file_setattr security hooks to accept a
-const struct path and struct file. It also introduces unchecked
-__vfs_fileattr_get() and __vfs_fileattr_set() helpers and switches
-ecryptfs, overlayfs, and nfsd internal fileattr calls to use them.
-
-> diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
-> index fcb5b4de897e4..2b8daf21aea85 100644
-> --- a/fs/ecryptfs/inode.c
-> +++ b/fs/ecryptfs/inode.c
-> @@ -1077,7 +1077,7 @@ static int ecryptfs_removexattr(struct dentry *dent=
-ry, struct inode *inode,
-> =20
->  static int ecryptfs_fileattr_get(struct dentry *dentry, struct file_katt=
-r *fa)
->  {
-> -	return vfs_fileattr_get(ecryptfs_dentry_to_lower(dentry), fa);
-> +	return __vfs_fileattr_get(ecryptfs_dentry_to_lower(dentry), fa);
->  }
-> =20
->  static int ecryptfs_fileattr_set(const struct mnt_idmap *idmap,
-> @@ -1086,7 +1086,7 @@ static int ecryptfs_fileattr_set(const struct mnt_i=
-dmap *idmap,
->  	struct dentry *lower_dentry =3D ecryptfs_dentry_to_lower(dentry);
->  	int rc;
-> =20
-> -	rc =3D vfs_fileattr_set(&nop_mnt_idmap, lower_dentry, fa);
-> +	rc =3D __vfs_fileattr_set(&nop_mnt_idmap, lower_dentry, fa);
->  	fsstack_copy_attr_all(d_inode(dentry), d_inode(lower_dentry));
-> =20
->  	return rc;
-> diff --git a/fs/file_attr.c b/fs/file_attr.c
-> index 833e03810b24c..08b4cdbef9ffa 100644
-> --- a/fs/file_attr.c
-> +++ b/fs/file_attr.c
-> @@ -75,27 +75,48 @@ void fileattr_fill_flags(struct file_kattr *fa, u32 f=
-lags)
->  EXPORT_SYMBOL(fileattr_fill_flags);
-> =20
->  /**
-> - * vfs_fileattr_get - retrieve miscellaneous file attributes
-> + * __vfs_fileattr_get - retrieve miscellaneous file attributes
->   * @dentry:	the object to retrieve from
->   * @fa:		fileattr pointer
->   *
-> - * Call i_op->fileattr_get() callback, if exists.
-> + * Call i_op->fileattr_get() callback, if exists.  Unlike
-> + * vfs_fileattr_get(), no security hook is called: this is the variant to
-> + * use for internal forwards, where the LSM checks were already performed
-> + * on the user-facing path (e.g. by a stacking filesystem).
->   *
->   * Return: 0 on success, or a negative error on failure.
->   */
-> -int vfs_fileattr_get(struct dentry *dentry, struct file_kattr *fa)
-> +int __vfs_fileattr_get(struct dentry *dentry, struct file_kattr *fa)
->  {
->  	struct inode *inode =3D d_inode(dentry);
-> -	int error;
-> =20
->  	if (!inode->i_op->fileattr_get)
->  		return -ENOIOCTLCMD;
-> =20
-> -	error =3D security_inode_file_getattr(dentry, fa);
-> +	return inode->i_op->fileattr_get(dentry, fa);
-> +}
-> +EXPORT_SYMBOL(__vfs_fileattr_get);
-> +
-> +/**
-> + * vfs_fileattr_get - retrieve miscellaneous file attributes
-> + * @path:	the object to retrieve from
-> + * @fa:		fileattr pointer
-> + * @file:	file through which the attributes are retrieved, if any
-> + *
-> + * Call i_op->fileattr_get() callback, if exists.
-> + *
-> + * Return: 0 on success, or a negative error on failure.
-> + */
-> +int vfs_fileattr_get(const struct path *path, struct file_kattr *fa,
-> +		     struct file *file)
-> +{
-> +	int error;
-> +
-> +	error =3D security_inode_file_getattr(path, fa, file);
->  	if (error)
->  		return error;
-> =20
-> -	return inode->i_op->fileattr_get(dentry, fa);
-> +	return __vfs_fileattr_get(path->dentry, fa);
->  }
-
-[Severity: Medium]
-Should vfs_fileattr_get() check whether inode->i_op->fileattr_get is
-implemented before calling security_inode_file_getattr()?
-
-Previously, vfs_fileattr_get() checked !inode->i_op->fileattr_get and
-returned -ENOIOCTLCMD before invoking security_inode_file_getattr(), matchi=
-ng
-do_vfs_fileattr_set() in fs/file_attr.c:
-
-    if (!inode->i_op->fileattr_set)
-        return -ENOIOCTLCMD;
-
-With the check moved into __vfs_fileattr_get(), calling vfs_fileattr_get() =
-on
-an inode whose filesystem does not implement i_op->fileattr_get (such as
-tmpfs, procfs, sysfs, NFS, FUSE without fileattr_get, or special files) runs
-security_inode_file_getattr() first.
-
-If an LSM denies the hook, vfs_fileattr_get() returns -EACCES (and generates
-audit denial records) instead of -ENOIOCTLCMD. Callers such as
-do_vfs_ioctl() -> ioctl_getflags() / ioctl_fsgetxattr(), file_getattr(), and
-ksmbd's smb2_get_info_filesystem(), ksmbd_vfs_get_compression(), and
-__ksmbd_vfs_set_compression() rely on -ENOIOCTLCMD to fall back to
-vfs_ioctl(), -EOPNOTSUPP, or default attributes:
-
-fs/smb/server/smb2pdu.c:smb2_get_info_filesystem() {
-    ...
-    err =3D vfs_fileattr_get(&path, &fa, NULL);
-    if (err && err !=3D -ENOIOCTLCMD && err !=3D -ENOTTY &&
-        err !=3D -EINVAL && err !=3D -EOPNOTSUPP) {
-        path_put(&path);
-        return err;
-    }
-    ...
-}
+This commit renames the inode_getattr LSM hook and security_inode_getattr()
+wrapper to path_getattr and security_path_getattr(), and adds a struct file
+parameter passed by file descriptor-based stat operations while path-based
+callers pass NULL. It also updates LSM implementations, BPF LSM/tracing BTF
+IDs, and BPF selftests accordingly.
 
 [ ... ]
 
-> diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-> index eb408284df082..4f1d3077735bd 100644
-> --- a/fs/overlayfs/inode.c
-> +++ b/fs/overlayfs/inode.c
-> @@ -608,47 +608,10 @@ static int ovl_fiemap(struct inode *inode, struct f=
-iemap_extent_info *fieinfo,
->  		return realinode->i_op->fiemap(realinode, fieinfo, start, len);
->  }
-> =20
-> -/*
-> - * Work around the fact that security_file_ioctl() takes a file argument.
-> - * Introducing security_inode_fileattr_get/set() hooks would solve this =
-issue
-> - * properly.
-> - */
-> -static int ovl_security_fileattr(const struct path *realpath, struct fil=
-e_kattr *fa,
-> -				 bool set)
-> -{
-> -	struct file *file;
-> -	unsigned int cmd;
-> -	int err;
-> -	unsigned int flags;
-> -
-> -	flags =3D O_RDONLY;
-> -	if (force_o_largefile())
-> -		flags |=3D O_LARGEFILE;
-> -
-> -	file =3D dentry_open(realpath, flags, current_cred());
-> -	if (IS_ERR(file))
-> -		return PTR_ERR(file);
-> -
-> -	if (set)
-> -		cmd =3D fa->fsx_valid ? FS_IOC_FSSETXATTR : FS_IOC_SETFLAGS;
-> -	else
-> -		cmd =3D fa->fsx_valid ? FS_IOC_FSGETXATTR : FS_IOC_GETFLAGS;
-> -
-> -	err =3D security_file_ioctl(file, cmd, 0);
-> -	fput(file);
-> -
-> -	return err;
-> -}
-> -
->  int ovl_real_fileattr_set(const struct path *realpath, struct file_kattr=
- *fa)
->  {
-> -	int err;
-> -
-> -	err =3D ovl_security_fileattr(realpath, fa, true);
-> -	if (err)
-> -		return err;
-> -
-> -	return vfs_fileattr_set(mnt_idmap(realpath->mnt), realpath->dentry, fa);
-> +	return __vfs_fileattr_set(mnt_idmap(realpath->mnt), realpath->dentry,
-> +				  fa);
->  }
-> =20
->  int ovl_fileattr_set(const struct mnt_idmap *idmap,
-> @@ -718,11 +681,7 @@ int ovl_real_fileattr_get(const struct path *realpat=
-h, struct file_kattr *fa)
->  {
->  	int err;
-> =20
-> -	err =3D ovl_security_fileattr(realpath, fa, false);
-> -	if (err)
-> -		return err;
-> -
-> -	err =3D vfs_fileattr_get(realpath->dentry, fa);
-> +	err =3D __vfs_fileattr_get(realpath->dentry, fa);
->  	if (err =3D=3D -ENOIOCTLCMD)
->  		err =3D -ENOTTY;
->  	return err;
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 96ae1b548e8d4..0f7712f516444 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -153,7 +153,8 @@ LSM_HOOK(int, 0, inode_setattr, const struct mnt_idma=
+p *idmap,
+>  	 const struct path *path, struct iattr *attr, struct file *file)
+>  LSM_HOOK(void, LSM_RET_VOID, inode_post_setattr, const struct mnt_idmap =
+*idmap,
+>  	 struct dentry *dentry, int ia_valid)
+> -LSM_HOOK(int, 0, inode_getattr, const struct path *path)
+> +LSM_HOOK(int, 0, path_getattr, const struct path *path,
+> +	 struct file *file)
 
 [Severity: High]
-Won't removing ovl_security_fileattr() while also switching
-ovl_real_fileattr_set() and ovl_real_fileattr_get() (as well as
-ecryptfs_fileattr_get() and ecryptfs_fileattr_set() in fs/ecryptfs/inode.c)
-to the unchecked __vfs_fileattr_set() and __vfs_fileattr_get() helpers bypa=
-ss
-mandatory access control checks on the underlying layer?
+Can this trigger a NULL pointer dereference when a BPF LSM program attaches
+to lsm/path_getattr or lsm.s/path_getattr?
 
-As described in Documentation/filesystems/overlayfs.rst ("Permission model"=
-),
-overlayfs performs two permission checks on each access:
+In fs/stat.c, both vfs_getattr() and vfs_statx() -> vfs_statx_path() pass
+NULL for the file argument when calling security_path_getattr():
 
- a) check if current task is allowed access based on local DAC (owner,
-    group, mode and posix acl), as well as MAC checks
+    retval =3D security_path_getattr(path, NULL);
 
- b) check if stashed credentials would be allowed real operation on lower or
-    upper layer based on underlying filesystem permissions, again including
-    MAC checks
+and:
 
-Other overlayfs metadata operations (such as ovl_do_notify_change(),
-ovl_xattr_get(), ovl_do_setxattr(), ovl_do_removexattr(), ovl_get_acl_path(=
-),
-and ovl_do_set_acl()) invoke the hook-checked VFS helpers on the underlying
-realpath under with_ovl_creds() to enforce the second check.
+    error =3D vfs_statx_path(&path, flags, stat, request_mask, NULL);
 
-Commit 66dbfabf10d3 ("ovl: stack fileattr ops") added ovl_security_fileattr=
-()
-under the mounter's credentials to check the underlying realpath when
-vfs_fileattr_get() and vfs_fileattr_set() lacked LSM hooks. Now that
-vfs_fileattr_get() and vfs_fileattr_set() invoke the security hooks on a
-struct path, using __vfs_fileattr_get() and __vfs_fileattr_set() in
-ovl_real_fileattr_get() and ovl_real_fileattr_set() skips the second MAC
-check on realpath altogether.
+In kernel/bpf/bpf_lsm.c, LSM_HOOK() generates the weak hook stub
+bpf_lsm_path_getattr(const struct path *path, struct file *file). Because
+bpf_lsm_path_getattr is not in untrusted_lsm_hooks, btf_ctx_access() in
+kernel/bpf/btf.c marks its pointer arguments as PTR_TO_BTF_ID | PTR_TRUSTED
+without PTR_MAYBE_NULL unless the parameter name has a __nullable suffix:
 
-For example, when an unprivileged user namespace mounts overlayfs with a
-context=3D mount option (or with override_creds) and calls path-based
-file_getattr() or file_setattr() on an upper file, the first check only
-evaluates the overlay mountpoint label, and __vfs_fileattr_get() /
-__vfs_fileattr_set() bypass SELinux FILE__GETATTR and FILE__SETATTR checks =
-on
-the underlying inode. Similarly, in ecryptfs, the lower filesystem can have
-per-file SELinux xattr labels distinct from the ecryptfs genfscon label, and
-ecryptfs_setattr(), ecryptfs_setxattr(), and ecryptfs_set_acl() all call the
-hook-checked VFS helpers on the lower dentry/path.
+    info->reg_type =3D PTR_TO_BTF_ID;
+    if (prog_args_trusted(prog))
+        info->reg_type |=3D PTR_TRUSTED;
 
-Should ovl_real_fileattr_get(), ovl_real_fileattr_set(),
-ecryptfs_fileattr_get(), and ecryptfs_fileattr_set() call vfs_fileattr_get()
-and vfs_fileattr_set() instead of the unchecked helpers?
+    if (btf_param_match_suffix(btf, &args[arg], "__nullable"))
+        info->reg_type |=3D PTR_MAYBE_NULL;
+
+Without PTR_MAYBE_NULL on the file argument:
+
+1. bpf_may_fault_on_deref(PTR_TO_BTF_ID | PTR_TRUSTED) returns false in
+   include/linux/bpf_verifier.h, so direct loads from file (such as
+   file->f_inode) are permitted without a NULL check and are not rewritten
+   to BPF_PROBE_MEM by convert_ctx_accesses().
+
+2. Because bpf_lsm_path_getattr is in sleepable_lsm_hooks, a sleepable
+   lsm.s/path_getattr program can pass file without a NULL check to kfuncs
+   expecting a non-NULL trusted struct file * (such as bpf_get_file_xattr()
+   in fs/bpf_fs_kfuncs.c), which immediately dereference file.
+
+Should bpf_lsm_path_getattr() have a strong override in
+kernel/bpf/bpf_lsm_proto.c with struct file *file__nullable, similar to
+bpf_lsm_mmap_file()?
+
+[ ... ]
+
+> diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+> index c66e02ed8ee3b..c67455e060f74 100644
+> --- a/security/tomoyo/tomoyo.c
+> +++ b/security/tomoyo/tomoyo.c
+> @@ -112,13 +112,14 @@ static int tomoyo_bprm_check_security(struct linux_=
+binprm *bprm)
+>  }
+> =20
+>  /**
+> - * tomoyo_inode_getattr - Target for security_inode_getattr().
+> + * tomoyo_path_getattr - Target for security_path_getattr().
+>   *
+>   * @path: Pointer to "struct path".
+>   *
+>   * Returns 0 on success, negative value otherwise.
+>   */
+> -static int tomoyo_inode_getattr(const struct path *path)
+> +static int tomoyo_path_getattr(const struct path *path,
+> +			       struct file *file)
+
+[Severity: Low]
+Does the kernel-doc comment for tomoyo_path_getattr() also need a @file
+entry to avoid a kernel-doc warning under W=3D1 builds?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027121151.1887=
-650-1-caixinchen1@huawei.com?part=3D8
+650-1-caixinchen1@huawei.com?part=3D9
