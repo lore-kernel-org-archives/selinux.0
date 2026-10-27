@@ -1,55 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.225
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.216
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793101153;
-	b=WYrn2xVL3vp5Yleo6wREGsyhJ4hVgxKEqqZkvhXJEx2HixFSBC/JaI8+7OZLZsVlO0P1
-	 iBGJb5EpUgHDwU4pKvGaA6kmgVmBpJvpMNyBxs506fQ4V0aJxMUDdSXf3L2iw9wnX07UN
-	 2HUwbtzv0bYbWTr3a/BlDOi1TxUT0xbmYfSJJyykWEBZczPQJuQJkrrM44QL5vWhaqzUG
-	 4CXjcAkUi0729T/73ivPu5G13Q6QNwm82DFlSG191cQcQkfu/NO6tDK0aiBH3De4Eg//M
-	 +LNM3QC0uN5vwzIR2TbQypIKStVu7BmIxSqve7F3Pf1Z6iVMmTyX3OGjAcw39li94pQ==
+	t=1793101177;
+	b=kKiLNrsKyon5lu7BdAdON+O2NidCt5VHtxZdbtHlGVltODSDrTYlNwUhNsH0NXakcma0
+	 FTX2Su4NfYzy6BwOWHD4EDiJ7FIITsr4osSDu4/39Gdn7us3gOAqkG6cVE1eZSSGq1feQ
+	 nw0zHOaoRfE8kPqC7ovC+8gCsUQtuIfdyvr0JnOU+2SJ8oI6zh9uWJj7L9OWLPmVnhcFX
+	 Z/S0v1tAmJ3rX+9coYhLzAmH+qmOJHvOAYsNeZCI1Wy/Mufs+kQWpZNxXCyZSnFYk6lQR
+	 64Ew7d2g+UektBy1wOcsE6qD9jKO0kTmMjCrRfwIWhqtRBrCxvjJvuCVxPizq5YD0Zg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793101153;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793101177;
 	h=DMARC-Filter:dkim-signature:Received:Received:Received:From:To:CC:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Type:X-Originating-IP:X-ClientProxiedBy;
-	bh=eSoejBy4BiH08FSMPiqiQwZp6ozqcsl7f9UKEi2EenQ=;
-	b=jHjV+C64HuailbzUisMpG3orEPY+Q6AOBkQ3rkdp/7n8FWrYoV4a0k+Q8/vIlGnCa1kP
-	 xnAYKgM95hSO6RqGnWQXOwWFJm6zJt9ecg6z44d/OQUIbv86NoTg1aJyaJmSCUozXwT6k
-	 Gn9N7WGwkX5Fn4sQNdzHa87+wweCKR00BmCbHDpK91VnSbV8Wz5CQ9H9O1xTS5Wg8KVNV
-	 GvKUYZMGDegmkXBhBJFOtfN1AUazes+H+hdDUkIVbnkLhPZwptfo4jg516UZurSevK+Y1
-	 rzb79EpSEkr81SteyyraaIVJW4h7raARF2saVh5CeV5ZwC1kmNA9htNfmsD+WoMqrBQ==
+	bh=+4h+LosMEKQAOXs4e0h/oSVn5K7clxVAvpe79xJ2Y28=;
+	b=wR/VwIdXMIHlOSNZujtMYYsMdeeM+n1W9tUxO0DZYLC2tqgWuiAmlTcdWWqX40tPT5DP
+	 tRBafxwk9wEQN5IuWMg2dhnPsaFsgHrah/ZSgT3o4eJWU9gvR2RxizYQRbv8L8G1tIX3b
+	 AchWy3kFMUmUMh9HWL8eZU1zHPCK6G6e+22snP7/uf4MJB3opY5nkN0vUoazSMp+714j0
+	 osGjfHYXNVxB8Ge4fD/v3clvWH1psAHPtOx0oiYJ5SQZzd1gn1SJixu8B85/GsglgGvRb
+	 R8f6gd3sxD2Yj6SFlyFqq5ezPb9wIhi2ZYPDqahYUMdY8wdtjzhfGDx3vgAaNSdttBA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=huawei.com;
 	spf=pass smtp.mailfrom=huawei.com;
-	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=IYh5nymZ;
-	arc=none smtp.remote-ip=113.46.200.225
-Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
+	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=FJiGDug6;
+	arc=none smtp.remote-ip=113.46.200.216
+Received: from canpmsgout01.his.huawei.com (canpmsgout01.his.huawei.com [113.46.200.216])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DFF26072E4E;
-	Tue, 27 Oct 2026 11:39:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DFF26072E4E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4710606A9C6;
+	Tue, 27 Oct 2026 11:39:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4710606A9C6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=IYh5nymZ
+	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=FJiGDug6
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=eSoejBy4BiH08FSMPiqiQwZp6ozqcsl7f9UKEi2EenQ=;
-	b=IYh5nymZoyJZsxq530x+d7JtOvWC7CZVnW65/y6dNVStjCZU93b2+ZzLdYzxMrsxIJ7GBMbiM
-	olU2KeJ9+tVHMer2BN2nlR56XishTWGTfbhNEi7ObodayqrzhGbpUQNAj0giT7B4ynjMp6rahMd
-	3SBKUCy3WxU/vXcPVaJH28I=
-Received: from mail.maildlp.com (unknown [172.19.163.127])
-	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4jDT6D0yKtz1K9B9;
-	Tue, 27 Oct 2026 19:39:00 +0800 (CST)
+	bh=+4h+LosMEKQAOXs4e0h/oSVn5K7clxVAvpe79xJ2Y28=;
+	b=FJiGDug68WjNx0xWDIzzod6vppyeMsZslGo8cml9EB76SuctefkJ1J7l0uWFKlc3YKPxW95A0
+	Bi33/6VwmJN6lAx71JiANxrC22DyaCsZCZaCobac9XLQmXSkIwoHQMC8HwTUXdA6AEouF8htbgB
+	4K7LxD9HDjrnfxGspaDKDWw=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4jDT6j2ylBz1T4G1;
+	Tue, 27 Oct 2026 19:39:25 +0800 (CST)
 Received: from whupemk100010.china.huawei.com (unknown [7.152.184.41])
-	by mail.maildlp.com (Postfix) with ESMTPS id DFA9B40572;
-	Tue, 27 Oct 2026 19:39:07 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id BCEA64057D;
+	Tue, 27 Oct 2026 19:39:33 +0800 (CST)
 Received: from octopus.huawei.com (10.67.174.191) by
  whupemk100010.china.huawei.com (7.152.184.41) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Tue, 27 Oct 2026 19:39:02 +0800
+ 15.2.2562.45; Tue, 27 Oct 2026 19:39:28 +0800
 From: Cai Xinchen <caixinchen1@huawei.com>
 To: <mic@digikod.net>, <gnoack@google.com>, <paul@paul-moore.com>,
 	<jmorris@namei.org>, <serge@hallyn.com>, <corbet@lwn.net>,
@@ -88,9 +88,9 @@ CC: <ast@kernel.org>, <daniel@iogearbox.net>, <andrii@kernel.org>,
 	<linux-trace-kernel@vger.kernel.org>, <apparmor@lists.ubuntu.com>,
 	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>,
 	<linux-kselftest@vger.kernel.org>
-Subject: [PATCH v3 -next 13/18] LSM: rename the inode fileattr hooks to path_file_* hooks
-Date: Tue, 27 Oct 2026 20:11:46 +0800
-Message-ID: <20261027121151.1887650-14-caixinchen1@huawei.com>
+Subject: [PATCH v3 -next 18/18] Documentation: Update landlock doc for metadata rights
+Date: Tue, 27 Oct 2026 20:11:51 +0800
+Message-ID: <20261027121151.1887650-19-caixinchen1@huawei.com>
 X-Mailer: git-send-email 2.18.0.huawei.25
 In-Reply-To: <20261027121151.1887650-1-caixinchen1@huawei.com>
 References: <20261027121151.1887650-1-caixinchen1@huawei.com>
@@ -107,187 +107,162 @@ Content-Type: text/plain
 X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
  whupemk100010.china.huawei.com (7.152.184.41)
 
-The inode_file_getattr and inode_file_setattr hooks receive a struct
-path, so rename them to path_file_getattr and path_file_setattr to
-follow the path_* naming convention used for the other hooks that
-take a struct path (path_chmod, path_chown, ...).  Rename the
-security_inode_file_getattr() and security_inode_file_setattr()
-inline wrappers and the SELinux implementations
-accordingly.
+Update the user space documentation for the new
+LANDLOCK_ACCESS_FS_READ_METADATA and
+LANDLOCK_ACCESS_FS_WRITE_METADATA access rights: add them to the
+example ruleset attributes, extend the ABI version fallback switch
+to remove them for ABI < 13, and document their semantics in a new
+"File metadata" section, including the fact that only explicit
+metadata changes requested by user space are restricted.
+
+The new section also documents the open-time semantic of both
+rights: metadata accesses requested through an already opened file
+descriptor are granted according to the rights available at open(2)
+time, like for LANDLOCK_ACCESS_FS_TRUNCATE, whereas path-based
+accesses and O_PATH file descriptors are always checked against the
+rights of the calling thread.  The "Rights associated with
+file descriptors" section is updated accordingly.
+
+Finally, the new section warns that most of the time,
+LANDLOCK_ACCESS_FS_READ_METADATA should be granted together with
+LANDLOCK_ACCESS_FS_READ_FILE and LANDLOCK_ACCESS_FS_READ_DIR:
+programs commonly read metadata alongside file contents and
+directory listings (e.g. with stat(2)) and do not expect such calls
+to fail, while denying only READ_FILE or READ_DIR does not hide
+metadata.
 
 Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
 ---
- fs/file_attr.c                |  4 ++--
- include/linux/lsm_hook_defs.h |  4 ++--
- include/linux/security.h      | 20 ++++++++++----------
- security/security.c           | 16 ++++++++--------
- security/selinux/hooks.c      | 16 ++++++++--------
- 5 files changed, 30 insertions(+), 30 deletions(-)
+ Documentation/userspace-api/landlock.rst | 92 ++++++++++++++++++++++--
+ 1 file changed, 86 insertions(+), 6 deletions(-)
 
-diff --git a/fs/file_attr.c b/fs/file_attr.c
-index 08b4cdbef9ff..093cb05ae3c4 100644
---- a/fs/file_attr.c
-+++ b/fs/file_attr.c
-@@ -112,7 +112,7 @@ int vfs_fileattr_get(const struct path *path, struct file_kattr *fa,
- {
- 	int error;
+diff --git a/Documentation/userspace-api/landlock.rst b/Documentation/userspace-api/landlock.rst
+index 3d45b956b640..489306ab0da8 100644
+--- a/Documentation/userspace-api/landlock.rst
++++ b/Documentation/userspace-api/landlock.rst
+@@ -87,7 +87,9 @@ to be explicit about the denied-by-default access rights.
+             LANDLOCK_ACCESS_FS_REFER |
+             LANDLOCK_ACCESS_FS_TRUNCATE |
+             LANDLOCK_ACCESS_FS_IOCTL_DEV |
+-            LANDLOCK_ACCESS_FS_RESOLVE_UNIX,
++            LANDLOCK_ACCESS_FS_RESOLVE_UNIX |
++            LANDLOCK_ACCESS_FS_READ_METADATA |
++            LANDLOCK_ACCESS_FS_WRITE_METADATA,
+         .handled_access_net =
+             LANDLOCK_ACCESS_NET_BIND_TCP |
+             LANDLOCK_ACCESS_NET_CONNECT_TCP |
+@@ -159,6 +161,12 @@ version, and only use the available subset of access rights:
+         ruleset_attr.handled_permissions &=
+             ~(LANDLOCK_PERMISSION_NAMESPACE_USE |
+               LANDLOCK_PERMISSION_CAPABILITY_USE);
++        __attribute__((fallthrough));
++    case 12:
++        /* Removes metadata rights for ABI < 13 */
++        ruleset_attr.handled_access_fs &=
++            ~(LANDLOCK_ACCESS_FS_READ_METADATA |
++              LANDLOCK_ACCESS_FS_WRITE_METADATA);
+     }
  
--	error = security_inode_file_getattr(path, fa, file);
-+	error = security_path_file_getattr(path, fa, file);
- 	if (error)
- 		return error;
+ This enables the creation of an inclusive ruleset that will contain our rules.
+@@ -669,14 +677,73 @@ for writing, sidestepping the ``LANDLOCK_ACCESS_FS_TRUNCATE`` right.
  
-@@ -315,7 +315,7 @@ static int do_vfs_fileattr_set(const struct path *const path,
- 		 * user-facing path.
- 		 */
- 		if (path) {
--			err = security_inode_file_setattr(path, fa, file);
-+			err = security_path_file_setattr(path, fa, file);
- 			if (err)
- 				goto out;
- 		}
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 7602a3074375..683c4d7a8024 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -169,9 +169,9 @@ LSM_HOOK(int, 0, path_removexattr, const struct mnt_idmap *idmap,
- 	 const struct path *path, const char *name, struct file *file)
- LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
- 	 const char *name)
--LSM_HOOK(int, 0, inode_file_setattr, const struct path *path,
-+LSM_HOOK(int, 0, path_file_setattr, const struct path *path,
- 	 struct file_kattr *fa, struct file *file)
--LSM_HOOK(int, 0, inode_file_getattr, const struct path *path,
-+LSM_HOOK(int, 0, path_file_getattr, const struct path *path,
- 	 struct file_kattr *fa, struct file *file)
- LSM_HOOK(int, 0, path_set_acl, const struct mnt_idmap *idmap,
- 	 const struct path *path, const char *acl_name,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 305b92c0494c..edba134db8f6 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -464,10 +464,10 @@ int security_path_removexattr(const struct mnt_idmap *idmap,
- 			      const struct path *path, const char *name,
- 			      struct file *file);
- void security_inode_post_removexattr(struct dentry *dentry, const char *name);
--int security_inode_file_setattr(const struct path *path,
--				struct file_kattr *fa, struct file *file);
--int security_inode_file_getattr(const struct path *path,
--				struct file_kattr *fa, struct file *file);
-+int security_path_file_setattr(const struct path *path,
-+			       struct file_kattr *fa, struct file *file);
-+int security_path_file_getattr(const struct path *path,
-+			       struct file_kattr *fa, struct file *file);
- int security_inode_need_killpriv(struct dentry *dentry);
- int security_inode_killpriv(const struct mnt_idmap *idmap, struct dentry *dentry);
- int security_inode_getsecurity(const struct mnt_idmap *idmap,
-@@ -1093,16 +1093,16 @@ static inline void security_inode_post_removexattr(struct dentry *dentry,
- 						   const char *name)
- { }
+ The truncate right is associated with the opened file (see below).
  
--static inline int security_inode_file_setattr(const struct path *path,
--					      struct file_kattr *fa,
--					      struct file *file)
-+static inline int security_path_file_setattr(const struct path *path,
-+					     struct file_kattr *fa,
-+					     struct file *file)
- {
- 	return 0;
- }
++File metadata
++-------------
++
++The ``LANDLOCK_ACCESS_FS_READ_METADATA`` right governs reading file and
++directory metadata: :manpage:`stat(2)` and friends,
++:manpage:`getxattr(2)`, :manpage:`listxattr(2)` and friends, and POSIX ACL
++reads.
++
++The ``LANDLOCK_ACCESS_FS_WRITE_METADATA`` right governs explicit changes to
++file and directory metadata: :manpage:`chmod(2)` and friends,
++:manpage:`chown(2)` and friends, :manpage:`utimensat(2)`,
++:manpage:`setxattr(2)`, :manpage:`removexattr(2)` and friends, and POSIX ACL
++changes.  Both rights apply to files and directories alike.
++
++Implicit metadata changes performed by the kernel are not restricted by
++``LANDLOCK_ACCESS_FS_WRITE_METADATA``: reading a file may update its access
++time, writing a file updates its modification and change times and may change
++the file size, and writing to or truncating a file with a set-user-ID or
++set-group-ID bit clears these bits.  File size changes through
++:manpage:`truncate(2)` and friends are governed by
++``LANDLOCK_ACCESS_FS_TRUNCATE`` instead.  An explicit metadata change request
++that changes nothing, e.g. :manpage:`chown(2)` with owner and group ``-1`` on
++a file without a set-user-ID or set-group-ID bit, is not restricted either;
++the same :manpage:`chown(2)` on a file carrying such a bit explicitly
++requests clearing it, and therefore requires
++``LANDLOCK_ACCESS_FS_WRITE_METADATA``.
++
++.. warning::
++
++   Many programs read metadata as part of reading file contents or listing
++   directories (e.g. calling :manpage:`stat(2)` before or after
++   :manpage:`open(2)`), and do not expect such calls to fail with
++   ``EACCES``.  Most of the time, ``LANDLOCK_ACCESS_FS_READ_METADATA``
++   should therefore be granted together with
++   ``LANDLOCK_ACCESS_FS_READ_FILE`` and ``LANDLOCK_ACCESS_FS_READ_DIR``.
++   Conversely, denying only ``LANDLOCK_ACCESS_FS_READ_FILE`` or
++   ``LANDLOCK_ACCESS_FS_READ_DIR`` does not hide metadata: it remains
++   readable through :manpage:`stat(2)` and friends unless
++   ``LANDLOCK_ACCESS_FS_READ_METADATA`` is denied as well.  Tailored
++   programs that do not read metadata at all can still deny this right to
++   further restrict their sandbox.
++
++Both metadata rights are associated with opened files, like
++``LANDLOCK_ACCESS_FS_TRUNCATE`` (see below): metadata accesses and changes
++requested through an already opened file descriptor, e.g. with
++:manpage:`fchmod(2)`, :manpage:`fchown(2)`, :manpage:`utimensat(2)` on an
++empty path, :manpage:`fstat(2)`, :manpage:`fgetxattr(2)`,
++:manpage:`fsetxattr(2)`, :manpage:`ioctl(2)` with ``FS_IOC_GETFLAGS`` or
++``FS_IOC_SETFLAGS``, or ``file_getattr(2)`` and ``file_setattr(2)`` with
++``AT_EMPTY_PATH``, are granted according to the rights available at
++:manpage:`open(2)` time, not according to the rights of the calling thread.
++Metadata accesses requested through a path (e.g. :manpage:`chmod(2)`,
++:manpage:`stat(2)`) are always checked against the rights of the calling
++thread.  ``O_PATH`` file descriptors are not opened through the open
++permission checks: metadata accesses through them are checked against the
++rights of the calling thread as well.
++
+ Rights associated with file descriptors
+ ---------------------------------------
  
--static inline int security_inode_file_getattr(const struct path *path,
--					      struct file_kattr *fa,
--					      struct file *file)
-+static inline int security_path_file_getattr(const struct path *path,
-+					     struct file_kattr *fa,
-+					     struct file *file)
- {
- 	return 0;
- }
-diff --git a/security/security.c b/security/security.c
-index 13778c83fd3a..919763c61994 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2180,7 +2180,7 @@ void security_inode_post_removexattr(struct dentry *dentry, const char *name)
- }
+-When opening a file, the availability of the ``LANDLOCK_ACCESS_FS_TRUNCATE`` and
+-``LANDLOCK_ACCESS_FS_IOCTL_DEV`` rights is associated with the newly created
+-file descriptor and will be used for subsequent truncation and ioctl attempts
+-using :manpage:`ftruncate(2)` and :manpage:`ioctl(2)`.  The behavior is similar
+-to opening a file for reading or writing, where permissions are checked during
++When opening a file, the availability of the ``LANDLOCK_ACCESS_FS_TRUNCATE``,
++``LANDLOCK_ACCESS_FS_IOCTL_DEV``, ``LANDLOCK_ACCESS_FS_READ_METADATA`` and
++``LANDLOCK_ACCESS_FS_WRITE_METADATA`` rights is associated with the newly
++created file descriptor and will be used for subsequent truncation, ioctl
++and metadata attempts using :manpage:`ftruncate(2)`, :manpage:`ioctl(2)` and
++the file descriptor-based metadata system calls.  The behavior is similar to
++opening a file for reading or writing, where permissions are checked during
+ :manpage:`open(2)`, but not during the subsequent :manpage:`read(2)` and
+ :manpage:`write(2)` calls.
  
- /**
-- * security_inode_file_setattr() - check if setting fsxattr is allowed
-+ * security_path_file_setattr() - check if setting fsxattr is allowed
-  * @path: file to set filesystem extended attributes on (the VFS makes no
-  *        guarantees with regard to @path->mnt)
-  * @fa: extended attributes to set on the inode
-@@ -2191,14 +2191,14 @@ void security_inode_post_removexattr(struct dentry *dentry, const char *name)
-  *
-  * Return: Returns 0 if permission is granted.
-  */
--int security_inode_file_setattr(const struct path *path,
--				struct file_kattr *fa, struct file *file)
-+int security_path_file_setattr(const struct path *path,
-+			       struct file_kattr *fa, struct file *file)
- {
--	return call_int_hook(inode_file_setattr, path, fa, file);
-+	return call_int_hook(path_file_setattr, path, fa, file);
- }
+@@ -1051,6 +1118,19 @@ fd-reference acquisition (:manpage:`open_tree(2)`, :manpage:`fsmount(2)`) with
+ the new ``LANDLOCK_PERMISSION_NAMESPACE_USE`` permission flag and
+ ``LANDLOCK_RULE_NAMESPACE`` rule type.
  
- /**
-- * security_inode_file_getattr() - check if retrieving fsxattr is allowed
-+ * security_path_file_getattr() - check if retrieving fsxattr is allowed
-  * @path: file to retrieve filesystem extended attributes from (the VFS makes no
-  *        guarantees with regard to @path->mnt)
-  * @fa: extended attributes to get
-@@ -2209,10 +2209,10 @@ int security_inode_file_setattr(const struct path *path,
-  *
-  * Return: Returns 0 if permission is granted.
-  */
--int security_inode_file_getattr(const struct path *path,
--				struct file_kattr *fa, struct file *file)
-+int security_path_file_getattr(const struct path *path,
-+			       struct file_kattr *fa, struct file *file)
- {
--	return call_int_hook(inode_file_getattr, path, fa, file);
-+	return call_int_hook(path_file_getattr, path, fa, file);
- }
++File metadata (ABI < 13)
++------------------------
++
++Starting with the Landlock ABI version 13, it is possible to restrict
++file metadata access with the new ``LANDLOCK_ACCESS_FS_READ_METADATA``
++and ``LANDLOCK_ACCESS_FS_WRITE_METADATA`` access rights, which control
++reading file and directory metadata (e.g. with :manpage:`stat(2)` and
++:manpage:`getxattr(2)`) and changing it (e.g. with :manpage:`chmod(2)`
++and :manpage:`setxattr(2)`).  As with ``LANDLOCK_ACCESS_FS_TRUNCATE``,
++these rights are tied to opened files: metadata accesses through an
++already opened file descriptor are granted according to the rights
++available at :manpage:`open(2)` time.
++
+ .. _kernel_support:
  
- /**
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e0aaaee537d1..8bafa530806e 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3572,16 +3572,16 @@ static int selinux_path_removexattr(const struct mnt_idmap *idmap,
- 	return -EACCES;
- }
- 
--static int selinux_inode_file_setattr(const struct path *path,
--				      struct file_kattr *fa,
--				      struct file *file)
-+static int selinux_path_file_setattr(const struct path *path,
-+				     struct file_kattr *fa,
-+				     struct file *file)
- {
- 	return dentry_has_perm(current_cred(), path->dentry, FILE__SETATTR);
- }
- 
--static int selinux_inode_file_getattr(const struct path *path,
--				      struct file_kattr *fa,
--				      struct file *file)
-+static int selinux_path_file_getattr(const struct path *path,
-+				     struct file_kattr *fa,
-+				     struct file *file)
- {
- 	return dentry_has_perm(current_cred(), path->dentry, FILE__GETATTR);
- }
-@@ -7743,8 +7743,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(path_getxattr, selinux_path_getxattr),
- 	LSM_HOOK_INIT(path_listxattr, selinux_path_listxattr),
- 	LSM_HOOK_INIT(path_removexattr, selinux_path_removexattr),
--	LSM_HOOK_INIT(inode_file_getattr, selinux_inode_file_getattr),
--	LSM_HOOK_INIT(inode_file_setattr, selinux_inode_file_setattr),
-+	LSM_HOOK_INIT(path_file_getattr, selinux_path_file_getattr),
-+	LSM_HOOK_INIT(path_file_setattr, selinux_path_file_setattr),
- 	LSM_HOOK_INIT(path_set_acl, selinux_path_set_acl),
- 	LSM_HOOK_INIT(path_get_acl, selinux_path_get_acl),
- 	LSM_HOOK_INIT(path_remove_acl, selinux_path_remove_acl),
+ Kernel support
 -- 
 2.18.0.huawei.25
 
