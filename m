@@ -1,22 +1,22 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=64.106.246.77
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793173423;
-	b=m5YYE21Wa7WLp84IkdM/c3Gxx32k+3pnNMdxAbXrTYK9mARjsj1jqVSByP5Xuif033QA
-	 5KBTmYJ36xj5LVfhUIU74aA4BiN223OZjJY3FokFrm+kX6yOnKSIZhg5gv9Q2wX3sWs17
-	 0Qp+5kTlGcOAPwbgi1DJYovvZcKHOXL0KkvhTiJnj9wsrTAyW/dOcQVDKa3bcx/LNYSlI
-	 rmHLTJcVupmbcFworzNxt2scw3w/VgqtXtGD2fZvWpT+fFSr0Jr9BlBGqOUmZEsiEiObq
-	 MY3eEmJ6OEfj9BvaPVvjbofnMjxQ2j8V0GnaRlEQ3LqS9MBQbx3wg7SMccP2YRIqPhw==
+	t=1793174856;
+	b=zA3pWj6hkgpcZFkgVqAaXJaS531xykmfktQErljcf7KYJEiw4luFp5UaNNkSAkBiOUut
+	 rzlj7Vm752BAYvwBCKYNzjC986rI/Ab4qqDX4Vap5/2XfZbyR8RSJZy56U+TBlHqyowJT
+	 oYVR6HkdW7hY7pimF7XgVi8mi8NaNePpQx1TO8B4WQOtF0KwJ2ybv/TaBByvuUSGnofaA
+	 ABQWajLxMgIwjwHQ+ybr6TxtISfVF2Cq3lCTo5Q18rn8OQVvv3/CHia/Tq1R/yhcVXAjK
+	 3DDtAA7//HzWKPwXRakjCseAWUxURv8VDfqD2RgjC1Yd1hKZhY9y9pam+fVOHWVLjxQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793173423;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793174856;
 	h=DMARC-Filter:Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:
 	 MIME-Version:Content-Transfer-Encoding:Content-Type:X-Originating-IP:
 	 X-ClientProxiedBy;
-	bh=/vGGhDk2kbYeHylZZAFez92EAdypt/B9D5SYJhls24U=;
-	b=Cg7MF4bfaI5lXB4W0iqsGdU/eopoxIg8HEPUO9Vv4Y5VcKrr15K3hzIhskEtiMkjzW+A
-	 6X+J1bVdQWqf5+//hhiddkRL1jZoLVaijvZg0WtXbmfP0FaXPYR6sy9CyMf4F9QmSVW8k
-	 TJLc/D2EU4BjMvqlxk0CHYcdWyZcOXlnsbOGB57oJQA6fNlPTPYQASQJWWeUkNbOk30/f
-	 s7mYldSmVv90DbAjKj0Y6phcRUwd6kAr51dzKp0Qzlbi8NOmEkclrcEw6uoII+Bz5GMGK
-	 zFpC1VWwRFk7QlHGIAC1R1tukxjN64gFmOfAr/P9tmuuMgV9qriWvFHJocfYpuv2qhA==
+	bh=h+iT6wmE4ByXBF7sQha5D04NNu/JKAHodJVSAbVAhYQ=;
+	b=XmTqRMaXrjoTZ8lu0xsoFI/FFiaElkWcu17aNqaUF1MNFxqYibI0bUvvvVvi4OTtNizI
+	 J90adbzIvCoL0KNppSojHst6q6dDz6x8V7W0WTF4TvdL5nA/HLnJOzBSOTotql/T5Df03
+	 2M1mcyfCZQlOtl2RjCdkFAKrMZ+qQ0BkYJbrF89S8KV1Wk8hqlKNIkZcAAJJlTQ015N4b
+	 sHY/ypYg/kVWBZth7AXANUlhhWYdp/MOKI2ERcvn92Hs07fGMrImoQB6IJA/mPjkryudi
+	 v3jVfQOIB9iFsbWw9+G6msBvOeiMAOjfU4D/ZRR98S4QvUIYNalTckKOBoRRxuyutzg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=amlogic.com;
 	spf=pass smtp.mailfrom=amlogic.com;
@@ -24,15 +24,15 @@ ARC-Authentication-Results: i=1; smtp.subspace.kernel.org;
 Received: from mailsc.amlogic.com (unknown [64.106.246.77])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E30606A31A;
-	Wed, 28 Oct 2026 07:43:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91E30606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F67606A31A;
+	Wed, 28 Oct 2026 08:07:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C9F67606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amlogic.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amlogic.com
 Received: from XA202100-0024.amlogic.com (10.88.19.246) by mailsc.amlogic.com
  (10.8.11.35) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.35; Wed, 28 Oct
- 2026 00:43:32 -0700
+ 2026 01:07:32 -0700
 From: yao zhang1 <yao.zhang1@amlogic.com>
 To: <stable@vger.kernel.org>
 CC: <gregkh@linuxfoundation.org>, <linux-mm@kvack.org>,
@@ -40,8 +40,8 @@ CC: <gregkh@linuxfoundation.org>, <linux-mm@kvack.org>,
 	<ebpqwerty472123@gmail.com>, <paul@paul-moore.com>,
 	<stephen.smalley.work@gmail.com>, <yao.zhang1@amlogic.com>
 Subject: [PATCH 5.15.y] mm: call the security_mmap_file() LSM hook in remap_file_pages()
-Date: Wed, 28 Oct 2026 15:42:51 +0800
-Message-ID: <20261028074251.1695-1-yao.zhang1@amlogic.com>
+Date: Wed, 28 Oct 2026 16:07:18 +0800
+Message-ID: <20261028080719.1821-1-yao.zhang1@amlogic.com>
 X-Mailer: git-send-email 2.56.0.windows.2
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -58,6 +58,8 @@ X-ClientProxiedBy: mailsh.amlogic.com (10.18.11.5) To mailsc.amlogic.com
  (10.8.11.35)
 
 From: Shu Han <ebpqwerty472123@gmail.com>
+
+commit ea7e2d5e49c05e5db1922387b09ca74aa40f46e2 upstream.
 
 The remap_file_pages syscall handler calls do_mmap() directly, which
 doesn't contain the LSM security check. And if the process has called
