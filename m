@@ -1,82 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793197740;
-	b=u8p7t8+YrZ6svVUB5apdkZ4xXr0dBTnTQ9PLef5o3VjVVXMpR2DwEMtSrQQu9jqG8pbN
-	 HnNlKaZHeIz8Buzmy74C7xXwaKaOL1VhcjOwHcc6dj1Id30oEMPIvrxjCV6gmOPuVl/Cj
-	 8VZJpKyzQVX3U3Fze76aztWQjysHAfQec0XGpFTeBir2J7MHTXDXg9139TFsMg/Uhep/4
-	 nF+Yqh/aq4dYDdx8nkloBh52mlns8LFsmYxyz1CGpvS5RG+loAQVXXxNdHQF4cFiuN9Dp
-	 c/9tfgNHsEG5qPIInx6oRJT7obW4kX0+0b7OEr3i44FUp/csbJqBiPVarvXU03BI+NA==
+	t=1793197743;
+	b=NURfuM014WMtdF3IsVQ9fpKD33cxMVJHKkkM1QRXtL3oMhgQMESZ7fgEjGX1jdNchgS1
+	 Mwjoz5uu+nBPura3xVWMozdaVzL3G2QLiyACCIYqJTA826885N/owzBun4tV5OWpv9rEg
+	 sZcrbNbwehYM/iESVPJHPZS2wZrwtI/BNhtm5A4KVDJzpMtKwYaZ+ysvqOHXiOAoseh/Z
+	 FHKge/ms8Zfjn/CorWSzDepqjjWHgq0RjJ4ej5iLoGR9LUc9CTrasatalF1ZNymhmSVEn
+	 stgE9sad/6KwY1zzNQEn9ZktrqfI+F9axLBZTrtjDnt5PthcV09nmC9f6krXYzBissQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793197740;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793197743;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=udBVGt1f0rdgV+ftbUwRQljhoY0dVY7qXVOJUis5ULQ=;
-	b=reNQr+lbcKGaq+714MnEBmD4O1SLxl3XUfDVfGjkpgTOTywGr/MXNnpGPRW86tFU8Vn0
-	 abY97zHkJf+giqk/zhWXju8d5OB5NIFngOaOnR6Mwo1OKzPEzjf4THJzi4SbquXuxtKl7
-	 MPIWymNm65OJaRe3ngkHxY4N7wyd0tH4j3YwhOdG5NGSGvyth6Q/6v20FZtn0mIuspnPS
-	 Tbx/KrCHxuan3fidl+1DODajFHwiLAXLgMATKTWs1D7PWTMRUE9Gy/R0tz96tJOIoTFsZ
-	 Y5YVebmqvJwUEPnfyK9zElpVF/VsdBh6mkk3GzeCNQyK6o4DTbfPROmjkVWWVShoiWA==
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=Yg7EeqA3lPmtXK8AD8UmehzuqNFG5rKrUFW6hF3gh/I=;
+	b=Zcrgvv24qqv/JcuWKXFQR14oOTTOIlZEO5ibJaobnnVk2CnCDVjWSuQgif/7FwYYGmKB
+	 aCNKdawC1VWyBFqwJ7mhJ20Oo8wZqVoGCJtGgtmfpsZ/DLS26DCMBdtUuosABtP+U+cys
+	 88d1BwFDbS4jEcA8gMiVVrcXZW9m9+7VxsX0DtTesaPe58KHZDSL2B0DSPVfWcIHTRAhA
+	 xC+TrwRDkeilJnH2PQUgnDzWhT9Pb8ET5skprABmxNiwLTnR3ns4Uyjgl+HgG7OcnC0BM
+	 EsAL/MwAreymeWDZwfELAGdgNpljjB5bH9emGl8/BBUgVmMGS6ZGSrksl/GsR022osg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="RN0+4/Nu";
-	arc=none smtp.remote-ip=209.85.222.178
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PaqDJZPZ;
+	arc=none smtp.remote-ip=209.85.222.173
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0969606A31D
-	for <selinux@vger.kernel.org>; Wed, 28 Oct 2026 14:28:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0969606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00658606A31D
+	for <selinux@vger.kernel.org>; Wed, 28 Oct 2026 14:29:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00658606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RN0+4/Nu
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-93c5b7f5bfaso217463085a.1
-        for <selinux@vger.kernel.org>; Wed, 28 Oct 2026 07:28:59 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PaqDJZPZ
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-93f259cdc86so85212285a.3
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2026 07:29:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793197739; x=1793802539; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=udBVGt1f0rdgV+ftbUwRQljhoY0dVY7qXVOJUis5ULQ=;
-        b=RN0+4/Nu9zuXrl1eZ1WSYsqnSw6Ig1dJ48FXjlhCfe2mAW7xH2IDzRieKYWFJ/E6B5
-         r8TPrFkUDWUKWSKeaJXelGm4sSI/6oKHIjOyoDkkOT6Z8XY4lw428xgYwZ8Ztr6tPqxf
-         NBXvhAFg5HKMFzuLrWq7cJR7eWotnWycr7WaO00qmt+cX2H5ZoNeOtZFp3xGmnu6N1KE
-         LXoWdkwRF8IzGp5NmMTO+ep7NoUAN6/dltMCYh9LtOC7VUonG3hzsydJ49JvTJh+aV/M
-         28jxsoGU2dejsdCYcsYoW8ecKKc0LfPAkRyqvVPf4YfweLbc/gOTKL+UzskZS/b6aDh6
-         +Izg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793197739; x=1793802539;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1793197742; x=1793802542; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=udBVGt1f0rdgV+ftbUwRQljhoY0dVY7qXVOJUis5ULQ=;
-        b=0eTiGkcb0ea9Ts7ueTKdCqIqAvRfR5V44pUCdyDVAi5pl4ShNhhke79g5ytTosx9M/
-         xOjXWoMzy0O8LgMFW3zLHc2C8l9/hidYAm2aP89Rp11/gy2gnwjAq4tViXbprgrob4T0
-         CDHdc4Z4i3PxexM3PSHNao8QZP+IoXNiER0VH5SdmDlX+5/3bzhuy0Q0ZGVQVhMe+hOh
-         LqDSOBg7hTkdIHNdpn3QXLl/Up6q2IQrcBYTUOqFCwl0D6VBh8ekVt5ddA+r/ut8GjBg
-         qY8uiMx5VGxcOuXEjZsKheLO2PJYwAn/JDjnGymBCPLwd4pRt39WzN2h729wu4PKjJpP
-         O9Og==
-X-Gm-Message-State: AFq9FYL+g/jRM4w9jBIkgJ1poP65MZC9FrSpevUgLXj4hQJTBtzurK2H
-	dFDYgdY08K3QWyWHKm5kpZQIjF2Uq5K9agV4e00anciaMbelmxWnB7NxNgMBNMPo
-X-Gm-Gg: AYBFou1BGDFid02k13eoLWQQO/RnqDQiW1N6Qw74A8eDqURVRTNCL7StqYH20d/rqiG
-	IB0V48bS7c19nDKAIHlGquUpyPHZhvgR+Fy5tN5veUjBq+WbQe0FCYKc7ojdw/Bvkm9WD4KWpVq
-	Znd3VihCGQ12r8Xw0h6zQBFBjb8zGYVS5eWDpfwrhV12gJMsyp6e0NDPt28fe2JU0219ilY4Ipr
-	UvbODEgrMzQDKQaRCdtRie33byYhN4gAdFQ3cYb4gkYxznPgRx+5FsbwXhTlNB4eTRHddoap+vp
-	wQ44OxaObsMDnDT36/GaC+5UE9t3HTpQdg+swCvoQiMPiRbYkey4kX2F43JCDB8LuWvTuugw6Cw
-	lkpKo/DXZ7mnvxOktJM5s2+SSJJ0FNQ/Ly6vJz3couQtDJkCtyhJap+IhW6Wh3tGd0+h8si7mNC
-	0VHh4pejX0R/4MCER+latdnWLLr/S+rfCs0CVh/daGMZclouOgqVppCKp8/t3ua0HhYiN3bchrp
-	Rq8IZHt9vO2YTnsIpKICcYc9kKrkxPaFGKgC8dL+dfwQbFbJssiJzDL8PXU7H6hem+X435coCy+
-	De0WoGqqYTO868qgOBHUcpIGVPXIbYrHM1D61JRAgZ/v2WfavjYOiEjUu2TDgTwuR6eEeGjmHk/
-	LpsIXhBxKkorPfy2Ze5Q4nAMdSeKz0WonGm7DHF3gW0NhkA7gLXcDy1oYMCpvsC9MRjFL6aS/Zr
-	1gXvONkIgCBVejne86TSxLXqvzZ3yEA5LWW8a2iARFr+78Qb4bKsY=
-X-Received: by 2002:a05:620a:691a:b0:944:204:7e28 with SMTP id af79cd13be357-9440aa39538mr263478385a.22.1793197738673;
-        Wed, 28 Oct 2026 07:28:58 -0700 (PDT)
+        bh=Yg7EeqA3lPmtXK8AD8UmehzuqNFG5rKrUFW6hF3gh/I=;
+        b=PaqDJZPZ1pz4rXPRdjm707T4/20fQN5FR+xKSEKeCN4DGHUTVyD9+N+b4gtC1FvUbR
+         klcBHCzAyJmhgM5bx6G61G8vuV0KeMbV1yrWyxkQGuybkcWPAmlDza31oG+0LahioeDz
+         84ZlJwXXqTbpCOSW2jY3EOWtNjY8SnT+Aopz2SItyuXxHbj4Hr4XJqnEqhjrpvPyEwhg
+         aGx4EeI8ANVSDCOjvasHROv3u+YSgLosEhe6NQPrTFcs3OYYrLQmpxHNhzO3oZT+hfOL
+         f+gEZX0cpBGTPl8mCe+3cksse2vNHRUzwfDh1KfYGSmLD94JMTRpozcGtiB5Omo9h2Cq
+         3GhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793197742; x=1793802542;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Yg7EeqA3lPmtXK8AD8UmehzuqNFG5rKrUFW6hF3gh/I=;
+        b=b6uJ18XtnJu5Z9EgBtmhRaFoa6txOf0S9Jq5wOLvaOZkyDOsfqyRSbAHtxpAHqEL2D
+         OKKoNyAWOSXdyvRscb9WvloQWyOE5NO+0yRA/veqnYm6a1CoW2AdmqhQfO7E+SFNFJzC
+         z5/RMzuyAhRc3NfcZJNREUzr5Bdan16WqPVcNl/H6RHS/E/jeSbzMljW1q0YxEb3S/fl
+         gwlgRv79mBMTH6Ts8Lkw92/i4TmlN8T/92ZJjrB+TE9X+4yZ/4ll2851tz7PtUrfSwQ/
+         4OfvkfDO/qTEjp0ctmAkvZVViAYSs5yErBFiIYGh/zb8bzNJHjflLqWpLK0+9ETlKBTp
+         aZrQ==
+X-Gm-Message-State: AFq9FYKC2109Yy9RdcXbYFTldzaf2VIKHiK2IRGG7tsBirBAz70HQkR9
+	45I3Q6taQtDAX+unW7QDJp8Z9HuItTsYvGZPqURapG1s4BSs781nqz2s2IQW4rQu
+X-Gm-Gg: AYBFou3GJugnU4NiEtUDHI+M3QhIpHtm79J8FiuhkX1g5tvfe0U0GqhpooLjFpda8u9
+	WHrgeApOkzAXrrRJyiDfY5aTwyuc6nBQk2xsoik9uOJgbtR8YmFudjKPZKgyUpDbhe6AIvc8Qcz
+	VS9O4fGhxzjuyOUY4DGCX+FYUDgBxPD+xfpNFwHWa+AJkWk51UYyNxaRTapUGBHWhcdjtcAH3zD
+	MMOzQEeSobrP7x+e/OK6LSNYHMm9jG21CNrWtv5SiSGy+X+L0+FcVr+pDVtGq3DeHqiNaQ79azw
+	TnzcTHRSzOaozBiSW23rSwUbfkISVa1g7784v9ezSG914cOhBJPa6oZ2Ut5i0sfJamgdutNsnhh
+	e7KHBkZNH90XLmQloVKmBucItRPIhYNoiK4qBzdcLqwVYw7sZyTyDRyc4OqvWTxNy8MFpG7m1Uh
+	2ua4V+GAvbtpXmSd6qV0+wnfy1EaqDtOXXAGlrv45g1bb0xkuTLQn6y1Psx1WfoqEBNRbFS45b8
+	V/vcXvcwYXoXU+1veBH8B6Olin49YeEYKQH4L0605PB6M0F/yZOR/b4XV9I5i6DgtQLB1wBI4ni
+	sosZRLyhQKUhFXaRwSguPAHzL5bRQOS7lCLJohvRwNF/EjpM45b9yFvyvWsNUFQ30ldPE3JYgKh
+	1v0lWL8GE87ikwYYhMmf7Yb8ETBY7lMCbPefwoKIsdPpLOHjlRx7fi/k7EEyxg1/MXXyThth2+j
+	8ZNGY3bqz1mAWIiyeTFydQyfQr3F8uChUpE9JK6tnEB+WkBho7S3o=
+X-Received: by 2002:a05:620a:4728:b0:93e:d051:8f19 with SMTP id af79cd13be357-94408a97b0bmr346774985a.40.1793197741526;
+        Wed, 28 Oct 2026 07:29:01 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-940f05ae2f3sm1276791885a.5.2026.10.28.07.28.58
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-940f05ae2f3sm1276791885a.5.2026.10.28.07.29.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 07:28:58 -0700 (PDT)
+        Wed, 28 Oct 2026 07:29:01 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -87,10 +89,12 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Eugenij Safonov <ja.safonau@protonmail.com>
-Subject: [PATCH 1/2] libsemanage: add path substitution helpers
-Date: Wed, 28 Oct 2026 10:28:42 -0400
-Message-ID: <20261028142843.130002-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 2/2] libsemanage/genhomedircon: apply path substitution rules to home directories
+Date: Wed, 28 Oct 2026 10:28:43 -0400
+Message-ID: <20261028142843.130002-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261028142843.130002-1-stephen.smalley.work@gmail.com>
+References: <20261028142843.130002-1-stephen.smalley.work@gmail.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,616 +108,226 @@ Content-Transfer-Encoding: 8bit
 
 From: Eugenij Safonov <ja.safonau@protonmail.com>
 
-Add an internal module for handling path substitution rules from
-file_contexts.subs(5), mirroring the selabel_file backend of
-libselinux:
+genhomedircon derives the home directory prefixes for the generated
+file_contexts.homedirs patterns from /etc/default/useradd (HOME=),
+/etc/libuser.conf (LU_HOMEDIRECTORY) and the passwd database, without
+taking path substitution rules (file_contexts.subs(5)) into account.
 
-- semanage_path_subs_load() parses a substitution file ("alias
-  original" per line, '#' comments); a missing file is not an error,
-  and wildcard rules are skipped with a warning
-- semanage_path_subs_apply() rewrites a path according to the first
-  matching rule, matching on whole path components only
-- semanage_path_subs_canonicalize() applies the local rules first and
-  passes the result through the distribution rules, like the
-  selabel_file backend does when looking up file contexts
+On systems where /home is an alias for another location (e.g. bootc and
+ostree based systems with HOME=/var/home in /etc/default/useradd and a
+"/var/home /home" equivalency rule in file_contexts.subs_dist), the
+generated patterns therefore use the aliased prefix, while libselinux
+canonicalizes lookup paths to the original path before matching.  None
+of the generated patterns can ever match, so any relabel of user home
+directories produces default_t, which breaks confined services reading
+user files - most visibly sshd, which cannot read authorized_keys and
+silently falls back to password authentication.
 
-No functional change yet; a follow-up commit uses these helpers in
-genhomedircon.
+Fix this by loading the local and distribution path substitution files
+and canonicalizing every home directory prefix (useradd and libuser
+defaults, the /home and /export/home fallbacks, and per-user home
+directories from the passwd database) through them before generating
+patterns, using the helpers added in the previous commit.  Wildcard
+substitution rules are skipped with a warning since they cannot be
+applied to these prefixes.
 
-The module is covered by CUnit tests (libsemanage/tests/test_path_subs.c).
+A side effect is that the existing check for password file entries
+conflicting with a file context now checks the canonical path, which
+makes it catch conflicts it previously missed, as file context rules
+always use original paths (semanage rejects aliased file specs).
 
+Verified in a container against the Fedora targeted policy:
+
+- HOME=/var/home together with the stock "/var/home /home" subs_dist
+  rule now generates /home/[^/]+ patterns, and matchpathcon resolves
+  /var/home/<user>/.ssh/authorized_keys to ssh_home_t again
+- chained local (/srv/homes -> /var/home) and distribution
+  (/var/home -> /home) rules resolve to /home
+- per-user patterns generated from SELinux user mappings are
+  canonicalized as well
+- with no matching substitution rules the generated file is
+  byte-identical to the unpatched output
+
+Reference: https://github.com/SELinuxProject/selinux/issues/547
 Signed-off-by: Eugenij Safonov <ja.safonau@protonmail.com>
 ---
- libsemanage/src/path_subs.c           | 178 +++++++++++++++++
- libsemanage/src/path_subs.h           |  61 ++++++
- libsemanage/tests/libsemanage-tests.c |   2 +
- libsemanage/tests/test_path_subs.c    | 266 ++++++++++++++++++++++++++
- libsemanage/tests/test_path_subs.h    |  30 +++
- 5 files changed, 537 insertions(+)
- create mode 100644 libsemanage/src/path_subs.c
- create mode 100644 libsemanage/src/path_subs.h
- create mode 100644 libsemanage/tests/test_path_subs.c
- create mode 100644 libsemanage/tests/test_path_subs.h
+ libsemanage/src/genhomedircon.c | 100 +++++++++++++++++++++++++++++++-
+ 1 file changed, 98 insertions(+), 2 deletions(-)
 
-diff --git a/libsemanage/src/path_subs.c b/libsemanage/src/path_subs.c
-new file mode 100644
-index 00000000..eacfe375
---- /dev/null
-+++ b/libsemanage/src/path_subs.c
-@@ -0,0 +1,178 @@
-+/* Authors: Eugenij Safonov <ja.safonau@protonmail.com>
-+ *
-+ * Copyright (C) 2026
-+ *
-+ *  This library is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU Lesser General Public License as
-+ *  published by the Free Software Foundation; either version 2.1 of the
-+ *  License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful, but
-+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ *  02110-1301  USA
-+ */
-+
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 2717712c..a7bcb296 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -36,6 +36,9 @@
+ 
+ #include "utilities.h"
+ #include "genhomedircon.h"
 +#include "path_subs.h"
 +
-+#include "debug.h"
-+
-+#include <ctype.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+void semanage_path_subs_free(semanage_path_subs_t **rules)
++#include <selinux/selinux.h>
+ 
+ #include <assert.h>
+ #include <ctype.h>
+@@ -120,6 +123,10 @@ typedef struct {
+ 	genhomedircon_user_entry_t *fallback;
+ 	semanage_handle_t *h_semanage;
+ 	sepol_policydb_t *policydb;
++	/* path substitution rules (see file_contexts.subs(5)) used to
++	 * canonicalize home directory paths */
++	semanage_path_subs_t *local_subs;
++	semanage_path_subs_t *dist_subs;
+ } genhomedircon_settings_t;
+ 
+ typedef struct {
+@@ -190,6 +197,56 @@ static int ignore(const char *homedir)
+ 	return 0;
+ }
+ 
++/* Canonicalize every entry of a home directory list in place.  Since
++ * canonicalization may make entries collide (e.g. when the useradd and
++ * libuser defaults resolve to the same directory), the list is rebuilt
++ * without duplicates. */
++static int canonicalize_homedir_list(genhomedircon_settings_t *s,
++				     semanage_list_t **list)
 +{
-+	semanage_path_subs_t *next;
++	semanage_list_t *canonical = NULL, *h;
++	char *newpath;
 +
-+	while (*rules) {
-+		next = (*rules)->next;
-+		free((*rules)->alias);
-+		free((*rules)->original);
-+		free(*rules);
-+		*rules = next;
-+	}
-+}
-+
-+/* reverse the list in place */
-+static void reverse_rules(semanage_path_subs_t **rules)
-+{
-+	semanage_path_subs_t *prev = NULL, *next;
-+
-+	while (*rules) {
-+		next = (*rules)->next;
-+		(*rules)->next = prev;
-+		prev = *rules;
-+		*rules = next;
-+	}
-+	*rules = prev;
-+}
-+
-+int semanage_path_subs_load(semanage_handle_t *sh, const char *path,
-+			    semanage_path_subs_t **rules)
-+{
-+	FILE *fp = NULL;
-+	char *line = NULL, *alias, *orig, *ptr;
-+	size_t buff_len = 0;
-+	ssize_t len;
-+	semanage_path_subs_t *rule;
-+
-+	*rules = NULL;
-+
-+	fp = fopen(path, "re");
-+	if (!fp)
-+		return errno == ENOENT ? 0 : -1;
-+
-+	while ((len = getline(&line, &buff_len, fp)) > 0) {
-+		alias = line;
-+		while (*alias && isspace((unsigned char)*alias))
-+			alias++;
-+		if (*alias == '#')
-+			continue;
-+		ptr = alias;
-+		while (*ptr && !isspace((unsigned char)*ptr))
-+			ptr++;
-+		if (*ptr)
-+			*ptr++ = '\0';
-+		if (!*alias)
-+			continue;
-+
-+		orig = ptr;
-+		while (*orig && isspace((unsigned char)*orig))
-+			orig++;
-+		ptr = orig;
-+		while (*ptr && !isspace((unsigned char)*ptr))
-+			ptr++;
-+		*ptr = '\0';
-+		if (!*orig)
-+			continue;
-+
-+		if (strchr(alias, '*')) {
-+			WARN(sh,
-+			     "%s: skipping wildcard substitution rule "
-+			     "\"%s %s\": unsupported for this use",
-+			     path, alias, orig);
-+			continue;
++	for (h = *list; h; h = h->next) {
++		newpath = semanage_path_subs_canonicalize(
++			s->local_subs, s->dist_subs, h->data);
++		if (newpath) {
++			free(h->data);
++			h->data = newpath;
 +		}
-+
-+		rule = calloc(1, sizeof(*rule));
-+		if (!rule)
-+			goto err;
-+		rule->alias = strdup(alias);
-+		rule->original = strdup(orig);
-+		if (!rule->alias || !rule->original) {
-+			free(rule->alias);
-+			free(rule->original);
-+			free(rule);
-+			goto err;
-+		}
-+		rule->next = *rules;
-+		*rules = rule;
 +	}
 +
-+	free(line);
-+	fclose(fp);
++	for (h = *list; h; h = h->next) {
++		if (semanage_list_push(&canonical, h->data))
++			goto err;
++	}
 +
-+	/* Reverse the list so that the first matching rule in the file
-+	 * wins, mirroring the selabel_file backend of libselinux. */
-+	reverse_rules(rules);
-+
-+	return 0;
++	semanage_list_destroy(list);
++	*list = canonical;
++	return STATUS_SUCCESS;
 +
 +err:
-+	free(line);
-+	fclose(fp);
-+	semanage_path_subs_free(rules);
-+	return -1;
++	semanage_list_destroy(&canonical);
++	return STATUS_ERR;
 +}
 +
-+char *semanage_path_subs_apply(const semanage_path_subs_t *rules,
-+			       const char *path)
++/* Path of a path substitution file (file_contexts.subs or
++ * file_contexts.subs_dist) below the final SELinux policy directory. */
++static char *subs_file_path(bool dist)
 +{
-+	size_t alias_len, skip;
-+	char *result;
++	const char *root = semanage_final_path(SEMANAGE_FINAL_SELINUX,
++					       SEMANAGE_FINAL_TOPLEVEL);
++	const char *abs_path = dist ? selinux_file_context_subs_dist_path() :
++				      selinux_file_context_subs_path();
++	size_t root_len = strlen(selinux_policy_root());
++	char *path;
 +
-+	for (; rules; rules = rules->next) {
-+		alias_len = strlen(rules->alias);
-+		if (strncmp(path, rules->alias, alias_len) != 0)
-+			continue;
-+		if (path[alias_len] != '/' && path[alias_len] != '\0')
-+			continue;
-+
-+		skip = alias_len;
-+		/* avoid a double slash when the original is "/" */
-+		if (path[alias_len] == '/' && strcmp(rules->original, "/") == 0)
-+			skip++;
-+		if (asprintf(&result, "%s%s", rules->original, path + skip) < 0)
-+			return NULL;
-+		return result;
-+	}
-+
-+	return NULL;
-+}
-+
-+char *semanage_path_subs_canonicalize(const semanage_path_subs_t *local,
-+				      const semanage_path_subs_t *dist,
-+				      const char *path)
-+{
-+	char *local_result, *result;
-+
-+	local_result = semanage_path_subs_apply(local, path);
-+	if (!local_result)
-+		return semanage_path_subs_apply(dist, path);
-+
-+	result = semanage_path_subs_apply(dist, local_result);
-+	if (result) {
-+		free(local_result);
-+		return result;
-+	}
-+
-+	return local_result;
-+}
-diff --git a/libsemanage/src/path_subs.h b/libsemanage/src/path_subs.h
-new file mode 100644
-index 00000000..864d755c
---- /dev/null
-+++ b/libsemanage/src/path_subs.h
-@@ -0,0 +1,61 @@
-+/* Authors: Eugenij Safonov <ja.safonau@protonmail.com>
-+ *
-+ * Copyright (C) 2026
-+ *
-+ *  This library is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU Lesser General Public License as
-+ *  published by the Free Software Foundation; either version 2.1 of the
-+ *  License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful, but
-+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ *  02110-1301  USA
-+ */
-+
-+#ifndef SEMANAGE_PATH_SUBS_H
-+#define SEMANAGE_PATH_SUBS_H
-+
-+#include <semanage/handle.h>
-+
-+/* Path substitution rules from file_contexts.subs(5): paths under
-+ * "alias" are looked up by libselinux as paths under "original". */
-+typedef struct semanage_path_subs {
-+	char *alias;
-+	char *original;
-+	struct semanage_path_subs *next;
-+} semanage_path_subs_t;
-+
-+void semanage_path_subs_free(semanage_path_subs_t **rules);
-+
-+/* Load path substitution rules from a file_contexts.subs(5)-format
-+ * file ("alias original" per line, '#' comments).  A missing file is
-+ * not an error and yields an empty list.  Wildcard rules (a '*' in
-+ * the alias) are skipped with a warning: they cannot be applied to
-+ * the path prefixes handled here.  Returns 0 on success, -1 on
-+ * error. */
-+int semanage_path_subs_load(semanage_handle_t *sh, const char *path,
-+			    semanage_path_subs_t **rules);
-+
-+/* Rewrite "path" according to the first matching rule in "rules",
-+ * using the same whole-path-component prefix matching as libselinux's
-+ * selabel_file backend.  Returns a malloc'd canonical path, or NULL
-+ * when no rule matches or on error. */
-+char *semanage_path_subs_apply(const semanage_path_subs_t *rules,
-+			       const char *path);
-+
-+/* Canonicalize "path" through the path substitution rules, mirroring
-+ * libselinux's selabel_file backend: local rules are applied first
-+ * and the result is then passed through the distribution rules.
-+ * Returns a malloc'd canonical path, or NULL when no rule matches or
-+ * on error. */
-+char *semanage_path_subs_canonicalize(const semanage_path_subs_t *local,
-+				      const semanage_path_subs_t *dist,
-+				      const char *path);
-+
-+#endif
-diff --git a/libsemanage/tests/libsemanage-tests.c b/libsemanage/tests/libsemanage-tests.c
-index f02efa51..1d2a90fe 100644
---- a/libsemanage/tests/libsemanage-tests.c
-+++ b/libsemanage/tests/libsemanage-tests.c
-@@ -30,6 +30,7 @@
- #include "test_port.h"
- #include "test_user.h"
- #include "test_other.h"
-+#include "test_path_subs.h"
- 
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -82,6 +83,7 @@ static bool do_tests(int interactive, int verbose)
- 	DECLARE_SUITE(port);
- 	DECLARE_SUITE(user);
- 	DECLARE_SUITE(other);
-+	DECLARE_SUITE(path_subs);
- 
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff --git a/libsemanage/tests/test_path_subs.c b/libsemanage/tests/test_path_subs.c
-new file mode 100644
-index 00000000..910c3bb7
---- /dev/null
-+++ b/libsemanage/tests/test_path_subs.c
-@@ -0,0 +1,266 @@
-+/* Authors: Eugenij Safonov <ja.safonau@protonmail.com>
-+ *
-+ * Copyright (C) 2026
-+ *
-+ *  This library is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU Lesser General Public License as
-+ *  published by the Free Software Foundation; either version 2.1 of the
-+ *  License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful, but
-+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ *  02110-1301  USA
-+ */
-+
-+/*  The purpose of this file is to provide unit tests of the functions in:
-+ *
-+ *  libsemanage/src/path_subs.c
-+ *
-+ */
-+
-+#include "path_subs.h"
-+
-+#include "utilities.h"
-+#include "test_path_subs.h"
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+
-+/* path_subs.h */
-+void test_path_subs_load(void);
-+void test_path_subs_apply(void);
-+void test_path_subs_canonicalize(void);
-+
-+static const char *const subs_file = "./test-path-subs.subs";
-+
-+/* helper: write a subs file and load it */
-+static semanage_path_subs_t *load_rules(const char *content)
-+{
-+	FILE *fp = fopen(subs_file, "w");
-+	semanage_path_subs_t *rules = NULL;
-+
-+	if (!fp)
-+		return NULL;
-+	fputs(content, fp);
-+	fclose(fp);
-+
-+	if (semanage_path_subs_load(sh, subs_file, &rules) < 0)
++	if (asprintf(&path, "%s%s", root, abs_path + root_len) < 0)
 +		return NULL;
 +
-+	return rules;
++	return path;
 +}
 +
-+static void free_rules(semanage_path_subs_t **rules)
-+{
-+	semanage_path_subs_free(rules);
-+	unlink(subs_file);
-+}
+ static int prefix_is_homedir_role(const semanage_user_t *user,
+ 				  const char *prefix)
+ {
+@@ -394,6 +451,9 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t *s)
+ 		}
+ 	}
+ 
++	if (canonicalize_homedir_list(s, &homedir_list))
++		goto fail;
 +
-+/* helper: assert that applying "rules" to "path" yields "expected" */
-+static void assert_apply(const semanage_path_subs_t *rules, const char *path,
-+			 const char *expected)
-+{
-+	char *result = semanage_path_subs_apply(rules, path);
+ 	if (!(s->usepasswd))
+ 		return homedir_list;
+ 
+@@ -462,6 +522,16 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t *s)
+ 
+ 		semanage_rtrim(path, '/');
+ 
++		{
++			char *canonical = semanage_path_subs_canonicalize(
++				s->local_subs, s->dist_subs, path);
 +
-+	if (expected) {
-+		CU_ASSERT_PTR_NOT_NULL_FATAL(result);
-+		CU_ASSERT_STRING_EQUAL(result, expected);
-+	} else {
-+		CU_ASSERT_PTR_NULL(result);
++			if (canonical) {
++				free(path);
++				path = canonical;
++			}
++		}
++
+ 		if (!semanage_list_find(homedir_list, path)) {
+ 			/*
+ 			 * Now check for an existing file context that matches
+@@ -1144,8 +1214,14 @@ retry:
+ 		goto cleanup;
+ 	}
+ 
+-	retval = push_user_entry(head, name, uid, gid, sename, prefix,
+-				 pwent->pw_dir, level, selogin, homedir_role);
++	char *canonical_home = semanage_path_subs_canonicalize(
++		s->local_subs, s->dist_subs, pwent->pw_dir);
++
++	retval =
++		push_user_entry(head, name, uid, gid, sename, prefix,
++				canonical_home ? canonical_home : pwent->pw_dir,
++				level, selogin, homedir_role);
++	free(canonical_home);
+ cleanup:
+ 	free(rbuf);
+ 	return retval;
+@@ -1462,6 +1538,7 @@ int semanage_genhomedircon(semanage_handle_t *sh, sepol_policydb_t *policydb,
+ {
+ 	genhomedircon_settings_t s;
+ 	FILE *out = NULL;
++	char *subs_path_local = NULL, *subs_path_dist = NULL;
+ 	int retval = 0;
+ 
+ 	assert(sh);
+@@ -1469,6 +1546,8 @@ int semanage_genhomedircon(semanage_handle_t *sh, sepol_policydb_t *policydb,
+ 	s.homedir_template_path =
+ 		semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL);
+ 	s.fcfilepath = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS);
++	s.local_subs = NULL;
++	s.dist_subs = NULL;
+ 
+ 	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
+ 	if (s.fallback == NULL) {
+@@ -1493,6 +1572,18 @@ int semanage_genhomedircon(semanage_handle_t *sh, sepol_policydb_t *policydb,
+ 	s.h_semanage = sh;
+ 	s.policydb = policydb;
+ 
++	subs_path_local = subs_file_path(false);
++	subs_path_dist = subs_file_path(true);
++	if (!subs_path_local || !subs_path_dist) {
++		retval = STATUS_ERR;
++		goto done;
++	}
++	if (semanage_path_subs_load(sh, subs_path_local, &s.local_subs) < 0 ||
++	    semanage_path_subs_load(sh, subs_path_dist, &s.dist_subs) < 0) {
++		retval = STATUS_ERR;
++		goto done;
 +	}
 +
-+	free(result);
-+}
+ 	if (!(out = fopen(s.fcfilepath, "we"))) {
+ 		/* couldn't open output file */
+ 		ERR(sh, "Could not open the file_context file for writing");
+@@ -1510,6 +1601,11 @@ done:
+ 	while (s.fallback)
+ 		pop_user_entry(&(s.fallback));
+ 
++	semanage_path_subs_free(&s.local_subs);
++	semanage_path_subs_free(&s.dist_subs);
++	free(subs_path_local);
++	free(subs_path_dist);
 +
-+/* helper: assert that canonicalizing through local+dist rules yields
-+ * "expected" */
-+static void assert_canonicalize(const semanage_path_subs_t *local,
-+				const semanage_path_subs_t *dist,
-+				const char *path, const char *expected)
-+{
-+	char *result = semanage_path_subs_canonicalize(local, dist, path);
-+
-+	if (expected) {
-+		CU_ASSERT_PTR_NOT_NULL_FATAL(result);
-+		CU_ASSERT_STRING_EQUAL(result, expected);
-+	} else {
-+		CU_ASSERT_PTR_NULL(result);
-+	}
-+
-+	free(result);
-+}
-+
-+int path_subs_test_init(void)
-+{
-+	return 0;
-+}
-+
-+int path_subs_test_cleanup(void)
-+{
-+	return 0;
-+}
-+
-+int path_subs_add_tests(CU_pSuite suite)
-+{
-+	CU_add_test(suite, "semanage_path_subs_load", test_path_subs_load);
-+	CU_add_test(suite, "semanage_path_subs_apply", test_path_subs_apply);
-+	CU_add_test(suite, "semanage_path_subs_canonicalize",
-+		    test_path_subs_canonicalize);
-+
-+	return 0;
-+}
-+
-+/* Function semanage_path_subs_load */
-+void test_path_subs_load(void)
-+{
-+	semanage_path_subs_t *rules = NULL;
-+	FILE *fp;
-+
-+	setup_handle(SH_HANDLE);
-+
-+	/* missing file is not an error */
-+	unlink(subs_file);
-+	CU_ASSERT(semanage_path_subs_load(sh, subs_file, &rules) == 0);
-+	CU_ASSERT_PTR_NULL(rules);
-+
-+	/* empty file yields no rules and no error */
-+	fp = fopen(subs_file, "w");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(fp);
-+	fclose(fp);
-+	CU_ASSERT(semanage_path_subs_load(sh, subs_file, &rules) == 0);
-+	CU_ASSERT_PTR_NULL(rules);
-+	unlink(subs_file);
-+
-+	/* file with only comments and blank lines */
-+	rules = load_rules("# comment\n\n   \n");
-+	CU_ASSERT_PTR_NULL(rules);
-+
-+	/* comments and blank lines are ignored, arbitrary whitespace
-+	 * between alias and original is accepted */
-+	rules = load_rules("# comment\n\n   \n\t/foo\t /bar\n# another\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	CU_ASSERT_PTR_NULL(rules->next);
-+	CU_ASSERT_STRING_EQUAL(rules->alias, "/foo");
-+	CU_ASSERT_STRING_EQUAL(rules->original, "/bar");
-+	free_rules(&rules);
-+
-+	/* multiple rules, first line first in the list so it wins on
-+	 * duplicate aliases (mirrors libselinux) */
-+	rules = load_rules("/a /b\n/c /d\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	CU_ASSERT_STRING_EQUAL(rules->alias, "/a");
-+	CU_ASSERT_STRING_EQUAL(rules->original, "/b");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules->next);
-+	CU_ASSERT_STRING_EQUAL(rules->next->alias, "/c");
-+	CU_ASSERT_STRING_EQUAL(rules->next->original, "/d");
-+	CU_ASSERT_PTR_NULL(rules->next->next);
-+	free_rules(&rules);
-+
-+	/* wildcard rules are skipped */
-+	rules = load_rules("/w*/homes /home\n/foo /bar\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	CU_ASSERT_PTR_NULL(rules->next);
-+	CU_ASSERT_STRING_EQUAL(rules->alias, "/foo");
-+	free_rules(&rules);
-+
-+	/* lines without an original are skipped */
-+	rules = load_rules("/foo\n/bar /baz\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	CU_ASSERT_PTR_NULL(rules->next);
-+	CU_ASSERT_STRING_EQUAL(rules->alias, "/bar");
-+	free_rules(&rules);
-+
-+	unlink(subs_file);
-+	cleanup_handle(SH_HANDLE);
-+}
-+
-+/* Function semanage_path_subs_apply */
-+void test_path_subs_apply(void)
-+{
-+	semanage_path_subs_t *rules;
-+
-+	setup_handle(SH_HANDLE);
-+
-+	rules = load_rules("/var/home /home\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+
-+	/* exact alias */
-+	assert_apply(rules, "/var/home", "/home");
-+	/* subdirectory */
-+	assert_apply(rules, "/var/home/user", "/home/user");
-+	/* whole path component only: /var/homex is not under /var/home */
-+	assert_apply(rules, "/var/homex", NULL);
-+	assert_apply(rules, "/var/homex/user", NULL);
-+	/* unrelated path */
-+	assert_apply(rules, "/srv/home", NULL);
-+
-+	free_rules(&rules);
-+
-+	/* empty rule list */
-+	rules = NULL;
-+	assert_apply(rules, "/var/home", NULL);
-+
-+	/* first matching rule in the file wins */
-+	rules = load_rules("/a /b\n/a /c\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	assert_apply(rules, "/a/one", "/b/one");
-+	free_rules(&rules);
-+
-+	/* original "/" must not produce a double slash */
-+	rules = load_rules("/var /");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(rules);
-+	assert_apply(rules, "/var/home", "/home");
-+	free_rules(&rules);
-+
-+	cleanup_handle(SH_HANDLE);
-+}
-+
-+/* Function semanage_path_subs_canonicalize */
-+void test_path_subs_canonicalize(void)
-+{
-+	semanage_path_subs_t *local = NULL, *dist = NULL;
-+
-+	setup_handle(SH_HANDLE);
-+
-+	/* no rules at all */
-+	assert_canonicalize(NULL, NULL, "/var/home/user", NULL);
-+
-+	/* distribution rule only */
-+	dist = load_rules("/var/home /home\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(dist);
-+	assert_canonicalize(NULL, dist, "/var/home/user", "/home/user");
-+	assert_canonicalize(NULL, dist, "/srv/user", NULL);
-+
-+	/* local rule only */
-+	local = load_rules("/srv/homes /var/home\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(local);
-+	assert_canonicalize(local, NULL, "/srv/homes/user", "/var/home/user");
-+
-+	/* local rule result is passed through the distribution rules */
-+	assert_canonicalize(local, dist, "/srv/homes/user", "/home/user");
-+
-+	/* local match with no distribution match keeps the local result */
-+	free_rules(&dist);
-+	dist = load_rules("/other /elsewhere\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(dist);
-+	assert_canonicalize(local, dist, "/srv/homes/user", "/var/home/user");
-+
-+	/* local rule shadows the distribution rule for matching paths */
-+	free_rules(&local);
-+	local = load_rules("/var/home /export/home\n");
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(local);
-+	assert_canonicalize(local, dist, "/var/home/user", "/export/home/user");
-+
-+	free_rules(&local);
-+	free_rules(&dist);
-+
-+	cleanup_handle(SH_HANDLE);
-+}
-diff --git a/libsemanage/tests/test_path_subs.h b/libsemanage/tests/test_path_subs.h
-new file mode 100644
-index 00000000..4e92ebd4
---- /dev/null
-+++ b/libsemanage/tests/test_path_subs.h
-@@ -0,0 +1,30 @@
-+/* Authors: Eugenij Safonov <ja.safonau@protonmail.com>
-+ *
-+ * Copyright (C) 2026
-+ *
-+ *  This library is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU Lesser General Public License as
-+ *  published by the Free Software Foundation; either version 2.1 of the
-+ *  License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful, but
-+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ *  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_PATH_SUBS_H__
-+#define __TEST_PATH_SUBS_H__
-+
-+#include <CUnit/Basic.h>
-+
-+int path_subs_test_init(void);
-+int path_subs_test_cleanup(void);
-+int path_subs_add_tests(CU_pSuite suite);
-+
-+#endif
+ 	ignore_free();
+ 
+ 	return retval;
 -- 
 2.56.0
 
