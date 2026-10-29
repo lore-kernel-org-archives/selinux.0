@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793259832;
-	b=KGqAlR3b30B26o7ex5XynM4oRcvNAY5ZWoAGS0APHkhO0t3jaPE20qVqQ/0xqh9vr7p8
-	 3ofy0NSlwi4pWl8XC+NqfJXiCeh1gWHRjFxgEP+gXDUIZEJLyaKgN+dX9fnPG4JL76EC7
-	 WDxsk8jmNEWYOmGz9zxg2CXVas27XDqVoYiwJF6pkD+HdXI/oNsiwjTVcWHbbNRXyVg8u
-	 jyNs2ypeHCUkzIFbBJuwHJz16JrasyGMOviKkKVljanfGUAoxzUyAklfoaBou3N14YM8l
-	 SzIXB+FLRYuv8xs23Fx0G+2z0nWtAMXDAcM2RuMBaXRBaZIHSUbZ9/cT4Ix3y3HLCIg==
+	t=1793261266;
+	b=D+aKn2aLD/hduLz6VykadKfE9jaTVVYobMvQI5/z+YVtY6pChvBnd2fn5bq/WB1kfc1i
+	 xAPfTOrFX3ES+Zyqepk6ErTCz17jCRtsBOy5oe1BXWSobHGgDEynLXCN9C9LI4FNzs/Pq
+	 6Ux2uJUmZHwaScT3TBE+SyY9n7nAlR2SeP0cHq8xJ5kmOBj01hDAWEoe/br7tyR3532zg
+	 S08a2t1LXS1XG3mrS3ETNSUe1+1xInTddlHC+hBnNMZgBwzm/XY/U46fDfpKHoeNcbhoO
+	 vxmHf63uNt9aZ309hOkcAgPuEa0Ub1oHa7uSCBGkAXkWRx853Ka8Z67+Bvm+8HESS8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793259832;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793261266;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=njjkZYJyqK98tAp78SKwIUi3lpd2OxnQLHE7CyLOajg=;
-	b=Vbn0Ndt0EpVtGpZbhYUoGFG4K63nM90EEi0MPWhGpSeiFl0VFuhUIIaVcH0DTIOmGlcw
-	 KXSob2Lzp4F8fpb8Jtyte/Jg+TcPYicXIO3djxL6eoPqK8l+2of9aF+XvzY94KGyeaP/B
-	 21WghU+Rz3+XrsAx3EAlo153H8R25hebcvI0YWEIbuQCADkPv9OC+zy9K8RiACF0D7tIa
-	 +1I3u+cBFejS9/uYVMjvYw51KBj8VenLA4XAySekLCYTKMhJcpvmW4nnRE46F5JE0+idp
-	 2hmSrbEAi2LVt9KbrcYWDZNsoI1tIjs6gEUnGYJjiZeyiwY/iqpBbkmVL4Kzd/prtIQ==
+	bh=0/5uRqJy/VgEhejne3xSc6gn5mfLQb/Op0B9UDn9Dv4=;
+	b=RXGdEQIVNYD/ndt3ummabEny34Bt9DEJJaTdMhSt1OGaj9ll2argr4djn0uZYxvV5RkY
+	 Sb9wMSz+oX932CqqKzuXg2A46Kjky6kEGEZqzpUYEsjzOAwrKAgFnJ1AkPYouLyxaeOeG
+	 3YubA3EqKPzb3lCR1Mlj9QWFTQJ16HKuWtgnPo2Yq3OaW8ex3LW84mqIHyB6Bi9oYAADG
+	 MrhM55LF2Aqi+6yhz0KCM/ijNiZfgM6G7obJx0cjF34lkPTXg63OSjLlDasrYwLwWI4SR
+	 bjJlpgcpYX/QBNcEH9We/4LRm1lF3+BqXF/0K3gxYFdAA64kgWuUNsP7MHeG+G1O9dA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I7uYHMCO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UGmzUw0h;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C452E606A31A;
-	Thu, 29 Oct 2026 07:43:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C79606A31C;
+	Thu, 29 Oct 2026 08:07:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I7uYHMCO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F20801F01825;
-	Thu, 29 Oct 2026 07:43:50 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UGmzUw0h
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D42B1F01825;
+	Thu, 29 Oct 2026 08:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793259831;
-	bh=njjkZYJyqK98tAp78SKwIUi3lpd2OxnQLHE7CyLOajg=;
+	s=k20260515; t=1793261265;
+	bh=0/5uRqJy/VgEhejne3xSc6gn5mfLQb/Op0B9UDn9Dv4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=I7uYHMCO4Op0o65e+C4O1vUCEIdSALNmdj8KY7Z64T7dy9i5ddLds5cf7nTUO1rRH
-	 McZGlyuEVoccntgtTYeb19AyFCGkU4QSxmSuWIXZlzRwL3Z+Yi0eAasS9ZzbMnpuUS
-	 oPMMndrU2NydLSRI6Fo+w/Yk/rLkRinAtWdU/Piii1CvOzwX/vPliQnewfADc1kFre
-	 mxEsLWa27M2PSntvN2sm/5rpBioMk4burxhZBqDFX6wUi5mm7sfdU42ivVMcItZ++A
-	 wnCYhu8TNfUexiv04ajeBrCpMpElNSGmqQCmEr6W8Lp55UUO8Jzhw7IsMRPvsRjIEp
-	 c6QifSF/qKP4w==
-Message-ID: <sashiko-outbox-188895@kernel.org>
+	b=UGmzUw0hxqQB5Jq7K0ZmE8qi79Qh6q/FwJOCvyVhuK7bYNkKkjDFg7534wmT5brvs
+	 R0PXvM2ulEtAq4iCNIerACIRHsXPOSAtUVxeEG1CmR+Xn1k4TU5Id+LxPC+eWgUxXN
+	 9FApgWS5HSHxCcH0kStuEJbBSRGwq6uLCra3Zfgj7QxRnCcrnRvM3SnYOYQ7Thk6ZI
+	 2VaWoduewMiSMIE2jaCqh9vxB7nFdNZco1bjLrXd9xzt77p9AcghmjlJCWrMzaitN+
+	 /yJN0+twezwW2pILyIesGTCtPXmNGM5v9Z8qax3+IUH9eWF7JfWJpE6kjE5EmW9uuV
+	 9AkBlLloGxKkQ==
+Message-ID: <sashiko-outbox-188948@kernel.org>
 From: sashiko-bot@kernel.org
 Subject: Re: [PATCH 5.15.y] mm: call the security_mmap_file() LSM hook in
  remap_file_pages()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "yao zhang1" <yao.zhang1@amlogic.com>
 Cc: gregkh@linuxfoundation.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, ebpqwerty472123@gmail.com, paul@paul-moore.com, stephen.smalley.work@gmail.com
-In-Reply-To: <20261028074251.1695-1-yao.zhang1@amlogic.com>
-References: <20261028074251.1695-1-yao.zhang1@amlogic.com>
+In-Reply-To: <20261028080719.1821-1-yao.zhang1@amlogic.com>
+References: <20261028080719.1821-1-yao.zhang1@amlogic.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 07:43:49 +0000
+Date: Thu, 29 Oct 2026 08:07:44 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -66,15 +66,14 @@ s) to consider:
 e()
 --
 
-commit 5a07ec5e983287a566c335be52d6b9bab2cb5e44
+commit 78749fa17008059030caa915f2db592fbe2d9fa2
 Author: Shu Han <ebpqwerty472123@gmail.com>
 
 mm: call the security_mmap_file() LSM hook in remap_file_pages()
 
 This commit adds a call to security_mmap_file() in remap_file_pages() before
-invoking do_mmap(). This prevents processes with the READ_IMPLIES_EXEC
-personality set from remapping writable file pages as executable and
-bypassing SELinux W^X restrictions.
+invoking do_mmap() so that LSM policies such as SELinux W^X checks cannot be
+bypassed when READ_IMPLIES_EXEC is set in the process personality.
 
 Link: https://project-zero.issues.chromium.org/issues/42452389 [1]
 
@@ -92,11 +91,12 @@ tart, unsigned long, size,
 > +		goto out_fput;
 
 [Severity: High]
-Could calling security_mmap_file() here while holding mm->mmap_lock for
-write introduce a lock ordering inversion against inode->i_rwsem?
+Does calling security_mmap_file() here while holding mm->mmap_lock introduc=
+e a
+lock inversion with inode->i_rwsem?
 
-In SYSCALL_DEFINE5(remap_file_pages) in mm/mmap.c, mm->mmap_lock is acquired
-exclusively before reaching this call:
+In mm/mmap.c, SYSCALL_DEFINE5(remap_file_pages) acquires mm->mmap_lock for
+write before looking up the VMA and holds it across this call:
 
 mm/mmap.c:SYSCALL_DEFINE5(remap_file_pages) {
 	if (mmap_write_lock_killable(mm))
@@ -106,46 +106,36 @@ mm/mmap.c:SYSCALL_DEFINE5(remap_file_pages) {
 	ret =3D security_mmap_file(vma->vm_file, prot, flags);
 }
 
-When remap_file_pages() is called on a file mapping where the VMA is
-executable, or where the VMA is readable and the task has READ_IMPLIES_EXEC
-set in current->personality, security_mmap_file() in security/security.c
-computes prot_adj with PROT_EXEC set and calls ima_file_mmap():
+However, security_mmap_file() in security/security.c computes the adjusted
+protection flags (which includes PROT_EXEC when VM_EXEC is present or when
+VM_READ is present with READ_IMPLIES_EXEC set in current->personality) and
+calls ima_file_mmap() -> process_measurement() in
+security/integrity/ima/ima_main.c:
 
-security_mmap_file()
-  -> ima_file_mmap()
-    -> process_measurement()
-
-In security/integrity/ima/ima_main.c, when an IMA policy applies to the
-regular file, process_measurement() acquires inode_lock(inode)
-(inode->i_rwsem) as well as iint->mutex:
-
-security/integrity/ima/ima_main.c:process_measurement() {
+security/security.c:security_mmap_file()
+  -> security/integrity/ima/ima_main.c:ima_file_mmap()
+    -> security/integrity/ima/ima_main.c:process_measurement() {
 	...
 	inode_lock(inode);
+    }
 
-	if (action) {
-		iint =3D integrity_inode_get(inode);
-		if (!iint)
-			rc =3D -ENOMEM;
-	}
-}
+When an IMA measurement or appraisal policy applies to the file,
+process_measurement() acquires inode->i_rwsem (as well as iint->mutex) while
+mm->mmap_lock is already held.
 
-However, the lock ordering documented in mm/rmap.c requires inode->i_rwsem =
-to
-nest outside mm->mmap_lock:
+As documented in the lock ordering comment in mm/rmap.c, inode->i_rwsem ran=
+ks
+outside mm->mmap_lock (for example, generic_file_write_iter() ->
+generic_perform_write() in mm/filemap.c holds inode_lock(inode) while fault=
+ing
+in user pages under mm->mmap_lock). Other callers such as vm_mmap_pgoff() in
+mm/util.c and do_shmat() in ipc/shm.c invoke security_mmap_file() outside
+mm->mmap_lock for this reason (see commit 8b3ec6814c83).
 
- * Lock ordering in mm:
- *
- * inode->i_rwsem	(while writing or truncating, not reading or faulting)
- *   mm->mmap_lock
-
-Other callers such as vm_mmap_pgoff() in mm/util.c and do_shmat() in
-ipc/shm.c invoke security_mmap_file() before acquiring
-mmap_write_lock_killable(mm). Can calling security_mmap_file() under
-mmap_write_lock() cause a deadlock against concurrent buffered writes or
-truncates on the same file that take inode_lock(inode) before faulting pages
-under mm->mmap_lock?
+Can a concurrent buffered write or truncate on the same file deadlock again=
+st
+remap_file_pages() when IMA is enabled?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028074251.1695=
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028080719.1821=
 -1-yao.zhang1@amlogic.com?part=3D1
