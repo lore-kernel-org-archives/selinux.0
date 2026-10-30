@@ -1,100 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.174
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793364240;
-	b=cFL589wpIGNjROUw9UCKoESHom1fSCnLtVQcdwY3kb8nbBYSzxxzVQfGL4XHjPUKtfad
-	 rQroRQN7M4q55j/gPbaiA5GZs7rguCwuMQcQ93SBy/ELePS47Yer+8P5i5HLxT28T82hp
-	 vbH8EIlftIpJtpOxGFrZ0NFcBl9xXENrXLYaFk0hukO0DDyMpHO+th+xFZWKTx/E+GTLt
-	 q/7Ky+qgEZ+v7N4SBAjgV6G6Poi88pdkrWMkd9b9C4MYRa4S4Yy0CNFqd+ghTxEp0P8tw
-	 IS4Q/8vH3w9TBrGKVIxmn04a+mqYXRNQm5Et7f46Y9x2dV7Qc+lLxv2HhxWzd/HACbg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793364240;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.53
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793388008;
+	b=WDhcuY5POhA5B7di3aXjJTUS0WwBAdd0ooHx/ZVm1gbWkbE3+yHUpA7bX1ZpMbN5wrW7
+	 otD3L766vilGqibqcGfccwSIo7rGaDro0KYUZ6jqlu+Vf+yrv9oExthi3IPGJeVP7pp1y
+	 QoamVC4kwNRegGbHAEdRg/NY8Tpb/dYjAcbQaHp8OdM4aiYLG5qWchGP1wtaFrMbIJ9sl
+	 zRjI/Z24D3KAmrnvbUcFE8g4D4gcyEOUBGC1B6keS72BnUdJwVzVPrM25ayx3nkiq9nAu
+	 x8Fmeojmp/ltTs7Oa33A77GRw1eF03bzqHNEzwyGJRn5uf6+K1MxJ/TQ308WvvVmPYA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793388008;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=cLdJG2N/zgLsxjYC7GO/7yAMaY1FF1qLnz+aCKN5WMQ=;
-	b=L/pDZBXjcbsyKqCGiDfmUKqe1yx5agmUXYfBhXEcXIyX+SdmZEB9CPxQWyVfajYGL68X
-	 iyg8jn1IsD7hIbfu8p8G/OI+NyfTRLlftfMxxcj/idrG0Q/Lf5twHEGZRhzC0VBiJU1wk
-	 00kefKaSPNDNZ2G1TqPKe5R7x8qHFOIxp4ucLlxllX+k9WSrVWgg7XLTRnX1yeNyoMMkU
-	 6Y0fe74XLSDjHQj7gH/I9gWGK8pMSXEMqFTL74tp7/mxn5NUNwtTL7xr6uH7qnHnKPmPk
-	 xTOQfTm/OErgmSDmCRWAioCFinsb9nSkjEa1J44eIysvgde9HlRmJr3br1gq2eG9ceQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+	b=xHdiISqpXezfr47qA3M43gqNuyZIxdDWF8XfvPXZqy76BcQnYPDOnLSmNubdWKlEGc5j
+	 /gelUj8rrKn39muH3u2gGf8NCI/lTEScDKq30PIr6fKxRs28wtgNKJwpDgc74hgeXB7QE
+	 4MvQM7UuaKGGBCYcoYO6NLnaUkxo1CA43hGIWuOk92N4Akv+ZyExJN/kWe3opjeAmiQAC
+	 MTKhEQW6OGdF/r2HhKZn5uuhVTTwHSyERf1LdH9hiRlE/VZh4hS9/1jfwp+TZLN47dbpX
+	 QdGsmNMGa5FPPgyahlzeJsL0WtA2wzdJ7OKaRLztukMTRkleC9LeNz1tCNW4OTj0vzA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="j/CqHmZR";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.174
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ccJard8F;
+	arc=none smtp.remote-ip=209.85.219.53
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750DE606A31A
-	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:44:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 750DE606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07D1B606A31A
+	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:20:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 07D1B606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=j/CqHmZR
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-8ab3d3c5761so6194427b3.1
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 05:44:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793364239; cv=none;
-        d=google.com; s=arc-20260327;
-        b=CKPiKtRqGTDE0MCCl5kmy7i6xxRslwChtyTmBgzwCcI4t4iM/p7zA5B/y6e/rfuxWh
-         Z1ht82j8RhQXM7hbvpYXX5Rv2RLqFdWfV74v+Jj8CAGI1o+8A6oc5Ua5N8wFJGZJKW/f
-         5PdgZnJqlq7VvvIB4+gzPkVprnbbjOzrN/D5NdefYcDV8onBmiv/D8uuZdCku9zIxHqU
-         HFewrpG/LhWCsL6VLtCBvUExa8Yp56zxDDGz5KF7KYfBPUXPRDW3qCeNeKCxloeDIJ60
-         aQL2yfBTDA31eHfSrKFzDvqIKTUbYJ3uEZk/D7dgzwkelLAQkrRdav6ruO54jv0Sbd+G
-         rsoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=cLdJG2N/zgLsxjYC7GO/7yAMaY1FF1qLnz+aCKN5WMQ=;
-        fh=q08H+4X8i7EaC7BesAm/d8L4xwnPrnWz+43sBtlpBQc=;
-        b=PGqpuXii3rh6xhnQBGrokXvVvRlkpcqd5hfWlDx7IIsBBCh5534AuBedKJMAWALatf
-         wQiwZ8OgdNgDyMNSLSzKHkWAL3sD5NzRf4ezOImlKZQ1JIFNEAg1nbOrVG6tbpuDpwK7
-         ZCh7aIGxaXWmcf6ElqzryxjKNiuMT7egVQP/attlD1HhUPZbQ4DutGuQqbW3fWs8brbg
-         sfzxgfyn+WHA2Ze96Hrt4GUVDFfrNyMXx9oSfAVlZwcs7uLGveZZ2mVkIKlnIamknzi0
-         INBIyNCt+VUODdTYb8FzTq6PklA73XiQE6F3E/2n83gkcHv5m72d2ZFdXElg0zrlxmDW
-         74hw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ccJard8F
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-91bb5795792so12220266d6.2
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:20:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793364239; x=1793969039; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=cLdJG2N/zgLsxjYC7GO/7yAMaY1FF1qLnz+aCKN5WMQ=;
-        b=j/CqHmZRV2DFtJTiODMhhAG/5Nl5Ju6byHE82oO+9KaXqy74Fz55vg/YSNeUBR9ble
-         FLayPCT/VvPm/fjj2sC3oAQUavgORxkmzO7b/W5Xx22Jsk7J3ueXAdvfE6aUBkodSMaU
-         P257iuuWnfSKeTyRaqb1sADajeDgKF0aLHEYy6GuP5+Gsg+d1SyYHAoDQ9eEIyxFns5/
-         fk4oVOEu0wZ6TRQTydCABCuS0qOxDDktfSKZxHrWgrq1x/XrKI5aZX3RyadWyOXZa2Vn
-         SBLwuRmkz3jK2nyiD0RQgAK3wU+HhKWGdsW22QOTM9Fyyn10ldgK4M2NkXfOeP03z9TU
-         3w6w==
+        d=gmail.com; s=20260707; t=1793388007; x=1793992807; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+        b=ccJard8Fqb2Lo515EYFwjTJ0cZVrMsmkItwtgSqqgCg64NRfQX7T185wXoZN6nTCnL
+         +GmKKfwQ7fprhuanomxU6pHJVsPfkqqiF5nvH8IgQohB4IxR0Avo+FrCIpBXIbPJcakg
+         O/5kmQl4ueUJqQWVSc0IOImArTB/zbb5Ta8Be2Hvs3yVASJu2C1zKF9VE4g55zU3zqBV
+         +oK4UlkqYC0wLTVJaj5pkzmsBvfjT+mvFag82YQviSce4+TlLqO0Z7n5yS1GAP+p5sXG
+         b6g0kUkkjzdDYh+G+pqkgHtP7dLMc0No6zegXXboIaP7mv5iTkvPtnMJvYXtfeU7/dN5
+         fZgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793364239; x=1793969039;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=cLdJG2N/zgLsxjYC7GO/7yAMaY1FF1qLnz+aCKN5WMQ=;
-        b=FI9a802qgy7GFA+mZRmGubLJqWEDSuYf207+x1taeaxpcsXF8kT5HQVr2cMOaQ5mO+
-         zP3gGiHZV+fu2+D2tgl4l8CcOEsAEqBQEQN+vH1TJ8lUPD4Pzl2FkagOiiqaSKtwWUIM
-         w0X1Sw0537wQfPCOrni/TUmBiQtFypgTj29yrZ5Wsq8uQNGE76qZsLzj0+0OhVQ1PyJr
-         HvC5jUyqxaEw4FMimjMnhM2Vkr81PpnhKZTIWOLI/HVsQ5PLdT2/w2mDXD+6sLvnm7y3
-         7RE8PfnY7JTEOOdOyp5vtFCLTCq1Rx93rkX6BPwnajr1ITgTj24XS3SlAmuVPTKrAyFu
-         74ew==
-X-Gm-Message-State: AFq9FYLzJjkrUxafKQieWhTlzSp+y5MtfbbIisKhk8viVpLBHu4S3fQ9
-	zX5XjaAB+Emgca9M7PtnGzKHVcjsxOkOn/aVzcHPTvUeL2vnEAYhfmQioq4ee591WfilfQu+DI4
-	u6P1VSN/YlpvgZqHVLmnXbsP5YpuDmFAvvPkK7k0=
-X-Gm-Gg: AYBFou2VvNaG/pId6RkNDXwqiyV1NmxXDErcoOmS8+I9Z0a1WDYj1Xug00+v4nauiwR
-	VJr3nm+otlwPR3igfaAo1Dcts29MU47l0X4OcmnCqXNnKPCiNVoG6iIpcyerxVqdTaRMkhDHmEp
-	IHZA2MMgFtw9pCSYJNe3/wNgEgx5Zigp5aPvscUMoU81usXNriCekDjhJ6VbUv1Jnx55PF0tF+w
-	zOAy9cBiadJtB6z87evVdb+374CAXhHVFq/qNkZpNFP18NJZqhAgqcB1GpNmS0Myw38H0ir27iV
-	v+pSU6r39FJVY95QrdQwg6QP8Xg4617JFFLwT4IwjawnIl9QsQPtUbASO5J139S2UKYfJW3ZohM
-	Jw2ydchxQCu+9V0iVGa0X+yq6HsrYHITy9ldGGpWYTQhdAfHBfBsNtsIe98ACNH+HSiziujVs4C
-	QRDkdl5nwEJkoHi1VKYv7CqmJSiYCmjKK7WdaWqzKcl5mILadtlZfHMD3PmA==
-X-Received: by 2002:a05:690e:12c8:b0:679:a650:a083 with SMTP id
- 956f58d0204a3-67ba4edd86emr1641886d50.21.1793364239292; Fri, 30 Oct 2026
- 05:43:59 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1793388007; x=1793992807;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+        b=W9pmt8X3kqXtk81nUXulS9oOUinEzhmIrtL8wRmp2HKjTeAXc5JYjYBAVPEH3PkI+w
+         BsxS0ckCTtXdH1Zjp+szKI8PsKvZTp0kld90O5zkCqlbSBzROeWoqSDLvAgmv1cKxrfe
+         OaDOMmeyGu1PKUPLAf4iAqYwp+XwEAoqH6v7gforfNv1JRD4EgWrdHgJU54QfcNTkF0o
+         1m81ar4n17p4vEtkdcemZdzhi0/BfuDw8j7XrQVjr19lTR9j7+flisNOy8zLqMpYjiXR
+         0mDYBK22OxKzTYG9KIn/2814axyLL3iIKzy2WmUKYZF1yjkf902W883tHf2TSdzY7s2+
+         WZZQ==
+X-Gm-Message-State: AFq9FYKJuQaSdQW59UYCzJmuAzoBm4P7vZgt87AXZJnaI/wBdsfG+w+0
+	STlnbWZ6WHPWedmDanHowe0IZaCzq6LLu1l3+1XBBuAweVwOErmAsoWEd5Cf5rl0
+X-Gm-Gg: AYBFou1m+HUFMJDiIZbzmj0ejKu52lcdwGFu/ppbBQS4eVgWrUNXJqvfmrqem8GWYC8
+	6vVokGA7ZaIMX0Ku9keSTYKiiEoTsfwIyKyvVM0Z6Lprw9ZN8SMYZAar7lJpEpb7kYeuBOnQAMt
+	PO7AiWWswgkmlfWQpnfLZUlGJdoZIh+CP2RUYRNneEiGJu6wGPsviuJVFIfZ0GsTgkPJFomIuQ9
+	ZPvpf3DTIiP01xYW3w5SiBOBY5x1M8ZqrgglxfMdeJ4aSPAQHKhRrxxJvpsReTBgdEQvk0trnxC
+	6RftqrDrqeZInfLZAi1S1MxMtdJJlDAJBpDstmWRjcnpU4UWtQZoHhX4F6UrpdS+0kwrFF8wYLS
+	N8nlP5uDG08fZ6UIlGlnEy/pTEVJJxNiOlA59UokMBO19oQ58KtW6+SuXg0XK7R/mGVdgu+A8Pe
+	LsxTN/a0/GBCvy6NDj7NsAwAF9n2tTUHU383eK4CJyOIp5TAhAzl99E05K4OK9NeWCrGzpzochv
+	QpO0bM8QeQNA2SC9RpfR1XHFL8iBo0Bnb9zMZA6E5dvb+3Qa7bcOImP/8MkQ0nxrwcKWCBdXYqi
+	C4niGX9lVhat+Gmhc9Slvnr+Fh41HXDbipm1nsFnDpqJGXZ2Agmh+RcQ1YdYG6Kiiyq4ivY+SUG
+	ARo+vCwFN2r5cXgNN/fx3I7o8L4g9+lDm/yI/JO+AQaH1mqQYFkhHAWgmnNfRadUAKqDL8F2F9g
+	blTTyDuNxzdAYRzz3z5jhL/bjdMu50Pnp5RNGKWiPsTihYIYMTrOU=
+X-Received: by 2002:a05:6214:4518:b0:914:45c3:7920 with SMTP id 6a1803df08f44-91ca4b1cb1amr55657176d6.31.1793388006771;
+        Fri, 30 Oct 2026 12:20:06 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ca805be18sm22501076d6.31.2026.10.30.12.20.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2026 12:20:06 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 01/10] libselinux: wait for relabel completion before writing digests
+Date: Fri, 30 Oct 2026 15:19:15 -0400
+Message-ID: <20261030191924.150495-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,74 +100,475 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261029190309.138027-1-stephen.smalley.work@gmail.com> <20261029190309.138027-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261029190309.138027-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 30 Oct 2026 08:43:48 -0400
-X-Gm-Features: AclHuK97egTzGgOjVD6GtE0m10O21rhE5vlmHKzKv_31roptbPOBuBlr2MYmcN4
-Message-ID: <CAEjxPJ7regez0egn+JB0OaUprHVXewqLvRWAPai_XeDXKVRN1g@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] libsemanage/genhomedircon: apply path substitution
- rules to home directories
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com, 
-	Eugenij Safonov <ja.safonau@protonmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Oct 29, 2026 at 3:03=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> From: Eugenij Safonov <ja.safonau@protonmail.com>
->
-> genhomedircon derives the home directory prefixes for the generated
-> file_contexts.homedirs patterns from /etc/default/useradd (HOME=3D),
-> /etc/libuser.conf (LU_HOMEDIRECTORY) and the passwd database, without
-> taking path substitution rules (file_contexts.subs(5)) into account.
->
-> On systems where /home is an alias for another location (e.g. bootc and
-> ostree based systems with HOME=3D/var/home in /etc/default/useradd and a
-> "/var/home /home" equivalency rule in file_contexts.subs_dist), the
-> generated patterns therefore use the aliased prefix, while libselinux
-> canonicalizes lookup paths to the original path before matching.  None
-> of the generated patterns can ever match, so any relabel of user home
-> directories produces default_t, which breaks confined services reading
-> user files - most visibly sshd, which cannot read authorized_keys and
-> silently falls back to password authentication.
->
-> Fix this by loading the local and distribution path substitution files
-> and canonicalizing every home directory prefix (useradd and libuser
-> defaults, the /home and /export/home fallbacks, and per-user home
-> directories from the passwd database) through them before generating
-> patterns, using the helpers added in the previous commit.  The
-> substitution files are resolved below the final SELinux policy
-> directory first and then across the libselinux configuration roots,
-> so that a vendor-only file_contexts.subs_dist is honored as well.
->
-> A side effect is that the existing check for password file entries
-> conflicting with a file context now checks the canonical path, which
-> makes it catch conflicts it previously missed, as file context rules
-> always use original paths (semanage rejects aliased file specs).
->
-> Verified in a container against the Fedora targeted policy:
->
-> - HOME=3D/var/home together with the stock "/var/home /home" subs_dist
->   rule now generates /home/[^/]+ patterns, and matchpathcon resolves
->   /var/home/<user>/.ssh/authorized_keys to ssh_home_t again
-> - a subs_dist file available only below the vendor configuration
->   root (/usr/lib/selinux) is honored as well
-> - chained local (/srv/homes -> /var/home) and distribution
->   (/var/home -> /home) rules resolve to /home
-> - a wildcard source (/*/varhome) and duplicate rules behave as at
->   runtime lookup
-> - per-user patterns generated from SELinux user mappings are
->   canonicalized as well
-> - with no matching substitution rules the generated file is
->   byte-identical to the unpatched output
->
-> Reference: https://github.com/SELinuxProject/selinux/issues/547
-> Signed-off-by: Eugenij Safonov <ja.safonau@protonmail.com>
+Parallel traversal can reach directory EOF while another worker is still
+relabeling a child. Publishing the directory digest at that point can
+cache success before the child fails, causing later restorecon runs to
+skip the failed subtree.
 
-I have commented on this patch in the GitHub pull request from which
-it originated, requesting changes:
-https://github.com/SELinuxProject/selinux/pull/548#discussion_r4423641227
+Track active relabel calls under the traversal mutex and wait for them
+to finish before publishing a directory digest. Broadcast when the last
+call finishes, recording its result before releasing the mutex. Recheck
+abort state and reacquire the current stack entry after each wait.
+
+Check synchronization initialization failures and include condition
+broadcast in the weak pthread capability check. Leave the d_type
+optimization unchanged.
+
+Add isolated regression coverage for serial and parallel traversal,
+shallow and deep trees, successful and failed relabels, abort and counted
+errors, disabled digests, dry runs, and retry behavior.
+
+Fixes: 86fbd1f66da6 ("libselinux: selinux_restorecon: write digests during traversal")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/Makefile                       |   4 +-
+ libselinux/src/selinux_internal.h         |   8 +-
+ libselinux/src/selinux_restorecon.c       |  49 ++++-
+ libselinux/tests/.gitignore               |   1 +
+ libselinux/tests/Makefile                 |  16 ++
+ libselinux/tests/test_restorecon_digest.c | 233 ++++++++++++++++++++++
+ 6 files changed, 300 insertions(+), 11 deletions(-)
+ create mode 100644 libselinux/tests/.gitignore
+ create mode 100644 libselinux/tests/Makefile
+ create mode 100644 libselinux/tests/test_restorecon_digest.c
+
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index 00b52aa7..be3923f0 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -64,6 +64,7 @@ clean distclean:
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+ 	done
+ 	$(MAKE) -C fuzz clean
++	$(MAKE) -C tests clean
+ 
+ .PHONY: fuzz
+ fuzz: all
+@@ -90,4 +91,5 @@ clean-pywrap:
+ clean-rubywrap:
+ 	$(MAKE) -C src $@
+ 
+-test:
++test: all
++	$(MAKE) -C tests test
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index c32bb4c0..9df6eadd 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -81,13 +81,15 @@ extern size_t selinux_page_size;
+ #pragma weak pthread_join
+ #pragma weak pthread_cond_init
+ #pragma weak pthread_cond_signal
++#pragma weak pthread_cond_broadcast
+ #pragma weak pthread_cond_destroy
+ #pragma weak pthread_cond_wait
+ 
+ /* check if all functions needed to do parallel operations are available */
+-#define __pthread_supported                                     \
+-	(pthread_create && pthread_join && pthread_cond_init && \
+-	 pthread_cond_destroy && pthread_cond_signal && pthread_cond_wait)
++#define __pthread_supported                                                  \
++	(pthread_create && pthread_join && pthread_cond_init &&              \
++	 pthread_cond_destroy && pthread_cond_signal && pthread_cond_wait && \
++	 pthread_cond_broadcast)
+ 
+ #define SELINUXDIR "/etc/selinux/"
+ #define SELINUXCONFIG SELINUXDIR "config"
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index fbadf367..a0851802 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -963,7 +963,9 @@ struct rest_state {
+ 	long unsigned skipped_errors;
+ 	long unsigned relabeled_files;
+ 	int saved_errno;
++	size_t active_relabels;
+ 	pthread_mutex_t mutex;
++	pthread_cond_t idle;
+ };
+ 
+ static int walk_push(struct rest_state *st, int rdfd, dev_t dev, ino_t ino,
+@@ -1218,6 +1220,9 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 		     struct stat *ent_sb, char *ent_path, size_t ent_path_sz,
+ 		     size_t *ent_pathlen)
+ {
++	if (state->abort)
++		return 0;
++
+ 	if (state->root_fd >= 0) {
+ 		int fd = state->root_fd;
+ 
+@@ -1243,6 +1248,9 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 	}
+ 
+ 	while (state->depth) {
++		if (state->abort)
++			return 0;
++
+ 		struct walk_level *top = &state->stack[state->depth - 1];
+ 		int pdfd = dirfd(top->dirp);
+ 		struct dirent *de;
+@@ -1260,10 +1268,15 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 					return -1;
+ 				continue;
+ 			}
+-			/*
+-			 * Completed directory traversal; set digest
+-			 * if requested and no errors.
+-			 */
++			/* Enumeration can finish while another worker is relabeling. */
++			if (top->write_digest && state->setrestorecondigest &&
++			    !state->flags.nochange && state->parallel &&
++			    state->active_relabels) {
++				pthread_cond_wait(&state->idle, &state->mutex);
++				/* Another worker may have popped or grown the stack. */
++				continue;
++			}
++			/* All relabel results are recorded before publishing a digest. */
+ 			if (top->write_digest && state->setrestorecondigest &&
+ 			    !state->flags.nochange && !state->error &&
+ 			    !state->skipped_errors &&
+@@ -1476,8 +1489,10 @@ static void *selinux_restorecon_thread(void *arg)
+ 			}
+ 		}
+ 
+-		if (state->parallel)
++		if (state->parallel) {
++			state->active_relabels++;
+ 			__pthread_mutex_unlock(&state->mutex);
++		}
+ 
+ 		bool updated = false;
+ 		error = restorecon_sb(ent_fd, ent_path, &ent_sb, &state->flags,
+@@ -1486,6 +1501,9 @@ static void *selinux_restorecon_thread(void *arg)
+ 
+ 		if (state->parallel) {
+ 			__pthread_mutex_lock(&state->mutex);
++			state->active_relabels--;
++			if (!state->active_relabels)
++				pthread_cond_broadcast(&state->idle);
+ 			if (state->abort)
+ 				goto unlock;
+ 		}
+@@ -1590,6 +1608,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 	state.skipped_errors = 0;
+ 	state.relabeled_files = 0;
+ 	state.saved_errno = 0;
++	state.active_relabels = 0;
+ 	state.stack = NULL;
+ 	state.depth = 0;
+ 	state.stack_cap = 0;
+@@ -1767,15 +1786,30 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		selinux_restorecon_thread(&state);
+ 	} else {
+ 		size_t i;
++		int rc;
+ 		pthread_t self = pthread_self();
+ 		pthread_t *threads = NULL;
+ 
+-		__pthread_mutex_init(&state.mutex, NULL);
+-
+ 		threads = calloc(nthreads - 1, sizeof(*threads));
+ 		if (!threads)
+ 			goto oom;
+ 
++		rc = pthread_mutex_init(&state.mutex, NULL);
++		if (rc) {
++			free(threads);
++			errno = rc;
++			error = -1;
++			goto cleanup;
++		}
++		rc = pthread_cond_init(&state.idle, NULL);
++		if (rc) {
++			pthread_mutex_destroy(&state.mutex);
++			free(threads);
++			errno = rc;
++			error = -1;
++			goto cleanup;
++		}
++
+ 		state.parallel = true;
+ 		/*
+ 		 * Start (nthreads - 1) threads - the main thread is going to
+@@ -1807,6 +1841,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		}
+ 		free(threads);
+ 
++		pthread_cond_destroy(&state.idle);
+ 		__pthread_mutex_destroy(&state.mutex);
+ 	}
+ 
+diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
+new file mode 100644
+index 00000000..3763df4a
+--- /dev/null
++++ b/libselinux/tests/.gitignore
+@@ -0,0 +1 @@
++test-restorecon-digest
+diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
+new file mode 100644
+index 00000000..0f940640
+--- /dev/null
++++ b/libselinux/tests/Makefile
+@@ -0,0 +1,16 @@
++PCRE_LDLIBS ?= -lpcre2-8
++CFLAGS ?= -O2 -g -Wall -Wextra -Werror
++override CFLAGS += -I../include -pthread
++WRAPS = getfilecon_raw setfilecon_raw getxattr fsetxattr pthread_cond_wait fstatfs fstatfs64
++
++test-restorecon-digest: test_restorecon_digest.c ../src/libselinux.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
++
++COMMA := ,
++
++.PHONY: test clean
++test: test-restorecon-digest
++	./test-restorecon-digest
++
++clean:
++	rm -f test-restorecon-digest
+diff --git a/libselinux/tests/test_restorecon_digest.c b/libselinux/tests/test_restorecon_digest.c
+new file mode 100644
+index 00000000..53a5cbef
+--- /dev/null
++++ b/libselinux/tests/test_restorecon_digest.c
+@@ -0,0 +1,233 @@
++/* SPDX-License-Identifier: CC0-1.0 */
++#define _GNU_SOURCE
++#undef NDEBUG
++#include <assert.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <pthread.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/vfs.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <selinux/label.h>
++#include <selinux/restorecon.h>
++
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
++static pthread_cond_t release = PTHREAD_COND_INITIALIZER;
++static bool block_relabel, fail_relabel, ready;
++static unsigned int pending, attempts, barriers, writes;
++static unsigned char digest[20];
++static bool stored;
++static bool nested;
++
++int __wrap_getfilecon_raw(const char *path, char **context);
++int __wrap_setfilecon_raw(const char *path, const char *context);
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size);
++int __wrap_fsetxattr(int fd, const char *name, const void *value, size_t size,
++		     int flags);
++int __real_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
++int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
++int __real_fstatfs(int fd, struct statfs *buf);
++int __wrap_fstatfs(int fd, struct statfs *buf);
++int __real_fstatfs64(int fd, struct statfs64 *buf);
++int __wrap_fstatfs64(int fd, struct statfs64 *buf);
++
++/* Keep digest coverage even when the temporary directory is on tmpfs. */
++int __wrap_fstatfs(int fd, struct statfs *buf)
++{
++	int rc = __real_fstatfs(fd, buf);
++	if (!rc)
++		buf->f_type = 0xef53;
++	return rc;
++}
++
++int __wrap_fstatfs64(int fd, struct statfs64 *buf)
++{
++	int rc = __real_fstatfs64(fd, buf);
++	if (!rc)
++		buf->f_type = 0xef53;
++	return rc;
++}
++
++int __wrap_getfilecon_raw(const char *path, char **context)
++{
++	(void)path;
++	*context = NULL;
++	errno = ENODATA;
++	return -1;
++}
++
++int __wrap_setfilecon_raw(const char *path, const char *context)
++{
++	struct stat st;
++	(void)context;
++	assert(stat(path, &st) == 0);
++	if (!S_ISREG(st.st_mode))
++		return 0;
++	assert(pthread_mutex_lock(&lock) == 0);
++	attempts++;
++	pending++;
++	while (block_relabel && !ready)
++		assert(__real_pthread_cond_wait(&release, &lock) == 0);
++	pending--;
++	assert(pthread_mutex_unlock(&lock) == 0);
++	if (fail_relabel) {
++		errno = EACCES;
++		return -1;
++	}
++	return 0;
++}
++
++/* Release the blocked label write only once traversal reaches its barrier. */
++int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
++{
++	assert(cond != &release);
++	assert(pthread_mutex_lock(&lock) == 0);
++	barriers++;
++	ready = true;
++	assert(pthread_cond_broadcast(&release) == 0);
++	assert(pthread_mutex_unlock(&lock) == 0);
++	return __real_pthread_cond_wait(cond, mutex);
++}
++
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size)
++{
++	(void)path;
++	assert(!strcmp(name, "security.sehash"));
++	if (!stored || nested) {
++		errno = ENODATA;
++		return -1;
++	}
++	assert(size >= sizeof(digest));
++	memcpy(value, digest, sizeof(digest));
++	return sizeof(digest);
++}
++
++int __wrap_fsetxattr(int fd, const char *name, const void *value, size_t size,
++		     int flags)
++{
++	(void)fd;
++	(void)flags;
++	assert(!strcmp(name, "security.sehash"));
++	assert(size == sizeof(digest));
++	assert(pthread_mutex_lock(&lock) == 0);
++	assert(!pending && !fail_relabel);
++	if (block_relabel)
++		assert(barriers && attempts);
++	memcpy(digest, value, size);
++	stored = true;
++	writes++;
++	assert(pthread_mutex_unlock(&lock) == 0);
++	return 0;
++}
++
++static void run_case(size_t threads, unsigned int extra, bool failure,
++		     bool deep)
++{
++	char root[] = "/tmp/restorecon-digest-XXXXXX";
++	char file[1024], fc[256], directory[1024];
++	FILE *fp;
++	int fd, rc;
++	unsigned int flags = SELINUX_RESTORECON_RECURSE |
++			     SELINUX_RESTORECON_IGNORE_MOUNTS |
++			     SELINUX_RESTORECON_SET_SPECFILE_CTX | extra;
++	bool cache = !(extra & (SELINUX_RESTORECON_SKIP_DIGEST |
++				SELINUX_RESTORECON_NOCHANGE));
++	struct selabel_handle *handle;
++
++	alarm(15);
++	nested = deep;
++	assert(mkdtemp(root));
++	strcpy(directory, root);
++	if (deep) {
++		for (unsigned int i = 0; i < 20; i++) {
++			strcat(directory, "/sub");
++			assert(mkdir(directory, 0700) == 0);
++		}
++	}
++	assert(snprintf(file, sizeof(file), "%s/child", directory) > 0);
++	assert(snprintf(fc, sizeof(fc), "%s.fc", root) > 0);
++	fd = open(file, O_CREAT | O_EXCL | O_WRONLY, 0600);
++	assert(fd >= 0 && close(fd) == 0);
++	fp = fopen(fc, "w");
++	assert(fp);
++	assert(fprintf(fp, "%s(/.*)? system_u:object_r:test_t:s0\n", root) > 0);
++	assert(fclose(fp) == 0);
++	struct selinux_opt options[] = { { SELABEL_OPT_PATH, fc },
++					 { SELABEL_OPT_DIGEST, (char *)1 } };
++	handle = selabel_open(SELABEL_CTX_FILE, options, 2);
++	assert(handle);
++	selinux_restorecon_set_sehandle(handle);
++	block_relabel = threads > 1 && cache;
++	fail_relabel = failure;
++	rc = selinux_restorecon_parallel(root, flags, threads);
++	assert(rc == (failure && !(extra & SELINUX_RESTORECON_COUNT_ERRORS) ?
++			      -1 :
++			      0));
++	assert(!pending);
++	assert(stored == (cache && !failure));
++	assert(writes == (cache && !failure ? (deep ? 21U : 1U) : 0U));
++	if (block_relabel)
++		assert(barriers > 0);
++
++	unsigned int before = attempts;
++	block_relabel = fail_relabel = false;
++	rc = selinux_restorecon(root, flags);
++	assert(rc == 0);
++	if (extra & SELINUX_RESTORECON_NOCHANGE)
++		assert(attempts == 0 && writes == 0);
++	else
++		assert(attempts == before + !(cache && !failure && !deep));
++	assert(unlink(file) == 0);
++	if (deep) {
++		for (unsigned int i = 0; i < 20; i++) {
++			assert(rmdir(directory) == 0);
++			*strrchr(directory, '/') = '\0';
++		}
++	}
++	assert(rmdir(root) == 0);
++	assert(unlink(fc) == 0);
++	selinux_restorecon_set_sehandle(NULL);
++}
++
++int main(void)
++{
++	const unsigned int options[] = { 0, SELINUX_RESTORECON_ABORT_ON_ERROR,
++					 SELINUX_RESTORECON_COUNT_ERRORS,
++					 SELINUX_RESTORECON_SKIP_DIGEST,
++					 SELINUX_RESTORECON_NOCHANGE };
++	const size_t threads[] = { 1, 2, 8 };
++	unsigned int cases = 0;
++	for (size_t i = 0; i < sizeof(threads) / sizeof(threads[0]); i++) {
++		for (size_t j = 0; j < sizeof(options) / sizeof(options[0]);
++		     j++) {
++			for (unsigned int fail = 0; fail < 2; fail++) {
++				if (fail &&
++				    options[j] == SELINUX_RESTORECON_NOCHANGE)
++					continue;
++				for (unsigned int deep = 0; deep < 2; deep++) {
++					pid_t pid = fork();
++					int status;
++					assert(pid >= 0);
++					if (!pid) {
++						run_case(threads[i], options[j],
++							 fail, deep);
++						_exit(0);
++					}
++					assert(waitpid(pid, &status, 0) == pid);
++					assert(WIFEXITED(status) &&
++					       WEXITSTATUS(status) == 0);
++					cases++;
++				}
++			}
++		}
++	}
++	printf("Restorecon digest completion: %u cases passed.\n", cases);
++	return 0;
++}
+-- 
+2.56.0
+
