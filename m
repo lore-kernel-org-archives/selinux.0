@@ -1,82 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793388550;
-	b=f0fYO4umi7wkSsEJhd/fTLHrOK6+0g4q9hAWlhzd+wH0rA35aJ+pa/wqRYN02Fyth0k9
-	 Ov9F0/acmWA2RAvJAmRzuyAMNI2SKrSVHW8pHvMPmCoZtOjoiLBYSPh3B+k0ZRC+ePtoW
-	 Tv+9EIqJtUW5l91aQk1Jzpyn3NyyaXmquETo7QOKDVYlmaeLA64WAFHOLmCnAzcktfwmO
-	 sdKQ5P2/mGS6ST/p7A0wFm0v4BSBD2LDHXIvrkUkncfDZS7WbI7VMX4zviONvRrMDnjVG
-	 FJOa3aXOu1elUGZKpKs8RmQIZLl8N0i4YGyDtrrltcNbhFV5cavoorJXXfBkwYLTIpg==
+	t=1793388551;
+	b=IIqsLRHCbfPMM0c4MikoBJ1/qD06f1ERNWsYtW5HUVE8YcsLheXaD99qY1982x0YDUJg
+	 QYJm2vLbJelyVvsZEO0INH5eyQ1gNVsyJViKDwS7Z3gLC7DRvuXe/gYzNZAiyb+z9os5D
+	 Z9nRwUP1GZ2yoPg6GfFYL+PuAbOss/y0rl7IPK6HokfdOttyQposGn439bixuFTifB7Hz
+	 KaZTUvZTpPWVcaPKAgHcbpnzCp5zli2jhDZIkQ+xfbincVPs+/ajVlPfQ7iSYe5BJu8X2
+	 T5b++S/GJc70/KTUXbTD9qZA6M1LzK5Nj+lYD1+H0XkjRYeaMWcMNJRy0FTOP2uKfGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793388550;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793388551;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=jexxeK2F9EtlT4PNIYsTLa/m6TNzsNBzRpOvbUgIopI=;
-	b=nm1tluUnEJssrxLbtE0F6BWcRHmp8mMsN3bwE0GFENOZO1J96l7ScOupYimHtVMmzeI/
-	 JhJKTaANLPFe0jT0W5bzNN4gBXzHV15/qwU/+S4jChITyLN/BxG1PmWvUtx3xiJzcj7NU
-	 68tZOX2RnCqUDn2c5mB/fVD9hMDSRpgfsfDpj3ttagUFeLBj9Uhvc/NqfkLLIODJwBrml
-	 ZapFMVCQ06ve0uCNUWL34CnmQiVqKKyjiWb8a76OpBOGZxkSDYzNrqRmHzqFWg5Xn9PZ1
-	 Ndgy+wwOb+bs9kxZYc/PHUne9bn/Gd+QpHmsA8XWhglYbSsebAK66wt4pUwyaYD1lSw==
+	bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
+	b=dVt8Z6fglQCIgTZXJNCxWekaFIOTYcR6kyfx2k0+PV4H7X5WAGLmN9Sv1ObSy/OQyiUO
+	 LyUkbNokhUQ4NA04S0qFT09mqqy0yvh9RU3i64W/XqQLjOhxjlxE8bUMaB/RtnAWy9wA8
+	 fsWQdEQ7jKW3rvIpQInANpIvvaGWcJ1aWLmj0otwisYc2y0SNwlnf+MS4t1ELXeu6vOXf
+	 9MII3EuhP/vUOVoHP18gvn8HkZY4jwQDeNud1XL0YyMPVWy3k/c2oG+wq3Z0Fwh7njIJD
+	 mmK/SGXnyp8oqK4SWOIuTW1KKmfr6HQ2VRiC5E7ey+7h7PiZ373igqAeByXBfR+1n2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qzM2SoAY;
-	arc=none smtp.remote-ip=209.85.160.178
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOPpdXYo;
+	arc=none smtp.remote-ip=209.85.160.175
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D562606A31D
-	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:29:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6D562606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA92606A31D
+	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:29:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5AA92606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qzM2SoAY
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-5364042eecfso14956701cf.2
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:29:10 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOPpdXYo
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-537548b811aso8426931cf.3
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:29:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793388549; x=1793993349; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793388550; x=1793993350; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=jexxeK2F9EtlT4PNIYsTLa/m6TNzsNBzRpOvbUgIopI=;
-        b=qzM2SoAYOxIap1+K4UO1bTwPZzQw7yjQzIDocD94hLPy41CV8mn+sLRAdYJAWf6SsC
-         jtAojYxNpD8ARt9jiF2eO5o6j5dOnsw3Akj80PsQ30NXgF14P1y8j7W8boo5OOnH7qc4
-         F4InTPf3GFVGSHz2dV4GTTutHXhKjwmOy3M/7RjFp159VyQ3mCeGcMBYz56mwpLgw4g3
-         E+1ja9qRdbIgjW7/QmYUV/+Ta932dzs7u8MwDY9+XhDKw9UadfV7Hfkc6Q27DzjAYQpZ
-         8jFv14Yr7xCiGjtT/ggTkyzz7qHCIYilSy9231Ol/dSDWVhigDZDuC0LdIG+5l7ZFdpc
-         xI8g==
+        bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
+        b=bOPpdXYoXKo9lsxgXf7Swi8Jr57eS7fEKBDWIgJn9qL798VLpwCpAUMTYFEHMqq/Bq
+         FVWfpZpcc/X44odHIJkso7EwCC06ed4xYdOU9gaXFwbJNOmvwmuVgUCKSQQEsrXGj2O8
+         PZ8NiwUxd55a/t+96HsUGmRUNmJmNVozAAeHMkI5s+pXXOJ2k3dF6Tt/o7XBsQZzqf/F
+         5rZQBcCjiGC0jwqRibKn/NmXP/TVhtjC8b1bJwQVxU3faG5vnW/GOCuvDbiTHivWylMK
+         kq/UDf4wgrSnDw09WwOBGlVfGXNoi7B6CUJw1FS8eeGP/oW29fg7oOtoBW4RQgnXnZP2
+         D/VQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793388549; x=1793993349;
+        d=1e100.net; s=20260707; t=1793388550; x=1793993350;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=jexxeK2F9EtlT4PNIYsTLa/m6TNzsNBzRpOvbUgIopI=;
-        b=donEnvv+cuY+UK53moP8/cbk3r8ZzrHOOZnDZCFi7ykaXhL7ve5aPj4PhQYI3INePU
-         lSs/b5KpqWYDbz3ibwHeTnZKsLDoiTFuQBSOOTSY0bUDlxff/V/rctoPGH+PDmK1Vt/s
-         GlPdC2dgHiuCcnDtqoqc1ch5KosooswQ8tHn9O5UjdsH16PorNtC+3xV2jtmYJPox/TJ
-         1Lh9MRrPkWN3dvLHJzrc3rnLFvDLZSd+Hb0mofKenp4yate7TK7ofa9guftYGOdyAbVk
-         xUBzcZVk8OUHoNCvyFZnXrT0glXuShGKOeSUx0oIjTsPEDEAnemljg829udaYEcXCtTE
-         Kj/A==
-X-Gm-Message-State: AFq9FYJIH8K+JRJsxKo0zgf4RwPublgMfUkprbwMXSzj59IIzOCWcQ5n
-	d9kRujd3IGNUkNuVJwLme0M+oRYL5V5qoNJvcgKiT6IB5vPk5mSE50+GQL9zEdx0
-X-Gm-Gg: AYBFou0bbeMnq3078mgA/1bMcK9TGhwRfPrNLnHs5XEd6zpaQdS+3jUCqACcJyCmqHW
-	H0Rqc0bd0bOG/SgAczKKpcBGRXz/Md/Mhaq1X2rmWq5A/6AV+Li4S5IRmuxQkKIWZYfJWnJzePa
-	f2qdkbj7w043hQMgfUXulZ965rYnrSVs7zlbdYm4iIceCL031c65VCLd1jiiBFjJjjhUWkhCGfK
-	gQJTEQNqD0xQHH/LXT/BFeeT+hdpUyd+bPjC/TBpew/GBd8z0A0V0g1cWBMCTGZ25akogKVB0fr
-	rNWUTK/mrMIFmYTVA79/v8Um9/xXxzo2LWRB/Czspp7IYk85HSOSAf+RD4Hcpub/GENq6ssMvfz
-	2CWgkV4EftvORphfLRKDPDSH1BKLO8wIadtg5RpSA4Te9DJ3+TZoMqgroaz0lBs4A0B6Dp51BjF
-	M/gnT4ifjbRxusAORHrjFrtpTn9rZF+kGIvl3lcm4lJVWsdfoehv/b61aFHRC4sDLrFrwrvabU8
-	BvZA8e3UqjjQW2Op0FNHlytVgy0yhDhCFiFF1XkJuaC6AXjChlSMPXG3uQXvJxci28G+n4Xl6Ea
-	ZAzPjSP0gFdhCQ9rmgBeEUwAT4rrKr0gq0tvEf6mH078jyYbtmcEGIJLshUy9BBfh7Om6YTg+uT
-	G46b39REpJ+1r5b4KyECpi1qSnFTBt/8bu5tWVOZd81r8BQgE7gM83Ob5Rrh1+6Vn10v47d8Bsj
-	lKJEyo/1iXhjHQ2+ZuaE8mTWqcZ81hLPRUFmuUORZoe4NsStm9OJ0=
-X-Received: by 2002:a05:622a:a12:b0:535:1e4f:4ed2 with SMTP id d75a77b69052e-542b3b78ae9mr54134421cf.11.1793388549343;
+        bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
+        b=p2K4NWMrKtbLbtHMoBxyUgJ5vVPezH05M1Dq/7FomFPL2iI2NfZCGe6oLlv6lIHz0I
+         yGVXK5WeT6tuSWegZLMYc/dFlmfxGCdqOTrhSASfNMOZE5TRoVXrPvgSMTi+yN+HiAVx
+         /6L+WOt7Aq8oMZ9gWKNJO3bdYnonO4vMv6CKO7W9n9gB6wFl4I1Zp8uakGmS5f6qxnc4
+         +c9KRhURZbkCrIXkWCvUKMCym4tPtJy3MtvfhZ0fpIzETzIQ/hcZMuzgN0iO8Kf7Aq+7
+         CihPufX+623yaEJ8UptLLVcgyIgEb6XYcFsB1kiiEnWs0V9df3iUTiwgZpnTKtAAH0d4
+         zDCw==
+X-Gm-Message-State: AFq9FYKL6LoaDNzUyUwSYpgG6p5R97QDbuybUyA0nkrsWVTVyB//pVrj
+	oE15+YfG36gGWvxCwfVbcG2u17iE1I7nXfgmQ4VQoXns30Tyk3R1UhzVQgP8PGpY
+X-Gm-Gg: AYBFou0Md12isvOUaZN0lHbIIkM+j4kUuktE9xtNHiw72Rd5ZqZ4pflv4lnxA76xYt3
+	02xdARbqumbDXxJTTAYbNCwOQQjMDnpUiOn8tb0PoWD/2G6DCH+PbmbVhO6DVQVEQ2/CH2O5zHf
+	xnVXjBjUSuGztgRU1Uza7vD6Yg1YcLSQeq7CPe154kC1D6mBkBt7NN0Avu9VLbCp+4tB3PmlRtY
+	LhdNJvCm7NZHs/UF99CHE00aAiKxWPhNszZZRNMdlrc1VuPelZtFz6S+4neumiQnIaOe25Qxbn6
+	uaRJzBa7Rd0DDMwlDoZYaoReDZ9GoJe52L5vpMgBlPFk0o2BjP9oolQx0X8I9UGD35fqvm6bQNg
+	0OvjcsiQsJHjFvQe84xLTqDgS9iGzsEYL+BQm3FxE+oOr1HK5qbTskCIxkdIj1VbWm/bpOVWctr
+	VyNMEurBnZYrnaFtcyoa+AB+KQrHuKL9Cf+bT2N0pkAjMjR3pvdCJTFjwYk+DsY2Zzn8EV3H4v4
+	BwIFZSsN59XyofgPCWlTfxneNaDZOs/viUCKT5Eq9PyZLEZ313IsOBgYasfVh6bpgUhe9FJKGDn
+	BjQpLs499mejflLDrDKrWAvBJnuIw9SWAArdp8tUdqLqbgJHOrOTRO6BxEn9Uo0auv/Sjgr+xFS
+	NPBG7B661mA+7Q7BHLELNvsq6phJ7sGDHsz/4342x1weMd5DpZ4BGEyRSYN1AQb33DbwHzbODTG
+	k6riGyzp5kRqnOJB92rDBWHeCEyPuil308KbvhqqmH2VxGjNCIKu8=
+X-Received: by 2002:a05:622a:1247:b0:535:a5fa:ee02 with SMTP id d75a77b69052e-542b7dfcaa1mr52755301cf.66.1793388549956;
         Fri, 30 Oct 2026 12:29:09 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.08
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 30 Oct 2026 12:29:09 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 10/11] libsemanage: free subnet strings during local ibpkey validation
-Date: Fri, 30 Oct 2026 15:28:47 -0400
-Message-ID: <20261030192849.151830-10-stephen.smalley.work@gmail.com>
+Subject: [PATCH 11/11] libsemanage: reject missing scalar configuration arguments
+Date: Fri, 30 Oct 2026 15:28:48 -0400
+Message-ID: <20261030192849.151830-11-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
 References: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
@@ -106,243 +106,411 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The local ibpkey validator allocates subnet-prefix strings in its
-outer and inner loops but never frees them. Even validation of one
-record leaks a string, and repeated checks accumulate allocations.
+The configuration scanner returns a NULL ARG for empty and quoted-empty
+values, as well as on token allocation failure. Scalar actions pass this
+pointer to strcasecmp, strtol or strdup. In particular, the recently added
+sort-local-fcontexts option crashes instead of rejecting an empty value.
 
-Mirror the ibendport validator: initialize both pointers, free each
-before reuse, and release both on successful and failed exits. Reset
-the pointers before calls which can fail without assigning an output.
+Add a shared scalar argument production that rejects NULL before entering
+these actions. Preserve empty external-program arguments, which have a
+different contract. This also covers older scalar options with the same
+problem.
 
-Add tests for empty and single lists, adjacent ranges, distinct subnet
-prefixes, overlap rejection and failures at each string allocation.
-Use actual records and subnet conversion with fixture database listing.
-The tests pass with ASan, UBSan and LeakSanitizer.
+Add 114 regression checks for scalar rejection, valid values, parser reuse,
+empty external arguments and token allocation failure.
 
-Fixes: 6a7a5aafe52a ("semanage: Update semanage to allow runtime labeling of Infiniband Pkeys")
+Fixes: ee7e4e1e4e97 ("libsemanage: optionally sort file_contexts.local by specificity")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/ibpkeys_local.c            | 12 ++-
- libsemanage/tests/Makefile                 |  7 +-
- libsemanage/tests/README                   |  5 ++
- libsemanage/tests/ibpkey-validation/run.sh | 17 ++++
- libsemanage/tests/ibpkey-validation/test.c | 96 ++++++++++++++++++++++
- 5 files changed, 134 insertions(+), 3 deletions(-)
- create mode 100644 libsemanage/tests/ibpkey-validation/run.sh
- create mode 100644 libsemanage/tests/ibpkey-validation/test.c
+ libsemanage/src/conf-parse.y                  |  54 ++++----
+ libsemanage/tests/.gitignore                  |   1 +
+ libsemanage/tests/Makefile                    |   8 +-
+ .../tests/regression/test_config_empty.c      | 124 ++++++++++++++++++
+ 4 files changed, 163 insertions(+), 24 deletions(-)
+ create mode 100644 libsemanage/tests/regression/test_config_empty.c
 
-diff --git a/libsemanage/src/ibpkeys_local.c b/libsemanage/src/ibpkeys_local.c
-index 65cb37a2..82f28f01 100644
---- a/libsemanage/src/ibpkeys_local.c
-+++ b/libsemanage/src/ibpkeys_local.c
-@@ -83,8 +83,8 @@ int semanage_ibpkey_validate_local(semanage_handle_t *handle)
- 	unsigned int i = 0, j = 0;
- 	uint64_t subnet_prefix;
- 	uint64_t subnet_prefix2;
--	char *subnet_prefix_str;
--	char *subnet_prefix_str2;
-+	char *subnet_prefix_str = NULL;
-+	char *subnet_prefix_str2 = NULL;
- 	int low, high;
- 	int low2, high2;
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index 1611f4a6..61b07310 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -69,6 +69,7 @@ static int parse_errors;
+ %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+ %token PROG_PATH PROG_ARGS
+ %token <s> ARG
++%type <s> scalar_arg
+ %type <d> verify_start_tok
  
-@@ -98,6 +98,8 @@ int semanage_ibpkey_validate_local(semanage_handle_t *handle)
+ %%
+@@ -106,7 +107,16 @@ single_opt:     module_store
+         |       sort_local_fcontexts
+         ;
  
- 	/* Test each ibpkey for overlap */
- 	while (i < nibpkeys) {
-+		free(subnet_prefix_str);
-+		subnet_prefix_str = NULL;
- 		if (STATUS_SUCCESS !=
- 		    semanage_ibpkey_get_subnet_prefix(handle, ibpkeys[i],
- 						      &subnet_prefix_str)) {
-@@ -118,6 +120,8 @@ int semanage_ibpkey_validate_local(semanage_handle_t *handle)
- 				goto next;
- 			j++;
+-module_store:   MODULE_STORE '=' ARG {
++scalar_arg: ARG {
++                        if ($1 == NULL) {
++                                yyerror("missing option value or out of memory");
++                                YYABORT;
++                        }
++                        $$ = $1;
++                }
++        ;
++
++module_store:   MODULE_STORE '=' scalar_arg {
+                         if (parse_module_store($3) != 0) {
+                                 parse_errors++;
+                                 YYABORT;
+@@ -116,7 +126,7 @@ module_store:   MODULE_STORE '=' ARG {
  
-+			free(subnet_prefix_str2);
-+			subnet_prefix_str2 = NULL;
- 			if (STATUS_SUCCESS !=
- 			    semanage_ibpkey_get_subnet_prefix(
- 				    handle, ibpkeys[j], &subnet_prefix_str2)) {
-@@ -152,6 +156,8 @@ next:
- 		j = i;
- 	}
+         ;
  
-+	free(subnet_prefix_str);
-+	free(subnet_prefix_str2);
- 	for (i = 0; i < nibpkeys; i++)
- 		semanage_ibpkey_free(ibpkeys[i]);
- 	free(ibpkeys);
-@@ -161,6 +167,8 @@ err:
- 	ERR(handle, "could not complete ibpkeys validity check");
+-store_root:     STORE_ROOT '=' ARG  {
++store_root:     STORE_ROOT '=' scalar_arg  {
+                         if (parse_store_root_path($3) != 0) {
+                                 parse_errors++;
+                                 YYABORT;
+@@ -125,7 +135,7 @@ store_root:     STORE_ROOT '=' ARG  {
+                 }
+         ;
  
- invalid:
-+	free(subnet_prefix_str);
-+	free(subnet_prefix_str2);
- 	for (i = 0; i < nibpkeys; i++)
- 		semanage_ibpkey_free(ibpkeys[i]);
- 	free(ibpkeys);
+-ro_store_root:  RO_STORE_ROOT '=' ARG  {
++ro_store_root:  RO_STORE_ROOT '=' scalar_arg  {
+                         if (parse_ro_store_root_paths($3) != 0) {
+                                 parse_errors++;
+                                 YYABORT;
+@@ -134,7 +144,7 @@ ro_store_root:  RO_STORE_ROOT '=' ARG  {
+                 }
+         ;
+ 
+-compiler_dir:       COMPILER_DIR '=' ARG  {
++compiler_dir:       COMPILER_DIR '=' scalar_arg  {
+                         if (parse_compiler_path($3) != 0) {
+                                 parse_errors++;
+                                 YYABORT;
+@@ -143,7 +153,7 @@ compiler_dir:       COMPILER_DIR '=' ARG  {
+                 }
+         ;
+ 
+-ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
++ignore_module_cache:	IGNORE_MODULE_CACHE '=' scalar_arg  {
+ 							if (strcasecmp($3, "true") == 0)
+ 								current_conf->ignore_module_cache = true;
+ 							else if (strcasecmp($3, "false") == 0)
+@@ -155,7 +165,7 @@ ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
+ 						}
+         ;
+ 
+-version:        VERSION '=' ARG  {
++version:        VERSION '=' scalar_arg  {
+                         char *endptr;
+                         long value;
+                         errno = 0;
+@@ -168,7 +178,7 @@ version:        VERSION '=' ARG  {
+                 }
+         ;
+ 
+-target_platform: TARGET_PLATFORM '=' ARG  {
++target_platform: TARGET_PLATFORM '=' scalar_arg  {
+                         if (strcasecmp($3, "selinux") == 0)
+                                 current_conf->target_platform = SEPOL_TARGET_SELINUX;
+                         else if (strcasecmp($3, "xen") == 0)
+@@ -180,7 +190,7 @@ target_platform: TARGET_PLATFORM '=' ARG  {
+                 }
+         ;
+ 
+-expand_check:   EXPAND_CHECK '=' ARG  {
++expand_check:   EXPAND_CHECK '=' scalar_arg  {
+ 	                if (strcasecmp($3, "true") == 0)
+ 		                current_conf->expand_check = true;
+ 			else if (strcmp($3, "1") == 0)
+@@ -196,7 +206,7 @@ expand_check:   EXPAND_CHECK '=' ARG  {
+                 }
+         ;
+ 
+-file_mode:   FILE_MODE '=' ARG  {
++file_mode:   FILE_MODE '=' scalar_arg  {
+                         char *endptr;
+                         long value;
+                         errno = 0;
+@@ -209,7 +219,7 @@ file_mode:   FILE_MODE '=' ARG  {
+                 }
+         ;
+ 
+-save_previous:    SAVE_PREVIOUS '=' ARG {
++save_previous:    SAVE_PREVIOUS '=' scalar_arg {
+ 	                if (strcasecmp($3, "true") == 0)
+ 		                current_conf->save_previous = true;
+ 			else if (strcasecmp($3, "false") == 0)
+@@ -222,7 +232,7 @@ save_previous:    SAVE_PREVIOUS '=' ARG {
+         ;
+ 
+ 
+-save_linked:    SAVE_LINKED '=' ARG {
++save_linked:    SAVE_LINKED '=' scalar_arg {
+ 	                if (strcasecmp($3, "true") == 0)
+ 		                current_conf->save_linked = true;
+ 			else if (strcasecmp($3, "false") == 0)
+@@ -234,7 +244,7 @@ save_linked:    SAVE_LINKED '=' ARG {
+                 }
+         ;
+ 
+-disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
++disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->disable_genhomedircon = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -245,7 +255,7 @@ disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
+ 	free($3);
+  }
+ 
+-usepasswd: USEPASSWD '=' ARG {
++usepasswd: USEPASSWD '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->usepasswd = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -256,12 +266,12 @@ usepasswd: USEPASSWD '=' ARG {
+ 	free($3);
+  }
+ 
+-ignoredirs: IGNOREDIRS '=' ARG {
++ignoredirs: IGNOREDIRS '=' scalar_arg {
+ 	current_conf->ignoredirs = strdup($3);
+ 	free($3);
+  }
+ 
+-handle_unknown: HANDLE_UNKNOWN '=' ARG {
++handle_unknown: HANDLE_UNKNOWN '=' scalar_arg {
+ 	if (strcasecmp($3, "deny") == 0) {
+ 		current_conf->handle_unknown = SEPOL_DENY_UNKNOWN;
+ 	} else if (strcasecmp($3, "reject") == 0) {
+@@ -274,7 +284,7 @@ handle_unknown: HANDLE_UNKNOWN '=' ARG {
+ 	free($3);
+  }
+ 
+-bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
++bzip_blocksize:  BZIP_BLOCKSIZE '=' scalar_arg {
+ 	char *endptr;
+ 	long value;
+ 	errno = 0;
+@@ -286,7 +296,7 @@ bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
+ 	free($3);
+ }
+ 
+-bzip_small:  BZIP_SMALL '=' ARG {
++bzip_small:  BZIP_SMALL '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->bzip_small = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -297,7 +307,7 @@ bzip_small:  BZIP_SMALL '=' ARG {
+ 	free($3);
+ }
+ 
+-remove_hll:  REMOVE_HLL'=' ARG {
++remove_hll:  REMOVE_HLL'=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->remove_hll = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -308,7 +318,7 @@ remove_hll:  REMOVE_HLL'=' ARG {
+ 	free($3);
+ }
+ 
+-relabel_store:  RELABEL_STORE'=' ARG {
++relabel_store:  RELABEL_STORE'=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->relabel_store = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -319,7 +329,7 @@ relabel_store:  RELABEL_STORE'=' ARG {
+ 	free($3);
+ }
+ 
+-optimize_policy:  OPTIMIZE_POLICY '=' ARG {
++optimize_policy:  OPTIMIZE_POLICY '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->optimize_policy = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -330,7 +340,7 @@ optimize_policy:  OPTIMIZE_POLICY '=' ARG {
+ 	free($3);
+ }
+ 
+-multiple_decls:  MULTIPLE_DECLS '=' ARG {
++multiple_decls:  MULTIPLE_DECLS '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->multiple_decls = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+@@ -341,7 +351,7 @@ multiple_decls:  MULTIPLE_DECLS '=' ARG {
+ 	free($3);
+ }
+ 
+-sort_local_fcontexts: SORT_LOCAL_FCONTEXTS '=' ARG {
++sort_local_fcontexts: SORT_LOCAL_FCONTEXTS '=' scalar_arg {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->sort_local_fcontexts = false;
+ 	} else if (strcasecmp($3, "true") == 0) {
+diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
+index 484d0853..54991e1e 100644
+--- a/libsemanage/tests/.gitignore
++++ b/libsemanage/tests/.gitignore
+@@ -11,3 +11,4 @@ test-cache-serial-join
+ test-cache-serial-active
+ test-cache-serial-policydb
+ *.policy
++/test-config-empty
 diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 662bbaee..8800fb73 100644
+index 8800fb73..2b000a7a 100644
 --- a/libsemanage/tests/Makefile
 +++ b/libsemanage/tests/Makefile
-@@ -61,7 +61,7 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
- clean distclean:
- 	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST)
+@@ -18,7 +18,10 @@ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
+ OBJECTS = $(SOURCES:.c=.o)
+ POLICIES = $(CILS:.cil=.policy)
  
--test: all
-+test: all test-ibpkey-validation
+-all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST)
++all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST) test-config-empty
++
++test-config-empty: regression/test_config_empty.c ../src/libsemanage.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=strdup $(LDLIBS)
+ 
+ $(RESTART_TEST): regression/test_transaction_restart.c ../src/libsemanage.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--wrap=scandir -o $@ $^ $(LDLIBS)
+@@ -59,10 +62,11 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
+ 	../../secilc/secilc $*.cil -o $*.policy -f /dev/null
+ 
+ clean distclean:
+-	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST)
++	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST) test-config-empty
+ 
+ test: all test-ibpkey-validation
  	./$(EXECUTABLE)
++	./test-config-empty
  	./$(USER_JOIN_TEST)
  	./$(LIFECYCLE_TEST)
-@@ -71,3 +71,8 @@ test: all
- 	@for test in $(SERIAL_TESTS); do ./$$test || exit 1; done
- 	./$(ROLLBACK_TEST)
- 	./$(RESTART_TEST)
-+
-+test-ibpkey-validation:
-+	sh ibpkey-validation/run.sh
-+
-+.PHONY: test-ibpkey-validation
-diff --git a/libsemanage/tests/README b/libsemanage/tests/README
-index 4430c6a8..00e7032c 100644
---- a/libsemanage/tests/README
-+++ b/libsemanage/tests/README
-@@ -13,6 +13,11 @@ When the system setfiles does not support the policy version of this tree,
- set SEMANAGE_TEST_SETFILES to the absolute path of a matching setfiles binary.
- SEMANAGE_TEST_VERBOSE=1 enables library diagnostics for troubleshooting.
- 
-+`make test-ibpkey-validation` checks overlap validation and subnet-string
-+cleanup for empty/single/multiple records, different prefixes, overlap,
-+and allocation failures. Records and subnet conversion use real source;
-+database listing is a fixture. Tracked allocations must all be freed.
-+
- The semanage_access_check test in the semanage_store suite simulates a
- read-only filesystem by using DAC permissions. Consequently, these tests
- will fail if run as root, as root can override DAC permissions.
-diff --git a/libsemanage/tests/ibpkey-validation/run.sh b/libsemanage/tests/ibpkey-validation/run.sh
+ 	./test-parse-read-error
+diff --git a/libsemanage/tests/regression/test_config_empty.c b/libsemanage/tests/regression/test_config_empty.c
 new file mode 100644
-index 00000000..fc50649e
+index 00000000..9936f37d
 --- /dev/null
-+++ b/libsemanage/tests/ibpkey-validation/run.sh
-@@ -0,0 +1,17 @@
-+#!/bin/sh
-+set -eu
-+cd "$(dirname "$0")/../../.."
-+out=$(mktemp -d)
-+trap 'rm -rf "$out"' EXIT HUP INT TERM
-+${CC:-cc} ${CFLAGS:--O1 -g -Wall -Wextra -Werror} \
-+    -DHAVE_REALLOCARRAY -fno-semantic-interposition \
-+    -ffunction-sections -fdata-sections -Ilibsemanage/include \
-+    -Ilibsemanage/src -Ilibsepol/include \
-+    libsemanage/tests/ibpkey-validation/test.c \
-+    libsemanage/src/ibpkeys_local.c libsemanage/src/ibpkey_record.c \
-+    libsepol/src/ibpkey_record.c libsepol/src/context_record.c \
-+    libsepol/src/debug.c ${LDFLAGS:-} -Wl,--gc-sections \
-+    -Wl,--wrap=malloc -Wl,--wrap=free -o "$out/test"
-+for scenario in empty single adjacent different overlap fail0 fail1 fail2 fail3 fail4; do
-+    "$out/test" "$scenario"
-+done
-diff --git a/libsemanage/tests/ibpkey-validation/test.c b/libsemanage/tests/ibpkey-validation/test.c
-new file mode 100644
-index 00000000..14ccbe60
---- /dev/null
-+++ b/libsemanage/tests/ibpkey-validation/test.c
-@@ -0,0 +1,96 @@
-+/* Verify cleanup around actual subnet-string allocations. */
++++ b/libsemanage/tests/regression/test_config_empty.c
+@@ -0,0 +1,124 @@
++/* SPDX-License-Identifier: CC0-1.0 */
++#define _GNU_SOURCE
 +#undef NDEBUG
 +#include <assert.h>
 +#include <errno.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
-+#include <sepol/debug.h>
-+#include "ibpkey_internal.h"
++#include <unistd.h>
++#include <sepol/policydb.h>
++#include "semanage_conf.h"
 +
-+static const char *scenario;
-+static int fail_after = -1;
-+static int strings;
-+static int tracking;
-+static void *allocations[16];
-+void *__real_malloc(size_t size);
-+void *__wrap_malloc(size_t size);
-+void __real_free(void *ptr);
-+void __wrap_free(void *ptr);
++static bool fail_token;
++static unsigned failures;
 +
-+void __wrap_free(void *ptr)
++char *__real_strdup(const char *s);
++char *__wrap_strdup(const char *s);
++
++char *__wrap_strdup(const char *s)
 +{
-+	for (size_t i = 0; i < sizeof(allocations) / sizeof(allocations[0]);
-+	     i++)
-+		if (allocations[i] == ptr)
-+			allocations[i] = NULL;
-+	__real_free(ptr);
-+}
-+
-+void *__wrap_malloc(size_t size)
-+{
-+	/* Only enable failure after fixture construction. */
-+	if (fail_after >= 0 && strings++ == fail_after) {
-+		fail_after = -1;
++	if (fail_token && !strcmp(s, "true")) {
++		failures++;
 +		errno = ENOMEM;
 +		return NULL;
 +	}
-+	void *ptr = __real_malloc(size);
-+	if (tracking && ptr) {
-+		for (size_t i = 0;
-+		     i < sizeof(allocations) / sizeof(allocations[0]); i++) {
-+			if (!allocations[i]) {
-+				allocations[i] = ptr;
-+				return ptr;
-+			}
++	return __real_strdup(s);
++}
++
++static semanage_conf_t *parse(const char *text)
++{
++	char path[] = "/tmp/semanage-config-XXXXXX";
++	int fd = mkstemp(path);
++	assert(fd >= 0);
++	FILE *fp = fdopen(fd, "w");
++	assert(fp);
++	assert(fputs(text, fp) >= 0);
++	assert(fclose(fp) == 0);
++	semanage_conf_t *conf = semanage_conf_parse(path);
++	assert(unlink(path) == 0);
++	return conf;
++}
++
++int main(void)
++{
++	const char *keys[] = { "module-store",	      "store-root",
++			       "ro-store-root",	      "compiler-directory",
++			       "ignore-module-cache", "policy-version",
++			       "target-platform",     "expand-check",
++			       "file-mode",	      "save-previous",
++			       "save-linked",	      "disable-genhomedircon",
++			       "usepasswd",	      "ignoredirs",
++			       "handle-unknown",      "bzip-blocksize",
++			       "bzip-small",	      "remove-hll",
++			       "relabel_store",	      "optimize-policy",
++			       "multiple-decls",      "sort-local-fcontexts" };
++	const char *values[] = { "", "\"\"" };
++	char version[32];
++	snprintf(version, sizeof(version), "%d", sepol_policy_kern_vers_max());
++	const char *valid[] = { "direct",
++				"/var/lib/selinux",
++				"/usr/lib/selinux",
++				"/usr/libexec/selinux/hll",
++				"true",
++				version,
++				"selinux",
++				"true",
++				"0644",
++				"true",
++				"true",
++				"true",
++				"true",
++				"/home",
++				"deny",
++				"9",
++				"true",
++				"true",
++				"true",
++				"true",
++				"true",
++				"true" };
++	assert(sizeof(valid) / sizeof(valid[0]) ==
++	       sizeof(keys) / sizeof(keys[0]));
++	unsigned cases = 0;
++	for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); i++) {
++		for (size_t j = 0; j < sizeof(values) / sizeof(values[0]);
++		     j++) {
++			char text[256];
++			snprintf(text, sizeof(text), "%s = %s\n", keys[i],
++				 values[j]);
++			assert(parse(text) == NULL);
++			semanage_conf_t *conf =
++				parse("sort-local-fcontexts = true\n");
++			assert(conf && conf->sort_local_fcontexts);
++			semanage_conf_destroy(conf);
++			cases += 2;
 +		}
-+		abort();
++		char text[256];
++		snprintf(text, sizeof(text), "%s = %s\n", keys[i], valid[i]);
++		semanage_conf_t *conf = parse(text);
++		assert(conf);
++		semanage_conf_destroy(conf);
++		cases++;
 +	}
-+	return ptr;
-+}
-+
-+int dbase_list(semanage_handle_t *handle, dbase_config_t *config,
-+	       record_t ***records, unsigned int *count)
-+{
-+	(void)config;
-+	semanage_ibpkey_t **items;
-+	*count = !strcmp(scenario, "empty")  ? 0 :
-+		 !strcmp(scenario, "single") ? 1 :
-+					       3;
-+	items = calloc(*count, sizeof(*items));
-+	assert(items || !*count);
-+	for (unsigned int i = 0; i < *count; i++) {
-+		assert(semanage_ibpkey_create(handle, &items[i]) == 0);
-+		semanage_ibpkey_set_subnet_prefix_bytes(
-+			items[i], !strcmp(scenario, "different") ? i + 1 : 1);
-+		semanage_ibpkey_set_range(items[i], i * 5 + 1, i * 5 + 5);
++	for (size_t j = 0; j < sizeof(values) / sizeof(values[0]); j++) {
++		char text[256];
++		snprintf(text, sizeof(text),
++			 "[load_policy]\npath = /bin/true\nargs = %s\n[end]\n",
++			 values[j]);
++		semanage_conf_t *conf = parse(text);
++		assert(conf && conf->load_policy &&
++		       conf->load_policy->args == NULL);
++		semanage_conf_destroy(conf);
++		cases++;
 +	}
-+	if (!strcmp(scenario, "overlap"))
-+		semanage_ibpkey_set_range(items[1], 5, 15);
-+	*records = (record_t **)items;
-+	tracking = 1;
-+	if (!strncmp(scenario, "fail", 4)) {
-+		fail_after = atoi(scenario + 4);
-+		strings = 0;
-+	}
-+	return 0;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	semanage_handle_t handle = { 0 };
-+	assert(argc == 2);
-+	sepol_debug(0);
-+	scenario = argv[1];
-+	int rc = semanage_ibpkey_validate_local(&handle);
-+	int failure = !strcmp(scenario, "overlap") ||
-+		      !strncmp(scenario, "fail", 4);
-+	assert(rc == (failure ? -1 : 0));
-+	if (!strncmp(scenario, "fail", 4))
-+		assert(fail_after == -1);
-+	for (size_t i = 0; i < sizeof(allocations) / sizeof(allocations[0]);
-+	     i++)
-+		assert(allocations[i] == NULL);
-+	printf("%s: validation result=%d\n", scenario, rc);
++	fail_token = true;
++	assert(parse("sort-local-fcontexts = true\n") == NULL);
++	assert(failures == 1);
++	fail_token = false;
++	semanage_conf_t *conf = parse("sort-local-fcontexts = false\n");
++	assert(conf && !conf->sort_local_fcontexts);
++	semanage_conf_destroy(conf);
++	printf("Configuration scalar arguments: %u cases passed.\n", cases + 2);
 +	return 0;
 +}
 -- 
