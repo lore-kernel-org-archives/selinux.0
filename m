@@ -1,84 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793388015;
-	b=qQkBHuESWgh0Vix5ft95XCMePGBQVEuMS2jFKag20IgRepRCBJ6ODOA8Ftt8YMQtOknW
-	 X+/043K9j1ClY/geBoFad6frUXPpA8IrHd+s3D3N4s2dCqq35fvYuYxpw/GD7HoVPLwAs
-	 DKVEGq0gudsKGbfpEBhdii9Hq2Gm3L832XYoPDu2FpXkdXKPMBXFhVfAyOEds4t1gt6Uj
-	 XrwoqbgUMLv9XuzpMQ+Cuh+eMJiaJRQAeeylYcih4bFGGwWWwvI1+v5OEADCu/nkHc/Pe
-	 DSZMR5e3wU8VWQ5b8+pS0a7arVREGfkvN1GgfYBHFEvjcHpGr7NIE0Qb7zNr+GC+Ssg==
+	t=1793388545;
+	b=jYLrEUZ6klJF3gXyV5+dbafL6DULLLzUUKJRAr3oe4ohl8K20desOKaY6GtoA6jyO/GI
+	 rpIrh4EhMgZI/0J+whIx+9xV0GMyNhM+zowL3t0LGdq074+VtXp31jXf+Y7ahp7CBug+6
+	 yEHN9+o3SIWQJXlqQ+IQHjTDjy+PQQNKy+XuiikSuGI22tR5fY6tOlgSh3rz0Wp99UnEJ
+	 ADO8CPIVMXTtelVrRYa5jAvomDVFwSu+ylKcGwz+8MjapFmsPrd7JCxTLBaZmwPwBEhGX
+	 TCXDuyCv6RmADs7+T2zbCT74pu7HaEmnSYTZ1GvVosCet9qgqEnSfARG9IKvhGtVpGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793388015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793388545;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
-	b=MzWgsxHy+J58BPYSTBdk2Ye6XgO3QIS9TVcT63eSzvNATH/7iXcjvCy61QE+OWkO5p7A
-	 zXJlbIBejkPnbdUPkAUhCtxBVoUKoyAb7ON9ErqdiE8yAedTbDfyPbOaZyoYl/xoKo0CF
-	 JbQEDrWgajH/7V+4pA+PIKrAg3sHiMNqkdku8W1+SMbYE+nqDolF/qGOEU0eOFbIZ12KV
-	 /8lku3aScmkmYUOG1vS0sYWuVpNvanpqZaMMRrIPPkG531IuG9aq9I5T5S2PTxPsNGkbX
-	 c824DMttKm1x7X9dMY28S0GfuIQ1uZw5F/wsWip2IkQA+lUdA8F+VS5zUr14jtWMhKg==
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=TD+GeaDBH+4MYxcfPfoY3Jbo9G3vICAGWsJHndrcjGo=;
+	b=CnCYj2ZjAIU43IgHWKRLtx547ZogoYZg5KQx17qzV9JE260p/zV2UkE81BgXh8gvMNgK
+	 uav4qiWwjyq8M+n8JfVpRWo7XFPURAp+jKm51dtsj6UP41AWWg7/qgx57cm2/X5V87Rjy
+	 iE3KfgFeFtldMcbB4Upco/b0L0FBRuNIAI2AgCTgL0cdIF/ofq8mZ4oy/6Tt9LhY19WEB
+	 4wlHBBiBdTXeMbMRazs1Y9twoeXJfiaVxWqJEeP7dFcmugX9ZzBpBAWZkSqkWJbQQfI1E
+	 P+rO10u1wlQvcfXmIjWaOmQQH5U28cLTfakZuSx9hxLg+a+ANkdpGtMNaU7a0j+3kWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uxP9zqX3;
-	arc=none smtp.remote-ip=209.85.219.51
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HS07UOOc;
+	arc=none smtp.remote-ip=209.85.160.170
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B6C2606A320
-	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:20:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2B6C2606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C1A606A31A
+	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:29:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4C1A606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uxP9zqX3
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-91b52ba422cso14317716d6.2
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:20:14 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HS07UOOc
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-5363316fa0cso12506461cf.3
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:29:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793388014; x=1793992814; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
-        b=uxP9zqX3/4VPciqtQyN9NpSrpaCSnBAw0bURZr3f8z6OxO7fQTN9Meve3sVAUu+Z4m
-         59+yPuMH/ahWB+Nn9ZmNE4IKcrLcWE4ugcHGyC1+974mhWf3zl5XfzWyrl5fMiEGrqNZ
-         T3Ht8dAyW+1RFuyHHEz3wXqzjLkb/0KjZTZBkhkK4pcbIZfD6RBltAMA5ejnVSF/mvCL
-         n0Az3aEh/qYjCvbaZkIK8b8+ZwgYM6FBhvNJ+g8kwWdAyVEGeseSLaYAKbc0WBsR0L8X
-         9x8iYVxLHxbtsINztybXRfJIPWLxbwfi/EYlNQvhYzaqXq/EQk0HzYk1qrSSBaAer14d
-         dzRw==
+        d=gmail.com; s=20260707; t=1793388544; x=1793993344; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=TD+GeaDBH+4MYxcfPfoY3Jbo9G3vICAGWsJHndrcjGo=;
+        b=HS07UOOcWtKphHp7hAsanfN5DqCpEPI4xvKT0CoxhNWF3tf+B7ybzg3TM4Lh5nrqnU
+         Y+cQsTN0u3stpJd2OEAaMcUEC/Js/+Xp8ly2gUzwCXoOPxCAOZbe7bmTvMl89m7L4urQ
+         mxPndAsEJgb+/g/Q9nYfzQaaoxM3eIIbz9puDyIiYj5qADlF4S7EYjulkN5a4Xax7i0e
+         qD7ZUNj68Vrn4AA4eQ/NFTVMmUKPMINA9jSddaDN8I0+A3lP/iRF1SKQS3jH0IpGP4M2
+         N2+NSFCCC6zHG+fBGo4RQYfSzXdGM37Kv9+zAR/hFXB6zzvBxwMTbYBSZ1yKbZ1k6iF/
+         qjcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793388014; x=1793992814;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
-        b=xpBo8WOvfnkzBIhc53qmOhYUpOTkNPc6kD522QZN6FAvDQtyFktwmZ1TQW4PS47Duh
-         tkFuuluB9MtcgQwbEEWSJbn/9zR2COsoQZ0zBYFvwYAjFUf8xNQbi1nP23fwxllMWTnG
-         zBC6GSP2/oz3rMEtUfl7Wb03R7UyhzO5+YMzVCQzcALnFQe0AkWZLv8IT8sLCxoYk/Ld
-         NS2i/qTV9vd3yy1w+zH7mIJBRhMKTjlC0YPRtPw1PFLbXP7j+J4pyp0dCuCwNbgCUND0
-         ARVyvs7FUc8kCQi5l68cqvhKNcksZH2W8xvGmXkT8KwVMg2F93LLgFOTaT1x9oNlyfRV
-         5onw==
-X-Gm-Message-State: AFq9FYKhrjh8ehvl583kSrOY8VEsyFdPWEDbTg43Lb7T8vClWdl8OdhU
-	SL1Wm2Jta6wIeTTVrQpoYxEyEXK8DePVqaoeXEacnpaS2e8CtOTcJiPEMbFeqvKb
-X-Gm-Gg: AYBFou1UzDaE127u4aDkH6CB/78VqekBej/5nFKaiRABTu9o1Mrsulynlj/ByKN3BgA
-	sFV6EfsPu1NAcY5je84hrdWMYf+U0E1b7xKk9yw1+kTbpn2E62dudDSn19nuaH6hASGxprdNM1/
-	1s5aPd3O1KCqj9d5e/1goc+TgUN7Ge0t/XCNmBKz4vEMXEKBNciwdcPpLhjVWZzkPaYwXUBOEgf
-	SArsedf8JkevMX/T7F1zTH0jHfzywAYJKAvy3X+zwIKmbm1Mp2fuPbvcyHYzj2IinFAgX5CRSLY
-	Mb67vLENRPsuF0aNvgx1+IuRDnRlu7VsHuaCRVZ6GQeb55MB1ERqTeyv6qlC7LKivZ8mrtE0C5m
-	1k9amxG73Nznb8qqOmEPmtu1MwV3yQVPTPv1441YHdEmCvIyzhFAVioY4h8JBcI78+kZORDyfDc
-	VWhbV0XQKcyEyZeitcK2Gn/kckefKtbFOxYZzCUxAmRrJOID0h6Qb6GPYO8cwIxWX3Z+5AitZ3o
-	Rc8rBXNgDJmqe1kB2F6PkDI7z+AfkwCyYSpC9Gkr1WgTkaXDi8QRfVJvhyO5m9mCPutofVHy15I
-	5aqYi5g2dtd07Zk4Zxv7rwsItpFJqo9ZEpIw6uyS5OFlNIvpkLQXRGrsV+OlWJ2t+B3DKcecH+t
-	EHwb9bFbd7z8ya3QMSOyp170khZ4QWHQm2gqHKGsmtLCAWOVyURAMTjkHmT5JM2O2f8cj4mPzuf
-	RtAR/AtfU/kIfZtpqcZRBq97LkrawMM+8GlptBKmZ2+g5WMyJgfcI=
-X-Received: by 2002:a05:6214:c49:b0:91c:79eb:ea55 with SMTP id 6a1803df08f44-91ca4b7aa24mr51954796d6.28.1793388013492;
-        Fri, 30 Oct 2026 12:20:13 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1793388544; x=1793993344;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=TD+GeaDBH+4MYxcfPfoY3Jbo9G3vICAGWsJHndrcjGo=;
+        b=vanRUrxofJT63ndW6eqiEUbWmKLwrezvm6mjddRSCCQcN78iLKxbcm2x0cYWfvVOx0
+         LyTa66BDrDRvaTPrFb12+JgkjVNCN1Am7e4YwBpRLrL7vec/2P1r98hHo8aKmifMBSBm
+         pyHd5ldvgn3rhjF62Lviuyv21dCA1pyhT0BdciO1q61rhjGwuYnvQnaF+bwyNYzUnfk+
+         baHZCuhvL0ZyQOe6C3x6rkxRXh7xkYEkXzAnwHjOCX2RTi4ymdEfyua9rrlQOwuieUCd
+         1D9TW43oahJPlW2XASsmALoQzDSTFq9Bv4+pOaVVUVgiz8+tOiDmqTbj38u9VWVxgjTo
+         1x+w==
+X-Gm-Message-State: AFq9FYKeJ1NCda3W9M1ae0oI1nBeLxMP3LB1CwQHE/8Smw/nTlwUu16N
+	bCIrsywZoHctLRGUnyQwpSqmBoL/qgco7+St2+WXGEovdjSiaNrcDLynbkgyLNja
+X-Gm-Gg: AYBFou05UEczHpKhxsNQCaKpKmzhMgZsmbL9EJQr5levmLr3gx2yZftX+TBYrBv3aQe
+	ged8UumhhE5kotOelXuG44Xf5b+vKYP6FA9vV7kaCLSkzaTILYCf9p1i+awhHT3g0eDWLxJW9Lm
+	swWDX/H8y0qubhPQLPNLjeVhi1FOq+l6uaLblSlhxyXKh2egAwoCS8iPi4IZMs0py07/w6yLzKG
+	5CuomlPu9bHa7x3RvRzKTp8KWw7tdbhraGEw30wbpKqmTOJkS0oBnHo3bohlnsQyJ5zWJagFbmQ
+	Im/URm2neCYci3Cv+ofohctqzF4cAD1hkh6yKRoFNEo02oN0YQZOO+aft/EzPsmysXhKYDvSKAp
+	rc2VV34TYdwPTLXfP79Ih7IIj3j123PjeZpI6dWif1JXR6ytE8j4L6xoKNBlYMjjhBQN6EK9sbl
+	2ONIJaKDr9wgwpbqPrmRd+/ZwDuHbRrfp/ykfXRkb03ulfFHYg8uPBTfPl8zKUB2HdD9MFOPEUy
+	ys3OYdENVbiATg5rhvNdyZB/YYYkP62avxd5xIdsr6NHpuqPK+q4L1xdAo77z4GX4uvTx4rn1/z
+	8L0ucPH7q0igEDZLf7DoDBrN2Yr0dz/XPOcAHEtOLF3P8Qcex3ECO0/iq9FU2Y1CAJWar6RdX7Y
+	lttlCO6ZVtvuXwzYSnPC9Kg6lgvh+KSdhYtsd5EqERMBZttiPj/wY6Em8LmZJSx3qLv2q68o9vq
+	NLOvDw1wrl0WPWpxtT0BhG2CO3Hxoajc1Jpxk80HPzL7WOmUGIJR8=
+X-Received: by 2002:ac8:5a47:0:b0:535:d4d8:eed6 with SMTP id d75a77b69052e-542b7144f56mr50630841cf.32.1793388543522;
+        Fri, 30 Oct 2026 12:29:03 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ca805be18sm22501076d6.31.2026.10.30.12.20.12
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 12:20:13 -0700 (PDT)
+        Fri, 30 Oct 2026 12:29:03 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,12 +87,10 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 10/10] libselinux: grow the digest specification file list dynamically
-Date: Fri, 30 Oct 2026 15:19:24 -0400
-Message-ID: <20261030191924.150495-10-stephen.smalley.work@gmail.com>
+Subject: [PATCH 01/11] libsemanage/tests: cover user join caches across transactions
+Date: Fri, 30 Oct 2026 15:28:38 -0400
+Message-ID: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261030191924.150495-1-stephen.smalley.work@gmail.com>
-References: <20261030191924.150495-1-stephen.smalley.work@gmail.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -106,351 +102,262 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Multiple SELABEL_OPT_PATH inputs can exceed the old eight-file digest
-limit. Nine primary files, or five with all four auxiliary inputs, fail
-with EOVERFLOW solely because digest collection is enabled.
+Retain regression coverage for the user join cache synchronization fixed
+by 6423998bc7b1 ("libsemanage: synchronize user join caches across
+transactions"). The production fix is already upstream; this patch adds
+only its previously unmerged tests and build wiring.
 
-Grow the list with checked capacity arithmetic and preserve its NULL
-sentinel. Publish the input count and hash-buffer length only after an
-addition succeeds, so allocation or read failure permits cleanup or retry.
-Avoid realloc(ptr, 0) for empty inputs.
+Exercise add, modify, and delete with warm and cold caches, both with and
+without a read-only store root. Verify persistence after disconnect and
+reconnect using isolated stores without loading host policy.
 
-Add 20 regression scenarios covering up to 253 primary files plus four
-auxiliaries, growth allocation failures, retries and empty inputs.
-
-Fixes: 1550c8aaf255 ("libselinux: support multiple context files for the file backend")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label.c                |   5 +-
- libselinux/src/label_internal.h       |   3 +-
- libselinux/src/label_support.c        |  63 ++++++++----
- libselinux/tests/.gitignore           |   3 +-
- libselinux/tests/Makefile             |  10 +-
- libselinux/tests/test_digest_inputs.c | 134 ++++++++++++++++++++++++++
- 6 files changed, 192 insertions(+), 26 deletions(-)
- create mode 100644 libselinux/tests/test_digest_inputs.c
+ libsemanage/tests/.gitignore                  |   1 +
+ libsemanage/tests/Makefile                    |  10 +-
+ .../regression/test_user_join_transaction.c   | 164 ++++++++++++++++++
+ libsemanage/tests/regression/user_join.cil    |  18 ++
+ 4 files changed, 190 insertions(+), 3 deletions(-)
+ create mode 100644 libsemanage/tests/regression/test_user_join_transaction.c
+ create mode 100644 libsemanage/tests/regression/user_join.cil
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 93848bfe..89ba00be 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -75,10 +75,11 @@ selabel_is_digest_set(const struct selinux_opt *opts, unsigned n)
- 			if (!digest->digest)
- 				goto err;
+diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
+index 8a2a866a..796479e6 100644
+--- a/libsemanage/tests/.gitignore
++++ b/libsemanage/tests/.gitignore
+@@ -1,2 +1,3 @@
+ libsemanage-tests
++test-user-join-transaction
+ *.policy
+diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
+index 241ff17a..cef19b42 100644
+--- a/libsemanage/tests/Makefile
++++ b/libsemanage/tests/Makefile
+@@ -5,6 +5,7 @@ CILS = $(sort $(wildcard *.cil))
+ ###########################################################################
  
--			digest->specfile_list =
--				calloc(DIGEST_FILES_MAX + 1, sizeof(char *));
-+			digest->specfile_list = calloc(DIGEST_FILES_INITIAL + 1,
-+						       sizeof(char *));
- 			if (!digest->specfile_list)
- 				goto err;
-+			digest->specfile_capacity = DIGEST_FILES_INITIAL;
+ EXECUTABLE = libsemanage-tests
++USER_JOIN_TEST = test-user-join-transaction
+ CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+ override CFLAGS += -I../src -I../include
+ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
+@@ -12,7 +13,10 @@ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
+ OBJECTS = $(SOURCES:.c=.o)
+ POLICIES = $(CILS:.cil=.policy)
  
- 			return digest;
- 		}
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 47c5d3cb..3a3301e8 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -48,12 +48,13 @@ int selabel_service_init(struct selabel_handle *rec,
-  * used. This is released once the value has been calculated.
-  */
- #define DIGEST_SPECFILE_SIZE SHA1_HASH_SIZE
--#define DIGEST_FILES_MAX 8
-+#define DIGEST_FILES_INITIAL 8
- struct selabel_digest {
- 	unsigned char *digest; /* SHA1 digest of specfiles */
- 	unsigned char *hashbuf; /* buffer to hold specfiles */
- 	size_t hashbuf_size; /* buffer size */
- 	size_t specfile_cnt; /* how many specfiles processed */
-+	size_t specfile_capacity; /* allocated entries, excluding the sentinel */
- 	char **specfile_list; /* and their names */
- };
- 
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index 5112c59c..c712afcc 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -256,6 +256,8 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- 			const char *from_addr, size_t buf_len, const char *path)
- {
- 	unsigned char *tmp_buf;
-+	char *name;
-+	size_t new_size;
- 
- 	/* If SELABEL_OPT_DIGEST not set then just return */
- 	if (!digest)
-@@ -265,35 +267,58 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- 		errno = EOVERFLOW;
- 		return -1;
- 	}
--	digest->hashbuf_size += buf_len;
-+	new_size = digest->hashbuf_size + buf_len;
-+	if (digest->specfile_cnt == digest->specfile_capacity) {
-+		size_t capacity;
-+		char **files;
+-all: $(EXECUTABLE) $(POLICIES)
++all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST)
 +
-+		if (digest->specfile_capacity >
-+		    (SIZE_MAX / sizeof(*files) - 1) / 2) {
-+			errno = EOVERFLOW;
-+			return -1;
-+		}
-+		capacity = digest->specfile_capacity ?
-+				   digest->specfile_capacity * 2 :
-+				   DIGEST_FILES_INITIAL;
-+		files = realloc(digest->specfile_list,
-+				(capacity + 1) * sizeof(*files));
-+		if (!files)
-+			return -1;
-+		files[digest->specfile_cnt] = NULL;
-+		digest->specfile_list = files;
-+		digest->specfile_capacity = capacity;
-+	}
-+	name = strdup(path);
-+	if (!name)
-+		return -1;
++$(USER_JOIN_TEST): regression/test_user_join_transaction.c ../src/libsemanage.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
  
--	tmp_buf = realloc(digest->hashbuf, digest->hashbuf_size);
--	if (!tmp_buf)
-+	/* Avoid realloc(ptr, 0), which can free ptr while returning NULL. */
-+	tmp_buf = realloc(digest->hashbuf, new_size ? new_size : 1);
-+	if (!tmp_buf) {
-+		free(name);
- 		return -1;
-+	}
+ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
+ 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+@@ -21,8 +25,8 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
+ 	../../secilc/secilc $*.cil -o $*.policy -f /dev/null
  
- 	digest->hashbuf = tmp_buf;
+ clean distclean:
+-	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE)
++	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST)
  
- 	if (fp) {
- 		if (fseek(fp, 0L, SEEK_SET) == -1)
--			return -1;
-+			goto err;
- 
--		if (fread(digest->hashbuf + (digest->hashbuf_size - buf_len), 1,
--			  buf_len, fp) != buf_len)
--			return -1;
-+		if (fread(digest->hashbuf + digest->hashbuf_size, 1, buf_len,
-+			  fp) != buf_len)
-+			goto err;
- 
- 	} else if (from_addr)
--		memcpy(digest->hashbuf + (digest->hashbuf_size - buf_len),
--		       from_addr, buf_len);
+ test: all
+ 	./$(EXECUTABLE)
 -
--	/* Now add path to list */
--	if (digest->specfile_cnt >= DIGEST_FILES_MAX) {
--		errno = EOVERFLOW;
--		return -1;
--	}
--	digest->specfile_list[digest->specfile_cnt] = strdup(path);
--	if (!digest->specfile_list[digest->specfile_cnt])
--		return -1;
-+		memcpy(digest->hashbuf + digest->hashbuf_size, from_addr,
-+		       buf_len);
- 
--	digest->specfile_cnt++;
-+	/* Publish together so a failed addition can be retried or cleaned up. */
-+	digest->hashbuf_size = new_size;
-+	digest->specfile_list[digest->specfile_cnt++] = name;
-+	digest->specfile_list[digest->specfile_cnt] = NULL;
- 	return 0;
-+err:
-+	free(name);
-+	return -1;
- }
-diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index 1cf58a45..51d18f6d 100644
---- a/libselinux/tests/.gitignore
-+++ b/libselinux/tests/.gitignore
-@@ -7,4 +7,5 @@ test-restorecon-digest
- /test-label-merge
- /test-substitution-hash
- /test-substitution-restorecon
--/test-readable-fallback
-\ No newline at end of file
-+/test-readable-fallback
-+/test-digest-inputs
-\ No newline at end of file
-diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index 1f010c4f..cdc395b7 100644
---- a/libselinux/tests/Makefile
-+++ b/libselinux/tests/Makefile
-@@ -1,6 +1,6 @@
- PCRE_LDLIBS ?= -lpcre2-8
- CFLAGS ?= -O2 -g -Wall -Wextra -Werror
--override CFLAGS += -I../include -pthread
-+override CFLAGS += -I../include -I../src -pthread
- INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
- XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
- EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
-@@ -20,7 +20,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
- 
- .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
- 	./test-restorecon-digest
- 	./test-restorecon-errors
- 	./test-restorecon-errno
-@@ -31,9 +31,10 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-substitution-hash
- 	./test-substitution-restorecon
- 	LD_LIBRARY_PATH=../src ./test-readable-fallback ../utils/sefcontext_compile
-+	./test-digest-inputs
- 
- clean:
--	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
-+	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
- 
- test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-@@ -51,3 +52,6 @@ test-substitution-restorecon: test_substitution_restorecon.c ../src/libselinux.a
- 
- test-readable-fallback: test_readable_fallback.c ../src/selinux_config.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ test_readable_fallback.c ../src/libselinux.a $(PCRE_LDLIBS) -pthread
-+
-+test-digest-inputs: test_digest_inputs.c ../src/libselinux.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=realloc,--wrap=strdup $(PCRE_LDLIBS) -pthread
-diff --git a/libselinux/tests/test_digest_inputs.c b/libselinux/tests/test_digest_inputs.c
++	./$(USER_JOIN_TEST)
+diff --git a/libsemanage/tests/regression/test_user_join_transaction.c b/libsemanage/tests/regression/test_user_join_transaction.c
 new file mode 100644
-index 00000000..ba0fcef5
+index 00000000..cf96b7db
 --- /dev/null
-+++ b/libselinux/tests/test_digest_inputs.c
-@@ -0,0 +1,134 @@
-+/* SPDX-License-Identifier: CC0-1.0 */
++++ b/libsemanage/tests/regression/test_user_join_transaction.c
+@@ -0,0 +1,164 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
 +#define _GNU_SOURCE
 +#undef NDEBUG
 +#include <assert.h>
-+#include <errno.h>
++#include <libgen.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
++#include <sys/wait.h>
 +#include <unistd.h>
-+#include "label_internal.h"
++#include <selinux/selinux.h>
++#include <semanage/semanage.h>
 +
-+static int fail_at, allocations;
-+void *__real_realloc(void *, size_t);
-+char *__real_strdup(const char *);
-+void *__wrap_realloc(void *p, size_t n);
-+char *__wrap_strdup(const char *p);
++#include "handle.h"
++#include "semanage_store.h"
 +
-+static bool fail(void)
++static void write_file(semanage_handle_t *sh, const char *path,
++		       const char *data)
 +{
-+	if (fail_at && ++allocations == fail_at) {
-+		errno = ENOMEM;
-+		return true;
++	char *parent = strdup(path);
++	FILE *fp;
++
++	assert(parent);
++	assert(semanage_mkpath(sh, dirname(parent)) == 0);
++	free(parent);
++	fp = fopen(path, "w");
++	assert(fp);
++	assert(fputs(data, fp) >= 0);
++	assert(fclose(fp) == 0);
++}
++
++static void set_program(external_prog_t *prog)
++{
++	assert(prog);
++	free(prog->path);
++	free(prog->args);
++	prog->path = strdup("/bin/true");
++	prog->args = strdup("");
++	assert(prog->path && prog->args);
++}
++
++static void check_user(semanage_handle_t *sh, semanage_user_key_t *key,
++		       const char *prefix)
++{
++	semanage_user_t *user = NULL;
++	unsigned int count;
++	int exists;
++
++	assert(semanage_user_exists_local(sh, key, &exists) >= 0);
++	assert(exists == (prefix != NULL));
++	assert(semanage_user_count_local(sh, &count) >= 0);
++	assert(count == (prefix ? 1U : 0U));
++	if (prefix) {
++		assert(semanage_user_query_local(sh, key, &user) >= 0);
++		assert(strcmp(semanage_user_get_prefix(user), prefix) == 0);
++		assert(semanage_user_has_role(user, "test_r"));
++		semanage_user_free(user);
 +	}
-+	return false;
-+}
-+void *__wrap_realloc(void *p, size_t n)
-+{
-+	return fail() ? NULL : __real_realloc(p, n);
-+}
-+char *__wrap_strdup(const char *p)
-+{
-+	return fail() ? NULL : __real_strdup(p);
 +}
 +
-+static void destroy(struct selabel_digest *d)
++static void run_case(int ro, int warm, int operation)
 +{
-+	for (size_t i = 0; i < d->specfile_cnt; i++)
-+		free(d->specfile_list[i]);
-+	free(d->specfile_list);
-+	free(d->hashbuf);
++	char root[] = "/tmp/semanage-user-join-XXXXXX";
++	semanage_handle_t *sh;
++	semanage_user_t *user = NULL;
++	semanage_user_key_t *key = NULL;
++	const char *expected = operation == 2 ? NULL : "updated";
++	const char *path;
++	int serial;
++
++	assert(mkdtemp(root));
++	assert(semanage_set_root(root) == 0);
++	sh = semanage_handle_create_with_path("/dev/null");
++	assert(sh);
++	semanage_select_store(sh, "store", SEMANAGE_CON_DIRECT);
++	semanage_set_store_root(sh, "/store");
++	semanage_set_create_store(sh, 1);
++	semanage_set_reload(sh, 0);
++	sh->conf->relabel_store = 0;
++	sh->conf->disable_genhomedircon = 1;
++	sh->do_check_contexts = 0;
++	set_program(sh->conf->sefcontext_compile);
++	set_program(sh->conf->setfiles);
++	if (ro) {
++		assert(sh->conf->n_ro_store_roots == 0);
++		sh->conf->ro_store_root_paths = calloc(1, sizeof(char *));
++		assert(sh->conf->ro_store_root_paths);
++		sh->conf->ro_store_root_paths[0] = strdup("/vendor");
++		assert(sh->conf->ro_store_root_paths[0]);
++		sh->conf->n_ro_store_roots = 1;
++	}
++	assert(semanage_connect(sh) == 0);
++	assert(selinux_set_policy_root(semanage_final_path(
++		       SEMANAGE_FINAL_SELINUX, SEMANAGE_FINAL_TOPLEVEL)) == 0);
++	assert(semanage_module_install_file(sh, "regression/user_join.cil") >=
++	       0);
++	assert(semanage_commit(sh) >= 0);
++	assert(semanage_disconnect(sh) == 0);
++
++	/* Seed either vendor or writable records; operation 0 tests addition. */
++	if (operation != 0) {
++		path = ro ? semanage_ro_active_path(0,
++						    SEMANAGE_USERS_BASE_LOCAL) :
++			    semanage_path(SEMANAGE_ACTIVE,
++					  SEMANAGE_USERS_BASE_LOCAL);
++		write_file(
++			sh, path,
++			"user first_u roles { test_r } level s0 range s0;\n");
++		path = ro ? semanage_ro_active_path(
++				    0, SEMANAGE_USERS_EXTRA_LOCAL) :
++			    semanage_path(SEMANAGE_ACTIVE,
++					  SEMANAGE_USERS_EXTRA_LOCAL);
++		write_file(sh, path, "user first_u prefix original;\n");
++	}
++	assert(semanage_connect(sh) == 0);
++	assert(semanage_user_key_create(sh, "first_u", &key) == 0);
++	if (warm)
++		check_user(sh, key, operation ? "original" : NULL);
++	serial = semanage_direct_get_serial(sh);
++	assert(serial >= 0);
++	assert(semanage_begin_transaction(sh) == 0);
++	assert(semanage_direct_get_serial(sh) == serial);
++	if (operation == 2) {
++		assert(semanage_user_del_local(sh, key) >= 0);
++	} else {
++		assert(semanage_user_query(sh, key, &user) >= 0);
++		assert(semanage_user_set_prefix(sh, user, expected) == 0);
++		assert(semanage_user_modify_local(sh, key, user) >= 0);
++		semanage_user_free(user);
++	}
++	assert(semanage_commit(sh) >= 0);
++	assert(semanage_disconnect(sh) == 0);
++	assert(semanage_connect(sh) == 0);
++	check_user(sh, key, expected);
++	semanage_user_key_free(key);
++	assert(semanage_disconnect(sh) == 0);
++	semanage_handle_destroy(sh);
++	assert(semanage_remove_directory(root) == 0);
 +}
 +
++/* Store paths are process-global. Each case runs without touching host policy. */
 +int main(void)
 +{
-+	unsigned cases = 0;
-+	for (int failure = 1; failure <= 3; failure++) {
-+		struct selabel_digest d = { 0 };
-+		for (unsigned i = 0; i < 8; i++)
-+			assert(digest_add_specfile(&d, NULL, "a", 1, "first") ==
-+			       0);
-+		fail_at = failure;
-+		allocations = 0;
-+		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == -1);
-+		assert(errno == ENOMEM && d.specfile_cnt == 8 &&
-+		       d.hashbuf_size == 8);
-+		assert(d.specfile_list[8] == NULL &&
-+		       !memcmp(d.hashbuf, "aaaaaaaa", 8));
-+		fail_at = 0;
-+		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == 0);
-+		assert(d.specfile_cnt == 9 && d.hashbuf_size == 9 &&
-+		       d.specfile_list[9] == NULL);
-+		destroy(&d);
-+		cases++;
-+	}
-+	struct selabel_digest d = { 0 };
-+	assert(digest_add_specfile(&d, NULL, "", 0, "empty") == 0);
-+	FILE *fp = tmpfile();
-+	assert(fp);
-+	assert(digest_add_specfile(&d, fp, NULL, 1, "short") == -1);
-+	assert(d.specfile_cnt == 1 && d.hashbuf_size == 0 &&
-+	       d.specfile_list[1] == NULL);
-+	assert(fclose(fp) == 0);
-+	assert(digest_add_specfile(&d, NULL, "x", 1, "retry") == 0);
-+	destroy(&d);
-+	cases++;
++	int ro, warm, operation, status;
++	pid_t pid;
 +
-+	const unsigned counts[] = { 1, 4, 5, 8, 9, 16, 32, 253 };
-+	for (unsigned extras = 0; extras < 2; extras++) {
-+		char path[] = "/tmp/selabel-many-XXXXXX", aux[128];
-+		int fd = mkstemp(path);
-+		assert(fd >= 0);
-+		fp = fdopen(fd, "w");
-+		assert(fp &&
-+		       fputs("/probe system_u:object_r:test_t:s0\n", fp) >= 0);
-+		assert(fclose(fp) == 0);
-+		const char *suffixes[] = { ".subs", ".subs_dist", ".homedirs",
-+					   ".local" };
-+		if (extras) {
-+			for (unsigned i = 0; i < 4; i++) {
-+				snprintf(aux, sizeof(aux), "%s%s", path,
-+					 suffixes[i]);
-+				fp = fopen(aux, "w");
-+				assert(fp);
-+				assert(fputs(i < 2 ? "/other /elsewhere\n" :
-+						     "/extra system_u:object_r:extra_t:s0\n",
-+					     fp) >= 0);
-+				assert(fclose(fp) == 0);
++	for (ro = 0; ro < 2; ro++) {
++		for (warm = 0; warm < 2; warm++) {
++			for (operation = 0; operation < 3; operation++) {
++				pid = fork();
++				assert(pid >= 0);
++				if (pid == 0) {
++					run_case(ro, warm, operation);
++					_exit(0);
++				}
++				assert(waitpid(pid, &status, 0) == pid);
++				assert(WIFEXITED(status) &&
++				       WEXITSTATUS(status) == 0);
 +			}
 +		}
-+		for (unsigned c = 0; c < sizeof(counts) / sizeof(counts[0]);
-+		     c++) {
-+			struct selinux_opt opts[254];
-+			unsigned n = counts[c];
-+			for (unsigned i = 0; i < n; i++)
-+				opts[i] =
-+					(struct selinux_opt){ SELABEL_OPT_PATH,
-+							      path };
-+			opts[n] =
-+				(struct selinux_opt){ SELABEL_OPT_DIGEST, "1" };
-+			struct selabel_handle *h =
-+				selabel_open(SELABEL_CTX_FILE, opts, n + 1);
-+			assert(h);
-+			unsigned char *hash;
-+			char **files, *context = NULL;
-+			size_t len, num;
-+			assert(selabel_digest(h, &hash, &len, &files, &num) ==
-+			       0);
-+			assert(len == 20 && num == n + 4 * extras &&
-+			       files[num] == NULL);
-+			assert(selabel_lookup_raw(h, &context, "/probe", 0) ==
-+			       0);
-+			freecon(context);
-+			selabel_close(h);
-+			cases++;
-+		}
-+		for (unsigned i = 0; extras && i < 4; i++) {
-+			snprintf(aux, sizeof(aux), "%s%s", path, suffixes[i]);
-+			assert(unlink(aux) == 0);
-+		}
-+		assert(unlink(path) == 0);
 +	}
-+	printf("Dynamic digest inputs: %u cases passed.\n", cases);
++	puts("User JOIN transaction tests passed.");
 +	return 0;
 +}
+diff --git a/libsemanage/tests/regression/user_join.cil b/libsemanage/tests/regression/user_join.cil
+new file mode 100644
+index 00000000..74850af8
+--- /dev/null
++++ b/libsemanage/tests/regression/user_join.cil
+@@ -0,0 +1,18 @@
++(handleunknown allow)
++(mls true)
++(sid security)
++(sidorder (security))
++(sensitivity s0)
++(sensitivityorder (s0))
++(user first_u)
++(role object_r)
++(role test_r)
++(type test_t)
++(userrole first_u test_r)
++(userlevel first_u (s0))
++(userrange first_u ((s0) (s0)))
++(roletype test_r test_t)
++(sidcontext security (first_u object_r test_t ((s0) (s0))))
++(class test_class (test_perm))
++(classorder (test_class))
++(allow test_t self (test_class (test_perm)))
 -- 
 2.56.0
 
