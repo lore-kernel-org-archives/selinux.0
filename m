@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793388547;
-	b=IEcbFAaCHHZMdUr3ijZYfuNHSBGSGbE6HGudD0pADRwJGsCU+nYaZlBpKIluYGCZdRv8
-	 5xpz8SjzqoMx886erIJNckxnXZ1tMYOKc0o/dObTapmMqnonEbN2d5NPH0U6+zPXJSOAi
-	 t4GZF9IkfKf+moEy//WKZm/pnaaJLTO6riFQsAjjbrcQGW6gY9lhlxtJ88k7qgwdfDdTZ
-	 C7bjpJDT3UxLpb1dZ92rp1f6noFICNEudmRuwlNPo1EJC6Ov2OLCIvmdriKwkzRkGNKg9
-	 RlHxMtKgB20EwqgCvfTFsxj/Mrh3LURV3z7VEt20uigYOXBKnNBAVFbC3r8gIM0meNg==
+	t=1793388548;
+	b=AgfxfrchT0jhq+Yr9pwbWRW2ypPROOuv+PF3UFQp1Dslx9ZCiaTdkxZ6GlwbPPJGKptc
+	 XQGpXV+v1nbGXTaI6YOLn1MP7JuxeVasdEQL+Zxh5ZQGi2gRTb9c9UmIxF2UMHysWINGg
+	 myH7E7UuPk3Dm9/AZAnTr2Cn9ErKe0D1KF6FsvBgui+YcYQ+3PV2S3q3LBN5so6EeVgsH
+	 3fubb07L3HwZiTQR0ogvUeu9cDVKRH7rYivmDkJ0UBCW5szUc1QgA7jYQAi95LMATeN3z
+	 tltYO8hwwobxqVxyNvpXK4c2L2kIViS6+JlvBamMLaJ8yj3kGreNxBqH/E1TSJsoGoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793388547;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793388548;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=090mrxbGlCp5OLW9NA9RE2+cjdS2t9j5tow9k66y1DI=;
-	b=OIQv9EH0h9FXF0hVgZVK5elErAFqcwGuCOpzTDwOEY1Rh1tYsD2HACZpfKdvJJP/kKOV
-	 QlYLZzXRxmd3oDvMOL51erMbC8St62gpQiQA0Ng0sTYrLoYgcxNmzMu7GmqWqK/kLbP1n
-	 mWSXYdbME02rjjN3w9Jc4g41ommVjI3vLfwUgmgkmmM+OvcEowifXfnJIgnYSrbUQftY7
-	 YWwU6Ix6e9bgJMjh8dbhVDaIqFTKP8YXp78QgsImLU+dFv+rOiASRpGtj5bedG3qUoVXb
-	 2hQirOXVuEAd/72/EOz4ME6PkEoLfei8i8CQfotvMJfu7iKI/3tHFQwPCxC6l3vVLAw==
+	bh=pV5RXkNGHjVKzlzIO7jBYNA2MYgGWIQkal3qXz1xVkE=;
+	b=VzaZeC2U0Fdy+Ax5u57wC+ri4hN5vqjJwE07YIJiwF9Jl1Wzshi74kHhX38Y2sqoXKX8
+	 kU6EFzIfhdu+bJsiEfuV5ixO7ZWnY7e/ASN38/UZ/ikZuVXyAD6t4I7MFFIiXAEyQCW5o
+	 dbWW1MJn1K7qp5xNdg5ZoXWcV/Qm+FkJlFL/y6mBICfNkYf7IygdHDOC5f992C3Gfoj22
+	 T0qsEY3LmJgSxTf6wtli3CLWTLF4XOypXWO6q6ip471hkqGZFS5wH8NEuHm5dp3A425SE
+	 PFvb65J040wsoqHJk15LBThF7sE8YgNenwZSsSm0snvoR4DiQi+X4SSCrEM7sPY4AtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tSXD172d;
-	arc=none smtp.remote-ip=209.85.160.179
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OzhJj06S;
+	arc=none smtp.remote-ip=209.85.160.170
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65193606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D054C606A324
 	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:29:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65193606A321
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D054C606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tSXD172d
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-53665358476so11977121cf.2
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OzhJj06S
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-53634b8328eso9576231cf.0
         for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:29:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793388546; x=1793993346; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793388547; x=1793993347; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=090mrxbGlCp5OLW9NA9RE2+cjdS2t9j5tow9k66y1DI=;
-        b=tSXD172dlGNNnC7VD5f97BeVJHa84B4/i0jHF8zjE63u/8RfPqeUQTXv8pnIv9dUy5
-         dtFdNu42vAeCc/pmbFw3y9gjTLtHXJxxSuTRhCHCKHp/8stEa8EzJMAx1zxhPYXWsX8j
-         J5+oQoZsNenZtux5D6ZSSdYWsgadUsyh8PpMkRkCvNWKem1Wd1AL00NdyKYUaPXnISwf
-         p4m+0ACURNc3VcxzmeoIEA3JgmDRifKfRJYr/Hl4Nh3z0SAgIffH2aiCqgEKpc2GhwT5
-         yoV1mcSIEpL9qu3HRIHQruz3MFC2WL0Sj9TFmLl8yGztAsMW/dx1EzVATtdbCjeJiDjL
-         rRTA==
+        bh=pV5RXkNGHjVKzlzIO7jBYNA2MYgGWIQkal3qXz1xVkE=;
+        b=OzhJj06SdwmcTn3VPIIIu8G6sxue/5NjdGM2T0bZVc2PXMQBSLEM87lcopYtA2mpvq
+         +SzVjiFDLRd0e4Zt6y36LkE19e8rFIgRy5gpkd4qvMg2LedoNNiqpxmzDPGvI/+QpQZ5
+         OfPuJA2XPqpjMaDYi499mOSngFminHbdUf63xu11cx5ugAWd/FpnhK+uZu2ydICZBhnF
+         aiU/EPcEgoFRV+TwH5kM4XKEyVFgdmHw6NbYbJiEr/Yfz5wsgLU1O6kBB4zQcfAM0kSo
+         ixRvIDJnspsQJc+HTFj5b09xzUrAIYJoYTLqo4MUCLN1pJNVwEKEvdLjUF4wFKE7gb3O
+         YYFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793388546; x=1793993346;
+        d=1e100.net; s=20260707; t=1793388547; x=1793993347;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=090mrxbGlCp5OLW9NA9RE2+cjdS2t9j5tow9k66y1DI=;
-        b=q93xQjUXZEyfLPsEPRXxvQ8HlmEoLrFqoY9Z2xuoXkOJ1l8XtDLHRxGUFx72QhhYwD
-         7aYekBR+wUC4Luw5ckxh0Z0MsEAnvRZue8utLNWZgmrJu0iOAEKyu1TqKSWGhtTuo3lJ
-         P2fP6pdB2lEuGQBO5Xgpwewv1wSM1W4PdPSCd8pMj31OndW/v+FkKI5LmDjSXYW5yfH6
-         XSjTskkl8NY2AlcGKRlO+Bpq4qd+0dBL5gRigbYEpQcwJu4vnftPp/embWtb9CbegTXJ
-         bAKKAFRVStnMlXd1Hyt6ANot4xuUQ6tcdQ4m7LhhkFBJ44+KjOGQYh+n+zsO/9w4SFhH
-         DVGg==
-X-Gm-Message-State: AFq9FYLZk8hwzqI/r9AOyxS4GiUyHt326e4J40UYQYgNqWmbHTZbHPW2
-	e8wByq3V+abeo/BxaC3khk9US3AZlDmfyH3o78XxQJUKUbQCHHSBIkBl/o8d0Pmv
-X-Gm-Gg: AYBFou1Psd/DaZjlL6Yl5MoovZsXHuBwTrVOhsh0x+2mSRdgZSFxAi0PjEj/pXyLTS+
-	2QR4IdA6N9n/Du1OJGp55O7XOlE8tgtyesO4O4bMTturdC/wTXwwgsC9UM0/BWxwdh6nASkNg5x
-	KPUCA9hwfNuAY64uNMWjY68lXpeW9VkSTw2lq1Db30eMUQPuiLDvTvBgYABFKgVzBjc/Ovm+BmL
-	t5TqJ5PaYeP+UyP1/lYH2EBFWkbNBB2m8UYC9oozvk7Q1N1mP1M6i+l22fgbgXv547QnoY1Qtgr
-	BYbML4xWK3mhaP7qETN/5gB5qmWOB2LyfEqOoCPCcXj0AyC6Ox2F8AD60mnO2S6od5jPd0yzEOl
-	Gb/i21hpvQ2KWeBYV7XdubEELKR7zsJwFJHcDBzOG01hZln4wfw5yTKXEvfoTBdOV8qdbKxUXxQ
-	GvHCzUPODVH6XP498FlJWENzMmsO5AQwvnv5/CMogm37Rgc0tLMO3ijpS4K6kbllCsabt7aUhJt
-	VrVKlW6KzOwZZUd+H5Tvwg3SoqS4cRfNt+w1bGWItkGE1JOLlISkIOwCz9aovVOXKBIIbKEyt1J
-	S8pw7ZnBKDI6JgJPjZA6NosIf8KVdRetB9rj7j7jbc52IyTuuPVJxgD7JWr5GNGuoC0nmSiUotN
-	3gd/VqD80QlM5dtxa20ZGb7frBDF0kl+D4r5g/IEIAO1M3DNIDKede1O/h4vYOCqFKx9n8hgRSr
-	dqsDS/Gh7aYSbea+loGMZK4tbbKZkb7FbquIywecwu01Q+92BAYvRisKUnD9fukU0UImdB1ZWR
-X-Received: by 2002:ac8:5dd3:0:b0:536:48df:345a with SMTP id d75a77b69052e-542b6d612e7mr52272001cf.32.1793388545976;
-        Fri, 30 Oct 2026 12:29:05 -0700 (PDT)
+        bh=pV5RXkNGHjVKzlzIO7jBYNA2MYgGWIQkal3qXz1xVkE=;
+        b=qWbI9w7R1fLZOMb5n6Q9Hqh5bDB5B9UyGuvqgVYu0pQ8Rj8DFw43a6l4THxfFO1TP1
+         eLMHE427mUWe3+njg4CNixsNzhKndGm7NWdQYAaZwTXD/8ewGtbT/VJE5/a4vY8t+X7t
+         SJ7W7VpOpNPvwtkaBb4gAvdg19DY9G5nvrjoMqI4KTyG6JRClrgRNemYaSWvth7MqjX6
+         hmLI6hmYJWClPcuXoyBAqUMpwNKTlWTutGuodrAV1+y7ttjWSCxeKBN4f5QUu7MtpWZm
+         5tYdUTdXLKPnb2AylZt1/NcRlWtIl74QO86bP6DYyR8MAA4IqtWiIc/9K0NsECcEHH+v
+         B1Jw==
+X-Gm-Message-State: AFq9FYK5xRyCVTm5P3wTiJ2ZX33u/T3XXLsAydu+Mc9lweG63WpwwalY
+	aXcrxDwNtMQGxoFDu8SEYF6wNHqUESGsssSmWsuskaX1caDFSxfftHBi4s4AyGYW
+X-Gm-Gg: AYBFou3j6CONGSTUc+c2aKSQjKxLUyj+dT1GyimwiU28e9bOXQfpINrdRCubhuwwCxn
+	86qsjNVN7RvFJrza5Sv3UCkc2Lc76e7oM7IgSqerbwZDnBJUiAHnVvfPfpEjPH9R8qU3sB89XNl
+	KoqM7btyt+nvqR4iEJ98j7z1xSdWKSw+MbVBYsq03SGE4MEjiHya5s2lxZA0p0gHZrQCzY0GlSQ
+	pWVYasJednAocegKwLpW5V52jlQ2IlmrrutsN6O4Rt1PKa+6m+Q54WqA7q4KoKwtVQbFqaxHRbF
+	zgH4nz3sjEu4jBttIxIH7l3v4wSWX5HveGWoWLxQJaggBSP+m8Z+tFXwFobweNFo3ib/rSyEwv3
+	vdd/jx9oiWNvvySEFRpBtTAeoX26gzIyUnQrF2ztoUts64lnhjB4PUo2Y81x7L6188Yl4NY+Yq4
+	QqwiEBmQUTkXIRfKra555oTSp2nryMnfQ+WNC8Te5cSmHNPhv3nJNfr/hEMrNJg5/AtcBTk4E8a
+	iaHcKUhXTDqh3zJHWhRD8aF9tRLVA0MKo0o5CKsnNegD4qTUPeDs9z/7o8byvaxbGgsp++2Hg0e
+	auGibp1QhRLftgqJK5Y1p7ltmklulrh7fHxRh5XaUtdLlKzByP4Zxcp03oysPvWnoGOw/fJYGa1
+	4s0fHbKaSIftnhe1pB3wQFsvxKlRXs9ts9dLz59eb3CnBUcALpJ2W7+ORvDTy4SC+bmsiaCVgPO
+	4qAWKvjO2wK/ms/G4rOnmGgV4+fDU+eE7hG/TTjrtvuAj9OyaW3+w=
+X-Received: by 2002:a05:622a:48e:b0:533:7a4c:d8ec with SMTP id d75a77b69052e-542b7916ac8mr56741271cf.43.1793388546649;
+        Fri, 30 Oct 2026 12:29:06 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.05
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 12:29:05 -0700 (PDT)
+        Fri, 30 Oct 2026 12:29:06 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 05/11] libsemanage: reset handle state after transaction and disconnect errors
-Date: Fri, 30 Oct 2026 15:28:42 -0400
-Message-ID: <20261030192849.151830-5-stephen.smalley.work@gmail.com>
+Subject: [PATCH 06/11] libsemanage: preserve caches when serial lookup fails
+Date: Fri, 30 Oct 2026 15:28:43 -0400
+Message-ID: <20261030192849.151830-6-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
 References: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
@@ -106,292 +106,596 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A failed commit ends the transaction but can leave modified database
-caches at the active store serial. Starting another transaction on the
-same handle recreates the sandbox while boolean cache markers miss the
-intervening state change, allowing stale records to carry into the new
-transaction.
+The cache resync helpers treat a failed serial lookup as a cache miss.
+The linked-list backends then reset their cache pointers without freeing
+the old records, while the policydb backend can overwrite its old
+policy. If a subsequent serial lookup succeeds, the operation reports
+success after reloading the backing data and can silently discard
+pending edits.
 
-Drop cached database views after each completed backend commit attempt,
-after policy databases have been detached, and preserve the backend
-return value and errno.
+Return an error from both resync helpers and propagate it directly from
+the file, join, active, and policydb cache methods before resetting or
+dropping an existing cache. Keep actual serial-change invalidation and
+attached-policy handling unchanged.
 
-The direct disconnect backend also releases database objects when
-temporary-file cleanup fails. Clear the public connection flags and
-database configurations even in that case, retaining the cleanup error
-while making repeated disconnect harmless. Document this behavior.
-
-Add lifecycle regression coverage for failed and successful commits,
-immediate transaction restart, failed and successful disconnects,
-repeated disconnect, and error preservation.
+Add regression coverage for clean and dirty caches, transient and
+persistent serial errors, cold-cache recovery, same-serial retries,
+changed-serial reloads, allocation cleanup, and attached-policy
+ownership across all four backends.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/include/semanage/handle.h         |   3 +-
- libsemanage/src/handle.c                      |  22 ++-
- libsemanage/tests/.gitignore                  |   1 +
- libsemanage/tests/Makefile                    |   9 +-
- .../tests/regression/test_handle_lifecycle.c  | 135 ++++++++++++++++++
- 5 files changed, 162 insertions(+), 8 deletions(-)
- create mode 100644 libsemanage/tests/regression/test_handle_lifecycle.c
+ libsemanage/src/database_activedb.c           |   6 +-
+ libsemanage/src/database_file.c               |   6 +-
+ libsemanage/src/database_join.c               |   6 +-
+ libsemanage/src/database_llist.c              |   6 +-
+ libsemanage/src/database_llist.h              |   1 +
+ libsemanage/src/database_policydb.c           |  12 +-
+ libsemanage/tests/.gitignore                  |   4 +
+ libsemanage/tests/Makefile                    |  17 +-
+ .../regression/test_cache_serial_error.c      | 365 ++++++++++++++++++
+ 9 files changed, 409 insertions(+), 14 deletions(-)
+ create mode 100644 libsemanage/tests/regression/test_cache_serial_error.c
 
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index d699f615..b79abb8a 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -126,7 +126,8 @@ extern int semanage_connect(semanage_handle_t *);
- /* Disconnect from the manager given by the handle.  If already
-  * disconnected then this function does nothing.  Return 0 if
-  * disconnected properly or already disconnected, negative value on
-- * error. */
-+ * error.  The handle is disconnected even if temporary-file cleanup
-+ * fails; a repeated disconnect is harmless. */
- extern int semanage_disconnect(semanage_handle_t *);
+diff --git a/libsemanage/src/database_activedb.c b/libsemanage/src/database_activedb.c
+index 57ce4d85..a51db2cf 100644
+--- a/libsemanage/src/database_activedb.c
++++ b/libsemanage/src/database_activedb.c
+@@ -37,10 +37,12 @@ static int dbase_activedb_cache(semanage_handle_t *handle,
+ 	record_t **records = NULL;
+ 	unsigned int rcount = 0;
+ 	unsigned int i = 0;
++	int resync;
  
- /* Attempt to obtain a transaction lock on the manager.	 If another
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index 1ff86e60..3013034a 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -353,17 +353,20 @@ int semanage_access_check(semanage_handle_t *sh)
+ 	/* Already cached */
+-	if (!dbase_llist_needs_resync(handle, &dbase->llist))
+-		return STATUS_SUCCESS;
++	resync = dbase_llist_needs_resync(handle, &dbase->llist);
++	if (resync <= 0)
++		return resync;
  
- int semanage_disconnect(semanage_handle_t *sh)
- {
-+	int retval = 0;
-+
- 	assert(sh != NULL);
- 	if (!sh->is_connected) {
- 		return 0;
- 	}
--	if (sh->funcs && sh->funcs->disconnect(sh) < 0) {
--		return -1;
--	}
-+	if (sh->funcs)
-+		retval = sh->funcs->disconnect(sh);
-+	/* The backend releases its databases even when disk cleanup fails. */
-+	memset(sh->dbase, 0, sizeof(sh->dbase));
- 	sh->is_in_transaction = 0;
- 	sh->is_connected = 0;
- 	sh->modules_modified = 0;
--	return 0;
-+	return retval;
- }
+ 	/* Update cache serial */
+ 	dbase_llist_cache_init(&dbase->llist);
+diff --git a/libsemanage/src/database_file.c b/libsemanage/src/database_file.c
+index b57bbb2c..e67e0b02 100644
+--- a/libsemanage/src/database_file.c
++++ b/libsemanage/src/database_file.c
+@@ -46,6 +46,7 @@ static int dbase_file_cache(semanage_handle_t *handle, dbase_file_t *dbase)
  
- void semanage_handle_destroy(semanage_handle_t *sh)
-@@ -400,7 +403,7 @@ int semanage_begin_transaction(semanage_handle_t *sh)
+ 	record_t *process_record = NULL;
+ 	int pstatus = STATUS_SUCCESS;
++	int resync;
  
- int semanage_commit(semanage_handle_t *sh)
- {
--	int retval;
-+	int retval, errsv, i;
- 	assert(sh != NULL && sh->funcs != NULL && sh->funcs->commit != NULL);
- 	if (!sh->is_in_transaction) {
- 		ERR(sh,
-@@ -408,7 +411,16 @@ int semanage_commit(semanage_handle_t *sh)
- 		return -1;
- 	}
- 	retval = sh->funcs->commit(sh);
-+	errsv = errno;
-+	/* A completed attempt ends this transaction, including its cached views. */
-+	for (i = 0; i < DBASE_COUNT; i++) {
-+		dbase_config_t *dbase = &sh->dbase[i];
-+
-+		if (dbase->dtable && dbase->dbase)
-+			dbase->dtable->drop_cache(dbase->dbase);
+ 	parse_info_t *parse_info = NULL;
+ 	const char *fname = NULL;
+@@ -57,8 +58,9 @@ static int dbase_file_cache(semanage_handle_t *handle, dbase_file_t *dbase)
+ 	dbase->cache_in_transaction = handle->is_in_transaction;
+ 
+ 	/* Already cached */
+-	if (!dbase_llist_needs_resync(handle, &dbase->llist))
+-		return STATUS_SUCCESS;
++	resync = dbase_llist_needs_resync(handle, &dbase->llist);
++	if (resync <= 0)
++		return resync;
+ 
+ 	/* Update cache serial */
+ 	dbase_llist_cache_init(&dbase->llist);
+diff --git a/libsemanage/src/database_join.c b/libsemanage/src/database_join.c
+index d6ef6d62..2a25c330 100644
+--- a/libsemanage/src/database_join.c
++++ b/libsemanage/src/database_join.c
+@@ -51,6 +51,7 @@ static int dbase_join_cache(semanage_handle_t *handle, dbase_join_t *dbase)
+ 	record1_t **records1 = NULL;
+ 	record2_t **records2 = NULL;
+ 	unsigned int rcount1 = 0, rcount2 = 0, i = 0, j = 0;
++	int resync;
+ 
+ 	/* Synchronize child caches before mutating a join in a new transaction */
+ 	if (dbase->cache_in_transaction != handle->is_in_transaction)
+@@ -58,8 +59,9 @@ static int dbase_join_cache(semanage_handle_t *handle, dbase_join_t *dbase)
+ 	dbase->cache_in_transaction = handle->is_in_transaction;
+ 
+ 	/* Already cached */
+-	if (!dbase_llist_needs_resync(handle, &dbase->llist))
+-		return STATUS_SUCCESS;
++	resync = dbase_llist_needs_resync(handle, &dbase->llist);
++	if (resync <= 0)
++		return resync;
+ 
+ 	/* Update cache serial */
+ 	dbase_llist_cache_init(&dbase->llist);
+diff --git a/libsemanage/src/database_llist.c b/libsemanage/src/database_llist.c
+index 209e8ec1..e703f01f 100644
+--- a/libsemanage/src/database_llist.c
++++ b/libsemanage/src/database_llist.c
+@@ -21,8 +21,10 @@ int dbase_llist_needs_resync(semanage_handle_t *handle, dbase_llist_t *dbase)
+ 		return 1;
+ 
+ 	cache_serial = handle->funcs->get_serial(handle);
+-	if (cache_serial < 0)
+-		return 1;
++	if (cache_serial < 0) {
++		ERR(handle, "could not check cache serial");
++		return STATUS_ERR;
 +	}
- 	sh->is_in_transaction = 0;
- 	sh->modules_modified = 0;
-+	errno = errsv;
- 	return retval;
- }
+ 
+ 	if (cache_serial != dbase->cache_serial) {
+ 		dbase_llist_drop_cache(dbase);
+diff --git a/libsemanage/src/database_llist.h b/libsemanage/src/database_llist.h
+index 4c8b2a2f..9cf72417 100644
+--- a/libsemanage/src/database_llist.h
++++ b/libsemanage/src/database_llist.h
+@@ -52,6 +52,7 @@ extern int dbase_llist_cache_prepend(semanage_handle_t *handle,
+ 				     dbase_llist_t *dbase,
+ 				     const record_t *data);
+ 
++/* Return 1 for a cache miss, 0 for a hit, or -1 on serial lookup failure. */
+ extern int dbase_llist_needs_resync(semanage_handle_t *handle,
+ 				    dbase_llist_t *dbase);
+ 
+diff --git a/libsemanage/src/database_policydb.c b/libsemanage/src/database_policydb.c
+index f65b475c..02c4a6cc 100644
+--- a/libsemanage/src/database_policydb.c
++++ b/libsemanage/src/database_policydb.c
+@@ -71,8 +71,10 @@ static int dbase_policydb_needs_resync(semanage_handle_t *handle,
+ 		return 1;
+ 
+ 	cache_serial = handle->funcs->get_serial(handle);
+-	if (cache_serial < 0)
+-		return 1;
++	if (cache_serial < 0) {
++		ERR(handle, "could not check cache serial");
++		return STATUS_ERR;
++	}
+ 
+ 	if (cache_serial != dbase->cache_serial) {
+ 		dbase_policydb_drop_cache(dbase);
+@@ -89,13 +91,15 @@ static int dbase_policydb_cache(semanage_handle_t *handle,
+ 	sepol_policydb_t *policydb = NULL;
+ 	sepol_policy_file_t *pf = NULL;
+ 	const char *fname = NULL;
++	int resync;
+ 
+ 	/* Check if cache is needed */
+ 	if (dbase->attached)
+ 		return STATUS_SUCCESS;
+ 
+-	if (!dbase_policydb_needs_resync(handle, dbase))
+-		return STATUS_SUCCESS;
++	resync = dbase_policydb_needs_resync(handle, dbase);
++	if (resync <= 0)
++		return resync;
+ 
+ 	fname = dbase->path[handle->is_in_transaction];
+ 
 diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
-index 739a885b..1cf9527b 100644
+index 1cf9527b..b7d39810 100644
 --- a/libsemanage/tests/.gitignore
 +++ b/libsemanage/tests/.gitignore
-@@ -1,5 +1,6 @@
- libsemanage-tests
- test-user-join-transaction
-+test-handle-lifecycle
+@@ -4,4 +4,8 @@ test-handle-lifecycle
  test-parse-read-error
  test-read-lock-error
  test-user-delete-error
++test-cache-serial-file
++test-cache-serial-join
++test-cache-serial-active
++test-cache-serial-policydb
+ *.policy
 diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index e314ba52..60e48dce 100644
+index 60e48dce..2e4703ee 100644
 --- a/libsemanage/tests/Makefile
 +++ b/libsemanage/tests/Makefile
-@@ -6,6 +6,7 @@ CILS = $(sort $(wildcard *.cil))
- 
- EXECUTABLE = libsemanage-tests
+@@ -8,6 +8,7 @@ EXECUTABLE = libsemanage-tests
  USER_JOIN_TEST = test-user-join-transaction
-+LIFECYCLE_TEST = test-handle-lifecycle
+ LIFECYCLE_TEST = test-handle-lifecycle
  ERROR_TESTS = test-read-lock-error test-user-delete-error test-parse-read-error
++SERIAL_TESTS = test-cache-serial-file test-cache-serial-join test-cache-serial-active test-cache-serial-policydb
  CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
  override CFLAGS += -I../src -I../include
-@@ -14,7 +15,10 @@ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
+ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
+@@ -15,7 +16,18 @@ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
  OBJECTS = $(SOURCES:.c=.o)
  POLICIES = $(CILS:.cil=.policy)
  
--all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(ERROR_TESTS)
-+all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS)
+-all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS)
++all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS)
 +
-+$(LIFECYCLE_TEST): regression/test_handle_lifecycle.c ../src/libsemanage.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++test-cache-serial-file: SERIAL_BACKEND = FILE
++test-cache-serial-join: SERIAL_BACKEND = JOIN
++test-cache-serial-active: SERIAL_BACKEND = ACTIVE
++test-cache-serial-policydb: SERIAL_BACKEND = POLICYDB
++
++$(SERIAL_TESTS): regression/test_cache_serial_error.c ../src/database_llist.c \
++		../src/database_llist.h ../src/database_file.c \
++		../src/database_join.c ../src/database_activedb.c \
++		../src/database_policydb.c
++	$(CC) $(CFLAGS) $(LDFLAGS) -DTEST_$(SERIAL_BACKEND) -o $@ $< ../src/database_llist.c -lsepol
  
- test-read-lock-error: regression/test_read_lock_error.c ../src/database.c
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
-@@ -35,11 +39,12 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
+ $(LIFECYCLE_TEST): regression/test_handle_lifecycle.c ../src/libsemanage.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+@@ -39,7 +51,7 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
  	../../secilc/secilc $*.cil -o $*.policy -f /dev/null
  
  clean distclean:
--	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(ERROR_TESTS)
-+	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS)
+-	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS)
++	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS)
  
  test: all
  	./$(EXECUTABLE)
- 	./$(USER_JOIN_TEST)
-+	./$(LIFECYCLE_TEST)
+@@ -48,3 +60,4 @@ test: all
  	./test-parse-read-error
  	./test-read-lock-error
  	./test-user-delete-error
-diff --git a/libsemanage/tests/regression/test_handle_lifecycle.c b/libsemanage/tests/regression/test_handle_lifecycle.c
++	@for test in $(SERIAL_TESTS); do ./$$test || exit 1; done
+diff --git a/libsemanage/tests/regression/test_cache_serial_error.c b/libsemanage/tests/regression/test_cache_serial_error.c
 new file mode 100644
-index 00000000..779664ed
+index 00000000..a0bdccce
 --- /dev/null
-+++ b/libsemanage/tests/regression/test_handle_lifecycle.c
-@@ -0,0 +1,135 @@
++++ b/libsemanage/tests/regression/test_cache_serial_error.c
+@@ -0,0 +1,365 @@
 +/* SPDX-License-Identifier: LGPL-2.1-or-later */
 +#undef NDEBUG
 +#include <assert.h>
 +#include <errno.h>
 +#include <stdio.h>
 +#include <stdlib.h>
++#include <sepol/policydb.h>
 +
-+#include "handle.h"
++typedef int record_t;
++typedef int record_key_t;
++typedef int record1_t;
++typedef int record2_t;
++#define DBASE_RECORD_DEFINED
++#define DBASE_RECORD_JOIN_DEFINED
 +
-+static int commit_result;
-+static int disconnect_result;
-+static int commits;
-+static int disconnects;
-+static int drops;
-+static int begins;
-+static int backend_returned;
++static int loads;
++static int live_records;
++static int serial_calls;
++static int serial_error;
++static int serial_failures;
++static int current_serial = 7;
 +
-+static int begin(semanage_handle_t *sh)
++#if defined(TEST_POLICYDB)
++static FILE *missing_file(const char *path, const char *mode)
 +{
-+	assert(!sh->is_in_transaction);
-+	begins++;
-+	return 0;
++	(void)path;
++	(void)mode;
++	loads++;
++	errno = ENOENT;
++	return NULL;
 +}
 +
-+static int commit(semanage_handle_t *sh)
++static void free_policy(sepol_policydb_t *policy)
 +{
-+	assert(sh->is_in_transaction);
-+	commits++;
-+	backend_returned = 1;
-+	errno = commit_result < 0 ? EIO : 0;
-+	return commit_result;
++	if (policy)
++		live_records--;
++	sepol_policydb_free(policy);
 +}
 +
-+static void drop(dbase_t *db)
++static int create_policy(sepol_policydb_t **policy)
 +{
-+	assert(backend_returned);
-+	*(int *)db = 0;
-+	drops++;
-+	/* A cache destructor must not replace the commit error. */
++	int rc = sepol_policydb_create(policy);
++
++	if (rc == 0)
++		live_records++;
++	return rc;
++}
++
++#define fopen missing_file
++#define sepol_policydb_create create_policy
++#define sepol_policydb_free free_policy
++#include "../../src/database_policydb.c"
++#undef fopen
++#undef sepol_policydb_create
++#undef sepol_policydb_free
++#elif defined(TEST_FILE)
++#include "../../src/database_file.c"
++#elif defined(TEST_JOIN)
++#include "../../src/database_join.c"
++#elif defined(TEST_ACTIVE)
++#include "../../src/database_activedb.c"
++#else
++#error "Select a database backend"
++#endif
++
++static int serial(semanage_handle_t *handle)
++{
++	(void)handle;
++	serial_calls++;
++	if (serial_error && serial_failures) {
++		if (serial_failures > 0)
++			serial_failures--;
++		errno = serial_error;
++		return -1;
++	}
++	return current_serial;
++}
++
++static void message(void *arg, semanage_handle_t *handle, const char *fmt, ...)
++{
++	(void)arg;
++	(void)handle;
++	(void)fmt;
++	/* Logging must not overwrite the serial lookup error. */
 +	errno = EINVAL;
 +}
 +
-+static int disconnect(semanage_handle_t *sh)
++#if !defined(TEST_POLICYDB)
++static int create(semanage_handle_t *handle, int **record)
 +{
-+	int i;
-+
-+	assert(sh->is_connected);
-+	disconnects++;
-+	for (i = 0; i < DBASE_COUNT; i++)
-+		free(sh->dbase[i].dbase);
-+	errno = disconnect_result < 0 ? EACCES : 0;
-+	return disconnect_result;
++	(void)handle;
++	*record = malloc(sizeof(**record));
++	assert(*record);
++	live_records++;
++	return 0;
 +}
 +
-+static const dbase_table_t table = { .drop_cache = drop };
-+static const struct semanage_policy_table funcs = {
-+	.begin_trans = begin,
-+	.commit = commit,
-+	.disconnect = disconnect,
++static int clone(semanage_handle_t *handle, const int *in, int **out)
++{
++	create(handle, out);
++	**out = *in;
++	return 0;
++}
++
++static void release(int *record)
++{
++	if (record)
++		live_records--;
++	free(record);
++}
++
++static const record_table_t records = {
++	.create = create,
++	.clone = clone,
++	.free = release,
++	.key_free = release,
 +};
++#endif
 +
-+static void check_commit(int result)
++#if defined(TEST_FILE)
++static int parsed;
++
++unsigned int semanage_ro_root_count(void)
 +{
-+	semanage_handle_t sh = { .funcs = &funcs, .is_connected = 1 };
-+	int cached[DBASE_COUNT];
-+	int i;
-+
-+	commits = drops = begins = backend_returned = 0;
-+	commit_result = result;
-+	for (i = 0; i < DBASE_COUNT; i++) {
-+		cached[i] = 20;
-+		sh.dbase[i].dbase = (dbase_t *)&cached[i];
-+		sh.dbase[i].dtable = &table;
-+	}
-+	/* No transaction: do not call the backend or discard any cache. */
-+	assert(semanage_commit(&sh) < 0);
-+	assert(commits == 0 && drops == 0);
-+	assert(semanage_begin_transaction(&sh) == 0);
-+	assert(semanage_begin_transaction(&sh) == 0 && begins == 1);
-+	assert(drops == 0);
-+	sh.modules_modified = 1;
-+	assert(semanage_commit(&sh) == result);
-+	assert(errno == (result < 0 ? EIO : 0));
-+	assert(!sh.is_in_transaction && !sh.modules_modified);
-+	assert(commits == 1 && drops == DBASE_COUNT);
-+	for (i = 0; i < DBASE_COUNT; i++)
-+		assert(cached[i] == 0);
-+	/* No intervening read: a new transaction must not inherit old records. */
-+	assert(semanage_begin_transaction(&sh) == 0 && begins == 2);
-+	for (i = 0; i < DBASE_COUNT; i++)
-+		assert(cached[i] == 0);
-+	printf("commit result %d: all caches dropped, immediate restart clean\n",
-+	       result);
++	return 0;
 +}
 +
-+static void check_disconnect(int result)
++const char *semanage_path(enum semanage_store_defs store,
++			  enum semanage_sandbox_defs file)
 +{
-+	semanage_handle_t sh = {
-+		.funcs = &funcs,
-+		.is_connected = 1,
-+		.is_in_transaction = 1,
-+		.modules_modified = 1,
-+	};
-+	int i;
++	(void)store;
++	(void)file;
++	abort();
++}
 +
-+	disconnects = 0;
-+	disconnect_result = result;
-+	for (i = 0; i < DBASE_COUNT; i++) {
-+		sh.dbase[i].dbase = malloc(1);
-+		assert(sh.dbase[i].dbase);
-+		sh.dbase[i].dtable = &table;
++const char *semanage_path_read(enum semanage_store_defs store,
++			       enum semanage_sandbox_defs file)
++{
++	return semanage_path(store, file);
++}
++
++int parse_init(semanage_handle_t *handle, const char *name, void *arg,
++	       parse_info_t **info)
++{
++	(void)handle;
++	(void)name;
++	(void)arg;
++	*info = calloc(1, sizeof(**info));
++	assert(*info);
++	loads++;
++	parsed = 0;
++	return 0;
++}
++
++int parse_open(semanage_handle_t *handle, parse_info_t *info)
++{
++	(void)handle;
++	(void)info;
++	return 0;
++}
++
++void parse_close(parse_info_t *info)
++{
++	(void)info;
++}
++
++void parse_release(parse_info_t *info)
++{
++	free(info);
++}
++
++static int parse(semanage_handle_t *handle, parse_info_t *info, int *record)
++{
++	(void)handle;
++	(void)info;
++	if (parsed++)
++		return STATUS_NODATA;
++	*record = 10;
++	return 0;
++}
++#elif defined(TEST_JOIN) || defined(TEST_ACTIVE)
++static int read_list(semanage_handle_t *handle, int ***out, unsigned int *count)
++{
++	int value = 10;
++
++	*out = malloc(sizeof(**out));
++	assert(*out);
++	clone(handle, &value, &(*out)[0]);
++	*count = 1;
++	loads++;
++	return 0;
++}
++#endif
++
++#if defined(TEST_JOIN)
++static int child_cache(semanage_handle_t *handle, dbase_t *dbase)
++{
++	(void)handle;
++	(void)dbase;
++	return 0;
++}
++
++static int child_list(semanage_handle_t *handle, dbase_t *dbase, int ***out,
++		      unsigned int *count)
++{
++	if (dbase)
++		return read_list(handle, out, count);
++	*out = NULL;
++	*count = 0;
++	return 0;
++}
++
++static const record_table_t *child_records(dbase_t *dbase)
++{
++	(void)dbase;
++	return &records;
++}
++
++static int join(semanage_handle_t *handle, const int *first, const int *second,
++		int **out)
++{
++	assert(first && !second);
++	return clone(handle, first, out);
++}
++#endif
++
++static void run_case(int dirty, int error)
++{
++	struct semanage_policy_table funcs = { .get_serial = serial };
++	semanage_handle_t handle = {
++		.funcs = &funcs,
++		.is_in_transaction = 1,
++		.msg_callback = message,
++	};
++	int before, i;
++#if defined(TEST_POLICYDB)
++	dbase_policydb_t *db = NULL;
++	sepol_policydb_t *saved;
++
++	assert(dbase_policydb_init(&handle, "active", "tmp", NULL, NULL, &db) ==
++	       0);
++#define CACHE() dbase_policydb_cache(&handle, db)
++#define RELEASE() dbase_policydb_release(db)
++#define MODIFIED db->modified
++#define SERIAL db->cache_serial
++#elif defined(TEST_FILE)
++	record_file_table_t files = { .parse = parse };
++	dbase_file_t *db;
++
++	assert(dbase_file_init(&handle, "active", "tmp", &records, &files,
++			       &db) == 0);
++#define CACHE() dbase_file_cache(&handle, db)
++#define RELEASE() dbase_file_release(db)
++#elif defined(TEST_JOIN)
++	const dbase_table_t child_table = {
++		.cache = child_cache,
++		.list = child_list,
++		.get_rtable = child_records,
++	};
++	dbase_config_t first = { .dtable = &child_table };
++	dbase_config_t second = { .dtable = &child_table };
++	record_join_table_t joins = { .join = join };
++	dbase_join_t *db;
++
++	/* A non-NULL child supplies one record; the other supplies an empty list. */
++	first.dbase = (dbase_t *)&first;
++	assert(dbase_join_init(&handle, &records, &joins, &first, &second,
++			       &db) == 0);
++#define CACHE() dbase_join_cache(&handle, db)
++#define RELEASE() dbase_join_release(db)
++#elif defined(TEST_ACTIVE)
++	record_activedb_table_t active = { .read_list = read_list };
++	dbase_activedb_t *db;
++
++	assert(dbase_activedb_init(&handle, &records, &active, &db) == 0);
++#define CACHE() dbase_activedb_cache(&handle, db)
++#define RELEASE() dbase_activedb_release(db)
++#endif
++#if !defined(TEST_POLICYDB)
++	cache_entry_t *saved;
++#define MODIFIED db->llist.modified
++#define SERIAL db->llist.cache_serial
++#endif
++
++	assert(live_records == 0);
++	/* Failure during initial loading must leave an empty, retryable cache. */
++	serial_error = error;
++	serial_failures = 1;
++	assert(CACHE() == -1);
++	assert(live_records == 0 && SERIAL == -1 && MODIFIED == 0);
++	serial_error = 0;
++	assert(CACHE() == 0);
++	assert(live_records == 1);
++	MODIFIED = dirty;
++#if defined(TEST_POLICYDB)
++	saved = db->policydb;
++#else
++	saved = db->llist.cache;
++	*saved->data = dirty ? 20 : 10;
++#endif
++	before = loads;
++	serial_error = error;
++	for (i = 0; i < 2; i++) {
++		int calls = serial_calls;
++
++		/* One-shot failure first, then a failure that persists until reset. */
++		serial_failures = i ? -1 : 1;
++		assert(CACHE() == -1);
++		assert(errno == error);
++		assert(serial_calls == calls + 1);
++		assert(loads == before && live_records == 1);
++		assert(MODIFIED == dirty && SERIAL == current_serial);
++#if defined(TEST_POLICYDB)
++		assert(db->policydb == saved);
++#else
++		assert(db->llist.cache == saved);
++		assert(db->llist.cache_tail == saved &&
++		       db->llist.cache_sz == 1);
++		assert(*saved->data == (dirty ? 20 : 10));
++#endif
 +	}
-+	assert(semanage_disconnect(&sh) == result);
-+	assert(errno == (result < 0 ? EACCES : 0));
-+	assert(!semanage_is_connected(&sh));
-+	assert(!sh.is_in_transaction && !sh.modules_modified);
-+	for (i = 0; i < DBASE_COUNT; i++) {
-+		assert(!sh.dbase[i].dbase);
-+		assert(!sh.dbase[i].dtable);
-+	}
-+	assert(semanage_disconnect(&sh) == 0 && disconnects == 1);
-+	assert(semanage_begin_transaction(&sh) < 0);
-+	printf("disconnect result %d: state cleared, repeat did not free twice\n",
-+	       result);
++	serial_error = 0;
++	assert(CACHE() == 0);
++	assert(loads == before && MODIFIED == dirty && live_records == 1);
++
++	/* A real serial change must still replace and release the old cache. */
++	current_serial++;
++	assert(CACHE() == 0);
++	assert(loads == before + 1 && MODIFIED == 0 && live_records == 1);
++	assert(SERIAL == current_serial);
++#if !defined(TEST_POLICYDB)
++	assert(*db->llist.cache->data == 10);
++#else
++	/* Attached policies belong to the caller and bypass serial lookups. */
++	assert(create_policy(&saved) == 0);
++	dbase_policydb_attach(db, saved);
++	assert(live_records == 1);
++	before = serial_calls;
++	serial_error = error;
++	serial_failures = -1;
++	assert(CACHE() == 0 && serial_calls == before);
++	assert(db->policydb == saved);
++	dbase_policydb_detach(db);
++#endif
++	RELEASE();
++#if defined(TEST_POLICYDB)
++	assert(live_records == 1);
++	free_policy(saved);
++#endif
++	assert(live_records == 0);
++	printf("dirty=%d errno=%d: preserved on error, retry and resync passed\n",
++	       dirty, error);
 +}
 +
 +int main(void)
 +{
-+	check_commit(-1);
-+	check_commit(8);
-+	check_disconnect(-1);
-+	check_disconnect(0);
-+	puts("Handle lifecycle tests passed.");
++	const int errors[] = { EINTR, EIO, EMFILE };
++	size_t i;
++	int dirty;
++
++	for (dirty = 0; dirty <= 1; dirty++)
++		for (i = 0; i < sizeof(errors) / sizeof(errors[0]); i++)
++			run_case(dirty, errors[i]);
 +	return 0;
 +}
 -- 
