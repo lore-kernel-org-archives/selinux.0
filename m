@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793388010;
-	b=IsWyjxsJhm7y7F29WJTzccc7DRQ5zIssp1axMkBAs3YHIr8Ot3bcsCHoOAqEq6OHReA4
-	 ChjejP8HuUhb7J4Muo99ETqdvMouD6V3JGpkUWH9jsP3Os17tfxYQowMHjfzHLBao9ncO
-	 R4X0jq6A5DHhJ2aYid3qD7RnfMM4+VxIjNm3fNEVa2X93Slaw5HxuxCXnHVy3PPhErBma
-	 KDPqCCRiZc3E0NHRVo6LtoQpmOarBA3MhAtYwzm95Qq2/jSN/L1JLzp8IJlBQp/pJ+FbK
-	 kdru9fWFQh0w1vVns67Wp3JK10P9+9ao7rRzv8QXsI6I9jYopbdN7MFMyWj5LlVYnwA==
+	t=1793388011;
+	b=eg41d9BYpByiOm+/a7RTWAsSV4xZzXuNfsF3WfZ254UgG2TLqHh+/fy6Js9KCqhTFBl3
+	 XsKCEU7ujILBWMi3jdQGqlQpn58ScxLJ0kOFcgXX0QmBMEd6EXgKMxEeTACScKygjlX9Q
+	 sKk6fdMwyQtrL1+Qj+1yIJccYPhq1IVsmuswpHhGOlGmQb68K3IdjpiwTkINQ5GkBQLJq
+	 zrgqoG5nvfJECet3QnjWBiggUrdHnL9uGu0pOYRHs/eiVYEeSHKkTpCB9q5jajJz8+ArV
+	 olx8jZHKLCRxtYJuJPIZA+wSzpbN3PNjmPkMURL4KlwzB+qqiz+jIKx6dGZyCDMK3HQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793388010;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793388011;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=+nbgjdCOJsNzUVU9LHMMe7nBzjYcsqJYK4+v11dPsDc=;
-	b=1irCu8bbxA5JbTvKmdiokfXSrumMhTzUW4lZW+7m+ybYks2LSpFZRzrhzAzvorvWMTxI
-	 HsmUvC6WW43p3vVbhWME74/Q3oxvZpUIJAu6Q7pfp2SQ62fa3D9hLvBqymRglIHQagR5i
-	 7HCECHnOe6+udzIxOaNdcIP59gnvzjkKhzFcHYdTg1z1p1VZ4ivMPg+bCnvIiuXAY4t4z
-	 7yj9lU1rrvcL/5qT6kEdInneKGmdmMJIwh1HAIrZFvi+bpnPSlUb9mw/oIH0/PSgjSOVU
-	 FAb3pDWBDZpLGK/XNezKKKhHOg7cK5b7s7Crpf1rivz3OxuP87pn90YIFvhtHRgXEVw==
+	bh=qjsmGk7k5XmLpeIz4VZYZ6BfXqhwXBb3j3pIgVwtEc0=;
+	b=VFCv3TjiPyyLxz1ffbz7QrX2nSC+z/G9iyVMkwk/rxuNWJ9ZNHe7C6gDZ18ZQZD8QUvu
+	 gHc/ctMyl7Q1AMzYsBSDNBCwkYFp2/g0W+rl9v2w57B0XfRGNiDT/DZzjs3WQE9UG36Ys
+	 ZY2TIKxfK6TDaQamIWZFpsap+ucHMEllM12ia8BMgFgjS59+Jp04oY4Dc4K7Q50Vu5F1h
+	 KTLsHDgLx6NKc67i8w8SLbDdgajHUJsYb/6ZCIvjZenhAklbCYjghkTW0Rjx7vRmKdU2V
+	 TEdda1nO1wMNB10lKbADm9qAcTAbfN0ChTPvr9ipSBxmHm8TBX4Y2Ii4om/be7fgMYw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qnCNlloE;
-	arc=none smtp.remote-ip=209.85.160.176
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Bd0TLe3k;
+	arc=none smtp.remote-ip=209.85.219.48
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF5D606A31D
-	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:20:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1CF5D606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67FB8606A31C
+	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:20:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67FB8606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qnCNlloE
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-536717a4d83so9623271cf.2
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:20:09 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Bd0TLe3k
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-91c7a706b1fso30674986d6.1
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:20:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793388009; x=1793992809; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793388010; x=1793992810; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+nbgjdCOJsNzUVU9LHMMe7nBzjYcsqJYK4+v11dPsDc=;
-        b=qnCNlloEF0Ks/jN+77YMvnnjkii0uj7ljhv7l+IsIiapeNYXhDynjqsmG1y2LX0h0R
-         i87e3b1PSRZHzp5WqU8DhCxz+08qyQr7CIYcDAc+n9z2rv+C8fYa+8T6fqNMi/TrVXSY
-         Mkf9Yt3GamVr1YN7XNSR6VDbTgOZNxfrHIuEr1JissBlFh0S4lUKftD2zf2+0CP4kuZq
-         VFRXmXAb5xolqHr4tkcYVEI2iTmyMZhHOzWtUTjA3763edma1uY0g4SaSS2A6qSejGgl
-         OqhU0TKdO0Y5SNd514rp0U+yLI/ctWm+K2OEPdcyqhV+10Y5N/jhgNlVDpAhF5/JUuJ3
-         KuwA==
+        bh=qjsmGk7k5XmLpeIz4VZYZ6BfXqhwXBb3j3pIgVwtEc0=;
+        b=Bd0TLe3kAP/qbLLaR2pMADZ2kXi1pXGrimDuQmIZjgwCbjDLO+G8pF+3PmF87jxv8X
+         s9+MibqNmg7oWaFf8yckfg0U5tWdFedETPcim4bD1ZD0WQec+pnpkwP6B93DiVarzDaI
+         iIGB0/UZQJDyGaJnVE9yHvq5gDpPtDdNbORs+ypAiHmhmq7oun0Mh0d/gm2ilJwURy4s
+         FvN02VP1OWsVsc3HjYriCVU32Fh0ZwOTsRYDphPIuMabmFzj5RCb48ZFqhn9n4IoAzGH
+         F7ZPD47RE/d+jftYGfu0YFNkl4ePmG7MxZrGib8rNo2CeTabPRsL1cYoBW50LXHQQFxj
+         1vGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793388009; x=1793992809;
+        d=1e100.net; s=20260707; t=1793388010; x=1793992810;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+nbgjdCOJsNzUVU9LHMMe7nBzjYcsqJYK4+v11dPsDc=;
-        b=HvQyZ6AnajjQi6Dmn1/sm3LllHwk1rQjdStHV+aYDZpX9OQagMk0fFH1oM85iVargi
-         GYv82wBWXB6smnOKmEtHgs+YWwI9tfMQp4vtSkJ7ydRVwncX8xp+TBvVlAEyHVzWwYee
-         bHh63q8o+NSlK4DlzHbd9+vfnZYclICywweTokZvA+w11BcBATIu01EJyc3veDog6SXB
-         UHjesR8zDJYKUUwMgfGjXurflF0YO/V8NsyGBWuQiEAFLtrc5Rb/bPuoSCDZ9R7bbnPI
-         Pa9aO2Fag1C27kehhIbRw1ntbRsQ0PAI6xdo4MhMEVtPtEd79VHM/xGFNur0oKrD6qLJ
-         yibg==
-X-Gm-Message-State: AFq9FYIyTDO/ZdVKhElktw2xxbN9iSAE4NZAwe0wI/NsLM3S/6P+BG2p
-	1ck+1CQCFdkyQgokP6zAjm53eTsXU8avCT1DsoBI2xP22bBD/KEXZaPrSOIhQp4S
-X-Gm-Gg: AYBFou3QmCa6ofYwkUtqf76K902E92J2Hn6JkfX2nJSnwYWAy9mKcbKqRPouMDpFqGG
-	eZPyyXgzz+pudUFnMrC1aiDrGGCuk4Tr9mX4sBAy3rquM847U9iTPHqMYrUlCnj777FQywypwhc
-	I5QMMP74QFhqFtTIudH2iKVNac8nOvXbHCUTXJRcHyI4Dx6TF3hb+d+5vtUb3E9ScaHkct9S/0j
-	cTdek4t1zjE/6hhAHyDsEEynQUCdSHhXRw4I6mP6hkfYFSABMc/3DXXnpI7j6LZ9KnEyw8mzv3n
-	BM/S6ChAKKRRGy/dDqCObOmku2FXBjaoF1wAYrU8bRL66gK73YnKDntNSLzPVS0amZXuF1wK2B6
-	/4bx8MLgDUbHYKZAy4qRIq98UETnbgu41pmFBfeubW2NNw0hxP6v9JHGc8IctsXiqgUH4yJLhk/
-	kab7iMscGDgKt3VPMw0AiFuqyFYXXdKsqJLpdL4cjRsmtpseyLKlv2qqH0CYjJe7ekD12wvcF6T
-	AsSAyYVeWLRIGJI4y66pO7g/X8Z3GjT8ZHKpHogQpoo+ytF22mmEu9Bb+56HOw0YnQJfslYHSfh
-	6R1xRQRjFR6IXEgONRBuRDog2nUXbzck9Je5+S4Uh9XxHhdQ9Edte5MLSV3RMIeUrBni66m1R4F
-	QCe/rYZdZ+RVS2b2kXgCM+wU8i/v2kjIO7VzYHG3EGJ/Vpyj0xo+/GRvpw+JsC3g5b4XkCpYqtL
-	FO/uT0aWWSK2b9BuJh+TH6q+DBChUX6/EhKX4YygBndB1ZT34RkRICq9OpINtuMeK1q2LQQUqJ
-X-Received: by 2002:a05:622a:4d98:b0:533:3aa2:d8e0 with SMTP id d75a77b69052e-542b7ff210dmr47890821cf.55.1793388008991;
-        Fri, 30 Oct 2026 12:20:08 -0700 (PDT)
+        bh=qjsmGk7k5XmLpeIz4VZYZ6BfXqhwXBb3j3pIgVwtEc0=;
+        b=KID8HLQ/zfB7FcrSsA4s7B7VxceHCE6BfRQ3HjWklaIs68Fkl0UArzKHzIesmFzyFi
+         X6ob/R65UH/SHyteqPGdEZmoZIfzPUF4xx2UcUHIyNhsNk4cfOFfgliGEOYanTIF0Mda
+         2HWoRxmBQtu97wt1JPnW2RTAt89nundhsSJ0m4/PaZ67LGJIfKvJJr4vCQAXAxFeNlg1
+         s37Scgr1rBeBGtaqNpexVCpacXXdLsQpzRI67/FPR3OOMJt2mA13cUhbju0+T8fTG0Iy
+         Fl0Y7LWb0lLBCRXtBHqb4hrgcr+pabkHIbpa09nVsxzJPfli7h0NkZnieRi/l0/7qbEH
+         3E3A==
+X-Gm-Message-State: AFq9FYLP4PTuZCTGWSM6oVkGQ567tpTF6U9zJw+8jHeUVl0YvctSTPdi
+	cUyHI7rWC8yR6qygsc83rMnC07jSiA4IQiAkzj4wnOLVxqVN1d21YM/VV20biQ4n
+X-Gm-Gg: AYBFou150+6wLCMY+m04tbFlk7YJdg3ccY8PvUE5VZVp/2qfwo3E18ScPWb4GNAlQzu
+	GXvPxEnjYLsecz+Kue2TwYtLMxizIYkleAGBQEEFJgui8rCC6u9VDVxLALBxu4vw2myS0xiEDms
+	A0uYv9oDFYMU+GfrpjE4yYowJTrX9fBNDigUsdvszeAoy8qD8xF/aisTTBibsQ/ZK88Po/c8U5c
+	MiIPuvZFR2suxRYkMK3WWQHg0+C2JCgYRi1IH4vdJBHCMY4hi8OBbj7wlxnlIp/FXFR9sLaPA/N
+	BI4HmpoPBOpjh+LzSOusrwWRBrThLfIlMxLG775PG5gnvyAxBJyWWtR5DYFbVwQR2eIcz84yqI0
+	UIWJBpEE9O7KlmJgaf0g+BrmRcMK7JjZh8VCf+NSBfw7dOc8lHnyHnJl6hViy2DBaNuavOVsziA
+	qsaP9xSA6v/qmZ/RtEZXkaYV5OeFllbkNY548Rscs8tBMGTHnmYWFtmHVzIbkq4zOVNDYccQS+X
+	ZxuzSq4BJgDRqVOqoCARfb5a0nqK2ip0PFQt2/ju5xLmz/oPu0mSjErc+ygw17JYllINO7lVnJb
+	xh6iXkNRM3izGdh+DYeH+9K/0Hjmd6rE3J1ZeMSPX0+I0Nig30Jqn3+E3+57DzDnbJiaIRHF4wz
+	XH4/Yw2NpkQK+VVS/T7HP9apbfUK43roP28GNdplsrZ9ZAZkcjJ++0TFXhLya6t8+Wm8A3WCb05
+	m1pa2blhwFQrcMsDbI6f0WlkEA1xgt+wOnDG/ex67TCRYI7rX2yyJZlsSxPQk0wiikVIz8Thfh
+X-Received: by 2002:a05:6214:20ee:b0:91b:5d39:e133 with SMTP id 6a1803df08f44-91c90861e0amr107490406d6.30.1793388009795;
+        Fri, 30 Oct 2026 12:20:09 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ca805be18sm22501076d6.31.2026.10.30.12.20.08
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ca805be18sm22501076d6.31.2026.10.30.12.20.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 12:20:08 -0700 (PDT)
+        Fri, 30 Oct 2026 12:20:09 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 04/10] libselinux: skip read-open for excluded directories in restorecon
-Date: Fri, 30 Oct 2026 15:19:18 -0400
-Message-ID: <20261030191924.150495-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH 05/10] libselinux: skip read-open across restorecon device boundaries
+Date: Fri, 30 Oct 2026 15:19:19 -0400
+Message-ID: <20261030191924.150495-5-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261030191924.150495-1-stephen.smalley.work@gmail.com>
 References: <20261030191924.150495-1-stephen.smalley.work@gmail.com>
@@ -106,98 +106,88 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The recursive walker opens root and child directories for reading before
-checking the exclusion list. A read-open failure therefore records an
-error, increments the skipped-error count, or aborts traversal even when
-the directory was explicitly excluded.
+The recursive walker opens child directories for reading before the
+worker checks SELINUX_RESTORECON_XDEV. A denied read on a different
+filesystem therefore causes an error, increments the skipped-error
+count, or aborts traversal even though that filesystem is out of scope.
 
-Check exclusions before both directory read-opens. Keep O_PATH pinning
-and the worker exclusion check, which still prevents relabeling. Preserve
-error handling for directories that have not been excluded.
+Check the device boundary before the child read-open. Keep the worker
+filter for both directories and other entries, and preserve read errors
+for directories on the traversal device.
 
-Add 72 regression cases covering root and child directories, exclusions,
-readable and denied read-opens, ordinary/count/abort modes, and 1/2/8
-workers. Assert excluded directories are neither opened for reading nor
-relabeled and that readable siblings are still processed.
+Add 72 regression cases covering device boundaries, XDEV settings,
+read denial, error modes and worker counts without mount privileges.
 
 Fixes: c1efe48ab11b ("libselinux: fix selinux_restorecon() error handling")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/selinux_restorecon.c        |   6 +-
- libselinux/tests/.gitignore                |   1 +
- libselinux/tests/Makefile                  |   9 +-
- libselinux/tests/test_restorecon_exclude.c | 154 +++++++++++++++++++++
- 4 files changed, 166 insertions(+), 4 deletions(-)
- create mode 100644 libselinux/tests/test_restorecon_exclude.c
+ libselinux/src/selinux_restorecon.c     |   2 +
+ libselinux/tests/.gitignore             |   1 +
+ libselinux/tests/Makefile               |   8 +-
+ libselinux/tests/test_restorecon_xdev.c | 167 ++++++++++++++++++++++++
+ 4 files changed, 176 insertions(+), 2 deletions(-)
+ create mode 100644 libselinux/tests/test_restorecon_xdev.c
 
 diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 416695b4..240852e5 100644
+index 240852e5..73f66435 100644
 --- a/libselinux/src/selinux_restorecon.c
 +++ b/libselinux/src/selinux_restorecon.c
-@@ -1250,7 +1250,8 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
- 		*ent_pathlen = strlen(state->pathbuf);
- 		strlcpy(ent_path, state->pathbuf, ent_path_sz);
- 		*rd_fd = -1;
--		if (S_ISDIR(state->root_sb.st_mode)) {
-+		if (S_ISDIR(state->root_sb.st_mode) &&
-+		    !check_excluded(state->pathbuf)) {
- 			*rd_fd = openat(fd, ".",
- 					O_RDONLY | O_DIRECTORY | O_NOFOLLOW |
- 						O_CLOEXEC);
-@@ -1373,7 +1374,8 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
- 		}
+@@ -1375,6 +1375,8 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
  
  		int rdfd = -1;
--		if (S_ISDIR(ent_sb->st_mode)) {
-+		if (S_ISDIR(ent_sb->st_mode) &&
-+		    !check_excluded(state->pathbuf)) {
+ 		if (S_ISDIR(ent_sb->st_mode) &&
++		    (!state->flags.set_xdev ||
++		     ent_sb->st_dev == state->dev_num) &&
+ 		    !check_excluded(state->pathbuf)) {
  			rdfd = openat(fd, ".",
  				      O_RDONLY | O_DIRECTORY | O_NOFOLLOW |
- 					      O_CLOEXEC);
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index 681a24f4..3aac1e7a 100644
+index 3aac1e7a..e308af53 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -1,3 +1,4 @@
- test-restorecon-digest
+@@ -2,3 +2,4 @@ test-restorecon-digest
  /test-restorecon-errors
  /test-restorecon-errno
-+/test-restorecon-exclude
+ /test-restorecon-exclude
++/test-restorecon-xdev
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index 04967f36..6e3a5681 100644
+index 6e3a5681..da82cfd3 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
 @@ -1,6 +1,7 @@
  PCRE_LDLIBS ?= -lpcre2-8
  CFLAGS ?= -O2 -g -Wall -Wextra -Werror
  override CFLAGS += -I../include -pthread
-+EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
++XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
+ EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
  WRAPS = getfilecon_raw setfilecon_raw getxattr fsetxattr pthread_cond_wait fstatfs fstatfs64
  ERROR_WRAPS = getfilecon_raw setfilecon_raw lgetfilecon_raw lsetfilecon_raw
- ERRNO_WRAPS = $(ERROR_WRAPS) close closedir fdopendir readdir readdir64 fstatfs fstatfs64 openat openat64 fstat fstat64 reallocarray
-@@ -17,10 +18,14 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
+@@ -18,14 +19,17 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
-+	./test-restorecon-exclude
+ 	./test-restorecon-exclude
++	./test-restorecon-xdev
  
  clean:
--	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno
-+	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude
-+
-+test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-diff --git a/libselinux/tests/test_restorecon_exclude.c b/libselinux/tests/test_restorecon_exclude.c
+-	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude
++	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev
+ 
+ test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
++test-restorecon-xdev: test_restorecon_xdev.c ../src/libselinux.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(XDEV_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_restorecon_xdev.c b/libselinux/tests/test_restorecon_xdev.c
 new file mode 100644
-index 00000000..e75b9544
+index 00000000..0e05f95a
 --- /dev/null
-+++ b/libselinux/tests/test_restorecon_exclude.c
-@@ -0,0 +1,154 @@
++++ b/libselinux/tests/test_restorecon_xdev.c
+@@ -0,0 +1,167 @@
 +/* SPDX-License-Identifier: CC0-1.0 */
 +#define _GNU_SOURCE
 +#undef NDEBUG
@@ -216,15 +206,25 @@ index 00000000..e75b9544
 +
 +static ino_t target_ino;
 +static dev_t target_dev;
-+static bool deny_read;
++static bool foreign_device, deny_read;
 +static unsigned int read_attempts, target_labels, other_labels;
 +
-+static bool is_target(const struct stat *sb)
-+{
-+	return sb->st_ino == target_ino && sb->st_dev == target_dev;
-+}
++/* Simulate a mount boundary without requiring mount privileges. */
++#define WRAP_STAT(name, type)                                            \
++	int __real_##name(int fd, struct type *sb);                      \
++	int __wrap_##name(int fd, struct type *sb);                      \
++	int __wrap_##name(int fd, struct type *sb)                       \
++	{                                                                \
++		int rc = __real_##name(fd, sb);                          \
++		if (!rc && foreign_device && sb->st_ino == target_ino && \
++		    sb->st_dev == target_dev)                            \
++			sb->st_dev ^= 1;                                 \
++		return rc;                                               \
++	}
++WRAP_STAT(fstat, stat)
++WRAP_STAT(fstat64, stat64)
 +
-+/* Only the directory read-open is fault-injected; O_PATH pinning is real. */
++/* The pinned inode remains real; only its read-open can be denied. */
 +#define WRAP_OPENAT(name)                                             \
 +	int __real_##name(int fd, const char *path, int flags, ...);  \
 +	int __wrap_##name(int fd, const char *path, int flags, ...);  \
@@ -233,8 +233,9 @@ index 00000000..e75b9544
 +		assert(!(flags & O_CREAT));                           \
 +		if (!(flags & O_PATH) && !strcmp(path, ".")) {        \
 +			struct stat sb;                               \
-+			assert(fstat(fd, &sb) == 0);                  \
-+			if (is_target(&sb)) {                         \
++			assert(__real_fstat(fd, &sb) == 0);           \
++			if (sb.st_ino == target_ino &&                \
++			    sb.st_dev == target_dev) {                \
 +				__atomic_add_fetch(&read_attempts, 1, \
 +						   __ATOMIC_RELAXED); \
 +				if (deny_read) {                      \
@@ -255,7 +256,7 @@ index 00000000..e75b9544
 +{
 +	struct stat sb;
 +	assert(stat(path, &sb) == 0);
-+	if (is_target(&sb))
++	if (sb.st_ino == target_ino && sb.st_dev == target_dev)
 +		__atomic_add_fetch(&target_labels, 1, __ATOMIC_RELAXED);
 +	else
 +		__atomic_add_fetch(&other_labels, 1, __ATOMIC_RELAXED);
@@ -269,23 +270,27 @@ index 00000000..e75b9544
 +	return __wrap_getfilecon_raw(path, context);
 +}
 +
-+static void run_case(bool root_case, bool exclude, bool denied,
-+		     unsigned int mode, size_t threads)
++static void run_case(bool foreign, bool xdev, bool denied, unsigned int mode,
++		     size_t threads)
 +{
-+	char root[] = "/tmp/restorecon-exclude-XXXXXX";
-+	char target[256], sibling[256], fc[256];
++	char root[] = "/tmp/restorecon-xdev-XXXXXX";
++	char target[256], child[256], sibling[256], fc[256];
 +	struct stat sb;
 +	alarm(15);
 +	assert(mkdtemp(root));
 +	assert(snprintf(target, sizeof(target), "%s/target", root) > 0);
++	assert(snprintf(child, sizeof(child), "%s/target/child", root) > 0);
 +	assert(snprintf(sibling, sizeof(sibling), "%s/sibling", root) > 0);
 +	assert(snprintf(fc, sizeof(fc), "%s.fc", root) > 0);
 +	assert(mkdir(target, 0700) == 0);
 +	int fd = open(sibling, O_CREAT | O_EXCL | O_WRONLY, 0600);
 +	assert(fd >= 0 && close(fd) == 0);
++	fd = open(child, O_CREAT | O_EXCL | O_WRONLY, 0600);
++	assert(fd >= 0 && close(fd) == 0);
 +	assert(stat(target, &sb) == 0);
 +	target_ino = sb.st_ino;
 +	target_dev = sb.st_dev;
++	foreign_device = foreign;
 +	deny_read = denied;
 +	FILE *fp = fopen(fc, "w");
 +	assert(fp);
@@ -296,29 +301,27 @@ index 00000000..e75b9544
 +		selabel_open(SELABEL_CTX_FILE, &option, 1);
 +	assert(handle);
 +	selinux_restorecon_set_sehandle(handle);
-+	const char *excluded[] = { target, NULL };
-+	if (exclude)
-+		selinux_restorecon_set_exclude_list(excluded);
 +	unsigned int flags = SELINUX_RESTORECON_RECURSE |
 +			     SELINUX_RESTORECON_IGNORE_MOUNTS |
 +			     SELINUX_RESTORECON_NOCHANGE |
 +			     SELINUX_RESTORECON_SET_SPECFILE_CTX | mode;
-+	int rc = selinux_restorecon_parallel(root_case ? target : root, flags,
-+					     threads);
-+	bool failure = denied && !exclude;
++	if (xdev)
++		flags |= SELINUX_RESTORECON_XDEV;
++	int rc = selinux_restorecon_parallel(root, flags, threads);
++	bool skip = foreign && xdev;
++	bool failure = denied && !skip;
 +	assert(rc ==
 +	       (failure && mode != SELINUX_RESTORECON_COUNT_ERRORS ? -1 : 0));
-+	assert(read_attempts == (exclude ? 0 : 1));
-+	if (exclude) {
-+		assert(target_labels == 0);
++	assert(read_attempts == (skip ? 0 : 1));
++	if (skip) {
++		assert(target_labels == 0 && other_labels == 2);
 +		assert(selinux_restorecon_get_skipped_errors() == 0);
++	} else if (!failure || mode != SELINUX_RESTORECON_ABORT_ON_ERROR) {
++		assert(target_labels == 1);
++		assert(other_labels == (denied ? 2 : 3));
 +	}
-+	if (!failure) {
-+		assert(target_labels == (exclude ? 0 : 1));
-+		assert(other_labels == (root_case ? 0 : 2));
-+	}
-+	assert(unlink(sibling) == 0 && rmdir(target) == 0);
-+	assert(rmdir(root) == 0 && unlink(fc) == 0);
++	assert(unlink(child) == 0 && unlink(sibling) == 0);
++	assert(rmdir(target) == 0 && rmdir(root) == 0 && unlink(fc) == 0);
 +	selinux_restorecon_set_sehandle(NULL);
 +}
 +
@@ -328,8 +331,8 @@ index 00000000..e75b9544
 +	const unsigned int modes[] = { 0, SELINUX_RESTORECON_COUNT_ERRORS,
 +				       SELINUX_RESTORECON_ABORT_ON_ERROR };
 +	unsigned int cases = 0;
-+	for (int root = 0; root < 2; root++)
-+		for (int exclude = 0; exclude < 2; exclude++)
++	for (int foreign = 0; foreign < 2; foreign++)
++		for (int xdev = 0; xdev < 2; xdev++)
 +			for (int deny = 0; deny < 2; deny++)
 +				for (size_t m = 0; m < 3; m++)
 +					for (size_t t = 0; t < 3; t++) {
@@ -337,7 +340,7 @@ index 00000000..e75b9544
 +						int status;
 +						assert(pid >= 0);
 +						if (!pid) {
-+							run_case(root, exclude,
++							run_case(foreign, xdev,
 +								 deny, modes[m],
 +								 threads[t]);
 +							_exit(0);
@@ -349,7 +352,7 @@ index 00000000..e75b9544
 +							       0);
 +						cases++;
 +					}
-+	printf("Restorecon exclusions: %u cases passed.\n", cases);
++	printf("Restorecon XDEV: %u cases passed.\n", cases);
 +	return 0;
 +}
 -- 
