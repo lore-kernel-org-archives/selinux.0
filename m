@@ -1,100 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793388551;
-	b=IIqsLRHCbfPMM0c4MikoBJ1/qD06f1ERNWsYtW5HUVE8YcsLheXaD99qY1982x0YDUJg
-	 QYJm2vLbJelyVvsZEO0INH5eyQ1gNVsyJViKDwS7Z3gLC7DRvuXe/gYzNZAiyb+z9os5D
-	 Z9nRwUP1GZ2yoPg6GfFYL+PuAbOss/y0rl7IPK6HokfdOttyQposGn439bixuFTifB7Hz
-	 KaZTUvZTpPWVcaPKAgHcbpnzCp5zli2jhDZIkQ+xfbincVPs+/ajVlPfQ7iSYe5BJu8X2
-	 T5b++S/GJc70/KTUXbTD9qZA6M1LzK5Nj+lYD1+H0XkjRYeaMWcMNJRy0FTOP2uKfGg==
+	t=1793571358;
+	b=WRYXjjqcdiymMtLEDeK4EJy4oXhfR3SovdrmA1GLFQOmfNzWwBt4WpuGr7vYd5qznl7B
+	 tw3HpHJB/w5TjnMS1bZQjJ6TeiUhZGEKcQZeU/gYj2E27gClQas20c2X2P8dPfozszdS9
+	 Kor4lxKNJrrUpAHIBVqgecKnqgEnwwr5xTsHpKKxAvdR9xC1fp0ReZZ0OUDT9TfXHsPN/
+	 SnZ9M0nNSPH7RQ4oolC7q9oW8SuP/bDDtavfwEJINKNAGNqbG17QWpZ6WJ6Y33P3rKQWQ
+	 mUqLi2ovjm3FdZt513vPID4dlSWahY2H0YWYo9W1gbhOpkwH7VkXo9yKdJvIjvCnTXA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793388551;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
-	b=dVt8Z6fglQCIgTZXJNCxWekaFIOTYcR6kyfx2k0+PV4H7X5WAGLmN9Sv1ObSy/OQyiUO
-	 LyUkbNokhUQ4NA04S0qFT09mqqy0yvh9RU3i64W/XqQLjOhxjlxE8bUMaB/RtnAWy9wA8
-	 fsWQdEQ7jKW3rvIpQInANpIvvaGWcJ1aWLmj0otwisYc2y0SNwlnf+MS4t1ELXeu6vOXf
-	 9MII3EuhP/vUOVoHP18gvn8HkZY4jwQDeNud1XL0YyMPVWy3k/c2oG+wq3Z0Fwh7njIJD
-	 mmK/SGXnyp8oqK4SWOIuTW1KKmfr6HQ2VRiC5E7ey+7h7PiZ373igqAeByXBfR+1n2A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793571358;
+	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
+	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc;
+	bh=FTHI4iJKGW8nTdZJYWi2ZEsJRVp05NwkVgRYnkQTnQI=;
+	b=1QHtu6rNVURm7eD0rqTrDslkatx7XA0p/kvhzHe/A3lWszK0pPcVd4b6Yj0NUWYhq7bO
+	 dYTFONS1nTgl3HIy6MaT2k+lWdzFfp28U6CLkCrfemkqR02GGE/QI8ktiTsjX5dAicfD5
+	 mTiCP2dmdXI+LJfYkXxdQhphEYRWZvtZQlMkz2p+nTEoYtsm++RRFMPeR9RF4D7+WI7nX
+	 BPfxmKmPZL1wFmoE+JZdRUTW5MYN/e2sDKTcR+shOEGorjHfH6Z3y4Rbc3EYKDi0nA00D
+	 wjoCzNMpYhOETbbxvNiIMX0fVVT6ZBRl/V+UIu50+SKBIc6Gbf7DVzuR6M8GLMYXH4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOPpdXYo;
-	arc=none smtp.remote-ip=209.85.160.175
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSuQm1gi;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA92606A31D
-	for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 19:29:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5AA92606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C24F60A2602;
+	Sun,  1 Nov 2026 22:15:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOPpdXYo
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-537548b811aso8426931cf.3
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2026 12:29:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793388550; x=1793993350; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
-        b=bOPpdXYoXKo9lsxgXf7Swi8Jr57eS7fEKBDWIgJn9qL798VLpwCpAUMTYFEHMqq/Bq
-         FVWfpZpcc/X44odHIJkso7EwCC06ed4xYdOU9gaXFwbJNOmvwmuVgUCKSQQEsrXGj2O8
-         PZ8NiwUxd55a/t+96HsUGmRUNmJmNVozAAeHMkI5s+pXXOJ2k3dF6Tt/o7XBsQZzqf/F
-         5rZQBcCjiGC0jwqRibKn/NmXP/TVhtjC8b1bJwQVxU3faG5vnW/GOCuvDbiTHivWylMK
-         kq/UDf4wgrSnDw09WwOBGlVfGXNoi7B6CUJw1FS8eeGP/oW29fg7oOtoBW4RQgnXnZP2
-         D/VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793388550; x=1793993350;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=g6LIer2qnO6VAQrR4H13Y2Veot9ToJLbEmiI/sMxx/8=;
-        b=p2K4NWMrKtbLbtHMoBxyUgJ5vVPezH05M1Dq/7FomFPL2iI2NfZCGe6oLlv6lIHz0I
-         yGVXK5WeT6tuSWegZLMYc/dFlmfxGCdqOTrhSASfNMOZE5TRoVXrPvgSMTi+yN+HiAVx
-         /6L+WOt7Aq8oMZ9gWKNJO3bdYnonO4vMv6CKO7W9n9gB6wFl4I1Zp8uakGmS5f6qxnc4
-         +c9KRhURZbkCrIXkWCvUKMCym4tPtJy3MtvfhZ0fpIzETzIQ/hcZMuzgN0iO8Kf7Aq+7
-         CihPufX+623yaEJ8UptLLVcgyIgEb6XYcFsB1kiiEnWs0V9df3iUTiwgZpnTKtAAH0d4
-         zDCw==
-X-Gm-Message-State: AFq9FYKL6LoaDNzUyUwSYpgG6p5R97QDbuybUyA0nkrsWVTVyB//pVrj
-	oE15+YfG36gGWvxCwfVbcG2u17iE1I7nXfgmQ4VQoXns30Tyk3R1UhzVQgP8PGpY
-X-Gm-Gg: AYBFou0Md12isvOUaZN0lHbIIkM+j4kUuktE9xtNHiw72Rd5ZqZ4pflv4lnxA76xYt3
-	02xdARbqumbDXxJTTAYbNCwOQQjMDnpUiOn8tb0PoWD/2G6DCH+PbmbVhO6DVQVEQ2/CH2O5zHf
-	xnVXjBjUSuGztgRU1Uza7vD6Yg1YcLSQeq7CPe154kC1D6mBkBt7NN0Avu9VLbCp+4tB3PmlRtY
-	LhdNJvCm7NZHs/UF99CHE00aAiKxWPhNszZZRNMdlrc1VuPelZtFz6S+4neumiQnIaOe25Qxbn6
-	uaRJzBa7Rd0DDMwlDoZYaoReDZ9GoJe52L5vpMgBlPFk0o2BjP9oolQx0X8I9UGD35fqvm6bQNg
-	0OvjcsiQsJHjFvQe84xLTqDgS9iGzsEYL+BQm3FxE+oOr1HK5qbTskCIxkdIj1VbWm/bpOVWctr
-	VyNMEurBnZYrnaFtcyoa+AB+KQrHuKL9Cf+bT2N0pkAjMjR3pvdCJTFjwYk+DsY2Zzn8EV3H4v4
-	BwIFZSsN59XyofgPCWlTfxneNaDZOs/viUCKT5Eq9PyZLEZ313IsOBgYasfVh6bpgUhe9FJKGDn
-	BjQpLs499mejflLDrDKrWAvBJnuIw9SWAArdp8tUdqLqbgJHOrOTRO6BxEn9Uo0auv/Sjgr+xFS
-	NPBG7B661mA+7Q7BHLELNvsq6phJ7sGDHsz/4342x1weMd5DpZ4BGEyRSYN1AQb33DbwHzbODTG
-	k6riGyzp5kRqnOJB92rDBWHeCEyPuil308KbvhqqmH2VxGjNCIKu8=
-X-Received: by 2002:a05:622a:1247:b0:535:a5fa:ee02 with SMTP id d75a77b69052e-542b7dfcaa1mr52755301cf.66.1793388549956;
-        Fri, 30 Oct 2026 12:29:09 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54311f75ff5sm21187321cf.10.2026.10.30.12.29.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 12:29:09 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	jwcart2@gmail.com,
-	cahu@suse.de,
-	jsegitz@suse.de,
-	tweek@google.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 11/11] libsemanage: reject missing scalar configuration arguments
-Date: Fri, 30 Oct 2026 15:28:48 -0400
-Message-ID: <20261030192849.151830-11-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
-References: <20261030192849.151830-1-stephen.smalley.work@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSuQm1gi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225BF1F00A1B;
+	Sun,  1 Nov 2026 22:15:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793571353;
+	bh=FTHI4iJKGW8nTdZJYWi2ZEsJRVp05NwkVgRYnkQTnQI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=kSuQm1gig26F3a5hbFrlCEgTV6KZdAUm8pVgji64pGU9IHFtmj1+0lqa6FjFwtpwY
+	 RQDDMAWpx0nuTd442k2/dkXZmO3ak6/b0bODbLMMOiXHR7sqan7+OYTSomVvsVhatc
+	 5sO4YlxH84ZbDrCWiv6NIlf3enn6ckTlaSH0A2hbLwanZ7TAw2vRzqI9LjdgxD9mYw
+	 rVyzHjy74WbfzuCKilIc61p8YM/etpQQgk31aiPP5AoELP2cxYQDze2rDXYJz/8udp
+	 9mbnMTtDK0Vamho7QvOMgWKAobDTF7XMy60kwODafcPU8OakiOi1fCrlQV4kt03Hd9
+	 bPj8B6YTEsy3w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 032DA38003B8;
+	Sun,  1 Nov 2026 22:15:53 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -105,414 +54,167 @@ List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v6 00/39] mm: make VMA flag semantics explicit, eliminate
+ VM_SPECIAL
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <179357135155.2624073.13862678489444424470.git-patchwork-notify@kernel.org>
+Date: Sun, 01 Nov 2026 22:15:51 +0000
+References: 
+ <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
+In-Reply-To: 
+ <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
+To: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ liam@infradead.org, vbabka@kernel.org, jannh@google.com, pfalcato@suse.de,
+ david@kernel.org, rppt@kernel.org, surenb@google.com, mhocko@suse.com,
+ corbet@lwn.net, gregkh@linuxfoundation.org,
+ dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca, leon@kernel.org,
+ paul@paul-moore.com, stephen.smalley.work@gmail.com, perex@perex.cz,
+ tiwai@suse.com, ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+ eddyz87@gmail.com, memxor@gmail.com, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, nico.pache@linux.dev, ryan.roberts@arm.com,
+ dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
+ usama.arif@linux.dev, kas@kernel.org, dgilbert@interlog.com,
+ James.Bottomley@HansenPartnership.com, mkp@kernel.org, simona@ffwll.ch,
+ deller@gmx.de, sre@kernel.org, jhubbard@nvidia.com, peterx@redhat.com,
+ mhiramat@kernel.org, oleg@redhat.com, peterz@infradead.org, tglx@kernel.org,
+ mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+ acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com, riel@surriel.com,
+ harry@kernel.org, juri.lelli@redhat.com, vincent.guittot@linaro.org,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ airlied@gmail.com, will@kernel.org, aneesh.kumar@kernel.org,
+ npiggin@gmail.com, arnd@arndb.de, muchun.song@linux.dev, osalvador@suse.de,
+ willy@infradead.org, jack@suse.cz, maz@kernel.org, oupton@kernel.org,
+ catalin.marinas@arm.com, maddy@linux.ibm.com, anup@brainfault.org,
+ pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu,
+ borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+ agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com,
+ viro@zeniv.linux.org.uk, brauner@kernel.org, matthew.brost@intel.com,
+ joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com,
+ gourry@gourry.net, ying.huang@linux.alibaba.com, apopple@nvidia.com,
+ chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com,
+ nphamcs@gmail.com, baoquan.he@linux.dev, youngjun.park@lge.com,
+ hannes@cmpxchg.org, qi.zheng@linux.dev, shakeel.butt@linux.dev,
+ axelrasmussen@google.com, yuanchu@google.com, weixugc@google.com,
+ chengming.zhou@linux.dev, mhocko@kernel.org, miklos@szeredi.hu,
+ xu.xin@linux.dev, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev,
+ ihor.solodrai@linux.dev, spasswolf@web.de, tiwai@suse.de,
+ emil@etsalapatis.com
 
-The configuration scanner returns a NULL ARG for empty and quoted-empty
-values, as well as on token allocation failure. Scalar actions pass this
-pointer to strcasecmp, strtol or strdup. In particular, the recently added
-sort-local-fcontexts option crashes instead of rejecting an empty value.
+Hello:
 
-Add a shared scalar argument production that rejects NULL before entering
-these actions. Preserve empty external-program arguments, which have a
-different contract. This also covers older scalar options with the same
-problem.
+This series was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-Add 114 regression checks for scalar rejection, valid values, parser reuse,
-empty external arguments and token allocation failure.
+On Tue, 13 Oct 2026 16:04:40 +0100 you wrote:
+> The VM_SPECIAL / VMA_SPECIAL_FLAGS mask conflates several unrelated
+> properties:
+> 
+> * Is this managed by core mm, or by a driver mapping MMIO, kernel-allocated
+>   pages, or even ordinary pages itself?
+> * Can it be expanded or merged?
+> * Is this a 'weird' case like mlock where migration might race and we
+>   'have' to set invalid flags to notify?
+> * Is it another 'weird' case where we just want to stop GUP from touching
+>   it?
+> 
+> [...]
 
-Fixes: ee7e4e1e4e97 ("libsemanage: optionally sort file_contexts.local by specificity")
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsemanage/src/conf-parse.y                  |  54 ++++----
- libsemanage/tests/.gitignore                  |   1 +
- libsemanage/tests/Makefile                    |   8 +-
- .../tests/regression/test_config_empty.c      | 124 ++++++++++++++++++
- 4 files changed, 163 insertions(+), 24 deletions(-)
- create mode 100644 libsemanage/tests/regression/test_config_empty.c
+Here is the summary with links:
+  - [v6,01/39] mm/vma: fix mmap_prepare file handling, remove file_doesnt_need_get
+    (no matching commit)
+  - [v6,02/39] mm/vma: introduce and use vma_[flags_]can_merge()
+    https://git.kernel.org/riscv/c/86a779c53204
+  - [v6,03/39] mm: consistently validate VMA state after mmap[_prepare] hooks
+    https://git.kernel.org/riscv/c/9cae38dc11da
+  - [v6,04/39] mm/vma: ensure mmap_prepare doesn't set actions on a mergeable vma
+    https://git.kernel.org/riscv/c/6335c786299f
+  - [v6,05/39] mm: make map_kernel_pages_[prepare,complete] internal and unexported
+    https://git.kernel.org/riscv/c/2a234f79d416
+  - [v6,06/39] mm/vma: tidy up map kernel pages enum values
+    https://git.kernel.org/riscv/c/4852f3421456
+  - [v6,07/39] mm: assert mmap lock held, use new flags API in vm_insert_page[s]
+    https://git.kernel.org/riscv/c/dad8e88fcfce
+  - [v6,08/39] mm: add mmap action for discontiguous kernel page mapping
+    https://git.kernel.org/riscv/c/b7b4d8f37a4f
+  - [v6,09/39] docs: filesystems: update mmap_prepare docs for discontig kernel pgs
+    https://git.kernel.org/riscv/c/ae60723abb65
+  - [v6,10/39] drivers/usb/mon: update to use mmap_prepare + map kernel pages
+    https://git.kernel.org/riscv/c/5323bb5f6ef3
+  - [v6,11/39] infiniband: update hfi1 to use remap_vmalloc_range()
+    (no matching commit)
+  - [v6,12/39] selinux: reject writable opens of policy file, drop mmap shared/write check
+    https://git.kernel.org/riscv/c/c6ce4378f20a
+  - [v6,13/39] ALSA: pcm: use vm_insert_page() to map PCM status page
+    https://git.kernel.org/riscv/c/ceb0de27371f
+  - [v6,14/39] bpf: arena: mark arena_map_mmap() mappings VM_MIXEDMAP
+    https://git.kernel.org/riscv/c/0c2c9885c5e9
+  - [v6,15/39] mm/vma: add vma[_flags]_is_mm_managed() predicates
+    https://git.kernel.org/riscv/c/7fdbc26b69c0
+  - [v6,16/39] mm/vma: only allow mmap to clear VMA_MAYWRITE_BIT if not mm-managed
+    https://git.kernel.org/riscv/c/d99c4a302c5a
+  - [v6,17/39] mm/vma: add and use vma_[flags]_is_fixed_mapping
+    https://git.kernel.org/riscv/c/9201d0f5b9d5
+  - [v6,18/39] scsi: sg: convert mmap hook to mmap_prepare and rework
+    https://git.kernel.org/riscv/c/abdd54cef5fc
+  - [v6,19/39] fbdev: defio: assert FBINFO_VIRTFB, drop VM_IO, add VM_MIXEDMAP
+    https://git.kernel.org/riscv/c/19458d015fcc
+  - [v6,20/39] HSI: cmt_speech: convert mmap hook to mmap_prepare, refactor
+    https://git.kernel.org/riscv/c/5605c40895fc
+  - [v6,21/39] mm/gup: error out early on !VMA_MAYREAD_BIT VMAs
+    https://git.kernel.org/riscv/c/2d2b1c508f21
+  - [v6,22/39] uprobes: remove VM_IO, set VM_MIXEDMAP for mapped kernel pages
+    https://git.kernel.org/riscv/c/0d219bc3cb88
+  - [v6,23/39] mm/mlock: clear VMA_LOCKED_MASK over mmap callback
+    https://git.kernel.org/riscv/c/61e012ab9a1c
+  - [v6,24/39] mm/mlock: eliminate weird VMA_IO_BIT abuse and simplify
+    https://git.kernel.org/riscv/c/aea83f2694ed
+  - [v6,25/39] mm/vma: enforce that mm-managed mappings may not set VMA_IO_BIT
+    https://git.kernel.org/riscv/c/99fd6bf43d5d
+  - [v6,26/39] mm: remove VMA_IO_BIT check in vma[_flags]_is_mm_managed()
+    https://git.kernel.org/riscv/c/88d77002e1a1
+  - [v6,27/39] mm: remove hugetlb_inline.h
+    https://git.kernel.org/riscv/c/94c86564538e
+  - [v6,28/39] mm: rename is_vm_hugetlb_page() to vma_is_hugetlb()
+    (no matching commit)
+  - [v6,29/39] mm: drop some redundant checks around hugetlb VMAs
+    (no matching commit)
+  - [v6,30/39] mm/vma: introduce vma[_flags]_is_mm_backed()
+    https://git.kernel.org/riscv/c/44debd840ec9
+  - [v6,31/39] mm/madvise: update is_valid_guard_vma() to use vma_is_mm_backed()
+    https://git.kernel.org/riscv/c/fc95d1cf4a13
+  - [v6,32/39] mm/uffd: use predicates for userfaultfd checks
+    https://git.kernel.org/riscv/c/fb700342f506
+  - [v6,33/39] mm/madvise: use predicates for madvise(..., MADV_DOFORK)
+    https://git.kernel.org/riscv/c/1d1104fe6dc6
+  - [v6,34/39] mm: eliminate VMA_SPECIAL_FLAGS usage when hugetlb explicitly tested
+    https://git.kernel.org/riscv/c/531e56359ffb
+  - [v6,35/39] mm: eliminate VMA_SPECIAL_FLAGS check in lru_gen_look_around()
+    https://git.kernel.org/riscv/c/5997da57a09b
+  - [v6,36/39] mm: avoid use of VMA_SPECIAL_FLAGS in migrate_vma_setup()
+    https://git.kernel.org/riscv/c/8bf792b7afcb
+  - [v6,37/39] mm: eliminate VM_SPECIAL, VMA_SPECIAL_FLAGS
+    https://git.kernel.org/riscv/c/72a993449cb0
+  - [v6,38/39] fuse: dax: do not set VM_MIXEDMAP
+    https://git.kernel.org/riscv/c/b0d88bfa7515
+  - [v6,39/39] mm/huge_memory: remove vma_is_special_huge()
+    https://git.kernel.org/riscv/c/e2a1d080f510
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index 1611f4a6..61b07310 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -69,6 +69,7 @@ static int parse_errors;
- %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
- %token PROG_PATH PROG_ARGS
- %token <s> ARG
-+%type <s> scalar_arg
- %type <d> verify_start_tok
- 
- %%
-@@ -106,7 +107,16 @@ single_opt:     module_store
-         |       sort_local_fcontexts
-         ;
- 
--module_store:   MODULE_STORE '=' ARG {
-+scalar_arg: ARG {
-+                        if ($1 == NULL) {
-+                                yyerror("missing option value or out of memory");
-+                                YYABORT;
-+                        }
-+                        $$ = $1;
-+                }
-+        ;
-+
-+module_store:   MODULE_STORE '=' scalar_arg {
-                         if (parse_module_store($3) != 0) {
-                                 parse_errors++;
-                                 YYABORT;
-@@ -116,7 +126,7 @@ module_store:   MODULE_STORE '=' ARG {
- 
-         ;
- 
--store_root:     STORE_ROOT '=' ARG  {
-+store_root:     STORE_ROOT '=' scalar_arg  {
-                         if (parse_store_root_path($3) != 0) {
-                                 parse_errors++;
-                                 YYABORT;
-@@ -125,7 +135,7 @@ store_root:     STORE_ROOT '=' ARG  {
-                 }
-         ;
- 
--ro_store_root:  RO_STORE_ROOT '=' ARG  {
-+ro_store_root:  RO_STORE_ROOT '=' scalar_arg  {
-                         if (parse_ro_store_root_paths($3) != 0) {
-                                 parse_errors++;
-                                 YYABORT;
-@@ -134,7 +144,7 @@ ro_store_root:  RO_STORE_ROOT '=' ARG  {
-                 }
-         ;
- 
--compiler_dir:       COMPILER_DIR '=' ARG  {
-+compiler_dir:       COMPILER_DIR '=' scalar_arg  {
-                         if (parse_compiler_path($3) != 0) {
-                                 parse_errors++;
-                                 YYABORT;
-@@ -143,7 +153,7 @@ compiler_dir:       COMPILER_DIR '=' ARG  {
-                 }
-         ;
- 
--ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
-+ignore_module_cache:	IGNORE_MODULE_CACHE '=' scalar_arg  {
- 							if (strcasecmp($3, "true") == 0)
- 								current_conf->ignore_module_cache = true;
- 							else if (strcasecmp($3, "false") == 0)
-@@ -155,7 +165,7 @@ ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
- 						}
-         ;
- 
--version:        VERSION '=' ARG  {
-+version:        VERSION '=' scalar_arg  {
-                         char *endptr;
-                         long value;
-                         errno = 0;
-@@ -168,7 +178,7 @@ version:        VERSION '=' ARG  {
-                 }
-         ;
- 
--target_platform: TARGET_PLATFORM '=' ARG  {
-+target_platform: TARGET_PLATFORM '=' scalar_arg  {
-                         if (strcasecmp($3, "selinux") == 0)
-                                 current_conf->target_platform = SEPOL_TARGET_SELINUX;
-                         else if (strcasecmp($3, "xen") == 0)
-@@ -180,7 +190,7 @@ target_platform: TARGET_PLATFORM '=' ARG  {
-                 }
-         ;
- 
--expand_check:   EXPAND_CHECK '=' ARG  {
-+expand_check:   EXPAND_CHECK '=' scalar_arg  {
- 	                if (strcasecmp($3, "true") == 0)
- 		                current_conf->expand_check = true;
- 			else if (strcmp($3, "1") == 0)
-@@ -196,7 +206,7 @@ expand_check:   EXPAND_CHECK '=' ARG  {
-                 }
-         ;
- 
--file_mode:   FILE_MODE '=' ARG  {
-+file_mode:   FILE_MODE '=' scalar_arg  {
-                         char *endptr;
-                         long value;
-                         errno = 0;
-@@ -209,7 +219,7 @@ file_mode:   FILE_MODE '=' ARG  {
-                 }
-         ;
- 
--save_previous:    SAVE_PREVIOUS '=' ARG {
-+save_previous:    SAVE_PREVIOUS '=' scalar_arg {
- 	                if (strcasecmp($3, "true") == 0)
- 		                current_conf->save_previous = true;
- 			else if (strcasecmp($3, "false") == 0)
-@@ -222,7 +232,7 @@ save_previous:    SAVE_PREVIOUS '=' ARG {
-         ;
- 
- 
--save_linked:    SAVE_LINKED '=' ARG {
-+save_linked:    SAVE_LINKED '=' scalar_arg {
- 	                if (strcasecmp($3, "true") == 0)
- 		                current_conf->save_linked = true;
- 			else if (strcasecmp($3, "false") == 0)
-@@ -234,7 +244,7 @@ save_linked:    SAVE_LINKED '=' ARG {
-                 }
-         ;
- 
--disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
-+disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->disable_genhomedircon = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -245,7 +255,7 @@ disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
- 	free($3);
-  }
- 
--usepasswd: USEPASSWD '=' ARG {
-+usepasswd: USEPASSWD '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->usepasswd = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -256,12 +266,12 @@ usepasswd: USEPASSWD '=' ARG {
- 	free($3);
-  }
- 
--ignoredirs: IGNOREDIRS '=' ARG {
-+ignoredirs: IGNOREDIRS '=' scalar_arg {
- 	current_conf->ignoredirs = strdup($3);
- 	free($3);
-  }
- 
--handle_unknown: HANDLE_UNKNOWN '=' ARG {
-+handle_unknown: HANDLE_UNKNOWN '=' scalar_arg {
- 	if (strcasecmp($3, "deny") == 0) {
- 		current_conf->handle_unknown = SEPOL_DENY_UNKNOWN;
- 	} else if (strcasecmp($3, "reject") == 0) {
-@@ -274,7 +284,7 @@ handle_unknown: HANDLE_UNKNOWN '=' ARG {
- 	free($3);
-  }
- 
--bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
-+bzip_blocksize:  BZIP_BLOCKSIZE '=' scalar_arg {
- 	char *endptr;
- 	long value;
- 	errno = 0;
-@@ -286,7 +296,7 @@ bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
- 	free($3);
- }
- 
--bzip_small:  BZIP_SMALL '=' ARG {
-+bzip_small:  BZIP_SMALL '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->bzip_small = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -297,7 +307,7 @@ bzip_small:  BZIP_SMALL '=' ARG {
- 	free($3);
- }
- 
--remove_hll:  REMOVE_HLL'=' ARG {
-+remove_hll:  REMOVE_HLL'=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->remove_hll = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -308,7 +318,7 @@ remove_hll:  REMOVE_HLL'=' ARG {
- 	free($3);
- }
- 
--relabel_store:  RELABEL_STORE'=' ARG {
-+relabel_store:  RELABEL_STORE'=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->relabel_store = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -319,7 +329,7 @@ relabel_store:  RELABEL_STORE'=' ARG {
- 	free($3);
- }
- 
--optimize_policy:  OPTIMIZE_POLICY '=' ARG {
-+optimize_policy:  OPTIMIZE_POLICY '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->optimize_policy = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -330,7 +340,7 @@ optimize_policy:  OPTIMIZE_POLICY '=' ARG {
- 	free($3);
- }
- 
--multiple_decls:  MULTIPLE_DECLS '=' ARG {
-+multiple_decls:  MULTIPLE_DECLS '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->multiple_decls = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-@@ -341,7 +351,7 @@ multiple_decls:  MULTIPLE_DECLS '=' ARG {
- 	free($3);
- }
- 
--sort_local_fcontexts: SORT_LOCAL_FCONTEXTS '=' ARG {
-+sort_local_fcontexts: SORT_LOCAL_FCONTEXTS '=' scalar_arg {
- 	if (strcasecmp($3, "false") == 0) {
- 		current_conf->sort_local_fcontexts = false;
- 	} else if (strcasecmp($3, "true") == 0) {
-diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
-index 484d0853..54991e1e 100644
---- a/libsemanage/tests/.gitignore
-+++ b/libsemanage/tests/.gitignore
-@@ -11,3 +11,4 @@ test-cache-serial-join
- test-cache-serial-active
- test-cache-serial-policydb
- *.policy
-+/test-config-empty
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 8800fb73..2b000a7a 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -18,7 +18,10 @@ override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
- OBJECTS = $(SOURCES:.c=.o)
- POLICIES = $(CILS:.cil=.policy)
- 
--all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST)
-+all: $(EXECUTABLE) $(POLICIES) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST) test-config-empty
-+
-+test-config-empty: regression/test_config_empty.c ../src/libsemanage.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=strdup $(LDLIBS)
- 
- $(RESTART_TEST): regression/test_transaction_restart.c ../src/libsemanage.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--wrap=scandir -o $@ $^ $(LDLIBS)
-@@ -59,10 +62,11 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
- 	../../secilc/secilc $*.cil -o $*.policy -f /dev/null
- 
- clean distclean:
--	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST)
-+	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) $(USER_JOIN_TEST) $(LIFECYCLE_TEST) $(ERROR_TESTS) $(SERIAL_TESTS) $(ROLLBACK_TEST) $(RESTART_TEST) test-config-empty
- 
- test: all test-ibpkey-validation
- 	./$(EXECUTABLE)
-+	./test-config-empty
- 	./$(USER_JOIN_TEST)
- 	./$(LIFECYCLE_TEST)
- 	./test-parse-read-error
-diff --git a/libsemanage/tests/regression/test_config_empty.c b/libsemanage/tests/regression/test_config_empty.c
-new file mode 100644
-index 00000000..9936f37d
---- /dev/null
-+++ b/libsemanage/tests/regression/test_config_empty.c
-@@ -0,0 +1,124 @@
-+/* SPDX-License-Identifier: CC0-1.0 */
-+#define _GNU_SOURCE
-+#undef NDEBUG
-+#include <assert.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <sepol/policydb.h>
-+#include "semanage_conf.h"
-+
-+static bool fail_token;
-+static unsigned failures;
-+
-+char *__real_strdup(const char *s);
-+char *__wrap_strdup(const char *s);
-+
-+char *__wrap_strdup(const char *s)
-+{
-+	if (fail_token && !strcmp(s, "true")) {
-+		failures++;
-+		errno = ENOMEM;
-+		return NULL;
-+	}
-+	return __real_strdup(s);
-+}
-+
-+static semanage_conf_t *parse(const char *text)
-+{
-+	char path[] = "/tmp/semanage-config-XXXXXX";
-+	int fd = mkstemp(path);
-+	assert(fd >= 0);
-+	FILE *fp = fdopen(fd, "w");
-+	assert(fp);
-+	assert(fputs(text, fp) >= 0);
-+	assert(fclose(fp) == 0);
-+	semanage_conf_t *conf = semanage_conf_parse(path);
-+	assert(unlink(path) == 0);
-+	return conf;
-+}
-+
-+int main(void)
-+{
-+	const char *keys[] = { "module-store",	      "store-root",
-+			       "ro-store-root",	      "compiler-directory",
-+			       "ignore-module-cache", "policy-version",
-+			       "target-platform",     "expand-check",
-+			       "file-mode",	      "save-previous",
-+			       "save-linked",	      "disable-genhomedircon",
-+			       "usepasswd",	      "ignoredirs",
-+			       "handle-unknown",      "bzip-blocksize",
-+			       "bzip-small",	      "remove-hll",
-+			       "relabel_store",	      "optimize-policy",
-+			       "multiple-decls",      "sort-local-fcontexts" };
-+	const char *values[] = { "", "\"\"" };
-+	char version[32];
-+	snprintf(version, sizeof(version), "%d", sepol_policy_kern_vers_max());
-+	const char *valid[] = { "direct",
-+				"/var/lib/selinux",
-+				"/usr/lib/selinux",
-+				"/usr/libexec/selinux/hll",
-+				"true",
-+				version,
-+				"selinux",
-+				"true",
-+				"0644",
-+				"true",
-+				"true",
-+				"true",
-+				"true",
-+				"/home",
-+				"deny",
-+				"9",
-+				"true",
-+				"true",
-+				"true",
-+				"true",
-+				"true",
-+				"true" };
-+	assert(sizeof(valid) / sizeof(valid[0]) ==
-+	       sizeof(keys) / sizeof(keys[0]));
-+	unsigned cases = 0;
-+	for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); i++) {
-+		for (size_t j = 0; j < sizeof(values) / sizeof(values[0]);
-+		     j++) {
-+			char text[256];
-+			snprintf(text, sizeof(text), "%s = %s\n", keys[i],
-+				 values[j]);
-+			assert(parse(text) == NULL);
-+			semanage_conf_t *conf =
-+				parse("sort-local-fcontexts = true\n");
-+			assert(conf && conf->sort_local_fcontexts);
-+			semanage_conf_destroy(conf);
-+			cases += 2;
-+		}
-+		char text[256];
-+		snprintf(text, sizeof(text), "%s = %s\n", keys[i], valid[i]);
-+		semanage_conf_t *conf = parse(text);
-+		assert(conf);
-+		semanage_conf_destroy(conf);
-+		cases++;
-+	}
-+	for (size_t j = 0; j < sizeof(values) / sizeof(values[0]); j++) {
-+		char text[256];
-+		snprintf(text, sizeof(text),
-+			 "[load_policy]\npath = /bin/true\nargs = %s\n[end]\n",
-+			 values[j]);
-+		semanage_conf_t *conf = parse(text);
-+		assert(conf && conf->load_policy &&
-+		       conf->load_policy->args == NULL);
-+		semanage_conf_destroy(conf);
-+		cases++;
-+	}
-+	fail_token = true;
-+	assert(parse("sort-local-fcontexts = true\n") == NULL);
-+	assert(failures == 1);
-+	fail_token = false;
-+	semanage_conf_t *conf = parse("sort-local-fcontexts = false\n");
-+	assert(conf && !conf->sort_local_fcontexts);
-+	semanage_conf_destroy(conf);
-+	printf("Configuration scalar arguments: %u cases passed.\n", cases + 2);
-+	return 0;
-+}
+You are awesome, thank you!
 -- 
-2.56.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
