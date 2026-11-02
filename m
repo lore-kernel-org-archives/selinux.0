@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.210.174
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793646896;
-	b=CJqCbkMD0dEe8GdZgZyl6VEeTyi3g0AG/NKRrQOHFvlvL/PhgTT+5q19URXEmiffZ9hJ
-	 xb4jxQlyQqMBj9Zr+MzywktnPUEOM4YnESoGgRjy4lWbnE26u+HfaP95/Zs8RUIgoah0U
-	 7lXbts8WVQDhEZWIn21oeyTJ4vgIvfgzjpJmG15U4xJzy/h8LaXFzq2KWVdH1C1a2ks+8
-	 kYayG7g1tCM+FcTLGOBpSEyhuAWC4hWH+0RwRdbUKuIK6VS/9O8AUtY2zY0Aba+7Nbca0
-	 PZR+IIQxb01eIL2tKNRU7upsQs9ZBkI0JlnvpWUFnlfS+McHQamuBz75w/2Meup3tyw==
+	t=1793648384;
+	b=WMQUmARbG97o40LdOmMhFgnHmYA0k7t5TvluWXIIr1FYbr3tgnAmFXinEkbY4l4E9/+H
+	 VQvNd0hVyEqI6Bq1nWhWfnbbtS/mk5jUKWLpGNqI+yN8UG/WFUv4B13HNEvv5sOFMTpw9
+	 uY0ViH/QCdUi/HHVlYALWuyg1WgPhYeLYh+W9hxYsj7nN++98OtI8RhQlShD/oEWGHTYd
+	 4l4Q8tE79/2Bb3pnq+FnXv4ZcejrLPyWJxlBiXGfPO+AZkrMsmNcSe3UqKqTCH8Jo2n8W
+	 7XweP/iM6yxbF0D9r0OrlbOEwy9h8hPpqbSFgJCGALQ7R4wjFG6NxXRefJ2hmwIXjew==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793646896;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793648384;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
-	b=WmX7x1GbQEKDB1D4HzANBWEeSZ+JI7tZOsR6teDWbLbGw0EONEjU/0/vvY4RGQw6JB1G
-	 KouOw47vt+gWYBucJ4X0ywKZ9tZhp072eslDxiIzEWdkbms09n2/3m9o43rIBmoQOfUzL
-	 t/BKW5XTKElKOLUw65eTZ/0mYRB0UfdDt16p1d3Tk5nT2L9hAg5kLgAUc/KLU6J0dFMsw
-	 aOIpnB9QiI7xAwnAlRLdHsTpjOqt1O9QGqLzdCdq/WcNrT6GTStYGrKO1kYNb91DZxavu
-	 28ZGcbTTS95kCMXa+oAYkawnUF4PxFfR8Xe6dtCK74tolZnk8B1QaLjH5kOxTCT+ENw==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=fILK0wI2UqUr5itU/0Cq58lsYc1ISo7g+t7NVEUk9BU=;
+	b=4LJY4eA95VUbWS4O42WmbGI57B3e4HiAJPA+LgIudbTZGDYKdpVtpf4uKOXy0VPbLnI9
+	 fLNHqQe8SUoAcnfnCma2Ho1JnfezjpvrglffUhKmqUdDWn0iS7TZbjK5fOjOhZKr3SsUJ
+	 nIKX3VT7OX9lHyT3k+4dFhD6IQyJuccvPHsm9flJc9ho38PvIXEzllswmTzpkSHq9lRAn
+	 kyqiJTDuDWwsu5Fpy98mhURjs3qJ+tX7kxJGxqog9rWzw+ud6qvmBOgvTaTRDTxLH4YuY
+	 EOQw8Woo5N3mEQVz1oiZfV/PC9znjzkMLyPF6yYgJVJKrlaMltLFOkqvsW19WJYya1A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XC01FadA;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
-Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+	dmarc=pass header.from=paul-moore.com;
+	spf=pass smtp.mailfrom=paul-moore.com;
+	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=NhlqvCEA;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.210.174
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69E0C606EE9B
-	for <selinux@vger.kernel.org>; Mon,  2 Nov 2026 19:14:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69E0C606EE9B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9444A606A324
+	for <selinux@vger.kernel.org>; Mon,  2 Nov 2026 19:39:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9444A606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XC01FadA
-Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-67992884b02so2046574d50.3
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2026 11:14:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793646895; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=NhlqvCEA
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-8a60f90a924so1221721b3a.3
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2026 11:39:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793648378; cv=none;
         d=google.com; s=arc-20260327;
-        b=Wsem2aJezbyKO9geAzNDYHPlcg1wmcvskWMDdeF4HKpAeRmTQKS8je5Lw7aW0FllXE
-         pLtMgYmIDg+jk2kyDJ1XgF8+4W5F4MDUZDRbsyvsk8ZAxD4sPc8N0ujlDR2Utb/9AqgL
-         u6Jxy6cIDvhDUxDnGtNKcdQgqzyceHmbzho4E4l1fReW07vx7fNBIt5eznDpxtjC37h/
-         srneiXkvAhBM+e169Lk78+O1zflzeKy4YAXsS9Wg87ldyKtR9U9hp2M7bVsTxK9zkN//
-         xPN7jO1DD9E301dv1sOJWCdRg6iCyBZuusAzzehvIvCd427MxjeW1QlxXzjIIwN7XVR8
-         s3Sg==
+        b=hLmA2RzshQ/83JZtgX5rxQt00x4byuQKf7MPsoVEdnvldGZ2wktkM3FNRAxNXCgS5z
+         qHKj//yFDHr+vk5yY9pa9XFOmJbMxMZ8Sw+cJDUZl9K/9SLEWog6kqGbGh4xkE0IpPgY
+         +XMRoCVKttm68bJstkA4FiPM3XiTN4TeZv88Ggtu8WKQQZwQmOAiFt/syjAC8g8JXU5d
+         TRDo42MK4LeUW0y88K11rQPlYbqLsvjLotfNniBvYB3gwDeE6m9+hpDVrXO3FUsTV7uU
+         jj/fye6b0sjYpjleo59K+T6O1iW5EtqFouJm8+aOdnabz4NyVlHijQ3+GR7Wi0d469jz
+         A49g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
-        fh=q08H+4X8i7EaC7BesAm/d8L4xwnPrnWz+43sBtlpBQc=;
-        b=QfS2AdXz5xsiwJHDg36WqCZs0wwDQSQuehiHb7P4lJ2jYeAfIitCVLTl19Ymktgxvc
-         PdRHnHCw+smPXrOg6Iwqj6/ZDgeIWJ4nR5sHbTF9gwWobt/v9oQts0G6Pljb2uwsijFq
-         ljOOl3gZHdktKDHi6dUOkKeoeLKAocTIKxy5Shwm/6+uyo8aJ1Ihb5coLO4JiaP73o6e
-         gJSBFV09GCgejGFERDtfm2BNy9GBu1tq1zYYgViBwVIK3IFAHlflE+dnkgtk5aaviunS
-         BmiocT+V4ULFd9Uu9KNb6KqbPXKBvY0BGN+zttYu2wXRfBvKv2d22zV1ta0nSqCMaA4P
-         DtcA==;
+        bh=fILK0wI2UqUr5itU/0Cq58lsYc1ISo7g+t7NVEUk9BU=;
+        fh=cfAztFI6uc4BwG0V1e42V8xq9wP/yYtEmffygjDedCY=;
+        b=d5V8n0IlR1dGjFsADXB+WCb+jjAD2VzGeOAtM64AsLyb8F5upMjg6i/EbaRhAI6wV+
+         5pY14LQA/MYtEdJxnohAOTPdf8z5r7Tf4fw4TccieYMXCAf/QlXlV5tzefCGrjH/J5hO
+         lcuRrJpHz6xqaEnRBlaB49esSP+GfmQTCLX0qjQKcOMfGq1oOdRKdRvfOK971ESRRIFI
+         ePao5gK6QNsA/h8QPYHOKyqwmbPeuvwqjW2rYOE6+zBRYdog7syB++cWuCicSGdlOa1+
+         1opJoauanzTSR+tkyAiL3QwulfYZ5Ze0bEaej6gsKI2D/tCOeuAWHsMFC8ZW+2eRBI5Z
+         tPaQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793646895; x=1794251695; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1793648378; x=1794253178; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
-        b=XC01FadAVTfgbliO0aJzU6cCavSh1auahsmJ8QGBQjRvAs0GbObuVy055ROD81F8oe
-         Typ7GL5gVZ8op716iqmmYM/ERMStl1lPVCIkWCdsCPMhJvNwOpqEzODZiKD0AW24AbKR
-         BJraT/96V2Zn1zrqv3HRrxSSpIQpRWGYYLyJPjSySFDlGnQDskwLO/nvQC5sKTHFZUVN
-         ktqzSZJkdDC83kaGjWrmAdK1aatkbF5AlQZrHGbxwzlUc/+A04e3IpFMos9M1CbfcEqK
-         fxJc/PFk/Wqy3Vx0Pf1FlOc9zLIJceNTZzU0y/bGc7/iNE929ck5nZjAI6kc5DTprvNk
-         oCnw==
+        bh=fILK0wI2UqUr5itU/0Cq58lsYc1ISo7g+t7NVEUk9BU=;
+        b=NhlqvCEAqNeQh82h66VjeQRCvmLs88bUiMN8vsKnqKJ9wOlSOkwk3pTRZNEo2Wk7dK
+         HZv/BWl8uEe1rlLq4Esk4h0lNwnLc7ae2Ug4sIcT0bKI7VrNR03T1LZQUc4K6ZwzXmn6
+         He3DDsns3zqXONgEkB7fjVVE0uQ4EfO58HLmbhylcYi+XV4OsEafFtSN66UNdGEqLvGf
+         6+P0rp5Bbft2KMHvVeggiGD6wOnDjs5EEn+ovAV85fjamgZf+13AnKK26O49HqVD+JId
+         Nx6Te9tI8mE+yrOdmnPFjh4Tt7FpFJqRk8cVNQb3naMOyfjmKyriiJkGVwtVtYKbw4fR
+         FC6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793646895; x=1794251695;
+        d=1e100.net; s=20260707; t=1793648378; x=1794253178;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
-        b=wNaVOQeqKkXin15zTKEIU0/3BeUurbZ1Q7gupF83xQWaTmSwpbCfy4RTjG7kVqfmrU
-         0mzN49g/jukUgzPRrdSyv014VK7+1PO82g/fAHlaFGVKTua9NBdWiMSwsGNBF3AvylKQ
-         Y8Hc/PiuEkKDbBl1wqwSpCNQCX3r22ocGeY15DFD6mDF4LSLePI+MeLFDN2c5h5JIwas
-         OD26Y8auTo3c8Gc6v3i8+Er+tS4hT8fdw3VeNMopz6n+17nOMEfVG6i73UzDedCpuDjV
-         Z+Aw/UGoZx1w0DKKxcZblIejd0RycpYdLOJSDa4/D1BAkmKeoct/m4VXAePq8hpMEyL9
-         Np7w==
-X-Gm-Message-State: APuU4Z9vTEN3bb2h4CvAK/ScIjBgRhmimTxzrR/NNNedgaI+kpp1WEJR
-	x3CKq8trzTEbJ0dS6T03bOk3OGhRNY9BhHa205MYctAtw2pUCphGjSjhiH6+W+49SsXxMZ7T7nb
-	6iHlixXrm7QLGbV4Ypo3WySrnog5sr6tcjy6g+Hw=
-X-Gm-Gg: AYBFou1Q7YKLuRf3x73AJSEhXdcBF6JaQnMoCy5/LIzuYj8glcADdE/VDg8gNQt5Yz8
-	mz88xHr2+BnDN2H5SFZ/vsXLXBGQ0tubxK11GW7B538d3X2sV5qHxwHMTli/PC2hFtK0rWVCiLO
-	aNGT9xC6zB74eq8PSfVnNKFnkAsq4XD8S/ix44zXY3S48qfMv9UAtzm+nvd/zzaFtZBgBBS9VWM
-	MrokHbrTQMp6XVVyOUNCwJjIuNneRUSDbr93+gpZ70RKXVx5af3LfCcM0aGgxEZ20wMuL7P7j/E
-	ekgkLU12jtxB35jsMhjpILl7Flhsfb8iXSBSa70N0ddOQ6SpqquV8XOW4/zaRWO9zfkcWJNvF25
-	IzhSqTFryj4jbAUMoMcZCbHpuIL/LnT2k4MWeApMXliBUUSnqPqDJLYG/9oc/vudw9SIsnwTPhQ
-	Slw+YxFXN7h2xGgXTE6SahKZwbPddL5jrr0jLE3Tx3tzEubiTFCTfBZHQrNQ==
-X-Received: by 2002:a05:690e:803:20b0:679:a4a5:10c1 with SMTP id
- 956f58d0204a3-67ba4fa9d57mr4078177d50.22.1793646895354; Mon, 02 Nov 2026
- 11:14:55 -0800 (PST)
+        bh=fILK0wI2UqUr5itU/0Cq58lsYc1ISo7g+t7NVEUk9BU=;
+        b=EG4VyE+aJFL46F6uarsXCiRwIqnPG6E/y+npnQZTs2RyF4OX/2mTFpavWZein0U90l
+         ZVM4bBJbOoRQ5YQ4DEC6rdZryAS0gsnejuRmo/fiq5twEtzNrrko014KYHmQK2BLP8e6
+         iitDGf8Z9p8DJe9BHXz6fO9j5CJFdXYt0eHrB9zaQVdpEr5gxt3Q7h03c6E0wZzmYpwo
+         qsgOs6L6McIvsb7G0QMj6DeOfEpsCkmiqAG2+GgNCMXIWamCbyIuzCrPb8YdBR10m1jW
+         I/ItOfxgqpQK1IcxIdCf5bvw7hWn54XI1yJZxeFA2ByFSTDYFLf9XKRUp24LvgDlfrIi
+         dU+Q==
+X-Forwarded-Encrypted: i=1; AKwUvBy6tWZ2dlFL0L+ipnHjmO0kL41aQz/AmlWrAmHMxtsSCbX6QavNXYUKWKUk2PNiFCCQkZB5KCrZ@vger.kernel.org
+X-Gm-Message-State: APuU4Z8YTT+5A/DvaUxKlG5tZOOfNtYj4MadVU5e8BSvPNtkiKgbq0y5
+	KtCgVz8qoiVDGZG69e4e3giHJUBCR+Per/5f9VMoEuehXp6BeNNyWB9TXNbkhnXpLF6kIpjKj1l
+	sgWeu2XYt3w3Gb+4BjvndkieWwRcIRjn99y7zxCgD
+X-Gm-Gg: AYBFou1y3een2I3LLBqFp7Npv79WCKdWpMhZHQyV9eEdG+Qwu1C02CByqRG/7J+4C6J
+	cgi2Xj4j2WJE71iRcCaBGeIe2D8xFwaaGP3gBCUeXyZEqGxWPhgG65ttX4RfSeq77GZFPmDhopr
+	3kXJXCDVvZlqlEwMbL6+6OnT9x3fMa/aSINzMkOBaR/VmV1iUjq14RrlerppvBbs040/ADVSLff
+	BI/ZoiXvMXgDCKtVSFQBTGMmn16tI4g9JL9jZwIS7BdwN3s0u/1zMEyXhwMyrCfSMAxz3BPaYTt
+	bLjFLDj0sGLFQ9Cj/IULX7Qt4+4+DSDR3sIe7cgDTbE3mxk3Bg67ATLvGO85JMPoWgx1ukldGiB
+	Ujs3PUTuxOTM/b3rZcKlVxP0KLJy9G2aT8PB3zSada1bQGhDY3r8B0Z7ZsE0sVPPzPa6X
+X-Received: by 2002:a05:6a00:3c89:b0:8a0:3307:c46c with SMTP id
+ d2e1a72fcca58-8a9bea6b19cmr8445171b3a.36.1793648377853; Mon, 02 Nov 2026
+ 11:39:37 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,77 +104,172 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261102134718.1825-1-stephen.smalley.work@gmail.com> <20261102134718.1825-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261102134718.1825-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 2 Nov 2026 14:14:44 -0500
-X-Gm-Features: AclHuK8l9hHJ0ozBBXQqAHTxJijPN8aU_Ug3sOpaEOvwJdTrl-17lqSmnWCwt3s
-Message-ID: <CAEjxPJ7OFBrzm4WNz-aJ4t8BzsEUHrHuGQinM8mybvKTn5YBNQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] libsemanage/genhomedircon: apply path substitution
- rules to home directories
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com, 
-	Eugenij Safonov <ja.safonau@protonmail.com>
+References: <20261102130540.252894-1-omosnacek@gmail.com> <CAEjxPJ4hxdvV-r8chmF3RAi9RJX=-4AqntG01=fWUhh4-xP+ew@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4hxdvV-r8chmF3RAi9RJX=-4AqntG01=fWUhh4-xP+ew@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 2 Nov 2026 14:39:25 -0500
+X-Gm-Features: AclHuK_N7t88qS7YSGZ1TxDpP4hXHc3j5T0g0RysETh1DoLdW5UuZOpzEfeNB98
+Message-ID: <CAHC9VhRU1WZrsnw4q+vA_pKGGPs6kydHZsLbycWzbN27ygLXdg@mail.gmail.com>
+Subject: Re: [RFC PATCH] af_unix: introduce MSG_CMSG_SEALED
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
+	Eric Dumazet <edumazet@kernel.org>, Kuniyuki Iwashima <kuniyu@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+	Willem de Bruijn <willemb@google.com>, Jakub Kicinski <kuba@kernel.org>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Simon Horman <horms@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	netdev@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, io-uring@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 2, 2026 at 8:47=E2=80=AFAM Stephen Smalley
+On Mon, Nov 2, 2026 at 10:14=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> From: Eugenij Safonov <ja.safonau@protonmail.com>
+> On Mon, Nov 2, 2026 at 8:05=E2=80=AFAM Ondrej Mosn=C3=A1=C4=8Dek <omosnac=
+ek@gmail.com> wrote:
+> >
+> > Currently, when a process receives a file through AF_UNIX's SCM_RIGHTS
+> > mechanism, the security_file_receive() LSM hook is calledto allow LSMs
+> > like SELinux to validate the receiver's access to the received file
+> > (similarly to a process inheriting file descriptors through execve(2)).
+> >
+> > However, there are cases (such as dbus daemon/dbus-broker) where the
+> > receiver doesn't intend to access the received file and merely wants to
+> > forward it to a third process. In this case the forwarding process woul=
+d
+> > need to have the appropriate r/w access to the file in order to receive
+> > it, even though it will never actually acess it. That leads to the
+> > security policy having to grant the forwarder access to a potentially
+> > wide range of files (in case of dbus-broker basically all files), which
+> > is not ideal.
+> >
+> > This patch adds a new CMSG flag MSG_CMSG_SEALED that, when passed to
+> > recvmsg(2), wraps any received files into an opaque anonymous inode wit=
+h
+> > the name "[envelope]", skipping the security_file_receive() LSM check.
+> > The returned "[envelope]" file descriptor can't be used in any
+> > meaningful way other than being passed forward via sendmsg(2) with the
+> > MSG_CMSG_SEALED flag. In that case the original file is unwrapped and
+> > sent via SCM_RIGHTS to the receiver. The receiver can then either
+> > receive the file as normal (subject to the LSM check) or again "sealed"
+> > in the "[envelope]" anon inode for further forwarding.
+> >
+> > Note that sending the "[envelope]" file is only allowed with the
+> > MSG_CMSG_SEALED flag set, to make the unsealing explicit and avoid
+> > unexpected behavior. Attempting to send it without this flag will fail
+> > with an error. This also avoids recursive nesting of "[envelope]" files=
+,
+> > which would only make this feature harder to audit for possible issues.
+> >
+> > This patch also adds a simple read-only sockopt for UNIX sockets that
+> > allows userspace to determine if this feature is present (passing
+> > unknown CMSG flags unfortunately doesn't lead to an error currently).
+> > The minimal code to do so can look like this:
+> >
+> >     #ifndef SO_RIGHTS_SEALED_SUPPORTED
+> >     #define SO_RIGHTS_SEALED_SUPPORTED 88
+> >     #endif
+> >
+> >     #include <sys/socket.h>
+> >     #include <unistd.h>
+> >     #include <stdbool.h>
+> >
+> >     bool MSG_CMSG_SEALED_supported(void)
+> >     {
+> >         int sock, ret;
+> >         socklen_t optlen =3D 0;
+> >
+> >         sock =3D socket(AF_UNIX, SOCK_STREAM, 0);
+> >         if (sock < 0) {
+> >             /* handle error */
+> >             /* ... */
+> >         }
+> >
+> >         ret =3D getsockopt(sock, SOL_SOCKET, SO_RIGHTS_SEALED_SUPPORTED=
+,
+> >                          NULL, &optlen);
+> >         close(sock);
+> >
+> >         return ret =3D=3D 0;
+> >     }
+> >
+> > Related: https://github.com/fedora-selinux/selinux-policy/issues/3286
+> > Related: https://github.com/fedora-selinux/selinux-policy/issues/3287
+> > Signed-off-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+> > ---
 >
-> genhomedircon derives the home directory prefixes for the generated
-> file_contexts.homedirs patterns from /etc/default/useradd (HOME=3D),
-> /etc/libuser.conf (LU_HOMEDIRECTORY) and the passwd database, without
-> taking path substitution rules (file_contexts.subs(5)) into account.
+> > diff --git a/net/core/scm.c b/net/core/scm.c
+> > index ae38f3c1165c..08822b2a1f22 100644
+> > --- a/net/core/scm.c
+> > +++ b/net/core/scm.c
+> > @@ -114,10 +127,29 @@ static int scm_fp_copy(struct cmsghdr *cmsg, stru=
+ct scm_fp_list **fplp)
+> >
+> >                 if (fd < 0 || !(file =3D fget_raw(fd)))
+> >                         return -EBADF;
+> > -               /* don't allow io_uring files */
+> > -               if (io_is_uring_fops(file)) {
+> > -                       fput(file);
+> > -                       return -EINVAL;
+> > +
+> > +               if (sealed) {
+> > +                       /* Only allow sealed files */
+> > +                       if (file->f_op !=3D &envelope_ops)
+> > +                               return -EINVAL;
 >
-> On systems where /home is an alias for another location (e.g. bootc and
-> ostree based systems with HOME=3D/var/home in /etc/default/useradd and a
-> "/var/home /home" equivalency rule in file_contexts.subs_dist), the
-> generated patterns therefore use the aliased prefix, while libselinux
-> canonicalizes lookup paths to the original path before matching.  None
-> of the generated patterns can ever match, so any relabel of user home
-> directories produces default_t, which breaks confined services reading
-> user files - most visibly sshd, which cannot read authorized_keys and
-> silently falls back to password authentication.
+> This leaks a file reference.
 >
-> Fix this by loading the local and distribution path substitution files
-> and canonicalizing every home directory prefix (useradd and libuser
-> defaults, the /home and /export/home fallbacks, and per-user home
-> directories from the passwd database) through them before generating
-> patterns, using the helpers added in the previous commit.  The
-> substitution files are resolved below the final SELinux policy
-> directory or, failing that, below the vendor configuration root of
-> the selected store, both below the semanage root, so that a
-> vendor-only file_contexts.subs_dist is honored without reading the
-> host configuration.
+> > +
+> > +                       file =3D (struct file *)file->private_data;
 >
-> A side effect is that the existing check for password file entries
-> conflicting with a file context now checks the canonical path, which
-> makes it catch conflicts it previously missed, as file context rules
-> always use original paths (semanage rejects aliased file specs).
+> This fails to take a reference to the underlying file but will later get =
+fput().
 >
-> Verified in a container against the Fedora targeted policy:
+> > +
+> > +                       /*
+> > +                        * No need to check for io_uring files here as =
+the
+> > +                        * underlying file had already successfully pas=
+sed the
+> > +                        * check when it was first sent.
+> > +                        */
+> > +               } else {
+> > +                       /* Don't allow sealed files */
+> > +                       if (file->f_op =3D=3D &envelope_ops)
+> > +                               return -EINVAL;
 >
-> - HOME=3D/var/home together with the stock "/var/home /home" subs_dist
->   rule now generates /home/[^/]+ patterns, and matchpathcon resolves
->   /var/home/<user>/.ssh/authorized_keys to ssh_home_t again
-> - a subs_dist file available only below the vendor configuration
->   root (/usr/lib/selinux) is honored as well
-> - with the semanage root set to a target image, a subs_dist only
->   below the vendor configuration root inside the image is honored,
->   and a missing file in the image does not read the host's rules
-> - chained local (/srv/homes -> /var/home) and distribution
->   (/var/home -> /home) rules resolve to /home
-> - a wildcard source (/*/varhome) and duplicate rules behave as at
->   runtime lookup
-> - per-user patterns generated from SELinux user mappings are
->   canonicalized as well
-> - with no matching substitution rules the generated file is
->   byte-identical to the unpatched output
+> This also leaks a file reference.
 >
-> Reference: https://github.com/SELinuxProject/selinux/issues/547
-> Signed-off-by: Eugenij Safonov <ja.safonau@protonmail.com>
+> > @@ -365,18 +398,37 @@ static int scm_max_fds(struct msghdr *msg)
+> >  }
+> >
+> >  int scm_recv_one_fd(struct file *f, int __user *ufd, unsigned int flag=
+s,
+> > -                   bool notrunc)
+> > +                   bool notrunc, bool sealed)
+> >  {
+> > +       struct file *f_received;
+> >         int error;
+> >
+> >         if (!ufd)
+> >                 return -EFAULT;
+> >
+> > -       error =3D security_file_receive(f);
+> > -       if (error)
+> > -               return notrunc ? put_user(error, ufd) : error;
+>
+> Design point: I would suggest adding and using a new LSM hook that
+> allows security modules (like SELinux) to still be able to check a
+> (new) permission that governs whether a process can pass along these
+> sealed fds so that we do not entirely lose control over their use.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+I've only given this a quick look, but I'm also not excited about the
+LSM hook being conditional on the "sealed" flag.  I'd prefer for the
+security_file_receive() hook to catch all the files, but take an
+additional bool argument indicating the sealed state; this would allow
+individual LSMs to decide how best to handle this.
+
+  security_file_receive(struct file *file, bool sealed)
+
+--=20
+paul-moore.com
