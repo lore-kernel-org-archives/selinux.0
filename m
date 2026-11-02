@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793646749;
-	b=J5eEygNpwjrkcQ9Du/AVTVNRVxcYFLrGAY+BdPJR3OnRxtVcEzcK/9W5sLBQ9iUxIi8x
-	 4tq8D5oSn8pP+x4esLIVfaTefS14p1kdr/5mqm7MimSY96j+n5voe5spHBxTsJ7WTt3IP
-	 89DcN153w0/m26aGqvHws945YSRWm3KXbl3KLbtl2YqrK99tBGI+DPZAiCqV+Ztn0GwPN
-	 Ii585BEP4e7kt390kRBCeFcznSujSApHny6gt8MWdOkTZlkd3/36pVp4rBiXTTBARv7oa
-	 FzNCvZj0ObwUdwL/boUok5/ExhMwZNK55tdKdBzitqb49dbSVSqqFaVZXtSDSRTZmpA==
+	t=1793646896;
+	b=CJqCbkMD0dEe8GdZgZyl6VEeTyi3g0AG/NKRrQOHFvlvL/PhgTT+5q19URXEmiffZ9hJ
+	 xb4jxQlyQqMBj9Zr+MzywktnPUEOM4YnESoGgRjy4lWbnE26u+HfaP95/Zs8RUIgoah0U
+	 7lXbts8WVQDhEZWIn21oeyTJ4vgIvfgzjpJmG15U4xJzy/h8LaXFzq2KWVdH1C1a2ks+8
+	 kYayG7g1tCM+FcTLGOBpSEyhuAWC4hWH+0RwRdbUKuIK6VS/9O8AUtY2zY0Aba+7Nbca0
+	 PZR+IIQxb01eIL2tKNRU7upsQs9ZBkI0JlnvpWUFnlfS+McHQamuBz75w/2Meup3tyw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793646749;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793646896;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=HUYhlauEqJneds9e04gaCp/kM46exeqqKWpf/XBJ3+U=;
-	b=D+xh6GqyQjXFRe2hS7fTzqrzgltQLfqfIVjBcqz2LGrkOhDKG/tFDpJhKWpx6tum2Bzn
-	 lGRR+iKvPPFCD4YsnjI4r46/4h+LmenpoU0q3v23c4nB1VajYeEKKM7j9Drlo0ijsh4Uh
-	 GyqLi6KwcdAXWKiyNz5UZqJZ3J4ppHSchXjiR1aER/QjpKZ++se6gGWASbhnUOpUArpve
-	 +oEvtR9K4cSyfoXkkSvHzXlpXS58t5cJFp3vydLELk9WZfTybgNjSfvdi2ZZDczm7F0ph
-	 LVe/xtjw/An5kArQV+4EGFkes7HhcJmLRmhO9t0/zLED2koB+USXzPm1uKXScZ+bQMA==
+	bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
+	b=WmX7x1GbQEKDB1D4HzANBWEeSZ+JI7tZOsR6teDWbLbGw0EONEjU/0/vvY4RGQw6JB1G
+	 KouOw47vt+gWYBucJ4X0ywKZ9tZhp072eslDxiIzEWdkbms09n2/3m9o43rIBmoQOfUzL
+	 t/BKW5XTKElKOLUw65eTZ/0mYRB0UfdDt16p1d3Tk5nT2L9hAg5kLgAUc/KLU6J0dFMsw
+	 aOIpnB9QiI7xAwnAlRLdHsTpjOqt1O9QGqLzdCdq/WcNrT6GTStYGrKO1kYNb91DZxavu
+	 28ZGcbTTS95kCMXa+oAYkawnUF4PxFfR8Xe6dtCK74tolZnk8B1QaLjH5kOxTCT+ENw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rjUpVzlh;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.178
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XC01FadA;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
+Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE29606A326
-	for <selinux@vger.kernel.org>; Mon,  2 Nov 2026 19:12:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1CE29606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69E0C606EE9B
+	for <selinux@vger.kernel.org>; Mon,  2 Nov 2026 19:14:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69E0C606EE9B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rjUpVzlh
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-8b125371596so32863347b3.0
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2026 11:12:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793646748; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XC01FadA
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-67992884b02so2046574d50.3
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2026 11:14:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793646895; cv=none;
         d=google.com; s=arc-20260327;
-        b=cn2CHyqyXiKDBsHJHGKQwi0/4/JaH165kFM0ukMmb+JYhHDyidlHchOKONB5qdqmcu
-         PosjkR7H8xuzBtkFECOfy3CHqWrX3TGGg45MACDJep7VQF03iHIGH3Sn9V+MQWETHJb3
-         k3RPdnslAWawzZYsndyueGVwpyC8CZy/NnOAB0n+I7vZysohNJbT08i7RaQNHFwv99UY
-         ng5hvsgG3LKoC2lfmgFfTdSd//j9OZJyrxtYWK/Hrr3akmt5EHXT6MGrFgG81vE6bYT8
-         OEgVD8zcEQ6HvR5WRWNeplT5wr+cIWOvtxAbhowK8F/rNRYmGtuRYdwCDp5AXaR9YvLc
-         w0Ug==
+        b=Wsem2aJezbyKO9geAzNDYHPlcg1wmcvskWMDdeF4HKpAeRmTQKS8je5Lw7aW0FllXE
+         pLtMgYmIDg+jk2kyDJ1XgF8+4W5F4MDUZDRbsyvsk8ZAxD4sPc8N0ujlDR2Utb/9AqgL
+         u6Jxy6cIDvhDUxDnGtNKcdQgqzyceHmbzho4E4l1fReW07vx7fNBIt5eznDpxtjC37h/
+         srneiXkvAhBM+e169Lk78+O1zflzeKy4YAXsS9Wg87ldyKtR9U9hp2M7bVsTxK9zkN//
+         xPN7jO1DD9E301dv1sOJWCdRg6iCyBZuusAzzehvIvCd427MxjeW1QlxXzjIIwN7XVR8
+         s3Sg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=HUYhlauEqJneds9e04gaCp/kM46exeqqKWpf/XBJ3+U=;
+        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
         fh=q08H+4X8i7EaC7BesAm/d8L4xwnPrnWz+43sBtlpBQc=;
-        b=qwCJVhvKf4GnENpKmXl3Xq294ckC3RaR9Aqc4Ixgs0OeKoUpM68+YGHiYlRuoRXf4n
-         JdUju27IdfXtsKKn34TZr4mwLueAz/9EZ4EfjW33DJ4DkRkuadN/+BV+V+FThixFGebu
-         8LfAwB4NYtKDBMyZdl5cbSw4LcSuNZKr1tjKIkTBivd/SO+CP7e4gmOFrEE/47Aixm94
-         M0zcEQYmsC9tXXCvMph+XpcsbWDK6ZvKUeATsXannV4A3cNEAyaRJ7jKjkVKAumIOaLd
-         F04fyjxVsuIH8PTA0C/8QCA/VfDmbFxVkmMjA/cAlp70HABDoni8QpcV+o1ZtPzNzNSw
-         Ueqw==;
+        b=QfS2AdXz5xsiwJHDg36WqCZs0wwDQSQuehiHb7P4lJ2jYeAfIitCVLTl19Ymktgxvc
+         PdRHnHCw+smPXrOg6Iwqj6/ZDgeIWJ4nR5sHbTF9gwWobt/v9oQts0G6Pljb2uwsijFq
+         ljOOl3gZHdktKDHi6dUOkKeoeLKAocTIKxy5Shwm/6+uyo8aJ1Ihb5coLO4JiaP73o6e
+         gJSBFV09GCgejGFERDtfm2BNy9GBu1tq1zYYgViBwVIK3IFAHlflE+dnkgtk5aaviunS
+         BmiocT+V4ULFd9Uu9KNb6KqbPXKBvY0BGN+zttYu2wXRfBvKv2d22zV1ta0nSqCMaA4P
+         DtcA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793646748; x=1794251548; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793646895; x=1794251695; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=HUYhlauEqJneds9e04gaCp/kM46exeqqKWpf/XBJ3+U=;
-        b=rjUpVzlhIoX5EnqUp8RgCB8nO22NncmZsdA6jqFBqWe/Ocnrv/ByE4TqyWB6+Z4mlP
-         YnJqeeWbzRS5uwHwX/YfLvpENOZYEIeFs+vny/LdhpYeu1TzVtd6Ots+ymBR0l7hoDL7
-         9sEL+/XZeO3vEd0GFcrBldhIILafMWli+Xx9iazQpraqDDZoBpvJXJS0f07kV94ojeNP
-         QgfKG1dKYep7alaisbCIZ9V8AZqZJHTlfyQuyh+PFjwyeGrc7/AhNbDoVt/lf3ggkGoV
-         i4nK0285n3MzitTG119T+VD0BBgunDc62JNNyoGoyfuxG3e2gffO4JDbj3KxorqY3FSm
-         IEpA==
+        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
+        b=XC01FadAVTfgbliO0aJzU6cCavSh1auahsmJ8QGBQjRvAs0GbObuVy055ROD81F8oe
+         Typ7GL5gVZ8op716iqmmYM/ERMStl1lPVCIkWCdsCPMhJvNwOpqEzODZiKD0AW24AbKR
+         BJraT/96V2Zn1zrqv3HRrxSSpIQpRWGYYLyJPjSySFDlGnQDskwLO/nvQC5sKTHFZUVN
+         ktqzSZJkdDC83kaGjWrmAdK1aatkbF5AlQZrHGbxwzlUc/+A04e3IpFMos9M1CbfcEqK
+         fxJc/PFk/Wqy3Vx0Pf1FlOc9zLIJceNTZzU0y/bGc7/iNE929ck5nZjAI6kc5DTprvNk
+         oCnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793646748; x=1794251548;
+        d=1e100.net; s=20260707; t=1793646895; x=1794251695;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=HUYhlauEqJneds9e04gaCp/kM46exeqqKWpf/XBJ3+U=;
-        b=EnmNoliqw6lExUUz6fEynRnViwzaKBhrxVza+4AYPXJZlwZkCDJtnwdqj9PlcKN5mn
-         Q5484VnZaQzStHy0M60lUOLM3A//RZOhlNYcrLGVulCa69tR5/t3QSka1Vw4jxdWwer6
-         xrPVLPUu3JijaFi8k1Tu2G1scwdWvDjwUtH1opGbrBalCLrb/Wd6rUPhKCHfXwr/axHP
-         tm7Ym3cHw6myNPxeTHoUpHewGzs2vZrMO22IpdltOchioHzUI7wE3PfDsSN6/w9cDHyK
-         gfZU6mrouLgT5aphIZHK2DtbsqUEOAwHr20QNP3O3HfrU5NcKmLl3GF0XwsCHxuXLeai
-         6WIg==
-X-Gm-Message-State: APuU4Z97Gl1mvTqPYeDrSoCGA+A+A3wFe6vg5YJ6XKmgTSbE7zu0+yO9
-	iBpPNrJtaZv+pwy7vWKszin0Kb/Kf5Mk+J6HU9phOxQEoAeq873QPLmcCzxMmqmB88HxUkIkqCX
-	ZpFcAJZkIMH9B4YnSLBSbPGtoD3NMjczVkaXi
-X-Gm-Gg: AYBFou1ZO2wBjR0X9fXmZ5Hp2GT5D4zBRAknCSVNBhGvnVyQOk/MWODtDIRAz38VYy+
-	hiZXxcdGkkTbkx8++WFEvevnbcK3p/PDaZIduBmzYZGGgEZGqVP4RPI6oRwhlQHZQ/PYh6QTrpo
-	VgJ0uLrW+ALGTBXh7pejSm+t/NWUtupJL6gki/9DwDnU3WC3XCgrtzDFzqo0jiJEzPhe42TYQSn
-	b79LfT8uVIzuzPzzNs9ImycRQ8VNS0UPmxiWlR4m17BRA5Nq+wsp/E95hU4iqooU/qgQuOKpsh7
-	5Si3udFJsyWn5Wq/qjhXA20DEpsKgLxrF8Va71qQSVjJScRe0OgPqVzgcvC00kciDjaE92rtK4t
-	8CUu/QfMbiPAuhS+mvKKQ3xaDriKCvivOJVaB2fY2G2mJ3y8aM6mcVFTRvnJIdAqKwP/Jp0Vg88
-	59UwOHg40+2hrYYzjt/Lmm1l+ZIm6LfHPFoOcxaRbeOUA4Asb+51t1A9T34A==
-X-Received: by 2002:a05:690e:144a:b0:678:fa71:301e with SMTP id
- 956f58d0204a3-67a8d44af6bmr11040710d50.30.1793646747940; Mon, 02 Nov 2026
- 11:12:27 -0800 (PST)
+        bh=bgu8PSI0Lkokg9QhwzLyscKvNyg1a50aQhBdGZkR4FU=;
+        b=wNaVOQeqKkXin15zTKEIU0/3BeUurbZ1Q7gupF83xQWaTmSwpbCfy4RTjG7kVqfmrU
+         0mzN49g/jukUgzPRrdSyv014VK7+1PO82g/fAHlaFGVKTua9NBdWiMSwsGNBF3AvylKQ
+         Y8Hc/PiuEkKDbBl1wqwSpCNQCX3r22ocGeY15DFD6mDF4LSLePI+MeLFDN2c5h5JIwas
+         OD26Y8auTo3c8Gc6v3i8+Er+tS4hT8fdw3VeNMopz6n+17nOMEfVG6i73UzDedCpuDjV
+         Z+Aw/UGoZx1w0DKKxcZblIejd0RycpYdLOJSDa4/D1BAkmKeoct/m4VXAePq8hpMEyL9
+         Np7w==
+X-Gm-Message-State: APuU4Z9vTEN3bb2h4CvAK/ScIjBgRhmimTxzrR/NNNedgaI+kpp1WEJR
+	x3CKq8trzTEbJ0dS6T03bOk3OGhRNY9BhHa205MYctAtw2pUCphGjSjhiH6+W+49SsXxMZ7T7nb
+	6iHlixXrm7QLGbV4Ypo3WySrnog5sr6tcjy6g+Hw=
+X-Gm-Gg: AYBFou1Q7YKLuRf3x73AJSEhXdcBF6JaQnMoCy5/LIzuYj8glcADdE/VDg8gNQt5Yz8
+	mz88xHr2+BnDN2H5SFZ/vsXLXBGQ0tubxK11GW7B538d3X2sV5qHxwHMTli/PC2hFtK0rWVCiLO
+	aNGT9xC6zB74eq8PSfVnNKFnkAsq4XD8S/ix44zXY3S48qfMv9UAtzm+nvd/zzaFtZBgBBS9VWM
+	MrokHbrTQMp6XVVyOUNCwJjIuNneRUSDbr93+gpZ70RKXVx5af3LfCcM0aGgxEZ20wMuL7P7j/E
+	ekgkLU12jtxB35jsMhjpILl7Flhsfb8iXSBSa70N0ddOQ6SpqquV8XOW4/zaRWO9zfkcWJNvF25
+	IzhSqTFryj4jbAUMoMcZCbHpuIL/LnT2k4MWeApMXliBUUSnqPqDJLYG/9oc/vudw9SIsnwTPhQ
+	Slw+YxFXN7h2xGgXTE6SahKZwbPddL5jrr0jLE3Tx3tzEubiTFCTfBZHQrNQ==
+X-Received: by 2002:a05:690e:803:20b0:679:a4a5:10c1 with SMTP id
+ 956f58d0204a3-67ba4fa9d57mr4078177d50.22.1793646895354; Mon, 02 Nov 2026
+ 11:14:55 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,13 +104,14 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261102134718.1825-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261102134718.1825-1-stephen.smalley.work@gmail.com>
+References: <20261102134718.1825-1-stephen.smalley.work@gmail.com> <20261102134718.1825-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261102134718.1825-2-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 2 Nov 2026 14:12:16 -0500
-X-Gm-Features: AclHuK8R9IfrAxdZsFbCvzUA-L6QQNzwGAshme2fpmLmjOa81ANv3XLG5dWCJgA
-Message-ID: <CAEjxPJ4WOueETuVcO==Kr9zVs28LUrZYdOwuujGzSLMrr1_vjw@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] libsemanage: add path substitution helpers
+Date: Mon, 2 Nov 2026 14:14:44 -0500
+X-Gm-Features: AclHuK8l9hHJ0ozBBXQqAHTxJijPN8aU_Ug3sOpaEOvwJdTrl-17lqSmnWCwt3s
+Message-ID: <CAEjxPJ7OFBrzm4WNz-aJ4t8BzsEUHrHuGQinM8mybvKTn5YBNQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] libsemanage/genhomedircon: apply path substitution
+ rules to home directories
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
 	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com, 
@@ -123,26 +124,57 @@ On Mon, Nov 2, 2026 at 8:47=E2=80=AFAM Stephen Smalley
 >
 > From: Eugenij Safonov <ja.safonau@protonmail.com>
 >
-> Add an internal module for handling path substitution rules from
-> file_contexts.subs(5), mirroring the selabel_file backend of
-> libselinux:
+> genhomedircon derives the home directory prefixes for the generated
+> file_contexts.homedirs patterns from /etc/default/useradd (HOME=3D),
+> /etc/libuser.conf (LU_HOMEDIRECTORY) and the passwd database, without
+> taking path substitution rules (file_contexts.subs(5)) into account.
 >
-> - semanage_path_subs_load() parses a substitution file ("alias
->   original" per line, '#' comments); a missing file is not an error,
->   and a '*' in the alias is a single-component wildcard that must
->   span a whole path component
-> - semanage_path_subs_apply() rewrites a path according to the last
->   matching rule in the file, matching whole path components, with
->   '*' matching a single component
-> - semanage_path_subs_canonicalize() applies the local rules first and
->   passes the result through the distribution rules
+> On systems where /home is an alias for another location (e.g. bootc and
+> ostree based systems with HOME=3D/var/home in /etc/default/useradd and a
+> "/var/home /home" equivalency rule in file_contexts.subs_dist), the
+> generated patterns therefore use the aliased prefix, while libselinux
+> canonicalizes lookup paths to the original path before matching.  None
+> of the generated patterns can ever match, so any relabel of user home
+> directories produces default_t, which breaks confined services reading
+> user files - most visibly sshd, which cannot read authorized_keys and
+> silently falls back to password authentication.
 >
-> No functional change yet; a follow-up commit uses these helpers in
-> genhomedircon.
+> Fix this by loading the local and distribution path substitution files
+> and canonicalizing every home directory prefix (useradd and libuser
+> defaults, the /home and /export/home fallbacks, and per-user home
+> directories from the passwd database) through them before generating
+> patterns, using the helpers added in the previous commit.  The
+> substitution files are resolved below the final SELinux policy
+> directory or, failing that, below the vendor configuration root of
+> the selected store, both below the semanage root, so that a
+> vendor-only file_contexts.subs_dist is honored without reading the
+> host configuration.
 >
-> The module is covered by CUnit tests (libsemanage/tests/test_path_subs.c)=
-.
+> A side effect is that the existing check for password file entries
+> conflicting with a file context now checks the canonical path, which
+> makes it catch conflicts it previously missed, as file context rules
+> always use original paths (semanage rejects aliased file specs).
 >
+> Verified in a container against the Fedora targeted policy:
+>
+> - HOME=3D/var/home together with the stock "/var/home /home" subs_dist
+>   rule now generates /home/[^/]+ patterns, and matchpathcon resolves
+>   /var/home/<user>/.ssh/authorized_keys to ssh_home_t again
+> - a subs_dist file available only below the vendor configuration
+>   root (/usr/lib/selinux) is honored as well
+> - with the semanage root set to a target image, a subs_dist only
+>   below the vendor configuration root inside the image is honored,
+>   and a missing file in the image does not read the host's rules
+> - chained local (/srv/homes -> /var/home) and distribution
+>   (/var/home -> /home) rules resolve to /home
+> - a wildcard source (/*/varhome) and duplicate rules behave as at
+>   runtime lookup
+> - per-user patterns generated from SELinux user mappings are
+>   canonicalized as well
+> - with no matching substitution rules the generated file is
+>   byte-identical to the unpatched output
+>
+> Reference: https://github.com/SELinuxProject/selinux/issues/547
 > Signed-off-by: Eugenij Safonov <ja.safonau@protonmail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
