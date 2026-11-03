@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793732014;
-	b=TEoHbzbTKc8sH7H3sWqx4Mz8cJKRVnBHSwDtlemxO/6iwvnHMv+40iNViuCN0j+soo36
-	 IWJMJhz6ZZxoMeAUJilycduC2LgmgdtkIkcKPmM57tMfRnTgwwr1w/001x/xZIcFzcLiV
-	 3rD3TMfZJWLngiB4SnvKBtjUo0Fw6MlyooUusl6mc/8HVPu84WlafEXP0bHiAsqwRtKAC
-	 LCecf2T5ewPCInhlHrp0i/yzbeXB9FHnaEZtBY89knTtJo4UQIx6/FbBt8F8gfVG/hOw/
-	 9gwbNHoxxDOTHZAfYZ0tKUo+/XN2i185I4CxHHAOB8rFvw9WhdZcuXYfQLGgd2fHSsA==
+	t=1793732015;
+	b=DpI2S4AATT6rm7qtoUSH1dWTyhFRqDU4AIaZUCm7s/+IIpVJL4a55A/TIKuz8tBgAhzd
+	 hsvjwNSJ/eXvME9/PeNbPQhP6oZvCP18Ktp0q3aY4hYwkahNskEaY5yhCYyCoZuqS9BQi
+	 B5hhu9lPLRhr68y4Ym/peAKXuhLBPWRLW96zKFUfjOD5EdRhHAnWD16iq59piKHO0F0cZ
+	 5MOAH3mGJRVDhBYQBMAnQ9V3ELcd6Xcw5kmt/p9QyE0k4tcw6iG5ukty/UHyY6YCI0GSG
+	 YTL1+UdEm30g7WiCEbIEb7M4IIRJ72W6YbgIwcZKVzNtALAGE9LSN3loy5leEZysaBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793732014;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793732015;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=cFD2fzjk7IGKjKiTggYvZPsH9QofXFDvw8KTLAdAqDU=;
-	b=k1R2g+yCd8krmC3Z1kTkYGmd4WaZ/OhaVBhwbpHo6B2x/FsNlo/Yx2Oh6CpjOkUdhZTM
-	 ekw5WoM3XjHX7Hk6fkReDqdpCzttgpfX8lqGaP+3y84NwOafTVgnJP7z3BiVpnnLT18//
-	 fFTV7sCqBSkJNcKmhTk4uT5/sOWLQaxHhfVj0mrj35zoyktQe530RtxChwbpLgIrsj1KD
-	 th18O875d9SfiW64DlwU2bhtk4aTfnm0kaYDeHri3Z8fzaQMvB5gCvPjG3LPDyPMCx+zv
-	 oqS87wnhbcO3pTXNA+FWstuDxY4qCGhqRGthMJ4x4XI3+a9XAbTeLTrS+hLeWz0G11A==
+	bh=P5KGjyDqXHzjNMca1zvC+obua3ycO5nonaODMEzhuRM=;
+	b=gyb5XgOumnEuM7v1bOKhKRkYRHzK0SBN+BDN01vJW4/9TBKlZ46w5mtegzUrpGztXDJR
+	 xii1dyQ7i/j1hSPeqaXVnCNB8/zMLOitdPIEQP67+E0vokDmg1lgeVbLAXSyyHXx0J/Yx
+	 WHMj1kojMuIT7MJbE83Sv3829jnV8uHlE3pjH1Gb9YSIt4MZRoLRPkmQXTIiOY64tN3/y
+	 kklZJ3XH0eXs0TGBVcpv59fMqBP0RDZAGYTt4UWS8cbRPUUEtfmX7eoMW/5vsMrw32Uoi
+	 gD9MkEYA2R6m3RIw1vgBRWWTfgZQl0FJ7p4FPyEBhMPcW2K748zII6CO7gPWwNMfQ0g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="MC9M/hX/";
-	arc=none smtp.remote-ip=209.85.219.53
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=k4eJGXp1;
+	arc=none smtp.remote-ip=209.85.222.175
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B96F606A328
-	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B96F606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD737606A32F
+	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD737606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MC9M/hX/
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-91c763de878so33336466d6.0
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:33 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=k4eJGXp1
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-93f1cf92c9eso425868485a.0
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793732013; x=1794336813; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793732014; x=1794336814; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=cFD2fzjk7IGKjKiTggYvZPsH9QofXFDvw8KTLAdAqDU=;
-        b=MC9M/hX/an+SR6qkCrayzfe4E4Kxqr9Sh8pdFUj0p3V9zFnlXCTK9C1zeAgXSlfVLX
-         7ge5RTHg/BhzR7Pu4JYNHvV69f97DdAN7IcVa8nAfitIttz3+M1qmv11ZNFC9xaxL/I7
-         gT+Yir+5t06fQRzEJHreRJapg65YHvirPCR7QvqhOaq1WXxUuwlAj0ighy+Me2ozoyvA
-         tjHdu1ztUFsd5bWqG3Ajy4B+dc47nbxRYLkDPJNKtb5gdl0j1LfQS17VlZgVvTKiN3T8
-         7t6sTIVz/fbUntC9ZK23pHdEx2orEWRL8ysYzouqur0ZGun1R3P7jITBPdz1TOrsRfyx
-         +ueA==
+        bh=P5KGjyDqXHzjNMca1zvC+obua3ycO5nonaODMEzhuRM=;
+        b=k4eJGXp1OnzDHTyMckFdhWc7TjH8Nb6aZ1i4L7j4PNlVtSfvsAi82U9gwrV7RBlXB+
+         /cxMgJBBnqjegCbmlc1jf8PjwgALIDMvqpSbcrIu1XJLGb7Afm+X2ehMZQoPfjFE4jDT
+         5rmtf24zi9Lcbl0UYfRTOu9LePmVlQ36rdjkhwwqoVRdMM+a0sHuQ1/x9nkXC1glf7tP
+         iq4aemV1nQDIh5aSvmTSZ/96PY/HoT9BS0amyGEsX6vuE5jF8Fg3pIlVrii0IatpouJg
+         BrS58AUw7yI0LR9Aw1bgq7ra4nm1vD5Mkw0gn4fY1j4B4iGYO3DESZELgweEVhb0xMEJ
+         nHGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793732013; x=1794336813;
+        d=1e100.net; s=20260707; t=1793732014; x=1794336814;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=cFD2fzjk7IGKjKiTggYvZPsH9QofXFDvw8KTLAdAqDU=;
-        b=idHmZ4HBBo3W9FN9ShojFj+dOv+HE/urrhMNoTU1tHJQYhVJflrseYmsUDE07jK2YP
-         zDkwWW1w7651R5N97FnO5xiXe/ug/0pcnPWjgLDFT22jOiEzzCBZ1ZSVeGH8t846W/W0
-         nbtN25kE+H5qOLppRnkvBNCCU5D18qtrc1ZAVp6IIEnjuzV3bmDdjJW/Nwq+s0o7i4el
-         yAgZ821ANO1kiosUyUXg4bZvr4bQEjCWcf6e3y8lCMnxZdOaFvHz4rf5t1twhaq8DT6C
-         F34nFUJcwSZWomnDkvUNaAVoMBXVU56tW+BkJ/cNXpE348BG9fqG6JW8FpBjb6+lN2u1
-         6gFA==
-X-Gm-Message-State: APuU4Z9Lizq0QEzCnQaR6Ofg5DboAZhTsm0mnwQdOL6sxKetgV5wqZQT
-	Oey073EPu0mdK08SBI+9MibzFFCMDQfGL0TGrLMP3i06t4hBuXGdu4WS4sebjygn
-X-Gm-Gg: AYBFou3j2k97xLiIfsoZkXWDMBz5yxyUKeELo9yYxA9Z6zuT4OhUEZY+/DlzMPCEweT
-	08Kk5NwmFGkR5blsQf42LJwcj/dkhB5+HDBcDOTmOUVpVfBFnkS+9IJO1lTPVATJ4sWFvkYWlXL
-	A9JmmN1lFPXuXZk25tOWOoaDIo3qf1S4aA4whNnijweFvcxQ8pHd+i0uugNDfOQoNZu/leZ1E+x
-	11xgo1ZeVQIweFyfTNJcG2R5hkemdWham4dfSehuQ7/7hhHNqJGlb4fobUg1/OIssN42f6U6sH3
-	d/DYnvmFhsr8tSbTBAonH5HEKRc6kqhsypdyKL9W8atSXu6MV9Fdb0kltrNbPituZAr5NPZ8dox
-	74MffKbniTjMWg9K6K76/s4rmXqB4G8U4LSUNu9ikQnCFtbSg4qnaOfTYC4byStQLFWhcUIYztI
-	NPIRNbUaASUNuPI3PcV4yolkqiLxX2tM40bedmrQCboPzMhOQXr1Es9U6vzV5AC94kWkMdvXSHf
-	NMvoFKZM4/cSGocAQvZVwSIuN+AfG7qlLl1axWINBzwc8l8MZXhVrw2IELRnTsSULo9NLmzggLV
-	6BBiYox2Ots7tLSOt9FRQ4xaUIofm+WysXsx2bQftLL/gzgQOcGEBUzrhu08lgbxe5HJFMO+J4+
-	RYl2DCaDhsfsDlaKwgqBVcUyZskTimkdjAhaaenoNOQVzJ3VVuJ1AmEqD3+eVA2wlzijDcAGkE1
-	gMATLvspfm3kTGjvliQG5fOUi+cfgHoVi7aoNDP0YtlIGwyyteARI=
-X-Received: by 2002:ad4:4ead:0:b0:912:517b:7bdf with SMTP id 6a1803df08f44-91ca4b92850mr232920356d6.42.1793732012798;
-        Tue, 03 Nov 2026 10:53:32 -0800 (PST)
+        bh=P5KGjyDqXHzjNMca1zvC+obua3ycO5nonaODMEzhuRM=;
+        b=Mq2x4wuR6WR5nY3qrfKsZZi5EqA4RV+VbiVC+hSowiGrqDCt/YFRoljqHtCOWKcJZY
+         mE1vaGUGZMBModdAFqW0et+0YhKk3pXN1Hr9VJaHmeds2CuRT2+FD+e12JC+FrsYm66z
+         TJ6hbrXQBzWFzpzYyABWris2WLjnmRQURhpealKY1WW0RTM6ZS5bbx6FMKih2GEJFd1u
+         TzWplpQu+2NOSSH+vrmLKpgZzG4n93A6Jz69bdeJYAxZvU0OF+5UTThXH3Qy52H+xtmd
+         oFkF8DDVEIyWuVDSvnHkfrodGkxELe1KK5rXpofcson+w7IAbuTjgvTu5eLV6+x0QJcu
+         2cXg==
+X-Gm-Message-State: APuU4Z9Xjcv5UDI1qi2IK/ppOPD/9qmncjJxE9b/1+zOG6AhGsWaLYly
+	Vrva1eaPZin4FgYdRMvfaoaoExHKe2hNbYrAu/1IiS5ILtPFup1AsfhawHr7UxfN
+X-Gm-Gg: AYBFou1ODjNYznxAwhDcOgbCKJ60FZxoUVN1ZlCqlVg4bF5zVz+8swdPuxItrpAugpF
+	kX4nET6h/A5hwMUbX0DkaYB61g5uWX+hHrL0Y5yf/nSoQfws8UAS3CmXPxFFbeAXJsJ2mArQo78
+	GwT+M+eVYDfEhQzU3/hJPLTP258H4ErMOlMmiN4EMpDPQBoBZMmPFRieTCznJe5KMqRfAXJOWOy
+	xB7dxXppUMcL2Carf0jNhAOx4SSxoxDN9ZEvNu4P/xUklEez5k6iwmH5Z5kDAPk+6PO9PuH6P+Z
+	ee4g6Xad1EbpMPdcJ9yX/scfPYZDZT/eiN08sJhtPNJ3tgvfHltzVxgXJOsmz9VLmWuDy3gsWvB
+	OA3nwS0ynKmuDBouPpsP3l1Db/wyuqIdTflSFuK0/QrrRCBSX8veczvo0JigfwQGWr593WsOlQq
+	S1fou9kwMchUJtfBeLroWsq8OQ+wkFB2paQalfqrBzR/UlQEaHckeczyt5wxspQo14r2wy/WtCo
+	vJ7MNwrtM+0nwlmldG682BFNEpVMUvY54zzm+YOdHVi37XbMpFzReZCHNGCampJVbwUn2Svhed0
+	dbjj4oWSdJtyHc5Kfkct2o4UvATKbz1OGMNGcM9n3uVCZAHRvPt3SIsv0LFCHvRKF5ZjsvDU1i4
+	g8N02RHYqJ+oy5gWVG4e1vxrMdwNp5qPQAfojeGrvS5lOib34ouo8BPmc3fmk02eE+y8v+5vJlJ
+	07O8ui9IYbWkJor+wBb2hsbeeWFReKY7/W+fWOsICvDChXYpvEJr8=
+X-Received: by 2002:a05:620a:29d2:b0:940:e34a:aead with SMTP id af79cd13be357-9442156a732mr2274810385a.5.1793732013482;
+        Tue, 03 Nov 2026 10:53:33 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7c7881desm234016d6.29.2026.11.03.10.53.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 10:53:32 -0800 (PST)
+        Tue, 03 Nov 2026 10:53:33 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 12/20] libselinux: preserve auxiliary file-context duplicate handling
-Date: Tue,  3 Nov 2026 13:52:59 -0500
-Message-ID: <20261103185307.45924-12-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 13/20] libselinux: record specification paths for Android backends
+Date: Tue,  3 Nov 2026 13:53:00 -0500
+Message-ID: <20261103185307.45924-13-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
 References: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
@@ -106,281 +106,307 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Multiple input support moved duplicate checking after loading the optional
-.local and .homedirs files. This rejects previously accepted customization
-records, including the same expression with ALL and a specific file kind,
-and can prevent setfiles validation during a policy-store commit.
+The generalized labeling frontend now uses spec_files[0] when finalizing
+a successful lookup, but the Android property and service backends never
+initialize spec_files. Matching lookups therefore dereference NULL even
+when validation is disabled.
 
-Check for duplicates after loading primary inputs but before loading the
-optional customization files. Retain the per-input duplicate checks for
-primary files, context validation for all inputs, and the final sort.
+Allocate the one-entry specification list and copy the input path before
+parsing, matching the other backends. Existing selabel_close cleanup owns
+the list and path, including initialization failures.
 
-Add text and compiled-only regression coverage for primary duplicate
-rejection, auxiliary overlap acceptance, cross-input overrides, invalid
-contexts and BASEONLY behavior.
+Add regression coverage for both backends, raw and translated lookups,
+validation and digest options, allocation failure cleanup and retry, and
+empty or malformed inputs.
 
-Fixes: 1550c8aaf255 ("libselinux: support multiple context files for the file backend")
+Fixes: 55a33ff38387 ("libselinux: support multiple spec_files")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label_file.c                  |  17 +-
- libselinux/tests/.gitignore                  |   3 +-
- libselinux/tests/Makefile                    |   7 +-
- libselinux/tests/test_auxiliary_duplicates.c | 171 +++++++++++++++++++
- 4 files changed, 190 insertions(+), 8 deletions(-)
- create mode 100644 libselinux/tests/test_auxiliary_duplicates.c
+ libselinux/src/label_backends_android.c   |   8 +
+ libselinux/tests/.gitignore               |   4 +-
+ libselinux/tests/Makefile                 |  15 +-
+ libselinux/tests/test_android_specfiles.c | 202 ++++++++++++++++++++++
+ 4 files changed, 227 insertions(+), 2 deletions(-)
+ create mode 100644 libselinux/tests/test_android_specfiles.c
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 99c188a6..1d520517 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -1843,6 +1843,17 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 			goto finish;
- 	}
+diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+index f1a3050a..3c3f5d3a 100644
+--- a/libselinux/src/label_backends_android.c
++++ b/libselinux/src/label_backends_android.c
+@@ -184,6 +184,14 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 	if (!S_ISREG(sb.st_mode))
+ 		goto finish;
  
-+	/*
-+	 * Check duplicates within primary inputs only. Historically the
-+	 * optional customization files have allowed overlapping entries.
-+	 */
-+	if (rec->validating) {
-+		sort_specs(data);
-+		status = nodups_spec_node(rec, data->root);
-+		if (status)
-+			goto finish;
-+	}
++	rec->spec_files = calloc(1, sizeof(*rec->spec_files));
++	if (!rec->spec_files)
++		goto finish;
++	rec->spec_files[0] = strdup(path);
++	if (!rec->spec_files[0])
++		goto finish;
++	rec->spec_files_len = 1;
 +
  	/*
- 	 * Process each optional input file.
- 	 */
-@@ -1856,12 +1867,6 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 
- 	sort_specs(data);
- 
--	if (rec->validating) {
--		status = nodups_spec_node(rec, data->root);
--		if (status)
--			goto finish;
--	}
--
- 	digest_gen_hash(rec->digest);
- 	if (data->subs_num || data->dist_subs_num)
- 		gen_substitution_digest(data);
+ 	 * Two passes of the specification file. First is to get the size.
+ 	 * After the first pass, the spec array is malloced to the appropriate
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index a699b328..dff32587 100644
+index dff32587..ecbbc014 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -9,4 +9,5 @@ test-restorecon-digest
- /test-substitution-restorecon
+@@ -10,4 +10,6 @@ test-restorecon-digest
  /test-readable-fallback
  /test-digest-inputs
--/test-load-policy-version
+ /test-load-policy-version
+-/test-auxiliary-duplicates
 \ No newline at end of file
-+/test-load-policy-version
 +/test-auxiliary-duplicates
-\ No newline at end of file
++/test-android-specfiles
++/*.o
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index b112523e..bc3ce5bc 100644
+index bc3ce5bc..c73e5c65 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
 @@ -20,7 +20,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
-@@ -32,6 +32,8 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-substitution-restorecon
- 	LD_LIBRARY_PATH=../src ./test-readable-fallback ../utils/sefcontext_compile
+@@ -34,9 +34,13 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
  	./test-digest-inputs
-+	./test-load-policy-version
-+	./test-auxiliary-duplicates ../utils/sefcontext_compile
+ 	./test-load-policy-version
+ 	./test-auxiliary-duplicates ../utils/sefcontext_compile
++	./test-android-specfiles
  
  clean:
  	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
-@@ -58,3 +60,6 @@ test-digest-inputs: test_digest_inputs.c ../src/libselinux.a
++	rm -f test-load-policy-version
++	rm -f test-auxiliary-duplicates
++	rm -f test-android-specfiles android-label.o android-backend.o
  
- test-load-policy-version: test_load_policy_version.c ../src/libselinux.a ../../libsepol/src/libsepol.a
- 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=security_policyvers,--wrap=write,--wrap=sepol_policydb_to_image,--wrap=selinux_policy_roots,--wrap=selinux_binary_policy_path $(PCRE_LDLIBS) -ldl -pthread
+ test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
+@@ -63,3 +67,12 @@ test-load-policy-version: test_load_policy_version.c ../src/libselinux.a ../../l
+ 
+ test-auxiliary-duplicates: test_auxiliary_duplicates.c ../src/libselinux.a
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS) -ldl -pthread
 +
-+test-auxiliary-duplicates: test_auxiliary_duplicates.c ../src/libselinux.a
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS) -ldl -pthread
-diff --git a/libselinux/tests/test_auxiliary_duplicates.c b/libselinux/tests/test_auxiliary_duplicates.c
++android-label.o: ../src/label.c ../src/label_internal.h
++	$(CC) $(CPPFLAGS) $(CFLAGS) -D_GNU_SOURCE -UNO_ANDROID_BACKEND -c -o $@ $<
++
++android-backend.o: ../src/label_backends_android.c ../src/label_internal.h
++	$(CC) $(CPPFLAGS) $(CFLAGS) -D_GNU_SOURCE -c -o $@ $<
++
++test-android-specfiles: test_android_specfiles.c android-label.o android-backend.o ../src/libselinux.a
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=calloc,--wrap=strdup,--wrap=free,--wrap=fclose $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_android_specfiles.c b/libselinux/tests/test_android_specfiles.c
 new file mode 100644
-index 00000000..bb9e7534
+index 00000000..66586350
 --- /dev/null
-+++ b/libselinux/tests/test_auxiliary_duplicates.c
-@@ -0,0 +1,171 @@
++++ b/libselinux/tests/test_android_specfiles.c
+@@ -0,0 +1,202 @@
 +#define _GNU_SOURCE
 +#include <assert.h>
 +#include <errno.h>
-+#include <selinux/label.h>
-+#include <selinux/selinux.h>
 +#include <stdio.h>
-+#include <stdlib.h>
 +#include <string.h>
-+#include <sys/stat.h>
-+#include <sys/wait.h>
 +#include <unistd.h>
++#include "label_internal.h"
 +
-+static const char *compiler;
-+static char paths[4][256];
-+static unsigned cases;
++static char path[256];
++static unsigned fail, hits, closes, cases;
++static int tracking;
++static void *list, *name;
 +
-+static int validate(char **ctx)
++void *__wrap_calloc(size_t n, size_t size);
++char *__wrap_strdup(const char *s);
++void __wrap_free(void *p);
++int __wrap_fclose(FILE *fp);
++
++void *__real_calloc(size_t, size_t);
++void *__wrap_calloc(size_t n, size_t size)
 +{
-+	assert(ctx && *ctx);
-+	if (strstr(*ctx, ":invalid_t:")) {
-+		errno = EINVAL;
-+		return -1;
++	if (tracking && n == 1 && size == sizeof(char *)) {
++		if (fail == 1) {
++			hits++;
++			errno = ENOMEM;
++			return NULL;
++		}
++		assert(!list);
++		list = __real_calloc(n, size);
++		return list;
 +	}
++	return __real_calloc(n, size);
++}
++
++char *__real_strdup(const char *);
++char *__wrap_strdup(const char *s)
++{
++	if (tracking && !strcmp(s, path)) {
++		if (fail == 2) {
++			hits++;
++			errno = ENOMEM;
++			return NULL;
++		}
++		/* Digest bookkeeping also duplicates the path. Track the first. */
++		char *p = __real_strdup(s);
++		if (!name)
++			name = p;
++		return p;
++	}
++	return __real_strdup(s);
++}
++
++void __real_free(void *);
++void __wrap_free(void *p)
++{
++	if (p == list)
++		list = NULL;
++	if (p == name)
++		name = NULL;
++	__real_free(p);
++}
++
++int __real_fclose(FILE *);
++int __wrap_fclose(FILE *fp)
++{
++	if (tracking)
++		closes++;
++	return __real_fclose(fp);
++}
++
++static int validate(char **context)
++{
++	assert(context && *context);
 +	return 0;
 +}
 +
-+static void put(unsigned index, const char *text, unsigned binary)
++static void put(const char *text)
 +{
-+	FILE *fp = fopen(paths[index], "we");
-+	assert(fp && fputs(text, fp) >= 0 && fclose(fp) == 0);
-+	if (binary) {
-+		pid_t pid = fork();
-+		assert(pid >= 0);
-+		if (!pid) {
-+			execl(compiler, compiler, paths[index], NULL);
-+			_exit(127);
-+		}
-+		int status;
-+		assert(waitpid(pid, &status, 0) == pid);
-+		assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
-+		/* Force compiled-only loading rather than mtime-based selection. */
-+		assert(unlink(paths[index]) == 0);
-+	}
++	FILE *fp = fopen(path, "we");
++	assert(fp);
++	assert(fputs(text, fp) >= 0 && fclose(fp) == 0);
 +}
 +
-+static void clear(void)
-+{
-+	for (unsigned i = 0; i < 4; i++) {
-+		char bin[sizeof(paths) + sizeof(".bin")];
-+		snprintf(bin, sizeof(bin), "%s.bin", paths[i]);
-+		assert(unlink(paths[i]) == 0 || errno == ENOENT);
-+		assert(unlink(bin) == 0 || errno == ENOENT);
-+	}
-+}
-+
-+static struct selabel_handle *open_handle(unsigned multi, unsigned validating,
-+					  unsigned baseonly)
++static struct selabel_handle *open_handle(unsigned backend, unsigned digest,
++					  unsigned validating)
 +{
 +	struct selinux_opt opts[] = {
-+		{ SELABEL_OPT_PATH, paths[0] },
-+		{ SELABEL_OPT_PATH, multi ? paths[1] : NULL },
++		{ SELABEL_OPT_PATH, path },
++		{ SELABEL_OPT_DIGEST, digest ? "1" : NULL },
 +		{ SELABEL_OPT_VALIDATE, validating ? "1" : NULL },
-+		{ SELABEL_OPT_BASEONLY, baseonly ? "1" : NULL },
-+		{ SELABEL_OPT_DIGEST, "1" },
 +	};
-+	return selabel_open(SELABEL_CTX_FILE, opts, 5);
++	assert(!list && !name);
++	closes = hits = 0;
++	tracking = 1;
++	struct selabel_handle *h = selabel_open(backend, opts, 3);
++	tracking = 0;
++	assert(closes == 1);
++	return h;
 +}
 +
-+static void lookup(struct selabel_handle *h, int type, const char *expected)
++static void check_handle(struct selabel_handle *h)
 +{
-+	char *context = NULL;
-+	assert(selabel_lookup_raw(h, &context, "/test", type) == 0);
-+	assert(strstr(context, expected));
-+	freecon(context);
++	assert(h && list && name);
++	assert(h->spec_files == list && h->spec_files_len == 1);
++	assert(h->spec_files[0] == name && !strcmp(h->spec_files[0], path));
 +}
 +
-+int main(int argc, char **argv)
++static void close_handle(struct selabel_handle *h)
 +{
-+	assert(argc == 2);
-+	compiler = argv[1];
-+	char dir[] = "/tmp/selinux-aux-dups-XXXXXX";
++	selabel_close(h);
++	assert(!list && !name);
++}
++
++int main(void)
++{
++	char dir[] = "/tmp/selinux-android-specfiles-XXXXXX";
 +	assert(mkdtemp(dir));
-+	snprintf(paths[0], sizeof(paths[0]), "%s/contexts", dir);
-+	snprintf(paths[1], sizeof(paths[1]), "%s/second", dir);
-+	snprintf(paths[2], sizeof(paths[2]), "%s/contexts.local", dir);
-+	snprintf(paths[3], sizeof(paths[3]), "%s/contexts.homedirs", dir);
++	snprintf(path, sizeof(path), "%s/contexts", dir);
 +	union selinux_callback cb = { .func_validate = validate };
 +	selinux_set_callback(SELINUX_CB_VALIDATE, cb);
-+	for (unsigned binary = 0; binary < 2; binary++) {
-+		for (unsigned where = 0; where < 4; where++) {
-+			for (unsigned regex = 0; regex < 2; regex++) {
-+				for (unsigned pair = 0; pair < 3; pair++) {
-+					clear();
-+					char rules[512];
-+					const char *pattern =
-+						regex ? "/test(/.*)?" : "/test";
-+					/* ALL+DIR, REG+DIR, and identical REG keys. */
-+					snprintf(
-+						rules, sizeof(rules),
-+						"%s %s system_u:object_r:generic_t:s0\n"
-+						"%s %s system_u:object_r:directory_t:s0\n",
-+						pattern, pair ? "--" : "",
-+						pattern,
-+						pair == 2 ? "--" : "-d");
-+					put(0,
-+					    where ? "/other system_u:object_r:other_t:s0\n" :
-+						    rules,
-+					    binary);
-+					if (where)
-+						put(where, rules, binary);
-+					for (unsigned validating = 0;
-+					     validating < 2; validating++) {
-+						errno = 0;
-+						struct selabel_handle *h =
-+							open_handle(where == 1,
-+								    validating,
-+								    0);
-+						unsigned reject = validating &&
-+								  where < 2 &&
-+								  pair != 1;
-+						assert((h == NULL) == reject);
-+						if (h) {
-+							if (pair != 2)
-+								lookup(h,
-+								       S_IFREG,
-+								       ":generic_t:");
-+							if (pair == 1 ||
-+							    (regex &&
-+							     pair == 0))
-+								lookup(h,
-+								       S_IFDIR,
-+								       ":directory_t:");
-+							selabel_close(h);
-+						} else
-+							assert(errno == EINVAL);
++	for (unsigned backend = SELABEL_CTX_ANDROID_PROP;
++	     backend <= SELABEL_CTX_ANDROID_SERVICE; backend++) {
++		for (unsigned digest = 0; digest < 2; digest++) {
++			for (unsigned validating = 0; validating < 2;
++			     validating++) {
++				for (unsigned match = 0; match < 3; match++) {
++					put(match == 1 ?
++						    "* system_u:object_r:test_t:s0\n" :
++						    "test.key system_u:object_r:test_t:s0\n");
++					struct selabel_handle *h = open_handle(
++						backend, digest, validating);
++					check_handle(h);
++					for (unsigned raw = 0; raw < 2; raw++) {
++						char *context = NULL;
++						const char *key =
++							match == 0 ?
++								"test.key" :
++								"missing";
++						int rc =
++							raw ? selabel_lookup_raw(
++								      h,
++								      &context,
++								      key, 0) :
++							      selabel_lookup(
++								      h,
++								      &context,
++								      key, 0);
++						if (match == 2)
++							assert(rc == -1 &&
++							       errno ==
++								       ENOENT &&
++							       !context);
++						else
++							assert(rc == 0 &&
++							       !strcmp(context,
++								       "system_u:object_r:test_t:s0"));
++						freecon(context);
 +						cases++;
 +					}
++					if (digest) {
++						unsigned char *hash;
++						char **files;
++						size_t length, count;
++						assert(selabel_digest(
++							       h, &hash,
++							       &length, &files,
++							       &count) == 0);
++						assert(hash && length == 20 &&
++						       count == 1 &&
++						       !strcmp(files[0], path));
++					}
++					close_handle(h);
 +				}
++				for (fail = 1; fail <= 2; fail++) {
++					struct selabel_handle *h = open_handle(
++						backend, digest, validating);
++					assert(!h && errno == ENOMEM &&
++					       hits == 1 && !list && !name);
++					cases++;
++				}
++				fail = 0;
++				struct selabel_handle *h = open_handle(
++					backend, digest, validating);
++				check_handle(h);
++				close_handle(h);
++				cases++;
 +			}
 +		}
-+		/* Identical patterns in separate primary inputs remain valid overrides. */
-+		clear();
-+		put(0, "/test(/.*)? system_u:object_r:first_t:s0\n", binary);
-+		put(1, "/test(/.*)? system_u:object_r:second_t:s0\n", binary);
-+		struct selabel_handle *h = open_handle(1, 1, 0);
-+		assert(h);
-+		lookup(h, S_IFREG, ":second_t:");
-+		selabel_close(h);
++		put("");
++		struct selabel_handle *h = open_handle(backend, 0, 0);
++		check_handle(h);
++		close_handle(h);
 +		cases++;
-+		for (unsigned where = 2; where < 4; where++) {
-+			clear();
-+			put(0, "/test(/.*)? system_u:object_r:first_t:s0\n",
-+			    binary);
-+			put(where,
-+			    "/test(/.*)? system_u:object_r:invalid_t:s0\n",
-+			    binary);
-+			h = open_handle(0, 1, 0);
-+			assert(!h && errno == EINVAL);
-+			cases++;
-+			h = open_handle(0, 1, 1);
-+			assert(h);
-+			lookup(h, S_IFREG, ":first_t:");
-+			selabel_close(h);
-+			cases++;
-+		}
++		put("invalid-line\n");
++		h = open_handle(backend, 0, 0);
++		assert(!h && !list && !name);
++		cases++;
 +	}
-+	clear();
-+	assert(rmdir(dir) == 0);
-+	printf("auxiliary-duplicates: %u cases passed\n", cases);
++	assert(unlink(path) == 0 && rmdir(dir) == 0);
++	printf("android-specfiles: %u cases passed\n", cases);
 +	return 0;
 +}
 -- 
