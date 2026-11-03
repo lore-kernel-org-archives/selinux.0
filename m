@@ -1,100 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.215.182
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793666872;
-	b=YNN7Oycqvm5wLGKDevzy8baLmBq8dpPvuZEtWSokwFGE8SNFCLmamAkHFC8RLAXNHk+C
-	 zb1uZy/W0/VvND3kIIJspIlpQF42uAlVGe1SI1Ow2CrKsx1W50N1MMn7aku4RYcIqIKA2
-	 hAsIgGsp4den4H4ZyPCBKxdAZpaIfETrrA3trchKEp5r3tFXU6bx5jHOwYHz8U/bxJBtr
-	 EUgJqaTH28MzktmlekGvOIUIwNH/Q2VB53R5Z8yiPzCtPjknZFPLWw88ZISQHN96WPYGt
-	 AXSXReqDdgnn0nudpreJBNtkszXXSj4OtpEpu5830LMg09uuZsNerALrdHtHZTrQTww==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793666872;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=qmH5OvatWzBofiEN6YsVBCfdM8VLN8xm2S+OiSeq2qc=;
-	b=NDrdnAF9QPrKj2b9laKS97t5ntJwRwKp7jBtd7wGnEsV2LKcfPTCtbj3nPaMmAfqnAsu
-	 Nl2nTFbsmPKQIqAr0hRsLNvIlGBIXLhLxy4oXUEo6WrA/b5kAe3yOIv3upUsL5ijKbSLJ
-	 44WWoXgO4hbAJuO3PDMZggBKOlBOunVrblL16EcJoieFwD2oEjn8RyfQRWhdWnMjEOEmj
-	 oty7NRwBDNUQqsg6xbtDULo8SnlH3bgMmsFqOa4V+tOI8Yl/yeh5v9TEXvQMala0h9wwG
-	 a9IJlGfan74pFxxC2L0+yV+avqbUQRIOZbmA1H66X9TZ3AtnGNVCBX2FZ4INBdNk8Kg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=NE+5SyMU;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.215.182
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793711151;
+	b=OqVSjWkXXWFSAKbmvNYrQBIgs8xi3NUbPYx2Sp/LcrXNgD9L59nFKBoylIrAwkpUZUmD
+	 kLdBJJTzSpTRC01WZMbI5rnw+ecqBn1SpVkOwIa31cKLIRyIHmoLijv5dwkmLTtrGnxbS
+	 Fav0RbNUFlEKoRg8PA30PSR9ihXXyAllCm9a6gflM8D4EJ5ZdQPPRaNk9q6mZI5hUEpNS
+	 f7i7I2QtQPxnsqm0q/7O98UI/W40nJMvuLlROUP9fDFCi2c4ZKLSHu4WQp9HVwLHH7igX
+	 fOkRTILiUzvgwUur8aZBhzNuAeKQIoJl/32EYABU3VH3ZMt8FsCGOTv6GWzOBRepPPg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793711151;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=VyK7okHp454HnCCRM4VH15ZwJfO0mDJ/VCj4vZivXcU=;
+	b=GpJ6YMp0rhhxMXGUgrFGphZKWNvPrzpG8Qd5whINqM7i8ZT9wU83y5hT9PNB5TPlBYs5
+	 QhpyP3mRznssiwIlzzReWhWGSlxlE9/XyrB3qbdowueMTgqx9xGsBMyVOSgwkHepcbWJz
+	 FJMbVOyZBLtGY2VUfQmnYs94Quw2mtt86C8Tzyu1SPQkEMvIujsD5FldaZhrp/sW3jEcM
+	 OR6KDWSAkUgpyk2WOVz5EsZYz5tkpdveAjHSL44I49GuUHLYGN5nwyxQOFTFuvkD/TBtR
+	 k6dfIuzu4s8u5kh8dQkcVkElpZD0cOII1Biv5eArVTUQSDVGIRjEGd4gH0MuyEbwYXw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kQWQAUMi;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D79606A32D
-	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 00:47:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 23D79606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EDA1606A326;
+	Tue,  3 Nov 2026 13:05:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=NE+5SyMU
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cdac6d19ddaso1429208a12.2
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2026 16:47:51 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793666871; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SyPLV/ERfqj2BVYswa4RG98gg51LOA2VDDicx2cFWoT4DgKWavXLOrpP4Kew5+L1CK
-         zoQb+5ZhQ5f3iIq2ImXPJJ1W9WWv3dPrxHppsx0/uHge/e5zTrlcdplkrGpZ2bm610Td
-         oxLXonMrDMexQW+WSmjNSwbjDMSXJtKt/t2nUMkC7BOscxrWq5RsKFzV2xMDdVcLgP+P
-         aQkKjhcPLGacWoQJnGBmNUmDb4BsamztlMhurKRJIpLncrmyUDiONtAgNv0Qk9LTJhCA
-         ZB2MKHIszJQWWF+LfPzPJckmZpA13/aoddQGAmIb7LsP6jMCzBhMMysXiNI8bF6cYyuC
-         87Vw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=qmH5OvatWzBofiEN6YsVBCfdM8VLN8xm2S+OiSeq2qc=;
-        fh=qlDxFZZFeeRZsixDAjFHnCDzYeDzeG2qTMYb2wgyQe0=;
-        b=cHla6+A+fLXFHeEt6ySn2MGiK8TmeT5XDx6J43wPdN6vNr3+7i15XsOlVX5yzvHZ+0
-         1XtasJygFZFQDG7d94MIl7C6bd3CIQAlFSvsIQd+nBAiRSZx3u0FLTghcYmusuUZ7nM+
-         /ckqMn/lodHQX9cqSLKO7WBy3D5pDjzWAkkIGweJmjz+SlTbDuVloOqgfznfbon/b4eF
-         C1ijOb8g8UWXQNS1Y53/4hSTQsy358LFuLWkI7WDbKeBsPeHBE34fgp2A/9E6GTK5gDn
-         kdbXUwRUZXt9OvuxAvIMtcZ7wEjTkofa2xoKFugwVd1WrJC8G+COXZmvykicwmBIJYif
-         Y4vQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1793666871; x=1794271671; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=qmH5OvatWzBofiEN6YsVBCfdM8VLN8xm2S+OiSeq2qc=;
-        b=NE+5SyMUfN+gGxZQPx0GVzjzJeWngBa34Ls/rh45/noiG21jaRtB5aBI8BrctrYY09
-         b374TBrKwJW43aNm3XeK6M7ItT4nrAosQEfR/UOQZYSgpdnOWqAiHtz3SNuy1WvOuV1c
-         2tLrrZN9w5H4jY8do/0mM+ixJdkEFG5OwW4kpKP2UYYQzjybupKPXfu9O2gKZIsSnB/7
-         Pv5Qygy0gs5BcaIAkygAUskAhuvrx9bcsw6nf8P8R4fPLUNUEyzVDKBKmCGMx/5YLecR
-         19z5pz2LtUth6gsMZEoc5+5WblkJBZuBhPLzCjeUFP6FeVYUfd8udpkjIyuDbQ0kGJin
-         mi/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793666871; x=1794271671;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qmH5OvatWzBofiEN6YsVBCfdM8VLN8xm2S+OiSeq2qc=;
-        b=JqpRRrH6zdFoHTQTXJbnh4wLUJ1bApxVSc3jClpExEkzduRZAdSgQTacz92nifSBSh
-         PLJ9DZclEIcYH+WvrE3zxSb8YMdKTVTeQsNqRGRHdW2bs1S62ntK1iHxN+syEPTCM1KZ
-         nxsYdzQcVMI76sxnOz/kbiw7dEhRZhZwAU0Bn7s5qAjdG2CX0C81F9wS4h9IrDWSY21Y
-         xdAKidM5SDhTpDUEZhFnSsffSUO7MBl7suuYRdUNiGiSdifUPVqU0RUr6vW7/xDtUTNv
-         xGu0Mlqpp+GxdF/Jn8w26OK036CZbhERE7PR3s1yHQlhSdRnNrop3VrAB52PNGEfIHf3
-         fNSQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxPCSjjbgQg/ZsluCiYG+drLnG0XQ+HFU9K9zuV7rpCXhV6X3D1xfZptjk5FzKON9QkcMTmQKq+@vger.kernel.org
-X-Gm-Message-State: APuU4Z/9Mn0iNM0eI5SkaO/1Xfvz2y3HiCcRPKaw8g4qxIeYtqU19muU
-	kYWbisP4wp8iDDOhrYug7Ideo1Relky3aqR4QPjTgCA/rlzCJ3yzBv6Sag2Go900KhYQZQeyyPA
-	Xo6d7/vhwVj1v78ra+JYFroIi7uPzJ/CjhhSlvoEY
-X-Gm-Gg: AYBFou230r10vtKD7Hcy7MSHcdPTGOlqmNx5egd5x7aV/KV+CXWCNg8WWoLHZ6GNO89
-	oXq9nyw3tB4PoESH3LUJz35H+Copr9sq0HgZJiGlFp5A+3Lsvk3zEZDFO+Fhr2+QqOnuNV5kKGF
-	Fo+2wNRpJfB+AikLaT3jrk2xwx8vqS6DJiYUphB+aNcnIFDNOI3LHgo4cOOLeZMNvN38+uIkfbp
-	485zp03vo9L1Zyk8fyEJipCI6qstIuOzgoYkj852vzV8yS2Ojr26PWumeFseeBW4SQ7pKGe2jig
-	hoDC7a3GnX2QlCuz8MJ55xO+kJgwWj2T+d0sj1xgMpTfuZcLfF/33uqpAyw3Em9sUKCJC2P68Wj
-	9Q39FAPT1L/+x6cTdSjLJCYwL0BPrk0uHKz2NyIGvQsT3lHmPbSVI8uqA843WNwvLfvTZ
-X-Received: by 2002:a17:90b:35c8:b0:3ac:9a5e:9ce7 with SMTP id
- 98e67ed59e1d1-3ae897aa7aemr9873041a91.49.1793666871426; Mon, 02 Nov 2026
- 16:47:51 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kQWQAUMi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 916BE1F000C1;
+	Tue,  3 Nov 2026 13:05:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793711150;
+	bh=VyK7okHp454HnCCRM4VH15ZwJfO0mDJ/VCj4vZivXcU=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=kQWQAUMiKjAS/sDRyUArpihnMhKtLQdwkmo9kW7V7hgtU2+JRROqiSW3gRblUEeng
+	 Gn7zENlIYAPm+wWMabkxM09qJuuE9c4r3xmtNIPGOVd/2x8Si5paWq6XdoBLDIAUCH
+	 gWX4/sT379sUL9v8sikiGArqoTrlNyF5wCFnZz+f6RXYNOeNLjAzt7iwSvILnasrZT
+	 s4fEiEJJbu+o52ENlvOskRwJ+XARNmh+zdGThDOlEkZTR+pXC7u+W4BmenUuPJKzQn
+	 CmN5CrxC8EjXAc1kvHU8a6K/iGk6yJnF+7mo37Li4lwjhT+nqMGKooOwqBUH+DUKwS
+	 F18IqeVO0gUIw==
+Message-ID: <sashiko-outbox-195303@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH] af_unix: introduce MSG_CMSG_SEALED
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <20261102130540.252894-1-omosnacek@gmail.com>
+References: <20261102130540.252894-1-omosnacek@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 13:05:50 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -103,84 +57,218 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <CAAUqJDt1pXQ2KVBvMoMiDrzz8ishonqhQ0nnQLEppot4nmv9Bw@mail.gmail.com>
- <2026101814-strut-endnote-a0b5@gregkh> <atYj06gmgCa40q6T@google.com> <CAEjxPJ4zV-YE9vRJ0=DgjuQY5gjXwRa8hcd0KpgVtyK_9AM+oA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4zV-YE9vRJ0=DgjuQY5gjXwRa8hcd0KpgVtyK_9AM+oA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 2 Nov 2026 19:47:39 -0500
-X-Gm-Features: AclHuK-H5LxOjKqHADEoKlThTJbWl_uN7gOPX5dElTGASqVVMSHM9dmMRNjNZS0
-Message-ID: <CAHC9VhTzV-6FbwCimrdUHuyvVhmUfzwL8PtydKx7Xq3Jkp5mmw@mail.gmail.com>
-Subject: Re: BUG: selinux-testsuite binder tests fail with CONFIG_ANDROID_BINDER_IPC_RUST=y
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Alice Ryhl <aliceryhl@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	=?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
-	Carlos Llamas <cmllamas@google.com>, =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>, 
-	Todd Kjos <tkjos@android.com>, Christian Brauner <christian@brauner.io>, 
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 19, 2026 at 2:33=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Oct 19, 2026 at 12:58=E2=80=AFPM Alice Ryhl <aliceryhl@google.com=
-> wrote:
-> > On Sun, Oct 18, 2026 at 06:53:49PM +0200, Greg Kroah-Hartman wrote:
-> > > On Sun, Oct 18, 2026 at 06:36:04PM +0200, Ondrej Mosn=C3=A1=C4=8Dek w=
-rote:
-> > > > Hello Android binder maintainers,
-> > > >
-> > > > Fedora Linux has recently enabled CONFIG_ANDROID_BINDER_IPC_RUST [1=
-],
-> > > > which turns out to cause the binder tests of selinux-testsuite [2] =
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] net: scm: missing get_file() and fput() when unwrapping in scm=
+_fp_copy()
+- [High] net: scm: missing fput() on error paths in scm_fp_copy()
+- [High] net: scm: file reference leak in scm_recv_one_fd() when FD_PREPARE=
+() fails
+- [Medium] net: sk_getsockopt() copies zeroed int for SO_RIGHTS_SEALED_SUPP=
+ORTED
+--
+
+commit bff932de78fdb71452bc8ca043d1f0a85ab5a42a
+Author: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+
+af_unix: introduce MSG_CMSG_SEALED
+
+This commit introduces the MSG_CMSG_SEALED flag for AF_UNIX SCM_RIGHTS to
+allow processes to receive file descriptors wrapped in an opaque anonymous
+inode without triggering the security_file_receive() LSM hook, and to
+unwrap them when forwarding via sendmsg(). It also adds the read-only
+SO_RIGHTS_SEALED_SUPPORTED socket option to query support for this feature.
+
+> diff --git a/net/core/scm.c b/net/core/scm.c
+> index ae38f3c1165c8..08822b2a1f222 100644
+> --- a/net/core/scm.c
+> +++ b/net/core/scm.c
+
+[ ... ]
+
+> @@ -114,10 +127,29 @@ static int scm_fp_copy(struct cmsghdr *cmsg, struct=
+ scm_fp_list **fplp)
+> =20
+>  		if (fd < 0 || !(file =3D fget_raw(fd)))
+>  			return -EBADF;
+> -		/* don't allow io_uring files */
+> -		if (io_is_uring_fops(file)) {
+> -			fput(file);
+> -			return -EINVAL;
+> +
+> +		if (sealed) {
+> +			/* Only allow sealed files */
+> +			if (file->f_op !=3D &envelope_ops)
+> +				return -EINVAL;
+> +
+> +			file =3D (struct file *)file->private_data;
+
+[Severity: Critical]
+When unwrapping the envelope file in scm_fp_copy(), doesn't overwriting file
+with file->private_data need to take a new reference on the inner struct fi=
+le
+with get_file() and drop the reference on the outer envelope file from
+fget_raw() with fput()?
+
+Without calling fput() on the outer envelope file, the reference acquired by
+fget_raw(fd) is leaked on every sealed sendmsg(), preventing
+envelope_release() from running when the envelope descriptor is closed.
+
+At the same time, storing the inner struct file into fpl->fp[] without
+calling get_file() means fpl->fp[] does not own a reference to it, even
+though __scm_destroy() will later call fput() on every entry in fpl->fp[]:
+
+net/core/scm.c:__scm_destroy() {
+	...
+	for (i=3Dfpl->count-1; i>=3D0; i--)
+		fput(fpl->fp[i]);
+	...
+}
+
+If a caller sends the same envelope descriptor more than once with
+MSG_CMSG_SEALED, __scm_destroy() will decrement the inner file's reference
+count multiple times without matching increments, leading to a reference
+count underflow and use-after-free on the inner struct file.
+
+> +
+> +			/*
+> +			 * No need to check for io_uring files here as the
+> +			 * underlying file had already successfully passed the
+> +			 * check when it was first sent.
+> +			 */
+> +		} else {
+> +			/* Don't allow sealed files */
+> +			if (file->f_op =3D=3D &envelope_ops)
+> +				return -EINVAL;
+> +
+> +			/* don't allow io_uring files */
+> +			if (io_is_uring_fops(file)) {
+> +				fput(file);
+> +				return -EINVAL;
+> +			}
+>  		}
+
+[Severity: High]
+Do the two envelope_ops checks in scm_fp_copy() leak the struct file
+reference acquired by fget_raw(fd)?
+
+When sealed is true and file->f_op !=3D &envelope_ops, or when sealed is fa=
+lse
+and file->f_op =3D=3D &envelope_ops, file has not yet been added to fpl->fp=
+[], so
+__scm_destroy() in __scm_send()'s error path will not release it. Unlike the
+io_is_uring_fops(file) check right below, returning -EINVAL directly without
+calling fput(file) leaves the reference from fget_raw(fd) leaked.
+
+[ ... ]
+
+> @@ -365,18 +398,37 @@ static int scm_max_fds(struct msghdr *msg)
+>  }
+> =20
+>  int scm_recv_one_fd(struct file *f, int __user *ufd, unsigned int flags,
+> -		    bool notrunc)
+> +		    bool notrunc, bool sealed)
+>  {
+> +	struct file *f_received;
+>  	int error;
+> =20
+>  	if (!ufd)
+>  		return -EFAULT;
+> =20
+> -	error =3D security_file_receive(f);
+> -	if (error)
+> -		return notrunc ? put_user(error, ufd) : error;
+> +	if (sealed) {
+> +		/*
+> +		 * Receive fd sealed in an "envelope" anonymous fd.
+> +		 * This will install a special file that can be unsealed
+> +		 * upon sending to another process, otherwise the underlying
+> +		 * file will not be accessible to this process, avoiding the
+> +		 * need to pass the LSM check below.
+> +		 */
+> +		f_received =3D anon_inode_getfile("[envelope]", &envelope_ops, f,
+> +						O_RDONLY);
+> +		if (IS_ERR(f_received))
+> +			return PTR_ERR(f_received);
+> +
+> +		get_file(f);
+> +	} else {
+> +		error =3D security_file_receive(f);
+> +		if (error)
+> +			return notrunc ? put_user(error, ufd) : error;
+> =20
+> -	FD_PREPARE(fdf, flags, get_file(f));
+> +		f_received =3D get_file(f);
+> +	}
+> +
+> +	FD_PREPARE(fdf, flags, f_received);
+>  	if (fdf->fd < 0)
+>  		return fdf->fd;
+
+[Severity: High]
+If get_unused_fd_flags() fails inside FD_PREPARE(), what releases f_receive=
+d?
+
+Looking at __FD_PREPARE() in include/linux/file.h:
+
+#define __FD_PREPARE(_guard, _fdf, _fd_flags, _file_owned)		\
+	struct fd_prepare _guard __cleanup(__fd_prepare_cleanup) =3D ({	\
+		int __fd =3D get_unused_fd_flags(_fd_flags);		\
+		__fd_prepare(__fd, __fd < 0 ? NULL : (_file_owned));	\
+	});								\
+	const struct fd_prepare *const _fdf =3D &_guard
+
+Previously, get_file(f) was passed directly as the _file_owned argument to
+FD_PREPARE(), so it was only evaluated when __fd >=3D 0. Because f_received=
+ is
+now allocated or incremented before FD_PREPARE(), when get_unused_fd_flags()
+returns a negative error (such as -EMFILE), _guard.file is initialized to
+NULL and __fd_prepare_cleanup() does not call fput() on f_received, leaking
+f_received (and the inner file reference in the sealed case).
+
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index e7405be8941f9..68a447d8bf52b 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -1959,6 +1959,15 @@ int sk_getsockopt(struct sock *sk, int level, int =
+optname,
+>  		v.val =3D sk->sk_scm_rights;
+>  		break;
+> =20
+> +	case SO_RIGHTS_SEALED_SUPPORTED:
+> +		if (!sk_is_unix(sk))
+> +			return -EOPNOTSUPP;
+> +
+> +		/* Just succeed without returning anything, signaling
+> +		 * support.
+> +		 */
+> +		break;
+
+[Severity: Medium]
+Should the SO_RIGHTS_SEALED_SUPPORTED case in sk_getsockopt() set lv =3D 0 =
+(or
+return 0 directly) instead of breaking out of the switch with lv still set =
 to
-> > > > fail.
-> > > >
-> > > > Minimal reproducer (no SELinux involved):
-> > > > # git clone https://github.com/SELinuxProject/selinux-testsuite
-> > > > # cd selinux-testsuite/tests/binder
-> > > > # make
-> > > > # ./init_binder.sh
-> > > > # setenforce 0   ### <-- may be needed if SELinux is enabled
-> > > > # ./manager -n &
-> > > > # sleep 1
-> > > > # ./service_provider -n &
-> > > > # sleep 1
-> > > > # ./client -n -c -r 3
-> > > > Client ioctl BINDER_WRITE_READ error: Invalid argument
-> > > > #
-> > > >
-> > > > With only CONFIG_ANDROID_BINDER_IPC=3Dy the last command succeeds.
-> > > >
-> > > > The issue reproduces even on a kernel compiled from commit
-> > > > eafedbc7c050, so it seems to date back to the origin of the Rust
-> > > > implementation. I'm not sure if it's a bug in the new kernel code o=
-r
-> > > > some bug/wrong assumption in the testsuite code - can you please lo=
-ok
-> > > > into it?
-> > >
-> > > Given that the "real" binder client works, perhaps the test is wrong =
-and
-> > > should be fixed?
-> >
-> > Apparently there is a divergence of behavior if the SELinux permission
-> > `binder { impersonate }` is granted to a process, though Android never
-> > uses this permission anywhere.
-> >
-> > Thanks for the report.
->
-> I would treat Android as authoritative here and fix the
-> selinux-testsuite to match unless you think there is an actual bug in
-> the Rust driver.
-> We originally implemented the binder impersonate check just to make
-> sure no one ever impersonated a different sender without us noticing.
+sizeof(int)?
 
-Unless someone knows of any other widespread Binder users, I tend to
-agree with Stephen that we should treat Android as the standard at the
-present time.  I may have missed it, but has anyone posted a fix for
-the test?  We're at -rc1 now and we really should get the test fixed
-soon ...
+At the start of sk_getsockopt(), lv is initialized to sizeof(int) and v is
+zeroed. Breaking out of the switch runs the shared copy-out epilogue:
+
+	if (len > lv)
+		len =3D lv;
+	if (copy_to_sockptr(optval, &v, len))
+		return -EFAULT;
+lenout:
+	if (copy_to_sockptr(optlen, &len, sizeof(int)))
+		return -EFAULT;
+	return 0;
+
+If a caller passes a non-zero optlen, sk_getsockopt() will either return
+-EFAULT when optval is NULL or write 0 into optval and update *optlen to
+up to sizeof(int), rather than succeeding without returning a value as
+described in the comment.
 
 --=20
-paul-moore.com
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102130540.2528=
+94-1-omosnacek@gmail.com?part=3D1
