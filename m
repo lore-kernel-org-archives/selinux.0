@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793732012;
-	b=MYkzF+vYROjfkPS+8R8q29V0Ro5idLpH7bJflkFcqvZQ7D48mvvDgHQd9RhQSlqNz9af
-	 rF9rDFXFcGR03zx1j8UZUg7bePUP+wUwUey8cBJ+KtpyRrSwPNES9vi3uoA5JZBdhJbq5
-	 rUNwISB3N/ALP9OOgE3uQAwSydAhrBJSREC0uK+D9VUKi2LZKC46xCzy1oazkLHZablc4
-	 xMBTZoEgVcCLQvFD3VLxp8e0EhzrzZrvoafKyQnKNL99BMlCQTBcp5PFsQietxCpwxFHG
-	 p3llEl1DFM/V0erzXVGqglnLbZeHfRdBozlGHWQQs3GbSteO+Op63a5X+R8gz5aKzWQ==
+	t=1793732013;
+	b=Fh0JDRxIfIlAj+rj0JiL7L3chcL1SgoFHTHe5gdGhBbIOmq011ztUUj+jK3Ra62P66TU
+	 0xP5kuN78RKhpA5Y34t9Z3tnZVDoCnJhaDx9wSgm4Zy0Oay5ql+hHft5umwYT0dMPppmu
+	 TU6kGSuTwon+iu8ps6prGNVnsMjyxeEPkXgAybomlHMU7WJaWUCLVF1XCZL8GfKLUXHIs
+	 UGCg5vgq0vPOIDukvn+DDynmImqHftBcqp55MWRwBU4i38Xl66kyrsNdCXgeobabXixH5
+	 ZN/GnoVN2WD0aBFauDuPOXUBQcvmm/gljYEsTUUhecw6iC5gvlzO9wk82DlwKEjZOBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793732012;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793732013;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=+wH4m8H/dlipxc0OLQomc9o/t7dSBNu1eHj6GKtUj8w=;
-	b=gFK8N4x7GVjSwYCM45sRLP1431y/D1/L0990Ln4hlg0LJV4ihh3EvXDtTW/SyPIe6ZMd
-	 8iIrlmiV4N3izWBxxQeosZHslNAHOczNUYGCdEqgT7n4VxLZWSl0ay4qpTZFgH/IHKmUp
-	 EgWGRArg6Taaf4N0PxAvCP1fLdGusFrDC5lUxsV1DM1ZYswjegqAXelDBO5+4mxcVmUfR
-	 lUVlpceM03CkNgu2Uq4YaNPEZzY6u1SXshVqof/ItUbnHtvON75a7BU9a5AK85UiL2Jux
-	 Qsd69I7rzlcG+wRjEEYCHpAY0OnDZn1T96YdiNVw1X5mQeoYoUukv8ZD+XCseEWgfUQ==
+	bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
+	b=GFxkfEY9N4/4r9IVO/u4WRBuFBGxpWxFNNLzQAu4ciDXjicsj+dMKAWXDpvhX8MvQfEf
+	 m2ly9LMsWQ/3LnVAMqz/+xfJu5aAYKGf78Qic2t4XrkKX9fPa5AxQxZ171+EGXNbWdxX7
+	 5RYBSUmU1g2OeuRlyht0GVC7UBKh6i3t8WB4WcBzSK78X9qTT8GfDTfp7g4/rrPRMsATK
+	 cW/9VzUVqq8eTgYP0TlhlUB/+Vmvgtrh1wUPDB/rQYsDvSwAvJxTyZJUp+F2wSosTT8sd
+	 K88+nn3kRf+2MHeXPllt+9YgWii2G5WPpqxHE5Qsb0HIW33a6EU9IxBYvbGoeKjbp3A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n6aSLMJ4;
-	arc=none smtp.remote-ip=209.85.160.175
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zOu5o12Q;
+	arc=none smtp.remote-ip=209.85.219.45
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32791606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB8C2606A328
 	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32791606A324
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BB8C2606A328
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n6aSLMJ4
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-535179e995bso53337801cf.0
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:31 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zOu5o12Q
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-91b9e758c50so13098336d6.1
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793732011; x=1794336811; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793732012; x=1794336812; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+wH4m8H/dlipxc0OLQomc9o/t7dSBNu1eHj6GKtUj8w=;
-        b=n6aSLMJ4/PyoN6Jdf5zhjp7Oo+nzCpQEkEubwxMAp52bkzVkdpYdOAvWOwZoyZBFIr
-         KBj1kNAbovjLKRjGYqNAHk9iiIpbYF0vmJ/Qi//SO4FPOA0Yy6jEQr1Ct68TOOPfrDzO
-         p+N8TGzyjenkg8aPZwuG1WgqgwmarTExTPuwg1ANRma3/4Hf+A3ppAgv6FiQmbnhJwQi
-         6i+4IrM59Avu88QLFey+CBHpQBtw08yvvqWLmaC/TW8PaloZYix1UeLcta5oK/OC2H+q
-         pPjt3jqY2mgTRgxb4+YehX4UTcurpVPuzXzCIIKlL7odfFzkAf/yfNOo3oQUdIxxgQwx
-         Z+dA==
+        bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
+        b=zOu5o12QOKMy+bhTtNx7x2wdlQ1NQpyFMNZeyN/TA/44745hJw64ZEtdTv7Z4lA9it
+         ORg2z6zB/+uErXpvYarVGrQk0MEdGyg6Pdk8Mn2SvkgQuTXmxGt0BzV14+nlN1r+54sC
+         XXJpUpJqdVVgqunLt3KDRsKrGbrbSbeaA96qQbl7lXt6WknTHbM4NYy+qFVSwh9WxgJc
+         oWUr6WqVfxXPRpjMqzrne4q7hGSHqq1c90qfBE6eVaLMSKLtAdG4Bb+0ntWULxHzmbsJ
+         XKhNWgKbh7vCalDwIgMf7eA+PK4b6qodrWdHKn0CKW3oRBUN59YGUEA7cTjenJii/Shi
+         jrOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793732011; x=1794336811;
+        d=1e100.net; s=20260707; t=1793732012; x=1794336812;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+wH4m8H/dlipxc0OLQomc9o/t7dSBNu1eHj6GKtUj8w=;
-        b=iZXWTgD1/eIstbrZcFC7ry7VGMOaWAN8sNXXrHbaTzQSKMHbPFDF7naz4ESXo/s0Yc
-         CTpLlMTvSlNgCu/IvlLjH1Jmaj7vU/8kv5MFrPNCSXRgpPhe06BaffgI8iN9kcJmNppt
-         Qq/TcRTsDL//ugAip19UytYthnfVa4Asm7nWzX1bI+IH2PFIdYMN/NbuOrn1AFeHysMW
-         kL15k5BJK3uqJ88KwKXQVmjWdgDiBloKLL1kWxignuPIEHoL5GsKYNhpgApJ8fhfLO3t
-         6FWAg351ZsHeucw9kvd5OBbsvnhCFHn/D2c0dBlB7UI4xlTO5mkBFUZgSongaiCfX5TH
-         rXkA==
-X-Gm-Message-State: APuU4Z91rhA9GHbwRpImFf4BmSDh1VdRaMAvhpSWgYPcuBPNxZXyBY+6
-	BRVFf0E0hnmXZRQMAwD1IxCFICSyiqeZlc0U8Ua5dvGcje0yPcQNkU8XkW0JT5pn
-X-Gm-Gg: AYBFou1H/s/+dJ+xOqKqYUcDtBT7A4qH+EIEYRZ/tbXnlyC8XKqyq46BJBptqT6juX/
-	w7j1IRga+gt49iuDG76vS5zDtBP2wD7EhNZgdPK3V47Yu+jHGNHapwoPlOUqU9LI+aA8llJrG9J
-	u0Zw6Vob0n2sjBzV4h2mxcwt5yXU9/eI6C2u9IfkwIUMZg6lmCmT7Jw+CL7/DeN25POjxSG8iSA
-	eThwV6LA0xW3Dt4G+JzFJ+lpIdsM29M5m5yp8xm2Bivudunxzq6MU3DMftidOGgXtGRmc/dsyWM
-	c1gVekmKDy7H5aPe3yxvwuuVT0qOpCAfNHvwur/QOTs/Ig8hZeyhbwPDyAbDbQXxKo/KF71Xrku
-	6nFVzBWf5An31ief6ixaZRJ9IsoQ8c/ncCRYbxl7sOoWO9exxlp0SQAomquMUqxGxQ7l2QlMa39
-	EjAoVjawICltez4XU1J+z5wKNmBeqx9DPPQJONPuH2HguwJ9XqQMuhQvzjJTDY9N3rVzSDjHGgE
-	+q8YymK+djxxBiQCbdruUW3UOs+ao8zIdgpEm8Cm8G9QIpcbvU3Ng3prJjbiU41HZwJm+t1vdyD
-	GWQn4/BmY2oG/RitbDMhjnz1hAcdnFnxfMwK1AbZy7lTIB4Chf3qF46XKdqgy2hgmBrPz4oPWLF
-	ZqN6j/CCl6l1KqSp1p0HLr32EjBhvXdZ3wdzrLQHnVmjPDXEPKuskY/jIew4E7hRK5Wpn6teL/y
-	af/QqYeO6TDMroJX7Yc2LZXwlasztkQAc15Ts//R8ugMzNKVGZrS17xhVjePuuZLsHBjgrcRoO
-X-Received: by 2002:a05:622a:1b88:b0:537:af99:ad44 with SMTP id d75a77b69052e-542b7c03209mr247389121cf.57.1793732010892;
-        Tue, 03 Nov 2026 10:53:30 -0800 (PST)
+        bh=/Kh7EROY6Wfo0D99EBHPttmmYElwrFmbzMk20M5wHc0=;
+        b=Mk3Up4stKwV65QOf4V+H7hTUKOQgaf19RjXmWBLzUwTLiPwlByWmJrTTunYiJ8wrJV
+         g6xzWBnmZ7VYV5ZhrWKXZJxGbz1JGqDmA4Q4YuxkAfEfXwX5PJOhaxe5cFB+PEzpVuR6
+         fLaYNjAETtklqiVfOXUuFh184PnfheztG/CrS1u9vTFsob1q+7sKamPbdbXaO5HEvflL
+         u/XHuA929m3/Tqd5k6kA0vsN1P7sSrvTepHY1knUaASGAPLrQMfN1sGlKwctNnvWxNAd
+         EJ0N9+EgcnddS8NFcNf5Z3+sz8/TIqmcFFRPkmhQJSIQICVof1FdvsT4hbu1eIdhEXdg
+         uMaA==
+X-Gm-Message-State: APuU4Z/qfasDx6CS8uriw+JiWiXco3c81hWd4UltNTy5cO/fcGeaiUI8
+	CWAu5bNA36pVMSlou0V0CN+Fr6zQs49BfVkHqRRzv4McSxeSFIVvYE6wCfp75WTl
+X-Gm-Gg: AYBFou0kAWlMqF+hBcBxkR86Bao0V5xcgNqIgb0bnaZjNH7Kdgmlg6hy/SuW+W9Em14
+	ivz87l72iaRFB3n+CSpgQNXt/sD6KqYYhyiPOZ3MKdyl7y7pQY4NhObkcEnGnuVs9LdPFDr4HGS
+	tF4jycmghCXCQ2BbEBCEhKT+dleDmz+kQum3SGYaZNm4OTIJQy+I9cfCKmMhxZaFIWOCRvcxuBe
+	s8g1hdqwiUaiLQiCGZUTFFlV9LAyYhhAKQ842MUC3BI4f8YJPkREjEuRK4d2H1zk726QM2rmjdN
+	dNQfmQ/f6Cl5uxwIAIPYZuubgtpnqdI9JCy8LXLiljFf5AfAui/bKlWJ2Ken33iEe0qRg9c36kk
+	1j8R3oIj24JxBX6r46aNnQfEKfIpd9m49fARcuHNJ3ofssL5C8e8kfmmb0XZkeHb1zl7Ol8aQ8f
+	YYPNQRcKofqg+OeHpm+JBtBbYYa5GjS/jeWGtk9pcfKhjpgdK92nra/CcSi31CJnRt6Oh6Vzn4q
+	DKpLWunzmFPyHXDDPqL8mfuOyjRMerzIMZR6+D+Zj4bF+7txcz4rgJeqZP9KX/21j8VnFxWDyTi
+	aND5uDEJErergmacrpSqHwW3gzkqYdR7bNogyVWGA+8VbMu6/AAeKromoLteW7wFjsPpdb1NPNY
+	/bvNLczquI8xsS+qYQfqyDEOt2x8vLiqSqdtdfh1XxwI5Cn3LBSHWJZGZz3ySmwmtLAUtxaikmt
+	ium5g0kly5dJaEIzaHRCqSbbHh4GW5YWuspm9yq/O92NAWPxqRdNA=
+X-Received: by 2002:a05:6214:252b:b0:917:a1d0:890c with SMTP id 6a1803df08f44-91c906bab4bmr270472206d6.17.1793732011523;
+        Tue, 03 Nov 2026 10:53:31 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7c7881desm234016d6.29.2026.11.03.10.53.30
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7c7881desm234016d6.29.2026.11.03.10.53.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 10:53:30 -0800 (PST)
+        Tue, 03 Nov 2026 10:53:31 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 09/20] libselinux: select readable file-context configuration inputs
-Date: Tue,  3 Nov 2026 13:52:56 -0500
-Message-ID: <20261103185307.45924-9-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 10/20] libselinux: grow the digest specification file list dynamically
+Date: Tue,  3 Nov 2026 13:52:57 -0500
+Message-ID: <20261103185307.45924-10-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
 References: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
@@ -106,340 +106,349 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The configuration-root resolver uses F_OK, so an existing unreadable admin
-file masks a readable vendor fallback. Use effective-credential readability
-checks for the base and its optional compiled sibling. Retain the first
-refused base path when no root is readable, allowing callers to report the
-denial instead of treating a missing primary optional file as success.
+Multiple SELABEL_OPT_PATH inputs can exceed the old eight-file digest
+limit. Nine primary files, or five with all four auxiliary inputs, fail
+with EOVERFLOW solely because digest collection is enabled.
 
-Select text and compiled siblings by mtime only among readable candidates.
-Otherwise an unreadable newer compiled file still masks readable text after
-the resolver has selected that root. Preserve EACCES from metadata checks
-when no candidate can be opened.
+Grow the list with checked capacity arithmetic and preserve its NULL
+sentinel. Publish the input count and hash-buffer length only after an
+addition succeeds, so allocation or read failure permits cleanup or retry.
+Avoid realloc(ptr, 0) for empty inputs.
 
-Add 32 real-DAC regression cases, including compiler-generated binary
-inputs, root precedence, sibling selection and unreadable-only fallbacks.
+Add 20 regression scenarios covering up to 253 primary files plus four
+auxiliaries, growth allocation failures, retries and empty inputs.
 
-Fixes: 27280a14f26e ("libselinux: search file_contexts files across configuration roots")
+Fixes: 1550c8aaf255 ("libselinux: support multiple context files for the file backend")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label_file.c               |  14 ++-
- libselinux/src/selinux_config.c           |  21 +++-
- libselinux/src/selinux_internal.h         |   8 +-
- libselinux/tests/.gitignore               |   1 +
- libselinux/tests/Makefile                 |   8 +-
- libselinux/tests/test_readable_fallback.c | 146 ++++++++++++++++++++++
- 6 files changed, 188 insertions(+), 10 deletions(-)
- create mode 100644 libselinux/tests/test_readable_fallback.c
+ libselinux/src/label.c                |   5 +-
+ libselinux/src/label_internal.h       |   3 +-
+ libselinux/src/label_support.c        |  63 ++++++++----
+ libselinux/tests/.gitignore           |   3 +-
+ libselinux/tests/Makefile             |  10 +-
+ libselinux/tests/test_digest_inputs.c | 134 ++++++++++++++++++++++++++
+ 6 files changed, 192 insertions(+), 26 deletions(-)
+ create mode 100644 libselinux/tests/test_digest_inputs.c
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 9b93b198..99c188a6 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -1193,6 +1193,7 @@ static FILE *open_file(const char *path, const char *suffix, char *save_path,
- 	int rc;
- 	char stack_path[len];
- 	struct file_details *found = NULL;
-+	bool unreadable = false;
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 93848bfe..89ba00be 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -75,10 +75,11 @@ selabel_is_digest_set(const struct selinux_opt *opts, unsigned n)
+ 			if (!digest->digest)
+ 				goto err;
  
- 	/*
- 	 * Rolling append of suffix. Try to open with path.suffix then the
-@@ -1217,8 +1218,17 @@ static FILE *open_file(const char *path, const char *suffix, char *save_path,
+-			digest->specfile_list =
+-				calloc(DIGEST_FILES_MAX + 1, sizeof(char *));
++			digest->specfile_list = calloc(DIGEST_FILES_INITIAL + 1,
++						       sizeof(char *));
+ 			if (!digest->specfile_list)
+ 				goto err;
++			digest->specfile_capacity = DIGEST_FILES_INITIAL;
+ 
+ 			return digest;
  		}
- 
- 		rc = stat(path, &fdetails[i].sb);
--		if (rc)
-+		if (rc) {
-+			unreadable |= errno == EACCES;
-+			continue;
-+		}
-+
-+		/* Choose by mtime only among siblings this caller can read. */
-+		if (faccessat(AT_FDCWD, path, R_OK, AT_EACCESS) < 0 &&
-+		    errno == EACCES) {
-+			unreadable = true;
- 			continue;
-+		}
- 
- 		/* first file thing found, just take it */
- 		if (!found) {
-@@ -1247,7 +1257,7 @@ static FILE *open_file(const char *path, const char *suffix, char *save_path,
- 	}
- 
- 	if (!found) {
--		errno = ENOENT;
-+		errno = unreadable ? EACCES : ENOENT;
- 		return NULL;
- 	}
- 
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 297a33b0..17dd4085 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -4,6 +4,7 @@
- #include <ctype.h>
- #include <stddef.h>
- #include <stdint.h>
-+#include <stdbool.h>
- #include <stdlib.h>
- #include <limits.h>
- #include <unistd.h>
-@@ -620,19 +621,29 @@ int selinux_policy_resolve(const char *path, const char *sibling, char *out,
- 			   size_t outlen)
- {
- 	char probe[PATH_MAX];
-+	char refused[PATH_MAX];
- 	unsigned int i;
-+	bool unreadable = false;
- 
- 	__selinux_once(once, init_selinux_config);
- 
- 	if (strlcpy(out, path, outlen) >= outlen)
- 		goto noent;
- 	for (i = 0;; i++) {
--		if (access(out, F_OK) == 0)
-+		if (faccessat(AT_FDCWD, out, R_OK, AT_EACCESS) == 0)
- 			return 0;
-+		if (errno == EACCES && !unreadable) {
-+			strlcpy(refused, out, sizeof(refused));
-+			unreadable = true;
-+		}
- 		if (sibling) {
- 			snprintf(probe, sizeof(probe), "%s%s", out, sibling);
--			if (access(probe, F_OK) == 0)
-+			if (faccessat(AT_FDCWD, probe, R_OK, AT_EACCESS) == 0)
- 				return 0;
-+			if (errno == EACCES && !unreadable) {
-+				strlcpy(refused, out, sizeof(refused));
-+				unreadable = true;
-+			}
- 		}
- 		if (!selinux_policyroots[i + 1] ||
- 		    selinux_policy_remap(path, selinux_policyroots[i + 1], out,
-@@ -640,6 +651,12 @@ int selinux_policy_resolve(const char *path, const char *sibling, char *out,
- 			break;
- 	}
- 
-+	/* Let callers report a read denial even if only a fallback refused. */
-+	if (unreadable) {
-+		strlcpy(out, refused, outlen);
-+		errno = EACCES;
-+		return -1;
-+	}
- 	/* Nothing found: leave primary path in @out for diagnostics. */
- 	strlcpy(out, path, outlen);
- noent:
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 9df6eadd..8592c80c 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -127,10 +127,10 @@ FILE *selinux_policy_fopen(const char *path, const char *mode);
-  * Resolve @path against the configuration-root list: write into @out
-  * the first remapping under which @out (or @out concatenated with
-  * @sibling, when the base file is optional but a sibling such as .bin
-- * may exist alone) is present. If no root has the file, @out receives
-- * @path unchanged and -1 is returned with errno ENOENT, or if a root
-- * contains the file but it is un-readable and there is no readable
-- * fallback, @out receives @path unchanged and -1 is returned with errno
-+ * may exist alone) is readable with effective credentials. If no root has
-+ * the file, @out receives @path unchanged and -1 is returned with errno
-+ * ENOENT. If there is no readable fallback for an unreadable file, @out
-+ * receives the first refused base path and -1 is returned with errno
-  * EACCES. Internal only.
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 47c5d3cb..3a3301e8 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -48,12 +48,13 @@ int selabel_service_init(struct selabel_handle *rec,
+  * used. This is released once the value has been calculated.
   */
- int selinux_policy_resolve(const char *path, const char *sibling, char *out,
+ #define DIGEST_SPECFILE_SIZE SHA1_HASH_SIZE
+-#define DIGEST_FILES_MAX 8
++#define DIGEST_FILES_INITIAL 8
+ struct selabel_digest {
+ 	unsigned char *digest; /* SHA1 digest of specfiles */
+ 	unsigned char *hashbuf; /* buffer to hold specfiles */
+ 	size_t hashbuf_size; /* buffer size */
+ 	size_t specfile_cnt; /* how many specfiles processed */
++	size_t specfile_capacity; /* allocated entries, excluding the sentinel */
+ 	char **specfile_list; /* and their names */
+ };
+ 
+diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
+index 5112c59c..c712afcc 100644
+--- a/libselinux/src/label_support.c
++++ b/libselinux/src/label_support.c
+@@ -256,6 +256,8 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
+ 			const char *from_addr, size_t buf_len, const char *path)
+ {
+ 	unsigned char *tmp_buf;
++	char *name;
++	size_t new_size;
+ 
+ 	/* If SELABEL_OPT_DIGEST not set then just return */
+ 	if (!digest)
+@@ -265,35 +267,58 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
+ 		errno = EOVERFLOW;
+ 		return -1;
+ 	}
+-	digest->hashbuf_size += buf_len;
++	new_size = digest->hashbuf_size + buf_len;
++	if (digest->specfile_cnt == digest->specfile_capacity) {
++		size_t capacity;
++		char **files;
++
++		if (digest->specfile_capacity >
++		    (SIZE_MAX / sizeof(*files) - 1) / 2) {
++			errno = EOVERFLOW;
++			return -1;
++		}
++		capacity = digest->specfile_capacity ?
++				   digest->specfile_capacity * 2 :
++				   DIGEST_FILES_INITIAL;
++		files = realloc(digest->specfile_list,
++				(capacity + 1) * sizeof(*files));
++		if (!files)
++			return -1;
++		files[digest->specfile_cnt] = NULL;
++		digest->specfile_list = files;
++		digest->specfile_capacity = capacity;
++	}
++	name = strdup(path);
++	if (!name)
++		return -1;
+ 
+-	tmp_buf = realloc(digest->hashbuf, digest->hashbuf_size);
+-	if (!tmp_buf)
++	/* Avoid realloc(ptr, 0), which can free ptr while returning NULL. */
++	tmp_buf = realloc(digest->hashbuf, new_size ? new_size : 1);
++	if (!tmp_buf) {
++		free(name);
+ 		return -1;
++	}
+ 
+ 	digest->hashbuf = tmp_buf;
+ 
+ 	if (fp) {
+ 		if (fseek(fp, 0L, SEEK_SET) == -1)
+-			return -1;
++			goto err;
+ 
+-		if (fread(digest->hashbuf + (digest->hashbuf_size - buf_len), 1,
+-			  buf_len, fp) != buf_len)
+-			return -1;
++		if (fread(digest->hashbuf + digest->hashbuf_size, 1, buf_len,
++			  fp) != buf_len)
++			goto err;
+ 
+ 	} else if (from_addr)
+-		memcpy(digest->hashbuf + (digest->hashbuf_size - buf_len),
+-		       from_addr, buf_len);
+-
+-	/* Now add path to list */
+-	if (digest->specfile_cnt >= DIGEST_FILES_MAX) {
+-		errno = EOVERFLOW;
+-		return -1;
+-	}
+-	digest->specfile_list[digest->specfile_cnt] = strdup(path);
+-	if (!digest->specfile_list[digest->specfile_cnt])
+-		return -1;
++		memcpy(digest->hashbuf + digest->hashbuf_size, from_addr,
++		       buf_len);
+ 
+-	digest->specfile_cnt++;
++	/* Publish together so a failed addition can be retried or cleaned up. */
++	digest->hashbuf_size = new_size;
++	digest->specfile_list[digest->specfile_cnt++] = name;
++	digest->specfile_list[digest->specfile_cnt] = NULL;
+ 	return 0;
++err:
++	free(name);
++	return -1;
+ }
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index 563eccce..1cf58a45 100644
+index 1cf58a45..51d18f6d 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -7,3 +7,4 @@ test-restorecon-digest
+@@ -7,4 +7,5 @@ test-restorecon-digest
  /test-label-merge
  /test-substitution-hash
  /test-substitution-restorecon
+-/test-readable-fallback
+\ No newline at end of file
 +/test-readable-fallback
++/test-digest-inputs
 \ No newline at end of file
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index 3e9092cf..1f010c4f 100644
+index 1f010c4f..cdc395b7 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
+@@ -1,6 +1,6 @@
+ PCRE_LDLIBS ?= -lpcre2-8
+ CFLAGS ?= -O2 -g -Wall -Wextra -Werror
+-override CFLAGS += -I../include -pthread
++override CFLAGS += -I../include -I../src -pthread
+ INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
+ XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
+ EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
 @@ -20,7 +20,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
-@@ -30,9 +30,10 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-label-merge ../utils/sefcontext_compile
+@@ -31,9 +31,10 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
  	./test-substitution-hash
  	./test-substitution-restorecon
-+	LD_LIBRARY_PATH=../src ./test-readable-fallback ../utils/sefcontext_compile
+ 	LD_LIBRARY_PATH=../src ./test-readable-fallback ../utils/sefcontext_compile
++	./test-digest-inputs
  
  clean:
--	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon
-+	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
+-	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
++	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
  
  test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-@@ -47,3 +48,6 @@ test-substitution-hash: test_substitution_hash.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS) -pthread
- test-substitution-restorecon: test_substitution_restorecon.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=getfilecon_raw,--wrap=setfilecon_raw,--wrap=getxattr,--wrap=fsetxattr,--wrap=fstatfs,--wrap=fstatfs64 $(PCRE_LDLIBS) -pthread
+@@ -51,3 +52,6 @@ test-substitution-restorecon: test_substitution_restorecon.c ../src/libselinux.a
+ 
+ test-readable-fallback: test_readable_fallback.c ../src/selinux_config.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ test_readable_fallback.c ../src/libselinux.a $(PCRE_LDLIBS) -pthread
 +
-+test-readable-fallback: test_readable_fallback.c ../src/selinux_config.c ../src/libselinux.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ test_readable_fallback.c ../src/libselinux.a $(PCRE_LDLIBS) -pthread
-diff --git a/libselinux/tests/test_readable_fallback.c b/libselinux/tests/test_readable_fallback.c
++test-digest-inputs: test_digest_inputs.c ../src/libselinux.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=realloc,--wrap=strdup $(PCRE_LDLIBS) -pthread
+diff --git a/libselinux/tests/test_digest_inputs.c b/libselinux/tests/test_digest_inputs.c
 new file mode 100644
-index 00000000..753806fb
+index 00000000..ba0fcef5
 --- /dev/null
-+++ b/libselinux/tests/test_readable_fallback.c
-@@ -0,0 +1,146 @@
++++ b/libselinux/tests/test_digest_inputs.c
+@@ -0,0 +1,134 @@
 +/* SPDX-License-Identifier: CC0-1.0 */
 +#define _GNU_SOURCE
 +#undef NDEBUG
 +#include <assert.h>
-+#include <sys/stat.h>
-+#include <sys/wait.h>
-+#include <selinux/label.h>
-+/* Use private configuration roots without modifying host configuration. */
-+#include "../src/selinux_config.c"
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include "label_internal.h"
 +
-+static const char *suffixes[] = { "",	   ".local",	 ".homedirs",
-+				  ".subs", ".subs_dist", ".bin" };
-+static const char *compiler;
++static int fail_at, allocations;
++void *__real_realloc(void *, size_t);
++char *__real_strdup(const char *);
++void *__wrap_realloc(void *p, size_t n);
++char *__wrap_strdup(const char *p);
 +
-+static void put(const char *path, const char *text, bool readable)
++static bool fail(void)
 +{
-+	bool binary = strlen(path) >= 4 &&
-+		      !strcmp(path + strlen(path) - 4, ".bin");
-+	char source[] = "/tmp/selinux-readable-source-XXXXXX";
-+	int fd = binary ? mkstemp(source) : -1;
-+	assert(!binary || fd >= 0);
-+	FILE *fp = binary ? fdopen(fd, "w") : fopen(path, "we");
-+	assert(fp);
-+	assert(fputs(text, fp) >= 0);
-+	assert(fclose(fp) == 0);
-+	if (binary) {
-+		pid_t pid = fork();
-+		assert(pid >= 0);
-+		if (!pid) {
-+			execl(compiler, compiler, "-o", path, source,
-+			      (char *)NULL);
-+			_exit(127);
-+		}
-+		int status;
-+		assert(waitpid(pid, &status, 0) == pid);
-+		assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
-+		assert(unlink(source) == 0);
++	if (fail_at && ++allocations == fail_at) {
++		errno = ENOMEM;
++		return true;
 +	}
-+	assert(chmod(path, readable ? 0600 : 0000) == 0);
++	return false;
++}
++void *__wrap_realloc(void *p, size_t n)
++{
++	return fail() ? NULL : __real_realloc(p, n);
++}
++char *__wrap_strdup(const char *p)
++{
++	return fail() ? NULL : __real_strdup(p);
 +}
 +
-+static void root_dir(const char *root, bool create)
++static void destroy(struct selabel_digest *d)
 +{
-+	char path[PATH_MAX];
-+	if (create) {
-+		assert(mkdir(root, 0700) == 0);
-+		snprintf(path, sizeof(path), "%s/contexts", root);
-+		assert(mkdir(path, 0700) == 0);
-+		snprintf(path, sizeof(path), "%s/contexts/files", root);
-+		assert(mkdir(path, 0700) == 0);
-+	} else {
-+		for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]);
-+		     i++) {
-+			snprintf(path, sizeof(path),
-+				 "%s/contexts/files/file_contexts%s", root,
-+				 suffixes[i]);
-+			assert(unlink(path) == 0 || errno == ENOENT);
-+		}
-+		snprintf(path, sizeof(path), "%s/contexts/files", root);
-+		assert(rmdir(path) == 0);
-+		snprintf(path, sizeof(path), "%s/contexts", root);
-+		assert(rmdir(path) == 0);
-+		assert(rmdir(root) == 0);
-+	}
++	for (size_t i = 0; i < d->specfile_cnt; i++)
++		free(d->specfile_list[i]);
++	free(d->specfile_list);
++	free(d->hashbuf);
 +}
 +
-+/* mode: missing admin, readable admin, unreadable admin, vendor-only denial,
-+ * both denied; sibling modes add readable/unreadable text next to .bin. */
-+static void run(unsigned input, unsigned mode)
++int main(void)
 +{
-+	char tmp[] = "/tmp/selinux-readable-XXXXXX";
-+	char admin[256], vendor[256], path[PATH_MAX], alt[PATH_MAX];
-+	const char *admin_text = "/probe system_u:object_r:admin_t:s0\n";
-+	const char *vendor_text = "/probe system_u:object_r:vendor_t:s0\n"
-+				  "/admin system_u:object_r:admin_t:s0\n"
-+				  "/vendor system_u:object_r:vendor_t:s0\n";
-+	assert(mkdtemp(tmp));
-+	snprintf(admin, sizeof(admin), "%s/admin", tmp);
-+	snprintf(vendor, sizeof(vendor), "%s/vendor", tmp);
-+	root_dir(admin, true);
-+	root_dir(vendor, true);
-+	assert(selinux_set_policy_root(admin) == 0);
-+	selinux_policyroots[1] = strdup(vendor);
-+	assert(selinux_policyroots[1]);
-+	if (input != 0 && input != 5) {
-+		snprintf(path, sizeof(path), "%s/contexts/files/file_contexts",
-+			 admin);
-+		put(path, vendor_text, true);
-+	}
-+	snprintf(path, sizeof(path), "%s/contexts/files/file_contexts%s", admin,
-+		 suffixes[input]);
-+	snprintf(alt, sizeof(alt), "%s/contexts/files/file_contexts%s", vendor,
-+		 suffixes[input]);
-+	put(alt, input == 3 || input == 4 ? "/probe /vendor\n" : vendor_text,
-+	    mode < 3 || mode > 4);
-+	if (mode != 0 && mode != 3)
-+		put(path,
-+		    input == 3 || input == 4 ? "/probe /admin\n" : admin_text,
-+		    mode == 1 || mode == 6);
-+	if (input == 5 && mode >= 5) {
-+		snprintf(path, sizeof(path), "%s/contexts/files/file_contexts",
-+			 admin);
-+		put(path, vendor_text, mode == 5);
-+		/* Make .bin newer: an unreadable newer sibling must not mask text. */
-+		struct timespec times[2] = { { 2000000000, 0 },
-+					     { 2000000000, 0 } };
-+		snprintf(path, sizeof(path),
-+			 "%s/contexts/files/file_contexts.bin", admin);
-+		assert(utimensat(AT_FDCWD, path, times, 0) == 0);
-+	}
-+	errno = 0;
-+	struct selabel_handle *h = selabel_open(SELABEL_CTX_FILE, NULL, 0);
-+	if (mode == 3 || mode == 4) {
-+		assert(h == NULL && errno == EACCES);
-+	} else {
-+		char *context = NULL;
-+		assert(h);
-+		assert(selabel_lookup_raw(h, &context, "/probe", S_IFREG) == 0);
-+		assert(strstr(context, mode == 1 || mode == 6 ? ":admin_t:" :
-+								":vendor_t:"));
-+		freecon(context);
-+		selabel_close(h);
-+	}
-+	root_dir(admin, false);
-+	root_dir(vendor, false);
-+	assert(rmdir(tmp) == 0);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	assert(argc == 2);
-+	compiler = argv[1];
-+	/* faccessat must observe ordinary DAC permissions, not root override. */
-+	if (geteuid() == 0)
-+		assert(setuid(65534) == 0);
-+	(void)selinux_policy_root();
 +	unsigned cases = 0;
-+	for (unsigned input = 0; input < 6; input++) {
-+		for (unsigned mode = 0; mode < (input == 5 ? 7U : 5U); mode++) {
-+			run(input, mode);
++	for (int failure = 1; failure <= 3; failure++) {
++		struct selabel_digest d = { 0 };
++		for (unsigned i = 0; i < 8; i++)
++			assert(digest_add_specfile(&d, NULL, "a", 1, "first") ==
++			       0);
++		fail_at = failure;
++		allocations = 0;
++		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == -1);
++		assert(errno == ENOMEM && d.specfile_cnt == 8 &&
++		       d.hashbuf_size == 8);
++		assert(d.specfile_list[8] == NULL &&
++		       !memcmp(d.hashbuf, "aaaaaaaa", 8));
++		fail_at = 0;
++		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == 0);
++		assert(d.specfile_cnt == 9 && d.hashbuf_size == 9 &&
++		       d.specfile_list[9] == NULL);
++		destroy(&d);
++		cases++;
++	}
++	struct selabel_digest d = { 0 };
++	assert(digest_add_specfile(&d, NULL, "", 0, "empty") == 0);
++	FILE *fp = tmpfile();
++	assert(fp);
++	assert(digest_add_specfile(&d, fp, NULL, 1, "short") == -1);
++	assert(d.specfile_cnt == 1 && d.hashbuf_size == 0 &&
++	       d.specfile_list[1] == NULL);
++	assert(fclose(fp) == 0);
++	assert(digest_add_specfile(&d, NULL, "x", 1, "retry") == 0);
++	destroy(&d);
++	cases++;
++
++	const unsigned counts[] = { 1, 4, 5, 8, 9, 16, 32, 253 };
++	for (unsigned extras = 0; extras < 2; extras++) {
++		char path[] = "/tmp/selabel-many-XXXXXX", aux[128];
++		int fd = mkstemp(path);
++		assert(fd >= 0);
++		fp = fdopen(fd, "w");
++		assert(fp &&
++		       fputs("/probe system_u:object_r:test_t:s0\n", fp) >= 0);
++		assert(fclose(fp) == 0);
++		const char *suffixes[] = { ".subs", ".subs_dist", ".homedirs",
++					   ".local" };
++		if (extras) {
++			for (unsigned i = 0; i < 4; i++) {
++				snprintf(aux, sizeof(aux), "%s%s", path,
++					 suffixes[i]);
++				fp = fopen(aux, "w");
++				assert(fp);
++				assert(fputs(i < 2 ? "/other /elsewhere\n" :
++						     "/extra system_u:object_r:extra_t:s0\n",
++					     fp) >= 0);
++				assert(fclose(fp) == 0);
++			}
++		}
++		for (unsigned c = 0; c < sizeof(counts) / sizeof(counts[0]);
++		     c++) {
++			struct selinux_opt opts[254];
++			unsigned n = counts[c];
++			for (unsigned i = 0; i < n; i++)
++				opts[i] =
++					(struct selinux_opt){ SELABEL_OPT_PATH,
++							      path };
++			opts[n] =
++				(struct selinux_opt){ SELABEL_OPT_DIGEST, "1" };
++			struct selabel_handle *h =
++				selabel_open(SELABEL_CTX_FILE, opts, n + 1);
++			assert(h);
++			unsigned char *hash;
++			char **files, *context = NULL;
++			size_t len, num;
++			assert(selabel_digest(h, &hash, &len, &files, &num) ==
++			       0);
++			assert(len == 20 && num == n + 4 * extras &&
++			       files[num] == NULL);
++			assert(selabel_lookup_raw(h, &context, "/probe", 0) ==
++			       0);
++			freecon(context);
++			selabel_close(h);
 +			cases++;
 +		}
++		for (unsigned i = 0; extras && i < 4; i++) {
++			snprintf(aux, sizeof(aux), "%s%s", path, suffixes[i]);
++			assert(unlink(aux) == 0);
++		}
++		assert(unlink(path) == 0);
 +	}
-+	printf("Readable configuration fallback: %u cases passed.\n", cases);
++	printf("Dynamic digest inputs: %u cases passed.\n", cases);
 +	return 0;
 +}
 -- 
