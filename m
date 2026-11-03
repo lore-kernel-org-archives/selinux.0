@@ -1,84 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793732010;
-	b=PHDFxJOPD+4n06F28ancMuwu729o6fJ7T1M4u7ewgupslXW/1wUrYZNI6s2Rq0i4hLUf
-	 EBrerN0iiej4yR6XPY+vqqFvndw+QptoliEdK3hEO5GK6ArjsZRrnZ5Q+ZA1EZv7lDnlv
-	 sIwyIQEBw29W06ilwhFz6yuR2Se/Wpcc5FtSlDlg8m42xS6zKFIk2S0QThfP+YpsCF1jJ
-	 47KEfp9mqMq7er5jKqRZQm+6ctd5dEv9Rh24wOuyZPBwBTJ5t1vKGdO0XPlW0hXpG6oTf
-	 5w+1F1/439KqQnrms81/e1IZVeVX6pL4Zi2NU8/RZZNT8kt6UJF0cCuOrKhUarCqaLQ==
+	t=1793732011;
+	b=YCizIMDj135df6KASsrS0pQSmxoliUu4NTfb1iADo2p7Ox1P6GvZlYdKf/lLsjJk3Pw3
+	 mx1DoenH7SrBaObz0Tvp0CqtPiXaVAbCFMYP4IByJlz3eN5zLVRDDEze0EzaCWmYYw+Jx
+	 YJ5hDIIpGcHv8z89wSloFG5fcYIP385jJ5IOhrpr5U3qlPVpOHJJULYeRqGQmXNR9L3V7
+	 OlHSEbv9OW/lTw3XEJ5D2PezIy2kiGqanFqTrzrmiIu/SgUgQPX1qneWDQCwK/PZGm+QH
+	 qvfk0khRsEB5SI0nOWFDPm7wIgPcJXTjJVlkBb36zsBmpPya2baPn4Z1QPPTOAoD36g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793732010;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793732011;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=2J79l8+E7IgJXmyDyW7vwjXOl/cSz2+xU2YywBnG16o=;
-	b=Q3s7Ghwe4u3gdq281oJCiKZW1H8XxG1/jpG2SDfFc8eOV9+P+wmScTDjM7PTsGqlpV5E
-	 NCqGnz/PTs89ksMJVYaYxWFnKy9iVsJDlmggdRRyIBKCfMqYZ+gvvxGXiP7YUxeoL3Ywu
-	 m+agK7o2HGPCS1mPdvlPL/LIrWCFO8ij+Q3zEwkwh7uzPdMi3ENcjZ6Fc3fxmDMwqHfbb
-	 4ythEAguLJ1PQJjHLXwfp8rEhgqG6BckOD2oXA7VYOTVqRk1v+hSLjb2lFqVlN0lS8zY/
-	 fINp2Yt1cKbkvA3bfrYA3obT4EtiCmZby1JUnRYnfpcKohWb8AIDRALGn4sQQCBjxKA==
+	bh=FpdyuwjJ2/VBrjIvqOY7irRxId9nE9h5ztRMV1O0CT4=;
+	b=O3+vBJ8vkrbSKvKyLhzY4wpWVesFzQXm8Eo9+ZrrTmfv1NRPYH9j9YmNP/h9B3S9t4LY
+	 DjQfJQpAXx1CBlXNdd0i32CRpc5rbndnWscl3X5F2oKmcfk/+lj9lZbD9IBNX/WehyJ9M
+	 z1qVvtD03aNMjHsTdGtISOYXph+05k8qToXj+cKzqJn8NUvspFMuozEd3S+Z3+/8JDRF9
+	 42tMFv68ynHMozJSIauKYEVThQT3vGFpVu8GhbwCT/p5ej3CY9uh95UsVKooHhbwXn1Fq
+	 PVHzbUh0aDWM1a89poNBwihYcZ/uv75O9Ww8hk6uShdi3QIRqYrJ5qEenhW7qjg328w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="cy91/uEH";
-	arc=none smtp.remote-ip=209.85.222.176
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VwggetHt;
+	arc=none smtp.remote-ip=209.85.219.43
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E90606A328
-	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2E90606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B68FF606A33D
+	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B68FF606A33D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cy91/uEH
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-93f2049ea7aso333356785a.2
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:29 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VwggetHt
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-91791ec1b83so35112956d6.1
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20260707; t=1793732009; x=1794336809; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=2J79l8+E7IgJXmyDyW7vwjXOl/cSz2+xU2YywBnG16o=;
-        b=cy91/uEHQu28y16lPVDQAAAs7DsMq9xr6Iv0mOPwziVt8jxtGAc5VIhywmWuPCXvxX
-         kaZKjOLvTGzJpzQBnbLka8p3w0bLcv3Je9h+B+DQHSmrgt5UD3K3NQRfCaMa9oIJ035A
-         iK0XCpG5ZqPK4TDddQP7FjRvLZVbQJiujFNt+iPBhO4w/qd4xBpneVM9SsfpE8i83iQ6
-         UP/2akMpcD9JcGd9HxAyeSBq50waPXBPy7P53j8/od3rW16hzWtZdvwQNl0IwoIuHGQx
-         XZ96Aes9oy2Pq6YC5zjmr+eLE0//jB17SPkQzlqN44ymGzZAihLugFVhpVIDsA02y73I
-         h2uQ==
+        bh=FpdyuwjJ2/VBrjIvqOY7irRxId9nE9h5ztRMV1O0CT4=;
+        b=VwggetHth0y7OrSa6MkW+vby1HNBV+CSOM7dx40TB8WD4gEG7Ia+mHl7pDIArYgNV4
+         GHhBH2B/wWO2LxkR+3ll1NYb+sc4Sh0YbXikb+KAbuu+TAgpN1TPk/Y7Z5hgcs2xm9YJ
+         XjjJA2cRgWN1llim/Y0pIlszL+jQ/2DAdOGR90sMLgZR7Z1MHGzxIwP8NZ+yHrDTnGrm
+         cuF0xBZO2ut2ZxPVffUvGNpEJsTJCKnRTIUxIR9Tr05D41jjn6fiZWKCqOV/PQ39XBWW
+         6B8cYzHzdza7THOVnlIXRvJhA1BTdEyT6TSG+YJJOonLuqhhTGrQbX2BGS66MMRTIv86
+         qmJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20260707; t=1793732009; x=1794336809;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2J79l8+E7IgJXmyDyW7vwjXOl/cSz2+xU2YywBnG16o=;
-        b=GUeJfi57EmlnB8gwRI0GARolZrQoRi/FmEdIl30Ych8R0YShtlJ9dBiRxe/CyIhoDh
-         DrzFnS0cEN/DYot4WYE2PSVF7r9JFuD4uQ/952oFzz+EpCAjlBh4AnI4TC/3V6EZ5/5x
-         HmOd0mpZo77944ckeNMFCh+EtMip+N4DV8oLxnx1BPEBfm/p1qQjkTd3nMQPw4s/STsJ
-         MDoiP6AppLosX8DhITwVu4rUeXTgwlC2fXkWjx8PLejll9gl8JK3bD3Bnay7aagt9fvL
-         SJ89xYMQyjI/lCn9YJqyuAbdOAkjZHJHP6PyxhFqaz0iVKGs1X0ncIFg0+0+e6G8f2Tk
-         bmyg==
-X-Gm-Message-State: APuU4Z+EcFdNYDkHPb+VRtvClxH+fLsxhB/k4xT4HtU7tNF2lbVMQNhn
-	/RKRo83pbGM6DfI4PwZDkwEbKD24UypeJwqIqlM6f1wDgQLYIxyZha6ptRmOIOmx
-X-Gm-Gg: AYBFou258fT7oWunAGN89o4pvZs3Iy6YTNZMWOK7ftjP0Dt9e7qZmnwVBFScCOBs4O4
-	D5xdjWgm3Q2sxCQX1shdRGIkbKKJTZrek7L+J4UOhlZ5cFStHVOxHgOlMKYRtGEZC8EKW95kyIY
-	n15wzi1mR/9ja30CNSQT9QgvQdBMVNfwFjhnxeXV5pjD9N2wc6GjEWd/EVojT2quF2EcA4ALF7H
-	SfebsUIud+tTQrFCV0ba0EWD7Hv3Pa8b1eU2JsHOC4LqmuxWYZP40gdjkAmzKEJsnIlImVsfju/
-	veTqKYuZpVZSEO3v2OecOKd4kpiJOQVcVB8N5mMbTWPoKStYhxgC2g/K6HSqO2aNFM824P5fNAH
-	LyI3ajL+lVfEHYIKxgEuo3nb6AwoUNwDN/pbB20XHBEhd23UrRKchGmO3TJXmY0tiK9Ia6iRGtA
-	E58+SK4+g3myTbWucJy5wAxzFnHkL6mT9FIQldzCyu0R8fIQ4umdaL1uHt9wBxN7Si+0R34mLJT
-	URH07Y+pHBL/jAcoadsUL9jG2A/u74CDwvw9Y/d0BCvqx6JeIVw0T0Js4urybWT+egA52wpFbx3
-	UnXUTr4SVOidQBGR1hfesZNX1sbfmBO1s5OO+ScYw+cXga516pEXpE+CNp0NEQlUky1YnD/ReF7
-	BNC2nhOBc29CP4/5bg9L5G10h+IW82sWSPmvx+eWZURidUjGHLG9jo1EzWOS9x1/cv3lypWWyP5
-	j7PXpPWVOR1WkBAC/LVTSHVAVONReATszln2gGXVUMJWZbrZMxKKY=
-X-Received: by 2002:a05:620a:800d:b0:93f:3219:835f with SMTP id af79cd13be357-94421841ad6mr2376318285a.81.1793732008763;
-        Tue, 03 Nov 2026 10:53:28 -0800 (PST)
+        bh=FpdyuwjJ2/VBrjIvqOY7irRxId9nE9h5ztRMV1O0CT4=;
+        b=ZsuBlHuoAX6eSamYOZFigkEl1IuQ/ivkSyZZxxlZzAueUCwUAlbCRh34PZfo0cZFKR
+         o5H05EeEMQtqFSigCQY/SPWZea6M/OFekurSgPENh4QmQKvVAc2HDt4aevBHp4djRIPl
+         uZ04c5ZbItvIla5Z9dmH3Nt5Va6IMyRFWzlIoRjYo3Sv3lv5pD4ZXDP7w/2qqekM4V4H
+         yjJXSUBBupF3M6bZzztDzU645i/gq4U+fSjSTsm94kf8jnTk3XWi4170vCKILJJ9mVVG
+         Y/BZoiIqJmvs2zAgILcespdvawf6ZmeUSPPrT2KGc5GoV3TvdH38QX19hsmyH7MX2SOe
+         BCVA==
+X-Gm-Message-State: APuU4Z+4Jp9I/WRiTR0DrTGdY/FPc0WkkVLDwtgdHhSMQpvPlEb7YeX9
+	MgwFSwEJESKyTA5sS+TaHugL6GAVB0hgnfGHGQEyGBtGbnBro0LITUE9U5+GEM7Y
+X-Gm-Gg: AYBFou0GI9na7UtN48FZufj3s6NiY5+3SGIEiLk4Y4cAKxgMzRfiHwBEVu9lXux461V
+	FiYiK1heODpbkSU4UsUTxDXCZ5sQe386GhQV9rbwtpu4YQUnPZahWdrI8Jzn8FNcg/S/yX2gVCZ
+	5u4eK9f0x9KiD6EIk04W0pnW9AyHMtWysfAo+YALM5KbXNCNUyUSY/sb4bWKapfRvpQhX/SmH5Q
+	s1Tc+/qAyCOQOCU4nA5UcgvxGgZ/YlaOuszVHO5Cc03WHcwfiFKG2GS3umLOdS40rQ12hTxYJ9p
+	nmXignWHFbiJZvrm6IwpwvgVm9Fz7fizU+aUWHUWZguEKtrOmbrOKuDUngpZltgMl9wvegJBe37
+	EmPZnLxca5lRhGFPoRoF51Bp9dK7xIITcEO3Mr7G77uvfVeTyVx5nwq0eiVnuqtsBPgKJnM2WIu
+	dssnebEHD6MMkzBVdKgYP7FeDZy3RWIQZXG5iXPDaviZ4mawmcT2dZizAhBoqJzPc4L6GBjkKw/
+	RQS9Z/Kiw9xJ8029tfbK83UxkxjKCpbSePnUgllKlwEpZ03HRzYyOkcG2X4S5ew4oiED0T8sOnj
+	geQCz+eamDKDLJaX86z0cjbLr0mDR06fEb2vi8jS6gENo3CLmpSh5fLIeMysgg6f6oA2GTRy4s/
+	oprYYddMZ+X6AynmDJOxGhb8meAr6djsGoansEfniE8MTZE1SmNzmha8oEiCyQab1164qG0Ugbl
+	Y5QTH6FUwd/UUtpkKn0mEP8XaJULFYwPzc9KLVCkQ3d0w04hnijF1hNt35rUA35oseWR1uyoK9m
+	w==
+X-Received: by 2002:a05:6214:1bcb:b0:91c:7a10:7fbc with SMTP id 6a1803df08f44-91ca4a14adfmr236812736d6.4.1793732009505;
+        Tue, 03 Nov 2026 10:53:29 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7c7881desm234016d6.29.2026.11.03.10.53.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 10:53:28 -0800 (PST)
+        Tue, 03 Nov 2026 10:53:29 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +90,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 06/20] libselinux: fail file label initialization on auxiliary path OOM
-Date: Tue,  3 Nov 2026 13:52:53 -0500
-Message-ID: <20261103185307.45924-6-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 07/20] libselinux: clear consumed source children during context merge
+Date: Tue,  3 Nov 2026 13:52:54 -0500
+Message-ID: <20261103185307.45924-7-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
 References: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
@@ -106,110 +107,93 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Successful substitution setup leaves status set to zero. If allocating
-an auxiliary file-context path then fails, init returns that success
-without loading any specifications. selabel_open returns an empty handle,
-and restorecon treats subsequent ENOENT lookups as successful no-ops.
+After merging a shared child, merge_mmap_spec_nodes frees the source
+child contents but leaves its pointers and counts in the source array.
+If merging a later sibling fails, load_mmap error cleanup visits that
+child again, accessing and freeing already freed memory.
 
-Set failure status for both the explicit-path asprintf and default-path
-strdup failures, using the existing cleanup. Keep the NULL assignment
-for the unspecified asprintf output on failure.
+Clear each consumed source child after freeing its contents. Leave
+source-only children and destination ownership unchanged.
 
-Add 48 cases covering both path modes, auxiliary files present or absent,
-BASEONLY, DIGEST and failures at either suffix. Check NULL/ENOMEM,
-tracked allocation cleanup, and a successful subsequent open.
+Add 32 regression cases using compiler-generated local context files,
+covering literal and regex rules, nested nodes, text fallback, transient
+and persistent merge allocation failures, and a subsequent fresh open.
 
-Fixes: 1550c8aaf255 ("libselinux: support multiple context files for the file backend")
-Fixes: 27280a14f26e ("libselinux: search file_contexts files across configuration roots")
+Fixes: 92306daf5219 ("libselinux: rework selabel_file(5) database")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label_file.c            |   5 +-
- libselinux/tests/.gitignore            |   1 +
- libselinux/tests/Makefile              |   8 +-
- libselinux/tests/test_label_init_oom.c | 214 +++++++++++++++++++++++++
- 4 files changed, 225 insertions(+), 3 deletions(-)
- create mode 100644 libselinux/tests/test_label_init_oom.c
+ libselinux/src/label_file.c         |   3 +
+ libselinux/tests/.gitignore         |   1 +
+ libselinux/tests/Makefile           |   7 +-
+ libselinux/tests/test_label_merge.c | 143 ++++++++++++++++++++++++++++
+ 4 files changed, 152 insertions(+), 2 deletions(-)
+ create mode 100644 libselinux/tests/test_label_merge.c
 
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 8ad1b97c..de4600dd 100644
+index de4600dd..991cff7d 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
-@@ -1726,14 +1726,17 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 					       sizeof(resolved));
- 			rec->spec_files[num_required_paths + i] =
- 				strdup(resolved);
--			if (rec->spec_files[num_required_paths + i] == NULL)
-+			if (rec->spec_files[num_required_paths + i] == NULL) {
-+				status = -1;
- 				goto finish;
-+			}
- 			continue;
- 		}
- #endif
- 		if (asprintf(&rec->spec_files[num_required_paths + i], "%s.%s",
- 			     rec->spec_files[0], opt_suffixes[i]) < 0) {
- 			rec->spec_files[num_required_paths + i] = NULL;
-+			status = -1;
- 			goto finish;
- 		}
- 	}
+@@ -384,6 +384,9 @@ static int merge_mmap_spec_nodes(struct spec_node *restrict dest,
+ 					new_children[new_children_num++] =
+ 						*child_dest;
+ 					free_spec_node(child_source);
++					/* A later sibling failure may revisit this node. */
++					memset(child_source, 0,
++					       sizeof(*child_source));
+ 					iter_dest++;
+ 					iter_source++;
+ 				} else if (r < 0) {
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index e308af53..a4695e6f 100644
+index a4695e6f..cf084570 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -3,3 +3,4 @@ test-restorecon-digest
- /test-restorecon-errno
+@@ -4,3 +4,4 @@ test-restorecon-digest
  /test-restorecon-exclude
  /test-restorecon-xdev
-+/test-label-init-oom
+ /test-label-init-oom
++/test-label-merge
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index da82cfd3..babadfe8 100644
+index babadfe8..032018a8 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
-@@ -1,6 +1,7 @@
- PCRE_LDLIBS ?= -lpcre2-8
- CFLAGS ?= -O2 -g -Wall -Wextra -Werror
- override CFLAGS += -I../include -pthread
-+INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
- XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
- EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
- WRAPS = getfilecon_raw setfilecon_raw getxattr fsetxattr pthread_cond_wait fstatfs fstatfs64
-@@ -19,17 +20,20 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
+@@ -20,16 +20,17 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
  	./test-restorecon-exclude
  	./test-restorecon-xdev
-+	./test-label-init-oom
+ 	./test-label-init-oom
++	./test-label-merge ../utils/sefcontext_compile
  
  clean:
--	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev
-+	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom
+-	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom
++	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge
  
  test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
- test-restorecon-xdev: test_restorecon_xdev.c ../src/libselinux.a
+@@ -37,3 +38,5 @@ test-restorecon-xdev: test_restorecon_xdev.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(XDEV_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-+test-label-init-oom: test_label_init_oom.c ../src/libselinux.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(INIT_OOM_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-diff --git a/libselinux/tests/test_label_init_oom.c b/libselinux/tests/test_label_init_oom.c
+ test-label-init-oom: test_label_init_oom.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(INIT_OOM_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
++test-label-merge: test_label_merge.c ../src/libselinux.a
++	$(CC) $(CFLAGS) -I../src -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 $(LDFLAGS) -o $@ $^ -Wl,--wrap=reallocarray $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_label_merge.c b/libselinux/tests/test_label_merge.c
 new file mode 100644
-index 00000000..3cac58c9
+index 00000000..0f67fbbf
 --- /dev/null
-+++ b/libselinux/tests/test_label_init_oom.c
-@@ -0,0 +1,214 @@
++++ b/libselinux/tests/test_label_merge.c
+@@ -0,0 +1,143 @@
 +/* SPDX-License-Identifier: CC0-1.0 */
 +#define _GNU_SOURCE
 +#undef NDEBUG
 +#include <assert.h>
 +#include <errno.h>
-+#include <stdarg.h>
-+#include <stdbool.h>
++#include <fcntl.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -217,204 +201,134 @@ index 00000000..3cac58c9
 +#include <sys/wait.h>
 +#include <unistd.h>
 +#include <selinux/label.h>
++#include "label_file.h"
 +
-+static const char *fail_suffix;
-+static bool default_path, tracking;
-+static unsigned int faults;
-+static void *allocations[256];
-+static size_t live;
++static unsigned int fail_at, merges, faults;
++static bool use_regex, persistent;
 +
-+static void track(void *ptr)
++void *__real_reallocarray(void *ptr, size_t n, size_t size);
++void *__wrap_reallocarray(void *ptr, size_t n, size_t size);
++void *__wrap_reallocarray(void *ptr, size_t n, size_t size)
 +{
-+	if (tracking && ptr) {
-+		assert(live < sizeof(allocations) / sizeof(allocations[0]));
-+		allocations[live++] = ptr;
-+	}
-+}
-+
-+void *__real_calloc(size_t n, size_t size);
-+void *__wrap_calloc(size_t n, size_t size);
-+void *__wrap_calloc(size_t n, size_t size)
-+{
-+	void *ptr = __real_calloc(n, size);
-+	track(ptr);
-+	return ptr;
-+}
-+
-+void __real_free(void *ptr);
-+void __wrap_free(void *ptr);
-+void __wrap_free(void *ptr)
-+{
-+	for (size_t i = 0; i < live; i++) {
-+		if (allocations[i] == ptr) {
-+			allocations[i] = allocations[--live];
-+			break;
-+		}
-+	}
-+	__real_free(ptr);
-+}
-+
-+char *__real_strdup(const char *text);
-+char *__wrap_strdup(const char *text);
-+char *__wrap_strdup(const char *text)
-+{
-+	if (default_path && fail_suffix) {
-+		size_t len = strlen(text), suffix_len = strlen(fail_suffix);
-+		if (len > suffix_len && text[len - suffix_len - 1] == '.' &&
-+		    !strcmp(text + len - suffix_len, fail_suffix)) {
++	if (n == 2 && size == (use_regex ? sizeof(struct regex_spec) :
++					   sizeof(struct literal_spec))) {
++		merges++;
++		if (fail_at &&
++		    (merges == fail_at || (persistent && merges > fail_at))) {
 +			faults++;
 +			errno = ENOMEM;
 +			return NULL;
 +		}
 +	}
-+	char *ptr = __real_strdup(text);
-+	track(ptr);
-+	return ptr;
++	return __real_reallocarray(ptr, n, size);
 +}
 +
-+static int __attribute__((format(printf, 2, 0)))
-+allocate_path(char **out, const char *format, va_list args)
++static void check_lookup(struct selabel_handle *handle, const char *prefix,
++			 const char *stem, const char *type)
 +{
-+	if (fail_suffix && !strcmp(format, "%s.%s")) {
-+		va_list copy;
-+		va_copy(copy, args);
-+		(void)va_arg(copy, const char *);
-+		bool fail = !strcmp(va_arg(copy, const char *), fail_suffix);
-+		va_end(copy);
-+		if (fail) {
-+			faults++;
-+			/* POSIX leaves the output unspecified on failure. */
-+			*out = (char *)&faults;
-+			errno = ENOMEM;
-+			return -1;
-+		}
-+	}
-+	int rc = vasprintf(out, format, args);
-+	if (rc >= 0)
-+		track(*out);
-+	return rc;
-+}
-+
-+int __wrap_asprintf(char **out, const char *format, ...)
-+	__attribute__((format(printf, 2, 3)));
-+int __wrap_asprintf(char **out, const char *format, ...)
-+{
-+	va_list args;
-+	va_start(args, format);
-+	int rc = allocate_path(out, format, args);
-+	va_end(args);
-+	return rc;
-+}
-+
-+int __wrap___asprintf_chk(char **out, int flag, const char *format, ...)
-+	__attribute__((format(printf, 3, 4)));
-+int __wrap___asprintf_chk(char **out, int flag, const char *format, ...)
-+{
-+	(void)flag;
-+	va_list args;
-+	va_start(args, format);
-+	int rc = allocate_path(out, format, args);
-+	va_end(args);
-+	return rc;
-+}
-+
-+static void write_context(const char *path, const char *context)
-+{
-+	FILE *fp = fopen(path, "w");
-+	assert(fp);
-+	assert(fprintf(fp, "/probe %s\n", context) > 0);
-+	assert(fclose(fp) == 0);
-+}
-+
-+static void check_handle(struct selabel_handle *handle, const char *expected)
-+{
++	char path[128], expected[128];
 +	char *context = NULL;
-+	assert(handle);
-+	assert(selabel_lookup_raw(handle, &context, "/probe", S_IFREG) == 0);
++	assert(snprintf(path, sizeof(path), "%s/%s/file", prefix, stem) > 0);
++	assert(snprintf(expected, sizeof(expected), "system_u:object_r:%s:s0",
++			type) > 0);
++	assert(selabel_lookup_raw(handle, &context, path, S_IFREG) == 0);
 +	assert(!strcmp(context, expected));
 +	free(context);
++}
++
++static void check_handle(struct selabel_handle *handle, const char *prefix)
++{
++	assert(handle);
++	check_lookup(handle, prefix, "a", "local_t");
++	check_lookup(handle, prefix, "b", "local_t");
++	check_lookup(handle, prefix, "aa", "base_t");
++	check_lookup(handle, prefix, "ab", "local_t");
 +	selabel_close(handle);
-+	assert(live == 0);
 +}
 +
-+static void run_case(bool use_default, bool base, bool digest, bool present,
-+		     const char *suffix)
++static void run_case(const char *compiler, bool regex, bool nested,
++		     bool keep_text, unsigned int failure)
 +{
-+	char root[] = "/tmp/label-init-oom-XXXXXX";
-+	char contexts[256], files[256], fc[256], homedirs[256], local[256];
++	char root[] = "/tmp/label-merge-XXXXXX";
++	char base[256], local[256], binary[256];
++	const char *prefix = nested ? "/outer/inner" : "";
++	const char *suffix = regex ? ".*" : "";
 +	assert(mkdtemp(root));
-+	assert(snprintf(contexts, sizeof(contexts), "%s/contexts", root) > 0);
-+	assert(snprintf(files, sizeof(files), "%s/contexts/files", root) > 0);
-+	assert(snprintf(fc, sizeof(fc), "%s/contexts/files/file_contexts",
-+			root) > 0);
-+	assert(snprintf(homedirs, sizeof(homedirs), "%s.homedirs", fc) > 0);
-+	assert(snprintf(local, sizeof(local), "%s.local", fc) > 0);
-+	assert(mkdir(contexts, 0700) == 0 && mkdir(files, 0700) == 0);
-+	assert(selinux_set_policy_root(root) == 0);
-+	write_context(fc, "system_u:object_r:base_t:s0");
-+	if (present) {
-+		write_context(homedirs, "system_u:object_r:home_t:s0");
-+		write_context(local, "system_u:object_r:local_t:s0");
++	assert(snprintf(base, sizeof(base), "%s/fc", root) > 0);
++	assert(snprintf(local, sizeof(local), "%s/fc.local", root) > 0);
++	assert(snprintf(binary, sizeof(binary), "%s/fc.local.bin", root) > 0);
++	FILE *fp = fopen(base, "w");
++	assert(fp);
++	assert(fprintf(fp,
++		       "%s/a/file%s system_u:object_r:base_t:s0\n"
++		       "%s/aa/file%s system_u:object_r:base_t:s0\n"
++		       "%s/b/file%s system_u:object_r:base_t:s0\n",
++		       prefix, suffix, prefix, suffix, prefix, suffix) > 0);
++	assert(fclose(fp) == 0);
++	fp = fopen(local, "w");
++	assert(fp);
++	assert(fprintf(fp,
++		       "%s/a/file%s system_u:object_r:local_t:s0\n"
++		       "%s/ab/file%s system_u:object_r:local_t:s0\n"
++		       "%s/b/file%s system_u:object_r:local_t:s0\n",
++		       prefix, suffix, prefix, suffix, prefix, suffix) > 0);
++	assert(fclose(fp) == 0);
++	pid_t pid = fork();
++	int status;
++	assert(pid >= 0);
++	if (!pid) {
++		execl(compiler, compiler, "-o", binary, local, (char *)NULL);
++		_exit(127);
 +	}
-+	const char *expected = present && !base ?
-+				       "system_u:object_r:local_t:s0" :
-+				       "system_u:object_r:base_t:s0";
-+	struct selinux_opt opts[] = {
-+		{ SELABEL_OPT_PATH, use_default ? NULL : fc },
-+		{ SELABEL_OPT_BASEONLY, base ? "1" : NULL },
-+		{ SELABEL_OPT_DIGEST, digest ? "1" : NULL },
-+	};
-+	default_path = use_default;
-+	tracking = true;
-+	fail_suffix = suffix;
-+	errno = 0;
-+	struct selabel_handle *handle = selabel_open(SELABEL_CTX_FILE, opts, 3);
-+	int error = errno;
-+	fail_suffix = NULL;
-+	if (suffix && !base) {
-+		assert(faults == 1 && handle == NULL && error == ENOMEM);
-+		assert(live == 0);
-+	} else {
-+		assert(faults == 0);
-+		check_handle(handle, expected);
-+	}
-+	/* A failed open must not poison a subsequent successful open. */
-+	check_handle(selabel_open(SELABEL_CTX_FILE, opts, 3), expected);
-+	tracking = false;
-+	if (present)
-+		assert(unlink(local) == 0 && unlink(homedirs) == 0);
-+	assert(unlink(fc) == 0 && rmdir(files) == 0);
-+	assert(rmdir(contexts) == 0 && rmdir(root) == 0);
++	assert(waitpid(pid, &status, 0) == pid);
++	assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
++	struct stat sb;
++	assert(stat(binary, &sb) == 0);
++	struct timespec times[] = { sb.st_atim, sb.st_mtim };
++	assert(utimensat(AT_FDCWD, local, times, 0) == 0);
++	if (!keep_text)
++		assert(unlink(local) == 0);
++	use_regex = regex;
++	persistent = failure == 3;
++	fail_at = persistent ? 2 : failure;
++	struct selinux_opt opt = { SELABEL_OPT_PATH, base };
++	struct selabel_handle *handle = selabel_open(SELABEL_CTX_FILE, &opt, 1);
++	assert(faults == (failure ? (persistent && !keep_text ? 2 : 1) : 0));
++	if (persistent && !keep_text)
++		assert(handle == NULL);
++	else
++		check_handle(handle, prefix);
++	fail_at = 0;
++	check_handle(selabel_open(SELABEL_CTX_FILE, &opt, 1), prefix);
++	if (keep_text)
++		assert(unlink(local) == 0);
++	assert(unlink(base) == 0 && unlink(binary) == 0 && rmdir(root) == 0);
 +}
 +
-+int main(void)
++int main(int argc, char **argv)
 +{
-+	const char *suffixes[] = { NULL, "homedirs", "local" };
++	assert(argc == 2);
 +	unsigned int cases = 0;
-+	for (int def = 0; def < 2; def++)
-+		for (int base = 0; base < 2; base++)
-+			for (int digest = 0; digest < 2; digest++)
-+				for (int present = 0; present < 2; present++)
-+					for (size_t s = 0; s < 3; s++) {
-+						pid_t pid = fork();
-+						int status;
-+						assert(pid >= 0);
-+						if (!pid) {
-+							alarm(15);
-+							run_case(def, base,
-+								 digest,
-+								 present,
-+								 suffixes[s]);
-+							exit(0);
-+						}
-+						assert(waitpid(pid, &status,
-+							       0) == pid);
-+						assert(WIFEXITED(status) &&
-+						       WEXITSTATUS(status) ==
-+							       0);
-+						cases++;
++	for (int regex = 0; regex < 2; regex++)
++		for (int nested = 0; nested < 2; nested++)
++			for (int text = 0; text < 2; text++)
++				for (unsigned int failure = 0; failure < 4;
++				     failure++) {
++					pid_t pid = fork();
++					int status;
++					assert(pid >= 0);
++					if (!pid) {
++						alarm(20);
++						run_case(argv[1], regex, nested,
++							 text, failure);
++						_exit(0);
 +					}
-+	printf("Label init OOM: %u cases passed.\n", cases);
++					assert(waitpid(pid, &status, 0) == pid);
++					assert(WIFEXITED(status) &&
++					       WEXITSTATUS(status) == 0);
++					cases++;
++				}
++	printf("Label merge cleanup: %u cases passed.\n", cases);
 +	return 0;
 +}
 -- 
