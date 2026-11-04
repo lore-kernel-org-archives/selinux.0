@@ -1,80 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804986;
-	b=xrVXL7KE9SBH6q8UYRBEEJxAuaNHuF4vXk6ieqsfnrHW+GVk5848G+HBOYMgoOzTPznC
-	 xoGmcc3VsLQ1OUEsy8SdHrHiQO2Sqm6pXkkYmhVETGqKTM+aTD7C65LETgiqs00zKoKRX
-	 hpCf7chZSF+FCehGGyNzbgngvJE27L8QMrS0VYYHj7HYiPC3FzEuvgbaK+/8pfkbmwKX/
-	 V2bZI0QzBixhU4pdpd23pa68PQrj3XZVZ+l44ni7p7CtVrPCSY6jtqVHF6VAhSVHjSc1X
-	 eY0vt6aOVarNpSFGUrNsGtGRwe5h2y5VTR791iV8Zv53Q6u8Y+zu30eC4wRJ1uCU8uQ==
+	t=1793804987;
+	b=12RiZ9snlHkQDb0W2/gVU8/3sDZzScwo0WeiVN0qpW2kBRMYhbFK0XXGZ57/IWi2L8GG
+	 7qCioeHQo2wzGZc+DPdHy6h0aBb1BTIqoN6WPQ5ep868iGA1Y+/kXtGu1TPieqPXjYBOu
+	 XEptALtOqBAzY8wBn3tvlicndAu6yal0aY5K25fHDNf+CacrDxpnuFNnTZHOkySF6eJuQ
+	 K61CFKcKdjq857dgGZA16mn3n/JrTUJO+fbzne5H3Kmy0zcRTepm1zbQUzoNIfUd4L6aP
+	 t+EzcFT2SlhanAfN4teMLs0/k6+JmkglFOHNdC9y857kuXX7Chnu1JM8+i65EWM8rXg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804986;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793804987;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=FzvqNitBoY2jxyhHq+DZU+eiZDsF+y0XBm26cBq2WVA=;
-	b=XWd1Lei1IqsLnSIyXQVjCBqLvX+ICmP8oiUQhM2UIrXoHj0nzkByEHOTzJeZXUjmX9fe
-	 L5nXnmWxzosArJAxFZOX+sQARV6WM/kWU328vs5SsNIANasdCg3co70ur+bgZre3BXbb9
-	 MzNf6tibmJPXBDRGZ1CVBLej99PUrmiWjfksKXi6jC6WUAjoQp65dB7jwb2olpkXpX29G
-	 JZ4cCZGpqbo8F+egJadvgDf7i2+o95gnzhr06L7OAMujjmvfE5nmhq0MRXjCRMwjChFMN
-	 0b/fBIkYe7o1aHoWw/rvexmUQmQszOoBaoEDmGoS/PWu0/58SWPAc89v+lNKygGp4Yg==
+	bh=8OR3Wp512Y0vsO6UYmfUKg2ChjL4XSk89qJA9CdPpDA=;
+	b=QVl56c6J9xScgphlNDCmrMpphC1iCOb76ITSsJDR52EOVFQ/iyGfImML3sT1BQ4LbmGb
+	 SoKKYFezQjYT7GdvEUpcPIf78WbmAv3vYwsBjEz7nPUWfO68RnQbryeORW6J2bjgQVdB8
+	 SMgjIQLalnA5GFJJK1AcL6eErCAYdCAGVGAq8ZA6EdtPK7assM4h0YEfTD/yIn6C33wTn
+	 PtY193OV72qCrJmEPXhj+hUT+v2+x4IF+3g3qg3q3G/UiDuc6PQHRIMdE7/sz/Kl4fRHp
+	 8VqfXJ4j+8bMIyKmocl/cLZ5f15jCon9vMiCD4Fqq4stpJHftBy14Xch5UqmlultW7Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OnmdvhAK;
-	arc=none smtp.remote-ip=209.85.160.169
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LO6q+YGg;
+	arc=none smtp.remote-ip=209.85.160.182
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA418606D816
-	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA418606D816
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98EF606A332
+	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D98EF606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OnmdvhAK
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-5351d76e1baso7646051cf.1
-        for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:45 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LO6q+YGg
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5365d26ccbdso9036551cf.0
+        for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793804985; x=1794409785; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793804986; x=1794409786; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=FzvqNitBoY2jxyhHq+DZU+eiZDsF+y0XBm26cBq2WVA=;
-        b=OnmdvhAKy/xLC5mOT/WvnLfZ5wuL4rbDltktwdSWHJ2Anl8O9+dcspi1J54WwA/ZVK
-         KAU4M1Z/KLda5mFisCNy0pN06ZTKCbpbpb2IQmlseGCxC/+M4zoNWb6GIfhoPYv5Wln9
-         qX5716xSTRNQctkqo9ZlYDRZpb3YUCRF7SrLpNrpezL7JlvbFF0Wq3iz6scOum4wC2Xe
-         xNxOm+di6n+Ej6/ZGnnP6D0SoX2EDyYORExH7P5QM11529rqa2LJGnLvXjKoAOYhHSwG
-         Q99cxheUpBieebraQDMsJlZD8ihgCHlWp3w0n8f4WTQ1s3jG8watBBrk8fzgqq5dFBPV
-         9DlA==
+        bh=8OR3Wp512Y0vsO6UYmfUKg2ChjL4XSk89qJA9CdPpDA=;
+        b=LO6q+YGgrpMbr/2GAtWY78qK4I9IGAIV8yziyUQG2p2EqjY2kpmvKOTN2sC0PEdI2/
+         CJxrIO80JCJFMM4U3ijB4wZJ/voGN7e7ERC0CRM9oUvW34VVobuck84NPI2hZxwQgQk+
+         DEUQPMa6O4oiljDmwKPtPeJILGYVYhUT1BnYpjpwE+Ut9JTm3gHJhNCAkTX2PNiRrMUH
+         O61W5ZBCLFwpOwq4c4TjpF1FkxmPbMRgil436fx37ZxFz96TRdpUXvqbOlLlkBgjqLky
+         8KqjHrJg4zKmzz11/yeso9t6n0lB81HOoeL9GPhk7G6Cc5VO8IN20eaWnqq5xKj7U/sg
+         WrdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793804985; x=1794409785;
+        d=1e100.net; s=20260707; t=1793804986; x=1794409786;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FzvqNitBoY2jxyhHq+DZU+eiZDsF+y0XBm26cBq2WVA=;
-        b=FjaDQ/dZIJoJATYwWsckpL7El83gdgP1xtuHSpwpOQ8P54+VvgUjUpklGrrGsvZ6v+
-         hDRIZiAopXY2jChYV29a7/TxiTPeCGHDb8G6RuDraJu5gG1Y8om7xiUmW65bF9i8Lb6d
-         2zPG6ROZaAVDrJe1FHnGEqkOdJtCcTjcRWiJfoIkl/lvWjIrxMqWhQlSvr/EsqcGsuDD
-         azlCRDVwBpIdkjhvt0QLjnHrGEclAMc3UuTHYbFloGxvF59G8LNMOF1/GAnr4F9kp6dF
-         EQ8EbgVxgI0OBdLE9Ai89VHwFNM6sdTUstNcTU0zUECkkwAe88wwWf/Ty3JSxUWpbmoP
-         IjMA==
-X-Gm-Message-State: APuU4Z8jIa2a6UuRmtONrNwHvN1i+kKCnBd3u/NxdrzO932yKOm76XkG
-	8YLM4SCTSzk5DtADet8jLrvE7P8R1jbnp3DvBH6YsgZr+UBF39v5a4S76geSR1To
-X-Gm-Gg: AYBFou0IVQ2h20Nc6VyjoqmSOLxrTMeB47t1TgdYo/UfrwLMM+taVHXae4oLmSYk1vE
-	fiRmWRbFMqHD8Mh6Ihw2KWzplyQlQafkeJZ8GGjX19nh3FthisthU2gN63o0qiKgjoRMz8UHXTq
-	FuQp3cuoH/Bt/yEECW2y95gTKHc9aJU10s7Xhn3gHUhXCbuLvQznYXqJwf4nJbcah0/qXd/Gfta
-	WH/A384Uudp0uxhd+n3ywztDVXqsVxxc/MynoA2umfjf6Kqrik5782MatxcxaZy9nWlwja0n0ns
-	XKIi5BipmE2vUEn2XNRSzhusu1OL7lLvTh8Cfxo6ntksvTSnSgaf1R+SC40IAd6KtEpaOo5NOKK
-	7NZDIWgF99aermNyHt5XRZKVhmWQEbQru3UmJVzI0hCfcaJEtvJ8pBQFUDb+bWC5Qzw92pkJsEw
-	JAUNd9WP0R4chrqXdRQsv+wN7G3etNQWJFukQ9lm5BtG3sICQ/6cEyM65uoUCe4z1bUMdLWzgD7
-	1yeJh4CbIf3qxf9ggIAoDGQc8JyighSvw2E6+TtU/WeGo+dq/KH2+uUWpodBFS7Nt84H+y9VSuK
-	YM+AcLDhtBOIxoI6F492lpwhJIeLVRL75JVKEyglw/dW9e4LnLJZ374p4137bj1/AZ9Fj9rBsMk
-	kCT0z2ZQFuyfsLvactYlNkvAvRONdpD+OuFqC8CjwMTKNnkUFhR3+OUGXL2/Gfw8Yj2iR1WLi6s
-	C2XLMjvjZoaDh6iBZaqhVHuDEhNNrVEWvBLG5sh4ofMlpjwlJJbD0=
-X-Received: by 2002:a05:622a:2515:b0:535:1b18:211 with SMTP id d75a77b69052e-542b7336a71mr259754811cf.19.1793804984597;
-        Wed, 04 Nov 2026 07:09:44 -0800 (PST)
+        bh=8OR3Wp512Y0vsO6UYmfUKg2ChjL4XSk89qJA9CdPpDA=;
+        b=n1lCd7/CswcATR6BzFBywv7/6SdpBFqfIeuhJY9yiIskBDNawj6Qy7ZZmJj2RFfnuI
+         g8rvE2HetJGyWY3ZrNUFq+kTGtvsripWAHS0SYxRHgkb4+cs1B1R9E7CxdDUabKjnp9a
+         5zNGy4jNAj93DCTJ/QForwnvo+uXVI4YvLDAvqlW8OUeOUzwb77crq9sVgCwnlevLYVj
+         8QEXw+VGNyhDI2oGC+IhQ5FONpMYjy+truAcHLSjR4fRlNAmn/Yq6EYA6ZwDrbPycDLC
+         x5eeIe5tirltlYW4c4f0lKT2UcQmRB+ZZ4YoeHZNhU2X0E1SQqd89MwwYMNCPPd60CQw
+         kpxg==
+X-Gm-Message-State: APuU4Z/s8Z19tBdt5x9d3aHPB/oOCHXFmG3hVFb7uOqGgN5DndoVh01Q
+	Yw32H2JE4LdyQmoR+ESTM6Sq2DUmqIOhVtdNGnDwuu2s/WCE0HbDh6S+5zfWMI/B
+X-Gm-Gg: AYBFou1fCgmLplHEr5S67qRR5YQaCxz3YvMo4QRoLSNH5Ezergahor3B7S5DykD1VA7
+	tbPbdOW4THBg5q8BUGHlw57l+gdGyHcJ16Sn96RZxB5lT/SlEMh46YEEjs7Bz+tyjMipQzhGf/z
+	f1U8Kprsq2r8nyHJYhnz8Ip73AS8jX3WB2mfI5qgq2Fo+Dt0bKPjrOXr+ZO32aNBdw2dJtXcTY/
+	3nJ+8bxL+W3Vycxhv7M1W9YJABAIpjQwPFbiHsShtWX5JDF8IEG7FbrYM5rum4deTUUsaKvu6EM
+	+cZLOOSivFQ98jO30+87CBJB6VQqi7yjHIRErByiBurOHybj0QPTcLoTkNDKkDVfDAPV+mCGj3o
+	IUMqpnW5H4bHFkj+Oo1SuypHR4UGOVrzPizlR56634e6hoOM/cV2EvBw3SdhGiz8C2sB2sblUKB
+	Llvngwa1m4KBRmy1bIshw2WGrSz3oP7EK2QTwSIK5fpNmKhlRczYfuxxpl6XtDYC+o8A5Bd9kP9
+	7YLRXwLiTU8Q/gcRA8iDBisrvsPoqGA4JmZ3ANgnt4IzFCcjE2lLHpgLMKumqq7vCANcjCuDcH8
+	6ar+syat1+gAPaFBpoT0311E1jREpe+pnlvO/F8/vw/T0XBDD3z3CrbM44VvaEAmGAS67GQbcRj
+	V3v69g1G0xbirOCpGrVJGatXgsmArMiPK6btg9npujfQQe91lNgqH4vQpOmEFJRAk+nwQN8s/FD
+	2BNsWzwB3yFeneAPadQ94gTSuG+OyK/3/dbsFyFLkw7Qr7lKhySpE=
+X-Received: by 2002:a05:622a:1386:b0:537:f05d:6ae9 with SMTP id d75a77b69052e-542b62a5744mr269811171cf.13.1793804985300;
+        Wed, 04 Nov 2026 07:09:45 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-54b10cdc3d3sm25683041cf.28.2026.11.04.07.09.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 14/20] libselinux: let Python own policy_open descriptor cleanup
-Date: Wed,  4 Nov 2026 10:09:09 -0500
-Message-ID: <20261104150915.175923-14-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 15/20] libselinux: free regex match data when TLS assignment fails
+Date: Wed,  4 Nov 2026 10:09:10 -0500
+Message-ID: <20261104150915.175923-15-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
 References: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
@@ -106,201 +106,294 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-os.fdopen can take ownership of a descriptor and close it before raising
-an exception during text wrapper setup. Closing the raw descriptor again
-masks the exception with EBADF, or closes an unrelated descriptor if the
-number has been reused.
+Return the pthread_setspecific result from the internal wrapper and check
+it when caching PCRE2 match data. If assignment fails, keep the buffer
+locally owned and free it after matching rather than leaking one buffer
+per attempt. Successfully cached data remains owned by the TLS destructor.
 
-Use built-in open with a fallback-aware opener instead, so Python manages
-ownership from descriptor creation through wrapper construction. Preserve
-the read-only underlying open flags. closefd=False is rejected before
-opening a path rather than leaking the descriptor hidden by this helper.
+Use the same temporary ownership flag for the existing uncached fallback.
+Other wrapper callers retain their previous behavior. Test persistent and
+transient assignment failure, key creation failure, allocation fallback,
+and successful caching with JIT on and off through public label lookups.
 
-Test success, early and late failures, descriptor counts, read-only flags,
-and controlled descriptor reuse. The tests can use either the exact helper
-extracted from the SWIG source or a generated native binding.
-
-Fixes: edbc7af1c9cd ("libselinux: add Python binding for selinux_policy_open()")
+Fixes: ffd5b6645ac7 ("libselinux: improve performance with pcre matches")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/selinuxswig_python.i  |  10 +--
- libselinux/tests/Makefile            |   2 +
- libselinux/tests/test_policy_open.py | 125 +++++++++++++++++++++++++++
- 3 files changed, 131 insertions(+), 6 deletions(-)
- create mode 100644 libselinux/tests/test_policy_open.py
+ libselinux/src/regex.c            |  13 +--
+ libselinux/src/selinux_internal.h |   7 +-
+ libselinux/tests/.gitignore       |   1 +
+ libselinux/tests/Makefile         |   7 +-
+ libselinux/tests/test_regex_tls.c | 153 ++++++++++++++++++++++++++++++
+ 5 files changed, 169 insertions(+), 12 deletions(-)
+ create mode 100644 libselinux/tests/test_regex_tls.c
 
-diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-index 2340ed2d..28d37e92 100644
---- a/libselinux/src/selinuxswig_python.i
-+++ b/libselinux/src/selinuxswig_python.i
-@@ -65,12 +65,10 @@ def install(src, dest):
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index deadcc6f..251c41a0 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -310,7 +310,7 @@ void regex_data_free(struct regex_data *regex)
+ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ {
+ 	int rc;
+-	bool slow;
++	bool temporary = false;
+ 	pcre2_match_data *match_data = NULL;
  
- def policy_open(path, mode="r", **kwargs):
-     """ Open a policy configuration file for reading, searching fallback configuration roots (see selinux_policy_open(3)). Returns a file object """
--    fd = selinux_policy_open(path, os.O_RDONLY | os.O_CLOEXEC)
--    try:
--        return os.fdopen(fd, mode, **kwargs)
--    except:  # noqa: E722
--        os.close(fd)
--        raise
-+    def opener(name, flags):
-+        return selinux_policy_open(name, os.O_RDONLY | os.O_CLOEXEC)
-+
-+    return open(path, mode, opener=opener, **kwargs)
- %}
+ 	__selinux_once(match_data_key_once, match_data_key_init);
+@@ -320,18 +320,19 @@ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ 		if (!match_data) {
+ 			match_data = pcre2_match_data_create(1, NULL);
+ 			if (match_data) {
+-				__selinux_setspecific(match_data_key,
+-						      match_data);
++				temporary =
++					__selinux_setspecific(match_data_key,
++							      match_data) != 0;
+ 			}
+ 		}
+ 	}
  
- /* security_get_boolean_names() typemap */
+-	slow = (match_data_key_alloc_failed || match_data == NULL);
+-	if (slow) {
++	if (!match_data) {
+ 		match_data = pcre2_match_data_create_from_pattern(regex->regex,
+ 								  NULL);
+ 		if (!match_data)
+ 			return REGEX_ERROR;
++		temporary = true;
+ 	}
+ 
+ 	/* Use pcre2_match() rather than pcre2_jit_match(): pcre2_match()
+@@ -343,7 +344,7 @@ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ 			 partial ? PCRE2_PARTIAL_SOFT : 0, match_data,
+ 			 match_context);
+ 
+-	if (slow)
++	if (temporary)
+ 		pcre2_match_data_free(match_data);
+ 
+ 	if (rc >= 0)
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 8592c80c..0d47f40f 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -37,11 +37,8 @@ extern size_t selinux_page_size;
+ 			pthread_key_delete(KEY); \
+ 	} while (0)
+ 
+-#define __selinux_setspecific(KEY, VALUE)                \
+-	do {                                             \
+-		if (pthread_setspecific != NULL)         \
+-			pthread_setspecific(KEY, VALUE); \
+-	} while (0)
++#define __selinux_setspecific(KEY, VALUE) \
++	(pthread_setspecific != NULL ? pthread_setspecific(KEY, VALUE) : -1)
+ 
+ #define __selinux_getspecific(KEY) \
+ 	(pthread_getspecific != NULL ? pthread_getspecific(KEY) : NULL)
+diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
+index ecbbc014..5361f4f6 100644
+--- a/libselinux/tests/.gitignore
++++ b/libselinux/tests/.gitignore
+@@ -13,3 +13,4 @@ test-restorecon-digest
+ /test-auxiliary-duplicates
+ /test-android-specfiles
+ /*.o
++/test-regex-tls
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index c73e5c65..89899d6f 100644
+index 89899d6f..02e9b594 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
-@@ -1,6 +1,7 @@
- PCRE_LDLIBS ?= -lpcre2-8
- CFLAGS ?= -O2 -g -Wall -Wextra -Werror
- override CFLAGS += -I../include -I../src -pthread
-+PYTHON ?= python3
- INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
- XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
- EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
-@@ -35,6 +36,7 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-load-policy-version
+@@ -21,7 +21,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
+ 
+ .PHONY: test clean
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls
+ 	./test-restorecon-digest
+ 	./test-restorecon-errors
+ 	./test-restorecon-errno
+@@ -37,12 +37,14 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
  	./test-auxiliary-duplicates ../utils/sefcontext_compile
  	./test-android-specfiles
-+	$(PYTHON) test_policy_open.py
+ 	$(PYTHON) test_policy_open.py
++	./test-regex-tls
  
  clean:
  	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
-diff --git a/libselinux/tests/test_policy_open.py b/libselinux/tests/test_policy_open.py
+ 	rm -f test-load-policy-version
+ 	rm -f test-auxiliary-duplicates
+ 	rm -f test-android-specfiles android-label.o android-backend.o
++	rm -f test-regex-tls
+ 
+ test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
+@@ -78,3 +80,6 @@ android-backend.o: ../src/label_backends_android.c ../src/label_internal.h
+ 
+ test-android-specfiles: test_android_specfiles.c android-label.o android-backend.o ../src/libselinux.a
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=calloc,--wrap=strdup,--wrap=free,--wrap=fclose $(PCRE_LDLIBS) -ldl -pthread
++
++test-regex-tls: test_regex_tls.c ../src/libselinux.a
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=pthread_setspecific,--wrap=pthread_key_create,--wrap=pcre2_match_data_create_8,--wrap=pcre2_match_data_create_from_pattern_8,--wrap=pcre2_match_data_free_8 $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_regex_tls.c b/libselinux/tests/test_regex_tls.c
 new file mode 100644
-index 00000000..337be348
+index 00000000..5976550d
 --- /dev/null
-+++ b/libselinux/tests/test_policy_open.py
-@@ -0,0 +1,125 @@
-+import ast
-+import errno
-+import os
-+from pathlib import Path
-+import sys
-+import tempfile
-+import unittest
++++ b/libselinux/tests/test_regex_tls.c
+@@ -0,0 +1,153 @@
++#define _GNU_SOURCE
++#define PCRE2_CODE_UNIT_WIDTH 8
++#include <assert.h>
++#include <errno.h>
++#include <pcre2.h>
++#include <pthread.h>
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/wait.h>
++#include <unistd.h>
 +
++static unsigned created, freed, assignments, mode, jit;
++static void *live[128];
++static char path[256];
 +
-+if os.environ.get("SELINUX_TEST_BINDING"):
-+    import selinux
-+    policy_open = selinux.policy_open
-+else:
-+    # Exercise the exact helper without requiring a built Python extension.
-+    source = (Path(__file__).resolve().parents[1] / "src" /
-+              "selinuxswig_python.i").read_text()
-+    code = source.split("%pythoncode %{", 1)[1].split("%}", 1)[0]
-+    function = next(node for node in ast.parse(code).body
-+                    if isinstance(node, ast.FunctionDef) and
-+                    node.name == "policy_open")
-+    namespace = {"os": os, "selinux_policy_open": os.open}
-+    exec(compile(ast.Module(body=[function], type_ignores=[]),
-+                 "selinuxswig_python.i", "exec"), namespace)
-+    policy_open = namespace["policy_open"]
++static void track(void *p)
++{
++	assert(p && created < 128);
++	live[created++] = p;
++}
 +
++pcre2_match_data *__wrap_pcre2_match_data_create_8(uint32_t n,
++						   pcre2_general_context *ctx);
++pcre2_match_data *
++__wrap_pcre2_match_data_create_from_pattern_8(const pcre2_code *code,
++					      pcre2_general_context *ctx);
++void __wrap_pcre2_match_data_free_8(pcre2_match_data *p);
++int __wrap_pthread_setspecific(pthread_key_t key, const void *p);
++int __wrap_pthread_key_create(pthread_key_t *key, void (*destroy)(void *));
 +
-+class PolicyOpenTests(unittest.TestCase):
-+    def setUp(self):
-+        self.directory = tempfile.TemporaryDirectory()
-+        self.addCleanup(self.directory.cleanup)
-+        self.path = os.path.join(self.directory.name, "config")
-+        with open(self.path, "w") as stream:
-+            stream.write("policy data\n")
++pcre2_match_data *__real_pcre2_match_data_create_8(uint32_t,
++						   pcre2_general_context *);
++pcre2_match_data *__wrap_pcre2_match_data_create_8(uint32_t n,
++						   pcre2_general_context *ctx)
++{
++	if (mode == 4) {
++		errno = ENOMEM;
++		return NULL;
++	}
++	pcre2_match_data *p = __real_pcre2_match_data_create_8(n, ctx);
++	track(p);
++	return p;
++}
 +
-+    def test_reads(self):
-+        for mode, expected in [("r", "policy data\n"),
-+                               ("rb", b"policy data\n")]:
-+            with self.subTest(mode=mode):
-+                with policy_open(self.path, mode) as stream:
-+                    fd = stream.fileno()
-+                    self.assertFalse(os.get_inheritable(fd))
-+                    self.assertEqual(stream.read(), expected)
-+                with self.assertRaises(OSError):
-+                    os.fstat(fd)
++pcre2_match_data *
++__real_pcre2_match_data_create_from_pattern_8(const pcre2_code *,
++					      pcre2_general_context *);
++pcre2_match_data *
++__wrap_pcre2_match_data_create_from_pattern_8(const pcre2_code *code,
++					      pcre2_general_context *ctx)
++{
++	pcre2_match_data *p =
++		__real_pcre2_match_data_create_from_pattern_8(code, ctx);
++	track(p);
++	return p;
++}
 +
-+    def test_exceptions_and_cleanup(self):
-+        scenarios = [
-+            ("r", {"encoding": "not-a-real-codec"}),
-+            ("r", {"newline": "invalid"}),
-+            ("r", {"buffering": 0}),
-+            ("rb", {"encoding": "utf-8"}),
-+            ("bad", {}),
-+            ("r", {"closefd": False}),
-+        ]
-+        for mode, kwargs in scenarios:
-+            with self.subTest(mode=mode, kwargs=kwargs):
-+                before = len(os.listdir("/proc/self/fd"))
-+                try:
-+                    open(self.path, mode, **kwargs)
-+                except Exception as error:
-+                    expected = type(error)
-+                else:
-+                    self.fail("fixture did not fail")
-+                for _ in range(10):
-+                    with self.assertRaises(expected):
-+                        policy_open(self.path, mode, **kwargs)
-+                self.assertEqual(len(os.listdir("/proc/self/fd")), before)
++void __real_pcre2_match_data_free_8(pcre2_match_data *);
++void __wrap_pcre2_match_data_free_8(pcre2_match_data *p)
++{
++	if (p) {
++		unsigned i;
++		for (i = 0; i < created; i++)
++			if (live[i] == p)
++				break;
++		assert(i < created);
++		live[i] = NULL;
++		freed++;
++	}
++	__real_pcre2_match_data_free_8(p);
++}
 +
-+    def test_open_failure(self):
-+        with self.assertRaises(FileNotFoundError):
-+            policy_open(self.path + ".missing")
++int __real_pthread_setspecific(pthread_key_t, const void *);
++int __wrap_pthread_setspecific(pthread_key_t key, const void *p)
++{
++	assignments++;
++	if (mode == 1 || (mode == 2 && assignments == 1))
++		return ENOMEM;
++	return __real_pthread_setspecific(key, p);
++}
 +
-+    def test_late_failure_does_not_close_reused_fd(self):
-+        namespace = policy_open.__globals__
-+        original = namespace["selinux_policy_open"]
-+        opened = []
-+        replacement = []
++int __real_pthread_key_create(pthread_key_t *, void (*)(void *));
++int __wrap_pthread_key_create(pthread_key_t *key, void (*destroy)(void *))
++{
++	if (mode == 3)
++		return EAGAIN;
++	return __real_pthread_key_create(key, destroy);
++}
 +
-+        def track(name, flags):
-+            fd = original(name, flags)
-+            opened.append(fd)
-+            return fd
++static void *worker(void *unused)
++{
++	(void)unused;
++	struct selinux_opt opts[] = {
++		{ SELABEL_OPT_PATH, path },
++		{ SELABEL_OPT_BASEONLY, "1" },
++		{ SELABEL_OPT_JIT, jit ? "1" : NULL },
++	};
++	struct selabel_handle *h = selabel_open(SELABEL_CTX_FILE, opts, 3);
++	assert(h);
++	for (unsigned i = 0; i < 32; i++) {
++		char *context = NULL;
++		int rc = selabel_lookup_raw(
++			h, &context, i % 2 ? "/test/file" : "/test/missing", 0);
++		if (i % 2) {
++			assert(rc == 0 &&
++			       !strcmp(context, "system_u:object_r:test_t:s0"));
++			freecon(context);
++		} else
++			assert(rc == -1 && errno == ENOENT && !context);
++	}
++	selabel_close(h);
++	return NULL;
++}
 +
-+        def trace(frame, event, arg):
-+            if (frame.f_code is policy_open.__code__ and
-+                    event == "exception" and not replacement):
-+                self.assertEqual(len(opened), 1)
-+                with self.assertRaises(OSError) as result:
-+                    os.fstat(opened[0])
-+                self.assertEqual(result.exception.errno, errno.EBADF)
-+                fd = os.open(self.path, os.O_RDONLY)
-+                replacement.append(fd)
-+                self.assertEqual(fd, opened[0])
-+            return trace
-+
-+        namespace["selinux_policy_open"] = track
-+        previous = sys.gettrace()
-+        try:
-+            sys.settrace(trace)
-+            # This check occurs after raw-stream creation in CPython.
-+            with self.assertRaises(ValueError):
-+                policy_open(self.path, buffering=0)
-+            sys.settrace(previous)
-+            self.assertEqual(len(replacement), 1)
-+            self.assertEqual(os.read(replacement[0], 32), b"policy data\n")
-+        finally:
-+            sys.settrace(previous)
-+            namespace["selinux_policy_open"] = original
-+            for fd in replacement:
-+                try:
-+                    os.close(fd)
-+                except OSError:
-+                    pass
-+
-+    def test_readonly_underlying_descriptor(self):
-+        with policy_open(self.path, "wb", buffering=0) as stream:
-+            with self.assertRaises(OSError) as error:
-+                stream.write(b"changed")
-+            self.assertEqual(error.exception.errno, errno.EBADF)
-+        with open(self.path) as stream:
-+            self.assertEqual(stream.read(), "policy data\n")
-+
-+
-+if __name__ == "__main__":
-+    unittest.main()
++int main(void)
++{
++	char dir[] = "/tmp/selinux-regex-tls-XXXXXX";
++	assert(mkdtemp(dir));
++	snprintf(path, sizeof(path), "%s/contexts", dir);
++	FILE *fp = fopen(path, "we");
++	assert(fp &&
++	       fputs("/test/(file) system_u:object_r:test_t:s0\n", fp) >= 0 &&
++	       fclose(fp) == 0);
++	for (jit = 0; jit < 2; jit++) {
++		for (mode = 0; mode < 5; mode++) {
++			/* Isolate one-time TLS key initialization for key-failure cases. */
++			pid_t pid = fork();
++			assert(pid >= 0);
++			if (!pid) {
++				pthread_t thread;
++				assert(pthread_create(&thread, NULL, worker,
++						      NULL) == 0);
++				assert(pthread_join(thread, NULL) == 0);
++				assert(created == freed);
++				assert(created == (mode == 0 ? 1U :
++						   mode == 2 ? 2U :
++							       32U));
++				assert(assignments ==
++				       (mode >= 3 ? 0U : created));
++				exit(0);
++			}
++			int status;
++			assert(waitpid(pid, &status, 0) == pid);
++			assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
++		}
++	}
++	assert(unlink(path) == 0 && rmdir(dir) == 0);
++	puts("regex-tls: 10 scenarios, 320 lookups passed");
++	return 0;
++}
 -- 
 2.56.0
 
