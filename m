@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.177
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804983;
-	b=AR7zyKW5xmpHV+9xYyhiaJO3riqiuhxe6XWl/lC7B67r+qHc+oCUkISHe4DipTlh/U0B
-	 vtdA2dZSt8x37bWz/fTjf/yj/80hc1bFqsFAJE2YNLEHLY8xgYZIJrbtZikdK78jkME5J
-	 2bLXd/6HdqnFZCuo5AeC0SKAt4cNy/nCRlPnC+Eb4/m1r15Uog8fO4mWgNBrqM2AZg+T6
-	 /yF0tVbm2CjYvhrpedjNpRu97WbADbTZyhPGX3+PhDOsN4N24J5BvV/UY9NvZbxYJKxMb
-	 rpYtwb/acX/W+jhXYV98wAkx7fIgSVfu49QMJeKIqHYiisYOZ5ljor5XkTrqJ39WpgQ==
+	t=1793804984;
+	b=Yp5lhif5ZQ34dVEONJWxJfo9CO1c994v+sfSjRiyNb7OHmDf/vObSwulYHnT5ew+wkko
+	 4nS2V/rnIa8F9xQExdk0phK5R+RDbGKoYn3V/1OlR+DJApumBpKllQxBKYVmtbP3HPNG8
+	 8OOh+GbkL9ZzjMi5DRGqvRF5gP4J7DFw6Y+VuqGRw52mHIfmp771WdKInNnSy9KYdRfrl
+	 Rjn/nvJMtwIqtHE1RjReBId7WIpt7OSbqCmTUg6QMBY+Mg5a6TFQQWtijDVCS4Hbisorg
+	 GREKb/VX2OMGZAJEMPXuE9ozvNamSj+/B+DUlz0gJSb++khjLhHUEJXIhJNrbf2pniA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804983;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793804984;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=6jdcgDgn1hzZiNv/DzrtPAoB5BY2gKFKJfd2bX9a/ms=;
-	b=0mO9xpL1qPvxsnuVe+BSYwVDT391L0vNCL1FfX64YU7AO3AqT7S6FFee485Kc/haAFmp
-	 1RT+phcfcKV7qdYeHC68IoOrXw9NEyuU/qeVmtm6wmdEQ8z9gbF5irFfXMBD3p01hI/iA
-	 0YIcpYnXlMkUgOihzZ9du4Tb5uHpIfkDgyeNueagBSXVt41zU8/5mp2s7t+k94+V/Xxy+
-	 eGvIr/M27jYjvqSuN2CNaGTT964ju+qo4EaD6LY+QFVzkpFDefHOxGj/xkc4RJGZnVkI+
-	 BB9zSixA2gboUQW+sQIPvhvcQbcKQ46uiLqy3Vrsec9Ry/QC7Da1Ee1IppfiTATIhng==
+	bh=7RirvgwUQP8YMjtVGyPlQoedG3oth59XFGM7jTp88DM=;
+	b=5ooWTLtT0rcbjwppBAU6weT1FZGzArqrZvugDKRktVWcHZqL/g3KLKl56cJH8QTBs9Rj
+	 vNijlwvmvB8CYaMujTtlO1vnCT5ev34P8S87HTKDRJvkKewO3JS43yfflfR+TNS2+nntJ
+	 5FZmA3cWdTi1+xxLz11q5nzWl4uGOvXy6Skg+1xVUXAq8FIjW7n4AmVoiG3BymdxJQqKM
+	 75Zd0U3lC8L8PwH4bMZWUPVcBT6/H5OrpRiS1EW+h8oB5xG31RIF3ksjmqwnjyOkLX6wX
+	 l1pRF3cNMNApS/+1vuEXEqcm0uPYm9RHXgv152SFnAgTH5Qpgmndmxp8cB4fX/nV0Ow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oO40xIWQ;
-	arc=none smtp.remote-ip=209.85.160.177
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BZPPFM2I;
+	arc=none smtp.remote-ip=209.85.160.181
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45ED9606A336
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A78B8606D80B
 	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 45ED9606A336
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A78B8606D80B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oO40xIWQ
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5365b48238dso6266031cf.0
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BZPPFM2I
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5364d86f7f0so8765371cf.1
         for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793804982; x=1794409782; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793804983; x=1794409783; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6jdcgDgn1hzZiNv/DzrtPAoB5BY2gKFKJfd2bX9a/ms=;
-        b=oO40xIWQ+28Ofs7aEXcQYd62vh7d0cPEkzJy+zPEHaCbEVuDV9y1VHAYgBFJdEu3vi
-         PWokOja9khsBPqbKjkCAMqilrpIK3oKm3QerT6A3Zdv+3Hpe2MqXm3RyAmZci8C6EyZ5
-         jutpMGirumxCeC45JBDlPJaIZqqqYNDSOeIbdk9j03FJRXX7xxma4cGTiYp/n5YGVc1e
-         OjXOnx29Rw/qlFp1h5nVT1zru9wP5UzYPOORUZ35bLClenvoX6imNz/x+YmDVLAy0drx
-         JYdOBb4C3Bn+oMnwLEqrJL+Ylqnd64FHlSJUrrNprt5SRd7Qi+J8vWO2RwjB9C3Zvitr
-         XJzg==
+        bh=7RirvgwUQP8YMjtVGyPlQoedG3oth59XFGM7jTp88DM=;
+        b=BZPPFM2IEHetCnzTlmbYtpfBco6QADk/ntVxxygNP5TYY00rw/a2fMtZdgcWPBeglK
+         s8sW+MRRjPRwRB1CYBfwc8LKQaC8N6rW6QreT6uuwUzAHQ96AfOfzGM8lx63mRf2GMKU
+         8aBfAq4o5LuUFGsMwjVxKYHCenD7xgonrkRoKsUcQ3lW98f3xL3js6NkVoqaOh9RmTl6
+         /VYdpTlg7KN7ek9tfuHFwL532Te0JoL9VyZcUEvk2wsQ0vGrsSAUB6zxlt4IgLLQzkvd
+         Meqri6RPPEO4819Ot/31Mw2Io73WJZaEzgwk7y+8l+AnUP7bV8hwo0h9YLxNqUSJoID2
+         lTUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793804982; x=1794409782;
+        d=1e100.net; s=20260707; t=1793804983; x=1794409783;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6jdcgDgn1hzZiNv/DzrtPAoB5BY2gKFKJfd2bX9a/ms=;
-        b=nmjO2n4K92Nwdoyus+vDpgUxGwW/bjh4pFe1g5w1HnAIZG6ESA3UC9sDYnKbGxWfmg
-         rfVmslYJzItW8NxrVZoieIPH6uK+27xtPyNEqDCRpS2iIKvryiEwKYwEEUHMeDmt6wuC
-         KvgrbvG3JWE82wE94u/c00hH/8bft8AtbPR/+//+ds+QXTGf/K3gY1BqEipWQrViI2ZR
-         TLJWMQpY2FiZgiImOhRniaSCq/JqYUGckawolv6SjI9xn844p+Ej+ej3ehTFq+ANHv35
-         KLLj1Q8dgcdUUF/YiY8wvS26AsCm89mbPFEIJJ25wcJOcfE/vPw1j2R5mqjAa6JPiPay
-         k//w==
-X-Gm-Message-State: APuU4Z9RVBQlxqehdwGjptf+qF4fuJjXmXTEWldo30vQuMsgNO/byono
-	idrS8HI+sjjm2tYTaEzt1xdpZ+G1Wve1wRSygui3IzFltf1faKSnCZ3gyp8HeI2F
-X-Gm-Gg: AYBFou1EiP4wd+lAZLGuN/yzhcQYiW2G+Re2lLBJKPo3NoDIJJUFD15h3Hees0u0OEN
-	VRBiewc7aySXASqdgODBypc9cGibcl5BI5ZHive5ofL1ysxGOFfngX93lgeCigqEDZl+rP3VV7l
-	t1WfPvh8N86SFaOjzFOo834rwF3dig3Fbc5UQivXkvVGOkvn3AetCT9T2MnwTuum+/N4THbT1+Y
-	msXYcpNRp6RWytrPbat1uIzp9zT8INfhX1BueUQSMf5Fdq7ZUhAlxvBwlZN/xwHYKlYdetQtqga
-	O6rTpIk39al9bAX3vZ2v/saeVUg/eZ5yOJx61iYjtNxCRKnUgi0E4vl8SQmwM6rEPSnwaaOTsPf
-	pdHLUCMzhmU1Q7vB04IaGE/TkjthBXOvqzG5q6l9+G25g1IDUWGFxo38RHaaOcanARIfEQvnuYD
-	08iXF77aSaQixdna3pBvBHOm6R2iGkLjm/W+B+2FbpfxIyNy79z5GbFppPOadCZEj2TCR6e/f/w
-	Gj0lcNAJlgZqeCJnJTeOx5Vvrz96beP/splR5aMbkAG/lM5VWJaP8OAgymeeJm2YpXhHRDx5aJn
-	e2UdLoYvmV1BkUzb/1yZCLjCvZqsWw51gHZyJHNlddochhhYpce2zjYManNXS6Tvn2eG+rnHZg8
-	+Bpdz2fZBOFepgK0a+e1Z5IHk7bbQ8295O92yHagGizhcnQYU8g0pDo5tu/k93N1SnhmaDqNW4e
-	ku/8CZ/jUb0Vzmh/thIn4sTrlkXSs4eqlwhsZCEvgsUbsAtSukPcwjy3GICCJaVVa0Ktg4aJED
-X-Received: by 2002:a05:622a:1a97:b0:536:6516:2d8b with SMTP id d75a77b69052e-542b82f7483mr273922271cf.68.1793804981970;
-        Wed, 04 Nov 2026 07:09:41 -0800 (PST)
+        bh=7RirvgwUQP8YMjtVGyPlQoedG3oth59XFGM7jTp88DM=;
+        b=ijLxwt6InGd7+4F9sElHpvG7xrfzSEZH2hNuRs9uBEG9HvVbCWzRB474QLsItA1cPH
+         F1/1Lm4yxHcAfJr5S3i0pLwW/NPJVZucCS4YQHWB5VtIGKjR/YCCWsy3/m4p0MQJ3FJo
+         V3AmzniiJw3mVsOivO2Iotnt2sT87yX5+qvTPkANcDokq7T4GwXS8TdkPGY+Jv7oaDZx
+         KFBPQ8cq1E+wrlVGAstwMGLjrP6jkxSYgOI0oXFDc7ai4zeecAtvb6L2vEyXFtzuUxDQ
+         bDjgJMcSEynh6NjOmex0bYI/zh+y/cXjX7jTbk+kwE8AJmYsVhk/ZsEpGFsMktVLm8nT
+         KuBA==
+X-Gm-Message-State: APuU4Z/KjfsSquUR7I0tMDjx5lmsLVQ/Dx10gpFMM3JUw7E/DoMWKIFg
+	vQFWQNrJtebEc/p72hFya4cIUCWAeWQz94ntKSr1WNW+gZOQt3nhHqxgqEQNfHQ2
+X-Gm-Gg: AYBFou0osyut6Y9IMcN9LTo+mkDWNlG8prKODzd0zzLGRgIIfVrFUKgA+YwQyJqPNgw
+	wpk6q/Wqos+Nuh7UDpQaCDfmPEd1CAd3c+umkgjJEjuDqXjQATSG3JmzSnGix2lttzsvkj+Nl+N
+	zzAUClJWy4EIwxHGGPiGsQn6k7Kz4QruKTLFCTI2Z6TQeblUnc8dlCPp4BSjMO/k7TgPMU9WQa+
+	TjuBhUvNEdaKBGg57GLMTwN0SbLzqNXQ3t8F+h7C3oC3ZqLSWkUZYh5bOa6IemUMU24Vylbe/gU
+	P16UqKb0hKE3hVA7IywBGGdeGO0ehVYWcxOQHagTtjyP3hixug9QhS3crFlApdFw59DbFmuHZTe
+	7syBdgVenlWaGldmdsTkkDOBd2hX/d11vWZFyZM2HivwNqld8PEsxabTca2YcIkanD3pdDP3RKp
+	GWfFTIFVLd/9hEge1AwfG0GHcZ1pTfzDzN75mcCU589640/y4UUtO14OTOKs5Ja5/b58ehqG/o6
+	8UArDZo7qhEpMEsw0adrAOmzryMC6C16psGo1cowbsiqnSeFXCvPN9uAxhZJW1+2NYAUDIlV+CX
+	2g3kTKOxZB9uEDAvLKXu5ysevdPC5Zc+vHC/vs6COlSPEuoq3x9kW6Z2Jtwy5EhDi5w1I307i8A
+	Mf92GAEoVw3z7/fJSBuK5gV+HVLhKK+I6d6VwJFdjoQ2dDmI+Q8hTOrttp+zH5qSq83fidnOaRU
+	kt9WFMe69EudO2G39D+2wGLNWsczy/j13KKUXJlb75Cb1gaEoINJo=
+X-Received: by 2002:a05:622a:4d8f:b0:535:28bf:556a with SMTP id d75a77b69052e-542b6d5f3eemr282759431cf.37.1793804982625;
+        Wed, 04 Nov 2026 07:09:42 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54b10cdc3d3sm25683041cf.28.2026.11.04.07.09.41
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54b10cdc3d3sm25683041cf.28.2026.11.04.07.09.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 07:09:41 -0800 (PST)
+        Wed, 04 Nov 2026 07:09:42 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 10/20] libselinux: grow the digest specification file list dynamically
-Date: Wed,  4 Nov 2026 10:09:05 -0500
-Message-ID: <20261104150915.175923-10-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 11/20] libselinux: preserve the opened policy version when loading
+Date: Wed,  4 Nov 2026 10:09:06 -0500
+Message-ID: <20261104150915.175923-11-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
 References: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
@@ -106,345 +106,308 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Multiple SELABEL_OPT_PATH inputs can exceed the old eight-file digest
-limit. Nine primary files, or five with all four auxiliary inputs, fail
-with EOVERFLOW solely because digest collection is enabled.
+The configuration-root search decrements vers after opening a policy,
+so the conversion check uses the preceding version instead of the version
+of the opened file. A policy exactly one version newer than the kernel
+is therefore submitted without conversion and rejected, even if a
+compatible older policy is available.
 
-Grow the list with checked capacity arithmetic and preserve its NULL
-sentinel. Publish the input count and hash-buffer length only after an
-addition succeeds, so allocation or read failure permits cleanup or retry.
-Avoid realloc(ptr, 0) for empty inputs.
+Exit the outer search loop on a successful open, preserving vers for the
+conversion check. This also avoids skipping the immediately preceding
+version when a failed conversion decrements vers before retrying.
 
-Add 20 regression scenarios covering up to 253 primary files plus four
-auxiliaries, growth allocation failures, retries and empty inputs.
+Add native regression coverage using CIL-generated policy images and an
+intercepted kernel load. Cover version gaps, older policy files, conversion
+failures and retries, missing policies, root fallback, and hard errors.
 
-Fixes: 1550c8aaf255 ("libselinux: support multiple context files for the file backend")
+Fixes: 80b471735966 ("libselinux: search for the binary policy across configuration roots")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label.c                |   5 +-
- libselinux/src/label_internal.h       |   3 +-
- libselinux/src/label_support.c        |  63 ++++++++----
- libselinux/tests/.gitignore           |   1 +
- libselinux/tests/Makefile             |  10 +-
- libselinux/tests/test_digest_inputs.c | 134 ++++++++++++++++++++++++++
- 6 files changed, 191 insertions(+), 25 deletions(-)
- create mode 100644 libselinux/tests/test_digest_inputs.c
+ libselinux/src/load_policy.c                |   3 +-
+ libselinux/tests/.gitignore                 |   1 +
+ libselinux/tests/Makefile                   |   7 +-
+ libselinux/tests/test_load_policy_version.c | 219 ++++++++++++++++++++
+ 4 files changed, 228 insertions(+), 2 deletions(-)
+ create mode 100644 libselinux/tests/test_load_policy_version.c
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 93848bfe..89ba00be 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -75,10 +75,11 @@ selabel_is_digest_set(const struct selinux_opt *opts, unsigned n)
- 			if (!digest->digest)
- 				goto err;
- 
--			digest->specfile_list =
--				calloc(DIGEST_FILES_MAX + 1, sizeof(char *));
-+			digest->specfile_list = calloc(DIGEST_FILES_INITIAL + 1,
-+						       sizeof(char *));
- 			if (!digest->specfile_list)
- 				goto err;
-+			digest->specfile_capacity = DIGEST_FILES_INITIAL;
- 
- 			return digest;
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index ab6743fa..ec353493 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -160,7 +160,8 @@ search:
+ 			}
+ 			break;
  		}
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 47c5d3cb..3a3301e8 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -48,12 +48,13 @@ int selabel_service_init(struct selabel_handle *rec,
-  * used. This is released once the value has been calculated.
-  */
- #define DIGEST_SPECFILE_SIZE SHA1_HASH_SIZE
--#define DIGEST_FILES_MAX 8
-+#define DIGEST_FILES_INITIAL 8
- struct selabel_digest {
- 	unsigned char *digest; /* SHA1 digest of specfiles */
- 	unsigned char *hashbuf; /* buffer to hold specfiles */
- 	size_t hashbuf_size; /* buffer size */
- 	size_t specfile_cnt; /* how many specfiles processed */
-+	size_t specfile_capacity; /* allocated entries, excluding the sentinel */
- 	char **specfile_list; /* and their names */
- };
- 
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index 5112c59c..c712afcc 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -256,6 +256,8 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- 			const char *from_addr, size_t buf_len, const char *path)
- {
- 	unsigned char *tmp_buf;
-+	char *name;
-+	size_t new_size;
- 
- 	/* If SELABEL_OPT_DIGEST not set then just return */
- 	if (!digest)
-@@ -265,35 +267,58 @@ int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- 		errno = EOVERFLOW;
- 		return -1;
+-		if (fd < 0 && errno != ENOENT && errno != EACCES)
++		/* Keep vers equal to the version of the opened policy. */
++		if (fd >= 0 || (errno != ENOENT && errno != EACCES))
+ 			break;
  	}
--	digest->hashbuf_size += buf_len;
-+	new_size = digest->hashbuf_size + buf_len;
-+	if (digest->specfile_cnt == digest->specfile_capacity) {
-+		size_t capacity;
-+		char **files;
-+
-+		if (digest->specfile_capacity >
-+		    (SIZE_MAX / sizeof(*files) - 1) / 2) {
-+			errno = EOVERFLOW;
-+			return -1;
-+		}
-+		capacity = digest->specfile_capacity ?
-+				   digest->specfile_capacity * 2 :
-+				   DIGEST_FILES_INITIAL;
-+		files = realloc(digest->specfile_list,
-+				(capacity + 1) * sizeof(*files));
-+		if (!files)
-+			return -1;
-+		files[digest->specfile_cnt] = NULL;
-+		digest->specfile_list = files;
-+		digest->specfile_capacity = capacity;
-+	}
-+	name = strdup(path);
-+	if (!name)
-+		return -1;
- 
--	tmp_buf = realloc(digest->hashbuf, digest->hashbuf_size);
--	if (!tmp_buf)
-+	/* Avoid realloc(ptr, 0), which can free ptr while returning NULL. */
-+	tmp_buf = realloc(digest->hashbuf, new_size ? new_size : 1);
-+	if (!tmp_buf) {
-+		free(name);
- 		return -1;
-+	}
- 
- 	digest->hashbuf = tmp_buf;
- 
- 	if (fp) {
- 		if (fseek(fp, 0L, SEEK_SET) == -1)
--			return -1;
-+			goto err;
- 
--		if (fread(digest->hashbuf + (digest->hashbuf_size - buf_len), 1,
--			  buf_len, fp) != buf_len)
--			return -1;
-+		if (fread(digest->hashbuf + digest->hashbuf_size, 1, buf_len,
-+			  fp) != buf_len)
-+			goto err;
- 
- 	} else if (from_addr)
--		memcpy(digest->hashbuf + (digest->hashbuf_size - buf_len),
--		       from_addr, buf_len);
--
--	/* Now add path to list */
--	if (digest->specfile_cnt >= DIGEST_FILES_MAX) {
--		errno = EOVERFLOW;
--		return -1;
--	}
--	digest->specfile_list[digest->specfile_cnt] = strdup(path);
--	if (!digest->specfile_list[digest->specfile_cnt])
--		return -1;
-+		memcpy(digest->hashbuf + digest->hashbuf_size, from_addr,
-+		       buf_len);
- 
--	digest->specfile_cnt++;
-+	/* Publish together so a failed addition can be retried or cleaned up. */
-+	digest->hashbuf_size = new_size;
-+	digest->specfile_list[digest->specfile_cnt++] = name;
-+	digest->specfile_list[digest->specfile_cnt] = NULL;
- 	return 0;
-+err:
-+	free(name);
-+	return -1;
- }
+ 	if (fd < 0) {
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index 8fcec282..af40dd3f 100644
+index af40dd3f..2713a798 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -8,3 +8,4 @@ test-restorecon-digest
- /test-substitution-hash
+@@ -9,3 +9,4 @@ test-restorecon-digest
  /test-substitution-restorecon
  /test-readable-fallback
-+/test-digest-inputs
+ /test-digest-inputs
++/test-load-policy-version
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index 1f010c4f..cdc395b7 100644
+index cdc395b7..be03e5d5 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
-@@ -1,6 +1,6 @@
- PCRE_LDLIBS ?= -lpcre2-8
- CFLAGS ?= -O2 -g -Wall -Wextra -Werror
--override CFLAGS += -I../include -pthread
-+override CFLAGS += -I../include -I../src -pthread
- INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
- XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
- EXCLUDE_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64
 @@ -20,7 +20,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
-@@ -31,9 +31,10 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-substitution-hash
+@@ -32,9 +32,11 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
  	./test-substitution-restorecon
  	LD_LIBRARY_PATH=../src ./test-readable-fallback ../utils/sefcontext_compile
-+	./test-digest-inputs
+ 	./test-digest-inputs
++	./test-load-policy-version
  
  clean:
--	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback
-+	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
+ 	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
++	rm -f test-load-policy-version
  
  test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-@@ -51,3 +52,6 @@ test-substitution-restorecon: test_substitution_restorecon.c ../src/libselinux.a
+@@ -55,3 +57,6 @@ test-readable-fallback: test_readable_fallback.c ../src/selinux_config.c ../src/
  
- test-readable-fallback: test_readable_fallback.c ../src/selinux_config.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ test_readable_fallback.c ../src/libselinux.a $(PCRE_LDLIBS) -pthread
+ test-digest-inputs: test_digest_inputs.c ../src/libselinux.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=realloc,--wrap=strdup $(PCRE_LDLIBS) -pthread
 +
-+test-digest-inputs: test_digest_inputs.c ../src/libselinux.a
-+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=realloc,--wrap=strdup $(PCRE_LDLIBS) -pthread
-diff --git a/libselinux/tests/test_digest_inputs.c b/libselinux/tests/test_digest_inputs.c
++test-load-policy-version: test_load_policy_version.c ../src/libselinux.a ../../libsepol/src/libsepol.a
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=security_policyvers,--wrap=write,--wrap=sepol_policydb_to_image,--wrap=selinux_policy_roots,--wrap=selinux_binary_policy_path $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_load_policy_version.c b/libselinux/tests/test_load_policy_version.c
 new file mode 100644
-index 00000000..ba0fcef5
+index 00000000..61d80cb7
 --- /dev/null
-+++ b/libselinux/tests/test_digest_inputs.c
-@@ -0,0 +1,134 @@
-+/* SPDX-License-Identifier: CC0-1.0 */
++++ b/libselinux/tests/test_load_policy_version.c
+@@ -0,0 +1,219 @@
 +#define _GNU_SOURCE
-+#undef NDEBUG
 +#include <assert.h>
 +#include <errno.h>
++#include <fcntl.h>
++#include <stdint.h>
++#include <sepol/cil/cil.h>
++#include <selinux/selinux.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
++#include <sys/stat.h>
 +#include <unistd.h>
-+#include "label_internal.h"
 +
-+static int fail_at, allocations;
-+void *__real_realloc(void *, size_t);
-+char *__real_strdup(const char *);
-+void *__wrap_realloc(void *p, size_t n);
-+char *__wrap_strdup(const char *p);
++static unsigned kernel_version, submitted, conversions, failures;
++static int testing;
++static char root[] = "/tmp/selinux-load-version-XXXXXX";
++static char base[256];
++static const char *roots[] = { root, NULL, NULL };
 +
-+static bool fail(void)
++extern void fini_selinuxmnt(void);
++
++int __wrap_security_policyvers(void);
++const char *const *__wrap_selinux_policy_roots(void);
++const char *__wrap_selinux_binary_policy_path(void);
++int __wrap_sepol_policydb_to_image(sepol_handle_t *handle, sepol_policydb_t *p,
++				   void **data, size_t *len);
++ssize_t __wrap_write(int fd, const void *data, size_t len);
++
++int __wrap_security_policyvers(void)
 +{
-+	if (fail_at && ++allocations == fail_at) {
-+		errno = ENOMEM;
-+		return true;
++	return kernel_version;
++}
++
++const char *const *__wrap_selinux_policy_roots(void)
++{
++	return roots;
++}
++
++const char *__wrap_selinux_binary_policy_path(void)
++{
++	return base;
++}
++
++int __real_sepol_policydb_to_image(sepol_handle_t *, sepol_policydb_t *,
++				   void **, size_t *);
++int __wrap_sepol_policydb_to_image(sepol_handle_t *handle, sepol_policydb_t *p,
++				   void **data, size_t *len)
++{
++	if (testing) {
++		conversions++;
++		if (failures) {
++			failures--;
++			errno = ENOMEM;
++			return -1;
++		}
 +	}
-+	return false;
-+}
-+void *__wrap_realloc(void *p, size_t n)
-+{
-+	return fail() ? NULL : __real_realloc(p, n);
-+}
-+char *__wrap_strdup(const char *p)
-+{
-+	return fail() ? NULL : __real_strdup(p);
++	return __real_sepol_policydb_to_image(handle, p, data, len);
 +}
 +
-+static void destroy(struct selabel_digest *d)
++ssize_t __real_write(int, const void *, size_t);
++static uint32_t image_word(const unsigned char *data, size_t len, size_t offset)
 +{
-+	for (size_t i = 0; i < d->specfile_cnt; i++)
-+		free(d->specfile_list[i]);
-+	free(d->specfile_list);
-+	free(d->hashbuf);
++	assert(offset <= len && len - offset >= sizeof(uint32_t));
++	return (uint32_t)data[offset] | ((uint32_t)data[offset + 1] << 8) |
++	       ((uint32_t)data[offset + 2] << 16) |
++	       ((uint32_t)data[offset + 3] << 24);
++}
++
++ssize_t __wrap_write(int fd, const void *data, size_t len)
++{
++	uint32_t target_len;
++
++	if (!testing)
++		return __real_write(fd, data, len);
++	/* The version follows the magic, target length and target string. */
++	assert(image_word(data, len, 0) == UINT32_C(0xf97cff8c));
++	target_len = image_word(data, len, 4);
++	assert(target_len == strlen("SE Linux"));
++	assert(len >= 8 && target_len <= len - 8);
++	assert(memcmp((const unsigned char *)data + 8, "SE Linux",
++		      target_len) == 0);
++	submitted = image_word(data, len, 8 + target_len);
++	if (submitted > kernel_version) {
++		errno = EINVAL;
++		return -1;
++	}
++	return len;
++}
++
++static void policy_file(sepol_policydb_t *p, unsigned version, int remove)
++{
++	char path[512];
++	void *image;
++	size_t size;
++	FILE *fp;
++
++	snprintf(path, sizeof(path), "%s.%u", base, version);
++	if (remove) {
++		assert(unlink(path) == 0);
++		return;
++	}
++	assert(sepol_policydb_set_vers(p, version) == 0);
++	assert(sepol_policydb_to_image(NULL, p, &image, &size) == 0);
++	fp = fopen(path, "we");
++	assert(fp);
++	assert(fwrite(image, 1, size, fp) == size);
++	assert(fclose(fp) == 0);
++	free(image);
++}
++
++static void load(unsigned expected_version, unsigned expected_conversions)
++{
++	int rc;
++
++	submitted = conversions = 0;
++	testing = 1;
++	rc = selinux_mkload_policy(0);
++	testing = 0;
++	assert(rc == (expected_version ? 0 : -1));
++	assert(submitted == expected_version);
++	assert(conversions == expected_conversions);
 +}
 +
 +int main(void)
 +{
++	const char cil[] =
++		"(class file (read)) (classorder (file)) (sid kernel) (sidorder (kernel)) "
++		"(user u) (role r) (type t) (category c0) (categoryorder (c0)) "
++		"(sensitivity s0) (sensitivityorder (s0)) (sensitivitycategory s0 (c0)) "
++		"(allow t self (file (read))) (roletype r t) (userrole u r) "
++		"(userlevel u (s0)) (userrange u ((s0)(s0 (c0)))) "
++		"(sidcontext kernel (u r t ((s0)(s0))))";
++	cil_db_t *db;
++	sepol_policydb_t *p;
++	unsigned min = sepol_policy_kern_vers_min();
++	unsigned max = sepol_policy_kern_vers_max();
 +	unsigned cases = 0;
-+	for (int failure = 1; failure <= 3; failure++) {
-+		struct selabel_digest d = { 0 };
-+		for (unsigned i = 0; i < 8; i++)
-+			assert(digest_add_specfile(&d, NULL, "a", 1, "first") ==
-+			       0);
-+		fail_at = failure;
-+		allocations = 0;
-+		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == -1);
-+		assert(errno == ENOMEM && d.specfile_cnt == 8 &&
-+		       d.hashbuf_size == 8);
-+		assert(d.specfile_list[8] == NULL &&
-+		       !memcmp(d.hashbuf, "aaaaaaaa", 8));
-+		fail_at = 0;
-+		assert(digest_add_specfile(&d, NULL, "b", 1, "next") == 0);
-+		assert(d.specfile_cnt == 9 && d.hashbuf_size == 9 &&
-+		       d.specfile_list[9] == NULL);
-+		destroy(&d);
-+		cases++;
-+	}
-+	struct selabel_digest d = { 0 };
-+	assert(digest_add_specfile(&d, NULL, "", 0, "empty") == 0);
-+	FILE *fp = tmpfile();
-+	assert(fp);
-+	assert(digest_add_specfile(&d, fp, NULL, 1, "short") == -1);
-+	assert(d.specfile_cnt == 1 && d.hashbuf_size == 0 &&
-+	       d.specfile_list[1] == NULL);
-+	assert(fclose(fp) == 0);
-+	assert(digest_add_specfile(&d, NULL, "x", 1, "retry") == 0);
-+	destroy(&d);
-+	cases++;
++	char path[256];
++	int fd;
 +
-+	const unsigned counts[] = { 1, 4, 5, 8, 9, 16, 32, 253 };
-+	for (unsigned extras = 0; extras < 2; extras++) {
-+		char path[] = "/tmp/selabel-many-XXXXXX", aux[128];
-+		int fd = mkstemp(path);
-+		assert(fd >= 0);
-+		fp = fdopen(fd, "w");
-+		assert(fp &&
-+		       fputs("/probe system_u:object_r:test_t:s0\n", fp) >= 0);
-+		assert(fclose(fp) == 0);
-+		const char *suffixes[] = { ".subs", ".subs_dist", ".homedirs",
-+					   ".local" };
-+		if (extras) {
-+			for (unsigned i = 0; i < 4; i++) {
-+				snprintf(aux, sizeof(aux), "%s%s", path,
-+					 suffixes[i]);
-+				fp = fopen(aux, "w");
-+				assert(fp);
-+				assert(fputs(i < 2 ? "/other /elsewhere\n" :
-+						     "/extra system_u:object_r:extra_t:s0\n",
-+					     fp) >= 0);
-+				assert(fclose(fp) == 0);
++	assert(max >= min + 2);
++	cil_db_init(&db);
++	assert(db);
++	cil_set_mls(db, 1);
++	assert(cil_add_file(db, "test.cil", cil, sizeof(cil) - 1) == 0);
++	assert(cil_compile(db) == 0);
++	assert(cil_build_policydb(db, &p) == 0);
++	cil_db_destroy(&db);
++	assert(mkdtemp(root));
++	snprintf(path, sizeof(path), "%s/policy", root);
++	assert(mkdir(path, 0700) == 0);
++	snprintf(base, sizeof(base), "%s/policy/policy", root);
++	snprintf(path, sizeof(path), "%s/load", root);
++	fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0600);
++	assert(fd >= 0 && close(fd) == 0);
++	fini_selinuxmnt();
++	set_selinuxmnt(root);
++
++	for (unsigned older = 0; older < 2; older++) {
++		for (unsigned source = min; source <= max; source++) {
++			for (unsigned gap = 0; gap <= 2 && gap <= source - min;
++			     gap++) {
++				kernel_version = source - gap;
++				policy_file(p, source, 0);
++				if (older && gap)
++					policy_file(p, kernel_version, 0);
++				load(kernel_version, gap ? 1 : 0);
++				policy_file(p, source, 1);
++				if (older && gap)
++					policy_file(p, kernel_version, 1);
++				cases++;
 +			}
 +		}
-+		for (unsigned c = 0; c < sizeof(counts) / sizeof(counts[0]);
-+		     c++) {
-+			struct selinux_opt opts[254];
-+			unsigned n = counts[c];
-+			for (unsigned i = 0; i < n; i++)
-+				opts[i] =
-+					(struct selinux_opt){ SELABEL_OPT_PATH,
-+							      path };
-+			opts[n] =
-+				(struct selinux_opt){ SELABEL_OPT_DIGEST, "1" };
-+			struct selabel_handle *h =
-+				selabel_open(SELABEL_CTX_FILE, opts, n + 1);
-+			assert(h);
-+			unsigned char *hash;
-+			char **files, *context = NULL;
-+			size_t len, num;
-+			assert(selabel_digest(h, &hash, &len, &files, &num) ==
-+			       0);
-+			assert(len == 20 && num == n + 4 * extras &&
-+			       files[num] == NULL);
-+			assert(selabel_lookup_raw(h, &context, "/probe", 0) ==
-+			       0);
-+			freecon(context);
-+			selabel_close(h);
-+			cases++;
-+		}
-+		for (unsigned i = 0; extras && i < 4; i++) {
-+			snprintf(aux, sizeof(aux), "%s%s", path, suffixes[i]);
-+			assert(unlink(aux) == 0);
-+		}
-+		assert(unlink(path) == 0);
 +	}
-+	printf("Dynamic digest inputs: %u cases passed.\n", cases);
++
++	/* A failed conversion must try the immediately preceding version. */
++	kernel_version = max - 2;
++	policy_file(p, max, 0);
++	policy_file(p, max - 1, 0);
++	failures = 1;
++	load(kernel_version, 2);
++	cases++;
++	failures = 2;
++	load(0, 2);
++	cases++;
++	/* An already compatible fallback does not need another conversion. */
++	policy_file(p, max - 1, 1);
++	policy_file(p, kernel_version, 0);
++	failures = 1;
++	load(kernel_version, 1);
++	cases++;
++	policy_file(p, max, 1);
++	policy_file(p, kernel_version, 1);
++	load(0, 0);
++	cases++;
++
++	/* Root fallback must preserve the version, too. */
++	policy_file(p, max, 0);
++	roots[0] = base;
++	roots[1] = root;
++	kernel_version = max - 1;
++	load(kernel_version, 1);
++	cases++;
++	/* A non-searchable path component is still a hard error. */
++	roots[0] = path;
++	load(0, 0);
++	cases++;
++	roots[0] = root;
++	roots[1] = NULL;
++	policy_file(p, max, 1);
++
++	fini_selinuxmnt();
++	sepol_policydb_free(p);
++	assert(unlink(path) == 0);
++	snprintf(path, sizeof(path), "%s/policy", root);
++	assert(rmdir(path) == 0 && rmdir(root) == 0);
++	printf("load-policy-version: %u cases passed\n", cases);
 +	return 0;
 +}
 -- 
