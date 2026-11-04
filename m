@@ -1,114 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.107.200.26
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793800319;
-	b=kIQDX7FHPagQtiv8w0dJLmPhCCAbgjjdrNrpV3pHAUJ4+wjS1U6yvmwrUxuXE/0mU62t
-	 y41yIuUFMCwzishko8VW/BcXIfcw2izxUJnlHtepHgajOTB4JrFfkUE44alp9cmoRaYu7
-	 EjaS890jfHhk3CTkNuP/8bCS3hwTSVwG8oyTKrXHZWF9P4KqelVwkiJQ1oXkTjeMxsgp7
-	 6YtehvkiyJOC3s5sPbuv+YUJyuJM3P+8kZ7h7RSyLy7DvsaC+OVeXpbZ7tm5S8/IDZ8Yw
-	 N8+Pul6gX/x/u4ICGr850fvClFNZptVkV4aPJ9fOZdveAoEhJ6/HYH/WV28PjNtjqew==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793800319;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=mQtJKixgze7C+diWpLN9bp2gmSFhvKu0oFRTq7AaEEA=;
-	b=YhofC9YBe9XAagT5Yfwuumxd/JC8kx7mODJy2sZ8J8gLo1AortwrEaCLaMSZe3YIZU7g
-	 Txb2x6ncWxNF4BLcR152yslH+rJ2rrKVjWM1KcvL1cS6k0/ViK2Xxaa67JTgZe/JU4mtM
-	 ihhdaJ9Jb8FwFIts35PvrQFrad7wfst95l7HKY5QQcbwnEAT14bgIaIBQgca11xLfv75g
-	 Nsp5P5TiqYp0d8EjZFm9rBHHe6qlPwmX0se2tbbXMvzSq2iqnYOtD1e7UEydwxEmX+M3b
-	 1nmjy+4tf4HGCG4oty0/neJzuRsSSNqQh9iMzIeKueSYKXZlPtkA6NjDlI95/OUgETw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=amd.com;
-	spf=fail smtp.mailfrom=amd.com;
-	dkim=pass header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=1OaV7a26;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=40.107.200.26
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012026.outbound.protection.outlook.com [40.107.200.26])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.174
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793804977;
+	b=io66/gD2SZlfN+nAsa5bnJ69xsp8EnaiSNWYsgqQqOZWB5VBLgWEjnhl7rKj2L5nHc3j
+	 gc/A/0GQ8ldMs6vpOm4RH36Gy2mtsrMJGcDW31nGKG687S39f5OmBg3qknYF+KgsSqU65
+	 lU2WZuFrMKgYu77GghFEWMqjNvKzAEI33pT7wOJwqjboJGilBj3LFs/vJ/KOEsUGX5mwp
+	 OQnbe3lHrt8hc2xykmX4xKrVO6xzMypAh5pbL9xzkQUY01/EnmLePzETZ6Wd9QQAVn1nW
+	 5b9yzngv2Z/vVLJeXmqisf9vQTscGsjBjz4qYH+mXGP6mvC6bjjF9bDl7unUsNIRdFQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793804977;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+	b=BCUBCBTZHj1CYzU6LHs4NlkC6NLJW7Qt5SPmkOvvoGWN9vfwW/FIgeWsT3krKNXG61hT
+	 TPDhAVfIVkALjMJ/TuKCfZTk8KW8vD54jtFaKF0GsGyEk41mM3EFhX2btBJl+Iku48reS
+	 QtM0iRthAcsQ/EpUWAo9rOy9S9T/8fslyR87/jZM949hEQ9Svchpj2t5SJj5ZRNwO9OCT
+	 XgcTia5hqBw1TupLSFUJv2ZduDz70SJdxgwjfJ3Ug1bFt1nGEjTdG2JipG0sO4Mmj46Is
+	 Y3jGVifJgF8W6PxfgnyWmX3gxLOhYtf8H15G8N5x1L61vfxzJGzwqT0htzhvKH2dNhQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Istgwl62;
+	arc=none smtp.remote-ip=209.85.160.174
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 827A2606A31B;
-	Wed,  4 Nov 2026 13:51:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 827A2606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C726606A329
+	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1C726606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=1OaV7a26
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fwlrplglXoh9OyjK5tR8CAVbMbWktw9uFYFeNSHJvwGJ6DkHw5K7lbE9u/0Tbeg0GuJpfAQ0DM+niGciw4x8V57/ewqSGdo6Uu6Gj7GfEZsxws0lnruQXzrDGFNP+uCFaPnt63QckclpYwFSdePxd3NN7erCxuhk3D0J0dkyHfEboL+7dZrQtoas+CSPVf7pQHO29Jp4vngicwOSs9Iza9Jkn49P1c+sdpJdW/N6BoO/QznG37XJCLicoM9/Atf0ESIlCZdLjLBjfnQ0gtwuB6YclmswwLzgrTghAqSWXgOv4DA1Y1F6306oniarI3zwBqP62bf1bpIUUuhtRUlVXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mQtJKixgze7C+diWpLN9bp2gmSFhvKu0oFRTq7AaEEA=;
- b=d0HeySeTfz4nN+X2kqhvBEsxytSTgVNh3MSxaO9/DsG9ALP2mlHiEvyzQoL6tRGw7w7JPCvBFca2gwurXJWCs0Q22jg5VEJbAlubvmj7zTC8drKFyl7TN+Au4wGjyfvHbJ91GyVN9D47edqL2FpnbVpK8qZlHK46HrhTgxzIuCv1c4I3QUMALPcvj4MXlze6SZUYkLeOoTG8t0lvva4YHeKf8ooCi4dbkMAwpBuWGEh4JtzrZeWXqRSNBELSeuo9L0HUlhMeFyxhRDYmR8hcVr6A+beAnEl0Es75IEWfwEuxHT2xxwf7Aa7fUbFgjJeX5sTy8Uiu8KAThXEnThXk5Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mQtJKixgze7C+diWpLN9bp2gmSFhvKu0oFRTq7AaEEA=;
- b=1OaV7a26aooUI4kXc46/YIBQOwvrUIdoGhyzhFxSpxgIEVSt4U2yJeUY/fSt5uSa5+GnmHRtNhKQU4V3Sfrs3Wf6vxVqL52H3qHecHZHh61/Fya8ToXnrPPOZw1D+aM4lJaE/5AgJPEhe+U+obCr80cQ0PbpgDd/hbDHVIqTHk4=
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by PH0PR12MB7885.namprd12.prod.outlook.com (2603:10b6:510:28f::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.10; Wed, 4 Nov
- 2026 13:51:54 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c%3]) with mapi id 15.21.0592.007; Wed, 4 Nov 2026
- 13:51:53 +0000
-Message-ID: <fb40349c-18d2-45d6-9278-8f20e1b8dc74@amd.com>
-Date: Wed, 4 Nov 2026 14:51:42 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 3/8] dma-buf: transfer memcg charges via
- DMA_BUF_IOCTL_XFER_CHARGE
-To: Albert Esteve <aesteve@redhat.com>, Tejun Heo <tj@kernel.org>,
- Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
- <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Shuah Khan <skhan@linuxfoundation.org>,
- Sumit Semwal <sumit.semwal@linaro.org>, Michal Hocko <mhocko@kernel.org>,
- Roman Gushchin <roman.gushchin@linux.dev>,
- Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>,
- Andrew Morton <akpm@linux-foundation.org>,
- Benjamin Gaignard <benjamin.gaignard@collabora.com>,
- Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
- "T.J. Mercier" <tjmercier@google.com>, Christian Brauner
- <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
- =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>,
- Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>
-Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- linux-mm@kvack.org, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
- op-tee@lists.trustedfirmware.org
-References: <20261104-v2_20230123_tjmercier_google_com-v4-0-1819a017000b@redhat.com>
- <20261104-v2_20230123_tjmercier_google_com-v4-3-1819a017000b@redhat.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-3-1819a017000b@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR4P281CA0334.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ea::10) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Istgwl62
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-535179e995bso7773821cf.0
+        for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793804976; x=1794409776; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+        b=Istgwl62Cj3PhVqPPAD0xIBDvAPhoDKlQ6xYtaNee0321lx3NPpfI7iy4VHvEW8Wc7
+         HTDYOUmgaSDkx0PY/hrT7BDJzhfUWqZ9ivSv1isbPMeOpBQQX4AX2nLgM8rg+R/IFwn6
+         64cxsXfEbyggIRXRTPoEx0HUb7oBrPV9vgaRB6vFvT3xgr2TVZXQyDsiJqJG5AkIjEPr
+         2+BZkeE5z9DcuYEo5DdbH3iosZo/XQh1ynU11TRbsjkyuJ2E+QCw4zPf7G2zX+LNercg
+         p4n0Bpmj4Cl60TAToDPfhoG9x9KEXoFIs3PUXJepFj59Oe/OwHZUbLnoWQR6D9Yrht94
+         Ba6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793804976; x=1794409776;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=L6VEUFA0uKu2Qc0Z4j79bBYArXb6vxTIsunvirEJWSM=;
+        b=J3WYhlQ9apCjVHTS441pL7TSNmb3oc01cKXxFOae6hSp36keWCfd6C6s3CdtyZi0dR
+         7ZzMPLDcTjqCTp9RzrAEf9zjJrNhx4jHykrIoucU4WhFFYR6Go+ZaKzxtTk4Ga48B4gP
+         oW4JbD4yfh9RsSfoG4WHjPfW4kbk+obQ+uvbCN1Q00YMjqcFNt6l0WtdPogXpoz7mmvV
+         TiF24PonCAZ/XRcfbFVWjatT3NhnIJEjC9H4eN0yHKanArAbq+srz3nczqhMBMa5BlId
+         KwctCE2XgkCPgfWIF30somKp3cT5forBAKDR8qKBHBrXVeUsV9WnOBjcgCc5DjMWyncH
+         93mg==
+X-Gm-Message-State: APuU4Z9h42v0Y+pAAGKqa7GYbsioKEHk0ldMVvQZu19XKOMl+KAv1FlJ
+	Ph5cfzV59OPMhfcclKqKXhQt2q6nDVK1DIesWEFhtNYN7tMG7Y0Ezaosg5mqpeGw
+X-Gm-Gg: AYBFou2nL+IOv5QYj0sse5ku+aczApjIugpNEzJsIqJI39CW+BNmtapVsEdw8ewcN7n
+	2Ma5XqJ887x1SM4zqjgENYSEyhLF6UI+/k2nvucHEb0dDWYbiYsrlOfIJ6CKLNCRfhIQznZ9UgY
+	EujeKBnRVWlpbCCMR01KCqSeGDu4jJxTvEnIf8hmN7wT8E46Dgzu5dZLGSvpR6+ZhKoeQ9IBBs1
+	yuuh/CQhOdYbqfFMrqApsGvADgOd5q592QCQ4C+NCZO1Wgw2YbE9ikwO184r6LEljO0ExqbYdic
+	yWLUayA2jfBvjFVvXAiD4FnIumC3uISapvBQZmjDpEYOT407lM3bFa/fda4D841uoqH9aj0mbMt
+	Hxg61etZJG8V/c5otVEitgyhW6gzGsEgfeN/5eqkTmR37Mt4+pYPNyZNmpU2YJnNm6ndn8sNJzx
+	6ir39H6U7x1Os4QuLA5Wl5ib9SGuUPgs8p1GwsASu9nVsX5T7NK3nrErsDwpMYOUN+haQJOqBKs
+	64iF42bqUIB+yI1xhmqpuSdYWa78s1B8GLWCtgp27tqGcO/0xw/D/pKSzqn/IMVjRtHvZKqTOAr
+	StAxAlnZVhnKzrkpAOxjrPvY+KYgstR5GMf1A9dmaKTX3hhWAveiq3qN9/NE50PQ9s7dpH/PLrP
+	jIsfxM8x00SwbGBqKphf0yzvFDglSIbRdgIVKyyDvqeJXybJqQj2zHW21k1grr2PJhZQAZorWzK
+	IvvTys3bLdjYFzVF6yLZrbyeuP1Xg7pio90DWqkxFDzILVOCxnMYk=
+X-Received: by 2002:ac8:5d8c:0:b0:535:52c:a2d6 with SMTP id d75a77b69052e-542b3d6f83dmr266767031cf.3.1793804975788;
+        Wed, 04 Nov 2026 07:09:35 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54b10cdc3d3sm25683041cf.28.2026.11.04.07.09.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2026 07:09:35 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 01/20] libselinux: wait for relabel completion before writing digests
+Date: Wed,  4 Nov 2026 10:08:56 -0500
+Message-ID: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -118,323 +100,475 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|PH0PR12MB7885:EE_
-X-MS-Office365-Filtering-Correlation-Id: dd9bb6a9-3177-4234-7703-08df3a7ac85d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|366016|376014|7416014|261022105027099003|261021123027099003|261021121427099003|261026121527099003|261009223027099003|921020|261026140227099003|261028144727099003|261102123227099003|261102130727099003|4143699003|11063799006|10067099003|56012099006|22082099003|18002099003|261009221227099003;
-X-Microsoft-Antispam-Message-Info:
-	96/w4GoXA1uytAjAlaICjVANUoJGVhgUQ+B3edILtpMDdjhiIjrsi46l2ZvZbjLMyVtOK5RW6WCckTqoBlY6+3IUXaDW3P6593qCDRzUVJDSbEuOrZvslLqH5q3g4Tecn72FKzZ0S29pe4QfjmTpa5OnM2rMhSXbD/hpbbEXsfmSZMt6aukZ8wF0GlWPYCPN52PMLFrTk7biBJOUrj1D+aZ2hMLA3g5Th6CDqkZAV0qypC4qV+36Na1itA0xq8ixdMfx6EFHEMSS65pAQxqF1/hwEAnrs5rRxKJl4GyUtwed0jd2ZkbRXOidjMnSyx3FzAgAiXqIv9kAms1vTRcix3IAbuIZ9FLLfXDhDq9JApTwC+M1pYchghPpXHzPSiFZVc/h0sy07s8m0cVbQ7+x6vXykGfZscTQ3E1FDfrpmRMPSDVYYOx+kk1qbzHRGk4S8w7z57H1B2s6maq1axZIhQwTe0NNnFHAjmTC43ArwnooMsNRuZsW073HDWp1/ErBrdzlRpJBQ6MJ6KX2nJrALIvtsKU4IFcm+arQD6SB9nONco4NjD1YCuHYivFh/XEYogsrI8RT61L00ZqYfLqyXgYvkkSwjjxc2bQ/R4TwDvMi+c32ap+8oHdINZUQe0wNkrKVl5ubWP7eFPVf5hIYRQtvQIWAEgImiXiLqDezdG/82ORn6zwq7EoIuayAIVO1+JgCCb0c8wHjj6dxtwNhPw==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(366016)(376014)(7416014)(261022105027099003)(261021123027099003)(261021121427099003)(261026121527099003)(261009223027099003)(921020)(261026140227099003)(261028144727099003)(261102123227099003)(261102130727099003)(4143699003)(11063799006)(10067099003)(56012099006)(22082099003)(18002099003)(261009221227099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Tml0N01Kd2FnaFJ2bjMwTDI0VUY1d2FKNklkWnRjdnJlc2d1ZjdpUy8rdlo3?=
- =?utf-8?B?RVIvd243dmE2OVpNSXVONGdxVFRva3pKeDM5ZmVBZVF4WkFyZmMySDU0RitH?=
- =?utf-8?B?YnVTeEVXTk5FWkU3Z21ZeEtIeEVhcHhJZ3dwSThyV3FOeEMzQXgreG9QTjRG?=
- =?utf-8?B?ODR3V1c5c1lib2lSNWtsRDRoc3U0eWRoNTdOWU10dUZYcVFTdmh6TjFiOThm?=
- =?utf-8?B?Y2p0N3QyL3VXQUdwVXFpa1hJMVJsQi91aG5EdTEyaVBhV0tuT1l4alp1U1Uz?=
- =?utf-8?B?L3VYTDNWUE9UTkhndmxDdXNwNjVkcXJuc3NIOFNCVWZRSzJvdXk0QXRrZnE4?=
- =?utf-8?B?OVl2cmdIditoOHZsdEpaTmpjUGd2Q2VzNWNodHdwQTJYRm54K3RKK3FaNEV4?=
- =?utf-8?B?NnNUSHZWRDhvRitLcUVtOEt1NUY4UDVBalZrakFoRHgvWm5vbU1vdU51cWIx?=
- =?utf-8?B?VkNUd1ZYd21SUlZ0Q2RrV2dVT2tycVV6dUI3ZWZEQnZHRzFGbllGS0k1bkVq?=
- =?utf-8?B?eTF1dnJKUnpiVi9ndkRpNFgwM2swTDFaWncra2V3NHRVMC90UGczZnA2cE5q?=
- =?utf-8?B?QTVzTDZYemZiZHlOY2ljZHlBMU9BcWhxUlJ0R093c3B2cUpmL3YvMDN6bGN2?=
- =?utf-8?B?M3dWWXBZTCtNMzVMaHNmYmgxUSsrNmM1TStQMk9yR0F0N1h5bVc0cDUweWMw?=
- =?utf-8?B?bTZ5MUxPT1U3cXJCU2pjdVZ6eHpCbDlnUnYva3g1Mk01U2FXbDdkN2YxZWlz?=
- =?utf-8?B?ZnFtYWRpMGk3ZTNDMlpXQy9GanFra3A5bFIzQW9QeE5nSngyT05GQXdUUHBp?=
- =?utf-8?B?V0l0cEZpUnBDY3VxSXRzRittSEM5OXBoSzFlQ1l5REsvVjRpdldSZjIrSmV0?=
- =?utf-8?B?RHQwMXFxYjVaNkNSN2ZXcWxMOWxoSnlENnd1T2RVWjFVSlNQYTNMbzdzdUEz?=
- =?utf-8?B?RWsvY2s0UXZpcHNQaHdoRjc5bTJWaW5zNG8rVDh4NGo1dC9zWnlMYjBzV3NF?=
- =?utf-8?B?QVlCR3NGWGtCRFdEMU00akorRUdpQmdKZ05qdFdXa3RCamJtNTFZMzI4bnJI?=
- =?utf-8?B?aEhiWHI1UEVadENCejNiekhzRXpLb1EzU2lFSjFTYTVzeWhnSUh3VGtZT25U?=
- =?utf-8?B?VUVPSWo2U2RHbW9pM3FEWlg2QjdoeitQTE5SSnZEakl4Q2p2ekVnZXo0bFdP?=
- =?utf-8?B?SjZ4QU8rVWF1V2ZOU2lBVlRib1JNUXpSSFR1NFZhTm5yK2trOTRjU0x3cnZO?=
- =?utf-8?B?RjI4ZWViWk0vNktHNzNqS1pnRUZPaEdxSHZIaTBnL2dDUEZiM2IyVVNYTno1?=
- =?utf-8?B?TG1IMzlkZGxsVmxhUWN4RDlvSHVrUVdBRDBwRDFoaXFWeVF0VUwzVUVEbncy?=
- =?utf-8?B?bE8xMGVXZEpITzJaVUFPOWtZV3N5L0lPeTRwTDVHZUxYdkNybzhYR01xNlI2?=
- =?utf-8?B?Q3BUWnlZWVNsQjd4ZmdsNEJQWFgzN1RNOXNqNGUrMHZhK293QktRaU0yaHZ6?=
- =?utf-8?B?VGNvcllrb1piNVY0blBaSmQzOU12OE1oZWx6MnFMY2lrd0xRYkNlVjIxWHVR?=
- =?utf-8?B?NUpRWFI4VFhHTE5FdFZ1UldDZ3o0VDBVZGUvZHpNalE5VE50K0cxQ2QrcHRw?=
- =?utf-8?B?SitsNzNnRXdGR0pnN25LYlhuWFZ5Nm1DTEFFek5xemFYUWJYcnEvWWFoOVFq?=
- =?utf-8?B?S2lpeFpQTlpOaUI0SG93YnN5czVQamxxdGdIOEpBQ3A5cXNSWW1xb3NUNGlG?=
- =?utf-8?B?M0JpVFBEWUVNYUxzKzRFRDJNWERQZGxFcFdnSml5VTBpUnAzYWIyakVVWnF0?=
- =?utf-8?B?YVVIRUg4Q3paOXlMaldzVFUzTWRnL3U3ZlNSbVMrM0JuVFdiNVlFcnJ1V3lR?=
- =?utf-8?B?dk9Rb1N5MVluVURvRkNKWW9RQXJrRHdKc00rdnA3MG5KQnhqNHdacXVVcmgw?=
- =?utf-8?B?aWV0UEorVGs3dDdZSmNubHdkWUN4NUtHc1VIZk5HRzlSbllwZ0xSN3RKdG54?=
- =?utf-8?B?b21meUl1K1FrUVFKalNPZS8zTi9FM2xPQ3ZseGNTUGNFNlRSZmlLZFZ4aW8v?=
- =?utf-8?B?UmJtdG1GbVhoeFdvZWpkZHh6RTYvUnRSdnRkNCtESkxMeExKTFVSSTNCUXlS?=
- =?utf-8?B?VVJ2eDZiVkxkWWRrb0NZMGNXMVNKcC9sREZwcDV6bVhmSWFDUnF0Z0VlREQ1?=
- =?utf-8?B?QnM2ZW9RNWVWN0hoM2RVNzhqSWNaSWVLU08ydkN5MHVyc1p3MTF5dEZwOXgz?=
- =?utf-8?B?Ry80amUzVEJYWjJqdmwxbWFsWkVTTGxTWkFsWk5qMmpjallCdmFuRTFKeWJY?=
- =?utf-8?Q?2Pylw29bJiUZ3VhooJ?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dd9bb6a9-3177-4234-7703-08df3a7ac85d
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Nov 2026 13:51:53.3435
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 6IadmT3l8oiO2qnIkVu2dbS/48UcoHNhnw+j+DT0Zya9ULx2PgyZc+8BlUvhXyMR
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7885
+Content-Transfer-Encoding: 8bit
 
-On 11/4/26 12:09, Albert Esteve wrote:
-> dma-heap already supports charging a specific cgroup at allocation
-> time via charge_fd in DMA_HEAP_IOCTL_ALLOC. However, dma-bufs can
-> originate from any exporter (DRM, V4L2, etc.), and the allocator may
-> not know the final owner at allocation time.
-> 
-> Add DMA_BUF_IOCTL_XFER_CHARGE to transfer a dma-buf's memcg charge
-> to a different cgroup after allocation. The target is identified by
-> charge_fd, which may be a cgroupfd or a pidfd.
-> 
-> The transfer charges the new cgroup before uncharging the old one,
-> preserving the original charge on failure. Concurrent transfers are
-> serialized by the dma-buf reservation lock, so lockdep covers the
-> locking order of the charge path early. The transfer implementation
-> is generic (mem_cgroup_transfer_charge) and not dma-buf specific, so
-> it can be reused by other subsystems.
-> 
-> Not all dma-buf exporters back their buffers with reclaimable system
-> memory. Some represent device registers, VRAM, or carved-out pools
-> where size is not a meaningful memory cost. The xfer ioctl returns
-> -EOPNOTSUPP for buffers whose memcg is not set. Exporters opt in by
-> passing a memcg through dma_buf_export_info at export time. Currently
-> only the system heap sets it, other exporters can opt in as needed.
-> 
-> Usage example:
->   int cg_fd = open("/sys/fs/cgroup/clients/app1", O_RDONLY | O_DIRECTORY);
-> 
->   struct dma_buf_transfer_charge xfer = {
->       .charge_fd = cg_fd,
->   };
->   ioctl(dmabuf_fd, DMA_BUF_IOCTL_XFER_CHARGE, &xfer);
->   /* charge now on app1's cgroup */
->   close(cg_fd);
-> 
-> Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> ---
->  drivers/dma-buf/dma-buf.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
->  include/linux/dma-buf.h      |  3 ++-
->  include/linux/memcontrol.h   | 13 +++++++++++++
->  include/uapi/linux/dma-buf.h | 26 ++++++++++++++++++++++++++
->  mm/memcontrol.c              | 42 ++++++++++++++++++++++++++++++++++++++++++
->  5 files changed, 125 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> index 837666273550..3bd26fbb1109 100644
-> --- a/drivers/dma-buf/dma-buf.c
-> +++ b/drivers/dma-buf/dma-buf.c
-> @@ -540,6 +540,45 @@ static long dma_buf_import_sync_file(struct dma_buf *dmabuf,
->  }
->  #endif
->  
-> +/* Transfer a dma-buf's memcg charge; see struct dma_buf_transfer_charge */
-> +static long dma_buf_xfer_charge(struct dma_buf *dmabuf,
-> +				const void __user *user_data)
-> +{
-> +	struct dma_buf_transfer_charge arg;
-> +	struct mem_cgroup *memcg;
-> +	unsigned int nr_pages = PAGE_ALIGN(dmabuf->size) >> PAGE_SHIFT;
-> +	int ret = 0;
-> +
-> +	if (copy_from_user(&arg, user_data, sizeof(arg)))
-> +		return -EFAULT;
-> +
-> +	if (!IS_ENABLED(CONFIG_MEMCG))
-> +		return 0;
-> +
-> +	if (arg.flags != 0)
-> +		return -EINVAL;
-> +
-> +	memcg = mem_cgroup_get_from_fd(arg.charge_fd);
-> +	if (IS_ERR(memcg))
-> +		return PTR_ERR(memcg);
-> +
-> +	dma_resv_lock(dmabuf->resv, NULL);
-> +
-> +	if (!dmabuf->memcg) {
-> +		ret = -EOPNOTSUPP;
-> +		goto out;
-> +	}
-> +
-> +	if (dmabuf->memcg != memcg &&
-> +	    !mem_cgroup_transfer_charge(&dmabuf->memcg, memcg, MEMCG_DMABUF, nr_pages))
+Parallel traversal can reach directory EOF while another worker is still
+relabeling a child. Publishing the directory digest at that point can
+cache success before the child fails, causing later restorecon runs to
+skip the failed subtree.
 
-Please move the calculation of nr_pages after taking the dma_resv_lock().
+Track active relabel calls under the traversal mutex and wait for them
+to finish before publishing a directory digest. Broadcast when the last
+call finishes, recording its result before releasing the mutex. Recheck
+abort state and reacquire the current stack entry after each wait.
 
-We currently don't have anybody dynamically changing DMA-buf sizes but just to be on the save side.
+Check synchronization initialization failures and include condition
+broadcast in the weak pthread capability check. Leave the d_type
+optimization unchanged.
 
-With that done Reviewed-by: Christian König <christian.koenig@amd.com>
+Add isolated regression coverage for serial and parallel traversal,
+shallow and deep trees, successful and failed relabels, abort and counted
+errors, disabled digests, dry runs, and retry behavior.
 
-Regards,
-Christian.
+Fixes: 86fbd1f66da6 ("libselinux: selinux_restorecon: write digests during traversal")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/Makefile                       |   4 +-
+ libselinux/src/selinux_internal.h         |   8 +-
+ libselinux/src/selinux_restorecon.c       |  49 ++++-
+ libselinux/tests/.gitignore               |   1 +
+ libselinux/tests/Makefile                 |  16 ++
+ libselinux/tests/test_restorecon_digest.c | 233 ++++++++++++++++++++++
+ 6 files changed, 300 insertions(+), 11 deletions(-)
+ create mode 100644 libselinux/tests/.gitignore
+ create mode 100644 libselinux/tests/Makefile
+ create mode 100644 libselinux/tests/test_restorecon_digest.c
 
-> +		ret = -ENOMEM;
-> +
-> +out:
-> +	dma_resv_unlock(dmabuf->resv);
-> +	mem_cgroup_put(memcg);
-> +	return ret;
-> +}
-> +
->  static long dma_buf_ioctl(struct file *file,
->  			  unsigned int cmd, unsigned long arg)
->  {
-> @@ -590,6 +629,9 @@ static long dma_buf_ioctl(struct file *file,
->  		return dma_buf_import_sync_file(dmabuf, (const void __user *)arg);
->  #endif
->  
-> +	case DMA_BUF_IOCTL_XFER_CHARGE:
-> +		return dma_buf_xfer_charge(dmabuf, (const void __user *)arg);
-> +
->  	default:
->  		return -ENOTTY;
->  	}
-> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
-> index 85dd747c9b36..b01149d26b44 100644
-> --- a/include/linux/dma-buf.h
-> +++ b/include/linux/dma-buf.h
-> @@ -507,7 +507,8 @@ struct dma_buf_attachment {
->   * @priv:	Attach private data of allocator to this buffer
->   * @memcg:	memcg to charge for this buffer's memory. Set only for
->   *		buffers backed by system memory where @size reflects the
-> - *		actual allocation in bytes.
-> + *		actual allocation in bytes. Enables charge transfer via
-> + *		DMA_BUF_IOCTL_XFER_CHARGE.
->   *
->   * This structure holds the information required to export the buffer. Used
->   * with dma_buf_export() only.
-> diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-> index f8ec751b7d7b..af02d9777fe9 100644
-> --- a/include/linux/memcontrol.h
-> +++ b/include/linux/memcontrol.h
-> @@ -676,6 +676,11 @@ struct mem_cgroup *mem_cgroup_get_from_fd(int fd);
->  bool mem_cgroup_reserve_dmabuf(struct mem_cgroup *memcg, gfp_t gfp,
->  			       unsigned int nr_pages);
->  
-> +bool mem_cgroup_transfer_charge(struct mem_cgroup **ptr_memcg,
-> +				struct mem_cgroup *new_memcg,
-> +				enum memcg_stat_item item,
-> +				unsigned int nr_pages);
-> +
->  void __mem_cgroup_uncharge(struct folio *folio);
->  
->  /**
-> @@ -1197,6 +1202,14 @@ static inline void mem_cgroup_cancel_dmabuf(struct mem_cgroup *memcg,
->  {
->  }
->  
-> +static inline bool mem_cgroup_transfer_charge(struct mem_cgroup **ptr_memcg,
-> +					      struct mem_cgroup *new_memcg,
-> +					      enum memcg_stat_item item,
-> +					      unsigned int nr_pages)
-> +{
-> +	return true;
-> +}
-> +
->  static inline void mem_cgroup_uncharge(struct folio *folio)
->  {
->  }
-> diff --git a/include/uapi/linux/dma-buf.h b/include/uapi/linux/dma-buf.h
-> index e827c9d20c5d..0aaf2e7d593b 100644
-> --- a/include/uapi/linux/dma-buf.h
-> +++ b/include/uapi/linux/dma-buf.h
-> @@ -168,6 +168,31 @@ struct dma_buf_import_sync_file {
->  	__s32 fd;
->  };
->  
-> +/**
-> + * struct dma_buf_transfer_charge - Transfer a dma-buf's memcg charge
-> + *
-> + * Any holder of a dma-buf file descriptor can perform a
-> + * DMA_BUF_IOCTL_XFER_CHARGE to attribute the buffer's memory
-> + * cost to a specific cgroup, or move it from one cgroup to
-> + * another.  The ioctl charges the new cgroup before uncharging
-> + * the old one atomically.  On failure the original charge is
-> + * preserved.  If the buffer has no existing memcg charge, the
-> + * ioctl returns -EOPNOTSUPP.
-> + */
-> +struct dma_buf_transfer_charge {
-> +	/** @flags: Reserved, must be zero */
-> +	__u32 flags; /* unused for now */
-> +	/**
-> +	 * @charge_fd: File descriptor identifying the target cgroup.
-> +	 *
-> +	 * May be either a pidfd, in which case the charge moves to the
-> +	 * memory cgroup of the referenced process, or a cgroupfd obtained
-> +	 * by opening a cgroup v2 directory, in which case the charge moves
-> +	 * directly to that cgroup's memory controller.
-> +	 */
-> +	__u32 charge_fd;
-> +};
-> +
->  #define DMA_BUF_BASE		'b'
->  #define DMA_BUF_IOCTL_SYNC	_IOW(DMA_BUF_BASE, 0, struct dma_buf_sync)
->  
-> @@ -179,5 +204,6 @@ struct dma_buf_import_sync_file {
->  #define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, __u64)
->  #define DMA_BUF_IOCTL_EXPORT_SYNC_FILE	_IOWR(DMA_BUF_BASE, 2, struct dma_buf_export_sync_file)
->  #define DMA_BUF_IOCTL_IMPORT_SYNC_FILE	_IOW(DMA_BUF_BASE, 3, struct dma_buf_import_sync_file)
-> +#define DMA_BUF_IOCTL_XFER_CHARGE	_IOW(DMA_BUF_BASE, 4, struct dma_buf_transfer_charge)
->  
->  #endif
-> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> index 17fdefc56b97..3e717b5663c8 100644
-> --- a/mm/memcontrol.c
-> +++ b/mm/memcontrol.c
-> @@ -5752,6 +5752,48 @@ void mem_cgroup_cancel_dmabuf(struct mem_cgroup *memcg, unsigned int nr_pages)
->  }
->  EXPORT_SYMBOL_GPL(mem_cgroup_cancel_dmabuf);
->  
-> +/**
-> + * mem_cgroup_transfer_charge - move a charge between memcgs
-> + * @ptr_memcg: pointer to the memcg to transfer from
-> + * @new_memcg: target memcg; caller must hold a reference
-> + * @item: stat counter to adjust
-> + * @nr_pages: number of pages to transfer
-> + *
-> + * Transfers @nr_pages of charge from *@ptr_memcg to @new_memcg and, on
-> + * success, stores @new_memcg in *@ptr_memcg.
-> + *
-> + * Updates to *@ptr_memcg must be serialized by the caller.
-> + * Returns %true on success, %false if the charge against @new_memcg
-> + * failed.
-> + */
-> +bool mem_cgroup_transfer_charge(struct mem_cgroup **ptr_memcg,
-> +				struct mem_cgroup *new_memcg,
-> +				enum memcg_stat_item item,
-> +				unsigned int nr_pages)
-> +{
-> +	struct mem_cgroup *old_memcg = *ptr_memcg;
-> +
-> +	if (!new_memcg || mem_cgroup_disabled())
-> +		return true;
-> +
-> +	if (try_charge(new_memcg, GFP_KERNEL, nr_pages))
-> +		return false;
-> +
-> +	mod_memcg_state(new_memcg, item, nr_pages);
-> +	css_get(&new_memcg->css);
-> +	*ptr_memcg = new_memcg;
-> +
-> +	if (old_memcg) {
-> +		/* Uncharge old cgroup */
-> +		mod_memcg_state(old_memcg, item, -nr_pages);
-> +		if (!mem_cgroup_is_root(old_memcg))
-> +			refill_stock(old_memcg, nr_pages);
-> +		mem_cgroup_put(old_memcg);
-> +	}
-> +
-> +	return true;
-> +}
-> +
->  /**
->   * mem_cgroup_uncharge_dmabuf - uncharge a dma-buf from its memcg
->   * @dmabuf: buffer to uncharge
-> 
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index 00b52aa7..be3923f0 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -64,6 +64,7 @@ clean distclean:
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+ 	done
+ 	$(MAKE) -C fuzz clean
++	$(MAKE) -C tests clean
+ 
+ .PHONY: fuzz
+ fuzz: all
+@@ -90,4 +91,5 @@ clean-pywrap:
+ clean-rubywrap:
+ 	$(MAKE) -C src $@
+ 
+-test:
++test: all
++	$(MAKE) -C tests test
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index c32bb4c0..9df6eadd 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -81,13 +81,15 @@ extern size_t selinux_page_size;
+ #pragma weak pthread_join
+ #pragma weak pthread_cond_init
+ #pragma weak pthread_cond_signal
++#pragma weak pthread_cond_broadcast
+ #pragma weak pthread_cond_destroy
+ #pragma weak pthread_cond_wait
+ 
+ /* check if all functions needed to do parallel operations are available */
+-#define __pthread_supported                                     \
+-	(pthread_create && pthread_join && pthread_cond_init && \
+-	 pthread_cond_destroy && pthread_cond_signal && pthread_cond_wait)
++#define __pthread_supported                                                  \
++	(pthread_create && pthread_join && pthread_cond_init &&              \
++	 pthread_cond_destroy && pthread_cond_signal && pthread_cond_wait && \
++	 pthread_cond_broadcast)
+ 
+ #define SELINUXDIR "/etc/selinux/"
+ #define SELINUXCONFIG SELINUXDIR "config"
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index fbadf367..a0851802 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -963,7 +963,9 @@ struct rest_state {
+ 	long unsigned skipped_errors;
+ 	long unsigned relabeled_files;
+ 	int saved_errno;
++	size_t active_relabels;
+ 	pthread_mutex_t mutex;
++	pthread_cond_t idle;
+ };
+ 
+ static int walk_push(struct rest_state *st, int rdfd, dev_t dev, ino_t ino,
+@@ -1218,6 +1220,9 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 		     struct stat *ent_sb, char *ent_path, size_t ent_path_sz,
+ 		     size_t *ent_pathlen)
+ {
++	if (state->abort)
++		return 0;
++
+ 	if (state->root_fd >= 0) {
+ 		int fd = state->root_fd;
+ 
+@@ -1243,6 +1248,9 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 	}
+ 
+ 	while (state->depth) {
++		if (state->abort)
++			return 0;
++
+ 		struct walk_level *top = &state->stack[state->depth - 1];
+ 		int pdfd = dirfd(top->dirp);
+ 		struct dirent *de;
+@@ -1260,10 +1268,15 @@ static int walk_next(struct rest_state *state, int *ent_fd, int *rd_fd,
+ 					return -1;
+ 				continue;
+ 			}
+-			/*
+-			 * Completed directory traversal; set digest
+-			 * if requested and no errors.
+-			 */
++			/* Enumeration can finish while another worker is relabeling. */
++			if (top->write_digest && state->setrestorecondigest &&
++			    !state->flags.nochange && state->parallel &&
++			    state->active_relabels) {
++				pthread_cond_wait(&state->idle, &state->mutex);
++				/* Another worker may have popped or grown the stack. */
++				continue;
++			}
++			/* All relabel results are recorded before publishing a digest. */
+ 			if (top->write_digest && state->setrestorecondigest &&
+ 			    !state->flags.nochange && !state->error &&
+ 			    !state->skipped_errors &&
+@@ -1476,8 +1489,10 @@ static void *selinux_restorecon_thread(void *arg)
+ 			}
+ 		}
+ 
+-		if (state->parallel)
++		if (state->parallel) {
++			state->active_relabels++;
+ 			__pthread_mutex_unlock(&state->mutex);
++		}
+ 
+ 		bool updated = false;
+ 		error = restorecon_sb(ent_fd, ent_path, &ent_sb, &state->flags,
+@@ -1486,6 +1501,9 @@ static void *selinux_restorecon_thread(void *arg)
+ 
+ 		if (state->parallel) {
+ 			__pthread_mutex_lock(&state->mutex);
++			state->active_relabels--;
++			if (!state->active_relabels)
++				pthread_cond_broadcast(&state->idle);
+ 			if (state->abort)
+ 				goto unlock;
+ 		}
+@@ -1590,6 +1608,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 	state.skipped_errors = 0;
+ 	state.relabeled_files = 0;
+ 	state.saved_errno = 0;
++	state.active_relabels = 0;
+ 	state.stack = NULL;
+ 	state.depth = 0;
+ 	state.stack_cap = 0;
+@@ -1767,15 +1786,30 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		selinux_restorecon_thread(&state);
+ 	} else {
+ 		size_t i;
++		int rc;
+ 		pthread_t self = pthread_self();
+ 		pthread_t *threads = NULL;
+ 
+-		__pthread_mutex_init(&state.mutex, NULL);
+-
+ 		threads = calloc(nthreads - 1, sizeof(*threads));
+ 		if (!threads)
+ 			goto oom;
+ 
++		rc = pthread_mutex_init(&state.mutex, NULL);
++		if (rc) {
++			free(threads);
++			errno = rc;
++			error = -1;
++			goto cleanup;
++		}
++		rc = pthread_cond_init(&state.idle, NULL);
++		if (rc) {
++			pthread_mutex_destroy(&state.mutex);
++			free(threads);
++			errno = rc;
++			error = -1;
++			goto cleanup;
++		}
++
+ 		state.parallel = true;
+ 		/*
+ 		 * Start (nthreads - 1) threads - the main thread is going to
+@@ -1807,6 +1841,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		}
+ 		free(threads);
+ 
++		pthread_cond_destroy(&state.idle);
+ 		__pthread_mutex_destroy(&state.mutex);
+ 	}
+ 
+diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
+new file mode 100644
+index 00000000..3763df4a
+--- /dev/null
++++ b/libselinux/tests/.gitignore
+@@ -0,0 +1 @@
++test-restorecon-digest
+diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
+new file mode 100644
+index 00000000..0f940640
+--- /dev/null
++++ b/libselinux/tests/Makefile
+@@ -0,0 +1,16 @@
++PCRE_LDLIBS ?= -lpcre2-8
++CFLAGS ?= -O2 -g -Wall -Wextra -Werror
++override CFLAGS += -I../include -pthread
++WRAPS = getfilecon_raw setfilecon_raw getxattr fsetxattr pthread_cond_wait fstatfs fstatfs64
++
++test-restorecon-digest: test_restorecon_digest.c ../src/libselinux.a
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
++
++COMMA := ,
++
++.PHONY: test clean
++test: test-restorecon-digest
++	./test-restorecon-digest
++
++clean:
++	rm -f test-restorecon-digest
+diff --git a/libselinux/tests/test_restorecon_digest.c b/libselinux/tests/test_restorecon_digest.c
+new file mode 100644
+index 00000000..53a5cbef
+--- /dev/null
++++ b/libselinux/tests/test_restorecon_digest.c
+@@ -0,0 +1,233 @@
++/* SPDX-License-Identifier: CC0-1.0 */
++#define _GNU_SOURCE
++#undef NDEBUG
++#include <assert.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <pthread.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/vfs.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <selinux/label.h>
++#include <selinux/restorecon.h>
++
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
++static pthread_cond_t release = PTHREAD_COND_INITIALIZER;
++static bool block_relabel, fail_relabel, ready;
++static unsigned int pending, attempts, barriers, writes;
++static unsigned char digest[20];
++static bool stored;
++static bool nested;
++
++int __wrap_getfilecon_raw(const char *path, char **context);
++int __wrap_setfilecon_raw(const char *path, const char *context);
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size);
++int __wrap_fsetxattr(int fd, const char *name, const void *value, size_t size,
++		     int flags);
++int __real_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
++int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
++int __real_fstatfs(int fd, struct statfs *buf);
++int __wrap_fstatfs(int fd, struct statfs *buf);
++int __real_fstatfs64(int fd, struct statfs64 *buf);
++int __wrap_fstatfs64(int fd, struct statfs64 *buf);
++
++/* Keep digest coverage even when the temporary directory is on tmpfs. */
++int __wrap_fstatfs(int fd, struct statfs *buf)
++{
++	int rc = __real_fstatfs(fd, buf);
++	if (!rc)
++		buf->f_type = 0xef53;
++	return rc;
++}
++
++int __wrap_fstatfs64(int fd, struct statfs64 *buf)
++{
++	int rc = __real_fstatfs64(fd, buf);
++	if (!rc)
++		buf->f_type = 0xef53;
++	return rc;
++}
++
++int __wrap_getfilecon_raw(const char *path, char **context)
++{
++	(void)path;
++	*context = NULL;
++	errno = ENODATA;
++	return -1;
++}
++
++int __wrap_setfilecon_raw(const char *path, const char *context)
++{
++	struct stat st;
++	(void)context;
++	assert(stat(path, &st) == 0);
++	if (!S_ISREG(st.st_mode))
++		return 0;
++	assert(pthread_mutex_lock(&lock) == 0);
++	attempts++;
++	pending++;
++	while (block_relabel && !ready)
++		assert(__real_pthread_cond_wait(&release, &lock) == 0);
++	pending--;
++	assert(pthread_mutex_unlock(&lock) == 0);
++	if (fail_relabel) {
++		errno = EACCES;
++		return -1;
++	}
++	return 0;
++}
++
++/* Release the blocked label write only once traversal reaches its barrier. */
++int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
++{
++	assert(cond != &release);
++	assert(pthread_mutex_lock(&lock) == 0);
++	barriers++;
++	ready = true;
++	assert(pthread_cond_broadcast(&release) == 0);
++	assert(pthread_mutex_unlock(&lock) == 0);
++	return __real_pthread_cond_wait(cond, mutex);
++}
++
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size)
++{
++	(void)path;
++	assert(!strcmp(name, "security.sehash"));
++	if (!stored || nested) {
++		errno = ENODATA;
++		return -1;
++	}
++	assert(size >= sizeof(digest));
++	memcpy(value, digest, sizeof(digest));
++	return sizeof(digest);
++}
++
++int __wrap_fsetxattr(int fd, const char *name, const void *value, size_t size,
++		     int flags)
++{
++	(void)fd;
++	(void)flags;
++	assert(!strcmp(name, "security.sehash"));
++	assert(size == sizeof(digest));
++	assert(pthread_mutex_lock(&lock) == 0);
++	assert(!pending && !fail_relabel);
++	if (block_relabel)
++		assert(barriers && attempts);
++	memcpy(digest, value, size);
++	stored = true;
++	writes++;
++	assert(pthread_mutex_unlock(&lock) == 0);
++	return 0;
++}
++
++static void run_case(size_t threads, unsigned int extra, bool failure,
++		     bool deep)
++{
++	char root[] = "/tmp/restorecon-digest-XXXXXX";
++	char file[1024], fc[256], directory[1024];
++	FILE *fp;
++	int fd, rc;
++	unsigned int flags = SELINUX_RESTORECON_RECURSE |
++			     SELINUX_RESTORECON_IGNORE_MOUNTS |
++			     SELINUX_RESTORECON_SET_SPECFILE_CTX | extra;
++	bool cache = !(extra & (SELINUX_RESTORECON_SKIP_DIGEST |
++				SELINUX_RESTORECON_NOCHANGE));
++	struct selabel_handle *handle;
++
++	alarm(15);
++	nested = deep;
++	assert(mkdtemp(root));
++	strcpy(directory, root);
++	if (deep) {
++		for (unsigned int i = 0; i < 20; i++) {
++			strcat(directory, "/sub");
++			assert(mkdir(directory, 0700) == 0);
++		}
++	}
++	assert(snprintf(file, sizeof(file), "%s/child", directory) > 0);
++	assert(snprintf(fc, sizeof(fc), "%s.fc", root) > 0);
++	fd = open(file, O_CREAT | O_EXCL | O_WRONLY, 0600);
++	assert(fd >= 0 && close(fd) == 0);
++	fp = fopen(fc, "w");
++	assert(fp);
++	assert(fprintf(fp, "%s(/.*)? system_u:object_r:test_t:s0\n", root) > 0);
++	assert(fclose(fp) == 0);
++	struct selinux_opt options[] = { { SELABEL_OPT_PATH, fc },
++					 { SELABEL_OPT_DIGEST, (char *)1 } };
++	handle = selabel_open(SELABEL_CTX_FILE, options, 2);
++	assert(handle);
++	selinux_restorecon_set_sehandle(handle);
++	block_relabel = threads > 1 && cache;
++	fail_relabel = failure;
++	rc = selinux_restorecon_parallel(root, flags, threads);
++	assert(rc == (failure && !(extra & SELINUX_RESTORECON_COUNT_ERRORS) ?
++			      -1 :
++			      0));
++	assert(!pending);
++	assert(stored == (cache && !failure));
++	assert(writes == (cache && !failure ? (deep ? 21U : 1U) : 0U));
++	if (block_relabel)
++		assert(barriers > 0);
++
++	unsigned int before = attempts;
++	block_relabel = fail_relabel = false;
++	rc = selinux_restorecon(root, flags);
++	assert(rc == 0);
++	if (extra & SELINUX_RESTORECON_NOCHANGE)
++		assert(attempts == 0 && writes == 0);
++	else
++		assert(attempts == before + !(cache && !failure && !deep));
++	assert(unlink(file) == 0);
++	if (deep) {
++		for (unsigned int i = 0; i < 20; i++) {
++			assert(rmdir(directory) == 0);
++			*strrchr(directory, '/') = '\0';
++		}
++	}
++	assert(rmdir(root) == 0);
++	assert(unlink(fc) == 0);
++	selinux_restorecon_set_sehandle(NULL);
++}
++
++int main(void)
++{
++	const unsigned int options[] = { 0, SELINUX_RESTORECON_ABORT_ON_ERROR,
++					 SELINUX_RESTORECON_COUNT_ERRORS,
++					 SELINUX_RESTORECON_SKIP_DIGEST,
++					 SELINUX_RESTORECON_NOCHANGE };
++	const size_t threads[] = { 1, 2, 8 };
++	unsigned int cases = 0;
++	for (size_t i = 0; i < sizeof(threads) / sizeof(threads[0]); i++) {
++		for (size_t j = 0; j < sizeof(options) / sizeof(options[0]);
++		     j++) {
++			for (unsigned int fail = 0; fail < 2; fail++) {
++				if (fail &&
++				    options[j] == SELINUX_RESTORECON_NOCHANGE)
++					continue;
++				for (unsigned int deep = 0; deep < 2; deep++) {
++					pid_t pid = fork();
++					int status;
++					assert(pid >= 0);
++					if (!pid) {
++						run_case(threads[i], options[j],
++							 fail, deep);
++						_exit(0);
++					}
++					assert(waitpid(pid, &status, 0) == pid);
++					assert(WIFEXITED(status) &&
++					       WEXITSTATUS(status) == 0);
++					cases++;
++				}
++			}
++		}
++	}
++	printf("Restorecon digest completion: %u cases passed.\n", cases);
++	return 0;
++}
+-- 
+2.56.0
 
