@@ -1,100 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793732019;
-	b=5lCpYKBFAcKqWJ531z/jca1Ofz5woNUd7teYRTX22p9hIUWk8I8eGaXNoAK6cojnYanh
-	 6xJd+EcVEU+ZzroEA/LAQ9zsWHdUgKvXPeUgxEMS/K1tsR6cCjG2jNSXxJBf0nAHq1Umq
-	 RsVv6E9xxpoboUFwo75fcVntyu5e18J1KQhVPn6658UIOPJAjW2YvpfE5oKiJW/kx1RVK
-	 75fzyKPCSRdN7V3PrG8q8E96bR3ni8d4T6gmKrRECQ6oYBlyNT/yKhurH03+3ePepGGlq
-	 3xZV0XBtopGdvFkEXmUMGsXGPDCIO00juEgH5z4/k0Dc73UQWw+PD1QQfsxgxkunJYA==
+	t=1793790576;
+	b=l4m84OpPmgWULuVCnDljHrqhja/KhzuGK5GgMXvFJ+pPe3X/B2YulR9dNEXKdUsgnXWj
+	 tKplxhjBsHxQu4GZsuQi39sNpQe9wCbwnseccoepmkJjWpfYAcxZHVwZ4TULwK6eHH0jd
+	 K5Whf9LkNu8gAzhS0ltDz3K87fEUn0ui2NDOJ0msv8WCumwvVcFbRNhwo9P/06cZ91cv6
+	 1ZblIXrZ7uaos3ZaeGBR1wHP3qkWOfVTBKehN1JtxIZbxewcPBL5pQHs2pP4tn0HEtrj1
+	 gZ5Fn+J0iT6jPfN47P4F4WVJClJPnAApVY8TPhwvV7Ct1NKCcIuOV6P9vIZUZixmxeQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793732019;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=aPjFR1xctPZ5vNaEvk32ZMKFBK8PlsexaCbbbzd5h+s=;
-	b=0z6QLE9A/YWTevjJjTFE7k8KNuc3CXOkxUndHq0AuYZmdx6A3e9gMVM2FnHV4Cr/Ob2p
-	 0nw31B2bF+qeihVFsuTJk5nvTE/GD54BGXfBvlRZC9fG+vcOuhHkMQvbEtkSPjTOmdsXx
-	 Yt+f/Bn1eHg9DndxSDzKoMIZV7ziDWTJA/cuGmRerIacZwEZVnSEvK1guWU7WxOAoxeke
-	 bM/s1DCIXeSQ16ORF9eNdpIzN32cxvCjTDH7uhSRa26SCx7yNSzqn1NUkh4pFzKbwncqv
-	 AtxtW0CSXa5aoZWD4w2gmqKg29ktAYWbU13JfbxK2hHSUglZfFfJ4QTW0GbX9oemtMA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793790576;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Developer-Signature:X-Developer-Key:X-Scanned-By;
+	bh=y/j5QPLW6jpzCD3GV5JpZq3Ngo4fRQoXZZ90Dm8OkWQ=;
+	b=2W4G6nC4rmJJTvLohm/UrkAnTzWsFl14MGk2RLDMMcv87J7KwYqYzkZ00BajMhTqm+m7
+	 Ub+S9MMv6TDLMGlHsEiaueonxJTbu8PMCt5h8fz/oiGm/eo1qyOZyQ/X7EIBNwm6WGxyx
+	 aoKdaW5FxxORlvcl6I2ReTn+kW9gNqUX5w0CrQsdS77UQ5NRT6cGISEaT2cC4VAarHvc0
+	 ajGoMLmL99CQQURNoP9ogCea4yxiq/u5i5Fp1raB7ObHn0R73TzWuAO53S11TIUsFdDVi
+	 yKHde+9dfUn+QZC0UB7wgNuZPzrZvuQuMDKwzHjL4d6ulcqnzeSvxg1WEXog8dEhNvQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WkeZEwXW;
-	arc=none smtp.remote-ip=209.85.219.52
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J+1TyLd0;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16618606A328
-	for <selinux@vger.kernel.org>; Tue,  3 Nov 2026 18:53:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16618606A328
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EE7F606A328
+	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 11:09:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7EE7F606A328
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WkeZEwXW
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-91c19fc50abso55199636d6.1
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2026 10:53:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793732018; x=1794336818; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=aPjFR1xctPZ5vNaEvk32ZMKFBK8PlsexaCbbbzd5h+s=;
-        b=WkeZEwXWTm7TIrwTA55ZC+ENPuu9313qB2WWn8YiIPmBm/SjAgqZtdVXxd8BGadOSk
-         cUsb/febxhzC8efonaDhrmKgKLGQROlax4KshWm4I7t9VmNVt77LDhp/K8hMgNGngvNZ
-         IPan+5pOYFnMg0SG9Hdl++lyGJsWH6iaiFt/2z0gYhlOZughTarKS5KcS8dkvjYNvOBf
-         W4HwSqYCmUThdrSGkObyZ9zR9Ez4hex5BKx2MNx1nBJfRjHFUwbM5anDxTs5QKSmVNwe
-         AYVe3TUdyqMYD1ReYOT4Ah0KPmqu4ortzXDwzf6xYvfPVWJhK9CzFhtIDdVRYZXPMCT/
-         qPgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793732018; x=1794336818;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=aPjFR1xctPZ5vNaEvk32ZMKFBK8PlsexaCbbbzd5h+s=;
-        b=PZ+Wfl5g+aKFZApk96nTxtDc9FD5qAJJ1K89vd9JaU446Stw5q/sSJz6DGCr3gWmFs
-         FrenFO19ZVzukkzkEmus1+zA1DQWcx3gxmBVGYZscgLeQDZOVoDsETtOl3STdTaajORf
-         VJ7wBero+edr9jFG18R6fgrMyNseABkqaqtjsl87ZxAfxQC/R9g4u0EWg+odOf/d3PTz
-         tUuE8L4jtLbYH1o8NpSGBKeZfjj14DBdj6w2l8rl3NWJTO763EoBOqCMjgpnrDTka9NS
-         xA9qi7mHjoPHWeLdsLms7nvHJKEBvZmgRvyx9oZnuB71uL6JoAVeTUY9dL88Nk9rgHo7
-         uKKg==
-X-Gm-Message-State: APuU4Z+jzjeu0NlgXyIsaJ7hP09Yft8S+63pmajz8+ush4jcqGNNTyWJ
-	xeeGh6FywoZvh1N9DD6aWKie//nRDXqF6Uw6tdnrZWN8C0EoMzURo6wNu7zbZFY7
-X-Gm-Gg: AYBFou3NFwwGvaXxrnBUOxmeZ4bDhenAIn6eymwUp1Ka7sXb7IcQ8wU9xp9kvF0jPiq
-	hjR6jxVCDw0WI+TMo4cfkSFRV6oerv+uagQyInjLlu5iFPpBqRpuY2+nnYFD5GXvKdr98/5Ss0u
-	dm5RF3M4EjMJrhJDegd0OoQetb/x9uuoBgEF7HZcze6CSSRd0cbA98364hAH6+Qnt3eR4c+zX6i
-	jonYEeUkKmh9R8uJXUH12wp4nHcOYlY3QvqnYiodF02KGKLprZkYMmwRnbUeoWnV/cHVzb+SVQc
-	LaM9xiN8NaqaW3k+Fc/X1jBF+4QdENw3+ooNzgN3JIfJSdoyLvM6Ur1zH5syWKifD91y5bmT31/
-	MRhas/muH8bxc0SYYy1yYKERyIOL6rYsMC/JGnayBKtgC8TBul4xz7IjTtuXj76tb9DXy1zjLZY
-	DMiNUZ1DDCx/ZYDPOLqj7CshRUlJVAITEAA2P/pIuQYNChNeLhff2VhM+SrUwoVGKWLsczHEzC9
-	PjAKrNGHuoEbqwaJ2klGIkJpDnckjftpv50K8D/XB80mm7tQVdLMCf8BZd0kVZRnq/Dtn5SsQwS
-	2RjtZv6Y+14UO7IrLFB+bfImhjjXKxSD57bb9MzdWA8gia380Hhg2RwjdsTZkmkWmg23CGHvasS
-	9vg/5zxufVMbPQgE73NwpeG0OP74zlJXCn56NydtqzCL/CY/8Qmf9knZ6qtRssTLpskv2+pJr0D
-	8NBXORZavXrWKeI/Kw9Wt2hODWO5SI43USkdqh4lClpYu3vsMWSDo=
-X-Received: by 2002:a05:6214:3288:b0:91c:62c0:9875 with SMTP id 6a1803df08f44-91ca4ad5236mr220295936d6.19.1793732017749;
-        Tue, 03 Nov 2026 10:53:37 -0800 (PST)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7c7881desm234016d6.29.2026.11.03.10.53.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 10:53:37 -0800 (PST)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com,
-	omosnacek@gmail.com,
-	jason@perfinion.com,
-	jwcart2@gmail.com,
-	cahu@suse.de,
-	jsegitz@suse.de,
-	tweek@google.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 20/20] libselinux: free shared regex contexts on library unload
-Date: Tue,  3 Nov 2026 13:53:07 -0500
-Message-ID: <20261103185307.45924-20-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
-References: <20261103185307.45924-1-stephen.smalley.work@gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J+1TyLd0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793790574;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=y/j5QPLW6jpzCD3GV5JpZq3Ngo4fRQoXZZ90Dm8OkWQ=;
+	b=J+1TyLd0n/3/zsoZ1vMBQ2U5MogItZjcmP3030m35xSwcOyTG/5mueGWbRlNqk999EUoIY
+	vxJAY6gxDvDQriK3hU3EP+ScV80XbMVETOv5irWu6nB1Y0gbfyErX2Tfg7TQ6nW8oFhdTY
+	6VIV3uWNSzNusV3AUtZe4Don45UUwq0=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-47-95zgtnEUO52YN059qEpIoQ-1; Wed,
+ 04 Nov 2026 06:09:30 -0500
+X-MC-Unique: 95zgtnEUO52YN059qEpIoQ-1
+X-Mimecast-MFC-AGG-ID: 95zgtnEUO52YN059qEpIoQ_1793790566
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8E1CA1956088;
+	Wed,  4 Nov 2026 11:09:24 +0000 (UTC)
+Received: from aesteve-thinkpadp1gen8.rmtes.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 27CE0195608D;
+	Wed,  4 Nov 2026 11:09:14 +0000 (UTC)
+From: Albert Esteve <aesteve@redhat.com>
+Subject: [PATCH v4 0/8] memcg: dma-buf cgroup accounting and charge
+ transfer
+Date: Wed, 04 Nov 2026 12:09:09 +0100
+Message-Id: <20261104-v2_20230123_tjmercier_google_com-v4-0-1819a017000b@redhat.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,289 +73,186 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43N0YrCMBAF0F+RPBvJTNK0+uR/iJQ6mbRZViNpC
+ buU/rtRlkXZh/Vt7lw4dxYjp8Cj2K1mkTiHMcRLCWa9EjR0l55lcCULVGhVpRqZsS23VoC6nT7
+ OnChwavsY+09uKZ6lN8aTP4GttBKFuSb24esxcTiWPIRxiun7sZjh/v3BAf/HM0glrUZbKyBtt
+ 7BP7IZu2pRS3PWMvyIohDdELCJ7y4zONVTRH1E/i/Uboi5i3TgkQ6fGmvpFXJblBjmZGH11AQA
+ A
+X-Change-ID: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+To: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>
+Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ op-tee@lists.trustedfirmware.org, Albert Esteve <aesteve@redhat.com>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793790554; l=7204;
+ i=aesteve@redhat.com; s=20260827; h=from:subject:message-id;
+ bh=X4BZFXAHZjeZ5G+n6xJuzSu1l1U0TCSBOdNO5egLRKM=;
+ b=Km+AqlhWRTv/KXXv4GRbT2llTohKS+mIBYai0uvK0MKieulAtBqFdb+ot4kS5rHtLOoLqnwgW
+ ykX9usEkQGUD0PWls5MHmfgY0UQayrDXDRMYunnztg3zl598W8CS8z6
+X-Developer-Key: i=aesteve@redhat.com; a=ed25519;
+ pk=zI2RBeZgocwYm3AkJW4CtjoJnKoDZrfBl1xe5Ed6h+U=
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-The PCRE2 compile and match contexts are allocated once and shared across
-regexes, but neither is freed when libselinux is unloaded. Repeatedly
-loading the library, performing lookups and unloading it leaks one of each
-context per cycle, even when all lookup threads exit before unload.
+Shared-memory allocator services (e.g., Android's gralloc)
+allocate dma-bufs on behalf of client processes in different
+cgroups. Today those allocations are charged to the allocator's
+own cgroup, leaving client cgroups with no visibility into their
+actual memory consumption and defeating resource limits.
 
-Free both shared contexts in the existing PCRE2 destructor. The PCRE2 free
-functions accept NULL, including when initialization was never attempted
-or allocation failed. Leave thread-local match-data ownership unchanged.
+This series adds memory cgroup accounting for dma-buf allocations,
+building on T.J. Mercier's earlier series [1] and incorporating
+feedback from previous versions and LPC discussions [2].
 
-Add a full-library dlopen regression test covering repeated lookups and
-unloads, unused loads, failed shared-context allocations, per-call compile
-context fallback, and JIT on/off. Join workers before dlclose so thread-local
-destructors run while the library is still loaded.
+Patch 1 introduces the MEMCG_DMABUF stat and reserve/cancel
+and uncharge helpers in mm/memcontrol.c
 
-Fixes: 92af7f1b61db ("libselinux: prevent ReDoS in file context regex matching")
-Fixes: c42116d304b6 ("libselinux: fix incorrect regexp anchoring")
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Patch 2 wires up the charging policy: dma_buf_export() stores
+exp_info.memcg and updates the stat, a new charge_fd field in
+DMA_HEAP_IOCTL_ALLOC accepts a pidfd or cgroupfd to identify
+the target cgroup, and __GFP_ACCOUNT is removed from system-heap
+allocations to avoid double counting.
+
+Patch 3 adds DMA_BUF_IOCTL_XFER_CHARGE, a general ioctl on any
+dma-buf fd to transfer charges post-allocation. This covers the
+double-hop allocator case (SurfaceFlinger -> gralloc -> kernel)
+and works for buffers from any exporter (DRM, V4L2, etc.). Charging
+is gated by dmabuf->memcg being set at export time, ensuring that
+transfer is only applied for buffers backed by system memory where
+size reflects actual bytes. If the receiving cgroup lacks capacity
+for the charge, the ioctl returns -ENOMEM and the original charge
+is preserved.
+
+Patches 4-7 add access control for cross-cgroup charging. Letting
+userspace decide who to charge needs to be a privileged operation
+because it has material impact on OOM decission and resource limits.
+We gate it via LSM hooks for the two charge_fd flavours:
+security_dma_buf_charge_task() gates the pidfd path (target
+identified by task credentials) and security_dma_buf_charge_cgroup()
+gates the cgroupfd path (target identified by cgroup directory label),
+with SELinux implementations under a dma_buf object class.
+
+Patch 8 adds selftests.
+
+Known limitations:
+
+- Single-owner model: a dma-buf carries one memcg charge regardless
+  of how many processes share it.
+- Only memcg accounting. CMA heaps would additionally need dmem
+  controller integration.
+- If a transfer of an uncharged buffer fails, the buffer remains
+  charged to the original cgroup. The allocator (userspace) is
+  expected to handle this (retry, free, ...).
+- The LSM hooks are intentionally narrow. Broader cgroup access controls
+  (e.g. for the memfd/kexec handover case [2]) could be a separate effort
+  reusing the same pattern.
+- Only system heap sets exp_info.memcg today. Other exporters
+  (DRM, V4L2, etc.) can opt in by setting it, but are not
+  covered by this series.
+- Related to the above: lazy backing-store allocation is not supported.
+  This can be extended later, e.g., by adding a flag on the dma-buf
+  struct for explicitly marking when memory is committed.
+
+[1] https://lore.kernel.org/cgroups/20230109213809.418135-1-tjmercier@google.com/
+[2] https://lpc.events/event/20/contributions/2416/
+
+Signed-off-by: Albert Esteve <aesteve@redhat.com>
 ---
- libselinux/src/regex.c                        |   2 +
- libselinux/tests/.gitignore                   |   1 +
- libselinux/tests/Makefile                     |   7 +-
- .../tests/test_regex_context_lifetime.c       | 192 ++++++++++++++++++
- 4 files changed, 201 insertions(+), 1 deletion(-)
- create mode 100644 libselinux/tests/test_regex_context_lifetime.c
+Changes in v4:
+- Remove memcg_account flag; exp_info.memcg != NULL is the opt-in
+- Centralize memcg bookkeeping in dma_buf_export()
+- Drop mem_cgroup_commit_dmabuf()
+- Make mem_cgroup_transfer_charge() generic (not dma-buf specific)
+- Add EXPORT_SYMBOL_GPL for reserve/cancel (system_heap is tristate)
+- Reorder: move xfer ioctl before LSM patches
+- Serialize dmabuf->memcg updates with the dma-buf resv lock instead of cmpxchg
+- Link to v3: https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-0-78d2c4cb8647@redhat.com
 
-diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-index 352767c9..3891610a 100644
---- a/libselinux/src/regex.c
-+++ b/libselinux/src/regex.c
-@@ -292,6 +292,8 @@ static void match_data_key_init(void)
- 
- static void __attribute__((destructor)) match_data_key_destroy(void)
- {
-+	pcre2_compile_context_free(compile_context);
-+	pcre2_match_context_free(match_context);
- 	if (match_data_key_created) {
- 		__selinux_key_delete(match_data_key);
- 		match_data_key_created = 0;
-diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index deaac265..6cc9309b 100644
---- a/libselinux/tests/.gitignore
-+++ b/libselinux/tests/.gitignore
-@@ -18,3 +18,4 @@ test-restorecon-digest
- /test-match-limit
- /test-avc-lock-failure
- /test-descendant-oom
-+/test-regex-context-lifetime
-diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index 6c146b07..c229e540 100644
---- a/libselinux/tests/Makefile
-+++ b/libselinux/tests/Makefile
-@@ -21,7 +21,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
- 
- .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit test-avc-lock-failure test-descendant-oom
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit test-avc-lock-failure test-descendant-oom test-regex-context-lifetime
- 	./test-restorecon-digest
- 	./test-restorecon-errors
- 	./test-restorecon-errno
-@@ -42,6 +42,7 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-match-limit
- 	./test-avc-lock-failure
- 	./test-descendant-oom
-+	./test-regex-context-lifetime ../src/libselinux.so.1
- 
- clean:
- 	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
-@@ -53,6 +54,7 @@ clean:
- 	rm -f test-match-limit
- 	rm -f test-avc-lock-failure
- 	rm -f test-descendant-oom
-+	rm -f test-regex-context-lifetime
- 
- test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-@@ -103,3 +105,6 @@ test-avc-lock-failure: test_avc_lock_failure.c ../src/libselinux.a
- 
- test-descendant-oom: test_descendant_oom.c ../src/libselinux.a
- 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=malloc,--wrap=free,--wrap=getxattr $(PCRE_LDLIBS) -ldl -pthread
-+
-+test-regex-context-lifetime: test_regex_context_lifetime.c
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -Wl,--export-dynamic,--no-as-needed $(PCRE_LDLIBS) -ldl -pthread
-diff --git a/libselinux/tests/test_regex_context_lifetime.c b/libselinux/tests/test_regex_context_lifetime.c
-new file mode 100644
-index 00000000..71a0bf87
---- /dev/null
-+++ b/libselinux/tests/test_regex_context_lifetime.c
-@@ -0,0 +1,192 @@
-+#define _GNU_SOURCE
-+#define PCRE2_CODE_UNIT_WIDTH 8
-+#include <assert.h>
-+#include <dlfcn.h>
-+#include <errno.h>
-+#include <pcre2.h>
-+#include <pthread.h>
-+#include <selinux/label.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+
-+static void *live[32];
-+static unsigned kinds[32], allocated[2], freed[2], failures[2];
-+static unsigned fail_compile, fail_match, jit;
-+static void *library;
-+static const char *file;
-+
-+static void track(void *ptr, unsigned kind)
-+{
-+	unsigned i;
-+	assert(ptr);
-+	for (i = 0; i < 32 && live[i]; i++) {
-+	}
-+	assert(i < 32);
-+	live[i] = ptr;
-+	kinds[i] = kind;
-+	allocated[kind]++;
-+}
-+
-+static void untrack(void *ptr, unsigned kind)
-+{
-+	if (!ptr)
-+		return;
-+	unsigned i;
-+	for (i = 0; i < 32 && live[i] != ptr; i++) {
-+	}
-+	assert(i < 32 && kinds[i] == kind);
-+	live[i] = NULL;
-+	freed[kind]++;
-+}
-+
-+pcre2_compile_context *
-+pcre2_compile_context_create_8(pcre2_general_context *ctx);
-+pcre2_match_context *pcre2_match_context_create_8(pcre2_general_context *ctx);
-+void pcre2_compile_context_free_8(pcre2_compile_context *ptr);
-+void pcre2_match_context_free_8(pcre2_match_context *ptr);
-+
-+pcre2_compile_context *
-+pcre2_compile_context_create_8(pcre2_general_context *ctx)
-+{
-+	if (fail_compile) {
-+		fail_compile--;
-+		failures[0]++;
-+		errno = ENOMEM;
-+		return NULL;
-+	}
-+	pcre2_compile_context *(*fn)(pcre2_general_context *) =
-+		dlsym(RTLD_NEXT, "pcre2_compile_context_create_8");
-+	assert(fn);
-+	pcre2_compile_context *ptr = fn(ctx);
-+	track(ptr, 0);
-+	return ptr;
-+}
-+
-+pcre2_match_context *pcre2_match_context_create_8(pcre2_general_context *ctx)
-+{
-+	if (fail_match) {
-+		fail_match--;
-+		failures[1]++;
-+		errno = ENOMEM;
-+		return NULL;
-+	}
-+	pcre2_match_context *(*fn)(pcre2_general_context *) =
-+		dlsym(RTLD_NEXT, "pcre2_match_context_create_8");
-+	assert(fn);
-+	pcre2_match_context *ptr = fn(ctx);
-+	track(ptr, 1);
-+	return ptr;
-+}
-+
-+void pcre2_compile_context_free_8(pcre2_compile_context *ptr)
-+{
-+	void (*fn)(pcre2_compile_context *) =
-+		dlsym(RTLD_NEXT, "pcre2_compile_context_free_8");
-+	assert(fn);
-+	untrack(ptr, 0);
-+	fn(ptr);
-+}
-+
-+void pcre2_match_context_free_8(pcre2_match_context *ptr)
-+{
-+	void (*fn)(pcre2_match_context *) =
-+		dlsym(RTLD_NEXT, "pcre2_match_context_free_8");
-+	assert(fn);
-+	untrack(ptr, 1);
-+	fn(ptr);
-+}
-+
-+static void *worker(void *unused)
-+{
-+	(void)unused;
-+	struct selabel_handle *(*openfn)(unsigned, const struct selinux_opt *,
-+					 unsigned) =
-+		dlsym(library, "selabel_open");
-+	int (*lookupfn)(struct selabel_handle *, char **, const char *, int) =
-+		dlsym(library, "selabel_lookup_raw");
-+	void (*closefn)(struct selabel_handle *) =
-+		dlsym(library, "selabel_close");
-+	assert(openfn && lookupfn && closefn);
-+	struct selinux_opt opts[] = {
-+		{ SELABEL_OPT_PATH, file },
-+		{ SELABEL_OPT_BASEONLY, "1" },
-+		{ SELABEL_OPT_JIT, jit ? "1" : NULL },
-+	};
-+	struct selabel_handle *h = openfn(SELABEL_CTX_FILE, opts, 3);
-+	assert(h);
-+	for (unsigned i = 0; i < 3; i++) {
-+		char *ctx = NULL;
-+		assert(lookupfn(h, &ctx, "/test/leaf", 0) == 0);
-+		assert(!strcmp(ctx, "system_u:object_r:test_t:s0"));
-+		free(ctx);
-+	}
-+	closefn(h);
-+	return NULL;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	assert(argc == 2);
-+	char path[] = "/tmp/selinux-regex-context-XXXXXX";
-+	int fd = mkstemp(path);
-+	assert(fd >= 0);
-+	FILE *fp = fdopen(fd, "we");
-+	assert(fp && fputs("/test/.* system_u:object_r:test_t:s0\n", fp) >= 0 &&
-+	       fclose(fp) == 0);
-+	file = path;
-+	unsigned cases = 0;
-+	for (jit = 0; jit < 2; jit++) {
-+		for (unsigned mode = 0; mode < 5; mode++) {
-+			for (unsigned cycle = 0; cycle < 3; cycle++) {
-+				memset(allocated, 0, sizeof(allocated));
-+				memset(freed, 0, sizeof(freed));
-+				memset(failures, 0, sizeof(failures));
-+				fail_compile = mode == 2 || mode == 4;
-+				fail_match = mode == 3 || mode == 4;
-+				library =
-+					dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
-+				if (!library) {
-+					fprintf(stderr, "%s\n", dlerror());
-+					abort();
-+				}
-+				if (mode) {
-+					for (unsigned repeat = 0; repeat < 3;
-+					     repeat++) {
-+						pthread_t thread;
-+						assert(pthread_create(
-+							       &thread, NULL,
-+							       worker,
-+							       NULL) == 0);
-+						assert(pthread_join(thread,
-+								    NULL) == 0);
-+					}
-+					assert(failures[0] ==
-+					       (mode == 2 || mode == 4));
-+					assert(failures[1] ==
-+					       (mode == 3 || mode == 4));
-+					assert(allocated[0] ==
-+					       (failures[0] ? 3U : 1U));
-+					assert(allocated[1] == !failures[1]);
-+					assert(allocated[0] - freed[0] ==
-+					       !failures[0]);
-+					assert(allocated[1] - freed[1] ==
-+					       !failures[1]);
-+				} else {
-+					assert(!allocated[0] && !allocated[1]);
-+				}
-+				/* Join first so all TLS destructors finish before unload. */
-+				assert(dlclose(library) == 0);
-+				assert(!dlopen(argv[1],
-+					       RTLD_NOW | RTLD_NOLOAD));
-+				assert(allocated[0] == freed[0] &&
-+				       allocated[1] == freed[1]);
-+				cases++;
-+			}
-+		}
-+	}
-+	assert(unlink(path) == 0);
-+	printf("regex-context-lifetime: %u unload scenarios passed\n", cases);
-+	return 0;
-+}
+Changes in v3:
+- Split mem_cgroup_charge_dmabuf() into reserve/commit/cancel three-phase API
+- Extract mem_cgroup_get_from_fd() helper shared by allocate and xfer paths
+- Rename __padding to flags in struct dma_buf_transfer_charge
+- Fix UAF race: move mod_memcg_state() before cmpxchg in transfer
+- Add memcg_account opt-in flag; xfer returns -EOPNOTSUPP if unset
+- Wrap dma_buf_charge_cgroup hook in #ifdef CONFIG_CGROUPS
+- Fix TOCTOU in SELinux charge_cgroup xattr length handling
+- Link to v2: https://lore.kernel.org/r/20261021-v2_20230123_tjmercier_google_com-v2-0-ef6ee2dd8c5c@redhat.com
+
+Changes in v2:
+- Move charge_pid_fd to charge_fd, accepting cgroupfd in addition
+  to pidfd per Christian König.
+- New DMA_BUF_IOCTL_XFER_CHARGE ioctl for post-allocation charge
+  transfer on any dma-buf, not just dma-heap buffers per Christian König
+  and T.J. Mercier.
+- Moved __GFP_ACCOUNT removal to patch 1 per Barry Song.
+- dma-buf charge/uncharge helpers take struct dma_buf * directly
+  to avoid the need for caller to manage size calculations.
+- Added test_xfer_charge_cgroupfd_self to dmabuf-heap selftests.
+- Added LSM and SELinux hooks for cgroupfd-based charging.
+- Rebased to v7.3-rc7.
+- Link to v1: https://lore.kernel.org/r/20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com
+
+---
+Albert Esteve (7):
+      dma-heap: charge dma-buf memory via explicit memcg
+      dma-buf: transfer memcg charges via DMA_BUF_IOCTL_XFER_CHARGE
+      security: dma-buf: Add dma_buf_charge_task LSM hook
+      security: dma-buf: Add dma_buf_charge_cgroup LSM hook
+      selinux: Restrict cross-cgroup dma-buf charging
+      selinux: Restrict dma-buf direct cgroup charging
+      selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+
+T.J. Mercier (1):
+      memcg: Add MEMCG_DMABUF accounting infrastructure
+
+ Documentation/admin-guide/cgroup-v2.rst            |   5 +
+ drivers/dma-buf/dma-buf.c                          |  50 ++++
+ drivers/dma-buf/dma-heap.c                         |  28 +-
+ drivers/dma-buf/heaps/cma_heap.c                   |   3 +-
+ drivers/dma-buf/heaps/system_heap.c                |  21 +-
+ drivers/tee/tee_heap.c                             |   3 +-
+ include/linux/dma-buf.h                            |   9 +
+ include/linux/dma-heap.h                           |   3 +-
+ include/linux/lsm_hook_defs.h                      |   4 +
+ include/linux/memcontrol.h                         |  47 ++++
+ include/linux/security.h                           |  18 ++
+ include/uapi/linux/dma-buf.h                       |  26 ++
+ include/uapi/linux/dma-heap.h                      |   7 +
+ mm/memcontrol.c                                    | 176 +++++++++++++
+ security/security.c                                |  34 +++
+ security/selinux/hooks.c                           |  44 ++++
+ security/selinux/include/classmap.h                |   1 +
+ tools/testing/selftests/cgroup/Makefile            |   2 +-
+ tools/testing/selftests/cgroup/test_memcontrol.c   | 290 ++++++++++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/config        |   1 +
+ tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c | 227 +++++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/vmtest.sh     | 226 ++++++++++++++++
+ 22 files changed, 1210 insertions(+), 15 deletions(-)
+---
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+change-id: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+
+Best regards,
 -- 
-2.56.0
+Albert Esteve <aesteve@redhat.com>
 
