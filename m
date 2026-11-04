@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804989;
-	b=oA2IFl+Plbwj7S3lWpEuT9vhohLgte9BCYApBBcIdLLVVVqYjpXGY1MYWPDwyPR4/RXY
-	 Fn8RBksjbgLPCsiK1ocdjVDGWJFvkFswgHS28NgFbPQrPTvQYNhSed4uWaeqNxABpjlq8
-	 41AeumxhSNwPhGuMIRMAjZdm9e899Lg8CesD8MfsQKE9RM7H2oIeIHHgje8DrV9OCfpPI
-	 Qikoj953R00pdsZX+zOYuuUq+/OsVjmwmjjShjy6x4fQt3FWIleqeWZO9V4EDvnv0vqmm
-	 eb0pmBsJMbTHa5vXh2/VeBKG4B1ZZrDwMp05atM7oFOnycNoLIm1PDkxub5ussgDAzw==
+	t=1793804990;
+	b=Cx5YYZHOa0H13EqDi0LsbLTbUuDdc0JvjjH2QKFczPqRL4lf0tVmfNtb20bqJp6/AqjQ
+	 uzjDnsm3yq7X+KgOvTqiPWrOqe/B+C4zzTU3w70ac5+88VuInAOrCYZlttHFzRN+/LfCM
+	 AUnMYi3NDuM/1RjXK1W9AGee3N+iulS6gFZw9kEDs36YT5Ls4tWhHc0XOcld5txpcIMZi
+	 i4/N9fIGFMI+aDewY5T5TT5fk2YWTzJ8dKS7P4gMoFihXNuMFhUqd79M8Ulv34YTm1fsZ
+	 y+bivRbNzL+oaWV80xUoKD2riB1hnKw3yEbSEgOmOR+aylwgebpKA3Hrtuv55O9p6sg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804989;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793804990;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=457xCmAoVktCvk3q/jBVLHnyTBAurTvz8m5HFaSMKZI=;
-	b=zPRMJJr5zMkrGh+2OuC8sdvr4sELTlDdih1J1ybStKPQWLk5b2YzotRhEp4Slj2OS7Pz
-	 6nVSicbOUqmMWQxDJgf3QNaFfjXs3yiLYioiYW1ZUGhU5LwNFAQxGOo9OW05UnKp+RFIX
-	 Z7X2Qzmuw1U4pJCNGIO8hcAUAcVxI5eSazHF4sRi6MLkcdvviUV2S14LHwKDX4CcESsV2
-	 kGoYadlXIgoxDQRZOmkZjX6M1E4r+DcmaEntPSAQQF3MbucMmgfGlhW374309bsM4w0oF
-	 +5yGUsd6XbRhIRE29p+lMUbYFywseDpbc/4Fi1akU+oDGX1aAkQ009WvVmbVbpVXzIA==
+	bh=bj1NuMbANr/Z5gFJ9wJQ+PrgwIzmpwkHAXMC2xHxs2w=;
+	b=hqJ97Iek4GEefPAiUVH5HwEwAugcJL1NLrHXi8ZgCNfkE1FVtUCC1acH8cE6jj1uBAbG
+	 vnrS3oTpn4/I0VIv6zc9gsxtUPkfB5DDq/ef9Z7iKaCMlpUdzSldA/c5qoactZZG3Z0FZ
+	 K4rb9GyiClzqFiboU6t1jOsSwBWgePhw1Tc5A+3Lw6tuqwFWF81seSi2W1ueasQJGD+cW
+	 KrbF0NxLhe746mQyJOafcNvEn8sEClMKkEiFdTWfpb7GD1T+2dWft0P1N4G49N/pI65et
+	 YV/FEsZJm1J99NBCxGsgAdc4DnboRxHBgr6eK4PlYUp3gQAV8IOhb36jQfmSc2Ea2Ng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WLlF6aaZ;
-	arc=none smtp.remote-ip=209.85.160.178
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aV6o8RWo;
+	arc=none smtp.remote-ip=209.85.160.173
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FEEC606A332
-	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0FEEC606A332
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FAC3606D802
+	for <selinux@vger.kernel.org>; Wed,  4 Nov 2026 15:09:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FAC3606D802
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WLlF6aaZ
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-5365b48238dso6266691cf.0
-        for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:48 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aV6o8RWo
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-53cd0c8614eso5049241cf.0
+        for <selinux@vger.kernel.org>; Wed, 04 Nov 2026 07:09:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793804988; x=1794409788; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793804989; x=1794409789; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=457xCmAoVktCvk3q/jBVLHnyTBAurTvz8m5HFaSMKZI=;
-        b=WLlF6aaZDct2E4Ttd3YzYj0CJBBfCFOIRi/jZDwUwIOXELU1BPOICg4qzMMMtFKYom
-         jX0W4gjdo+3JuB+HGIhRQmp0MXMbpJD4p2QYujuULw6nmez/yVzETvRIPDFazM2XfO2i
-         kG9zAFCUONKaFe5CHBiVnQpZtRv6iFn59L2vcFcd/Fc/rIhPKswVrGF7oYTrfVdk8h/9
-         YRBCGNAYJSdxPM5c7n4qWIkM8jT9tJZwOVcp3JoPjFLchuZo4zlX2jfHnTBZXzkR7AcH
-         CcZUNhxmUv3mkli6No27TiDNbn/egH0amM4NqP04NMc6CexgAt2ybNiYGw2trQiCToGx
-         q7Iw==
+        bh=bj1NuMbANr/Z5gFJ9wJQ+PrgwIzmpwkHAXMC2xHxs2w=;
+        b=aV6o8RWoNcbZl+D/pghaNRexJl6aPRCD5pgg+HSD6lDNqkpuV9mz98I+7a19n+1pBM
+         rkQEayYPfmsBO61QB+/oQOfwQcudG4qeyxKwkdNXO1pYzo1b7ONiB4TAUI1hwQ9jJyPr
+         Ed7AwyFMgHtnxr5zmGQavx3oyjuLtUHCw6qfcg9/EZRTOLKe9CcYQi+/mbV/2QpO+s/a
+         UsouiSEF9Umg+uv0c84v5uoJO21tYGivaYc8hAVZ8kAlyhLjz7VBNajJo9YtZan3Nw+t
+         viiixOJNx394iHjHFuoBvgYf55RiiuWtGwx5HO7ktCA1EPa+iglgivM68ZMqeI6VBjVW
+         0wcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793804988; x=1794409788;
+        d=1e100.net; s=20260707; t=1793804989; x=1794409789;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=457xCmAoVktCvk3q/jBVLHnyTBAurTvz8m5HFaSMKZI=;
-        b=mUvNJl7JmhkoSoNajJJNuXgoAcmUSNN76v0X0QHGlvxpe6ux2DC6Np97tSd8ujV50r
-         qoQ1hUCVCO87ObRqxk7euDLMh6sBSvuiiS2PjT1ko54W4dWS2rrAjV/w9JLNTB7OPcr9
-         6VEy0/5VrXl5rvsb481gn0I8XZ/birCbagRuwAfKfAmuTrbyHH7A3kd8YOprMUA7JbCY
-         RI70CDDSFjeNNWonGlQ0YfYqHOWV1DOE5EiuYkf9UAO60NFDYyYjpKN27GO86tkAqng/
-         I4KIxwmcZnx4FkCSfPPRxXl9+RriL+QenDL52gxPxYKEwZK78p7B/GrN5USYyPB6DKfl
-         uzBQ==
-X-Gm-Message-State: APuU4Z/KwQa8DPiwHw1ywYsB+ZFqxA3ZHpIOCrekZX3SJK0nAEJCgKB9
-	VZnzmM2CI9AfmzjgWMTcHZCMe7AqEqgyo7z4nsh1QC8UhQ/5jk+eiVlCgjWRM+2J
-X-Gm-Gg: AYBFou3Dwpg16K8Zx03CPxR6I0f/byrIeV57KbttY5DB/4ELvGD6ZNfTs3q5wFISrF6
-	nGOQn6hU2r1HjPIgy2XsqMuuw5CaZj24BCJMkGPBfq+383QNwuGxHXG36wCtDRa3OJb1hfKmT6i
-	IByPbRH2FB65fQHjmnFEYQlEmheDLMwypZzAKqvXEM6ufKT0WXeVoeAKc2FGAC0YSkZXSnFLVDI
-	pfkrApP2PbTtCFLqOW2Kf8/bnBEV6I7e2xqPzzpI/cEc9gbSsVSIMc57Rmue1e844PiPHa59tX8
-	Uhq5YHTlOdwMQb1Dwq2KEhcZUvgdi32JuiB9pInZPo3hS+Ev4QyCjciVwKFGzZi0ohyR1AiRgE3
-	X8cuDHFSFGBlRR5POpnbrH/CtjVglOWbWCZ3KY0kZ/0IAOZUy2/10FCIDIU7eN7d7sRBcb54cHv
-	5L/VxZNO9z+JUAfCbYlHtRQvBib21VFmImCTvuisN1VMlJqKHf1nhzmwcXur9mW8wzoGb1Kkuxf
-	l2Hz6n2sMv6rAU/qM4DCpDuhQ2GwNXp5w3VB/19WJ9wxWK23Cw35A3okbK2px21+PkTrYDsCIhY
-	0DaMCFSYLWMXqe6hdCZCCL7LvhEMeKOELSZYTGYKkCUH/TKF/g336awcLJJOtNoWlp5ozw83DIf
-	cmEs1dCZ4cWvrtVFJMi9Rh5erKVsg+1NWC0ivqJvOLGT2/vKIwoUf/mS4aWKko/sm5K7dWJbFpz
-	kUhgvsyhchKIBSSOmmLsvGltAeqjwDirLyfNC25RE/7TVizgMrrTV71YStNZoSY2xFwegIz2ay
-X-Received: by 2002:a05:622a:580e:b0:535:a5fb:644c with SMTP id d75a77b69052e-542b83f1a71mr257041361cf.70.1793804987860;
-        Wed, 04 Nov 2026 07:09:47 -0800 (PST)
+        bh=bj1NuMbANr/Z5gFJ9wJQ+PrgwIzmpwkHAXMC2xHxs2w=;
+        b=u5Pea9A6WMoh8VUJu331vmOMIN5fF2dOjFvNicbD5VDAi/hSbE1AU5Bk/hGUUTJEVQ
+         CSYAplqd6V7UcclPoZkCeOdHzIW8dJa4GkM3CBZaQsxabXpFs8ZfGnneApFDW0l13r6W
+         n9WMG8XnOxInA9aa1KYL3nliYdZooeYk5MG+nm1XQTaPF/nmwo994asmFP+LbHpAuc2K
+         kWRWe9EHdAq0Iiz8SADSOKSoDh8JUAbotftaN7pLJzPOI1yXsLvFzYVcqvzf0jD/02sN
+         1cB0xXTWWIJjatVHR3B4qkBJ9bl4I20YJnb7bgV9Nf/55gCQyC4rYr1/P31sqU14E2QL
+         MSow==
+X-Gm-Message-State: APuU4Z963ukXwHJCoRqqUaw0Y5jZ3YKACQvDqF0k8bA9PHQ0sl/BsNPD
+	4dKQYAaI3q6urdz3j1H1LSPUlePb1ISnujrKG6oif//DAnUEc3mejwpOCIDI1t4B
+X-Gm-Gg: AYBFou1hvAD+5tN8emBmndo2nP0ha88J+NuTz5C2f+5MUgyTMYjZFgvPaaKdwx/GV81
+	HTX3h7J6X4cITM1W284LU3J48rWbD87Mg/xrDMd9MQDIFiPKJaaXrovI9W3Bq8wIt4i9Id5kgQm
+	ii705UEO1DZ74huGxdECyt//HBb0Espzflf8VjCMbI7g+qlNsBcEpwqDMyPzra3R96ojAaK2vOL
+	B1guUJYqwWadkuIf6wRiwqR4aiqm0qfLQeDs/rlE2wxDbp0RJeHgEQkhdHHowIQ6KaOLBi/W/FY
+	HVAnGnRSwAtFi2UHIz74ULzpDJSfPyt0lyEL5ChfRhYuxyR+NwpeR4s1Pi+Gm+QiGcLnFepHklf
+	+kOLb4KKtxcl4pSFsVyUP90o7aQGZBqhU2e+C9mTVfLaIc45yRMDU6QMhDg3DghleHBLWR47Bvo
+	dppmF9iWlmfafwJY1hhHbGIsIudwHxPgI7AM0Amb6k2kwQP/wQJAdRrKlUsFWD+tnCvcekT5u8V
+	Q5ncZbXzZNvfiWG6cJxuuv+EiAZKiVdR4YM2mD9sjdHuTIo/RQeyXhlhimjIT8mm6JDEwWcGNIa
+	hAk/mSWNNR3ku5p8qO1Oyj6MaEIdQSiq0FbPTJ8MxDhUnB1HC0DARQOihxhbvrTNRtrlSHaGq+Q
+	INtm4jpnCkqLyxJV7vGfjd1yJ9A3d2H38FgUMP1kWeXQcFPug4tQokCuu6Q206ZQ/kbHGDwfOcT
+	OKcqT3Gb++wwL2Z2ugvULbg20ORSTibj0FSicQL86mH5cvLIwMlps=
+X-Received: by 2002:a05:622a:2445:b0:533:3d48:37f0 with SMTP id d75a77b69052e-542b7332ab4mr271353401cf.47.1793804988485;
+        Wed, 04 Nov 2026 07:09:48 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-54b10cdc3d3sm25683041cf.28.2026.11.04.07.09.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 07:09:47 -0800 (PST)
+        Wed, 04 Nov 2026 07:09:48 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 18/20] libselinux: fail AVC initialization when a default lock allocation fails
-Date: Wed,  4 Nov 2026 10:09:13 -0500
-Message-ID: <20261104150915.175923-18-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 19/20] libselinux: propagate descendant match allocation failures
+Date: Wed,  4 Nov 2026 10:09:14 -0500
+Message-ID: <20261104150915.175923-19-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
 References: <20261104150915.175923-1-stephen.smalley.work@gmail.com>
@@ -106,238 +106,318 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The default AVC lock allocator can return NULL, but avc_init_internal()
-does not check either result. If later allocations succeed, avc_open()
-reports success without a cache lock or audit-buffer lock, leaving
-concurrent callers unsynchronized.
+all_node_specs() returns NULL both when there are no matching definitions
+and when allocating a result fails. Its recursive caller and lookup_all()
+skip either result, so a failed descendant allocation can leave a partial
+list that is accepted as a complete partial-match digest.
 
-When using the default allocator, require both locks before proceeding.
-Free any successfully allocated lock and return ENOMEM on failure.
-Preserve application-supplied lock callback behavior, including callbacks
-that use a NULL token for a no-op lock.
+Set ENOENT for an empty collection and propagate allocation failure through
+both callers, freeing any results already collected. This prevents hashing
+and publishing an incomplete digest. In particular, restorecon must not
+cache an incomplete directory digest and later skip a changed subtree when
+another allocation failure omits the same definitions.
 
-Add allocation-failure, later initialization-failure, cleanup/retry and
-custom callback regression coverage. This does not change mutex lifetime
-or the inactive ratelimit code.
+Add a regression test covering literal and regex descendants, nested and
+sibling collection, previously collected parent matches, empty branches,
+JIT on/off, digest output publication, result ownership and handle reuse.
+The separate matcher-error handling is unchanged.
 
-Fixes: a21061f5f335 ("libselinux: avc: use pthread mutexes by default when no lock callbacks set")
+Fixes: 33930961b ("libselinux: correctly find partial matches")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/avc.c                     |   6 +
- libselinux/tests/.gitignore              |   1 +
- libselinux/tests/Makefile                |   9 +-
- libselinux/tests/test_avc_lock_failure.c | 134 +++++++++++++++++++++++
- 4 files changed, 148 insertions(+), 2 deletions(-)
- create mode 100644 libselinux/tests/test_avc_lock_failure.c
+ libselinux/src/label_file.c            |  20 ++-
+ libselinux/tests/.gitignore            |   1 +
+ libselinux/tests/Makefile              |   7 +-
+ libselinux/tests/test_descendant_oom.c | 179 +++++++++++++++++++++++++
+ 4 files changed, 203 insertions(+), 4 deletions(-)
+ create mode 100644 libselinux/tests/test_descendant_oom.c
 
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index 779ce8ab..e9def111 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -162,6 +162,12 @@ static int avc_init_internal(const char *prefix,
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 0b13ace2..52f65dd0 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -1980,7 +1980,8 @@ FUZZ_EXTERN void free_lookup_result(struct lookup_result *result)
+  *             NULL. Mutual exclusive with @find_all.
+  *
+  * Return: A linked list of all file context definitions if a match was found.
+- *         NULL is returned in case of no match found, or an allocation failure.
++ *         NULL is returned with errno set to ENOENT if no match was found, or
++ *         ENOMEM on allocation failure.
+  */
+ static struct lookup_result *all_node_specs(struct spec_node *node,
+ 					    uint8_t file_kind, bool find_all,
+@@ -2068,8 +2069,11 @@ static struct lookup_result *all_node_specs(struct spec_node *node,
+ 		struct lookup_result *r, *last;
  
- 	avc_lock = avc_alloc_lock();
- 	avc_log_lock = avc_alloc_lock();
-+	if (!avc_func_alloc_lock && (!avc_lock || !avc_log_lock)) {
-+		avc_free_lock(avc_lock);
-+		avc_free_lock(avc_log_lock);
-+		errno = ENOMEM;
-+		return -1;
-+	}
+ 		r = all_node_specs(child, file_kind, find_all, buf);
+-		if (!r)
++		if (!r) {
++			if (errno != ENOENT)
++				goto fail;
+ 			continue;
++		}
  
- 	memset(&cache_stats, 0, sizeof(cache_stats));
+ 		if (!find_all)
+ 			return r;
+@@ -2082,10 +2086,13 @@ static struct lookup_result *all_node_specs(struct spec_node *node,
+ 		next = &last->next;
+ 	}
  
++	if (!result)
++		errno = ENOENT;
+ 	return result;
+ 
+ fail:
+ 	free_lookup_result(result);
++	errno = ENOMEM;
+ 
+ 	return NULL;
+ }
+@@ -2507,8 +2514,15 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
+ 				continue;
+ 
+ 			r = all_node_specs(child, file_kind, find_all, buf);
+-			if (!r)
++			if (!r) {
++				if (errno != ENOENT) {
++					free_lookup_result(result);
++					result = NULL;
++					errno = ENOMEM;
++					goto finish;
++				}
+ 				continue;
++			}
+ 
+ 			last = r;
+ 			while (last->next)
 diff --git a/libselinux/tests/.gitignore b/libselinux/tests/.gitignore
-index 39548615..0363bf3d 100644
+index 0363bf3d..deaac265 100644
 --- a/libselinux/tests/.gitignore
 +++ b/libselinux/tests/.gitignore
-@@ -16,3 +16,4 @@ test-restorecon-digest
- /test-regex-tls
+@@ -17,3 +17,4 @@ test-restorecon-digest
  /test-policy-root-boundary
  /test-match-limit
-+/test-avc-lock-failure
+ /test-avc-lock-failure
++/test-descendant-oom
 diff --git a/libselinux/tests/Makefile b/libselinux/tests/Makefile
-index c36cd4ae..ef1c490a 100644
+index ef1c490a..6c146b07 100644
 --- a/libselinux/tests/Makefile
 +++ b/libselinux/tests/Makefile
-@@ -1,6 +1,6 @@
- PCRE_LDLIBS ?= -lpcre2-8
- CFLAGS ?= -O2 -g -Wall -Wextra -Werror
--override CFLAGS += -I../include -I../src -pthread
-+override CFLAGS += -I../include -I../src -pthread -Wno-deprecated-declarations
- PYTHON ?= python3
- INIT_OOM_WRAPS = asprintf __asprintf_chk strdup calloc free
- XDEV_WRAPS = getfilecon_raw lgetfilecon_raw openat openat64 fstat fstat64
 @@ -21,7 +21,7 @@ test-restorecon-errno: test_restorecon_errno.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(ERRNO_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
  
  .PHONY: test clean
--test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit
-+test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit test-avc-lock-failure
+-test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit test-avc-lock-failure
++test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs test-load-policy-version test-auxiliary-duplicates test-android-specfiles test-regex-tls test-policy-root-boundary test-match-limit test-avc-lock-failure test-descendant-oom
  	./test-restorecon-digest
  	./test-restorecon-errors
  	./test-restorecon-errno
-@@ -40,6 +40,7 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
- 	./test-regex-tls
+@@ -41,6 +41,7 @@ test: test-restorecon-digest test-restorecon-errors test-restorecon-errno test-r
  	./test-policy-root-boundary
  	./test-match-limit
-+	./test-avc-lock-failure
+ 	./test-avc-lock-failure
++	./test-descendant-oom
  
  clean:
  	rm -f test-restorecon-digest test-restorecon-errors test-restorecon-errno test-restorecon-exclude test-restorecon-xdev test-label-init-oom test-label-merge test-substitution-hash test-substitution-restorecon test-readable-fallback test-digest-inputs
-@@ -49,6 +50,7 @@ clean:
- 	rm -f test-regex-tls
+@@ -51,6 +52,7 @@ clean:
  	rm -f test-policy-root-boundary
  	rm -f test-match-limit
-+	rm -f test-avc-lock-failure
+ 	rm -f test-avc-lock-failure
++	rm -f test-descendant-oom
  
  test-restorecon-exclude: test_restorecon_exclude.c ../src/libselinux.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(addprefix -Wl$(COMMA)--wrap=,$(EXCLUDE_WRAPS)) $(PCRE_LDLIBS) -ldl -pthread
-@@ -93,3 +95,6 @@ test-policy-root-boundary: test_policy_root_boundary.c ../src/selinux_config.c .
+@@ -98,3 +100,6 @@ test-match-limit: test_match_limit.c ../src/libselinux.a
  
- test-match-limit: test_match_limit.c ../src/libselinux.a
- 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=pcre2_match_8,--wrap=getfilecon_raw,--wrap=setfilecon_raw,--wrap=getxattr,--wrap=fsetxattr,--wrap=fstatfs,--wrap=fstatfs64 $(PCRE_LDLIBS) -ldl -pthread
+ test-avc-lock-failure: test_avc_lock_failure.c ../src/libselinux.a
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=malloc,--wrap=free,--wrap=security_getenforce,--wrap=selinux_status_open,--wrap=selinux_status_close $(PCRE_LDLIBS) -ldl -pthread
 +
-+test-avc-lock-failure: test_avc_lock_failure.c ../src/libselinux.a
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=malloc,--wrap=free,--wrap=security_getenforce,--wrap=selinux_status_open,--wrap=selinux_status_close $(PCRE_LDLIBS) -ldl -pthread
-diff --git a/libselinux/tests/test_avc_lock_failure.c b/libselinux/tests/test_avc_lock_failure.c
++test-descendant-oom: test_descendant_oom.c ../src/libselinux.a
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=malloc,--wrap=free,--wrap=getxattr $(PCRE_LDLIBS) -ldl -pthread
+diff --git a/libselinux/tests/test_descendant_oom.c b/libselinux/tests/test_descendant_oom.c
 new file mode 100644
-index 00000000..b995f35e
+index 00000000..4cfb8249
 --- /dev/null
-+++ b/libselinux/tests/test_avc_lock_failure.c
-@@ -0,0 +1,134 @@
++++ b/libselinux/tests/test_descendant_oom.c
+@@ -0,0 +1,179 @@
 +#define _GNU_SOURCE
 +#include <assert.h>
 +#include <errno.h>
-+#include <selinux/avc.h>
++#include <selinux/label.h>
 +#include <stdbool.h>
++#include <stdint.h>
 +#include <stdio.h>
 +#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
 +
-+static void *live[2048];
-+static unsigned calls, outstanding, fail_at;
-+static unsigned custom_allocs, custom_gets, custom_frees;
-+static bool track, fail_enforce, fail_status;
++static void *live[128];
++static unsigned calls, outstanding, fail_at, cases;
++static bool active;
++static uint8_t cached[20];
++
 +void *__real_malloc(size_t size);
-+void __real_free(void *p);
++void __real_free(void *ptr);
 +
 +void *__wrap_malloc(size_t size);
-+void __wrap_free(void *p);
-+int __wrap_security_getenforce(void);
-+int __wrap_selinux_status_open(int fallback);
-+void __wrap_selinux_status_close(void);
++void __wrap_free(void *ptr);
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size);
 +
 +void *__wrap_malloc(size_t size)
 +{
-+	if (track && ++calls == fail_at) {
++	if (active && ++calls == fail_at) {
 +		errno = ENOMEM;
 +		return NULL;
 +	}
-+	void *p = __real_malloc(size);
-+	if (track && p) {
++	void *ptr = __real_malloc(size);
++	if (active && ptr) {
 +		unsigned i;
-+		for (i = 0; i < 2048 && live[i]; i++) {
++		for (i = 0; i < 128 && live[i]; i++) {
 +		}
-+		assert(i < 2048);
-+		live[i] = p;
++		assert(i < 128);
++		live[i] = ptr;
 +		outstanding++;
 +	}
-+	return p;
++	return ptr;
 +}
 +
-+void __wrap_free(void *p)
++void __wrap_free(void *ptr)
 +{
-+	for (unsigned i = 0; p && i < 2048; i++) {
-+		if (live[i] != p)
-+			continue;
-+		live[i] = NULL;
-+		outstanding--;
-+		break;
++	for (unsigned i = 0; ptr && i < 128; i++) {
++		if (live[i] == ptr) {
++			live[i] = NULL;
++			outstanding--;
++			break;
++		}
 +	}
-+	__real_free(p);
++	__real_free(ptr);
 +}
 +
-+int __wrap_security_getenforce(void)
++ssize_t __wrap_getxattr(const char *path, const char *name, void *value,
++			size_t size)
 +{
-+	if (!fail_enforce)
-+		return 1;
-+	errno = EIO;
-+	return -1;
++	(void)path;
++	assert(!strcmp(name, "security.sehash") && size >= sizeof(cached));
++	memcpy(value, cached, sizeof(cached));
++	return sizeof(cached);
 +}
 +
-+int __wrap_selinux_status_open(int fallback)
++static struct selabel_handle *open_rules(const char *file, const char *rules,
++					 unsigned jit)
 +{
-+	(void)fallback;
-+	if (!fail_status)
-+		return 0;
-+	errno = EIO;
-+	return -1;
++	FILE *fp = fopen(file, "we");
++	assert(fp);
++	assert(fputs(rules, fp) >= 0 && fclose(fp) == 0);
++	struct selinux_opt opts[] = {
++		{ SELABEL_OPT_PATH, file },
++		{ SELABEL_OPT_BASEONLY, "1" },
++		{ SELABEL_OPT_DIGEST, "1" },
++		{ SELABEL_OPT_JIT, jit ? "1" : NULL },
++	};
++	struct selabel_handle *h = selabel_open(SELABEL_CTX_FILE, opts, 4);
++	assert(h);
++	return h;
 +}
 +
-+void __wrap_selinux_status_close(void)
++static void check(struct selabel_handle *h, const char *path, unsigned first)
 +{
-+}
-+
-+/* Complete application callbacks may use a NULL token for a no-op lock. */
-+static void *custom_alloc(void)
-+{
-+	custom_allocs++;
-+	return NULL;
-+}
-+
-+static void custom_get(void *p)
-+{
-+	assert(!p);
-+	custom_gets++;
-+}
-+
-+static void custom_put(void *p)
-+{
-+	assert(!p);
-+}
-+
-+static void custom_free(void *p)
-+{
-+	assert(!p);
-+	custom_frees++;
++	uint8_t healthy[20], digest[20], sentinel[20];
++	memset(sentinel, 0xa5, sizeof(sentinel));
++	/* Warm regex caches before tracking result-list ownership. */
++	assert(selabel_hash_all_partial_matches(h, path, healthy));
++	calls = fail_at = 0;
++	active = true;
++	assert(selabel_hash_all_partial_matches(h, path, digest));
++	active = false;
++	assert(!outstanding && !memcmp(digest, healthy, sizeof(digest)));
++	unsigned allocations = calls;
++	assert(allocations >= first);
++	for (unsigned n = first; n <= allocations; n++) {
++		for (unsigned ambient = 0; ambient < 2; ambient++) {
++			memcpy(digest, sentinel, sizeof(digest));
++			calls = 0;
++			fail_at = n;
++			errno = ambient ? ENOENT : EIO;
++			active = true;
++			bool rc = selabel_hash_all_partial_matches(h, path,
++								   digest);
++			active = false;
++			assert(!rc && errno == ENOMEM && calls == n);
++			assert(!outstanding &&
++			       !memcmp(digest, sentinel, sizeof(digest)));
++			/* Even a cached healthy digest cannot turn failure into a hit. */
++			memcpy(cached, healthy, sizeof(cached));
++			uint8_t *calculated = NULL, *stored = NULL;
++			size_t length = 0;
++			calls = 0;
++			active = true;
++			rc = selabel_get_digests_all_partial_matches(
++				h, path, &calculated, &stored, &length);
++			active = false;
++			assert(!rc && errno == ENOMEM && !calculated && stored);
++			assert(length == sizeof(cached) && !outstanding);
++			free(stored);
++			fail_at = 0;
++			calls = 0;
++			active = true;
++			assert(selabel_hash_all_partial_matches(h, path,
++								digest));
++			active = false;
++			assert(!outstanding &&
++			       !memcmp(digest, healthy, sizeof(digest)));
++			cases++;
++		}
++	}
 +}
 +
 +int main(void)
 +{
-+	for (unsigned stage = 0; stage < 6; stage++) {
-+		for (unsigned cycle = 0; cycle < 3; cycle++) {
-+			calls = 0;
-+			fail_at = stage < 4 ? stage + 1 : 0;
-+			fail_enforce = stage == 4;
-+			fail_status = stage == 5;
-+			track = true;
-+			errno = 0;
-+			assert(avc_open(NULL, 0) == -1);
-+			assert(errno == (stage < 4 ? ENOMEM : EIO));
-+			track = false;
-+			assert(outstanding == 0);
-+			calls = fail_at = 0;
-+			fail_enforce = fail_status = false;
-+			track = true;
-+			assert(avc_open(NULL, 0) == 0);
-+			track = false;
-+			security_id_t sid;
-+			assert(avc_context_to_sid_raw(
-+				       "system_u:object_r:retry_t:s0", &sid) ==
-+			       0);
-+			avc_destroy();
-+			assert(outstanding == 0);
++	const char *rules[] = {
++		"/audit/branch/leaf system_u:object_r:one_t:s0\n"
++		"/audit/broom/leaf system_u:object_r:two_t:s0\n",
++		"/audit/branch/deep/leaf system_u:object_r:one_t:s0\n"
++		"/audit/branch/deep/other system_u:object_r:two_t:s0\n"
++		"/audit/broom/leaf system_u:object_r:three_t:s0\n",
++		"/audit/branch/deep/leaf.* system_u:object_r:one_t:s0\n"
++		"/audit/branch/deep/other.* system_u:object_r:two_t:s0\n"
++		"/audit/broom/leaf system_u:object_r:three_t:s0\n",
++		"/audit/.* system_u:object_r:base_t:s0\n"
++		"/audit/branch/deep/leaf system_u:object_r:one_t:s0\n"
++		"/audit/broom/leaf system_u:object_r:two_t:s0\n",
++		"/audit/blank/deep/leaf <<none>>\n"
++		"/audit/branch/deep/leaf system_u:object_r:one_t:s0\n"
++		"/audit/broom/leaf <<none>>\n",
++	};
++	char file[] = "/tmp/selinux-descendant-oom-XXXXXX";
++	int fd = mkstemp(file);
++	assert(fd >= 0 && close(fd) == 0);
++	for (unsigned jit = 0; jit < 2; jit++) {
++		for (unsigned i = 0; i < sizeof(rules) / sizeof(rules[0]);
++		     i++) {
++			struct selabel_handle *h =
++				open_rules(file, rules[i], jit);
++			/* The base regex's allocation belongs to the separate matcher path. */
++			check(h, "/audit/b", i == 3 ? 2 : 1);
++			check(h, "/audit/branch", i == 3 ? 2 : 1);
++			selabel_close(h);
 +		}
++		struct selabel_handle *h = open_rules(
++			file, "/audit/blank/deep/leaf <<none>>\n", jit);
++		uint8_t digest[20];
++		errno = ENOMEM;
++		assert(!selabel_hash_all_partial_matches(h, "/audit/b",
++							 digest));
++		assert(errno == ENOENT);
++		errno = ENOMEM;
++		assert(!selabel_partial_match(h, "/audit/b"));
++		assert(errno == ENOENT);
++		selabel_close(h);
++		cases++;
 +	}
-+	struct avc_lock_callback cb = { custom_alloc, custom_get, custom_put,
-+					custom_free };
-+	assert(avc_init("test", NULL, NULL, NULL, &cb) == 0);
-+	security_id_t sid;
-+	assert(avc_context_to_sid_raw("system_u:object_r:callback_t:s0",
-+				      &sid) == 0);
-+	avc_destroy();
-+	assert(custom_allocs == 2 && custom_frees == 2 && custom_gets);
-+	puts("AVC lock failure: 18 failure/retry cases and custom callback control passed");
++	assert(unlink(file) == 0);
++	printf("descendant-oom: %u scenarios passed\n", cases);
 +	return 0;
 +}
 -- 
