@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793877115;
-	b=UnktfHbRCk6cwb/Liuox+2jKMhonjiuvI43YsfIWBvK79uEmXwz/72VXK54L9qy/BYYs
-	 OLIM2AEGfh0iRVXShRNVnL9aiUYyTt39N4hBdPPpJiNXXBvub0iGBqMnaw5wKb/5pb9i7
-	 1tK9ZeiNNdz/LB4UKNjivRi83yFvjyxtbK5X8AQIJkK7TDh7u9qjFXQLERQBQ3uWpzLYu
-	 5U9MopUF6pkYtLu2fQGsCV77RYkIo+ZXipPv8lQjEy+OgLMWDpEh/CPhrZsrWtiT0azbG
-	 /RlX9HkMZQIJQOo4zNJi3e92I9r4Ss78dAHQn2591QoRXMsSZfdpfHohjYIsd7aWkwg==
+	t=1793877121;
+	b=GO5rSJfN3umsqvJuxfmF0StNpjVvgqKhnMt8+PC8rcbEncrFFfzhe8LiY5Gyl61Mj9aV
+	 2pAbSvp+BcCbA7BvoHvKS9C8OP369hMRdbnXF3K881SYBPBjv4hPNL9iPXcwiCb7MW0eh
+	 5njuGU9KaRa0NLxhaqDFcZmn/BMi8CRV8tW/TJrj/areEcuavT/I1cQzas+bojpbII9hn
+	 oDLcATjpDxMQFWX3VQv6iOlpXCNpCnoGQ4DVw/9t7OWSqb/ipiwTtqgxAY5qmGEXzLgKO
+	 zsGh1l0soGbZSlG8cy4lGzYlAd64mQIJNzP+1Ka3Ki44/zeD1wdnfGSqSMSmZ7a/dhw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793877115;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793877121;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=enixJkjvt/NjGzx2vZdqFTkXKPfd4qcXQu8lRjKJNZg=;
-	b=j3j+B9rBVLT2lNOzwjCiGt3++qcTtMAUbHXteu++TdbXpvgqd/zPg1KEsRNKicvsB4zH
-	 6qNJ9ecZeGIdAg7r9Jv8j/dFfuVj/R5E7Sd34etZz09Zfe6sOKi3/0KH0w6r2aoTRrTmU
-	 eRRmbP8EoVjjbVID+qFW/+ePabLqsHAYgFPamslkAdm5vMZ11LRy0XS9Vk+n5LbWpoy5v
-	 /lAVNjdVKcbjcIEb23Yg7UTdwTTIMXC0W7lDLV1QkonjIDQr9C9vlRzQhRPqmaRWnWg0y
-	 sQCuFDVVrCq72Mv+qj7gW+dbhSpVgBv52Y6J082WrYaHhwDENeTtt1bhaDgH5Ma5RsA==
+	bh=XYfDIMn9RzkoOerCRsuzNDWKhLeLvHeL9jAZyhrpQ1o=;
+	b=gUINYvveaMDa1rP/8ZDenxesiTq2Y4aTdOcnRh/BYcGWdLKmIMMtXuEM+s5jTDwdScYD
+	 yotpEeHFd/FPZoglR90sl5IEleuJNU/8XGHtdhAY/IeUiN9lzKoCrw4Xo/jv8vjQgpXRQ
+	 PzwHmG1Y4hjLz7Hwtes089cPTEJ3kDkPv6umyaA0Yh75t8a4n+3T5UyeZcKeYFL0iIqYi
+	 GktYkipGINV3H35CMB6BjzhG6h2p2OjTuruGJB1cXvHCETa/CSN83xi3yKTarT0L8owef
+	 7IEOyfhjFzTLs5U0q248WKNKoCl8C3g+mWH9rhmCuSJi0p/C31fCkL6eo03Y4q2OLdQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LqwrdTgO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iJWzhgAC;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF8D6606D805;
-	Thu,  5 Nov 2026 11:11:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 065926082BC8;
+	Thu,  5 Nov 2026 11:12:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LqwrdTgO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99511F00919;
-	Thu,  5 Nov 2026 11:11:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iJWzhgAC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E12A91F00919;
+	Thu,  5 Nov 2026 11:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793877114;
-	bh=enixJkjvt/NjGzx2vZdqFTkXKPfd4qcXQu8lRjKJNZg=;
+	s=k20260515; t=1793877120;
+	bh=XYfDIMn9RzkoOerCRsuzNDWKhLeLvHeL9jAZyhrpQ1o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LqwrdTgOAHYSfUZcCn0vb7egFoGlnn/N25DberiwXI2r9Nuan10LzGhj9TOTvc4hq
-	 aRLKo586J9Jj71jjdo2VlOkAT/orK4gAlgaFE4P6O7VKEi6hdnj25pKLDWL9myPx+U
-	 jWZWyOtctKFaf8lmRnasULc7fMQVuW1Wzcl2/EaENoVrDU9TS2O8CPwNdxqIvJFcAy
-	 ZQ+MfX6a6r4jgl4wL0Xq+/umegY7ix5rxuuPx9Fhqe0plwgj6xjoQLP1S+mbkJuNoG
-	 YcnBsyy9XWslw0oR9Jozyi+3QwJVuOhSFTMdXCQoHhIi3Gn/3uBKejCot25qhdoOJn
-	 bqwniPkRTAQfg==
-Message-ID: <sashiko-outbox-198916@kernel.org>
+	b=iJWzhgACqO8Oh3sg03HVyCjyDRqS/0Kt880riTR9yqMxOzYkEHCrqPSIFOkv9f/hh
+	 msR1KBHibiTLGBB9lFfczXDQTQIg7siuiS/H9s7ZO4h1RCevWVb/AkbQLYdz339fZ+
+	 5TOS+Z2LCW+KisR0sqsGOL8BDOM3Y3KdTqb2nOSAznmJYsxiGkPcnbh2Bw5HBAWtYy
+	 XP5SqcwLl3zSMCE7Y1FY9GWV9QwsTuYBPfhFQhYSuwSQSIgYrdqLB5w5SgLmMyxeK/
+	 Mmjt52tv1l3Fg3yrRpcmpOMg9/ijrNbxtM7os5PorcJoiY10Lhz9Md+kpBwrSpxkYH
+	 aZg86Vo2dk+nA==
+Message-ID: <sashiko-outbox-198919@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/8] memcg: Add MEMCG_DMABUF accounting
- infrastructure
+Subject: Re: [PATCH v4 4/8] security: dma-buf: Add dma_buf_charge_task LSM
+ hook
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
  Weiner" <hannes@cmpxchg.org>, =?utf-8?b?TWljaGFsIEtvdXRuw70=?= <mkoutny@suse.com>, "Jonathan
@@ -59,12 +59,12 @@ To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
  =?utf-8?b?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, "Jens Wiklander" <jenswi@kernel.org>, "Sumit
  Garg" <sumit.garg@kernel.org>
 Cc: dri-devel@lists.freedesktop.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, media-ci@linuxtv.org
-In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-1-1819a017000b@redhat.com>
+In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-4-1819a017000b@redhat.com>
 References: <20261104-v2_20230123_tjmercier_google_com-v4-0-1819a017000b@redhat.com>
- <20261104-v2_20230123_tjmercier_google_com-v4-1-1819a017000b@redhat.com>
+ <20261104-v2_20230123_tjmercier_google_com-v4-4-1819a017000b@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 11:11:52 +0000
+Date: Thu, 05 Nov 2026 11:11:58 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -76,124 +76,84 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] mm: memcontrol: 32-bit nr_pages truncation in dmabuf charge help=
-ers
+- [High] mm: memcontrol: task cred and mm->owner mismatch in mem_cgroup_get=
+_from_fd()
 --
 
-commit a5e6165b3e0444a33f57a14736c2174d7c009944
-Author: T.J. Mercier <tjmercier@google.com>
+commit 8654d1fa67f56b32794f6b84163f6fcd4bd83d11
+Author: Albert Esteve <aesteve@redhat.com>
 
-memcg: Add MEMCG_DMABUF accounting infrastructure
+security: dma-buf: Add dma_buf_charge_task LSM hook
 
-This commit introduces the MEMCG_DMABUF stat counter and helper functions
-to reserve, cancel, and uncharge dma-buf memory against a memory cgroup,
-tracking the active charge via a memcg pointer on struct dma_buf.
+This commit introduces the security_dma_buf_charge_task() LSM hook and calls
+it in mem_cgroup_get_from_fd() when resolving a target cgroup from a pidfd.
 
 > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> index 856a7d07586cc..e53dd7eebc3b5 100644
+> index 3e717b5663c82..dd276e1230cc4 100644
 > --- a/mm/memcontrol.c
 > +++ b/mm/memcontrol.c
 
 [ ... ]
 
-> @@ -5658,6 +5661,73 @@ void mem_cgroup_flush_workqueue(void)
->  	flush_workqueue(memcg_wq);
->  }
+> @@ -5698,6 +5701,14 @@ struct mem_cgroup *mem_cgroup_get_from_fd(int fd)
+>  	if (IS_ERR(task))
+>  		return ERR_CAST(task);
 > =20
-> +/**
-> + * mem_cgroup_reserve_dmabuf - charge a memcg for a dma-buf allocation
-> + * @memcg: memcg to charge (may be %NULL)
-> + * @gfp_mask: reclaim mode
-> + * @nr_pages: number of pages to charge
-> + *
-> + * Charges @nr_pages against @memcg. Call this before allocating pages so
-> + * the cgroup limit is enforced up front. On success the caller must
-> + * finalize the charge with the MEMCG_DMABUF stat update, or call
-> + * mem_cgroup_cancel_dmabuf() to undo it.
-> + *
-> + * Returns %true on success, %false if the charge would exceed the limit.
-> + */
-> +bool mem_cgroup_reserve_dmabuf(struct mem_cgroup *memcg, gfp_t gfp_mask,
-> +			       unsigned int nr_pages)
-> +{
-> +	if (!memcg || mem_cgroup_disabled())
-> +		return true;
+> +	tcred =3D get_task_cred(task);
+> +	ret =3D security_dma_buf_charge_task(current_cred(), tcred);
+> +	put_cred(tcred);
+> +	if (ret) {
+> +		put_task_struct(task);
+> +		return ERR_PTR(ret);
+> +	}
 > +
-> +	if (try_charge(memcg, gfp_mask, nr_pages))
-> +		return false;
-> +
-> +	return true;
-> +}
-> +EXPORT_SYMBOL_GPL(mem_cgroup_reserve_dmabuf);
-> +
-> +/**
-> + * mem_cgroup_cancel_dmabuf - undo a dma-buf charge
-> + * @memcg: memcg to uncharge (may be %NULL)
-> + * @nr_pages: same value passed to mem_cgroup_reserve_dmabuf()
-> + *
-> + * Returns @nr_pages of charge to @memcg. Use when the allocation fails
-> + * after mem_cgroup_reserve_dmabuf().
-> + */
-> +void mem_cgroup_cancel_dmabuf(struct mem_cgroup *memcg, unsigned int nr_=
-pages)
-> +{
-> +	if (!memcg)
-> +		return;
-> +
-> +	if (!mem_cgroup_is_root(memcg))
-> +		refill_stock(memcg, nr_pages);
-> +}
-> +EXPORT_SYMBOL_GPL(mem_cgroup_cancel_dmabuf);
-> +
-> +/**
-> + * mem_cgroup_uncharge_dmabuf - uncharge a dma-buf from its memcg
-> + * @dmabuf: buffer to uncharge
-> + *
-> + * Reverses a finalized dma-buf charge. Drops the memcg
-> + * reference stored in @dmabuf->memcg and clears the pointer.
-> + * Safe to call when @dmabuf->memcg is %NULL.
-> + */
-> +void mem_cgroup_uncharge_dmabuf(struct dma_buf *dmabuf)
-> +{
-> +	unsigned int nr_pages;
-> +	struct mem_cgroup *memcg =3D dmabuf->memcg;
-> +
-> +	if (!memcg)
-> +		return;
-> +
-> +	nr_pages =3D PAGE_ALIGN(dmabuf->size) >> PAGE_SHIFT;
-> +	mod_memcg_state(memcg, MEMCG_DMABUF, -nr_pages);
-> +	mem_cgroup_cancel_dmabuf(memcg, nr_pages);
-> +	mem_cgroup_put(memcg);
-> +	dmabuf->memcg =3D NULL;
-> +}
+>  	mm =3D get_task_mm(task);
+>  	put_task_struct(task);
+>  	if (!mm)
 
-[Severity: Medium]
-Can passing a 32-bit unsigned int for nr_pages in
-mem_cgroup_reserve_dmabuf(), mem_cgroup_cancel_dmabuf(), and
-mem_cgroup_uncharge_dmabuf() in mm/memcontrol.c (and include/linux/memcontr=
-ol.h)
-truncate 64-bit dma-buf sizes?
+[Severity: High]
+As reported by Sashiko on v3 [1], in mem_cgroup_get_from_fd(),
+security_dma_buf_charge_task(current_cred(), tcred) checks the credentials =
+of
+task obtained via get_task_cred(task), while the charged mem_cgroup is then
+resolved indirectly via get_task_mm(task) and get_mem_cgroup_from_mm(mm):
 
-struct dma_buf stores size as a 64-bit size_t, and in the following commit
-("dma-heap: charge dma-buf memory via explicit memcg"),
-dma_heap_ioctl_allocate() -> system_heap_allocate() passes a 64-bit
-PAGE_ALIGN(len) >> PAGE_SHIFT to mem_cgroup_reserve_dmabuf() before
-entering its while (size_remaining > 0) page allocation loop without
-__GFP_ACCOUNT.
+mm/memcontrol.c:get_mem_cgroup_from_mm() {
+	rcu_read_lock();
+	do {
+		memcg =3D mem_cgroup_from_task(rcu_dereference(mm->owner));
+		if (unlikely(!memcg))
+			memcg =3D root_mem_cgroup;
+	} while (!css_tryget(&memcg->css));
+	rcu_read_unlock();
+	return memcg;
+}
 
-If a userspace caller requests an allocation where len >=3D (1ULL << (32 +
-PAGE_SHIFT)) (for example, (1ULL << 44) + PAGE_SIZE on a 4 KiB page
-system), PAGE_ALIGN(len) >> PAGE_SHIFT wraps to 1 page when converted to
-unsigned int nr_pages. try_charge() will then succeed against a small
-memory.max limit while system_heap_allocate() proceeds to allocate
-unaccounted pages using the full 64-bit size_remaining.
+If task exits between get_task_mm(task) and get_mem_cgroup_from_mm(mm),
+exit_mm() clears task->mm and calls mm_update_next_owner(mm), which sees
+mm_users > 1 with no live task using mm and sets mm->owner to NULL:
 
-Additionally, in mem_cgroup_uncharge_dmabuf(), passing -nr_pages to
-mod_memcg_state(memcg, MEMCG_DMABUF, -nr_pages) (which takes a signed int
-val) will overflow when nr_pages exceeds INT_MAX. Should nr_pages use
-unsigned long (or size_t) across these helpers?
+kernel/exit.c:mm_update_next_owner() {
+	...
+	WRITE_ONCE(mm->owner, NULL);
+	...
+}
+
+In that case, get_mem_cgroup_from_mm(mm) falls back to returning
+root_mem_cgroup, where try_charge() skips accounting because
+mem_cgroup_is_root(memcg) is true. Could a confined process fork a
+short-lived helper child with matching credentials to pass
+security_dma_buf_charge_task() and race its exit to charge or transfer
+dma-buf allocations to root_mem_cgroup, escaping its cgroup memory limit?
+
+Similarly, if task shares an mm_struct with another task via clone(CLONE_VM)
+that has different credentials or cgroup membership, mm->owner may not be
+task. Could security_dma_buf_charge_task() validate task's credentials while
+get_mem_cgroup_from_mm(mm) charges the cgroup of a different mm->owner task?
+
+[1] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
+3-78d2c4cb8647@redhat.com
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-v2_2023012=
-3_tjmercier_google_com-v4-0-1819a017000b@redhat.com?part=3D1
+3_tjmercier_google_com-v4-0-1819a017000b@redhat.com?part=3D4
