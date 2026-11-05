@@ -1,108 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793876622;
-	b=nT1ZiKCQr/1A8UWUL8vGiow9oFfSWCHmpS+xxccID1Ap78gZIxROFyJxVIjrRoPNp3we
-	 2Kld7usGhaFezfi8qEkQHHfrye+v6oUPatzZO+afHpNpwqtwz3n+BSSyznY3DTLmM2exK
-	 MNGq2x730mkIPRYGh2sm5779X4PmXPXOZVCfEVx6IQiY/tlLv6FdZOsKYF+Hdka7nab/8
-	 Z75S2eCqMGbWzcCnBab3i9Tb5LvKs3gWuM9SJNtcXIudlBFYMLChwKRr8V03KkYsYtahh
-	 4yCluK9J7oxIWKErrCj6kCCKGFAlRVYq8srrv12B6u/BXOtpuCnqlA3yNgRo+8xpApA==
+	t=1793877117;
+	b=Z66E+9LJTZNIS8umLXaoz2dfVi/Run25oeEfSI2SO2NV15Gn+wFjHG5B8i2Eu7htEocS
+	 mFV/J2vJYfwv6H9+PzPTTWUPWW5l5d4UEAMy7NVnocpWVbs7+KL8XEZu8VfYg0i79Zye0
+	 hJ5NBZBCc1yIlpdHjyotc1EFEdphACT00p+ZNKOsbf9k6bkLrJSP2Mz3XyZSr47ZUmBeT
+	 9X+ILudkJ+hxy+GNfAz1Flo7CAJpnCJOfIfF1dMgSPedY5zVUyOxBqdqTVoXBmEk9ntgp
+	 dkOoqBhs74qTr2vhm80Y1HenByBep6ogG9goZlOKwvIWZ8gAw7/EWorTpLjGCLf3Yvg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793876622;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Date:From:To:Subject:Message-ID:
-	 Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:User-Agent:X-Spamd-Result:
-	 X-Rspamd-Server:X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Rspamd-Queue-Id;
-	bh=7IJD50bF3eQzbqwC7/qJclfLO2PvkEwJQv9X96dl+S8=;
-	b=5d6kCwbmD+TrjOuzMdra4JQ3qauMAEjOGJfzinXvD69GHLROG5yWxUNO7RSu71+/QEZm
-	 51M0SdbkkJ16LhCDVMMZK/s+IilM7e5lLPXbdDubatWM/vexPCzdDtSnr8flm/xOQ/PoU
-	 Z1yAURrY5zuiro6gOkqIrKmpzMA/2JUbIVmVMMPjvpZxCTuKdxfn95ZXg6NKMlNH/v9BM
-	 BFe1z+KN9adaV2feXcQmhnlAfDpAzzNzv5i4Iu6yeSrAWEBXZlcIJO2KVPm31ICqvqv3O
-	 3vXNlB/bNfmgWEeiF+0IqmPQBr4q7rSx4VUm75pBmx+12zk7jTyCiHdI0gVhCv2oPAw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793877117;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=5wL9H11c52K74bWFIToeD2nwJm/S5kppGqdHpQpDG0I=;
+	b=kBF/BSqoi60GYYWJBD0xGmt1SnR7fJZEG7dyJaWyH1D0c1KPeQKyzP6q6e36vEMef2jL
+	 HR3jXzi2qkdU7vx1MW60mFZrIwPIuLPwh29IoeImRYGL2ox6VJ+iV8Zs68OlOR7M98Sz6
+	 rh9AzJK2uA0cggsQ2+PxyupDTzC9E98KlKu8yg3JTt7x3CAucRaxGwJyVc87MoheMDQTb
+	 RCvuT+7spbN8e6z+RYq88+2ewPxjkHTEPdsDUCL8KzY/XfNvsPw7PhXWS+sHD1GqPD7xh
+	 GcWZ816jBf0NLUGtxVoRXWUhvvM4n3Ou2piKfQIBXuWNliU+23RyGz8Gvw8FVy+ZoBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EMQHFUP8;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=73rmq4u8;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EMQHFUP8;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=73rmq4u8;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmI46hVd;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9209E606A326
-	for <selinux@vger.kernel.org>; Thu,  5 Nov 2026 11:03:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9209E606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D164D606D80B;
+	Thu,  5 Nov 2026 11:11:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EMQHFUP8;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=73rmq4u8;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EMQHFUP8;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=73rmq4u8
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 6C89F1F387;
-	Thu,  5 Nov 2026 11:03:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793876619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7IJD50bF3eQzbqwC7/qJclfLO2PvkEwJQv9X96dl+S8=;
-	b=EMQHFUP8YwUcU5aINW2OsTsrRk1QCvORGfnaLYCmQ7w1/2XZmuWyvyML61Lfph65iUsfpT
-	RjCYwuyKg1CyYfhUjMCiW6UeT2zYQNw47qgeiduiwOqmyN5bQIRtYLk3r2N8mAtt7AAfEf
-	X+KZZRBUAkMUEiUEbkmy86I8xZX0TAY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793876619;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7IJD50bF3eQzbqwC7/qJclfLO2PvkEwJQv9X96dl+S8=;
-	b=73rmq4u8vbhlYJO10NsMnv+scuofeCQrCtJEIAOE/qka5dzKxCEP+/QZlXSm++6fwGOvNk
-	/Lmv8dLHpmreKRCw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=EMQHFUP8;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=73rmq4u8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793876619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7IJD50bF3eQzbqwC7/qJclfLO2PvkEwJQv9X96dl+S8=;
-	b=EMQHFUP8YwUcU5aINW2OsTsrRk1QCvORGfnaLYCmQ7w1/2XZmuWyvyML61Lfph65iUsfpT
-	RjCYwuyKg1CyYfhUjMCiW6UeT2zYQNw47qgeiduiwOqmyN5bQIRtYLk3r2N8mAtt7AAfEf
-	X+KZZRBUAkMUEiUEbkmy86I8xZX0TAY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793876619;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7IJD50bF3eQzbqwC7/qJclfLO2PvkEwJQv9X96dl+S8=;
-	b=73rmq4u8vbhlYJO10NsMnv+scuofeCQrCtJEIAOE/qka5dzKxCEP+/QZlXSm++6fwGOvNk
-	/Lmv8dLHpmreKRCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 27133133F6;
-	Thu,  5 Nov 2026 11:03:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 4dJINIpi7GrCTQAAD6G6ig
-	(envelope-from <fbonazzi@suse.de>); Thu, 05 Nov 2026 11:03:39 +0000
-Date: Thu, 5 Nov 2026 12:03:22 +0100
-From: Filippo Bonazzi <fbonazzi@suse.de>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, selinux@suse.de
-Subject: Re: Question about libselinux *_with_level functions
-Message-ID: <auxhNtTcQa-6TS35@suse.com>
-Mail-Followup-To: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, selinux@suse.de
-References: <76k2qxgeqgik3rdq6pnve7c6fqu43pjjeskxshtztal6rwllrd@ta3gvtdds4it>
- <CAEjxPJ6yTtMA4a-CvrQW0uTJ8mTEkdr6WE9mVJw67BKH5KRwyA@mail.gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmI46hVd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D31781F00A1F;
+	Thu,  5 Nov 2026 11:11:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793877116;
+	bh=5wL9H11c52K74bWFIToeD2nwJm/S5kppGqdHpQpDG0I=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VmI46hVd9YGz27GAlicu7eRmyRYfUiMYWwHh8vat5Po17sPb+MebtSuE73p/uef9a
+	 bi82HORDD5FyjgH0up20UJCTFGGkKmJSiIJhj1CpUAlQZjPYR3a0JFTdFfHLHtp5Ji
+	 4bT/sByYe8c8teDcHOBP1GCeUTXHVP7j4P9dcS2nbGz/XDlXp9/Zj5D7VWr15cDXmj
+	 yu9Scz4G1TzD11Ho+lIbkedRD3ay0Ky0uQvMD22YMX5w+PJs51+dLSm3NpKwVT4Ya6
+	 JRisBkfamAp9lvl9fIB8ZUz/qYK+JvjgN4PhmpnAMGnpq2pFYipDPdVtYp8hAAcMAM
+	 9+N/0uqdac1dA==
+Message-ID: <sashiko-outbox-198917@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 2/8] dma-heap: charge dma-buf memory via explicit
+ memcg
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
+ Weiner" <hannes@cmpxchg.org>, =?utf-8?b?TWljaGFsIEtvdXRuw70=?= <mkoutny@suse.com>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>, "Sumit
+ Semwal" <sumit.semwal@linaro.org>, =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Michal
+ Hocko" <mhocko@kernel.org>, "Roman Gushchin" <roman.gushchin@linux.dev>, "Shakeel
+ Butt" <shakeel.butt@linux.dev>, "Muchun Song" <muchun.song@linux.dev>, "Andrew
+ Morton" <akpm@linux-foundation.org>, "Benjamin Gaignard" <benjamin.gaignard@collabora.com>, "Brian
+ Starkey" <Brian.Starkey@arm.com>, "John Stultz" <jstultz@google.com>, "T.J.
+ Mercier" <tjmercier@google.com>, "Christian Brauner" <brauner@kernel.org>, "Paul
+ Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>, "Serge E.
+ Hallyn" <serge@hallyn.com>, "Stephen Smalley" <stephen.smalley.work@gmail.com>, "Shuah
+ Khan" <shuah@kernel.org>, "Randy Dunlap" <rdunlap@infradead.org>,
+ =?utf-8?b?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, "Jens Wiklander" <jenswi@kernel.org>, "Sumit
+ Garg" <sumit.garg@kernel.org>
+Cc: dri-devel@lists.freedesktop.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, media-ci@linuxtv.org
+In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-2-1819a017000b@redhat.com>
+References: <20261104-v2_20230123_tjmercier_google_com-v4-0-1819a017000b@redhat.com>
+ <20261104-v2_20230123_tjmercier_google_com-v4-2-1819a017000b@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 11:11:54 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -111,89 +73,209 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="4xin2xm7dh4zywf4"
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ6yTtMA4a-CvrQW0uTJ8mTEkdr6WE9mVJw67BKH5KRwyA@mail.gmail.com>
-User-Agent: NeoMutt/20260406
-X-Spamd-Result: default: False [-15.61 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SIGNED_PGP(-2.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,text/plain];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com,vger.kernel.org,suse.de];
-	MIME_TRACE(0.00)[0:+,1:+,2:~];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_TRACE(0.00)[suse.de:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_THREE(0.00)[3];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -15.61
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 6C89F1F387
 
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Critical] mm: memcontrol: missing permission checks in mem_cgroup_get_fr=
+om_fd()
+- [High] dma-buf: system_heap: 32-bit nr_pages truncation in system_heap_al=
+locate()
+--
 
---4xin2xm7dh4zywf4
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii;
-	format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: Question about libselinux *_with_level functions
-MIME-Version: 1.0
+commit e390a33c5307a75778a81c2ca5beff0530617904
+Author: Albert Esteve <aesteve@redhat.com>
 
-On 2026-05-27 13:46 (UTC -0400), Stephen Smalley wrote:
->I believe this is a regression introduced by the deprecation/removal
->of /sys/fs/selinux/user,
->as used by security_compute_user(), which was formerly used by
->get_ordered_context_list*().
+dma-heap: charge dma-buf memory via explicit memcg
 
-Hi,
+This commit adds a charge_fd field to struct dma_heap_allocation_data so
+that DMA_HEAP_IOCTL_ALLOC can resolve a target pidfd or cgroupfd and charge
+the exported dma-buf memory to that memcg via mem_cgroup_reserve_dmabuf().
+It also removes __GFP_ACCOUNT from system heap page allocations to avoid
+double counting.
 
-Just checking the state of this. Is this planned to be fixed at some point?
+> diff --git a/drivers/dma-buf/heaps/system_heap.c b/drivers/dma-buf/heaps/=
+system_heap.c
+> index c8959eadc71d1..2bd245e1eab8f 100644
+> --- a/drivers/dma-buf/heaps/system_heap.c
+> +++ b/drivers/dma-buf/heaps/system_heap.c
+[ ... ]
+> @@ -388,8 +389,6 @@ static struct page *alloc_largest_available(unsigned =
+long size,
+>  		if (max_order < orders[i])
+>  			continue;
+>  		flags =3D order_flags[i];
+> -		if (mem_accounting)
+> -			flags |=3D __GFP_ACCOUNT;
+>  		page =3D alloc_pages(flags, orders[i]);
+>  		if (!page)
+>  			continue;
+> @@ -401,11 +400,13 @@ static struct page *alloc_largest_available(unsigne=
+d long size,
+>  static struct dma_buf *system_heap_allocate(struct dma_heap *heap,
+>  					    unsigned long len,
+>  					    u32 fd_flags,
+> -					    u64 heap_flags)
+> +					    u64 heap_flags,
+> +					    struct mem_cgroup *memcg)
+>  {
+>  	struct system_heap_buffer *buffer;
+>  	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
+>  	unsigned long size_remaining =3D len;
+> +	unsigned int nr_pages =3D PAGE_ALIGN(len) >> PAGE_SHIFT;
+>  	unsigned int max_order =3D orders[0];
+>  	struct system_heap_priv *priv =3D dma_heap_get_drvdata(heap);
+>  	bool cc_shared =3D priv->cc_shared;
+> @@ -416,10 +417,15 @@ static struct dma_buf *system_heap_allocate(struct =
+dma_heap *heap,
+>  	struct page *page, *tmp_page;
+>  	int i, ret =3D -ENOMEM;
+> =20
+> -	buffer =3D kzalloc_obj(*buffer);
+> -	if (!buffer)
+> +	if (!mem_cgroup_reserve_dmabuf(memcg, GFP_KERNEL, nr_pages))
+>  		return ERR_PTR(-ENOMEM);
 
-Thanks,
+[Severity: High]
+As reported by Sashiko on v3 [1], can truncating nr_pages to a 32-bit
+unsigned int in system_heap_allocate() allow a 64-bit allocation length to
+bypass memcg memory.max limits?
 
-Filippo
+In dma_heap_ioctl_allocate(), heap_allocation->len (__u64) is page-aligned
+into a 64-bit size_t len and only checked for wrap-around to zero before
+being passed as an unsigned long len to system_heap_allocate():
+
+drivers/dma-buf/dma-heap.c:dma_heap_ioctl_allocate() {
+	len =3D PAGE_ALIGN(heap_allocation->len);
+	if (!len) {
+		mem_cgroup_put(memcg);
+		return ERR_PTR(-EINVAL);
+	}
+
+	dmabuf =3D heap->ops->allocate(heap, len, heap_allocation->fd_flags,
+				     heap_allocation->heap_flags, memcg);
+}
+
+In system_heap_allocate(), size_remaining retains the full 64-bit len while
+nr_pages is truncated to unsigned int. Because __GFP_ACCOUNT is removed from
+alloc_largest_available(), mem_cgroup_reserve_dmabuf() becomes the only
+memcg limit check.
+
+On a 64-bit system with 4 KiB pages (PAGE_SHIFT =3D=3D 12), if a user passes
+len =3D (1ULL << 44) (or (1ULL << 44) + PAGE_SIZE), PAGE_ALIGN(len) >>
+PAGE_SHIFT truncates in 32-bit unsigned int nr_pages to 0 (or 1).
+mem_cgroup_reserve_dmabuf() then charges 0 (or 1) pages and succeeds inside
+a restricted cgroup, while the while (size_remaining > 0) loop allocates
+uncharged physical pages for the full 64-bit size_remaining until host RAM
+is exhausted and the global OOM killer is triggered.
+
+Similarly, in dma_buf_export() and mem_cgroup_uncharge_dmabuf(),
+PAGE_ALIGN(size) >> PAGE_SHIFT is stored in an unsigned int nr_pages and
+passed to mod_memcg_state(), which takes a signed int val and can overflow
+to a negative delta when bit 31 of nr_pages is set. Should nr_pages be
+unsigned long (or should len be bounds-checked before converting to page
+counts)?
+
+[ ... ]
+> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> index e53dd7eebc3b5..17fdefc56b97f 100644
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -5661,6 +5661,53 @@ void mem_cgroup_flush_workqueue(void)
+>  	flush_workqueue(memcg_wq);
+>  }
+> =20
+> +/**
+> + * mem_cgroup_get_from_fd - resolve a memcg from a cgroupfd or pidfd
+> + * @fd: file descriptor (cgroupfd or pidfd)
+> + *
+> + * Tries @fd as a cgroupfd first; if that fails, tries it as a pidfd.
+> + * On success returns a referenced memcg pointer. On failure returns
+> + * an ERR_PTR.
+> + */
+> +struct mem_cgroup *mem_cgroup_get_from_fd(int fd)
+> +{
+> +	struct cgroup_subsys_state *css;
+> +	struct mem_cgroup *memcg;
+> +	struct cgroup *cgrp;
+> +	struct task_struct *task;
+> +	struct mm_struct *mm;
+> +	unsigned int pidfd_flags;
+> +
+> +	cgrp =3D cgroup_get_from_fd(fd);
+> +	if (!IS_ERR(cgrp)) {
+> +		rcu_read_lock();
+> +		css =3D cgroup_css(cgrp, &memory_cgrp_subsys);
+> +		if (!css || !css_tryget_online(css)) {
+> +			rcu_read_unlock();
+> +			cgroup_put(cgrp);
+> +			return ERR_PTR(-ENOENT);
+> +		}
+> +
+> +		memcg =3D mem_cgroup_from_css(css);
+> +		rcu_read_unlock();
+> +		cgroup_put(cgrp);
+> +		return memcg;
+> +	}
+> +
+> +	task =3D pidfd_get_task(fd, &pidfd_flags);
+> +	if (IS_ERR(task))
+> +		return ERR_CAST(task);
+> +
+> +	mm =3D get_task_mm(task);
+> +	put_task_struct(task);
+> +	if (!mm)
+> +		return ERR_PTR(-ESRCH);
+> +
+> +	memcg =3D get_mem_cgroup_from_mm(mm);
+> +	mmput(mm);
+> +	return memcg ?: ERR_PTR(-ENOENT);
+> +}
+
+[Severity: Critical]
+As reported by Sashiko on v3 [2], does mem_cgroup_get_from_fd() allow an
+unprivileged caller to charge dma-buf allocations to arbitrary cgroups
+without permission checks?
+
+When dma_heap_ioctl_allocate() calls mem_cgroup_get_from_fd() with a
+user-supplied charge_fd, the target mem_cgroup is resolved either from a
+cgroup v2 directory fd (which can be opened with O_RDONLY | O_DIRECTORY or
+O_PATH on any world-readable /sys/fs/cgroup directory, including the root
+cgroup) or from a pidfd obtained via pidfd_open() for any visible process
+such as PID 1.
+
+Neither path verifies DAC permissions, cgroup write access (such as
+cgroup_may_write() or cgroup_attach_permissions() used by CLONE_INTO_CGROUP
+in cgroup_css_set_fork()), ptrace_may_access(), or capabilities such as
+CAP_SYS_ADMIN / CAP_SYS_RESOURCE.
+
+When system_heap_allocate() then calls mem_cgroup_reserve_dmabuf(memcg,
+GFP_KERNEL, nr_pages) -> try_charge(), targeting root_mem_cgroup returns 0
+immediately and bypasses the caller's memory.max and memory.high limits,
+while targeting another cgroup can trigger reclaim and OOM kills in that
+victim cgroup. In addition, when a remote target memcg exceeds memory.high
+during try_charge_memcg(), the over-high penalty and reclaim in
+__mem_cgroup_handle_over_high() are applied against current->mm's memcg
+rather than the remotely charged memcg.
+
+Later commits in the series ("security: dma-buf: Add dma_buf_charge_task LSM
+hook", "security: dma-buf: Add dma_buf_charge_cgroup LSM hook", "selinux:
+Restrict cross-cgroup dma-buf charging", and "selinux: Restrict dma-buf
+direct cgroup charging") add LSM hooks and SELinux policy checks, but still
+leave no baseline DAC, capability, cgroup write permission, or
+ptrace_may_access() checks when CONFIG_SECURITY is disabled, when SELinux is
+not the active LSM, or when a cgroup v2 directory uses default genfscon
+labeling without an explicit security.selinux kernfs xattr (where
+selinux_dma_buf_charge_cgroup() sees kernfs_xattr_get() =3D=3D -ENODATA and
+returns 0).
+
+Should baseline permission checks be enforced before allowing a process to
+charge memory to another task's or cgroup's memcg?
+
+[1] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
+2-78d2c4cb8647@redhat.com
+[2] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
+2-78d2c4cb8647@redhat.com
 
 --=20
-Filippo Bonazzi
-Security Engineer                        suse.com
-8257 4398 947A 2DBE F21D 76E6 937A 63F0 5B36 46D9
-
---4xin2xm7dh4zywf4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQFPBAABCAA5FiEEgldDmJR6Lb7yHXbmk3pj8Fs2RtkFAmrsYnkbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEJN6Y/BbNkbZfRkH/0qEk1ly/UIRJC957u6l
-yfLdl6ySAj8ZbUdqjFCLv9qdZyeX7GqKBq2dHxz2NPQt5iHRB1+ubF67cZN+0Hwj
-dP7dU2mHKbMyHNLp0ikJPVlTjoOfeQj1nHY7hptgFyythWTlojWFZzxkoDjlA8Ln
-gw+dKdA5BZdl/pWdGRUetBHSmmGJ34kOk0M5GWDqeqnmR7w5f0MuAD2yZMtL+m9H
-YdVZ+EDtsDid50MlG4daz3ZklZqkfO55uS2cPCdrFRRF1Up4IrdJ+mLXkap6zUL2
-xK7Q24wraCsEGmMXkpfimlut9g6jVb5kxG7Wb5p7r4xKtzkhH+iem5vszeWyzhme
-pUE=
-=ZYw4
------END PGP SIGNATURE-----
-
---4xin2xm7dh4zywf4--
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-v2_2023012=
+3_tjmercier_google_com-v4-0-1819a017000b@redhat.com?part=3D2
