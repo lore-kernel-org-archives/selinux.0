@@ -1,48 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793877127;
-	b=Nt0wos5ItmDhtU2/BWBXkkj7ugxth3/2Ucksvv/+tb6GsSJhMH/ZIY1pmuOpLtxqhvF/
-	 uSvGjMSmr34BoxqOKiXljNLIBmiOQL1TtCj5DChVk00Jc6OZ7cnTtZFBE2UEZmG4lYbOW
-	 Uzd1bjgSwwvBaqTdI86MPUqlLkpGPNVT6yVZsX9Zts6DPZH+PPF8PvmeV3fBRgywVeDwX
-	 Kq40/Lj0l7iJf7NC4Wh+sPqfiQPJIDJ+eVroZ2XV3e6aryS7Uiwy333YVxAH6kkWcCOvt
-	 dWAK17pEoVcgiA/07JnQqo0bL0Kd+v+pJqDqjJ9djb1HjK+8+izHB1txggcJaLiaXDQ==
+	t=1793877124;
+	b=p6JwyDhPqEifdTMAL9nT1LqCnWdeuY3EvBLqXZTc/0KibIARnSBdJsEuRIrwPp0F0kW7
+	 r8JkquCsUp1dTztX1NhcITy4NXrA6Ywf4I0r5R2FJJNiVSq+9+QtmOyxhAkdcfITe38/6
+	 BykdGzSTwIgyirmDP/bQy7J70GyrBXCrifYSLk5nvAT/Scgm9qwVG353QGqrwztteUeFA
+	 HewrQOJU/BvAp709nx9yk6nIJV2hJcZtuY34bOAx/gQvjA41AJu1N9QAUtdgpHnIC3OP1
+	 CuOCuRyzRTCCQMcLucjyaUikjF3izIPFtDu5OYHY7Ke+L1lo13x2T8PLYs/vHb9Xdsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793877127;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793877124;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hcZ6WPxWQqwmRStYl6C8MSMaB4AuiG3AzHw/8ODrNB0=;
-	b=kD+crja8vcAasMCXnoZd9xyoXRLG0AdpBQOLyVucTiQX4Puhip14k6UiZVEfdMdY3/xC
-	 O8LWaMlgq/uU8UjftLaQOvq0khatgHhAfUSZhCs3xMhmmKRFhGgYwfvV6/VfHbQTOO8ob
-	 tMc8bByKpmvthhCumFZwe7Cclewue6mLjb7SddG1198E2sKT53PoiTwhnqcJntDEzS5w8
-	 +aJ8OsGe0LE9QR4+4msyr7S6O+JZ5FQx5SW43jr37FxDnVDhk/u4xOOwMIl9JoTlb2/J0
-	 gjpHftjck7LPBoh8oKGA3v6q6Ie7aCcXaPFeQsIGGu6/IknxXml8h2+ePrK1Iq6EgpA==
+	bh=u4OwYANC6wqKDyPgO6eDc7wNQ6edH7rpigotQa7/OCk=;
+	b=S1z2nAeKQzYHzdAJ8iNu3qaKezN+h+LBmKOEg6wSLhOmJmv55ZFAKvAyJxTNG6IzipvE
+	 UzSHPPe2S137MO2cw82LtcWcMhpLerGoyd4/vts3hcW69Dtyp0bCGYKPsKwFS/Az/0q3J
+	 6Mgotksdw7zodhGM6KqY0akWDx7yYgNUQ5R7lUzeRYQ9Gwfe/IpxuAt+PVFIglMaEuryX
+	 yEm1a3Z1fjvRJz8kuTLxiRme1Z9elp+HOQIbW7szS3jktdaLoyJkIDVv4fAPg/uISlvl/
+	 1rB7JYi8KtjqzAfVuZ1fDDSRbgHk+pEOK4Mz+sj2YBy9tcvHq9aJFATNGEDk58qJOpQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ha46cxYz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="c2uN/Ng5";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E1F7606D81F;
-	Thu,  5 Nov 2026 11:12:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4025606A334;
+	Thu,  5 Nov 2026 11:12:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ha46cxYz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A66FC1F00A02;
-	Thu,  5 Nov 2026 11:12:05 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c2uN/Ng5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4FBF1F00A18;
+	Thu,  5 Nov 2026 11:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793877127;
-	bh=hcZ6WPxWQqwmRStYl6C8MSMaB4AuiG3AzHw/8ODrNB0=;
+	s=k20260515; t=1793877123;
+	bh=u4OwYANC6wqKDyPgO6eDc7wNQ6edH7rpigotQa7/OCk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ha46cxYz+f5O3PZ62l1EzAf2DcXdcDWFFCYFdsNiJ/EfMHBI9iN8WJBpEa2t/fhbp
-	 YiDJyRyaTJOCXDn5V7ZQEodwI+80StGeRoeKjIa5fpnYD3nvFBIn4/eEas/jUSlsOe
-	 TGo3JnveEd3aciHp+qSkSR+9noMtG6nKmUKsXo41W20ukXVNrlusIeeY/te8Q75sxc
-	 FUjFnZc/8QSWNaBl1g9bnUKYJQTSIIw4Vob18CUplfhJ8L9qaCXRrSjsNLqz+gZkuy
-	 yzsRj22YTXapgoeB58Kugn/8IjRan4j3psVvV6t7Q+Fop0YLlligZr6+nDT9FD1O4E
-	 Q1YdgnuE01paA==
-Message-ID: <sashiko-outbox-198923@kernel.org>
+	b=c2uN/Ng5l1zRBU1f6aKBEfZtQoOnizQ0rrFd9kCVSSHUE4EkaG4YPu0DVrXFd/sYf
+	 WQRytoL/bcOM1tMwGTUhoxMGZjd7nrw9Op3dgk7LlqQMSjRvDJDTBSXagtU5aDYa4F
+	 iloIC0z1XqsAvA+wuzjNVVxTNcK1vJS2YM72nD09YWg7Y+1F+DhJmXRU8T8Gy/xhN6
+	 KiQgtSFJ6rsFJt5ladVLcE0huTLON36jq97Rw9RRIPx/9cUI0YxCWADXC+FyRY98yA
+	 EIszDEoo4+ImNGcD/JzSRE7yMABOCWcp+srnamdEnAnuamz3kghzyKLk86XsIYtlff
+	 pshldAJJUYr3g==
+Message-ID: <sashiko-outbox-198921@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 8/8] selftests/dmabuf-heaps: Add dma-buf memcg
- accounting tests
+Subject: Re: [PATCH v4 6/8] selinux: Restrict cross-cgroup dma-buf charging
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
  Weiner" <hannes@cmpxchg.org>, =?utf-8?b?TWljaGFsIEtvdXRuw70=?= <mkoutny@suse.com>, "Jonathan
@@ -59,12 +58,12 @@ To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
  =?utf-8?b?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, "Jens Wiklander" <jenswi@kernel.org>, "Sumit
  Garg" <sumit.garg@kernel.org>
 Cc: dri-devel@lists.freedesktop.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, media-ci@linuxtv.org
-In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-8-1819a017000b@redhat.com>
+In-Reply-To: <20261104-v2_20230123_tjmercier_google_com-v4-6-1819a017000b@redhat.com>
 References: <20261104-v2_20230123_tjmercier_google_com-v4-0-1819a017000b@redhat.com>
- <20261104-v2_20230123_tjmercier_google_com-v4-8-1819a017000b@redhat.com>
+ <20261104-v2_20230123_tjmercier_google_com-v4-6-1819a017000b@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 11:12:05 +0000
+Date: Thu, 05 Nov 2026 11:12:01 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -74,304 +73,76 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] selftests/dmabuf-heaps: charge_fd=3D0 and unskipped EOPNOTSUPP i=
-n XFER_CHARGE test
-- [Medium] selftests/dmabuf-heaps: pidfd_alloc_supported() treats EOPNOTSUP=
-P as supported
-- [Medium] selftests/dmabuf-heaps: missing memory controller check in open_=
-self_cgroupfd()
-- [Medium] selftests/dmabuf-heaps: check_deps() runs before handle_build() =
-in vmtest.sh
-- [Low] selftests: cgroup: leak of child_cg on cg_create() failure in test_=
-memcg_dmabuf()
+- [Medium] selinux: one-off dma_buf class instead of general cgroup access =
+control model
 --
 
-commit b3c8a8b74499074e19a368c4979733bfe47e9d56
+commit 675e985fff50ea6716b8c00023a75c07ff345a6f
 Author: Albert Esteve <aesteve@redhat.com>
 
-selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+selinux: Restrict cross-cgroup dma-buf charging
 
-This commit adds selftests for dma-buf memcg accounting via charge_fd and
-DMA_BUF_IOCTL_XFER_CHARGE in dmabuf-heaps and cgroup/test_memcontrol, along
-with a virtme-ng runner script and Kconfig fragment.
+This commit implements the selinux_dma_buf_charge_task() hook and adds a
+new dma_buf object class with a charge_task permission in SELinux to
+restrict cross-cgroup dma-buf memory charging.
 
-> diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/tes=
-ting/selftests/cgroup/test_memcontrol.c
-> index 0ed82347044ed..3c95bcabee2bd 100644
-> --- a/tools/testing/selftests/cgroup/test_memcontrol.c
-> +++ b/tools/testing/selftests/cgroup/test_memcontrol.c
-[ ... ]
-> +static int test_memcg_dmabuf(const char *root)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 30776b0107f29..8f39d91eabc97 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2204,6 +2204,12 @@ static int selinux_capable(const struct cred *cred=
+, struct user_namespace *ns,
+>  	return cred_has_capability(cred, cap, opts, ns =3D=3D &init_user_ns);
+>  }
+> =20
+> +static int selinux_dma_buf_charge_task(const struct cred *from, const st=
+ruct cred *to)
 > +{
-[ ... ]
-> +	parent =3D cg_name(root, "dmabuf_memcg_test");
-> +	if (!parent)
-> +		goto cleanup;
-> +
-> +	if (cg_create(parent))
-> +		goto cleanup_parent;
-> +
-> +	if (cg_write(parent, "cgroup.subtree_control", "+memory"))
-> +		goto cleanup_parent;
-> +
-> +	child_cg =3D cg_name(parent, "child");
-> +	if (!child_cg)
-> +		goto cleanup_parent;
-> +
-> +	if (cg_create(child_cg))
-> +		goto cleanup_parent;
-[ ... ]
-> +cleanup_child:
-> +	cg_destroy(child_cg);
-> +	free(child_cg);
-> +cleanup_parent:
-> +	cg_destroy(parent);
-> +	free(parent);
-> +cleanup:
-> +	return ret;
+> +	return avc_has_perm(cred_sid(from), cred_sid(to),
+> +			    SECCLASS_DMA_BUF, DMA_BUF__CHARGE_TASK, NULL);
 > +}
+> +
+>  static int selinux_quotactl(int cmds, int type, int id, const struct sup=
+er_block *sb)
+>  {
+>  	const struct cred *cred =3D current_cred();
 
-[Severity: Low]
-Does test_memcg_dmabuf() leak the child_cg string buffer if
-cg_create(child_cg) fails?
-
-Jumping to cleanup_parent bypasses free(child_cg) under cleanup_child. Shou=
-ld
-that error path free child_cg (or jump to cleanup_child) before cleaning up
-parent?
-
-> diff --git a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c b/tools/t=
-esting/selftests/dmabuf-heaps/dmabuf-heap.c
-> index 1d49df6719198..90ef14d2ecba0 100644
-> --- a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
-> +++ b/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
 [ ... ]
-> +/*
-> + * Probe whether the kernel honours charge_fd in DMA_HEAP_IOCTL_ALLOC.
-> + */
-> +static bool pidfd_alloc_supported(int heap_fd)
-> +{
-> +	int devnull_fd, dmabuf_fd =3D -1, ret;
-> +
-> +	devnull_fd =3D open("/dev/null", O_RDONLY);
-> +	if (devnull_fd < 0)
-> +		return false;
-> +
-> +	ret =3D dmabuf_heap_alloc_pidfd(heap_fd, ONE_MEG, 0, devnull_fd, &dmabu=
-f_fd);
-> +	if (dmabuf_fd >=3D 0) {
-> +		close(dmabuf_fd);
-> +		dmabuf_fd =3D -1;
-> +	}
-> +	close(devnull_fd);
-> +	return ret < 0;
-> +}
+
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/inclu=
+de/classmap.h
+> index 90cb61b164256..b4ebedc6e4240 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -181,6 +181,7 @@ const struct security_class_mapping secclass_map[] =
+=3D {
+>  	{ "user_namespace", { "create", NULL } },
+>  	{ "memfd_file",
+>  	  { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
+> +	{ "dma_buf", { "charge_task", NULL } },
 
 [Severity: Medium]
-As reported by Sashiko on v3 [1], won't pidfd_alloc_supported() return true
-when CONFIG_MEMCG is disabled?
+As reported by Paul Moore on RFC [1], adding a one-off SELinux object class
+and permission for a specific subsystem's cgroup charging (previously
+dma_heap with charge_to, now dma_buf with charge_task in secclass_map[]
+and selinux_dma_buf_charge_task(), along with charge_cgroup in a later
+patch in this series) introduces a narrow, subsystem-specific policy class
+rather than a general cgroup and resource access control model for SELinux.
 
-When CONFIG_MEMCG=3Dn, the inline stub in include/linux/memcontrol.h returns
--EOPNOTSUPP for any file descriptor:
+Although resolving the target memcg from charge_fd moved into generic
+memcontrol code in mem_cgroup_get_from_fd(), the SELinux hook in
+selinux_dma_buf_charge_task() and class definition in secclass_map[] still
+define a dma-buf-specific class instead of a broader cgroup access control
+abstraction.
 
-static inline struct mem_cgroup *mem_cgroup_get_from_fd(int fd)
-{
-	return ERR_PTR(-EOPNOTSUPP);
-}
+Should this permission check be designed around a general cgroup or resource
+SELinux object class rather than a one-off dma_buf class?
 
-In dma_heap_ioctl_allocate(), that causes DMA_HEAP_IOCTL_ALLOC to fail with
-ret < 0 and errno =3D=3D EOPNOTSUPP when passed devnull_fd, so
-pidfd_alloc_supported() treats the feature as supported and the subsequent
-tests fail with EOPNOTSUPP instead of skipping.
-
-Should pidfd_alloc_supported() check ret < 0 && errno !=3D EOPNOTSUPP?
-
-[ ... ]
-> +static int open_self_cgroupfd(void)
-> +{
-> +	char cgroup_path[PATH_MAX];
-> +	char buf[PATH_MAX];
-> +	FILE *f;
-> +
-> +	f =3D fopen("/proc/self/cgroup", "r");
-> +	if (!f)
-> +		return -1;
-> +
-> +	cgroup_path[0] =3D '\0';
-> +	while (fgets(buf, sizeof(buf), f)) {
-> +		char *p =3D buf;
-> +
-> +		if (strncmp(p, "0::", 3) =3D=3D 0) {
-> +			p +=3D 3;
-> +			p[strcspn(p, "\n")] =3D '\0';
-> +			snprintf(cgroup_path, sizeof(cgroup_path),
-> +				 "/sys/fs/cgroup%s", p);
-> +			break;
-> +		}
-> +	}
-> +	fclose(f);
-> +
-> +	if (!cgroup_path[0])
-> +		return -1;
-> +
-> +	return open(cgroup_path, O_RDONLY | O_DIRECTORY);
-> +}
-
-[Severity: Medium]
-As reported by Sashiko on v3 [2], what happens in test_alloc_cgroupfd_self()
-and test_xfer_charge_cgroupfd_self() when the test process runs in a cgroup
-where the memory controller is not enabled in its parent's
-cgroup.subtree_control?
-
-In mm/memcontrol.c:mem_cgroup_get_from_fd(), resolving a cgroup directory fd
-requires an active memory controller CSS on that cgroup and returns -ENOENT
-otherwise:
-
-	cgrp =3D cgroup_get_from_fd(fd);
-	if (!IS_ERR(cgrp)) {
-		rcu_read_lock();
-		css =3D cgroup_css(cgrp, &memory_cgrp_subsys);
-		if (!css || !css_tryget_online(css)) {
-			rcu_read_unlock();
-			cgroup_put(cgrp);
-			return ERR_PTR(-ENOENT);
-		}
-
-Should open_self_cgroupfd() verify that the memory controller is enabled on
-cgroup_path (or should the callers skip on ENOENT) so the tests skip rather
-than fail when run outside vmtest.sh in a non-root cgroup without +memory?
-
-[ ... ]
-> +/*
-> + * Test: transfer a dma-buf's charge to self cgroup via DMA_BUF_IOCTL_XF=
-ER_CHARGE.
-> + */
-> +static void test_xfer_charge_cgroupfd_self(char *heap_name)
-> +{
-> +	int heap_fd =3D -1, cgroup_fd =3D -1, dmabuf_fd =3D -1, ret;
-> +	struct dma_buf_transfer_charge xfer =3D { 0 };
-> +
-> +	heap_fd =3D dmabuf_heap_open(heap_name);
-> +
-> +	if (!pidfd_alloc_supported(heap_fd)) {
-> +		ksft_test_result_skip("charge_fd not supported by this kernel\n");
-> +		goto out;
-> +	}
-> +
-> +	ret =3D dmabuf_heap_alloc(heap_fd, ONE_MEG, 0, &dmabuf_fd);
-> +	if (ret) {
-> +		ksft_test_result_fail("Allocation failed %d\n", ret);
-> +		goto out;
-> +	}
-> +
-> +	cgroup_fd =3D open_self_cgroupfd();
-> +	if (cgroup_fd < 0) {
-> +		ksft_test_result_skip("cannot open self cgroupfd\n");
-> +		close(dmabuf_fd);
-> +		goto out;
-> +	}
-> +
-> +	xfer.charge_fd =3D cgroup_fd;
-> +	ret =3D ioctl(dmabuf_fd, DMA_BUF_IOCTL_XFER_CHARGE, &xfer);
-> +	ksft_test_result(!ret, "XFER_CHARGE to self cgroupfd %d\n", ret);
-
-[Severity: Medium]
-As reported by Sashiko on v3 [3], won't test_xfer_charge_cgroupfd_self() fa=
-il
-with EOPNOTSUPP under default kernel parameters (dma_heap.mem_accounting=3D=
-0) or
-on heaps that do not set exp_info.memcg (such as CMA heaps)?
-
-Here the buffer is allocated with dmabuf_heap_alloc(), which passes
-charge_fd =3D 0. In drivers/dma-buf/dma-heap.c:dma_heap_ioctl_allocate():
-
-	if (heap_allocation->charge_fd) {
-		memcg =3D mem_cgroup_get_from_fd(heap_allocation->charge_fd);
-		if (IS_ERR(memcg))
-			return ERR_CAST(memcg);
-	}
-
-	if (!memcg && mem_accounting)
-		memcg =3D get_mem_cgroup_from_mm(current->mm);
-
-When charge_fd is 0 and mem_accounting is false (the default), memcg is NUL=
-L,
-and drivers/dma-buf/dma-buf.c:dma_buf_xfer_charge() returns -EOPNOTSUPP when
-dmabuf->memcg is NULL:
-
-	if (!dmabuf->memcg) {
-		ret =3D -EOPNOTSUPP;
-		goto out;
-	}
-
-Similarly, pidfd_alloc_supported() passes for all heaps because charge_fd is
-validated in dma_heap_ioctl_allocate() before heap->ops->allocate(), so
-non-system heaps reach DMA_BUF_IOCTL_XFER_CHARGE with dmabuf->memcg =3D=3D =
-NULL
-and also return -EOPNOTSUPP.
-
-Should test_xfer_charge_cgroupfd_self() allocate the buffer with a charge_fd
-(e.g. via dmabuf_heap_alloc_pidfd()) and skip when DMA_BUF_IOCTL_XFER_CHARGE
-fails with errno =3D=3D EOPNOTSUPP?
-
-> diff --git a/tools/testing/selftests/dmabuf-heaps/vmtest.sh b/tools/testi=
-ng/selftests/dmabuf-heaps/vmtest.sh
-> new file mode 100755
-> index 0000000000000..3574b71ca83e8
-> --- /dev/null
-> +++ b/tools/testing/selftests/dmabuf-heaps/vmtest.sh
-[ ... ]
-> +check_deps() {
-> +	for dep in vng make; do
-> +		if [[ ! -x $(command -v "${dep}") ]]; then
-> +			echo -e "skip:    dependency ${dep} not found!\n"
-> +			exit "${KSFT_SKIP}"
-> +		fi
-> +	done
-> +
-> +	if ${SHELL_MODE}; then
-> +		return
-> +	fi
-> +
-> +	if [[ ! -x "${DMABUF_HEAP_TEST}" ]]; then
-> +		printf "skip:    %s not found!" "${DMABUF_HEAP_TEST}"
-> +		printf " Please build the kselftest dmabuf-heaps target (or use -b).\n"
-> +		exit "${KSFT_SKIP}"
-> +	fi
-> +
-> +	if [[ ! -x "${MEMCONTROL_TEST}" ]]; then
-> +		printf "skip:    %s not found!" "${MEMCONTROL_TEST}"
-> +		printf " Please build the kselftest cgroup target (or use -b).\n"
-> +		exit "${KSFT_SKIP}"
-> +	fi
-> +}
-[ ... ]
-> +trap cleanup EXIT
-> +
-> +check_deps
-> +check_vng
-> +handle_build
-> +make_runner
-
-[Severity: Medium]
-As reported by Sashiko on v3 [4], if vmtest.sh is invoked with -b on a clean
-tree where the selftest binaries have not been built yet, won't check_deps()
-exit with KSFT_SKIP before handle_build() has a chance to compile them?
-
-Should handle_build() run before check_deps() (or should check_deps() skip
-the binary existence checks when BUILD is true)?
-
-[1] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
-8-78d2c4cb8647@redhat.com
-[2] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
-8-78d2c4cb8647@redhat.com
-[3] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
-8-78d2c4cb8647@redhat.com
-[4] https://lore.kernel.org/r/20261027-v2_20230123_tjmercier_google_com-v3-=
-8-78d2c4cb8647@redhat.com
+[1] https://lore.kernel.org/r/16093a0278a6d7d1a0a8bc055c228bed@paul-moore.c=
+om
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-v2_2023012=
-3_tjmercier_google_com-v4-0-1819a017000b@redhat.com?part=3D8
+3_tjmercier_google_com-v4-0-1819a017000b@redhat.com?part=3D6
