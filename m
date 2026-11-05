@@ -1,109 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793889925;
-	b=NGjojrWLUCoOGeaOfRSSfuyY6LFxuI/9khPgSjLmBrMOanSf/aypbH/q7MJyVvwI97Wy
-	 I2FPh5j/NDzch5sF3Ez67vEWUJNd/JcLLCED2KGUidoKPdONHdBJiAU+Besk5ATHs+PAO
-	 Iu5HQAqifK7bAYZBKVs71yOqjFoXCXx20ae6siE5jVwZcQEwGoZcRgt4XtGkx16L/C7D9
-	 BI0VMd6K0FHfnGosjDQDUPSA00KaqrwzR2ZBPXFJOaJShmOPjfPWv4yKGWdVzlFmKvtnP
-	 +n4yuIGjtnqW2obkak5HgL+tUfsi8iqi46FdLkoxLS7mFP9gK7XBM+81aYakrZ6i6aQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793889925;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Date:From:To:Subject:Message-ID:
-	 Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:User-Agent:X-Spam-Flag:X-Spam-Level:
-	 X-Spamd-Result:X-Spam-Score;
-	bh=xnvOIDGTPonUH6ysmmMN6GHGPrjB2cTfQMhlhz62DA0=;
-	b=ceojRljjsElvqVkZzfCsy9wV5/VNmA+Mw3XSNHekgNYMEh46xc0G6JCjLPQ1sdhMG3a6
-	 flBbwuDCoakGzD6oZ5kPxDR1dJngkLpJfn50+6HWvLrwypVserYVaVskLbhQ3n2pcpNWf
-	 LJ56aAwZJxVBLwh+IaQn2ya0Dc7tbJprzSt+HboJZp5WGEEXz2CcUbMXG0RWFETMfJRqr
-	 xtQ+7949G657YzniqT2tufGIQFteH+D0vAgRZRQhD3M/A819RXpyKr3lht/oEzib0xPTb
-	 oa12oDDtROsBUmh9ZoctyJ6u6A21NIwGQ+ZZxPD//Q+MTbiNc20iJzT5yMZkFcBmnnw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GLkqBuG4;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=H7eOTblu;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GLkqBuG4;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=H7eOTblu;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793892779;
+	b=40xgTc18o+VvYx78ZwFg+j6TaRZ4hGD0qdPbNMkbpBPNFWyxDwAqbVPekEhakYJeOl+n
+	 JAqPpH15gviY0co00HVqL1CDlsFWdhsQ9avnDVBU6DdByiDEIWlhNXf72Kb+SdiDSaxAN
+	 0/PAQqachMz+cq8LsX79rkmjOxzD2nHQuhA2c8AcZb/eCtsJId2jS7zcqzRQMySreAbwk
+	 hD9B2bgf5NeDYuBF2x+1jhAylifVHVCnITvVWCnd++4VI7PFM2Hd7VTkQSI6qVq+8Isdg
+	 kXQmdKZmBMNTx0xZmnLUEm1ofTFivwqUwd5b2cfpIdvoNv056E3Kf61M/IRL1sSyU7Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793892779;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=0CKO+5RSsG8ELN5U388bNUvgwh5IBlIfeDAKoc93boA=;
+	b=yemqgJid2NVDw4Tea9SBKHsuzrEUXcr+X4x2hRGdB5H7++CIqVfkD4dCaZF5zDBxRPYi
+	 JI+ce7UoHa0Z209gFcEgW/NTfZWUSYfPFsTzJdv90Dxh7BY+YvM4tN72U7c4htEUZItEm
+	 BwKcUwAMakE3HptbBPoFaF8Fe+BS0PM6i3X7iHdF0YsEV79VTQoM2JDcuwa221nMKwRjR
+	 D7l5OIXTgdYxmN5NHTIM9IGLOyzo+JwHwPhnsupcyMmT9ulSgUsvkYyFfPNv8HFzG8HeW
+	 PN2/l63aMjj0v+1mNKmi+5tgBpOzjZaxi/jGoBhwhKKy8KkBVM0jMesVrxVad7/lQGw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QD3wwCcn;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
+Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73F91606A32F
-	for <selinux@vger.kernel.org>; Thu,  5 Nov 2026 14:45:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73F91606A32F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCC7D606A339
+	for <selinux@vger.kernel.org>; Thu,  5 Nov 2026 15:32:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CCC7D606A339
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GLkqBuG4;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=H7eOTblu;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GLkqBuG4;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=H7eOTblu
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id AF49F1F785;
-	Thu,  5 Nov 2026 14:45:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793889917; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xnvOIDGTPonUH6ysmmMN6GHGPrjB2cTfQMhlhz62DA0=;
-	b=GLkqBuG4JpBdvDXT+8ZiI4dCXCeTc1/vm7BqZrhRBBl/s2LEv0DSZw/KujpoBGXdkZzt4t
-	YaPMyYlWLGD9WSUQnyIYAaN+PM/6otYoKoX6LQHxmx0kC3PgjWL8GM3fz7wj0nRdGwlK5b
-	okmmmV3/bMCwnqCacLTAfz7mYlSLjok=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793889917;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xnvOIDGTPonUH6ysmmMN6GHGPrjB2cTfQMhlhz62DA0=;
-	b=H7eOTblul0Trjd5Gmfus9gOosySuVRog2e2P76q9LhDWPFN2QhPAJKbFaaOOxcTEkb40RY
-	ydRrKnqKTxe7MGCQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793889917; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xnvOIDGTPonUH6ysmmMN6GHGPrjB2cTfQMhlhz62DA0=;
-	b=GLkqBuG4JpBdvDXT+8ZiI4dCXCeTc1/vm7BqZrhRBBl/s2LEv0DSZw/KujpoBGXdkZzt4t
-	YaPMyYlWLGD9WSUQnyIYAaN+PM/6otYoKoX6LQHxmx0kC3PgjWL8GM3fz7wj0nRdGwlK5b
-	okmmmV3/bMCwnqCacLTAfz7mYlSLjok=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793889917;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xnvOIDGTPonUH6ysmmMN6GHGPrjB2cTfQMhlhz62DA0=;
-	b=H7eOTblul0Trjd5Gmfus9gOosySuVRog2e2P76q9LhDWPFN2QhPAJKbFaaOOxcTEkb40RY
-	ydRrKnqKTxe7MGCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6C4F3133F6;
-	Thu,  5 Nov 2026 14:45:17 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 2kcrEH2W7GpkOQAAD6G6ig
-	(envelope-from <fbonazzi@suse.de>); Thu, 05 Nov 2026 14:45:17 +0000
-Date: Thu, 5 Nov 2026 15:45:15 +0100
-From: Filippo Bonazzi <fbonazzi@suse.de>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, selinux@suse.de
-Subject: Re: Question about libselinux *_with_level functions
-Message-ID: <auyV4UaYWjPiDZdD@suse.com>
-Mail-Followup-To: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, selinux@suse.de
-References: <76k2qxgeqgik3rdq6pnve7c6fqu43pjjeskxshtztal6rwllrd@ta3gvtdds4it>
- <CAEjxPJ6yTtMA4a-CvrQW0uTJ8mTEkdr6WE9mVJw67BKH5KRwyA@mail.gmail.com>
- <auxhNtTcQa-6TS35@suse.com>
- <CAEjxPJ7w5BMmMW-cZNG-fVpZT73BW0C9d-cBcrG3AVW-ArS=Tg@mail.gmail.com>
- <CAEjxPJ6ihzVO32+RAah_g9vo7vbFQTK5EGybgvJhow9u6tzMbg@mail.gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QD3wwCcn
+Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-67bf27f179aso2068370d50.0
+        for <selinux@vger.kernel.org>; Thu, 05 Nov 2026 07:32:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793892778; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ZUriY/oEuiACk6SxjeVc/2q850z+8TH8YIWJM8n4ToKh3WCITHK2UraIojVOrT7/Po
+         XF9Orp8lUsrJj14C76pJL9Fp1+ee3TezwcXclaoHdBSMNvd52IvdVjq1vzsW475QSINY
+         DXDFzv7JpAdIPLNogX69GikhbAX2sb8lJJ7fhRC6PNqSjAmEbKnZErzPPmNlHVNpqeSy
+         WZgO/DE84QWSoVJo4pKNwssHmfKFdR9x3sB8O52dZEHHds3Y5HJkMMz/30GVVUwEav2c
+         AHXseQ+o1I9boq+/Y+utD7RCtcLF1kayVk+9+TjKaFyCz1Xjol654YbO9hUM9Z/HKmX7
+         lSRA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=0CKO+5RSsG8ELN5U388bNUvgwh5IBlIfeDAKoc93boA=;
+        fh=JHL+dlBtetZKWAunLGWKbt14h50PoOUW6V+T78x38Ms=;
+        b=JO9i9dYp1pJdijzUNbjHRUhLyi9D0FxEx4CKEaIgr8bACFtIETtL37TMimculmcWiU
+         iVRRxpd55l0XUne0+TdM2l/OMgT+YbmTDRc2qtLMPOvHvBwJlhFj3nuwzu/WO4QsQSj3
+         qqNficgbC9TwqtwWWVitMglNKsuc4Crz2WyHMlTXITnSti2gKaT/B9N1gmoZFgy7cNzD
+         7pln3rlFe5I6A7QhiBGq1Zq5Wrc92vzca9oEFnWGCkFiqUinViDNAjdDaENTzwoFxBBM
+         ROOLnXBc5n0owQADIu3XoBVg87ECnYpmi4bqLuLXjDTyJt23C6PpW1aXWtHHhTaIHudT
+         NJ+Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793892778; x=1794497578; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0CKO+5RSsG8ELN5U388bNUvgwh5IBlIfeDAKoc93boA=;
+        b=QD3wwCcnOZe/D+WLK39dU1XEiZr0vsHa65JcRlLH5I39vaJCow+kamefs+x944fOSa
+         jvOmQr5RA+qnTs0eNPmMdLW8Zc7cypgPgAMTa06QPiDWhvVVgpzxtOShD44VO3CkV1s2
+         V0OeOVzTwAwptIrxpnrdxMNWKYA/VAv7bV1IBDsoAokyQIVjVIzQKGUJ01sqOPIydHIs
+         WLK/w50wmTcKNfRuusfn4JDDxw7eewDR8Gp2Tv1bS6qiU50gEqwBKgsCfsHGig0Fig7F
+         slIgCcT8xTKpYcQ+e7D4M/dwWhS4baVH1+oZaMuMfg/BOgHaqTd0BXeHrbCzuuU+/Whx
+         JGWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793892778; x=1794497578;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0CKO+5RSsG8ELN5U388bNUvgwh5IBlIfeDAKoc93boA=;
+        b=yCdlXe4XWa+6Si3CTesRYpxU2ehKypZz9PKs07Q3LY3wfFNmFBbd7gZxuLOsFtfL5f
+         GTwL2fmkJHk9ItN1MFnStnqdC0qr6Px1tFquxA/DGYoDyjOShmQx7flLOUgds8pU/O/o
+         wzBoiGTSest456pkl2GikYD1LPyM0aTkDoTUu/ihcJ/Q9wjmekATUXqYjI6qzW3M6Agg
+         aZp15bCsrYS+5jGWvUcxnzRpyp29AHPyZOZRyc+liTXLeh0kF8wwXjFlVrO1JMiRk3ye
+         WhnWBSOGkZCOM7rLDqFs2vK29t9Tn/6DLYhL4rVNs28Dd4dKdTs+GMbcPDp6obDRA9bM
+         OunA==
+X-Gm-Message-State: APuU4Z/70bpQZDwlDSWba/MfuzuhwLmwOY7vWxdVaYfUyoutWcC/emF1
+	zj0UD79wgqwsnjiG9iGfY1jBA5JB16iI3i+4nZBUeYsTFr0/kD38ddNmSbVZdPRtN0IoqPfRnjt
+	Lxx9Dzw2c0XrdoR/KzP6Ma0NMCoUu0NmYPAq5
+X-Gm-Gg: AYBFou116F0xYlrd7D1VdlIVf4VCJlH8SanfS6FQUFRYU10a820zf+SuzOKKfj//ZGB
+	/rOUcFE2hVwkxQdA1Yp7znlDTAhIYK6ZQlI+2JI5Qj8rXlSfT8/t68KDMhz/5sOOna61ST27ZL+
+	AxpUSi8NRAEjaHZINfvFfyg2WfyCOld6Ct2Zkcjq7izozEK8aXY2hIwnsQubZJk1ReYhzA+KRZU
+	esFEofI2skFSvaY4ClvpjoMUQCoXuNnnrBh4D7ST+nFSZymtOl1WbHwlLcSEVC827/TrD5z5txJ
+	8OX6bk8+btQBlzthDRn3oscwrv+3Ei9SZX1qdUbaXc6H+6HBp2Bf+IX+K6cLawqIObpfP9rMyie
+	1qsZ+AACBvY6GtcLv6dM6P4bHa/BAPl8nNwtjAN1nzbuMvRJt4cc3AcQZIVSM7hheFJCHvjAp3R
+	rArk6Mvy33blBDWTJYFnOOeYMUqgOGLb3iveB4QtZm1tRGXCBu/IYmASalZQ==
+X-Received: by 2002:a05:690e:441a:b0:674:981:a937 with SMTP id
+ 956f58d0204a3-67ba500eef6mr8027779d50.121.1793892777491; Thu, 05 Nov 2026
+ 07:32:57 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -113,104 +104,38 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="c7f4uwd73pxl2tk6"
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ6ihzVO32+RAah_g9vo7vbFQTK5EGybgvJhow9u6tzMbg@mail.gmail.com>
-User-Agent: NeoMutt/20260406
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spamd-Result: default: False [-15.40 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SIGNED_PGP(-2.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,text/plain];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com,vger.kernel.org,suse.de];
-	MIME_TRACE(0.00)[0:+,1:+,2:~];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_TLS_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_THREE(0.00)[3];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email]
-X-Spam-Score: -15.40
-
-
---c7f4uwd73pxl2tk6
-Content-Type: text/plain; protected-headers=v1; charset=utf-8;
-	format=flowed
-Content-Disposition: inline
+References: <20260928154323.48910-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260928154323.48910-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 5 Nov 2026 10:32:46 -0500
+X-Gm-Features: AclHuK-7WZcpXwxk13I-Xl-nv_H7MooA3neNQH6gLsSeJBn1VY2qiYlgga9TYHk
+Message-ID: <CAEjxPJ7fSVCf2y9f11YbMOzz9FwmcG8n0skqCFs4UTaQ-vtNBQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] Revert "tools/nfs.sh: comment out the
+ fscontext= tests for now"
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnacek@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: Question about libselinux *_with_level functions
-MIME-Version: 1.0
 
-On 2026-11-05 09:25 (UTC -0500), Stephen Smalley wrote:
->On Thu, Nov 5, 2026 at 9:18=E2=80=AFAM Stephen Smalley
-><stephen.smalley.work@gmail.com> wrote:
->>
->> On Thu, Nov 5, 2026 at 6:03=E2=80=AFAM Filippo Bonazzi <fbonazzi@suse.de=
-> wrote:
->> >
->> > On 2026-05-27 13:46 (UTC -0400), Stephen Smalley wrote:
->> > >I believe this is a regression introduced by the deprecation/removal
->> > >of /sys/fs/selinux/user,
->> > >as used by security_compute_user(), which was formerly used by
->> > >get_ordered_context_list*().
->> >
->> > Hi,
->> >
->> > Just checking the state of this. Is this planned to be fixed at some p=
-oint?
->>
->> Sorry I saw Petr's response in the GitHub issue and was then unclear
->> that there is anything to be fixed at the moment. Patches accepted if
->> there is in fact a real bug for a real user of this interface.
+On Mon, Sep 28, 2026 at 11:43=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
->Actually, on a re-read, I see that there is indeed a bug that likely
->has a relatively simple fix; is that something you want to create or
->should we?
+> This reverts commit 7738f9f68cedfe36ace71a15ae49ed3d9dd85b36. The
+> linked kernel patch below fixes the underlying kernel bug that
+> prevented us from successfully running this test.
+>
+> This change also updates the test scripts to skip a second Test
+> Invalid Mount test on NFS because since kernel commit ec1ade6a0448
+> ("nfs: account for selinux security context when deciding to share
+> superblock"), NFS allocates a fresh superblock when the security
+> options differ, so the "same sb, different settings" error this test
+> checks for is unreachable on NFS.
+>
+> Link: https://lore.kernel.org/selinux/20260928141917.17577-1-stephen.smal=
+ley.work@gmail.com/
+> Fixes: https://github.com/SELinuxProject/selinux-testsuite/issues/91
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Yes, I understood that the GH response was a red herring back then and I fi=
-gured
-this email thread was the right path. But then it kinda fell through the cr=
-acks.
-
-I'd appreciate if you could come up with a fix, since I lack the historical
-context to understand he regression and the deprecation of the previous
-features you mentioned.
-
-Thank you
-
-Filippo
-
---=20
-Filippo Bonazzi
-Security Engineer                        suse.com
-8257 4398 947A 2DBE F21D 76E6 937A 63F0 5B36 46D9
-
---c7f4uwd73pxl2tk6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQFPBAABCAA5FiEEgldDmJR6Lb7yHXbmk3pj8Fs2RtkFAmrslnsbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEJN6Y/BbNkbZu/EIAI4vd2PCfY/A2zcg1bNB
-d+r3irUlgUfWCYvyFDwLNeSJpL7u0D3TbowIdhC1J39oYWqtoNG1r2nS1j5IRHSV
-O/prIDvm3nlKNwVru+WBTuJMkTmdWRzH6AZxUkhflJYKElNozy7F8Oy+CRu4cCDX
-rqssZ9XILWTMwg1S0uHSEh9D32zUIlgyGA8YYMJoP4C3wkEKBvimT/XDfrNRiE/e
-m4i10rAkK0/tq+AWpHDwEJmG6g/sSxkDPQ3kvKJDxLnzSqZ9G3qFGxTG2YQbP5cn
-x2pqTHoNdojzGJbcSdXPz5KV08aU424zmc1al5/aw37g7j0aI0nC2F0qwWETB8/q
-hdo=
-=0J0B
------END PGP SIGNATURE-----
-
---c7f4uwd73pxl2tk6--
+Is it ok to merge this and the other testsuite patch to re-enable all
+the NFS tests now that the fixes have gone upstream and marked for
+stable?
