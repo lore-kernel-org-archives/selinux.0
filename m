@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793914499;
-	b=KfandFLcFqiLDq1rZ5QlS5T2XYzyKvj60nOYKr+bSxeumNV7s6PJcPXPT8mkKJz6s2q9
-	 2F/7oFljJBUkOqdY87pEXcVGC1VaGjoTdQs5PODxLwzH9LBdsiAtnf/TB0Hz1oL83A80M
-	 eyrwaI0Rlalv5Ccu/y9v0A/gK87oVKag+bCalnvlO5218zzP99vzLVR2n5+PyNX7X//U6
-	 d1gQmBSDHOKUNC4K9izL73Dvlurp9XBDrnQp7tQ7NLwGhxgTKdFbJTAO7hDv0jC0HDep9
-	 WORARTjCNEnjoAfwHrhHWn9n5Exz3FmUB0KEGIvrSYH8m05gRoE7E7wFLIQppl+6SRw==
+	t=1793914516;
+	b=rDl8JEM5lpgySE28/+euklIlPGNHI1xGN9ZGYcQ0/ef3t2FvT7vPfP1hqmBPOKNYrbCM
+	 WdmokX3cdfuW6Opc18E3cxxZwEqbB5Zsrj6IOTxqR13lSRPVTIfpCej/MUjzqSsU0A0WY
+	 KHhmJm6bWOx0mEW25YMQ3SgQSDDaYhFV5JPxmmTq6BviJSfvkKlXF8DGmFTO5sH2CVS9P
+	 wGBfiAW9tCBbsgmCGJqoGQOpYq9tc8fUhDfwD3tvpdwmSDyj+60dvy/fGxF/Yp+M7tdFB
+	 zuceyBuE/H/VOlAnMHtK27pO7fdNA1PQpxWTU3AyC/1rwnbwk4gO8EcyyKEKSuphz2g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793914499;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793914516;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=qqj13y74wygWSmayTPQ4iPMQc3qMQDiKbXhB7QOG+mA=;
-	b=B7ndyBCcT4g2a/39RffxbcxPmqot+3Q9PPfzdWjUICgS4LmBWlpazXvpekMKLos8MCPa
-	 uGvc6q+8Le1m5ac3t/VkRAPExN1EkZM2WAGFoMYtE8frn5DE4ZVp3O/YuIPk+zXyLpzbt
-	 1H7JjO4/F+DJtsyTt8yjBho0+NIpVlWuAgSnBo3rczIvPzvukVcVFDlH32FpcwB+F6q/f
-	 9851lmddshqtmoGMZMDSGHHuKsUebZfSeIXuHUjQfesXnGyfYsnANolDg7foPdLOsCaZu
-	 O/s3qVwtW3z6NmCIjcI/vYqELWYMUaNb5jbpsuiGf53YJ7WZq793kLADawereBvntMg==
+	bh=dEho4RcoGmrcEPSbrhOUHRtwiqikTbr6h0hQZafkpXQ=;
+	b=P6a1+3jNHyD7Ea0RQodgN52uYD/ur1cv1qZeFbLPo142Q1gaJPMUNGiuAU6dyGdCbg6W
+	 9p97zZhdOvJfayVPbyKnk3OE9XmqOtg8t1vz/d2mtvVlzaNbdvPWENdzUkT3o2pLQ77IG
+	 DolAYLF7ruLKuN2aZYS+VldU+ZjUUkHwqezbdgqnTgiNwYRoyBVP31/LB4476CcEnVy7V
+	 UDfI/IBBM0fUoXXbpZt+QuVU3VaewZ3djJesd15JpG/gXQs/fjJZr1dr2g37WV1G7GFxD
+	 AXKD3rPeyXZ7qIzNxN2dVrZis3ZLI8TZUEDJhb0vk5JeU4KmBJD6vo941WZSx1PzfVg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VOZXMwFI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RbH1Y2Uq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1CB0606D826;
-	Thu,  5 Nov 2026 21:34:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89632606D814;
+	Thu,  5 Nov 2026 21:35:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VOZXMwFI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9141F008A1;
-	Thu,  5 Nov 2026 21:34:40 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RbH1Y2Uq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C68931F0089F;
+	Thu,  5 Nov 2026 21:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793914498;
-	bh=qqj13y74wygWSmayTPQ4iPMQc3qMQDiKbXhB7QOG+mA=;
+	s=k20260515; t=1793914516;
+	bh=dEho4RcoGmrcEPSbrhOUHRtwiqikTbr6h0hQZafkpXQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=VOZXMwFIw55C/gyPpTFMi958v5mx5VT01snh2SA64awr2LbAScNTljXqXSrQYbiaj
-	 RV7VVW31Dx8nplzx5bLpirryInTRUpJmwDuUPaNOi6NwGChrxsBejRvOPhE5vzrmJ2
-	 ibB0WxGC99Icwc9mBMBIppQkz1ran+hYIvyuZ4PTP3ux4GpCm65RxCnOqccO9/vgpG
-	 eRfxWbVn1No9ze31mWcWL6lZD7fySHk5wdGW1jeOrPye/O/Pj3QoJ1UW5d9HjYbgmj
-	 2HgBTfIoWS+TgTiWFCZVz1fU08DAIAnlltZ+zA7aS+qglKIsghb0mEocg3yKJD+pla
-	 d9oPt5DuR8UWw==
+	b=RbH1Y2UqPya3J04+p+A9uU/aqwVnT5G4esOhtGUa6bluJ0GJwdjUxyWs6BB1/ltfV
+	 0eZaoadmhZspy1QRqjHkCItM5f/a9tApUYvoX3yr/Kd64gO5EOM1gPjfHD1rYxxycz
+	 g/a7zIQiEvxlgGAcbeWqatf0r7Ru+1fnkxc7U77RyfjxYEKlLfE9qICMVUWEGKYvZ8
+	 /fZgia2nIf9DpQvAMsciLk3gVdKAEAO/wuC6RUAD7Lzxdzmyuwglycw0LqXEwDyHoS
+	 OWSliHlLYhRVYisoim/KzkG2/nBh1qsnVsM4lfWmFaR5SIshmHPe+CPIzdNSAoLDKh
+	 SNsAv21l96Nxw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Thu, 05 Nov 2026 21:31:02 +0000
-Subject: [PATCH 11/13] uprobes: convert VMA flag tests to use vma_flags_t
+Date: Thu, 05 Nov 2026 21:31:03 +0000
+Subject: [PATCH 12/13] perf: convert VMA flag tests to use vma_flags_t
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -54,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-late-2026-vma-flags-v1-11-0d3cd15ab75f@kernel.org>
+Message-Id: <20261105-late-2026-vma-flags-v1-12-0d3cd15ab75f@kernel.org>
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 In-Reply-To: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -114,65 +114,127 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
  "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1835; i=ljs@kernel.org;
- h=from:subject:message-id; bh=sx5WtkIScURFA/l2IshQG5M9gB0ax8rL7dz98vBV9Zo=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF3eVuN07XEeXyib4EmPkM7Sa2Z/rntYCu7v4hb7V
- 5x45sWBjlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAExE7hwjw6WJvcWcrAdvuDPP
- e6O7Imh6UszvHqsA8T/ftk6Jmpx715nhn+Em9YjI13G6KxckMRb13g42Wvfv2zy17kdn4jfarqq
- RZQMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3978; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=SvCLNyI6uEKunT8kSOCWdMLbtUbF6342/9JMzd2q8+M=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF3eJevtH77x45N1EesXx31gqPvxQIubb63q1F1/W
+ bZpqDibdpSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiyzgY/ucU3j7otX2+7X72
+ 0mdqp2/VbXosf5fDf1lDs8ZEt2q32XsZ/qeqfZf8WTj1rNpv8cIuKXmTgivfZ7dLzFpWnfXXK/d
+ CCRMA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
 Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
-uprobes VMA validity checks.
+perf mmap and mmap event logic.
 
 No functional change intended.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- kernel/events/uprobes.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ kernel/events/core.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index caf444762a27..853fc952331c 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -134,12 +134,14 @@ static void uprobe_warn(struct task_struct *t, const char *msg)
-  */
- static bool valid_vma(struct vm_area_struct *vma, bool is_register)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 457d75ea7142..6bc5dfacfa48 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -7224,6 +7224,7 @@ static int map_range(struct perf_buffer *rb, struct vm_area_struct *vma)
+ 		unsigned long va = vma->vm_start + PAGE_SIZE * pagenum;
+ 		struct page *page = perf_mmap_to_page(rb,
+ 				vma_start_pgoff(vma) + pagenum);
++		vma_flags_t vma_flags = vma->flags;
+ 
+ 		if (page == NULL) {
+ 			err = -EINVAL;
+@@ -7231,8 +7232,9 @@ static int map_range(struct perf_buffer *rb, struct vm_area_struct *vma)
+ 		}
+ 
+ 		/* Map readonly, perf_mmap_pfn_mkwrite() called on write fault. */
++		vma_flags_clear(&vma_flags, VMA_SHARED_BIT);
+ 		err = remap_pfn_range(vma, va, page_to_pfn(page), PAGE_SIZE,
+-				      vm_get_page_prot(vma->vm_flags & ~VM_SHARED));
++				      vma_flags_to_page_prot(vma_flags));
+ 		if (err)
+ 			break;
+ 	}
+@@ -7350,7 +7352,7 @@ static int perf_mmap_rb(struct vm_area_struct *vma, struct perf_event *event,
+ 	if (!perf_mmap_calc_limits(vma, &user_extra, &extra))
+ 		return -EPERM;
+ 
+-	if (vma->vm_flags & VM_WRITE)
++	if (vma_test(vma, VMA_WRITE_BIT))
+ 		rb_flags |= RING_BUFFER_WRITABLE;
+ 
+ 	rb = rb_alloc(nr_pages,
+@@ -7431,7 +7433,7 @@ static int perf_mmap_aux(struct vm_area_struct *vma, struct perf_event *event,
+ 
+ 		WARN_ON(!rb && event->rb);
+ 
+-		if (vma->vm_flags & VM_WRITE)
++		if (vma_test(vma, VMA_WRITE_BIT))
+ 			rb_flags |= RING_BUFFER_WRITABLE;
+ 
+ 		ret = rb_alloc_aux(rb, event, pgoff_start, nr_pages,
+@@ -7466,7 +7468,7 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+ 	if (event->cpu == -1 && event->attr.inherit)
+ 		return -EINVAL;
+ 
+-	if (!(vma->vm_flags & VM_SHARED))
++	if (!vma_test(vma, VMA_SHARED_BIT))
+ 		return -EINVAL;
+ 
+ 	ret = security_perf_event_read(event);
+@@ -9829,7 +9831,7 @@ static int perf_event_mmap_match(struct perf_event *event,
  {
--	vm_flags_t flags = VM_HUGETLB | VM_MAYEXEC | VM_MAYSHARE;
-+	vma_flags_t forbidden = mk_vma_flags(VMA_HUGETLB_BIT,
-+					     VMA_MAYSHARE_BIT);
+ 	struct perf_mmap_event *mmap_event = data;
+ 	struct vm_area_struct *vma = mmap_event->vma;
+-	int executable = vma->vm_flags & VM_EXEC;
++	bool executable = vma_test(vma, VMA_EXEC_BIT);
  
- 	if (is_register)
--		flags |= VM_WRITE;
-+		vma_flags_set(&forbidden, VMA_WRITE_BIT);
+ 	return (!executable && event->attr.mmap_data) ||
+ 	       (executable && (event->attr.mmap || event->attr.mmap2));
+@@ -9862,7 +9864,7 @@ static void perf_event_mmap_output(struct perf_event *event,
+ 		if (use_build_id)
+ 			misc |= PERF_RECORD_MISC_MMAP_BUILD_ID;
+ 	}
+-	if (!(mmap_event->vma->vm_flags & VM_EXEC))
++	if (!vma_test(mmap_event->vma, VMA_EXEC_BIT))
+ 		misc |= PERF_RECORD_MISC_MMAP_DATA;
  
--	return vma->vm_file && (vma->vm_flags & flags) == VM_MAYEXEC;
-+	return vma->vm_file && vma_test(vma, VMA_MAYEXEC_BIT) &&
-+		!vma_test_any_mask(vma, forbidden);
- }
+ 	perf_event_header__init(&mmap_event->event_id.header, &sample,
+@@ -9913,19 +9915,19 @@ static void perf_event_mmap_event(struct perf_mmap_event *mmap_event)
+ 	char *buf = NULL;
+ 	char *name = NULL;
  
- static unsigned long offset_to_vaddr(struct vm_area_struct *vma, loff_t offset)
-@@ -286,7 +288,7 @@ static bool valid_ref_ctr_vma(struct uprobe *uprobe,
- 	return uprobe->ref_ctr_offset &&
- 		vma->vm_file &&
- 		file_inode(vma->vm_file) == uprobe->inode &&
--		(vma->vm_flags & (VM_WRITE|VM_SHARED)) == VM_WRITE &&
-+		vma_test(vma, VMA_WRITE_BIT) && !vma_test(vma, VMA_SHARED_BIT) &&
- 		vma->vm_start <= vaddr &&
- 		vma->vm_end > vaddr;
- }
-@@ -1607,7 +1609,7 @@ int uprobe_mmap(struct vm_area_struct *vma)
- 		return 0;
+-	if (vma->vm_flags & VM_READ)
++	if (vma_test(vma, VMA_READ_BIT))
+ 		prot |= PROT_READ;
+-	if (vma->vm_flags & VM_WRITE)
++	if (vma_test(vma, VMA_WRITE_BIT))
+ 		prot |= PROT_WRITE;
+-	if (vma->vm_flags & VM_EXEC)
++	if (vma_test(vma, VMA_EXEC_BIT))
+ 		prot |= PROT_EXEC;
  
- 	if (vma->vm_file &&
--	    (vma->vm_flags & (VM_WRITE|VM_SHARED)) == VM_WRITE &&
-+	    vma_test(vma, VMA_WRITE_BIT) && !vma_test(vma, VMA_SHARED_BIT) &&
- 	    mm_flags_test(MMF_HAS_UPROBES, vma->vm_mm))
- 		delayed_ref_ctr_inc(vma);
+-	if (vma->vm_flags & VM_MAYSHARE)
++	if (vma_test(vma, VMA_MAYSHARE_BIT))
+ 		flags = MAP_SHARED;
+ 	else
+ 		flags = MAP_PRIVATE;
  
+-	if (vma->vm_flags & VM_LOCKED)
++	if (vma_test(vma, VMA_LOCKED_BIT))
+ 		flags |= MAP_LOCKED;
+ 	if (vma_is_hugetlb(vma))
+ 		flags |= MAP_HUGETLB;
+@@ -10091,7 +10093,7 @@ static void perf_addr_filters_adjust(struct vm_area_struct *vma)
+ 	 * Data tracing isn't supported yet and as such there is no need
+ 	 * to keep track of anything that isn't related to executable code:
+ 	 */
+-	if (!(vma->vm_flags & VM_EXEC))
++	if (!vma_test(vma, VMA_EXEC_BIT))
+ 		return;
+ 
+ 	rcu_read_lock();
 
 -- 
 2.56.0
