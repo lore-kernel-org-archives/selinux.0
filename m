@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793914352;
-	b=LsqtQ/ISC9BgZKVhUtfn6h3l1nvcu2iFDxC57SfyXAIh98Jp+fxs0Qy+H19npmXhMORd
-	 prW2DfP7k5naT9C24/pidyBI4+ENEO8byeiKCbTS/Z+OVD2vlXMBsK2Ml9r206LemudHt
-	 G0xfBuDN3r88HkZzkdfwUTAsgRZ+u9UPf/TiNQmHHhc5CqRurGzMiUUTXwsqHHksnEqps
-	 gKahjtvzq7GXkMV3Mf8Cx78Go5xYiQs2zSx6QO7b18iu9uAdVRX8O9COxWdGFFolgRZQQ
-	 wARrDO+/KoAxsguog3rRHtRv232qzd8oMPsQeeJBf6Uq68XBBG2T8OrdzLzqnKvuxZQ==
+	t=1793914369;
+	b=cjoMqkVu1POB9RRamfz0LkUdN1cTjb16TisnYVLvWzjZm0RO5+ryg4g3rQN+kOiZsykU
+	 X/xxYGta36tQfsqIrzp85MTgI9NwlaJ8wfMk28twpCy8ublqd87t7Me5t59V84nyTDIFv
+	 eAObe30lGKDeHFR/psoxNQvFlJ29NaBrZ5nna3wgi8LH27cIifCLorWUTV3VIeEzNLHYY
+	 Mb7nYZ9w1QT9ZUEifqAJH5XPKhl/9aLvYt+IO2MiU2DsZ8lVRX1poherbo0KF7/sbUk03
+	 IipeulzGEuI1Syk77NCHEh3UatD1MyhmSMShcmfhpxKLpxdMM0jf1hDutnETZRZXOyw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793914352;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793914369;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=R9gbDgDsUJAtxTTttS67Zy6QBKff1k+BGmZ9q8ms4as=;
-	b=Co39tcOffLJ1luXR2dzQtR9yFmDd36deoNxbxlqV+TaR2iBHAZ1M6k1wQMXg64uny3fn
-	 FccmzNQsy6P4eKOw59wVu52pI8idCCARueBsyqneq4ctTnK6QwRuFLW9w6OOOrHYKqcD8
-	 YidEVFjR0b3WrXJoyhqiHP7ETcFMakwyltblFtFiyXZvdk7EakCfcQmA+90F7z7DiCh1C
-	 +O/4Ik77PAcsXYwJw7EQmGecquuR0AwnwJhB9xmcOj1YJeHBZ+lgRhg/u881of37iUwfA
-	 AHc2d5nO4uDbtEEqJJm7dE0fD+sTxxSrTDKSbF0RD+JwUEIA+sj6DXGLZWKfAAKLDqA==
+	bh=yc+BOM9zISLu8R7CpRSVrLcnosv916on5x7GIVL+p5Q=;
+	b=Y8Iy83XgH6vPSDe3dU67/4doClI5JUGI13ACC8glfLDDOHoHdYz8QnU3omQm/0r98P0J
+	 quIikXJWcpsiiSNTc1j23ngL8gYq5G1tGrgK6gXSugfMOnJ00fFV/3D8UfoSVH+UBUtD8
+	 b6akqtqNj0QBV2uhr5nb7Oo/+rz3zlxvMj6AzpxMrlhdBcejSgSOi5lUwGZpqAMJAWPNk
+	 ztJKF5Zt/BpKNEQaMqNsSPpCK+CmWvIl2DQmpMfbaDVntGEyT8Evb66R2Ertsz/0h9qb1
+	 LX3ILAlkMJgNlk5UzUYI3l0N4S1kDLqzQuLrZRNK8nNbh0PW2LPhfKBmT8FYTvUWRnw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZkIx7WqT;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgRHR6qi;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE920606A32C;
-	Thu,  5 Nov 2026 21:32:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81885606A326;
+	Thu,  5 Nov 2026 21:32:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZkIx7WqT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CD71F008A1;
-	Thu,  5 Nov 2026 21:32:14 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgRHR6qi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DDB1F008A2;
+	Thu,  5 Nov 2026 21:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793914351;
-	bh=R9gbDgDsUJAtxTTttS67Zy6QBKff1k+BGmZ9q8ms4as=;
+	s=k20260515; t=1793914369;
+	bh=yc+BOM9zISLu8R7CpRSVrLcnosv916on5x7GIVL+p5Q=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ZkIx7WqTlWLTCBt9NpIoUSUzWdaGj1sZTB/NJl369icVHSJO1jDaGZYx9ZI0V3ngf
-	 NS/Z25C5Vs19d6ihk3w8C7/oUqqe7K1X+FB3u7R9B4uFGPgsZ4o0NBNDpRc2THUVb3
-	 YkarJXljffQrrFjkCSeJk3R7eEWO27dzmcz7apYY0Nmwm6IP1anOsY1CUhI73l3eJ4
-	 CRpGJYjjhMGN2rrNn3vNOs2zqyDLTDI5G6ndMz8NUUszR2XbiFwVcW4PxtfSNJPcO7
-	 RIKm77NsGvQDigbGTMtdIKn8KwNNkqm7Sk4pc7DPIzfEkdFiNAbLMI/R2RkXQqgwh8
-	 3vRlOOITx0Kiw==
+	b=cgRHR6qiWJTrG30pEeN7dxFVPc+dTV1adcqdwTD1LQxIFf5q0zcztQOCCuE0x3GV/
+	 ZHgtlgNGSJS5GC6W3KxZ7f9IElfYH0FZjXVvUUKyz/AwCDgYx7heVhhqCSWhadN6KY
+	 NEe92t8q/M/dK08zY/mQ1oV/ARSsEUIjFqVUPdsV2ROGQwui5lY7ZDcsJKHtaSdJ3d
+	 +WiQAkG2/onWikpfbIj0XH1v/D+Qu5Q6DAMBppohnCrh2RINbMagM+nu5758asG2nt
+	 zz8cJNisRYFgTY2Km3b1fascO6J0EfwRQOYbwweJYORpFsW+8e1RDtMk/fPELHEOvT
+	 7xHp1SPTL/kLw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Thu, 05 Nov 2026 21:30:54 +0000
-Subject: [PATCH 03/13] mm/rmap: convert remaining VMA flag tests to use
+Date: Thu, 05 Nov 2026 21:30:55 +0000
+Subject: [PATCH 04/13] mm/migrate: convert VMA flag tests to use
  vma_flags_t
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-late-2026-vma-flags-v1-3-0d3cd15ab75f@kernel.org>
+Message-Id: <20261105-late-2026-vma-flags-v1-4-0d3cd15ab75f@kernel.org>
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 In-Reply-To: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -115,58 +115,93 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
  "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1522; i=ljs@kernel.org;
- h=from:subject:message-id; bh=eZl8Nv0dTN3HlhfbDsqgjylQKfweYHLkfOK2djhDL8M=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF1mJfT2QdPRhoV88qcu77rHLbdvR7JH9HZHWcvUt
- Zb/rtkxdpSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAin+8wMvSLM4R/t0nQTnVV
- f612NLDw5tS57Hc6+SZ6ftJWcE8sW8rwT2vzspehQh9PXindsm3+zgqliazNBicUtrCbn1vpy7J
- 0OgsA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2848; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=0EzQPbq92vrt8Ov6q38P67V1mQozPkbuYDmCmE/yfh8=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF32c9syHc3fJkcF57xf8CR5xnp+l7jg2seq6ywdJ
+ bY++ef0v6OUhUGMi0FWTJHl+Rfx/UEiYfM6L/i7wcxhZQIZwsDFKQATmT6HkeF/3qE3W0Um7RYt
+ /JsZ9l9HPWDqM8NnLeyiKcvM8087tlcyMlyYHn1t31Zdi9mvF8qt4pe4Z3x1tcCqoI47r8te8AV
+ ks/IAAA==
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Replace the remaining uses of the legacy vm_flags_t flags in the rmap logic
-with vma_flags_t values.
+Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
+migration logic.
+
+We retain the READ_ONCE() of vma->vm_flags in remove_migration_pte(), as
+there is no vma_flags_t equivalent, and arch_make_huge_pte() continues to
+take legacy flags for the time being.
 
 No functional change intended.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- mm/rmap.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/migrate.c        | 5 +++--
+ mm/migrate_device.c | 8 ++++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 1131b76bbbc2..cdc97fec8586 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1196,7 +1196,7 @@ static bool page_mkclean_one(struct folio *folio, struct vm_area_struct *vma,
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 28a8d7734735..94033c222e04 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -310,7 +310,7 @@ static bool try_to_map_unused_to_zeropage(struct page_vma_mapped_walk *pvmw,
+ 	VM_BUG_ON_PAGE(pte_present(old_pte), page);
+ 	VM_WARN_ON_ONCE_FOLIO(folio_is_device_private(folio), folio);
  
- static bool invalid_mkclean_vma(struct vm_area_struct *vma, void *arg)
- {
--	if (vma->vm_flags & VM_SHARED)
-+	if (vma_test(vma, VMA_SHARED_BIT))
+-	if (folio_test_mlocked(folio) || (pvmw->vma->vm_flags & VM_LOCKED) ||
++	if (folio_test_mlocked(folio) || vma_test(pvmw->vma, VMA_LOCKED_BIT) ||
+ 	    mm_forbids_zeropage(pvmw->vma->vm_mm))
  		return false;
  
- 	return true;
-@@ -1660,7 +1660,8 @@ void folio_add_new_anon_rmap(struct folio *folio, struct vm_area_struct *vma,
- 	 * VM_DROPPABLE mappings don't swap; instead they're just dropped when
- 	 * under memory pressure.
- 	 */
--	if (!folio_test_swapbacked(folio) && !(vma->vm_flags & VM_DROPPABLE))
-+	if (!folio_test_swapbacked(folio) &&
-+	    !vma_test_single_mask(vma, VMA_DROPPABLE))
- 		__folio_set_swapbacked(folio);
- 	__folio_set_anon(folio, vma, address, exclusive);
+@@ -2711,7 +2711,8 @@ int migrate_misplaced_folio_prepare(struct folio *folio,
+ 		 * See folio_maybe_mapped_shared() on possible imprecision
+ 		 * when we cannot easily detect if a folio is shared.
+ 		 */
+-		if ((vma->vm_flags & VM_EXEC) && folio_maybe_mapped_shared(folio))
++		if (vma_test(vma, VMA_EXEC_BIT) &&
++		    folio_maybe_mapped_shared(folio))
+ 			return -EACCES;
  
-@@ -2094,7 +2095,8 @@ static bool ttu_anon_lazyfree_folio(struct vm_area_struct *vma,
- 	 */
- 	smp_rmb();
- 
--	if (folio_test_dirty(folio) && !(vma->vm_flags & VM_DROPPABLE)) {
-+	if (folio_test_dirty(folio) &&
-+	    !vma_test_single_mask(vma, VMA_DROPPABLE)) {
  		/*
- 		 * redirtied either using the page table or a previously
- 		 * obtained GUP reference.
+diff --git a/mm/migrate_device.c b/mm/migrate_device.c
+index 9e19fadfa65c..c26acbbd2e31 100644
+--- a/mm/migrate_device.c
++++ b/mm/migrate_device.c
+@@ -842,7 +842,7 @@ static int migrate_vma_insert_huge_pmd_page(struct migrate_vma *migrate,
+ 	if (folio_is_device_private(folio)) {
+ 		swp_entry_t swp_entry;
+ 
+-		if (vma->vm_flags & VM_WRITE)
++		if (vma_test(vma, VMA_WRITE_BIT))
+ 			swp_entry = make_writable_device_private_entry(
+ 						page_to_pfn(page));
+ 		else
+@@ -855,7 +855,7 @@ static int migrate_vma_insert_huge_pmd_page(struct migrate_vma *migrate,
+ 			goto free_abort;
+ 		}
+ 		entry = folio_mk_pmd(folio, vma->vm_page_prot);
+-		if (vma->vm_flags & VM_WRITE)
++		if (vma_test(vma, VMA_WRITE_BIT))
+ 			entry = pmd_mkwrite(pmd_mkdirty(entry), vma);
+ 	}
+ 
+@@ -1043,7 +1043,7 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
+ 	if (folio_is_device_private(folio)) {
+ 		swp_entry_t swp_entry;
+ 
+-		if (vma->vm_flags & VM_WRITE)
++		if (vma_test(vma, VMA_WRITE_BIT))
+ 			swp_entry = make_writable_device_private_entry(
+ 						page_to_pfn(page));
+ 		else
+@@ -1057,7 +1057,7 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
+ 			goto abort;
+ 		}
+ 		entry = mk_pte(page, vma->vm_page_prot);
+-		if (vma->vm_flags & VM_WRITE)
++		if (vma_test(vma, VMA_WRITE_BIT))
+ 			entry = pte_mkwrite(pte_mkdirty(entry), vma);
+ 	}
+ 
 
 -- 
 2.56.0
