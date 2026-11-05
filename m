@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793914461;
-	b=GaZCLCirkDVGxshEGc8CK/4bqVcj+WUscuun6rr0cmppKVC7Qjuzmn3T1PPjg9rKLcYs
-	 Bs4dYEVXWw4BOqb5Wcl7EoDAPU8DmIUj+QZFScez3aC0t33z7E1bWqcRg3nhz+wv+PVPr
-	 tnOUeOrE42XGQLUBAz7urj0FI6KstjqCn2UxCwj2/wg6/AYP44wqQlnUDc/2aq3maW9Tq
-	 9KG5rWR2rPQx/GKN9yAxOVOuIe3BYkRc/RTJIy2VMrH811ArxZ2ZyyHX79kJtnLu3yDBh
-	 v8cbPEwJehxhuZTY1eyjkD0IPxC6bkJ3TTWTCNzyMvJNUBgGV98FJ91DC15WRYRciIg==
+	t=1793914480;
+	b=co6CGv1Y3DbojrXRr4KOwQyWxGgr58/wepEy6BOjqMRSakESpiWN8Jzffza8rgbSTiY7
+	 tWFKsbxiLqRsY5CsakS53x9J49X53W9J0VGOW7xjdzdzUxtHkZorDR5VVW1MOBiiGsSQb
+	 ol+/X5kmESJSWhwe5sPrSf6r80Xz7y4xzQEL3Wb/C0s2rRRs/uH6hMqUPpJlm4cK9UD5r
+	 UP9x92hXsS8qyGYC7n1Hx/BDIuzJl2bYasTdDq4wZErlDIROe4QrqWyqjW+ZlGh8AtUNg
+	 gr6WwnrAVHRZRd+ky+DARM6ujbPBRIGatLLUKbR2xSWJdXKZcB0PMnk814gTD3qvSIA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793914461;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793914480;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=yugPCJWELV1xpKfK4O7FyYZfkGoZI5YKsROj+R4zujY=;
-	b=bID0YwKRB/r+BCTbeMk1Q4puyPkSg7RSYAXZWUDM39/f1p0BKl/wLNKAkmcYNHti0kge
-	 VQ7UbDFRwoCo6gttnP+3YLe14IQH/Z/XSkEhbaeBbwm2E2g3T31HB22qPHIXDxYpINqfK
-	 JfQD9HforNScu0eRx9SwV7+ZUwaRMvjwreXzhxBHgWrgZU8wYEppDaPtNuITRypvnngE7
-	 EMxMQ8tJwUD+YzZNRDVsHsxvYUdAgCTXyNdfakzqmlTRYvmqxu0S7ynXgqRjzPkBN9+LC
-	 cvFa0xh/5ucGLsbrVanuYzHvBMxk6cIBW+mkPf071Sl7q6paja5Pi1TqLSYciBUYcJg==
+	bh=9BAEEweiBOL00ynx8QFZHsM3C6FC3rJdJpwUxIRdWLY=;
+	b=1I4GOTOMZ5zU8FL7e/aBNN4YoJgbs9XoT7tcsR5LuJAreFTb1WmK4YiH5X839qmKDBq5
+	 552TGhBwfitaTErPPpcP3MFc3Cs9h5UhFWKh8YnDDv+LnDgOp6KoMjwmleA0K7y8axAWy
+	 Dn/f6YJsabIbODY0Tu/HresZSj5aH3rss5P9zidQVyxpOs9uq3qMyhxfud3RdQNwrLD7p
+	 pNZ1M92WTDXtVdffg0aYvLqi9AARSUs67TeeaBfUUPJRS3t4Jy6KrX110yPpQGCyAjTH8
+	 iBKt1B/ern1NZUkYlIOrr4ikrrlhoIaAPGT05FSkLGXIVyeXlu8+XWfzuhVHMsD9tJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FB44KVZY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cFhjc+G4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC810606A329;
-	Thu,  5 Nov 2026 21:34:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F016606A328;
+	Thu,  5 Nov 2026 21:34:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FB44KVZY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0210E1F008A1;
-	Thu,  5 Nov 2026 21:34:00 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cFhjc+G4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD5B51F0089F;
+	Thu,  5 Nov 2026 21:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793914460;
-	bh=yugPCJWELV1xpKfK4O7FyYZfkGoZI5YKsROj+R4zujY=;
+	s=k20260515; t=1793914480;
+	bh=9BAEEweiBOL00ynx8QFZHsM3C6FC3rJdJpwUxIRdWLY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=FB44KVZYOhJT1YlS6i0LyQDM/pa7pB+3TCYgAO+hofV0IlW6TnQvGUQSfSiuPZqrE
-	 EJtaBhoyIR6GcgaxYIK/kCqjpb22jYqP49GznKx8e3tvIOudb8xMlePEiW3wRWX3Ah
-	 I9l3VYR6aPG8Jn61Cr3cct75FaSdaBoYtRTEjXL7YQhjxsH5UEb3aPzKxbub50CvvN
-	 4SxfLf85UGAZ/ServkXlWuZQvXu2fK1/cMbbUKSOO8iyPghvMFyZso9HYleZV2qnv3
-	 DaKdGCchqc6cHurc24RCJNc7lXJv0A10DB+7MedX92odZfrtEMDNonlWuXNfQtkCBT
-	 LZ074p1E43cIw==
+	b=cFhjc+G4G8gAyk4Q5vXifNOkvLi+qJxrRxnxHYYDQaK+C7JgQljPw+EI6OCSe/N+9
+	 xMlvS2piE0LrB1a5VTU7L5xnhvOT6DEAAwLGSQglGTVNL96iuGR5eut/CJS15JpRZZ
+	 T4aqXqix0udU7Cq4t975/38o7eS2biU4lIoGAX4qf6m04ezs8PVPD8BG+vWnm9rBEE
+	 Oyt/adVbaxtaaBvFhlWJpJZJA3NH2bxr78iwIzN+H2MdZo56SZXYqcsxsd6zc1SCu6
+	 zJlxru9KNyefxR8kgepJDYKL3Ee14uePoCd06S3wGCFo93bqAQEkxrXYu7O9c4s6E6
+	 0jwvYv9uMCYKw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Thu, 05 Nov 2026 21:31:00 +0000
-Subject: [PATCH 09/13] fs/proc/task_mmu: convert VMA flag tests to use
+Date: Thu, 05 Nov 2026 21:31:01 +0000
+Subject: [PATCH 10/13] fs/coredump: convert vma_dump_size() to use
  vma_flags_t
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-late-2026-vma-flags-v1-9-0d3cd15ab75f@kernel.org>
+Message-Id: <20261105-late-2026-vma-flags-v1-10-0d3cd15ab75f@kernel.org>
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 In-Reply-To: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -115,173 +115,86 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
  "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5492; i=ljs@kernel.org;
- h=from:subject:message-id; bh=ulPrq/NTHlGJ37qdVO5tRAZqEZAYcflQE7jG4GXbH0A=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF0uLVlyimvWeaGrUx/zn2HJkjuz4UHUiW3u65fJM
- z24X1pt0VHKwiDGxSArpsjy/Iv4/iCRsHmdF/zdYOawMoEMYeDiFICJeEkxMtxUW6bavNnbOteQ
- u3F2/KTPJ14+yNjx4NqFvjUzje2jD51lZHg5vTDNzqaCL2RxJ0O60EFuFt7+U1ss9s9u6aljniu
- awQ0A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2595; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=CJSeLd0QU97/MNyt+Xu3ONZE6gMT2KeSXtSTxKcXbcA=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLefF2+Wcxvf8HKmsddSYcNS2Mf8UkEKGQq/Dfj1Ozau
+ CVwU+23jlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAEzkkhojw62W/gCj5yc+tyxq
+ 3Hzd+nvtJbNWwdnLRMyFpy01udxn/5nhF7Nz19UZAhMCvHzv6D0ysDkXmZwW7mzJL2Nf+Ob/s/0
+ q3AA=
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Replace use of the legacy vm_flags_t flags with vma_flags_t values where
-VMA flags are tested directly in /proc/$pid/[s]maps, pagemap, clear_refs
-and PROCMAP_QUERY.
+Replace use of the legacy vm_flags_t flags with vma_flags_t values when
+determining how much of a VMA to dump.
 
-In replacing vm_flags_clear() (which takes the VMA write lock) with
-vma_clear_flags() (which does not) in clear_refs_write(), we explicitly
-write lock the VMA. The mmap write lock is already held at this point.
-
-The show_vma_header_prefix() and show_smap_vma_flags() output functions and
-the thp_vma_allowable_orders() call continue to use legacy flags for the
-time being.
+The flags copied into struct core_vma_metadata remain legacy flags as they
+are consumed by the binfmt handlers.
 
 No functional change intended.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- fs/proc/task_mmu.c | 43 ++++++++++++++++++++++---------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ fs/coredump.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 22361607020d..b6e8ef15e40e 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -569,18 +569,18 @@ static struct vm_area_struct *query_matching_vma(struct proc_maps_locking_ctx *l
+diff --git a/fs/coredump.c b/fs/coredump.c
+index b25ef2ffbdee..6ebc04421b91 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -1835,15 +1835,15 @@ static unsigned long vma_dump_size(struct vm_area_struct *vma,
+ 	if (always_dump_vma(vma))
+ 		goto whole;
  
- 	/* VMA permissions should satisfy query flags */
- 	if (flags & PROCMAP_QUERY_VMA_FLAGS) {
--		u32 perm = 0;
-+		vma_flags_t perm = EMPTY_VMA_FLAGS;
+-	if (vma->vm_flags & VM_DONTDUMP)
++	if (vma_test(vma, VMA_DONTDUMP_BIT))
+ 		return 0;
  
- 		if (flags & PROCMAP_QUERY_VMA_READABLE)
--			perm |= VM_READ;
-+			vma_flags_set(&perm, VMA_READ_BIT);
- 		if (flags & PROCMAP_QUERY_VMA_WRITABLE)
--			perm |= VM_WRITE;
-+			vma_flags_set(&perm, VMA_WRITE_BIT);
- 		if (flags & PROCMAP_QUERY_VMA_EXECUTABLE)
--			perm |= VM_EXEC;
-+			vma_flags_set(&perm, VMA_EXEC_BIT);
- 		if (flags & PROCMAP_QUERY_VMA_SHARED)
--			perm |= VM_MAYSHARE;
-+			vma_flags_set(&perm, VMA_MAYSHARE_BIT);
+ 	/* support for DAX */
+ 	if (vma_is_dax(vma)) {
+-		if ((vma->vm_flags & VM_SHARED) &&
++		if (vma_test(vma, VMA_SHARED_BIT) &&
+ 		    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, DAX_SHARED))
+ 			goto whole;
+-		if (!(vma->vm_flags & VM_SHARED) &&
++		if (!vma_test(vma, VMA_SHARED_BIT) &&
+ 		    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, DAX_PRIVATE))
+ 			goto whole;
+ 		return 0;
+@@ -1851,21 +1851,21 @@ static unsigned long vma_dump_size(struct vm_area_struct *vma,
  
--		if ((vma->vm_flags & perm) != perm)
-+		if (!vma_test_all_mask(vma, perm))
- 			goto skip_vma;
+ 	/* Hugetlb memory check */
+ 	if (vma_is_hugetlb(vma)) {
+-		if ((vma->vm_flags & VM_SHARED) &&
++		if (vma_test(vma, VMA_SHARED_BIT) &&
+ 		    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, HUGETLB_SHARED))
+ 			goto whole;
+-		if (!(vma->vm_flags & VM_SHARED) &&
++		if (!vma_test(vma, VMA_SHARED_BIT) &&
+ 		    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, HUGETLB_PRIVATE))
+ 			goto whole;
+ 		return 0;
  	}
  
-@@ -647,13 +647,13 @@ static int do_procmap_query(struct mm_struct *mm, void __user *uarg)
- 	karg.vma_end = vma->vm_end;
+ 	/* Do not dump I/O mapped devices or special mappings */
+-	if (vma->vm_flags & VM_IO)
++	if (vma_test(vma, VMA_IO_BIT))
+ 		return 0;
  
- 	karg.vma_flags = 0;
--	if (vma->vm_flags & VM_READ)
-+	if (vma_test(vma, VMA_READ_BIT))
- 		karg.vma_flags |= PROCMAP_QUERY_VMA_READABLE;
--	if (vma->vm_flags & VM_WRITE)
-+	if (vma_test(vma, VMA_WRITE_BIT))
- 		karg.vma_flags |= PROCMAP_QUERY_VMA_WRITABLE;
--	if (vma->vm_flags & VM_EXEC)
-+	if (vma_test(vma, VMA_EXEC_BIT))
- 		karg.vma_flags |= PROCMAP_QUERY_VMA_EXECUTABLE;
--	if (vma->vm_flags & VM_MAYSHARE)
-+	if (vma_test(vma, VMA_MAYSHARE_BIT))
- 		karg.vma_flags |= PROCMAP_QUERY_VMA_SHARED;
+ 	/* By default, dump shared memory if mapped from an anonymous file. */
+-	if (vma->vm_flags & VM_SHARED) {
++	if (vma_test(vma, VMA_SHARED_BIT)) {
+ 		if (file_inode(vma->vm_file)->i_nlink == 0 ?
+ 			    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, ANON_SHARED) :
+ 			    COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, FILE_SHARED))
+@@ -1888,7 +1888,7 @@ static unsigned long vma_dump_size(struct vm_area_struct *vma,
+ 	 * dump the first page to aid in determining what was mapped here.
+ 	 */
+ 	if (COREDUMP_MEMORY_TYPE_INCLUDE(memory_types, ELF_HEADERS) &&
+-	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ)) {
++	    vma->vm_pgoff == 0 && vma_test(vma, VMA_READ_BIT)) {
+ 		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
+ 			return PAGE_SIZE;
  
- 	karg.vma_page_size = vma_kernel_pagesize(vma);
-@@ -970,7 +970,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- {
- 	struct mem_size_stats *mss = walk->private;
- 	struct vm_area_struct *vma = walk->vma;
--	bool locked = !!(vma->vm_flags & VM_LOCKED);
-+	bool locked = vma_test(vma, VMA_LOCKED_BIT);
- 	struct page *page = NULL;
- 	bool present = false, young = false, dirty = false;
- 	pte_t ptent = ptep_get(pte);
-@@ -1017,7 +1017,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
- {
- 	struct mem_size_stats *mss = walk->private;
- 	struct vm_area_struct *vma = walk->vma;
--	bool locked = !!(vma->vm_flags & VM_LOCKED);
-+	bool locked = vma_test(vma, VMA_LOCKED_BIT);
- 	struct page *page = NULL;
- 	bool present = false;
- 	struct folio *folio;
-@@ -1728,7 +1728,7 @@ static int clear_refs_test_walk(unsigned long start, unsigned long end,
- 	struct clear_refs_private *cp = walk->private;
- 	struct vm_area_struct *vma = walk->vma;
- 
--	if (vma->vm_flags & VM_PFNMAP)
-+	if (vma_test(vma, VMA_PFNMAP_BIT))
- 		return 1;
- 
- 	/*
-@@ -1798,9 +1798,10 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 
- 		if (type == CLEAR_REFS_SOFT_DIRTY) {
- 			for_each_vma(vmi, vma) {
--				if (!(vma->vm_flags & VM_SOFTDIRTY))
-+				if (!vma_test(vma, VMA_SOFTDIRTY_BIT))
- 					continue;
--				vm_flags_clear(vma, VM_SOFTDIRTY);
-+				vma_start_write(vma);
-+				vma_clear_flags(vma, VMA_SOFTDIRTY_BIT);
- 				vma_set_page_prot(vma);
- 			}
- 
-@@ -1904,7 +1905,7 @@ static int pagemap_pte_hole(unsigned long start, unsigned long end,
- 			break;
- 
- 		/* Addresses in the VMA. */
--		if (vma->vm_flags & VM_SOFTDIRTY)
-+		if (vma_test(vma, VMA_SOFTDIRTY_BIT))
- 			pme = make_pme(0, PM_SOFT_DIRTY);
- 		for (; addr < min(end, vma->vm_end); addr += PAGE_SIZE) {
- 			err = add_to_pagemap(&pme, pm);
-@@ -1976,7 +1977,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
- 	}
- 
- out:
--	if (vma->vm_flags & VM_SOFTDIRTY)
-+	if (vma_test(vma, VMA_SOFTDIRTY_BIT))
- 		flags |= PM_SOFT_DIRTY;
- 
- 	return make_pme(frame, flags);
-@@ -1994,7 +1995,7 @@ static int pagemap_pmd_range_thp(pmd_t *pmdp, unsigned long addr,
- 	struct folio *folio = NULL;
- 	int err = 0;
- 
--	if (vma->vm_flags & VM_SOFTDIRTY)
-+	if (vma_test(vma, VMA_SOFTDIRTY_BIT))
- 		flags |= PM_SOFT_DIRTY;
- 
- 	if (pmd_none(pmd))
-@@ -2116,7 +2117,7 @@ static int pagemap_hugetlb_range(pte_t *ptep, unsigned long hmask,
- 	int err = 0;
- 	pte_t pte;
- 
--	if (vma->vm_flags & VM_SOFTDIRTY)
-+	if (vma_test(vma, VMA_SOFTDIRTY_BIT))
- 		flags |= PM_SOFT_DIRTY;
- 
- 	ptl = huge_pte_lock(hstate_vma(vma), walk->mm, ptep);
-@@ -2625,13 +2626,13 @@ static int pagemap_scan_test_walk(unsigned long start, unsigned long end,
- 		 */
- 	}
- 
--	if (vma->vm_flags & VM_PFNMAP)
-+	if (vma_test(vma, VMA_PFNMAP_BIT))
- 		return 1;
- 
- 	if (wp_allowed)
- 		vma_category |= PAGE_IS_WPALLOWED;
- 
--	if (vma->vm_flags & VM_SOFTDIRTY)
-+	if (vma_test(vma, VMA_SOFTDIRTY_BIT))
- 		vma_category |= PAGE_IS_SOFT_DIRTY;
- 
- 	if (!pagemap_scan_is_interesting_vma(vma_category, p))
 
 -- 
 2.56.0
