@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.181
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793993789;
-	b=Af9ijVfnj100pvuc8CDaGJfxO97wdihvOJdcSAKGRCNgNvAr1/je6qggArsWyDbO9hsY
-	 beffH9BnEaDunSYHSLEmcjrLPRE2SP4c4vlwLZL+fFFIiYLz4GOPowSXjoGtW3CPdugF4
-	 l3WWn6GCr9tDLbVnolGMnnVTGFtkWCLugnTFEQLEN0ryNR/AAf3NcfUR9cc98Ns5LHVdr
-	 rWZJR2yWFcmXnQENTiG7JTI76x9lNKTZJ/vNRuV6eckIy4xzmMiiPnF3NazhJZk2eOjyr
-	 +7vEw8KVidQU2/fRF4t7wTcW2x9OfMVmm+PFxXhyde67Ks7EdigTI1fqPj+9pTSiEhQ==
+	t=1793994154;
+	b=URVka4DbpKrqGRLWXXrDx5ky8Gpc2sU6JVUppL2we+NhE+za5sl7HA9TW8Zg2aufihY7
+	 xHchbkmhKZM86zQBqUCvh8iaXJyrZKfHvArFFbj6gkoys+XJa/MXuToBAj02UJs2VdRgr
+	 PAg2JCUrIjFFbLx4kAzjJDrB8p8n/zsZiO3W79Tjp1Oe1kUit0/8N2K/MegiqWn2piO5w
+	 1l64EgoKqUH98rDkXpd1lnLZDH6lbdNCyocBNprFWGrEYlghmFeAcvuV8F8w7XLm//npB
+	 bxj7qsZxY1R3/SjcjgrD+tfkTJkbxVYQwEg/o9flJ+8ll9kIHbLGQ9XGagLDGEIycog==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793993789;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793994154;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=bGj/tzEpUNDWyFCzMBKWCbyGBoC5tmQucXG8sGFLgDA=;
-	b=Xr+vKxb7yZ9dkmLBdmYcegC3obd3SaSwvuYRGLVsRxYebKuiJrBDaNHlGGAdcpNLgFU+
-	 ikUBGx2/8nZOcbM6A2k3Xs8bGEvQXLGkU4JCURsvtuvWQZqyY4Ko9x37OtUHxgdPaGb6h
-	 VeTyvjKy7UYuG9TByEuvWY7T1Mo6E440MkLbLGhOS2llTf5TzWnAx05dEjAPrpqorG17w
-	 rFwpjFOTiXBSEDihcItk7Jtm68VsQ0OEJ7+NBmVmmaL9/FahQRvx0RbiFc19VHszJ3oG/
-	 FsvBkxHihVugppzazECgiJC8fFwr4z55NiX4lkQFW08kUFIUvkfh2jv/K3SQc4cbMKw==
+	bh=6zEIlsV3E828OMxUuLtqtcnz37SJS8sKuTVYO+g9NIY=;
+	b=x4ulLiCs+pqBHZEh2Xt7AwIgTP5nIpCdWVRmNWxZAMQZnvVik2kyGx/Ia6qUEXF3r5D5
+	 EY0rRRbANB7sG5WdxJDxG7DsQk9bKcoTinjyAUxhCel4lUl8+dx4iddf0E0uxK3zzq2s0
+	 iFTQ5XOxyatlMy0ei0zjQC7Ykfn9v1ZuXfnTBUAJX9r3TSPmMZiJxebwL/YpKPKUn9g72
+	 iwtS7WPkQ1z2SJ8C7nxyL4obhMY6mi+APYPDOR6ybk+/hcl5ZYqTB3UDW6A0doExcKAQt
+	 ym0dPUzvUjsj0U8NF3iLIKwPbh1njzkEAw7urEkcyyjmgNYHHxf3SWRGtEEDVuEid1Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="QS/nKdoA";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="AV0u5qe/";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.181
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E09FE606A33B
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 19:36:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E09FE606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B81C606A329
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 19:42:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B81C606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QS/nKdoA
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-67c00f291e1so789178d50.1
-        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 11:36:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793993788; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AV0u5qe/
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-8b0dba37a7fso9184157b3.0
+        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 11:42:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793994153; cv=none;
         d=google.com; s=arc-20260327;
-        b=fpN7lekpze/N41VgP72OcA/G1O99V4mO5R4I4Qb53Ck17fOKRFNyj2gAJmx8vn8Zjp
-         CXvZYOemT0kOCxRYREuETN4JaHE6JtyrkTWBYVgzmSUfZBw+JJcOEKcqX4KxEo5E7WaO
-         Xr9bZ04Drsx8uRIp89/3cGD1OHrPFv69aKOJdJQYxp5VA7trdknC2slYj5WTOUr+fsii
-         te1jDwxM95pibeULFdEr7viOrzZ2eaKF6rjiLd1m50casspXWyEw3lCLgRgRDPjPfbyk
-         l+aGSa4tY1/4G9hymh4tpdkhnM8cy08394FGH0c/bQ79c+VZbnITUOAdODVySr7NJcHh
-         VBZQ==
+        b=MybU533jx8UNPNe+ixHK4eNXHzUE4RCHcqVQT68VY03iaykglrLQjdxlmihpcOZ591
+         sGjeFIaTpfxwANsfsAekgqq/BMQG7jA3zMk2c+E3WWjFPxgaB9yaCXfirjxZGurmB/E2
+         xl+cRScX+k4nEF/IF4AuDrMDmv3wAEpb698ij4E31VxA61Mbr2DroDKtsPIcvGirvDri
+         hoprfKn0r663rYfUCZ8LKZObWhtnDUr6xhAyRNM4tgDCq58eqoZA1wASkPs3YpcXmjHx
+         iqLaKixSyypSwFClX2sqGSLcutiv8PwvVKVUuSeTjkGMSr7vhBgb7sKKcruwbYSlnmX7
+         luKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=bGj/tzEpUNDWyFCzMBKWCbyGBoC5tmQucXG8sGFLgDA=;
+        bh=6zEIlsV3E828OMxUuLtqtcnz37SJS8sKuTVYO+g9NIY=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=JZoXdJbvm4bXwW6ErEimi8iV63WKlmlew3ZUyv8xMtTKTtqSn54ZdvTfvaKh9PhXSz
-         asYDQBYcMqFhGNsStyor8QuC8LvOhl1jbNAoEeT5y1lCVm8Hc/VVGitVxbzn3/qCc/aM
-         SwMkjmN+jtTR244qTbyL9rFy4qFXtKMVcVPj2I31Aj46mcZ3/07cYRXwT51SuC85AREM
-         A86GyK3acZVtz4zKE/KP2apbyFCJA79tgeQhJGsgs/ADBJuE7XbOed+M1JVg8CvHYXS2
-         JqpsL3SAHOGbB1v3MOSX0zZOa47kV/ItWFPVOGsqNhddWNKmYEcX4Gh1MC81udGKWEsd
-         mf/Q==;
+        b=pAEcD6WZfhcGUaoKyaCmqEBsWe7ezKumRSodAJlBCmGXJdxTv/SvUZsbo5JxTuJ+Q8
+         XGBgLmYLGnSbqdVRVishJOludpPHwMaOoP3L4atj04gejwzKCrkE1JAmS0msZXcKjcKk
+         Hp09r6vxB0ajcoUw5zbWCUDfZjWYCLsseX4wqPbXR/gnVSbEk3jYESthYW8a2Fjri0DA
+         LQoUTMWHXurcV/+dCj3a67nku/7NNC67x0FLl89WzYNLWZ2mQfRriuqCGWPZVVX0d0ei
+         YAeQaZ2pCrc9PBR/tFLgHQ58JU+c5a0LNHuJ897jgvH68qmhifrr725Dror2VJsNIEE2
+         4ZvQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793993788; x=1794598588; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793994153; x=1794598953; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=bGj/tzEpUNDWyFCzMBKWCbyGBoC5tmQucXG8sGFLgDA=;
-        b=QS/nKdoA+PJBqq8C3pU8qDamILiikPnEf3Bt98ZbMUBfNofXSdYJCf+et8ll0/rsVD
-         bh9inBL59FaM+QcEeO0etEWgPV1n9jhmiLHkp2JbYfpWFbBEntp8JrZg8kyLSAHwcSW9
-         KtjxrkmHy/taw2jkJ+tq61hFzhIYCJjvTT8jYw9hQQ+Gp6M4FACaAt4c4vEPAHs6VuDr
-         9NJorvBOJgB0V65qHsBicq9OZiMS50vL+aAqGm7k5wFHjbdYyE0zlUhEAQdnw8E8PIep
-         s3RGAWumZcMIX6M+AK33xAZv9nIGU5ukFaGLd5KKOkjTiq2GKTZH7Xmyeqp8FGSYY8L4
-         IVdQ==
+        bh=6zEIlsV3E828OMxUuLtqtcnz37SJS8sKuTVYO+g9NIY=;
+        b=AV0u5qe/flv82+lL52x8Zr9uxGjmmtWsx50hZ0KjMqqA270JWKznmTuTsftxfR4kmi
+         G3ImhJpxW9v7gttWuyXtJpEEDdA34+5MppskDI7VkeZZyf7pniZUcBJlAPm+/iY5tft8
+         6OyVw6b7FKkGycx8c2xnGLbSUtsnbS4xailnFqPDpRnjmXhZnTagCJt3HQSjl2Scf9ch
+         caZooEukmPZneLbmj/wAx3nwPLZyYPKj5d7bP6ZK1kV7Eavfvj9WPpwnZcQG5+b0KrUF
+         5gmq9Ms7/Ty895OfQlx0bVp7flp/Fj73Io7VBKeXzsbZO76PeJPmFzKuNCM3umdSMTbm
+         V4FQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793993788; x=1794598588;
+        d=1e100.net; s=20260707; t=1793994153; x=1794598953;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=bGj/tzEpUNDWyFCzMBKWCbyGBoC5tmQucXG8sGFLgDA=;
-        b=B7/aqFw8nH1G1zID6bRcXY0/T2WNc8pJ9bqD/E5IElONiVJluWMqFnxHmQATRZq7hs
-         88S/QxXKxNaFJp1X030ShveC70GSmQg0O/wUvtOaeK6fOcVx9x3HC1SeZfjqOQd4e0ks
-         J5aslZtBDSicVvzIYC/mfLvki/hcjEy4ry9746OTbWlTXM5g4D5qf/cptx0HU0gjEV60
-         vhkDapnMhaDGy/N80OqALCvJZ4xat5YJv4UVcHJ3J8ng92A4ysMT4vNfw1GrBCfGR4Ry
-         5b1DrQyC0R+OsJ57BhQNp6zIxVV0O76WEnxVDsOQlPxpXC9rT/BqUUtWd863u1/AeZ62
-         15UA==
-X-Gm-Message-State: APuU4Z+nIj9ep1ldvpxBRXiRti0n3nMtDI1wUgx3U7JzjNgRnd2Xzzay
-	8/LVRhHuGi/SuTV2Plixrs34iyPRxjHQpwTLVieEVWXidgAc1mvxd1aYSMXu4LxcTxg3zicjYub
-	ggop69NZ1H2FJN2nwGLPFWYt7FH+jHGA=
-X-Gm-Gg: AYBFou2gtA1W7d7ZOE16G+c0XJYP1Ls3/CUCHGRTv0usH4oJSmZXc0DXd8r1lcGvaS6
-	10UqQC8Ichgl8NzrEf4vQ6GFb8rQVU8LagmIw22TMfD4FEvu5U2J9p43yqKfkR3CSecMUCFx9JY
-	3/+1T3oODmzWvKMv1UfLNPAc0RkqFQnQKyI5PoJE63YZpsw7b/OqHsI0/6Rp1zvRCoCSzJE+B/9
-	sPJxWiRDpR4Fwwk4SqQRkhJrWAomzeRc7ImtSRDLH5PbkTAEQAs9gNQuHrVt3SqvxVYHDJelMkA
-	+63qZClMLvZSc8HlrmSwoeb2rjn695fD9KANqcnweUOSGOsd2L7rVsNQJ22ycanhGXtV2AhDJRh
-	Tjd/qczvawJybRr+ZgsfJYuufU5DjRx2p+NR6HrQEt0lX7UAIBwydL65kR0lVfh3gunZsTL7J9p
-	GXNtewvCVGPbeagFA5KP/OVwllj5sQCcn7ovk1SFZWNz2H+0WYmQmUofYROA==
-X-Received: by 2002:a53:b64b:0:b0:679:95cd:1aed with SMTP id
- 956f58d0204a3-67c143e21b3mr944931d50.60.1793993787639; Fri, 06 Nov 2026
- 11:36:27 -0800 (PST)
+        bh=6zEIlsV3E828OMxUuLtqtcnz37SJS8sKuTVYO+g9NIY=;
+        b=bpUi2txYlIgQw24rG/mBqqGfEiU4unG7U1x9tPO4ffJjAR2RuX9ez+EMcHoTW4+0oc
+         R3bm64fzdq4ALh/aiIp1BhBpQlo7qfsLTwKKGhQ7VAPy8GerfSgEkXf9P5MUdJWeButd
+         A2K81F171pZ4uiVMCPulcGTRnjLryumFGNNBukXDkZDWTiPb+ZF1NVEiSKG8ttj5IokU
+         +/TsonONqTS9IdQDDS8ng8pnrOWO9RqUgb9iZRVeGacmfrmZM6AaQU4/7KiFheuwGNlm
+         gECWyPV+sjYdv8M7pAbklVII5KjnOMBWDinMXVWd60wqx1lBWWe6j+dKodxNQvyqWbSL
+         4yug==
+X-Gm-Message-State: APuU4Z+cEvKPDB16EG8pvfiN30+uhOaqDrS3urg6qV3KzW4l9ol7nC9x
+	f8l+oOyD1aB48aqxPMUpkmi1E/AgW4/2z4lz9Zj7AkP/eE2ks9wdHC9G2ShwUFZebb17D9i6ZqB
+	B4Bh04Iq1wXpsMP4vQEI445MaU8IUFwnLs7YRPrQ=
+X-Gm-Gg: AYBFou0T9z5gl/GKJvNgdGjCajufLMcNd70I2kQ/bsv6Qw071ZS4nsi4ZpdhmorsV34
+	2lyz0dcp+ia4jv163l9KUt3/hmTMmWyxwsVf31n8Du1wl6SvIomlM0E007iT/5lz+sdo0/8+ZjQ
+	yIfWqPdjm0P9m3kjO/SC10PvKTQ1BtL3BY7OFoXD3IhtDg540YC4tIJo1OZjbBFriEerpXu/bvT
+	xkNxzamlWmMiZICf2Qpq52fPL8HhC6qu7cbwNwBwuOnZN9j9s5RMDv9urco0fdZj8SbVf5F1yh2
+	rnZgTy9Py/rNb2fH7MfRNL3aBXss2KzEEAVRecQMB/aDltESFjskIlEbExwTIzZdNnc5UiQ4ucX
+	FH2Sfjg4lwl4E9DQL+/KlYWPgs2lTsA89vG8eAji/l3avBZw7Mzbp7O/csVMcHCKB5wojgcsDAp
+	WZMyqnHDNuuA5RWAVeQrJqiXgnvD7i+OwlMeesE3t8msaNUNY8oEmNTW8B/A==
+X-Received: by 2002:a05:690e:13c8:b0:67c:f33:de76 with SMTP id
+ 956f58d0204a3-67c14423bf2mr1482057d50.76.1793994152996; Fri, 06 Nov 2026
+ 11:42:32 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,13 +104,14 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106123510.76727-1-cgoettsche@seltendoof.de> <20261106123510.76727-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20261106123510.76727-2-cgoettsche@seltendoof.de>
+References: <20261106123510.76727-1-cgoettsche@seltendoof.de> <20261106123510.76727-3-cgoettsche@seltendoof.de>
+In-Reply-To: <20261106123510.76727-3-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 6 Nov 2026 14:36:16 -0500
-X-Gm-Features: AclHuK-fGEZaHjsdWhfPza4F5uDtlqaBhiXJPEnuzp6Iadvx1uM2j07XmDKxgU8
-Message-ID: <CAEjxPJ77pUa1Y8+UgpjKCcKdjjsQ7KrATmu9AyEZCOCr-CSbGw@mail.gmail.com>
-Subject: Re: [PATCH 03/16] checkpolicy: reject self as a type alias name
+Date: Fri, 6 Nov 2026 14:42:22 -0500
+X-Gm-Features: AclHuK-LToqDPTnD3qjvX6WKqyXYX8nynjn6BsjfpOEt-VuAMyuTmejDz8j4w5o
+Message-ID: <CAEjxPJ6gpW8piddo2pODFLjSdHs9VBVXrm+2DG2vEaniqOiUvQ@mail.gmail.com>
+Subject: Re: [PATCH 04/16] libsepol: skip MLS alias slots when writing kernel
+ policies as CIL
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -121,17 +122,42 @@ On Fri, Nov 6, 2026 at 7:40=E2=80=AFAM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> create_type() rejects "self" as a type or attribute name because it is
-> the reserved target keyword of type rules, but aliases declared through
-> "typealias t alias self;" or "type t alias self;" bypass that check in
-> add_aliases_to_type(). The alias is accepted, yet a later
-> "allow t self:..." still resolves self to the keyword instead of the
-> alias, so the alias can never be referenced.
+> checkpolicy gives every sensitivity and category alias its own value
+> slot, so p_levels.nprim and p_cats.nprim count the aliases, while the
+> value-to-name tables only hold the primaries and leave the alias slots
+> NULL. The CIL writer walks both tables up to nprim without skipping
+> those slots and emits declarations like
 >
-> Apply the same reserved-name check to alias identifiers and add negative
-> tests for both alias spellings.
+>     (sensitivity (null))
+>     (sensitivityorder (s0 s1 s2 ))
+>
+> which secilc refuses. "checkpolicy -M -b policy -C" therefore produces
+> unusable CIL for any checkpolicy-built MLS policy with a sensitivity or
+> category alias, such as one built from
+> checkpolicy/tests/policy_allonce_mls.conf.
+> The conf writer already skips unnamed slots.
+>
+> Skip slots without a name in the sensitivity and category declaration
+> and order loops, and add a regression test converting an expanded
+> policy with one sensitivity and one category alias.
 >
 > Assisted-by: Claude:claude-5.5-opus
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+make check-format fails on this one.
+
+libsepol/tests/test-kernel-to-cil.c:60:26: error: code should be
+clang-formatted [-Wclang-format-violations]
+                CU_ASSERT_PTR_NOT_NULL(strstr(buf, "(categoryorder (c0
+c1))\n"));
+                                       ^
+libsepol/tests/test-kernel-to-cil.c:61:26: error: code should be
+clang-formatted [-Wclang-format-violations]
+                CU_ASSERT_PTR_NOT_NULL(
+                                       ^
+libsepol/tests/test-kernel-to-cil.c:62:11: error: code should be
+clang-formatted [-Wclang-format-violations]
+                        strstr(buf, "(sensitivityaliasactual
+sens_alias s1)\n"));
+                               ^
+make: *** [Makefile:69: check-format] Error 1
