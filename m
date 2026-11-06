@@ -1,84 +1,84 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793988374;
-	b=rt3KCEVVWSDD3N1d01Um+EA/U/YKyrnJOFKwfan1bJjkjsnyTIvR1dK0ILvhhqS9O99v
-	 3byQD85JIJEPPu4oRZrVmPiImdhh65bu+p2QntfAyv/zcXDvmekNDtjnontD2XSKys/Wq
-	 7g5asHBJYNJAU9aXSI5GtUO6/43ddrQ4KVLG5gFLVK94tjkRpJPmtsmfU188i9Oz9WCOJ
-	 vtlJgZ9qNMPUEU5u0rJmD5F7hxNSoaHluhBVWPexeFFDGFx+4A33oSSBDc7cyJAYy1ZHE
-	 +SqV6rEKVUBo6HxA/1q69hMMe4tqQ/UFv/CHJwd06wzNoj58SXeL3l1g84v6NJCicGw==
+	t=1793988375;
+	b=BufyRVglKkJQWtaw/WIVnvKnCnp5RJ+/bGnS94yS8laIbtRwwMfVY8XGy2UPlPTJg4/p
+	 wYtUa/23jsDGeu4RSp26CGXQvsZkjotXaqvcgRmpx7KhBEy0R6Dor+Ub24uqQEPCWjs+o
+	 4bDe+wOqOkwpqjOABKnkyi/Z0R+Ce3BeQqB98DQmpG+/gduUidoP2GG08CnRDBx60nMBm
+	 r1RXzrxvD898oHC5fd+Sk7g6mqhLESMPm0j9cmGlrG7XL03mxdCMQ4DNaWPZ3Am2bC0gx
+	 jF7cqsPkBgdndoAubhmcZ2fZU1ynZaWoVn8JgE3vj5fD0w5/4fAauHVnzm7HxsjapsA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793988374;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793988375;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=Dk7blejCgZtJnWiKZ5Znj3vAmKQe2OuLgg+bBi57OA0=;
-	b=Yr/sbGwkoR3femsxk3V5L/E7jFWO7wyck7HNwdUNHbiISaATJ0BeAcSMx9yeM1Wh26dt
-	 roF5BHGRwvLOwpXBg21qz4tIpAVDwztuQOY1Zg/Lz/ywLGYqx1Lf6AyzcM0w9yWq58dYC
-	 gV5VQl8nTs9ZmNN28dyX8m0xkvkOwXw1Qw/hzz4EX75XzaYcmFk0lrRsnISodH05nPKnH
-	 e07g9SvglfWZ0/Us9hR5Mqb5bWz9J7Z8rzQ3mb407wtNox+G1U8i8u6SeKEPsoDPeA/3E
-	 oTyN/QILIUu0sW86vdNHOjrPhJewJdz4Y4zD2kibJ75C0rbS9WXkVGK64e4cYLR2GBw==
+	bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
+	b=0BIAINJDu1vZQmbct0g/S9QLqEMxUByjlY/OzgLQc4jEfz4qzbUfdXshF2YwshpL9gVz
+	 aOeH4YcjexyLYnh+pDAnbhqhrkE+0mvxPFWxf28Fdl9f67ArcISoJZfn1U8nyW40FnMvM
+	 V+dgG7kcqSfMBGyUlCMx8zBzk+fMUPG6OSPaNmVT27ey7jKdHlrbflhsh5ZOrBUAYF3KI
+	 kC8FW3TQojYdfW+5jBw4oWIwRrNOb/fORi23U844GnZqv6bVQ7lDRO3qzSV5B0gxiYDuS
+	 k66s5YD/bnb4XeIbBldNp99obN3rZKHKeyEyGnbJxA2ZAVyfIhXnaod+izzWgbeQ9Cg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=m4lbtJm0;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UddLQjq9;
 	arc=none smtp.remote-ip=209.85.160.181
 Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EBBC606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D118C606A32C
 	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 18:06:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6EBBC606A326
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D118C606A32C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=m4lbtJm0
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5364d86f7f0so10413631cf.1
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UddLQjq9
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5366463571cso10353381cf.3
         for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 10:06:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793988373; x=1794593173; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793988374; x=1794593174; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Dk7blejCgZtJnWiKZ5Znj3vAmKQe2OuLgg+bBi57OA0=;
-        b=m4lbtJm0zYqYl4VhNJ2U/7PiABZ3DUhWhqrFyVpRy/mQ/0+2x2tJ54LnpzP5XK7A6+
-         6zxr36eGpFVHCWwwuyS/HEOUUY2E3lpjkl+G2t7LrIJOKyND4OkTrH+L4k4veA4H62rV
-         UxyMP8pOlu7wRzKXcwrIDnUefnWGrRAeYMUMUooOJUn2XgKCMZzFnx2IYuDGMKuAlXmv
-         jgNZY4IGIFrP/il/UZqaFooI6FHTO64/2FCW5p+7M3AWNilU3+oBW6zNz4iaP9yoZWVc
-         RxN5LD2+5lT+d6poTGm1ccPqTmBV4VeU1wmGNuibcqMY/BP5w41ruygTAHx4nlCyDC1m
-         sXKw==
+        bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
+        b=UddLQjq9gX+mJnUyQzCeyi6pEZAsQyOCG4Ysx3pi8AkpGeGQdajdhQ4jEstphmaqIk
+         0dDh49HjDHGjuP65SHpJwSefCrAe+H7avNeQxmB9UuKZFYzORN7ZZ81ZyENfqERrFrdu
+         JmpoHf3J7dWOpCIvOM1upPAMNdEnyrlwxWzfXZM4/TrAtUQpi1mHnaYGZnxchu0Ed1ac
+         ++cR5rg7trkEBvufmyX8ac/eKvkZDWiyndg5rWZxOdA2SbAY6EQ2eoLfnpy299CYyGm7
+         lgEBNPaaCEoqoDbzWURbnSqZKDxqIHK0I2Bl7FODwMhhOwm1LlrJqVsGH+2JR8MVQrZi
+         AjqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793988373; x=1794593173;
+        d=1e100.net; s=20260707; t=1793988374; x=1794593174;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Dk7blejCgZtJnWiKZ5Znj3vAmKQe2OuLgg+bBi57OA0=;
-        b=G2h+WuBgIk6lyRhLzhBi54aMChM660oImMxA+ib3JFi/PnZ35oEHDK8S6e1j/7KIvB
-         F7s/Zh4GzsvEVhJJjaw6FnEdYb/QC6ULlypmlSo466HU2Wg6gD8UyDWJtoOYBzQEU5oE
-         wrkWV+HRSMb9NC6kHR4grYXuqP/hX8LlgS454Zejz0z56u0NXa7sBlWj6BxMIYokpL1F
-         lpsRiejs+pqsxiEeBa/++ml7K69C+6RMUx509VhAYyWm+0WrVtyVxkLpKEs9J0kj70uT
-         tCt0jCP0LDU5sn6SPb9S92KmlYSBkgzdl43DXr1yl0LQzONHcEYYlJFWSp8layRrjHD2
-         yE4w==
-X-Gm-Message-State: APuU4Z9H2ONbK3oV4T+HvAi9xwVYaMjQnMTfg3QKuFzE+XWksn6hkTGr
-	erSEj1fFH6vdmVRQc/mPGgwwF/VTaFUA7JF8uZBdafxs/EvETdA2/9n0IYSvLUnl
-X-Gm-Gg: AYBFou2sxA0RF/lATB0p1E/WokmvP98j9h+dMGFLLXqERqI3D0WfVQPbRE8urIjLOTl
-	0Gqrq+TT+1yA9qKqhxr+1uALTQuP78HHzJn2URe+c0nYHkJcsW7+kHuQ+WC23h7vjFRE7L95bH3
-	g/KLp0GRFkMDm0Oo4MwOdQUC5L+sMhPfOt3wTE+X6fbzdsvD/EsWb8n0+sLH6BuIs8LCSCJSxM+
-	aEzOWBL/WjNVdLOYB6bQthwt6FS2C4rRrbhcYYcjfS8bXn5T7w70FwQwLVvIuth4sW0DmhkuGQK
-	QuFCyfYV/HPQmoQd669wDLVUo5C8cz4eXdW6jc1va1FCXQ8PhsP6M6V9csGvsVisttIJZw2GA6y
-	U985489mVmwQFnTKTsQxl2hg9KBsmjwqN6m6iRyiVGwomjWtVopS3SiwD/gC81VhBVEWlIVRs5a
-	qtjouLLkUhxVnTBNnNU34bE/PabbN2zkoez5IZmFNlbBv0IF8NH3CwWoesTi9bhiQoV/2EzLyY6
-	yePf8v4LF7giQqQ/h/m3BbzAMxa0mR5F0GL/vq3YZ0exbKShFbBNCVkxE/eK55sUqf4u4FEQ4sI
-	qomw7nZ8R4Wz63Rw9hf/iWSt9uzR+8UEcUuZ7ycffd9jXQ2O6dmDLFQMUbPw5/yy+6wYsY0aHD8
-	N58FDFSe84itfQJe8a41DK/57c3BEtKCxSGOxtL1G9Tg5MPGgQC0O95gHbSHtu5aq6xcli6XA5u
-	/nImgNlEBoKjuXsU+gAOBgLVBi/4KpmS5LYsB/joZceiMAEOGjB9k=
-X-Received: by 2002:ac8:5e54:0:b0:535:855e:6e25 with SMTP id d75a77b69052e-54e146666b2mr51815911cf.47.1793988373248;
+        bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
+        b=06iMSAEheoDsk/oQiXn6zj1O8QcQYC+NQ77BQ3X4PnAWtGDJXe3sMqEBVBCM4Hegd9
+         b2zn5ChODa6kRmmgfaR7s6fnCNKtNiX1XhZHaQlfRJ07l1jA0m4mEB7d9msKT6woYoxC
+         naYrh0UlNOUUJ/Nspd37DZsGAfocRiLX0XWhPsOHiAwLTbFStZDvZLox2+etWOoNzFIE
+         KM0mDdrbYppII+SkeyHGaBz33iVn5Gi8A35Pj2ZQUznsYz5nnWJ73KxazbxfWcl1WsxC
+         BudR+Vv3owExbM5dhS7UAi0DlsVqRptD9OqpW6AV+bpl2kaHxVXugv1HsNkQZwf71sCl
+         pUbw==
+X-Gm-Message-State: APuU4Z++z01pns5+6N6OYAe6oQ2eT1gm+CxO/J7K6pE0Hs1UjGfOhnRJ
+	+7hfXqDCoVKwUyM8VZWabdvaLNKnvJqNu17RKptGBSJKCVUlik1KbSlz4UcXwLNx
+X-Gm-Gg: AYBFou2U6Agmqi22sAkHwqOuab0+hYgFdMrbZYQNtrtyVZuoAPUQZImy8z6+03kDMgU
+	F05fWYV5TflYRf0B7ctvUATjvNPFHKwuh+spNn9nuguoUNrPX1uf4etjg1V3iQfbahZv0oqEwuf
+	zHMhjXVZeiat4+4atu2/BXjwyxtK83Ct2JieyHICWQa8z4Vh3P6n3yH/xACd/AGfSQbg8VY0man
+	Fo8I59uJq5kamnfcJTPoWKBJFGUN2VdqgYLs/liCZiV1zEBkk7MAFXhPoGd/EFyTUd4/QlCPqv7
+	c/6zoPDk15KJogdC1y1huPE1XfkbUSPZvdVq9pH/4wSShYuuGlUGpW4E2TfsIMf3RYOOfpgzU5I
+	fukwkr0fLVOeQTUfql+ciU0HERK2qE6qdPuEZ71+pDZkHQbxf2UTrepwuS5NW5m3sgoCINxnJ9f
+	VSNQO/NYSHaPQFlhVGRN/XM8xKaGGOx4EalUYnSQyP/xDec1a2q5W7mWam8+vCVIkzOXNxvLsNv
+	IPwN9KezHzZNZ5kbBXrodm/PhyKE/JCI4F+Qw263vLDw4FLatBQLK7bbE76rD2jGeIZQBFhApxY
+	LV84+Wi274swGoxF8xGGrCt7+/MO6gEkCQz7lyhqk2Y1EY26G209BzQHlRHdfiLsW7mA7ag8+ks
+	RSsgosIWmMMaiA2XZeTZNCzx1BJ2ayZJbbfi5cLkz8hXwdndRO8IOoNoCTD3+GVjoN5yRy45Zrk
+	XpOUKgeO5PpVDTQQQ1IT9wB6sh+RrY5GbSE/HIJtWmT0OL+yuYVKM=
+X-Received: by 2002:a05:622a:38a:b0:532:91f2:dd45 with SMTP id d75a77b69052e-54e14761738mr49979451cf.44.1793988373832;
         Fri, 06 Nov 2026 10:06:13 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54e26259cf0sm25893461cf.15.2026.11.06.10.06.12
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54e26259cf0sm25893461cf.15.2026.11.06.10.06.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 10:06:12 -0800 (PST)
+        Fri, 06 Nov 2026 10:06:13 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/4] libsemanage: initialize Python module buffers before argument conversion
-Date: Fri,  6 Nov 2026 13:05:54 -0500
-Message-ID: <20261106180556.243798-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH 3/4] libselinux: unwind audit2why initialization completely
+Date: Fri,  6 Nov 2026 13:05:55 -0500
+Message-ID: <20261106180556.243798-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
 References: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
@@ -106,213 +106,516 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The module-data typemap initializes view.obj in its input conversion block,
-but SWIG can jump to the shared failure label before reaching that block.
-Wrong argument counts or invalid handle/module-info arguments then cause
-PyBuffer_Release() to use an uninitialized Py_buffer. In particular, an
-invalid semanage_module_install() call can segfault instead of raising
-TypeError.
+Initialization errors after boolean enumeration leave boolcnt stale and
+leak the loaded boolean entries. A subsequent init can report success with
+an empty boolean list and crash during finish. Enumeration failures are
+also ignored, allowing incomplete advice to be reported as success.
 
-Initialize the buffer in its local declaration so every exit path can
-safely release it. Retain release after successful acquisition on later
-argument errors, native errors and successful calls.
+Share complete policy cleanup between failed initialization and finish.
+Clear libsepol's borrowed pointers before freeing the private policy,
+free partial boolean entries, and reset the count. Check handle creation,
+boolean count and enumeration, free the policy-file wrapper on success,
+and return NULL when initialization has set a Python exception.
 
-Add an optional test-python-module-buffer target that generates the full
-bindings and checks early errors for both installation APIs, buffer release,
-and binary length preservation. Native installation is intercepted so the
-test cannot modify policy. Inspect declaration initialization as well as
-runtime behavior because stack contents can mask the invalid release.
+Add an optional native Python regression for allocation and enumeration
+failures, repeated cleanup, and retry with a valid compiled policy.
 
-Fixes: 82c7c876fa75 ("libsemanage: treat module data as bytes in the Python bindings")
+Fixes: f8c290cc5901 ("libselinux: audit2why: clear static variables on init failure")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/semanageswig_python.i         |  3 +-
- libsemanage/tests/Makefile                    |  6 ++
- .../tests/regression/module_buffer_stubs.c    | 40 ++++++++
- .../tests/regression/test_module_buffer.py    | 99 +++++++++++++++++++
- 4 files changed, 146 insertions(+), 2 deletions(-)
- create mode 100644 libsemanage/tests/regression/module_buffer_stubs.c
- create mode 100644 libsemanage/tests/regression/test_module_buffer.py
+ libselinux/Makefile                   |   6 ++
+ libselinux/src/audit2why.c            |  81 +++++++-------
+ libselinux/tests/audit2why/.gitignore |   1 +
+ libselinux/tests/audit2why/Makefile   |  35 ++++++
+ libselinux/tests/audit2why/fault.c    | 150 ++++++++++++++++++++++++++
+ libselinux/tests/audit2why/policy.c   |  31 ++++++
+ libselinux/tests/audit2why/policy.cil |  21 ++++
+ libselinux/tests/audit2why/test.py    |  52 +++++++++
+ 8 files changed, 340 insertions(+), 37 deletions(-)
+ create mode 100644 libselinux/tests/audit2why/.gitignore
+ create mode 100644 libselinux/tests/audit2why/Makefile
+ create mode 100644 libselinux/tests/audit2why/fault.c
+ create mode 100644 libselinux/tests/audit2why/policy.c
+ create mode 100644 libselinux/tests/audit2why/policy.cil
+ create mode 100644 libselinux/tests/audit2why/test.py
 
-diff --git a/libsemanage/src/semanageswig_python.i b/libsemanage/src/semanageswig_python.i
-index 1729e965..797709e1 100644
---- a/libsemanage/src/semanageswig_python.i
-+++ b/libsemanage/src/semanageswig_python.i
-@@ -131,8 +131,7 @@
-  * Python object exposing the buffer protocol (bytes, bytearray, mmap, ...)
-  * as a single argument and derive the length from it.
-  */
--%typemap(in) (char *module_data, size_t data_len) (Py_buffer view) {
--	view.obj = NULL;
-+%typemap(in) (char *module_data, size_t data_len) (Py_buffer view = {0}) {
- 	if (PyObject_GetBuffer($input, &view, PyBUF_SIMPLE) < 0)
- 		SWIG_fail;
- 	$1 = (char *)view.buf;
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 2162a5e3..245c124c 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -31,3 +31,9 @@ test: all
- test-config-empty: regression/test_config_empty.c ../src/libsemanage.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=strdup $(LDLIBS)
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index be3923f0..1176b31e 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -93,3 +93,9 @@ clean-rubywrap:
  
+ test: all
+ 	$(MAKE) -C tests test
 +
-+# Requires SWIG, Python development headers and the built shared library.
-+PYTHON ?= python3
-+.PHONY: test-python-module-buffer
-+test-python-module-buffer:
-+	$(PYTHON) regression/test_module_buffer.py
-diff --git a/libsemanage/tests/regression/module_buffer_stubs.c b/libsemanage/tests/regression/module_buffer_stubs.c
++# Optional: requires Python development headers and a built tree libsepol.
++test-audit2why:
++	$(MAKE) -C tests/audit2why test
++
++.PHONY: test-audit2why
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 50dfefc3..5abc853d 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -46,6 +46,27 @@ static struct avc_t *avc = NULL;
+ 
+ static sidtab_t sidtab;
+ 
++static void policy_destroy(void)
++{
++	for (int i = 0; i < boolcnt; i++) {
++		free(boollist[i]->name);
++		free(boollist[i]);
++	}
++	free(boollist);
++	boollist = NULL;
++	boolcnt = 0;
++	if (avc) {
++		sepol_set_policydb(NULL);
++		sepol_set_sidtab(NULL);
++		sepol_sidtab_shutdown(&sidtab);
++		sepol_sidtab_destroy(&sidtab);
++		sepol_policydb_free(avc->policydb);
++		sepol_handle_destroy(avc->handle);
++		free(avc);
++		avc = NULL;
++	}
++}
++
+ static int load_booleans(const sepol_bool_t *boolean, void *arg)
+ {
+ 	const unsigned int *boolmax = arg;
+@@ -182,31 +203,10 @@ static int check_booleans(struct boolean_t **bools)
+ 
+ static PyObject *finish(PyObject *self __attribute__((unused)), PyObject *args)
+ {
+-	PyObject *result = 0;
+-
+-	if (PyArg_ParseTuple(args, ":finish")) {
+-		int i = 0;
+-		if (!avc)
+-			Py_RETURN_NONE;
+-
+-		for (i = 0; i < boolcnt; i++) {
+-			free(boollist[i]->name);
+-			free(boollist[i]);
+-		}
+-		free(boollist);
+-		sepol_sidtab_shutdown(&sidtab);
+-		sepol_sidtab_destroy(&sidtab);
+-		sepol_policydb_free(avc->policydb);
+-		sepol_handle_destroy(avc->handle);
+-		free(avc);
+-		avc = NULL;
+-		boollist = NULL;
+-		boolcnt = 0;
+-
+-		/* Boilerplate to return "None" */
+-		Py_RETURN_NONE;
+-	}
+-	return result;
++	if (!PyArg_ParseTuple(args, ":finish"))
++		return NULL;
++	policy_destroy();
++	Py_RETURN_NONE;
+ }
+ 
+ static int __policy_init(const char *init_path)
+@@ -268,6 +268,10 @@ static int __policy_init(const char *init_path)
+ 	fp = NULL;
+ 	sepol_set_policydb(&avc->policydb->p);
+ 	avc->handle = sepol_handle_create();
++	if (!avc->handle) {
++		PyErr_NoMemory();
++		goto err;
++	}
+ 	/* Turn off messages */
+ 	sepol_msg_set_callback(avc->handle, NULL, NULL);
+ 
+@@ -278,6 +282,10 @@ static int __policy_init(const char *init_path)
+ 		goto err;
+ 	}
+ 
++	if (cnt > INT_MAX) {
++		PyErr_SetString(PyExc_OverflowError, "too many booleans\n");
++		goto err;
++	}
+ 	if (cnt > 0) {
+ 		boollist = calloc(cnt, sizeof(*boollist));
+ 		if (!boollist) {
+@@ -285,8 +293,13 @@ static int __policy_init(const char *init_path)
+ 			goto err;
+ 		}
+ 
+-		sepol_bool_iterate(avc->handle, avc->policydb, load_booleans,
+-				   &cnt);
++		rc = sepol_bool_iterate(avc->handle, avc->policydb,
++					load_booleans, &cnt);
++		if (rc < 0 || (unsigned int)boolcnt != cnt) {
++			PyErr_SetString(PyExc_RuntimeError,
++					"unable to load booleans\n");
++			goto err;
++		}
+ 	}
+ 
+ 	/* Initialize the sidtab for subsequent use by sepol_context_to_sid
+@@ -297,19 +310,11 @@ static int __policy_init(const char *init_path)
+ 		goto err;
+ 	}
+ 	sepol_set_sidtab(&sidtab);
++	sepol_policy_file_free(pf);
+ 	return 0;
+ 
+ err:
+-	free(boollist);
+-	boollist = NULL;
+-	if (avc) {
+-		if (avc->handle)
+-			sepol_handle_destroy(avc->handle);
+-		if (avc->policydb)
+-			sepol_policydb_free(avc->policydb);
+-		free(avc);
+-		avc = NULL;
+-	}
++	policy_destroy();
+ 	if (pf)
+ 		sepol_policy_file_free(pf);
+ 	if (fp)
+@@ -329,6 +334,8 @@ static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args)
+ 	if (!PyArg_ParseTuple(args, "|s:policy_init", &init_path))
+ 		return NULL;
+ 	result = __policy_init(init_path);
++	if (result)
++		return NULL;
+ 	return Py_BuildValue("i", result);
+ }
+ 
+diff --git a/libselinux/tests/audit2why/.gitignore b/libselinux/tests/audit2why/.gitignore
 new file mode 100644
-index 00000000..aad01a34
+index 00000000..84c048a7
 --- /dev/null
-+++ b/libsemanage/tests/regression/module_buffer_stubs.c
-@@ -0,0 +1,40 @@
++++ b/libselinux/tests/audit2why/.gitignore
+@@ -0,0 +1 @@
++/build/
+diff --git a/libselinux/tests/audit2why/Makefile b/libselinux/tests/audit2why/Makefile
+new file mode 100644
+index 00000000..c2860a7e
+--- /dev/null
++++ b/libselinux/tests/audit2why/Makefile
+@@ -0,0 +1,35 @@
++PYTHON ?= python3
++PYTHON_CONFIG ?= $(PYTHON)-config
++LIBSEPOL ?= ../../../libsepol/src/libsepol.a
++LIBSELINUX ?= ../../src/libselinux.so.1
++BUILD = build
++CFLAGS ?= -O2 -g -Wall -Wextra -Werror
++override CPPFLAGS += -I../../../libsepol/include -I../../include
++PY_CFLAGS := $(shell $(PYTHON_CONFIG) --includes)
++WRAPS = sepol_sidtab_init sepol_handle_create sepol_bool_iterate strdup sepol_policy_file_create sepol_policy_file_free
++
++$(BUILD):
++	mkdir -p $@
++
++$(BUILD)/audit2why.o: ../../src/audit2why.c | $(BUILD)
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(PY_CFLAGS) -fPIC -Dmalloc=audit_malloc -Dcalloc=audit_calloc -Dstrdup=audit_strdup -Dfree=audit_free -c $< -o $@
++
++$(BUILD)/fault.o: fault.c | $(BUILD)
++	$(CC) $(CPPFLAGS) $(CFLAGS) -D_GNU_SOURCE -fPIC -c $< -o $@
++
++$(BUILD)/audit2why.so: $(BUILD)/audit2why.o $(BUILD)/fault.o $(LIBSEPOL) $(LIBSELINUX)
++	$(CC) -shared $(LDFLAGS) -o $@ $^ $(foreach sym,$(WRAPS),-Wl,--wrap=$(sym)) -Wl,-rpath,$(abspath $(dir $(LIBSELINUX)))
++
++$(BUILD)/policy: policy.c $(LIBSEPOL) | $(BUILD)
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBSEPOL)
++
++$(BUILD)/policy.bin: policy.cil $(BUILD)/policy
++	./$(BUILD)/policy $< $@
++
++test: $(BUILD)/audit2why.so $(BUILD)/policy.bin
++	PYTHONPATH=$(abspath $(BUILD)) $(PYTHON) test.py $(abspath $(BUILD)/policy.bin)
++
++clean:
++	rm -rf $(BUILD)
++
++.PHONY: test clean
+diff --git a/libselinux/tests/audit2why/fault.c b/libselinux/tests/audit2why/fault.c
+new file mode 100644
+index 00000000..350c51fa
+--- /dev/null
++++ b/libselinux/tests/audit2why/fault.c
+@@ -0,0 +1,150 @@
 +#include <assert.h>
 +#include <errno.h>
-+#include <stddef.h>
++#include <stdlib.h>
 +#include <string.h>
-+#include <semanage/modules.h>
++#include <sepol/booleans.h>
++#include <sepol/policydb/sidtab.h>
 +
-+int __wrap_semanage_module_install(semanage_handle_t *handle, char *data,
-+				   size_t len, const char *name,
-+				   const char *ext);
-+int __wrap_semanage_module_install_info(semanage_handle_t *handle,
-+					const semanage_module_info_t *info,
-+					char *data, size_t len);
++void audit_fault(int kind, int nth);
++int audit_fault_hits(void);
++int audit_live(void);
++void *audit_malloc(size_t size);
++void *audit_calloc(size_t n, size_t size);
++char *audit_strdup(const char *s);
++void audit_free(void *p);
++int __real_sepol_sidtab_init(sidtab_t *s);
++int __wrap_sepol_sidtab_init(sidtab_t *s);
++sepol_handle_t *__real_sepol_handle_create(void);
++sepol_handle_t *__wrap_sepol_handle_create(void);
++char *__real_strdup(const char *s);
++char *__wrap_strdup(const char *s);
++int __real_sepol_bool_iterate(sepol_handle_t *, const sepol_policydb_t *,
++			      int (*)(const sepol_bool_t *, void *), void *);
++int __wrap_sepol_bool_iterate(sepol_handle_t *, const sepol_policydb_t *,
++			      int (*)(const sepol_bool_t *, void *), void *);
++int __real_sepol_policy_file_create(sepol_policy_file_t **pf);
++int __wrap_sepol_policy_file_create(sepol_policy_file_t **pf);
++void __real_sepol_policy_file_free(sepol_policy_file_t *pf);
++void __wrap_sepol_policy_file_free(sepol_policy_file_t *pf);
 +
-+static int check_data(const char *data, size_t len)
++static int mode, position, seen, hits, files;
++static int iterating, in_callback;
++static void *allocations[4096];
++static int (*iterator_callback)(const sepol_bool_t *, void *);
++
++void audit_fault(int kind, int nth)
 +{
-+	if (len == 6 && !memcmp(data, "reject", len)) {
-+		errno = EACCES;
-+		return -1;
++	mode = kind;
++	position = nth;
++	seen = hits = 0;
++}
++
++int audit_fault_hits(void)
++{
++	return hits;
++}
++
++int audit_live(void)
++{
++	int n = files;
++	for (size_t i = 0; i < 4096; i++)
++		n += allocations[i] != NULL;
++	return n;
++}
++
++static int fail(int kind)
++{
++	if (mode == kind && ++seen == position) {
++		hits++;
++		errno = ENOMEM;
++		return 1;
 +	}
-+	assert(len == 4 && !memcmp(data, "a\0\xffz", len));
 +	return 0;
 +}
 +
-+int __wrap_semanage_module_install(semanage_handle_t *handle, char *data,
-+				   size_t len, const char *name,
-+				   const char *ext)
++static void *track(void *p)
 +{
-+	(void)handle;
-+	assert(!strcmp(name, "name") && !strcmp(ext, "cil"));
-+	return check_data(data, len);
++	if (!p)
++		return NULL;
++	for (size_t i = 0; i < 4096; i++) {
++		if (!allocations[i]) {
++			allocations[i] = p;
++			return p;
++		}
++	}
++	abort();
 +}
 +
-+int __wrap_semanage_module_install_info(semanage_handle_t *handle,
-+					const semanage_module_info_t *info,
-+					char *data, size_t len)
++void *audit_malloc(size_t size)
 +{
-+	(void)handle;
-+	(void)info;
-+	return check_data(data, len);
++	return fail(1) ? NULL : track(malloc(size));
 +}
-diff --git a/libsemanage/tests/regression/test_module_buffer.py b/libsemanage/tests/regression/test_module_buffer.py
++
++char *audit_strdup(const char *s)
++{
++	return fail(2) ? NULL : track(strdup(s));
++}
++
++void *audit_calloc(size_t n, size_t size)
++{
++	return fail(5) ? NULL : track(calloc(n, size));
++}
++
++void audit_free(void *p)
++{
++	for (size_t i = 0; i < 4096; i++)
++		if (allocations[i] == p)
++			allocations[i] = NULL;
++	free(p);
++}
++
++int __wrap_sepol_sidtab_init(sidtab_t *s)
++{
++	return fail(6) ? -ENOMEM : __real_sepol_sidtab_init(s);
++}
++
++sepol_handle_t *__wrap_sepol_handle_create(void)
++{
++	return fail(7) ? NULL : __real_sepol_handle_create();
++}
++
++char *__wrap_strdup(const char *s)
++{
++	if (iterating && !in_callback && fail(4))
++		return NULL;
++	return __real_strdup(s);
++}
++
++static int callback(const sepol_bool_t *b, void *arg)
++{
++	in_callback = 1;
++	int rc = iterator_callback(b, arg);
++	in_callback = 0;
++	return rc;
++}
++
++int __wrap_sepol_bool_iterate(sepol_handle_t *h, const sepol_policydb_t *p,
++			      int (*fn)(const sepol_bool_t *, void *),
++			      void *arg)
++{
++	iterator_callback = fn;
++	iterating = 1;
++	int rc = __real_sepol_bool_iterate(h, p, callback, arg);
++	iterating = 0;
++	return rc;
++}
++
++int __wrap_sepol_policy_file_create(sepol_policy_file_t **pf)
++{
++	int rc = __real_sepol_policy_file_create(pf);
++	if (!rc)
++		files++;
++	return rc;
++}
++
++void __wrap_sepol_policy_file_free(sepol_policy_file_t *pf)
++{
++	if (pf)
++		files--;
++	__real_sepol_policy_file_free(pf);
++}
+diff --git a/libselinux/tests/audit2why/policy.c b/libselinux/tests/audit2why/policy.c
 new file mode 100644
-index 00000000..13f963a0
+index 00000000..f4739d92
 --- /dev/null
-+++ b/libsemanage/tests/regression/test_module_buffer.py
-@@ -0,0 +1,99 @@
-+#!/usr/bin/env python3
-+"""Generate the real bindings; intercept installation before it touches policy."""
-+import argparse
-+import importlib
++++ b/libselinux/tests/audit2why/policy.c
+@@ -0,0 +1,31 @@
++#include <assert.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sepol/cil/cil.h>
++
++int main(int argc, char **argv)
++{
++	assert(argc == 3);
++	FILE *f = fopen(argv[1], "rb");
++	assert(f);
++	char text[8192];
++	size_t n = fread(text, 1, sizeof(text), f);
++	assert(n && n < sizeof(text) && !ferror(f));
++	assert(!fclose(f));
++	cil_db_t *db;
++	sepol_policydb_t *p;
++	cil_db_init(&db);
++	assert(!cil_add_file(db, argv[1], text, n));
++	assert(!cil_compile(db));
++	assert(!cil_build_policydb(db, &p));
++	void *image;
++	size_t len;
++	assert(!sepol_policydb_to_image(NULL, p, &image, &len));
++	f = fopen(argv[2], "wb");
++	assert(f && fwrite(image, 1, len, f) == len);
++	assert(!fclose(f));
++	free(image);
++	sepol_policydb_free(p);
++	cil_db_destroy(&db);
++	return 0;
++}
+diff --git a/libselinux/tests/audit2why/policy.cil b/libselinux/tests/audit2why/policy.cil
+new file mode 100644
+index 00000000..2036a833
+--- /dev/null
++++ b/libselinux/tests/audit2why/policy.cil
+@@ -0,0 +1,21 @@
++(handleunknown deny)
++(mls true)
++(sid security)
++(sidorder (security))
++(sensitivity s0)
++(sensitivityorder (s0))
++(user system_u)
++(userrole system_u object_r)
++(userlevel system_u (s0))
++(userrange system_u ((s0) (s0)))
++(role object_r)
++(roletype object_r test_t)
++(type test_t)
++(sidcontext security (system_u object_r test_t ((s0) (s0))))
++(class file (read write))
++(classorder (file))
++(allow test_t self (file (read)))
++(boolean first_bool false)
++(boolean second_bool false)
++(booleanif first_bool (true (allow test_t self (file (write)))))
++(booleanif second_bool (true (allow test_t self (file (write)))))
+diff --git a/libselinux/tests/audit2why/test.py b/libselinux/tests/audit2why/test.py
+new file mode 100644
+index 00000000..36aef535
+--- /dev/null
++++ b/libselinux/tests/audit2why/test.py
+@@ -0,0 +1,52 @@
++import ctypes
 +import os
-+from pathlib import Path
-+import re
-+import shlex
 +import subprocess
 +import sys
-+import sysconfig
-+import tempfile
-+
-+CASES = (
-+    'install_arity', 'install_extra', 'install_handle', 'info_arity',
-+    'info_extra', 'info_handle', 'info_modinfo', 'install_buffer',
-+    'info_buffer', 'install_name', 'install_ext', 'install_error',
-+    'info_error', 'install_success', 'info_success',
-+)
 +
 +
-+def exercise(case):
-+    module = importlib.import_module('_semanage')
-+    for _ in range(100):
-+        data = bytearray(b'reject' if case.endswith('_error') else b'a\0\xffz')
-+        calls = {
-+            'install_arity': lambda: module.semanage_module_install(),
-+            'install_extra': lambda: module.semanage_module_install(None, data, 'name', 'cil', 0),
-+            'install_handle': lambda: module.semanage_module_install(object(), data, 'name', 'cil'),
-+            'info_arity': lambda: module.semanage_module_install_info(),
-+            'info_extra': lambda: module.semanage_module_install_info(None, None, data, 0),
-+            'info_handle': lambda: module.semanage_module_install_info(object(), None, data),
-+            'info_modinfo': lambda: module.semanage_module_install_info(None, object(), data),
-+            'install_buffer': lambda: module.semanage_module_install(None, object(), 'name', 'cil'),
-+            'info_buffer': lambda: module.semanage_module_install_info(None, None, object()),
-+            'install_name': lambda: module.semanage_module_install(None, data, object(), 'cil'),
-+            'install_ext': lambda: module.semanage_module_install(None, data, 'name', object()),
-+            'install_error': lambda: module.semanage_module_install(None, data, 'name', 'cil'),
-+            'info_error': lambda: module.semanage_module_install_info(None, None, data),
-+            'install_success': lambda: module.semanage_module_install(None, data, 'name', 'cil'),
-+            'info_success': lambda: module.semanage_module_install_info(None, None, data),
-+        }
++def analyze(api, permission="read"):
++    return api.analyze("system_u:object_r:test_t:s0",
++                       "system_u:object_r:test_t:s0", "file", [permission])
++
++
++def child(policy, kind, nth):
++    import audit2why as api
++    fault = ctypes.CDLL(api.__file__)
++    fault.audit_fault.argtypes = [ctypes.c_int, ctypes.c_int]
++    api.finish()
++    if kind:
++        fault.audit_fault(kind, nth)
 +        try:
-+            result = calls[case]()
-+        except (TypeError, OSError) as error:
-+            if case.endswith('_error'):
-+                assert isinstance(error, OSError) and error.errno == 13
-+            else:
-+                assert not case.endswith('_success') and isinstance(error, TypeError)
++            api.init(policy)
++        except (RuntimeError, MemoryError) as exc:
++            assert not isinstance(exc, SystemError), str(exc)
 +        else:
-+            assert case.endswith('_success') and result == 0
-+        # A leaked buffer export would prevent resizing after the call.
-+        data.extend(b'x')
++            raise AssertionError("init accepted an injected failure")
++        assert fault.audit_fault_hits() == 1
++        assert fault.audit_live() == 0
++        assert analyze(api) == (api.NOPOLICY, None)
++        api.finish()
++        api.finish()
++    fault.audit_fault(0, 0)
++    for _ in range(3):
++        assert api.init(policy) == 0
++        assert analyze(api) == (api.ALLOW, None)
++        try:
++            api.init(policy)
++        except RuntimeError:
++            pass
++        else:
++            raise AssertionError("double init accepted")
++        api.finish()
++        assert fault.audit_live() == 0
 +
 +
-+def main():
-+    parser = argparse.ArgumentParser()
-+    parser.add_argument('--library', type=Path)
-+    parser.add_argument('--case', choices=CASES)
-+    args = parser.parse_args()
-+    if args.case:
-+        exercise(args.case)
-+        return
-+
-+    component = Path(__file__).resolve().parents[2]
-+    library = (args.library or component / 'src/libsemanage.so.2').resolve()
-+    assert library.is_file(), library
-+    with tempfile.TemporaryDirectory(prefix='semanage-buffer-') as tmp:
-+        temp = Path(tmp)
-+        wrapper = temp / 'wrapper.c'
-+        subprocess.run(shlex.split(os.environ.get('SWIG', 'swig')) + [
-+            '-python', '-I' + str(component / 'include'),
-+            '-I' + str(component / 'src'), '-outdir', tmp, '-o', str(wrapper),
-+            str(component / 'src/semanageswig_python.i')], check=True)
-+        source = wrapper.read_text()
-+        # Inspect both entry points: stack contents can hide an invalid release.
-+        for api, view in (('semanage_module_install', 'view2'),
-+                          ('semanage_module_install_info', 'view3')):
-+            start = source.index('_wrap_' + api + '(')
-+            body = source[start:source.index('\n}\n', start)]
-+            declaration = re.search(r'Py_buffer\s+' + view + r'\s*=\s*\{\s*0\s*\}', body)
-+            assert declaration, api + ': buffer must be initialized at declaration'
-+            assert declaration.start() < body.index('SWIG_Python_UnpackTuple')
-+        output = temp / ('_semanage' + sysconfig.get_config_var('EXT_SUFFIX'))
-+        subprocess.run(shlex.split(os.environ.get('CC', 'cc')) + [
-+            '-shared', '-fPIC', '-O2', '-g', '-I' + sysconfig.get_path('include'),
-+            '-I' + str(component / 'include'), str(wrapper),
-+            str(Path(__file__).with_name('module_buffer_stubs.c')), str(library),
-+            '-Wl,--wrap=semanage_module_install,--wrap=semanage_module_install_info',
-+            '-Wl,-rpath,' + str(library.parent), '-o', str(output)], check=True)
-+        env = dict(os.environ, PYTHONPATH=tmp)
-+        for case in CASES:
-+            subprocess.run([sys.executable, str(Path(__file__).resolve()), '--case', case],
-+                           env=env, check=True, timeout=30)
-+        print('module-buffer: 15 scenarios, 1500 calls passed')
-+
-+
-+if __name__ == '__main__':
-+    main()
++if len(sys.argv) == 4:
++    child(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
++else:
++    cases = [(0, 0), (6, 1), (7, 1)]
++    cases += [(kind, nth) for kind in (1, 2, 4, 5) for nth in (1, 2)]
++    for kind, nth in cases:
++        subprocess.run([sys.executable, __file__, sys.argv[1], str(kind), str(nth)],
++                       check=True, timeout=30, env=os.environ)
++    print("audit2why initialization: 11 cases passed")
 -- 
 2.56.0
 
