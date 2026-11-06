@@ -1,59 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793973126;
-	b=hTbruwM4zTtOvH04R9rEISXYLWBCLVmKivkKNo8e6R9rysgfOVSQfTPyAySwDGHxjql6
-	 8xOM2ti/Ts15z2bpVCxa8N6EuQrTfJ8p7FJ+TdUz/SWnKzaOBpYN/FBMtOB7o57F7ifGy
-	 j86Vi9fE4Na11WIAv1w4QeGovfPiFIY665cAZLM3XCBcZDOQE18kG/CbH3IQfcp7SkIwn
-	 k6RPMoMH2iF4ihy13TNUosagBiy8/p6t8cDLSvNORCxZXZZ5vAOQbny09UjsmazTeEYpn
-	 1Q98DfOoeIyDGWL+MzMr/lkgJTgg2b6Okj3PhP2yO86DBzP6TEqS8MkGF/lU69v5etw==
+	t=1793973127;
+	b=zo6JQPHzCnVPqO9AyBdbIosTsjx7uHS6y3xHDPz8cDbgTRoLEZxtM+cktxfjx/xGQWOr
+	 BMSvR3i7kR+qlLmpYUXdt2Q2v1TrsWFkuoEQ24smdi6nX+GaKZZ35ikXc8bnDH+qSxQb9
+	 Hcz6ByaGxHSDD0tY6gGQwm5nGgiF12DwhPw8SBhi3UTeBkdCMXVJjFZciLM9zlhZuzPcv
+	 27FXxJ561kp9lT+ANqHYa1xj5nqHUY/BADz/WQvomP+yWF2Wnt1+0agId3lwaDkD6BRHE
+	 ebpdWhxi5Zu9v3zya/PJvERgLvc43cjBWZrqIBfQgPsaMmgNW4xUZP+mSFh/fK4g13Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793973126;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793973127;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=nHv9R0ReS+J1d9xFEZDmL6a7QDE7CgqohTYDqesFDSo=;
-	b=jWU1p0LCZ+OnYfwkt0UQ04axskR9kd+9twNJdYqdYmIwP5D/mNmuKgs6sw2F0UzP1SUb
-	 ZN6EzkdLJ7qtrxYjBkskx2skbPcz/bpgZa6PsqeuMMZEd+g7fGL48tRpvkW1vnTo3bR1X
-	 6Xvr7N3UALp4P8QUcr1XLRGst2MNM0IokuXr9EGwmzihAk+eXDQWtTU3f29x17KbK+rsn
-	 6ltO1H0i4KdY0UE7Oq0kbNtNhZke8rH7zW+cKTgfhbIj2dCbOQzkw1Vxy7tguHSl4aWi6
-	 zO/BkSwnGT78U/MLo3HBamy2guv5WeLyDmSe39aFgTVYNKNOeIVyjyReu1xmQ8MotTg==
+	 Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=ZNiqQlgnz/cRgoSBnLZZprVq5YYmNP+Vlj6c6dc4JUM=;
+	b=Puj8or9iefnH+i7TUdvUki1HJUyV2KJd9SMj45SU+Qw5XEVh1Kay/19kVSQW5/BPgyKs
+	 4TmCSuColNOR8ROrTXgVwiVOxskqLtlfsCUXEqDm3FVAEqezx1dXcRMvFYAO1hj3BSo8k
+	 sMsBpRCh86vWnRn8TuvRaZ151WIUwffMugXdJQgyg5x0lw6060tKAbWPhLiNmKe95Jkih
+	 vSGdDDYf8E1GOzmXr8iT+JevpwO4ZrEVDhogJEEKjwheMQVDvGwyR+VNE83WiNVfltazU
+	 L8z1VQMrWFEzQ9K0gsOqclHbI+V38pBXQWzzyMl4sbveHG9LgnnNiZeUQPTEBJd8T4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=BNPwE48I;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=aYOSNSGp;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4093606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3EC1606A329
 	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 13:52:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F4093606A32C
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F3EC1606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=BNPwE48I
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=aYOSNSGp
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793973124;
+	s=2023072701; t=1793973123;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nHv9R0ReS+J1d9xFEZDmL6a7QDE7CgqohTYDqesFDSo=;
-	b=BNPwE48IZ+HpxhuVwEZVB0EkUD7q0xl2on07pPxMUhrEM2T6MN2g+5x0uLAfEcM8+8rwRN
-	XS655g2hrJhyQYOAPMO87dqZyYgUphRaGmjLVoseHfsmbFIZI05m/R5h/o9J1r4m17Lbyl
-	xBVjOgbyCxyXYc7zS6BEy/BquJ2ABkcKactWefw+FjKB5wcVQl8CG74wHuwcRPANmGFHq8
-	Pv0QH2qHMaYsT/JAUe/bath+9f8Oxt4W5D8vDJrm+73TLZp88W5SsLRrkZEVJI1Kqr9aFp
-	hPqb0Q74Sh046AVBC4KWifAeK97iV8L6Q3dD/dt6AG7o1nOqeS/nCFyTHKr3Yw==
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=ZNiqQlgnz/cRgoSBnLZZprVq5YYmNP+Vlj6c6dc4JUM=;
+	b=aYOSNSGp+2s3C6gNiOjNidlCJGlyGSPfXO8ZtbwXuCXfv5gEr8/bxc6gDWkHiupfLJpFpz
+	9giLPBRzb+Uw82AZd3Wtk/P5ozhHBntUIyX8kvvGnaygHwVEsg5djPvTed5BAf7jautLgg
+	0VnLrtwuvoBYjrYVt94M4XQI7pkUvbSGdP2+vRy54IKBz0knOR/VzP69CP10ii9C/47IWv
+	T9whX5egy3YvtgbpCZl/iNZNUpiVLVSYk7J9SC0yrDKyK2EDdYG9Uuav6yvojSuVTQiC5O
+	5O/MzqGPnracHf855vea0HsZi+FcsJncUVq36UcFbRrfNcyKtVeoXrPFJacksg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 1/2] libselinux: link the Python bindings with -fPIC
-Date: Fri,  6 Nov 2026 14:51:50 +0100
-Message-ID: <20261106135150.377761-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20261106135150.377761-1-cgoettsche@seltendoof.de>
-References: <20261106135150.377761-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 2/2] libsemanage: make the migration import diagnostic distribution-neutral
+Date: Fri,  6 Nov 2026 14:51:49 +0100
+Message-ID: <20261106135150.377761-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -69,31 +64,35 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Pass -fPIC explicitly through CFLAGS when building the Python wheel.
-Setuptools supplies -fPIC for compilation, but does not automatically
-include it in the extension link commands. LTO can generate code at
-link time, so these commands need -fPIC as well.
+Describe the required Python 3 bindings without naming distribution
+packages. Include the original ImportError so missing modules can be
+distinguished from failures to load the bindings' shared libraries.
 
-Match the existing libselinux.so and Ruby binding link rules.
+Use sys.exit() rather than the interactive exit() helper on this path.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsemanage/utils/semanage_migrate_store | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 9ecdbd4d..4decb198 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -151,7 +151,7 @@ all: $(LIBSO)
- endif
+diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
+index c6caf3bf..2fcbc571 100755
+--- a/libsemanage/utils/semanage_migrate_store
++++ b/libsemanage/utils/semanage_migrate_store
+@@ -12,9 +12,10 @@ from optparse import OptionParser
+ try:
+     import selinux
+     import semanage
+-except ImportError:
+-    print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
+-    exit(1)
++except ImportError as err:
++    print("Unable to import the Python 3 bindings for libselinux and "
++          "libsemanage: %s" % err, file=sys.stderr)
++    sys.exit(1)
  
- pywrap: all selinuxswig_python_exception.i
--	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m build --no-isolation --wheel .
-+	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) -fPIC" $(PYTHON) -m build --no-isolation --wheel .
  
- rubywrap: all $(SWIGRUBYSO)
- 
+ def copy_file(src, dst):
 -- 
 2.55.0
 
