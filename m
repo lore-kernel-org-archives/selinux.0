@@ -1,90 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793978548;
-	b=ffkctUyVfLOQw9VQV8MEG3myIs9iNNNarii8gvgA/Nmtxy91XQAtW5dwkBNs1RKeG1oC
-	 uUttN0b2MFF1wXaSRAUWy4gPbEm1TwhjBiKlUs3Of9U2HO0Y9aaSXsMIfFX92l0holULW
-	 StcdTdvIy2dLDxZMQv6e3I8BbNqhEUJXX+6Aywj81BjnTfQJcoCkxKjzxbAUjZxWvx3bl
-	 1HpaDAsUoD4eK+Iz8m3sgld0GuoP9XkVQXFXvxrDeDK16iEpoq9N4YAym79sIQR0TN4su
-	 akrVUsXqEjOBXpNgEwMbvLPBB9lbIZPoztWUKSRywnKJGFCKRs8TUswaqlaqVlgc2Vw==
+	t=1793980815;
+	b=TPqOaiYLGiyVOJTQA4u4EIZkynRPJkq/uvAWV+XVMKhFkFKoVEVD80eqIb6b3lvA4A9J
+	 SEjFxwNIXjJNTVBC8uteSzgrlHkD+DrBnhec4xtVF/+WiCIP3zJ9DeR5mhB1Pq4apHNPV
+	 uY9CnCH59CPpU3r+xtz8vLtnETmWF/Fshy2ij470qJ+KGftAPMcwjClVaK5HREgajcXNv
+	 dfLB4K2yGTafNGDLcFXJM/wnAq98TZUCInDX0VVjHxrla0xa+2OIi7bUV+1RDOPi93Nvd
+	 niDPCvCNPCMFOk+Bb2iTpKEhr3RHcOhM0RTjUMyerrdc9Gyo84e1W3qd57kZfTo+okw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793978548;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=z3y+DELGAxT9V5PmpfgouMZn+gCc4O45ROBPQSi1BPo=;
-	b=zvG/pFCnX+N7P6i/0L8qwFk3gaCDMZRqcH+u65PWyybcl0c3wqFXnuorIBNRP1hVhKeK
-	 jlyONjui4CHYxLfeEEnsGzzLnB+AsOSmTMzl6a5MdGQ6iGDxiIvMkYbknBYkJOjpt2A79
-	 Dz6RFjVa1ujDWoQHB3suVg3Js+XhFuOarcI0WRcYoGnAWcWmRJA3mlIwcYBhnHorG/c51
-	 xZjj8mf3L8QnVuuaYZHMi8hYpPFwD6VmEaErkHX/8l87a9LLh8TpnUpDIKWq6R3AmO7oQ
-	 7iu7flhqx22l8dE1RB5S8Roc0lKmwpTe0Ty259Vwqad+/nPnOiX8UI69o6SlRztdPKg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793980815;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=NsLM4CxJBs6Xn3z75UzZ/aPTdhlq5Q4DYpJAtQpgQhY=;
+	b=di/AaA3d6vPtczQTZw9LPJ/LlCDdW5rXpg7vbD9+9C61T/jPWiS1B3ykuPujLxc8D4Fv
+	 9j+KDSjFjr4AX2dAM0NSliPBoYIPU+HlacYV2oTXPuW7RCBtJnFiDH/d8BEtwlX52wyFO
+	 7CAiHcq7pSUe5yT+u6JQ5LhWSurkoYGAmj70+HqJ6FdVqVTrJevrH0jOt/6vIDIsokMNP
+	 rJPl90nDlHLLGgAA8mE2POuQh3OWaHcQnTTVM1/UuT5uimoirpx0qH1i2VkJYgHrssV6z
+	 NKBOBWQTZClGXb8XUnpksAXAIPZjt2bdT5yo71cWqkunnNNtJCtkB16uuuXXTVbBkvw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D0OBt12S;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aAoTS3iU;
+	arc=none smtp.remote-ip=209.85.160.179
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E95606A32D;
-	Fri,  6 Nov 2026 15:22:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB0AA606A329
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 16:00:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BB0AA606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D0OBt12S
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73F71F0089F;
-	Fri,  6 Nov 2026 15:22:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793978547;
-	bh=z3y+DELGAxT9V5PmpfgouMZn+gCc4O45ROBPQSi1BPo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=D0OBt12S5A0/61ajOHRCOvVj9Y496CxzkIZ539OmP2Egd7lJ1ZTg+93+bz35MlhhQ
-	 aEcmgJvs2K1rXKjoPty9afP418nmgDzNbNz3R49xM82YI+IZppcn7JPT2+rOR1oP3E
-	 aXPgvNxlojcYTHikG/NcZ6k0ko8+NVlu5A2DjoEJYkhK0Y6iRimNr2X51btaRYAQe4
-	 3oYkIoHH1FFpK2QL5UAfs5I6l1ULxHTF3yATZiallmsTHKUql1MDHJSRDkOp7LPZaS
-	 WDiRcIhr4R/mT8uJ1TsaVWpbDwDHCB8mxh70Ac0iVGTP+nI77JgCBpwlXJfuSijYjQ
-	 cOmEIk2xUD+nw==
-Date: Fri, 6 Nov 2026 15:22:08 +0000
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Rik van Riel <riel@surriel.com>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Harry Yoo <harry@kernel.org>, Jann Horn <jannh@google.com>, Lance Yang <lance.yang@linux.dev>, 
-	Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
-	Barry Song <baohua@kernel.org>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
-	Shrikanth Hegde <sshegde@linux.ibm.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Leon Romanovsky <leon@kernel.org>, SJ Park <sj@kernel.org>, 
-	Rakie Kim <rakie.kim@sk.com>, David Rientjes <rientjes@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
-	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	John Johansen <john.johansen@canonical.com>, Georgia Garcia <georgia.garcia@canonical.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 00/13] mm: continue vma_flags_t conversion
-Message-ID: <au3r0-geuwtRYPiC@gremlin>
-References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <d0ea7929-7c12-4245-ba3f-6dd5c0269e6b@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aAoTS3iU
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-53cd0c8614eso5560241cf.0
+        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 08:00:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793980813; x=1794585613; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NsLM4CxJBs6Xn3z75UzZ/aPTdhlq5Q4DYpJAtQpgQhY=;
+        b=aAoTS3iU0H9fwgUWam6Fs9vFJfakZIlgnOuhnH10qWG3QSytvbIkxl31ASH3dpwrf6
+         R1El2E0MRtsq+8+usZw029jBxXS93OR2Q1pDCRGnoYth5Z4H1d5+4XJQ5uUsl7vFoCZ5
+         GzR3wJFy1ABSabRPp8DLiFTLqlp6TzWqfDDqIoKd6Y+xO80Vq1d6yLyx4d3Si4ssVuOc
+         xXUJ0Sq6RMWZtdtCJVReUNyE9d4tfsRiYmMv10n8YBDVDUNUd0idB+jhMyyNsNOOHYcg
+         57ADfkvDIJ6Xa3Pelz37PBYm14M7ccj0vv/ZBrJGlPh8oM+DuPNtX4oidEBiW3Rc7Z1w
+         pD1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793980813; x=1794585613;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NsLM4CxJBs6Xn3z75UzZ/aPTdhlq5Q4DYpJAtQpgQhY=;
+        b=x/H7UPxqt/QdYfePJVFJXY/XFFVbN1TEXadfpAnz1lueh7xoRA4snzD7mnTh1DBz7K
+         CF97aQuWMkWgUtsZjSa0ZIIuVgH0KCfj313i0Fa4sUWBP+o3MSAKlKWB+T73I7e6dQfU
+         mZRoQ5gL8f9vPETS7kuyzveb+ljVBfXSVaWjs8WKYfMatfOIARQE6CdFZR/JZyYR3PDJ
+         c7Qnhifmn+L43Cf+VGnVI83zM95JzzFds3l90lP0noLlT7b1McmJyc/KJlLbSrq1v8ZO
+         qIA93gfpaUm66fN2ZBxlNjHPEjznJN5ooctHWW6te2jrlGIldSpPLGDRTBPA+7NWpyQ4
+         e1iw==
+X-Gm-Message-State: APuU4Z+mlwbKYe7ZQ0CA8P4tNyNHDO8VnoNYTnKoixRfbbU0d9P8LVyG
+	OJoFG/N2bVIQox8OcsIOWtIwE+KESCrMAstZ9/7P2kpkKTzl9JZe6Kan2lqyx4eH
+X-Gm-Gg: AYBFou1S5gxFpAY/IC9OIJprrw7+5fWoQmpSP/oOr6L1fWQo4axmM4p3Tvm/HSQTuaX
+	LSDw4Rl+Bg3owTzy0apAWq91Wd2f2Iz9Q+w6f+3e2OZxkeSCEyKHHTMUhaRcc8WkMid10m1DExj
+	hBAEakKnVuL+XboJT70IL+j8VjO0KCW/o19AriJrTan/M7M7984quPhrBOVxS41ohkjzLWGoq09
+	QdCUkclKW2Kl/5tv0p20xUbRtWituMYfNIr9elKaSUtlm1780/2+NoJ7jBbExQgazR5QSwW4ThX
+	1VaQpOirej+akTCl88gGav8+0hxwwoI8M948oKQ8+VScs/ST75dqImxZWHWTXWBUhWdG7+wGIJF
+	Y2exFcu7fJj5KsfNmiPT+lZE810/OKxZpVp9CSdkf6ozwSk9MF2wqCoH8URjJS2GSg8UZPZ9vcj
+	y66SEJBjIU7dKrL8bDOJzdqlrto1IuJElLMHtfc2fO4r0BCaJBJQj6Lw0R3jNHGaIWm/aI4n2W0
+	oijyidJAZhw29ECLegCuGUEDE3S/vYXSOQvrVTEORwcaRiJWdNUJfozX5YatONTybNe1ZTeeGNS
+	dzGfWlvlbPnJiPUp6IHUVUe7DHyhOtMPhfqh2AJzVHofQQb7vJFh0A/4DYTbqSSPGocDOPOBD/H
+	ep1J7tCBwxNrFVNAIFFOGjKqzcchHkJ93+SiAMwHgVfP0rW1BD44r2sPZzsKeseykQnt8Vikh/X
+	AWQCO4d9HJgSBsThC1wWrjNsleuRVZF1JC7eYy
+X-Received: by 2002:a05:622a:550e:b0:532:af50:8d7d with SMTP id d75a77b69052e-54e1436910fmr40674941cf.33.1793980813000;
+        Fri, 06 Nov 2026 08:00:13 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-54e231d0710sm23900371cf.2.2026.11.06.08.00.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 08:00:12 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Asif Nadaf <postasif@protonmail.com>
+Subject: [PATCH 1/2] libsepol: fix permission value collision when linking an undeclared class
+Date: Fri,  6 Nov 2026 10:59:54 -0500
+Message-ID: <20261106155955.199062-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -94,49 +100,52 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0ea7929-7c12-4245-ba3f-6dd5c0269e6b@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Nov 06, 2026 at 03:35:01PM +0100, David Hildenbrand (Arm) wrote:
-> I agree that this should be picked separately. For example, I will pick
-> everything that falls into my realm to reduce conflicts.
+From: Asif Nadaf <postasif@protonmail.com>
 
-Hmm, generally tree-wide mechanical changes are the exception to that rule
-no?
+permission_copy_callback() assigns a newly-added permission's
+access-vector bit from dest_class->permissions.nprim + 1, but never
+increments nprim afterward (unlike the class-level case a few lines
+above in class_copy_callback, which correctly does
+++(state->base->p_classes.nprim)). If a single module requires two or
+more different permissions of an object class that is declared nowhere
+(only ever required), every one of those permissions is assigned the
+same access-vector bit.
 
-It's going to make the rest of the VMA flags/mmap_prepare conversion really
-quite difficult if I have to chase every single driver maintainer in the
-kernel (literally in both cases pretty much :).
+Confirmed with a real checkmodule-compiled module linked via
+link_modules(): before this fix, two distinct required permissions on
+an undeclared class both get s.value == 1. With the fix they get
+distinct values (1 and 2).
 
-And sometimes there are dependencies which mean you really can't split it
-across trees unless you establish functionality in one cycle and callers in
-another, but that seems a little silly.
+This defect is currently inert: a class that is only ever required and
+never declared can never satisfy is_id_enabled()'s SCOPE_DECL check, so
+any decl needing this path either fails link_modules() outright (if the
+require is mandatory) or has its block disabled by enable_avrules() and
+is then rejected by expand_module()'s "class vanished" check (if the
+require is optional). No currently-reachable code path lets the
+collision reach a policy that successfully builds. Fixing it anyway
+since it is a real latent defect that other, unrelated validation
+currently happens to mask.
 
-I was thinking that once the VMA tree is separate I'd put mechanical
-changes like this through it. Is that not the way to go?
+Signed-off-by: Asif Nadaf <postasif@protonmail.com>
+---
+ libsepol/src/link.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
-> Ideally, patches really only touch one component.
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index ac9a4f2c..79da5be7 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -167,7 +167,7 @@ static int permission_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 				    "could not insert permission into class");
+ 				goto err;
+ 			}
+-			new_perm->s.value = dest_class->permissions.nprim + 1;
++			new_perm->s.value = ++(dest_class->permissions.nprim);
+ 			dest_perm = new_perm;
+ 		} else {
+ 			/* this is case c from above */
+-- 
+2.56.0
 
-Right, but sometimes functions are declared in one place and called in
-others. It is impossible to change the signature of one without also touching
-the others.
-
->
-> [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use vma_flags_t
->
-> is all over the place :)
-
-It's not really all over the place, it's converting vm_flags_t to
-vma_flags_t across madvise.c, which involves changing a few function
-signatures, whose callers must be updated.
-
-I could split it up into 3 patches where 1 does internal-only, one changes 1
-function, and the next changes another, if that works?
-
-But there's no way for that change to only touch madvise() given the
-function decl/callers.
-
---
-Cheers, Lorenzo
