@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793968527;
-	b=ruksrr89+3m3JqFLBEh0uY8E7o7CIkvHpwNFNq4bvkOXia/B05aphyENRu3BZNkHiBtt
-	 DU1cxHyNXJ8+JknLd9thGiryiLSE8hROtGSkX/P9vkNIvBvI+j97PbwW8z8YtYm7AKSXm
-	 SC5U32MONTR4nelp/rroNMeY2Hir2Uv/VrpT0O4FCHkna8/noL66fPP4MLxpcqRF/IPl8
-	 qScvCEiPsCXe+qBK1Ih3jJGGeJNRuiY8gpclUo7OROlr2EpowoRhQMaCgnBt4dgKj1vCc
-	 k1vDSbKUa9dXAYm/ouqupbcyHlnAG1kfwr++l/3wVt2ao/rrmhuwomt6qI1Hl1pacSw==
+	t=1793968529;
+	b=bHG5DH0pohcuQgxtLOIaXo3dWv9+1MmjEWzwUhDNTJyUFAXRohT737uvv0jyXkdhCzo6
+	 ZP5TntoZxTsz3czGkbTBIK0SYLcaXoN1wuLkhPYlRKW1RPjt9CPXez6lHx6ch79j1biBp
+	 1qtXL/Vo/QcwfWBPQPp+7OObxzPD3OVp/GAvKuJY0AZqcWHte/b1ISd25wZAn1m/PJf1v
+	 hh2JcY1u1FFYIdsFEW5BABzuaNZ0iBGLrsZIcyg9jEsi0AJaMenZUbOw/K5DAXnAkjJOn
+	 sfjloKHXuOASI74tKN2+wbTlkVFqL7XXW+gmSmQnWxErkQTlEolQEayQuLyTt/FBkTA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793968527;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793968529;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=bBu7yxHYaZMdpJRxQMXGkgO71/3uHDL/cvKzm1Xvr0Y=;
-	b=mbbQwCyTnHiuMNdfQtyFrad30sIZ2fY5/u4PnJG7BS80uw0k5avt/M0/cKnOde4d6Fd+
-	 tZ1FxNw27P4m/hOyt3EYRjCBOQeF+DsfmCRA416HiceY7bAQerDnu+0hLP3lGGh6KT6Ii
-	 YM8o+xmBExVYcGyYKSTtFf+mSKjVJHgzKBpZ4IcMw/Qjltpq2o5wQ6Qm2Rr8XzegDSJ13
-	 63buJ8zGHyePoaBZtltMLM4BSwFto7Pe37IJrIpVIJb43yiRDDhx7fmKUDRTMj/6WD+bq
-	 7v2ubPVbdR1T/C08RvNdZGc7uiBjYBqPKzE9FIAvT3/2ZTom8mVXPy3Aey4D9P8mTEA==
+	bh=LHGQvHR77G/0W8Hg+4IVBg/BQVJCZjkGa7ySFm+mD3g=;
+	b=kZ4COVnqdr5G2Tq5VlbCgXYKfbwKEaol5dU6qD36FXdJZwvtVpz1eMrDuV8M5TR+fOT7
+	 aCwM2CgxJxJVQxQ8Bk5lVZncq6m+ztYqRmBhoZnja56OJvdRhNIJ6s8B5ShwylxKe52JU
+	 h2D0m1mU3aNVoUfjRUWtuTS0t7wsZrO1UCY4BUVMWR5ri7asUQDxeiJ57vAIEAgzb51tb
+	 mqd4vVd2vCAaLzQO5sRgvkWDfOvyk1jE1DAGxn8m+XDA1sxM2oZoT5YMQqaO2cmOr0rAX
+	 mtaywg1xBGWKzJHPVaQO8XTEXf3ch/7nd1IKit8f12RPHrcBofvLeH24BcwglH/EWfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=KJLPrGds;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=BwHxAQkU;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A28606A326
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 44A28606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A53606A330
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 08A53606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=KJLPrGds
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=BwHxAQkU
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793968524;
+	s=2023072701; t=1793968525;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bBu7yxHYaZMdpJRxQMXGkgO71/3uHDL/cvKzm1Xvr0Y=;
-	b=KJLPrGdswmWUdMc2NxwC7B5NcT0Qn/x6vAllJiUYhtxgKQUf1vuB90LogdJ/mp6fb+j22Y
-	V7pH/HUiIQK0i5CW5nXCz/+03IEexMe+/7i9WpLDgrRXdGjvUbDqtWgmuSQplTgf4Z4F8B
-	SuAkkMffuYJcco4OqutuPwsP8ZQHWILZk2adOSA7s/G47PF964h2B+mhK7PCLktVrXq9J2
-	Y8isuQa/V5OAIv8DIYcVsWIqZcYMfi4UlLm+8oOcyWk2B8am3Lc7sOb0CD824welAY8cAs
-	uEUd+FlAj1tYZvYpp4rESkmNDG8Wdkiqj42Eeqb1c2bxn+NeIpmuorrSAgxLsg==
+	bh=LHGQvHR77G/0W8Hg+4IVBg/BQVJCZjkGa7ySFm+mD3g=;
+	b=BwHxAQkUs+mCi2t+p5Nhmthh9zpuYat18ponlYCQoSVMreIC0gXDC4guf7qtJ4rjUIDfnF
+	2mi5JVvOPUBnDKfmdP99FBsjsPV6bvhBwM/ci4zccX2ZmMGilhkQ0nxZodSM2O9HhTY9Ql
+	Xd5WvvArad9hO66p+dXWb7AVvJMVmvfM5UwrYWOUdsukWU3SbnxaaGtZLpGIT4mrl8Du1R
+	z3ht3n4CVrbNVWmEM0MMJdqQTSsV8s2VJnY8VdrQyAWLgbQQycyYcDJ3nhV6xbXkI53S4N
+	A0WcPHc8t9xvNDRaD3YAeI/7TYiG+Z1hX0u/KgZV5DCa1Y4hL/CJhdFHPPuImA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 03/16] checkpolicy: reject self as a type alias name
-Date: Fri,  6 Nov 2026 13:34:56 +0100
-Message-ID: <20261106123510.76727-2-cgoettsche@seltendoof.de>
+Subject: [PATCH 09/16] libsepol: declare the cil_gen_require user attribute in converted bases
+Date: Fri,  6 Nov 2026 13:35:02 +0100
+Message-ID: <20261106123510.76727-8-cgoettsche@seltendoof.de>
 In-Reply-To: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 References: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,89 +69,38 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-create_type() rejects "self" as a type or attribute name because it is
-the reserved target keyword of type rules, but aliases declared through
-"typealias t alias self;" or "type t alias self;" bypass that check in
-add_aliases_to_type(). The alias is accepted, yet a later
-"allow t self:..." still resolves self to the keyword instead of the
-alias, so the alias can never be referenced.
+module_to_cil marks symbols a module only requires by adding them to a
+cil_gen_require attribute, so that a missing symbol disables the
+enclosing optional block. Required users become
 
-Apply the same reserved-name check to alias identifiers and add negative
-tests for both alias spellings.
+    (userattributeset cil_gen_require base_u)
+
+but the base only declares the type and role attributes of that name.
+A converted module requiring a user therefore fails to compile at the
+top level ("Failed to resolve userattributeset statement"), and inside
+an optional block the unresolvable statement silently disables the
+whole block, dropping its rules even though the user exists.
+
+Declare the user attribute alongside the type and role attributes.
 
 Assisted-by: Claude:claude-5.5-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/policy_define.c                    |  5 +++++
- checkpolicy/tests/negative/self_type_alias.te  |  9 +++++++++
- checkpolicy/tests/negative/self_typealias.te   | 10 ++++++++++
- checkpolicy/tests/test_checkmodule_negative.sh |  4 ++++
- 4 files changed, 28 insertions(+)
- create mode 100644 checkpolicy/tests/negative/self_type_alias.te
- create mode 100644 checkpolicy/tests/negative/self_typealias.te
+ libsepol/src/module_to_cil.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index fbacdaf4..7e6d157f 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1319,6 +1319,11 @@ static int add_aliases_to_type(type_datum_t *type)
- 			free(id);
- 			return -1;
- 		}
-+		if (strcmp(id, "self") == 0) {
-+			yyerror("\"self\" is a reserved type name.");
-+			free(id);
-+			return -1;
-+		}
- 		aliasdatum = calloc(1, sizeof(type_datum_t));
- 		if (!aliasdatum) {
- 			free(id);
-diff --git a/checkpolicy/tests/negative/self_type_alias.te b/checkpolicy/tests/negative/self_type_alias.te
-new file mode 100644
-index 00000000..61d801c9
---- /dev/null
-+++ b/checkpolicy/tests/negative/self_type_alias.te
-@@ -0,0 +1,9 @@
-+module self_type_alias 1.0;
-+
-+require {
-+	class file { read };
-+}
-+
-+type foo_t alias self;
-+
-+allow foo_t self:file read;
-diff --git a/checkpolicy/tests/negative/self_typealias.te b/checkpolicy/tests/negative/self_typealias.te
-new file mode 100644
-index 00000000..f9a075de
---- /dev/null
-+++ b/checkpolicy/tests/negative/self_typealias.te
-@@ -0,0 +1,10 @@
-+module self_typealias 1.0;
-+
-+require {
-+	class file { read };
-+}
-+
-+type foo_t;
-+typealias foo_t alias self;
-+
-+allow foo_t self:file read;
-diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
-index 5e35b1ae..45ff1838 100755
---- a/checkpolicy/tests/test_checkmodule_negative.sh
-+++ b/checkpolicy/tests/test_checkmodule_negative.sh
-@@ -324,6 +324,10 @@ expect_fail "type_attr_conflict.te" "Duplicate declaration of type" "type_attr_c
- 	"${NEGDIR}/type_attr_conflict.te"
- expect_fail "invalid_type_name.te" "syntax error" "invalid_type_name" \
- 	"${NEGDIR}/invalid_type_name.te"
-+expect_fail "self_typealias.te" "\"self\" is a reserved type name" "self_typealias" \
-+	"${NEGDIR}/self_typealias.te"
-+expect_fail "self_type_alias.te" "\"self\" is a reserved type name" "self_type_alias" \
-+	"${NEGDIR}/self_type_alias.te"
- expect_fail "bad_role.te" "syntax error" "bad_role" "${NEGDIR}/bad_role.te"
- expect_fail "bad_user.te" "garbage_token" "bad_user" "${NEGDIR}/bad_user.te"
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 44ae04d7..98a202b5 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -4424,6 +4424,7 @@ static int generate_gen_require_attribute(void)
+ {
+ 	cil_println(0, "(typeattribute " GEN_REQUIRE_ATTR ")");
+ 	cil_println(0, "(roleattribute " GEN_REQUIRE_ATTR ")");
++	cil_println(0, "(userattribute " GEN_REQUIRE_ATTR ")");
  
+ 	return 0;
+ }
 -- 
 2.55.0
 
