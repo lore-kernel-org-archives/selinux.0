@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793968530;
-	b=OXHGcKDpmqrAuSOGHh2Z6LTas7yJwPrSg6NsjvAcOBGP1f4fX4Ht0nWg6TYHQqEOOrdh
-	 49tblPljexn34nsoIAmUyed1TsLBFvqOXHv+g4N4hge+Hv4Q2SD14OXS9vp+6CGPkCFr9
-	 1bEdKJkMYOKzBcE6rAVzUU6hmtCu+UzdmV2Dt6FLGUVmYIry6EVlDCzq9b5zRjlcmTotD
-	 6bM5uxqyR4u1RJtMTpF5HJU8bwDx0mDvuQs8EJHVdLVqCwKinP/16WQ9TbB4tIQH/R4RK
-	 TbFD14Hq8WcgVA7S5N+5EbFZOYS7wFxZ+83kNivJklDbwyGEnkgjlK+ygt3asIf+5Rg==
+	b=lRhYPXjm6LQVsBTYCMFW1a2TjRCty2KHvFuUjIzL3SG2Z0eW29YT9+ImkNTkpfdOeydV
+	 1LrshK8NzfBczpi2TggpCfKfwRU50JGRkshq6/B5I5ozdglsOeq+l6qiSGQpWkfTr4oB6
+	 1tnMrzDTVZdg/HsgZBLRoo8eWFzyGa9R1klOb2/y3Ls2oRjMIyR16A/QhpEqqWWYzsac0
+	 enhVC7ggZgTBGo8HIvQmaqWTDU/QalxLiQUPYaWBy/FkKo/PkxU43qg1stRDI6fxythCT
+	 Y1GYk9x0EUKrhkPQzdbkaYoZW2PB6lytdfwKDLg6A3+71hLMKxBA4RZXaycn+lxqFpg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793968530;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=9ljtxyOsCmLFPlsdABN9S60Y+RXBs/fcCkwBW/9I0iY=;
-	b=0KDiE95y99tTotMAGKBZ61Veus7c45vpr6qAGJMa6Qa44xbnzv9wDTPBUJrAQrKtkWlJ
-	 JvHR59/dq+h+HRvsCJ/vVOvrec8irJMkYG5wBNS/5AKVjVbvvJ1kmhkspXCpMMKeYHayu
-	 4zIEupz/ON+hzqgpnkjfZw3dAKkYyewE53iSzA6h4LLGjHdqBin4iiMlUB4BAluiCg9PZ
-	 E5fJfed/101GbHZhygx7yrDHyz8nbfwecZ+wZeLtU4WaXvhibTHDYnYqblOWA47k6uBah
-	 gys+rRE1NeMoIfkTgisOnBc3auSLDUeeQ5LntupHUF9BNrp2Pa4YyBzDt7oF5msw5ew==
+	bh=WVPs4jawNeOVOBEHXf2hPGtLwDd/Q1OB0iPqU1CIBZc=;
+	b=Ved/xvewH7/QCfgqJ8Pru55C9am8S6WcAduVXPt0eAM/dKnIwbWvwJLdW+KDvmT9O49Z
+	 sIf9ufOy6uLc/tpvGwPOQJihC5uQ7Gc/24l82eeVaOxAiZRequdsxYE8xDEXc7aIYmvvr
+	 k1BGRpJu37YGmFaJAFG+8rVQM1V8zPdeEEsdp8DGRh5hLHXR3+/R7IGYo/U10GpeBxsC7
+	 Fskupq0Vpk+wdRieA6loUap+duRzfTSwV3uzTBykuN7VUyCN6xvYcdWyorowWWbfYwyXZ
+	 A0cCzv24qsJe5+Fmw3neNqkUUWHYtOE+hXR5onllotZl/ofqawWSBZWwTh+JIqk8IWA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=J0t0iLyU;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Kw8aAJWI;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B13606A338
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60B13606A338
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C67606A329
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B5C67606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=J0t0iLyU
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Kw8aAJWI
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793968527;
+	s=2023072701; t=1793968525;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9ljtxyOsCmLFPlsdABN9S60Y+RXBs/fcCkwBW/9I0iY=;
-	b=J0t0iLyURwZp9x2UBRadcSmB9kHU2wFKiXM4PsSdgcZW4Z6ttCRNAQENhV1jH90AUW1UcL
-	v2b4od3ER7rb1AE4m2a6TqL9Y0fIz1OrsB+YJI+L9rVCfQVt4wInnxPQZ4St3hYABYwfL7
-	afADLsACih78OT3eb3NZfmOvHniCRftSY0a+LvWUMVftXFVLlt9vfSagMybXr8uiPtPkan
-	gB5by0pGvydBmBi1xmTyUuh/JrlS4gS2QjpiU4WOjdjYohB7xoNnKhAqE3kvMPCtmmleb1
-	UHVXK0x735DGdbd/ZfUyo+WsOtHaSxD3q09Tcdx4U4ONk5tPl/1/rwfZUHqeRA==
+	bh=WVPs4jawNeOVOBEHXf2hPGtLwDd/Q1OB0iPqU1CIBZc=;
+	b=Kw8aAJWI/03GQsk2oWrJWKyji91VlgiddcddXgFCukv/1lDDCllkaRManmBAS2f3igajlW
+	v3+C95KW7jnFb5RTNnVJS83YYusT5meJeb1rrVzZ7qgsQg03qNajFWpDm6iEa8PNcY4+sX
+	Nh7zsoxEYWt37C89faR9NbLKRv/jaJ2tm6pgwiL07YLwSYVuLJNwoUffZFPH29LW+AUd8K
+	iNkvjxVcv+SveYzyuAPsI1xyvZTRrIVvUJ7egQ6QHwo9wBacrhIKCVZCy9CewhVczRFQkj
+	F5vH9quKWJk9SJrDR/9nSPbXtqvMFUiebOsIUySZi2t2xAU9vDNb+iDvodtyHQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 15/16] libsepol: convert user statements in optional blocks with their roles
-Date: Fri,  6 Nov 2026 13:35:08 +0100
-Message-ID: <20261106123510.76727-14-cgoettsche@seltendoof.de>
+Subject: [PATCH 08/16] checkpolicy: accept a class listed twice in a constraint
+Date: Fri,  6 Nov 2026 13:35:01 +0100
+Message-ID: <20261106123510.76727-7-cgoettsche@seltendoof.de>
 In-Reply-To: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 References: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,54 +69,115 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-checkmodule keeps the roles and MLS attributes of a user statement on
-the user datum of the declaring avrule_decl, and copies only the MLS
-attributes into the module's global user datum. declared_scopes_to_cil()
-however converts every declared symbol from the global datum, so a user
-declared in an optional block loses its roles:
+define_constraint() creates one constraint node per listed class and
+then assigns the permissions to the most recent node of each class. A
+class listed twice, as in
 
-    optional {
-        require { type opt_gate_t; }
-        user opt_u roles { base_r } level s0 range s0 - s1:c0.c1;
-    }
+    constrain { file file } { read } ( u1 == u2 );
 
-becomes "(user opt_u) (userrole opt_u object_r)" without
-"(userrole opt_u base_r)", although the expanded module grants base_r.
-A user declared in two optional blocks also gets the categories of both
-statements merged into one range, e.g. "(s1 (range c0 c1 range c0 c1))",
-in both blocks.
+gets two nodes, and the older one keeps an empty permission set. Policy
+validation then fails with the unhelpful "Invalid constraint expr";
+checkpolicy 3.11, which did not validate before writing, wrote a policy
+that libsepol refuses to read. define_validatetrans() likewise writes
+the same validatetrans rule twice.
 
-Convert declared users from the declaring decl's datum, falling back to
-the global datum.
+Treat the class list as a set, as other class lists are, by skipping
+classes already listed, and add a round-trip test.
 
 Assisted-by: Claude:claude-5.5-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/module_to_cil.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ checkpolicy/policy_define.c                     | 10 ++++++++++
+ checkpolicy/tests/policy_dupclass.conf          | 14 ++++++++++++++
+ checkpolicy/tests/policy_dupclass.expected.conf | 16 ++++++++++++++++
+ checkpolicy/tests/test_roundtrip.sh             |  2 ++
+ 4 files changed, 42 insertions(+)
+ create mode 100644 checkpolicy/tests/policy_dupclass.conf
+ create mode 100644 checkpolicy/tests/policy_dupclass.expected.conf
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 98a202b5..50b29b2e 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -3885,7 +3885,16 @@ static int declared_scopes_to_cil(int indent, struct policydb *pdb,
- 		map = decl->declared.scope[sym];
- 		ebitmap_for_each_positive_bit(&map, node, i) {
- 			key = pdb->sym_val_to_name[sym][i];
--			datum = hashtab_search(pdb->symtab[sym].table, key);
-+			datum = NULL;
-+			if (sym == SYM_USERS) {
-+				/* a user statement keeps its roles and MLS
-+				 * attributes on the declaring decl's datum */
-+				datum = hashtab_search(decl->symtab[sym].table,
-+						       key);
-+			}
-+			if (datum == NULL)
-+				datum = hashtab_search(pdb->symtab[sym].table,
-+						       key);
- 			if (datum == NULL) {
- 				rc = -1;
- 				goto exit;
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 28ad816b..349cd355 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -3793,6 +3793,11 @@ int define_constraint(constraint_expr_t *expr)
+ 			free(id);
+ 			goto bad;
+ 		}
++		/* a class listed twice gets a single constraint */
++		if (ebitmap_get_bit(&classmap, cladatum->s.value - 1)) {
++			free(id);
++			continue;
++		}
+ 		if (ebitmap_set_bit(&classmap, cladatum->s.value - 1, TRUE)) {
+ 			yyerror("out of memory");
+ 			free(id);
+@@ -3953,6 +3958,11 @@ int define_validatetrans(constraint_expr_t *expr)
+ 			free(id);
+ 			goto bad;
+ 		}
++		/* a class listed twice gets a single validatetrans rule */
++		if (ebitmap_get_bit(&classmap, cladatum->s.value - 1)) {
++			free(id);
++			continue;
++		}
+ 		if (ebitmap_set_bit(&classmap, (cladatum->s.value - 1), TRUE)) {
+ 			yyerror("out of memory");
+ 			free(id);
+diff --git a/checkpolicy/tests/policy_dupclass.conf b/checkpolicy/tests/policy_dupclass.conf
+new file mode 100644
+index 00000000..51df7c7b
+--- /dev/null
++++ b/checkpolicy/tests/policy_dupclass.conf
+@@ -0,0 +1,14 @@
++# handle_unknown deny
++class CLASS1
++class CLASS2
++sid kernel
++class CLASS1 { PERM1 }
++class CLASS2 { PERM1 }
++type TYPE1;
++allow TYPE1 self:CLASS1 { PERM1 };
++role ROLE1;
++role ROLE1 types { TYPE1 };
++user USER1 roles ROLE1;
++constrain { CLASS1 CLASS2 CLASS1 } { PERM1 } u1 == u2;
++validatetrans { CLASS2 CLASS1 CLASS2 } r1 == r2;
++sid kernel USER1:ROLE1:TYPE1
+diff --git a/checkpolicy/tests/policy_dupclass.expected.conf b/checkpolicy/tests/policy_dupclass.expected.conf
+new file mode 100644
+index 00000000..03af5017
+--- /dev/null
++++ b/checkpolicy/tests/policy_dupclass.expected.conf
+@@ -0,0 +1,16 @@
++# handle_unknown deny
++class CLASS1
++class CLASS2
++sid kernel
++class CLASS1 { PERM1 }
++class CLASS2 { PERM1 }
++type TYPE1;
++allow TYPE1 self:CLASS1 { PERM1 };
++role ROLE1;
++role ROLE1 types { TYPE1 };
++user USER1 roles ROLE1;
++constrain CLASS1 { PERM1 } u1 == u2;
++constrain CLASS2 { PERM1 } u1 == u2;
++validatetrans CLASS1 r1 == r2;
++validatetrans CLASS2 r1 == r2;
++sid kernel USER1:ROLE1:TYPE1
+diff --git a/checkpolicy/tests/test_roundtrip.sh b/checkpolicy/tests/test_roundtrip.sh
+index d05b36bb..beac2fba 100755
+--- a/checkpolicy/tests/test_roundtrip.sh
++++ b/checkpolicy/tests/test_roundtrip.sh
+@@ -31,6 +31,8 @@ check_policy  policy_minimal.conf      policy_minimal.conf                   '-E
+ check_policy  policy_minimal_mls.conf  policy_minimal_mls.conf               '-M -E'
+ check_policy  policy_minimal_mls.conf  policy_minimal_mls.conf               '-M -E -S -O'
+ 
++check_policy  policy_dupclass.conf     policy_dupclass.expected.conf         ''
++
+ check_policy  policy_allonce.conf      policy_allonce.expected.conf          ''
+ check_policy  policy_allonce.conf      policy_allonce.expected_opt.conf      '-S -O'
+ 
 -- 
 2.55.0
 
