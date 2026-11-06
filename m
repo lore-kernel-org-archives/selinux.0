@@ -1,54 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793968527;
-	b=hj/QLs9aZdYwifok19Jz6nLgaUGPjRG+DHBBY0P5Ja2F2hYd5woVMwIXb+ctJP+44NlO
-	 +AP3dXtutggwmVCEF79FxKBoLB7hJcDC5snjxe3L1U1mycAYUW2CNf4oEytn020lZRQ9Y
-	 eOgO/+98/N22/0lU/vyVh/wdcMUiKZQrjTfISaZw3zJjZsKi1muhAeoAVKIluJp0eddN7
-	 j0rjTiMWCmRsgFYtLNNRf2IN/gm3O8q8zcLbY4aUoPgH+Qml/bg0UD9V8bTzcQzK3rzsZ
-	 9NPVaXD1AKTvUXFpCSET3iZ9GQgT9nWfI6WgBFCW+dlKmTsAtRDIhJR26JJZYr5TgnQ==
+	b=ruksrr89+3m3JqFLBEh0uY8E7o7CIkvHpwNFNq4bvkOXia/B05aphyENRu3BZNkHiBtt
+	 DU1cxHyNXJ8+JknLd9thGiryiLSE8hROtGSkX/P9vkNIvBvI+j97PbwW8z8YtYm7AKSXm
+	 SC5U32MONTR4nelp/rroNMeY2Hir2Uv/VrpT0O4FCHkna8/noL66fPP4MLxpcqRF/IPl8
+	 qScvCEiPsCXe+qBK1Ih3jJGGeJNRuiY8gpclUo7OROlr2EpowoRhQMaCgnBt4dgKj1vCc
+	 k1vDSbKUa9dXAYm/ouqupbcyHlnAG1kfwr++l/3wVt2ao/rrmhuwomt6qI1Hl1pacSw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793968527;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=Sjkm7qQdupaX4EC/9qP2nZy8WiXnMvPjDpRylKYaHVo=;
-	b=BZ7lkoxdIGgDgg5C5sAHhVvhMG0Kk7lUU2Gn4+UmAtlTLRrDVPFTFreGs6wkH3sq0Luv
-	 QzCEHPlejN3dF0PGWt0KOZFl389ECwMa17DIEtOXULrpWjTgFSCHTYB01ofdffMN4qinD
-	 YuyCRGt8dou48IAyuFWyef3mK+aGKTWw5CrZ4xsVIrQEG4yrIRQUyt4FVu6IJWKj08iz/
-	 PAls11uUbfsYJt6x/exPNQK/GHwwV2WPl/1r93RpbDIJC+42DCVatG7u7w2+poVks2dlr
-	 7EPPFr7DOv2aYYyZwrkWkLEu9ZaOzoj+7FcqBWC1VzrAEyDGkQLDYSKyA+5ees/7YTw==
+	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=bBu7yxHYaZMdpJRxQMXGkgO71/3uHDL/cvKzm1Xvr0Y=;
+	b=mbbQwCyTnHiuMNdfQtyFrad30sIZ2fY5/u4PnJG7BS80uw0k5avt/M0/cKnOde4d6Fd+
+	 tZ1FxNw27P4m/hOyt3EYRjCBOQeF+DsfmCRA416HiceY7bAQerDnu+0hLP3lGGh6KT6Ii
+	 YM8o+xmBExVYcGyYKSTtFf+mSKjVJHgzKBpZ4IcMw/Qjltpq2o5wQ6Qm2Rr8XzegDSJ13
+	 63buJ8zGHyePoaBZtltMLM4BSwFto7Pe37IJrIpVIJb43yiRDDhx7fmKUDRTMj/6WD+bq
+	 7v2ubPVbdR1T/C08RvNdZGc7uiBjYBqPKzE9FIAvT3/2ZTom8mVXPy3Aey4D9P8mTEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=XoR4qrI8;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=KJLPrGds;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C42606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A28606A326
 	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 44C42606A329
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 44A28606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=XoR4qrI8
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=KJLPrGds
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793968523;
+	s=2023072701; t=1793968524;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=Sjkm7qQdupaX4EC/9qP2nZy8WiXnMvPjDpRylKYaHVo=;
-	b=XoR4qrI8R6Q5jaWdYSZPM/BGWXt6bX/Pezbi9sFWhp+LCSE4IpZHl2nAQYTdyufPpE64Mu
-	Zlz5kYbFkjWtlOU5bDFWBafh3gv9qMTjwSewyAjfkKWULgD7mXj79a7tHOgAJsiHto5Av3
-	MRq1vGtGakygfA97E9n65+VESZgbarsg6KUbFtQVtpkG9uL7Ci186WM3u2blhINWpc8pnP
-	0UWuraRRTundmd6ZbaNHGSI7U7rXlfjyHrNCCz4bescSBSMiFo7wfRjftfsWtIBfJLm6Kf
-	8d3BzKQPg1EqnyCiurm1c4aRQFVFfLPG3zd7yS47emdSyyhHbTKIfYPYn9mgiw==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bBu7yxHYaZMdpJRxQMXGkgO71/3uHDL/cvKzm1Xvr0Y=;
+	b=KJLPrGdswmWUdMc2NxwC7B5NcT0Qn/x6vAllJiUYhtxgKQUf1vuB90LogdJ/mp6fb+j22Y
+	V7pH/HUiIQK0i5CW5nXCz/+03IEexMe+/7i9WpLDgrRXdGjvUbDqtWgmuSQplTgf4Z4F8B
+	SuAkkMffuYJcco4OqutuPwsP8ZQHWILZk2adOSA7s/G47PF964h2B+mhK7PCLktVrXq9J2
+	Y8isuQa/V5OAIv8DIYcVsWIqZcYMfi4UlLm+8oOcyWk2B8am3Lc7sOb0CD824welAY8cAs
+	uEUd+FlAj1tYZvYpp4rESkmNDG8Wdkiqj42Eeqb1c2bxn+NeIpmuorrSAgxLsg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 02/16] libsepol: expand every class of a type rule after a duplicate
-Date: Fri,  6 Nov 2026 13:34:55 +0100
-Message-ID: <20261106123510.76727-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 03/16] checkpolicy: reject self as a type alias name
+Date: Fri,  6 Nov 2026 13:34:56 +0100
+Message-ID: <20261106123510.76727-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20261106123510.76727-1-cgoettsche@seltendoof.de>
+References: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,172 +69,89 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-expand_terule_helper() walks the classes of a type_transition,
-type_member or type_change rule and returns success as soon as one class
-maps to an identical rule already present in the same scope. The
-remaining classes of the rule are never expanded and are lost without a
-diagnostic.
+create_type() rejects "self" as a type or attribute name because it is
+the reserved target keyword of type rules, but aliases declared through
+"typealias t alias self;" or "type t alias self;" bypass that check in
+add_aliases_to_type(). The alias is accepted, yet a later
+"allow t self:..." still resolves self to the keyword instead of the
+alias, so the alias can never be referenced.
 
-For example, with dup_src_t carrying the attribute dup_src_a,
-
-    type_transition dup_src_t dup_tgt_t:dir dup_new_t;
-    type_transition dup_src_a dup_tgt_t:{ dir file } dup_new_t;
-
-expands only the dir transition; the file transition is dropped, so a
-file created by dup_src_t in dup_tgt_t is labeled dup_tgt_t instead of
-dup_new_t. Reversing the two statements keeps both. Refpolicy hits this
-with kubelet_t and kubectl_domain, losing
-type_transition kubelet_t tmp_t:file kubernetes_tmp_t.
-
-Skip only the duplicated class and continue with the next one, and add
-a regression test expanding the example above.
+Apply the same reserved-name check to alias identifiers and add negative
+tests for both alias spellings.
 
 Assisted-by: Claude:claude-5.5-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/expand.c                         |  6 +-
- .../test-expander/terule-dup-base.conf        | 36 +++++++++++
- libsepol/tests/test-expander.c                | 61 +++++++++++++++++++
- 3 files changed, 101 insertions(+), 2 deletions(-)
- create mode 100644 libsepol/tests/policies/test-expander/terule-dup-base.conf
+ checkpolicy/policy_define.c                    |  5 +++++
+ checkpolicy/tests/negative/self_type_alias.te  |  9 +++++++++
+ checkpolicy/tests/negative/self_typealias.te   | 10 ++++++++++
+ checkpolicy/tests/test_checkmodule_negative.sh |  4 ++++
+ 4 files changed, 28 insertions(+)
+ create mode 100644 checkpolicy/tests/negative/self_type_alias.te
+ create mode 100644 checkpolicy/tests/negative/self_typealias.te
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 153b609f..268fd5b8 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2016,8 +2016,10 @@ static int expand_terule_helper(sepol_handle_t *handle, policydb_t *p,
- 				/* if the duplicate is inside the same scope (eg., unconditional 
- 				 * or in same conditional then ignore it */
- 				if ((conflict == 1 && cond == NULL) ||
--				    node->parse_context == cond)
--					return EXPAND_RULE_SUCCESS;
-+				    node->parse_context == cond) {
-+					cur = cur->next;
-+					continue;
-+				}
- 				ERR(handle, "duplicate TE rule for %s %s:%s %s",
- 				    p->p_type_val_to_name[avkey.source_type - 1],
- 				    p->p_type_val_to_name[avkey.target_type - 1],
-diff --git a/libsepol/tests/policies/test-expander/terule-dup-base.conf b/libsepol/tests/policies/test-expander/terule-dup-base.conf
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index fbacdaf4..7e6d157f 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1319,6 +1319,11 @@ static int add_aliases_to_type(type_datum_t *type)
+ 			free(id);
+ 			return -1;
+ 		}
++		if (strcmp(id, "self") == 0) {
++			yyerror("\"self\" is a reserved type name.");
++			free(id);
++			return -1;
++		}
+ 		aliasdatum = calloc(1, sizeof(type_datum_t));
+ 		if (!aliasdatum) {
+ 			free(id);
+diff --git a/checkpolicy/tests/negative/self_type_alias.te b/checkpolicy/tests/negative/self_type_alias.te
 new file mode 100644
-index 00000000..90480d58
+index 00000000..61d801c9
 --- /dev/null
-+++ b/libsepol/tests/policies/test-expander/terule-dup-base.conf
-@@ -0,0 +1,36 @@
-+class process
-+class file
-+class dir
++++ b/checkpolicy/tests/negative/self_type_alias.te
+@@ -0,0 +1,9 @@
++module self_type_alias 1.0;
 +
-+sid kernel
++require {
++	class file { read };
++}
 +
-+class process { transition }
-+class file { read }
-+class dir { read }
++type foo_t alias self;
 +
-+ifdef(`enable_mls',`
-+sensitivity s0;
-+dominance { s0 }
-+category c0;
-+level s0:c0;
++allow foo_t self:file read;
+diff --git a/checkpolicy/tests/negative/self_typealias.te b/checkpolicy/tests/negative/self_typealias.te
+new file mode 100644
+index 00000000..f9a075de
+--- /dev/null
++++ b/checkpolicy/tests/negative/self_typealias.te
+@@ -0,0 +1,10 @@
++module self_typealias 1.0;
 +
-+mlsconstrain file { read } ( h1 dom h2 );
-+')
++require {
++	class file { read };
++}
 +
-+attribute dup_src_a;
-+type dup_src_t, dup_src_a;
-+type dup_tgt_t;
-+type dup_new_t;
++type foo_t;
++typealias foo_t alias self;
 +
-+allow dup_src_t dup_tgt_t : file read;
-+
-+# The dir mapping repeats the first class of the multi-class rule below;
-+# the file mapping must still be expanded.
-+type_transition dup_src_t dup_tgt_t : dir dup_new_t;
-+type_transition dup_src_a dup_tgt_t : { dir file } dup_new_t;
-+
-+type sys_isid;
-+role sys_role;
-+role sys_role types { sys_isid dup_src_t dup_tgt_t dup_new_t };
-+gen_user(sys_user,, sys_role, s0, s0 - s0:c0)
-+sid kernel gen_context(sys_user:sys_role:sys_isid, s0)
-diff --git a/libsepol/tests/test-expander.c b/libsepol/tests/test-expander.c
-index 56977e09..7fd4f421 100644
---- a/libsepol/tests/test-expander.c
-+++ b/libsepol/tests/test-expander.c
-@@ -261,6 +261,62 @@ static void test_expander_negset_bounds(void)
- 	free(p.type_val_to_struct);
- }
++allow foo_t self:file read;
+diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
+index 5e35b1ae..45ff1838 100755
+--- a/checkpolicy/tests/test_checkmodule_negative.sh
++++ b/checkpolicy/tests/test_checkmodule_negative.sh
+@@ -324,6 +324,10 @@ expect_fail "type_attr_conflict.te" "Duplicate declaration of type" "type_attr_c
+ 	"${NEGDIR}/type_attr_conflict.te"
+ expect_fail "invalid_type_name.te" "syntax error" "invalid_type_name" \
+ 	"${NEGDIR}/invalid_type_name.te"
++expect_fail "self_typealias.te" "\"self\" is a reserved type name" "self_typealias" \
++	"${NEGDIR}/self_typealias.te"
++expect_fail "self_type_alias.te" "\"self\" is a reserved type name" "self_type_alias" \
++	"${NEGDIR}/self_type_alias.te"
+ expect_fail "bad_role.te" "syntax error" "bad_role" "${NEGDIR}/bad_role.te"
+ expect_fail "bad_user.te" "garbage_token" "bad_user" "${NEGDIR}/bad_user.te"
  
-+static uint32_t terule_dup_value(const policydb_t *p, int symtab,
-+				 const char *name)
-+{
-+	const symtab_datum_t *datum =
-+		hashtab_search(p->symtab[symtab].table, name);
-+
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(datum);
-+	return datum->value;
-+}
-+
-+/*
-+ * A type rule naming several classes must expand every class even when its
-+ * mapping for an earlier class duplicates an existing rule in the same scope.
-+ */
-+static void test_expander_terule_multiclass_duplicate(void)
-+{
-+	policydb_t dup_basemod, expanded;
-+	avtab_key_t key;
-+	const avtab_datum_t *datum;
-+	uint32_t new_type;
-+
-+	if (test_load_policy(&dup_basemod, POLICY_BASE, mls, "test-expander",
-+			     "terule-dup-base.conf"))
-+		CU_FAIL_FATAL("Failed to load policy");
-+
-+	if (link_modules(NULL, &dup_basemod, NULL, 0, 0))
-+		CU_FAIL_FATAL("Failed to link base module");
-+
-+	if (policydb_init(&expanded))
-+		CU_FAIL_FATAL("Failed to initialize policy");
-+
-+	if (expand_module(NULL, &dup_basemod, &expanded, 0, 0))
-+		CU_FAIL_FATAL("Failed to expand policy");
-+
-+	new_type = terule_dup_value(&expanded, SYM_TYPES, "dup_new_t");
-+
-+	key.source_type = terule_dup_value(&expanded, SYM_TYPES, "dup_src_t");
-+	key.target_type = terule_dup_value(&expanded, SYM_TYPES, "dup_tgt_t");
-+	key.specified = AVTAB_TRANSITION;
-+
-+	key.target_class = terule_dup_value(&expanded, SYM_CLASSES, "dir");
-+	datum = avtab_search(&expanded.te_avtab, &key);
-+	CU_ASSERT_PTR_NOT_NULL(datum);
-+	if (datum)
-+		CU_ASSERT_EQUAL(datum->data, new_type);
-+
-+	key.target_class = terule_dup_value(&expanded, SYM_CLASSES, "file");
-+	datum = avtab_search(&expanded.te_avtab, &key);
-+	CU_ASSERT_PTR_NOT_NULL(datum);
-+	if (datum)
-+		CU_ASSERT_EQUAL(datum->data, new_type);
-+
-+	policydb_destroy(&dup_basemod);
-+	policydb_destroy(&expanded);
-+}
-+
- int expander_add_tests(CU_pSuite suite)
- {
- 	if (NULL ==
-@@ -294,5 +350,10 @@ int expander_add_tests(CU_pSuite suite)
- 		CU_cleanup_registry();
- 		return CU_get_error();
- 	}
-+	if (NULL == CU_add_test(suite, "expander_terule_multiclass_duplicate",
-+				test_expander_terule_multiclass_duplicate)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
- 	return 0;
- }
 -- 
 2.55.0
 
