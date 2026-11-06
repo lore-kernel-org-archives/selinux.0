@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793968530;
-	b=2h0LtO7bBtx8zIsruOc17V33aBiZPKlJS5tofjFLnyGwzHNEYIAHYDLwwLf/RGt3tA1P
-	 W+J9ILumxoHCFE/ddUrN6r0ni9JcLpRVZxmnktqJufikKZIQRWIlT7gNXyj1UjXFTH4fs
-	 xNY4zgNvjohdLa+XRLU/3sbiZ70JE/UCAyWkEFnxmcolX42BNUElIMh0IiDB3j6L13Yfk
-	 4lfQ8TSObNPZensJCq5yGkyQCcyRc2LKvzb0z7WelQtiD3/2FBQhJVwighSaXDJbxCsFo
-	 DtAqy4XBJgTPMLawyyHVTTG/bYTD9wImjpQt2YDO94c1BN+m9AYmYpvMCc5kC8jHfnA==
+	t=1793968532;
+	b=pqKijNqqr43Tfouq8hcQKCmakjodnHkVcmrGzaOYANAaZCK+/2EzcJZIzfy9/GYF0qBx
+	 C89gA8PvP4xSH7EpXlEI9XqvitfFIfLveEuzttomBMpjmrHGIWGPwQWqeTG1JL/99RmxO
+	 lJxKI9pI0Q4AXoomAw5dBXqGc/uU78V+N8/2x12ZyI7wTqjS5xPBEa8bxPzax9jAoPXeE
+	 Cs8TxwE546tW9JOL65+buf9KLXx+JTInYqle7y9uyEVI/gahc/oR2Wfz5PRcuGOYGwcOj
+	 kCPkFhFT31l/Rn+50r3LN3Td4Oae7imXxwveTwQraHRiDQjOgnFxe36HiehAv6bG03Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793968530;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793968532;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=hyfTCTIeshJnXxlJGaCu+ix9B2H/17CoJtmqk8yz/I4=;
-	b=BiiGpDR7oQ5QIVfYNkejUIDSmOYQjcy97xF52HSbvRzfp/SWTK0/m+c0m6kDWTbC54IP
-	 rF8dFQimzW2utuJKExhLUZUzI8HWuB+VUrR2GaZHqtrraYQcYhEbkvAQPvn1T5VwMgncv
-	 loEZUFuXDCImWfPVfKM5bLLEDJxplcGiqwRzHQkxaJE+k6CVg+b90OxJqhp+MKsz4QHqJ
-	 V4NojqcAdd+xUEqfq5ebDqGP2A7Mx3KYOElg3nci33tH45jGEoinPRhtJgc3G9rxcD+pq
-	 39LiLcJi8RCVFib8dE6wgFfoN+gQCtgQ8PUqdSMw7P7T4WoQ6KbKLvWniHZ/Oj8zYRw==
+	bh=FMU3aEALcKkqEt8LrBzWoqNqpqGxg+KaEhASdROoYE0=;
+	b=GXv308SHtwahaV5ASd5xKt93qyLc7QJr+B1+wajvAzuKKXnSUZasMQvXNN+l3qeqkIcP
+	 KJxk1DFI7m6ko+UCJ/E8xc7WtkBn8dlY50WolWyZimp+SXzYpaqFsWOAleo4sDn56Gv/h
+	 9OIV0KJUoVPiWwfFtBhf24se6m/roobZmZzq5wK8EneVaH6GzeLd49j80fa8jViVxfW+U
+	 a1MOs/+o0H2rQd2/pYar5Vm6muy/75TT/SguMqoOfIfVLwzljMb4MNJjCLFDMpHvLEq2y
+	 hfmM3O6k9weQxaqdmoiYL11EmeJtgq6AHO7CCwyp0Gpmw3nVNpkRUdSSCNWR3H9O82Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Vg8Cq2jq;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Uq3HS3oC;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60BBB606A33A
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60BBB606A33A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73EBB606A332
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73EBB606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Vg8Cq2jq
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Uq3HS3oC
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793968526;
+	s=2023072701; t=1793968527;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hyfTCTIeshJnXxlJGaCu+ix9B2H/17CoJtmqk8yz/I4=;
-	b=Vg8Cq2jqW22/dQuFp7XsR542PIXT6zRDEhJ94jgyJHZeEGu7q6iz/c14tLN0Lc6kOxZBFP
-	4CD3zQX1+gfyNOo14kl/bi1Ct3Rc5uab6GViOqBxrvL6wG6uw8d59lCkoctZe+OUvgr1Y2
-	i5Z1LagG9k1w5sLfB9IjPUqviFRaBPS+LNlq0DU8Or7qjhnIyl/dqYRGzqSFQRzeE0zPuj
-	JgRPrlRqMFrwXWY6OYP8W29RUrKI0Aeo2rB2Hjfx/pVVQ4zlgBQVIXrG9Y3Quq92zitWBr
-	ARUwO3WNOIAONI44GCVQEoDYDnrI866iueXikbkJ8auTWC9uAD+XTZfL+KY3IQ==
+	bh=FMU3aEALcKkqEt8LrBzWoqNqpqGxg+KaEhASdROoYE0=;
+	b=Uq3HS3oCH+Pc9U/5t2v0aMSLTLGhTkOtRlpGLhFrP4mMjzmIjur/CbN+J2Z5UGsruWWVH8
+	4mPKtn9zk/cywdRn9TgYqgmMTxAIbYH/tX+wj98ktSdD3NBdXU6BLIYbfcZOWT9AFWKg9o
+	vCmUNLuHIljtQGaUQ+k6QjRNWLVvWlj5oJUO3Avppwg+hsxNeET2ezROexWHm59YzCRsio
+	Ey3BmvTkbXfqlCt3r9rwByTQ62fyV9IWXQIdpWALD/yRDAcxd48Cp24KjBbQd4fV4mWpmc
+	ZnpWelxM70SvYCQkS4cjvz7z+pzPxyPRQy/O13X8OihMjSXxm/9dI4vnErTGrw==
 To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 14/16] policycoreutils/hll/pp: open the output after reading the input
-Date: Fri,  6 Nov 2026 13:35:07 +0100
-Message-ID: <20261106123510.76727-13-cgoettsche@seltendoof.de>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH 01/16] libselinux: correct realpath_not_final() buffer size documentation
+Date: Fri,  6 Nov 2026 13:35:10 +0100
+Message-ID: <20261106123510.76727-16-cgoettsche@seltendoof.de>
 In-Reply-To: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 References: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,74 +70,35 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-pp opens, and thereby truncates, the output file before it reads the
-input package. An input that fails to parse leaves an empty output
-file behind, replacing any previous content, and naming the input as
-the output destroys the module before it is read:
+realpath_not_final() checks the combined length of the resolved parent,
+final component, separator and terminating NUL against PATH_MAX. A buffer
+of PATH_MAX bytes is therefore sufficient, as for realpath().
 
-    pp m.pp m.pp    # "module package header truncated", m.pp is empty
+Correct the public header's PATH_MAX + 1 requirement and fix the grammar
+of the surrounding comment.
 
-Check the argument count first and open the output only once the
-package has been read.
-
-Assisted-by: Claude:claude-5.5-opus
+Reported-by: Petr Lautrbach <plautrba@redhat.com>
+Link: https://lore.kernel.org/selinux/87czpkacxf.fsf@redhat.com/
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- policycoreutils/hll/pp/pp.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ libselinux/include/selinux/selinux.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index dd6974b0..4b164e4d 100644
---- a/policycoreutils/hll/pp/pp.c
-+++ b/policycoreutils/hll/pp/pp.c
-@@ -90,6 +90,11 @@ int main(int argc, char **argv)
- 		}
- 	}
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index b789ee08..db850d1d 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -483,8 +483,8 @@ extern void matchpathcon_fini(void)
+ 	;
  
-+	if (argc >= optind + 3) {
-+		log_err("Too many arguments");
-+		usage(1);
-+	}
-+
- 	if (argc >= optind + 1 && strcmp(argv[optind], "-") != 0) {
- 		ifile = argv[optind];
- 		in = fopen(ifile, "rb");
-@@ -104,6 +109,16 @@ int main(int argc, char **argv)
- 		in = stdin;
- 	}
+ /* Resolve all of the symlinks and relative portions of a pathname, but NOT
+- * the final component (same a realpath() unless the final component is a
+- * symlink.  Resolved path must be a path of size PATH_MAX + 1 */
++ * the final component (same as realpath() unless the final component is a
++ * symlink).  resolved_path must point to a buffer of at least PATH_MAX bytes. */
+ extern int realpath_not_final(const char *name, char *resolved_path);
  
-+	rc = sepol_ppfile_to_module_package(in, &mod_pkg);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+	fclose(in);
-+	in = NULL;
-+
-+	/* open the output only after reading the input, so a failed read
-+	 * leaves an existing output untouched and the output may replace
-+	 * the input */
- 	if (argc >= optind + 2 && strcmp(argv[optind + 1], "-") != 0) {
- 		ofile = argv[optind + 1];
- 		out = fopen(ofile, "w");
-@@ -117,18 +132,6 @@ int main(int argc, char **argv)
- 		out = stdout;
- 	}
- 
--	if (argc >= optind + 3) {
--		log_err("Too many arguments");
--		usage(1);
--	}
--
--	rc = sepol_ppfile_to_module_package(in, &mod_pkg);
--	if (rc != 0) {
--		goto exit;
--	}
--	fclose(in);
--	in = NULL;
--
- 	if (ofile) {
- 		char *mod_name = mod_pkg->policy->p.name;
- 		char *cil_path = strdup(ofile);
+ /* Match the specified pathname and mode against the file contexts
 -- 
 2.55.0
 
