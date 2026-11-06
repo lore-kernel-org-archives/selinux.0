@@ -1,100 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.216.50
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793920680;
-	b=Vav0LkK0HCAquNkIDGuCVlDPbcd+YYFa3qd5cRC1mmviHlJyyisf30Als7lIO5s8JivJ
-	 nu3n4Ois+lTNaZzAzBOSehUnc7/DL09t97e+obKd+bxHoPDp5w7H/xuRlZqYo66HJ6twe
-	 J5lwDmPH2S45gtQapzWEjmyI5njaC0kYTjapsBOMQSQUwk+URqBH9N2NZ27onzuxMspgL
-	 CukH2F+GyGNtOoiYtDSzYyp148RHm7s7HbvGp43uFczLyAy9mnvTHhzcT3JV1f7r/EgNY
-	 iPIT2FLaXXQ7Mq/mfzCzgopVS7cp78vf2gJvGq5NBpKll8THS4xBIXvWHvNmrCowP1w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793920680;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=fuCDmSI9zu6AYuOwJkaSaRyngdfgRozjSLztTOAphqk=;
-	b=vGLOpAcnr+il8u77cWrqoZCvK1mGNCP7d/A5SsqCU3pZRiXVN/FRIL/LcRHjXxRexUyn
-	 G0qG7dM9CkQiYWeXPezQ4zPUV4JxjLjE4rau4xVy1mwIiKfQ2rGsR5xEwfqZDf82OQMGR
-	 xqFGEUfpbxRT0Q4QEy4YmZ3Yz8TSxDqkJRXU2v2Pq/mJJAgLJrQHqHTDf6+Y3es3+X0/m
-	 Qrc/5kFNdSv4HiJltsKwycZuZ5/SnWQslqMo2IjuKNwtVaSoHH+brj33Dmo+a7gpUNRuW
-	 XQBb2VqCUnhepqgzfaAaWMa+hkWV5+R3+DcGaTA4f7KnujvzPThG5NeD8lcdcUhVuyQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=F936vzKm;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.216.50
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.50.34
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793925315;
+	b=4JDkbCZa6sq+UNOfO+hE1wxeBqn0dv7IuBNcqOY9gHPZef3O4Wm9PpLMGc5AVLHSUsX5
+	 QNjGzuSaW6/whzyznkNf9gJvcE5u25SUi1EgESQS22q+kgu26bPlxp/Cvjky7D2I75r/w
+	 EwphJ3AVyS3QsJFZCIZNBrU8zdFIslkq6MoBwuJS03duMGIUyVOiXgp/+JRuUhYu/JrJD
+	 f6wCwOq1hVPw/z+JBPNTxWf/fYRbjH3RnEQlxXECcNfy/lLUyBxhngY6LRSPMNqJhAEUM
+	 EMpBeCOk+MkL2VgxU8e3JWncBkBMlldTtTQP4/FwZ1fWN9Yb40r0PGxKZ2jnNQtXxpg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793925315;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
+	 Date:In-Reply-To:References:Content-Type:User-Agent:MIME-Version:
+	 X-SRS-Rewrite;
+	bh=6TNCgRmL/23mHPVturwpYhS1/L+Zqx8rGxIrqrETX5o=;
+	b=J/eN9CI5iBVrvP9xdchfK9XDIecVFqtb2d6T++kegtXRFr794qOK5lbDpW1SgUdU/5wT
+	 DWQyWonpL/NsB3TIbAHqiYdq2CrwFnBenpzNdPeqRug020RmpK9qOd2SiyRS28TAX68p6
+	 pJyp2GjecCiUqEDSZYGPM3MYVmUKxkJuWIzyM4uNvt5/KDxiSbgdJGUXXGoY14//AqYsV
+	 jaZi9sNwImBxt5HAzjU2WiD2vNo+eiJGmQV0/ySatqQG+0Luqafx/qQL2664gqRsnPFxH
+	 yFwvnJpLe9CMqlKno4MH+LELomH3TXIwt+ztcjiLFo462EiZAzyHAl3jZRiwOiUazfQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=infradead.org;
+	spf=none smtp.mailfrom=casper.srs.infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b="eQdN9M2/";
+	arc=none smtp.remote-ip=90.155.50.34
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048E3606A326
-	for <selinux@vger.kernel.org>; Thu,  5 Nov 2026 23:17:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 048E3606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ADB9606A31B;
+	Fri,  6 Nov 2026 00:35:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0ADB9606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=F936vzKm
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-3b0b3754f57so45650a91.0
-        for <selinux@vger.kernel.org>; Thu, 05 Nov 2026 15:17:59 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793920679; cv=none;
-        d=google.com; s=arc-20260327;
-        b=WBR8hJaykfgd8+Hj/GKbzY7jUjSggopwFWb2rzQ5tlClRiQbgfDhrlxzpHJo0rb2EG
-         ECN8A1zsaF9cJkoGF0YBI55tNmixjx3TaX+rzKkeOkKLqREOkwyOokd/YUdW9AafCeDH
-         WzA531UE/0RZ/VncTRUXWDl+k5MPUtGYz7YQz59VoT+75vaFwFBwWs/qFxWgqhOIwvnE
-         1IEUbI+fRsETsgigGvTn/hJbh4zh9TB2TxSWVgu9J4dg9MzR5XaI8zhFxrSsoSf7YZD5
-         ggythillaNBXZHJnDZ0SBlNQom5z9fusbCWcb5hL40pGLeF/XegbUOKoOp71ZAUU7vaO
-         xNFg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=fuCDmSI9zu6AYuOwJkaSaRyngdfgRozjSLztTOAphqk=;
-        fh=HKv+qnvzQ+Fo5yuL7quU8eUNRhGYyimjDqLsKoHqzQo=;
-        b=k89FjBp3fOHzGse6mL2rWrCKPTFz82qNcEPafd6iGJv8IJ0POBXRsBTLtl0GhH8x+H
-         hDnUYS88K4zd5MaKzGZtPVIFCjLTQYUofGmbg9mp9JuDmIcHiLBQKvgf3Jl35wiUdFtQ
-         iGX9luRQlNQYkiMbx0DxPAQkSfGVNeF5gJUfbNwVQxQkqHuLNAl2A1EHAUuBesvMrSFy
-         WuWdldHM9UB5FaGMUNIfslgaW2Yb/ZTs8WeXaNW+ko9j22N5ndf2MpSXkHstQ0y+KVot
-         1QImEwg0auWsg/sSYEBxoU1hyJ0oCQJNQ2LR9tAwOHbSnjFeHEy1i711ZD8dcFvazGfd
-         ssYQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1793920679; x=1794525479; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=fuCDmSI9zu6AYuOwJkaSaRyngdfgRozjSLztTOAphqk=;
-        b=F936vzKmZco1Rg9qiS2Cf7yXwnXt8dn1LQ3YxCN5SMsKSJRTlu37FG2JQnmiZ4tO3q
-         ZY7C/eCqTECYbf79gAR8gp3oow9+Ykdrk78RZdAOFLnN4sIU8x8jDIiI/j4+tmIgfhgQ
-         Kfc7/iulz45+20nMepsyi2DVKsca2I7vu/IOFa2DSNB+5NoNB+X3xZL+TnSEr5nUJW/0
-         t+eWupnUof2Q+Z07m3XUdhgKdmPOk5SNXh4+R1i03zuB5eyYkN5hGGMTpwfL4P3jF/oi
-         qjoVjwxKWuHtQbutc+EbzPaNTI2YVJHBnHBIs9egvV2qx2jXIUZICkPleteOCZKku3cJ
-         ZAwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793920679; x=1794525479;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=fuCDmSI9zu6AYuOwJkaSaRyngdfgRozjSLztTOAphqk=;
-        b=1BFS9bciFCZ+9jv1FDS/CPMsztLutr9oSDkd2fAZWNAh4Yq9IdG6YPOwGaKpKGlyNI
-         9yMoazCyww3ZbdB03+99Bf6goG4LmcE5E/0VUXmbGcPSV8BZ6J5s2bXhdBrHlgmDYepH
-         g6e3ROj3WC5EnbaafUnsfnwDydS2o7bThhTCyCnBwFYBzyVni/TKvcgc59QF0WYUpn3B
-         teO+L6iVBASA6MIRG7BHqKLNbTOIayWKDFYUFVBVDfAQTdc3zWYT6XHug3kBLw1pIxSm
-         I1THJwIZwauOQeKdDfoB6ukNBR6XSbC/pDlYNxCWLsGwsK1jktGg4xf0ERKSTo9BPq7S
-         muOQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxPsExmfiWIRFuYA6+jGECfhdHaxqR43EfOHeEJE/89OY3xJX0AfGg2+4qoxLeq8b9SIIIydYD+@vger.kernel.org
-X-Gm-Message-State: APuU4Z9WHGU7vXBZuZeL0PC8elHsu5CDuEUnVKAl5d8LH/FP2QYzMQcT
-	Lv/Panw6EeKzW8QYnJFKwYABU+tCPQQFeYJS+LKMivzVkjM3ZxzEDZ+I43M4irTLZ26clOnXYQv
-	tAQF4ykIYCRoWr9dMaGI/ZUGlTxfdKD7Eca9B7oAB
-X-Gm-Gg: AYBFou12qVFTKUuR4jNIgGOpjlCDVsfHraAi4wrGhJlikAj40KdLtFWo3KIrg2D0w2B
-	j6izo88LvKpwONnAtcd3VY4pFZ+scM/jCLjFhonbcz1JosMCtdYo2Wf9bTy5zocZXbdV0TWYhdK
-	w/yJe+dRSfHA8TJ4i8inDmWo9e4B9G+zCA4HY32ofX0nnHa0lkV6EhFlXwHx276fLdnq777LX2W
-	4XcLi2QNfGOTiHNdWdaGD12OFKBm1xifwz+nMqwFnPlTdn41tX6luSjMwKlzI1tcr1IVJC2C935
-	TJveZF9yQgHNXZYbcUX1r1W/Rs5QAk7fuoQ64osyVkvplDjqISpJgvLIriiaTHRMy3HvRvpbS/J
-	aWBoxy5CYsFEt+F3yb2IKIXJsLb9nUSZdKeGOG8EGYi43ibb9YQtKhPWChB/d/1lNNhOJ
-X-Received: by 2002:a17:90b:1dcd:b0:3ab:f38:2b43 with SMTP id
- 98e67ed59e1d1-3b0db703e39mr535625a91.34.1793920679319; Thu, 05 Nov 2026
- 15:17:59 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=eQdN9M2/
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=6TNCgRmL/23mHPVturwpYhS1/L+Zqx8rGxIrqrETX5o=; b=eQdN9M2/rNw+BU8m/E6O/8OYF7
+	rQynrR5VfrTx3nqBv28uIvCr8lMXtstjEbOSk/dIaASeICHfcsUZhmw8GWxh3LA6/bkABBx2GraMj
+	TUgkUT38MkwKFrW7+iKSat5ykUYDKgKeWxpZUkHwC87GsuvKH/SC2Hq4PhcYkeX4DrTHpHnszfGRf
+	3pKIDXdt8bsXYPp71p1RiQCYDhljxFSnULrnZUh8DySiUJoi/nLn/88PQELGj9rE6h7rzqo9zFjGp
+	XAlUiHrkjXx2SD8PhEQikpLsOGg5os6f5T8udNzGtIP18yCcCYB8hHFcSqYsX6O5LnphTLi/AqZWy
+	qLQpwhsA==;
+Received: from [205.251.233.52] (helo=u09cd745991455d.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xP7ue-0000000EEk3-0BZ5;
+	Fri, 06 Nov 2026 00:34:36 +0000
+Message-ID: <b63e75987464d669779b1a861d4a073c9caf85f4.camel@infradead.org>
+Subject: Re: [PATCH 13/14] ptp: vmclock: convert mmap hook to mmap_prepare
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Juergen Gross
+ <jgross@suse.com>,  Stefano Stabellini <sstabellini@kernel.org>, Oleksandr
+ Tyshchenko <oleksandr_tyshchenko@epam.com>, Madhavan Srinivasan	
+ <maddy@linux.ibm.com>, Nicholas Piggin <npiggin@gmail.com>, Michael
+ Ellerman	 <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>,  "Ritesh Harjani (IBM)"	 <ritesh.list@gmail.com>,
+ Shrikanth Hegde <sshegde@linux.ibm.com>, Haiyang Zhang	
+ <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui	
+ <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang	
+ <jasowangio@gmail.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
+ <eperezma@redhat.com>,  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jarkko
+ Sakkinen <jarkko@kernel.org>, Dave Hansen	 <dave.hansen@linux.intel.com>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar	 <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, Jan Kara <jack@suse.com>, Paul Moore
+ <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej =?UTF-8?Q?Mosn=C3=A1=C4=8Dek?=	 <omosnacek@gmail.com>, Joel Stanley
+ <joel@jms.id.au>, Andrew Jeffery	 <andrew@codeconstruct.com.au>, Ryan Chen
+ <ryan_chen@aspeedtech.com>, Billy Tsai	 <billy_tsai@aspeedtech.com>, Bjorn
+ Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
+ Abel Vesa <abelvesa@kernel.org>, Jens Wiklander	 <jenswi@kernel.org>, Sumit
+ Garg <sumit.garg@kernel.org>, Scott Branden	 <scott.branden@broadcom.com>,
+ Broadcom internal kernel review list	
+ <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Richard Cochran
+ <richardcochran@gmail.com>, Andrew Lunn	 <andrew+netdev@lunn.ch>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet	 <edumazet@kernel.org>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni	 <pabeni@redhat.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, 	virtualization@lists.linux.dev,
+ linux-sgx@vger.kernel.org, 	selinux@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, 	linux-aspeed@lists.ozlabs.org,
+ linux-arm-msm@vger.kernel.org, 	op-tee@lists.trustedfirmware.org,
+ netdev@vger.kernel.org
+Date: Thu, 05 Nov 2026 16:34:23 -0800
+In-Reply-To: <20261105-late-2026-mmap_prepare-v1-13-c56aadfbab8a@kernel.org>
+References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
+	 <20261105-late-2026-mmap_prepare-v1-13-c56aadfbab8a@kernel.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-RN0WgQiIue6jLyM+SxS4"
+User-Agent: Evolution 3.62.0-0ubuntu1~ppa1~24.04 
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,81 +101,137 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org> <20261105-late-2026-vma-flags-v1-13-0d3cd15ab75f@kernel.org>
-In-Reply-To: <20261105-late-2026-vma-flags-v1-13-0d3cd15ab75f@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 5 Nov 2026 18:17:47 -0500
-X-Gm-Features: AclHuK_gkg-Hspii6U5_01_jGLQO23B7F4YXuvzvsb53ImE19wnChR3DgLruv6g
-Message-ID: <CAHC9VhSR=9YNhBxeFBcTR8wgG2yDP1fW590QKjzuc4Kq9ohaiQ@mail.gmail.com>
-Subject: Re: [PATCH 13/13] security: convert VMA flag tests to use vma_flags_t
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Rik van Riel <riel@surriel.com>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Harry Yoo <harry@kernel.org>, 
-	Jann Horn <jannh@google.com>, Lance Yang <lance.yang@linux.dev>, Zi Yan <ziy@nvidia.com>, 
-	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
-	Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
-	Shrikanth Hegde <sshegde@linux.ibm.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Baoquan He <baoquan.he@linux.dev>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Leon Romanovsky <leon@kernel.org>, 
-	SJ Park <sj@kernel.org>, Rakie Kim <rakie.kim@sk.com>, David Rientjes <rientjes@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	James Clark <james.clark@linaro.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Oleg Nesterov <oleg@redhat.com>, John Johansen <john.johansen@canonical.com>, 
-	Georgia Garcia <georgia.garcia@canonical.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, damon@lists.linux.dev, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+
+
+--=-RN0WgQiIue6jLyM+SxS4
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 5, 2026 at 4:35=E2=80=AFPM Lorenzo Stoakes (ARM) <ljs@kernel.or=
-g> wrote:
->
-> Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
-> mmap and mprotect LSM hooks of SELinux, AppArmor, IMA and IPE.
->
-> No functional change intended.
->
+On Thu, 2026-11-05 at 21:05 +0000, Lorenzo Stoakes (ARM) wrote:
+> Move from the deprecated mmap hook to the new mmap_prepare hook, using th=
+e
+> I/O PFN remap mmap action to map the clock page and retaining the -EAGAIN
+> error on failure via the action error override.
+>=20
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  security/apparmor/lsm.c           |  2 +-
->  security/integrity/ima/ima_main.c |  2 +-
->  security/ipe/hooks.c              |  2 +-
->  security/selinux/hooks.c          | 14 +++++++-------
->  4 files changed, 10 insertions(+), 10 deletions(-)
 
-Similar to the other patchset you just posted, is there any reason why
-individual subsystem maintainers can't pick these patches up, or is
-there some reason I'm missing and they need to go through a single
-tree?
+Acked-by: David Woodhouse <dwmw@amazon.co.uk>
 
-If they can go through multiple trees, can you split this patch up?
-AppArmor, Integrity/IMA, IPE, and SELinux are all maintained by
-different groups/people.
+--=-RN0WgQiIue6jLyM+SxS4
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
---=20
-paul-moore.com
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCE8Ew
+ggWvMIIEl6ADAgECAhANkOKMSmGXhF5eMl0rsRhvMA0GCSqGSIb3DQEBDAUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMjAeFw0yNDAzMTMwMDAwMDBaFw0zNDAz
+MTIyMzU5NTlaMGIxCzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UE
+AxMxRGlnaUNlcnQgQXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTCCAiIw
+DQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAOfSIeC0vv1xPQ+dgSxbIIrkaru6skAWJYaGFzmv
+q4Kq+2wU2jxhcWlJg/JeP5jEkq/LM3pn5aaLao79j+XRmS7J1ZpJKUODJVoM4s9MQJhTMvo4qS5Z
+S64g6QR7Obkz3I1Lr3aWeSBmDDEyzue+NKtuWZ1Cxy3RdXo/w5HgRc3l2AercOM3Gt1XonTzEtTb
+Z/Hwc0Sn9Gz8RmGRK6Ka4hVDl8q/2l110KaV233Kh5etP0csXS8MIMdVRfRu3sc5hp13DG7lCKzK
+72a2GEpI8Wpl26G6I1/LMzz/98T+FqjTqxsdquk7Cj7m2vKGLW1BorpQH7WFGPdJQXJe1hfbfiZA
+CcVdCtl4nAacFacmsiArZBfX7AQGL7isvHUwwYFEtcApyGW4p2Lt+t8nvU0CANA6BHOpOz1xOP8W
+mAESbUriIjyuTUf3fJ9oDNCurVqhASMJCDaWI3lYX/QAoiAzt6akqbbZxo2ujW7mGGqc0KxqE2cs
+h2T79v7pC8aUtHBfwNrTR19GnZVxE0eQ7ViIQhR6mpSaUQFA9sG+cmD2G8TnCgYsLa0q8De6F61a
+CBevQGHNzrbZ3JAMneveYg/Jy1XxQHDRcvrMfWKe0jjcWbdKYlaGVPm5V1ILwYz7Yv5ewo3NUrxI
+GJiywe9qPhuJSDZs7VehTuI0FxGIsgKzVjgbAgMBAAGjggFcMIIBWDASBgNVHRMBAf8ECDAGAQH/
+AgEAMB0GA1UdDgQWBBT3m6JO05fF9DQPQw6Bhc6RkzKv+TAfBgNVHSMEGDAWgBTOw0q5mVXyuNtg
+v6l+vVa1lzan1jAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
+MHkGCCsGAQUFBwEBBG0wazAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEMG
+CCsGAQUFBzAChjdodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkSURS
+b290RzIuY3J0MEUGA1UdHwQ+MDwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdp
+Q2VydEFzc3VyZWRJRFJvb3RHMi5jcmwwEQYDVR0gBAowCDAGBgRVHSAAMA0GCSqGSIb3DQEBDAUA
+A4IBAQA+b8Uw53sDspdZgukU+qzLyyHkcjlxGGhHlP+zrmDLKm1wEFvCRS2pili3Hy67i8N4N5NU
+vw5Rg6kv3lxb9S9Rktxk43k+tvm68pl7OxQE55ZjVY87P0lUPGwEqOOwLLyH02ZQcsfq5p5LrOH9
+0JvmvZ1yy73HS+VpDAqOlytE0NSvTIRqFFkKQGQwfjvtql9YflujuNNvJztjBaHKYZsnNSg+J38o
+jYq4TP3pSg3UdVH0PncVjPQyqxC9xef5Xae92Kbkzol3x7Nel3A1bwAkalrDMspvTHvey6LfiBks
+FIqviTnoy7fgjaRAJgHS+RXx/cmuRd3rUAclSVVrYu8RMIIHAzCCBOugAwIBAgIQAzUotrsybJHx
+HTjKOIVdIDANBgkqhkiG9w0BAQsFADBiMQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQs
+IEluYy4xOjA4BgNVBAMTMURpZ2lDZXJ0IEFzc3VyZWQgRzIgU01JTUUgUlNBNDA5NiBTSEEzODQg
+MjAyNCBDQTEwHhcNMjYwNzE4MDAwMDAwWhcNMjgwMTA0MjM1OTU5WjAeMRwwGgYDVQQDDBNkd213
+MkBpbmZyYWRlYWQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2pYux73kdbYX
+sWF8f1u6DJP91qcqaZetsyfPkZk0B+MmXmAEv0kVes5n15V2mbDThOnpoPFly0UugQO9JYqLfrtD
+tKD5yL58fgrDB9Dw+LQikgrHafl6YSCds5AvUu/8hw2J6noKrcOLJpKlKn9Fl/4IB9Q3JIdLx5aa
+EtTqMalIPqHFOlgrJ7s+aua8xbB8YQ9ahqYBXWRJNv3P/2b1DYtdrz1oqZPE3CcB8Pc6Gf2a1Tcm
+6TAgtEx7Cf1BFcrsrMz7TWHmGQITieNb2r9UYWSc2Gp+GtYFNJCgT0JJXKUBIauPMKBLteYrL8Fo
+ff/uY44dC/mDWjdCP/5x0qelPQjlBvWdHL5zvBTOj06rJ0m3HNI/hnIcDh0Qu2j9reb9rLVcdym6
+bWmBM4uDEB8Zv9Ph0KTBFSy1IosyakuD1j1Os30EzjGfbi0EUXIvnOcYbTBAbM5UAzrxEHMhBvoX
+Pvnx+OyvjJmc9tWxTX6AcSz+m40esbT17URBeZS18afgieiikm5TynlUYP1LciR3hSgGVzvGXnKO
+02VDFR5itGWdRKZ2W5wIShNfWfhSa0D0K5UdIDt5Qc7sjzwK1Yb1sY5Tu0uA5mhIS82q1ov83uxB
+sFkriNnhGv/M1NCDVLBiOMsHu73qUM+yKmgKLwF9Hfn9WI25glbAMI4S5r3hYzcCAwEAAaOCAfcw
+ggHzMB8GA1UdIwQYMBaAFPebok7Tl8X0NA9DDoGFzpGTMq/5MB0GA1UdDgQWBBRcYhqbcGzn1jrT
+JOZaB8O7qllDpzAwBgNVHREEKTAngRNkd213MkBpbmZyYWRlYWQub3JngRBkYXZpZEB3b29kaG91
+LnNlMBQGA1UdIAQNMAswCQYHZ4EMAQUBAjAOBgNVHQ8BAf8EBAMCBeAwHQYDVR0lBBYwFAYIKwYB
+BQUHAwIGCCsGAQUFBwMEMIGpBgNVHR8EgaEwgZ4wTaBLoEmGR2h0dHA6Ly9jcmwzLmRpZ2ljZXJ0
+LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsME2gS6BJ
+hkdodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZT
+SEEzODQyMDI0Q0ExLmNybDCBjQYIKwYBBQUHAQEEgYAwfjAkBggrBgEFBQcwAYYYaHR0cDovL29j
+c3AuZGlnaWNlcnQuY29tMFYGCCsGAQUFBzAChkpodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20v
+RGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZTSEEzODQyMDI0Q0ExLmNydDANBgkqhkiG9w0B
+AQsFAAOCAgEAocabrh1cPd5s3vY5rnlBVQSTc7zs2ZWs67dAIltR+05WELrYClVzzUhMs/LOJPlr
+EUo45UDDomXq38DxFepaPd9+iNLjXfn33EX/IG44j04lU/oF/Rg9VeQILkYLbCZ/x9wOjNHZc4SN
+ydY7Dhvf/sT5aBz88u7D5+azZJ7Qf1U57wYseCH1Mt0nDrtr5y19IJ8D9xJJ33RFL6vfpHZBBAQ8
++3RqkKNxLoV2aFvQhxdhjNLDqTv3LjUIdicwPraN7JkxEu7CV2Lka7eRqJgkWL7SK0YmBjGpRafs
++icP/ON5RCCKTTb6VlX8eTG2sJJfsFhvJNCCt6xexbWzWtIrfP7NvPBvwBB737AyEGBZkS5aNizT
+McURJGTv9UKvBh1LF/+tNhYtLvPCN7oecGzhCHht9jcwSkygTo3Y6YlK3QgOu+ncmiBbfeuwlLZ1
+LxbYvG6hgNqXv7u6YyADbYajAQJXJ2OQen39pm3Q/AQSyLYG+B8lDglWsM8tYXPlEdrYJcksGK6F
+nqIX6Bumn43rBooLJdiZp4WmfWdL2pxe+LxRDjprmqu1WprixDxULSTOKJZoqTlugs6y3Bc+if+s
+gHnBBtz9WQ6MtPHkh7zONDAFIKcBmv8OqPQCx0F3Wv3OEybwMpXx0OsKgK8wLldaX1pXcMuyDgTL
+Sqs0AV0OHUgwggcDMIIE66ADAgECAhADNSi2uzJskfEdOMo4hV0gMA0GCSqGSIb3DQEBCwUAMGIx
+CzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UEAxMxRGlnaUNlcnQg
+QXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTAeFw0yNjA3MTgwMDAwMDBa
+Fw0yODAxMDQyMzU5NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZe
+YAS/SRV6zmfXlXaZsNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2z
+kC9S7/yHDYnqegqtw4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qG
+pgFdZEk2/c//ZvUNi12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41va
+v1RhZJzYan4a1gU0kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0c
+vnO8FM6PTqsnSbcc0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PW
+PU6zfQTOMZ9uLQRRci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXt
+REF5lLXxp+CJ6KKSblPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQr
+lR0gO3lBzuyPPArVhvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7Iq
+aAovAX0d+f1YjbmCVsAwjhLmveFjNwIDAQABo4IB9zCCAfMwHwYDVR0jBBgwFoAU95uiTtOXxfQ0
+D0MOgYXOkZMyr/kwHQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3
+bXcyQGluZnJhZGVhZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEC
+MA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwgakGA1UdHwSB
+oTCBnjBNoEugSYZHaHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0QXNzdXJlZEcyU01J
+TUVSU0E0MDk2U0hBMzg0MjAyNENBMS5jcmwwTaBLoEmGR2h0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNv
+bS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsMIGNBggrBgEF
+BQcBAQSBgDB+MCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wVgYIKwYBBQUH
+MAKGSmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNB
+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
+Wd3tVt5mM9c7I1ZpaKcELisAAAAAAAA=
+
+
+--=-RN0WgQiIue6jLyM+SxS4--
