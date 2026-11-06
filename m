@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793964120;
-	b=G3348mn3e/6qX4XHstLORqtXde9ynMzS1SPXaFLknwLmopmKKpg7a7/0lhYzMpAKlLr3
-	 HMipZbASpz9PFGbmJhjQ5ylRMH5wbhLrSB6cWtfezCq0hhUP7bmiamNIhJs0S4/SdxC6c
-	 1uITpEktXK6vUBlOIq2Ade1OVzQB58YMtIfLUHzMFoxQSn1B2TG4VY/RksERLRTF2C/wQ
-	 85VRmCHbZQOWxUXZ/ztkjr2aPOvJ7uu6lOOVX7fJlmxHNTSe93secXilEsRjxutwBUVxw
-	 6TNuHXzChejlJM8sNc86/m4VJdjeS6zaRcpGOK0FDVTPmM8B7333J7BfURqpvsrdRxg==
+	t=1793965999;
+	b=ydghxDzr9AdKePQbi0fl8CqNYC74Ec44z4iSDwcAciIw4vaE1gzlpKsRkbfNlw+ti47H
+	 FwZ5ITcp283L1sXECMjV5TmhcixpY0P8l+ro8/Jrrfe0sRpCU9fh/2yKaGZCw6cBvv4BT
+	 lleejAT2NnLEjg2Nk7JKuWcj2fyuXGFgAt9ue7j53bimENwKiTHCfzjeia8Umf/Mc6BGk
+	 bC6YZiZH34wk+q7G0KHFOHk2VbgxkycO/cy1GeusyPonapb0Nx0GlPreUtbuARIv4SyCq
+	 BKV8e+Og2jMer+Y3ebZn4N1FL7yxUMrxaefMDv//3ZEMuhd1+ITKx17wlhkGnge1+iw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793964120;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793965999;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:
 	 Content-Transfer-Encoding:In-Reply-To;
-	bh=p+Ok2jd0IVx31NW+VHJJuf+Q+PVcuhS6OrBHlNc0X1Y=;
-	b=ytue30Mko8PcVj8n6z3W2CMEEYWN49LNpERPk2jQ5ealzk5wi9PF2m9zyZMtLnzp0+j/
-	 cBJ53ZCK4iUYWhF5WHzqtyKtbauwa6elVNpynSiK3xtXY4NPUIXtds7uTsuP+IpxLIZaJ
-	 BPV6B1K//fa/OPDbnQLknMsmMZxM8RfAPNJ4A/8sXeLyeSaAMPTIkISrC9zhfI8Dn0g/a
-	 pqiUlvRBUcL4x79F+r2JmMqOoubFsrtA2FyVlA3lI435DEHuFC+AekxHj2LK3w5MngjX6
-	 V+UiY7mLhFwQS/O3v+tAKXGepvpXfR3XCcl7pM9rFdQYXccTlaUOFP4BzvyVMJYpbmA==
+	bh=hqpiqZcrPC9wx5aNBvYP4zckV3Yjf+8M1ASIDcJQ21k=;
+	b=Ag7KfFfmEzUJ4pRmnNb8gXJqMT/W4GIa7fiLz2kg7Mpp1I1vXxJCJ3JTzRYyLIQVNDNm
+	 s2te0wA03btwLQyyv1kd9H1KsI1eum9Cj8lYG8qxwMPrRdrUn/Wm9pukKMaHFfUsqR6y5
+	 diP+eHNqrZId2ayJHgNbyFI0y2AQebz2kozoXW3p5dvYW1+Hl3Gl0ULYQvmYvAn1mVyUO
+	 crIl9k1fCn8X/jDMy6BxMYmyRUHBnOFdtTYmUTxj9uX7tHXzIIbau3KajNahL0pepOb0Q
+	 FEPOl4ojvj5/MBCH9qHwwOaIAUofGPcvy3Gw3PF8WarZP1M8a5UkcHoa4/Oeik7WOjQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bK0a9SGW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZASBbMWP;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B84606A331;
-	Fri,  6 Nov 2026 11:22:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4E39606A32D;
+	Fri,  6 Nov 2026 11:53:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bK0a9SGW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F931F0089F;
-	Fri,  6 Nov 2026 11:21:42 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZASBbMWP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D67501F008A2;
+	Fri,  6 Nov 2026 11:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793964120;
-	bh=p+Ok2jd0IVx31NW+VHJJuf+Q+PVcuhS6OrBHlNc0X1Y=;
+	s=k20260515; t=1793965998;
+	bh=hqpiqZcrPC9wx5aNBvYP4zckV3Yjf+8M1ASIDcJQ21k=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bK0a9SGWX+VyZD0kFIiK4yNIK9A9v+An7WfGjPiMiNKuUGcrfRy/CwNqTxljrBpV0
-	 U7m1a/COhNVgako5ExzfFpup8zroemN8PZasns74e+wzdmXNGp9HfFsumePkfHpqUz
-	 B54avhJDK4RV1zIBmim6BKz7o7ZgZ9/g1a3ek0DWtoergphiLCDdHz5glMnik8SvAi
-	 sjlHg1ttAqkP8985sWOQHptTvB9E/+p4pzQXWHiAvU6YBAJ26cTB4FDz0XEBtsF1a0
-	 bgh+paL3EuS+CEi5iRnn4vYJCUV3oXHmFOJ7h5ygJmRsCVDkmI4xEURGnOh8gud8UK
-	 jwyBg4yTS3zRQ==
-Date: Fri, 6 Nov 2026 11:21:40 +0000
+	b=ZASBbMWPNza7o7x9E3ufbm4LKePl9d45ui5EyEQj0c6nFYmEnKRqRSm6yN2TUJnIG
+	 x84xkieBm9T900liY371Whv+vlEgtVoIoe8ljwbZ4lwWbM8KpyGnDW53gpM4hXJBWS
+	 OVFW5f4RKVdmXU/CRk9MtOYLRTOVEPMg4cMbwOjQw3CDtAgUhShid4U2o80KoWCvXJ
+	 7iOsi5mT/kqUbrGf15Pj29AgOI3H4VhdUJhDFAAQhNzZE0VHvIyVtlFvkhJjAua2XU
+	 YUPMnsJ4zBwKcR/8IaIsESK7/SOqxLxJHo/P8jZeFAnAF9NyOrBY6sci09ixJJiZ++
+	 qRejsB3E6wJmQ==
+Date: Fri, 6 Nov 2026 11:53:00 +0000
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Barry Song <baohua@kernel.org>
+To: sashiko-reviews@lists.linux.dev
 Cc: Andrew Morton <akpm@linux-foundation.org>, 
 	David Hildenbrand <david@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
 	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
@@ -54,7 +54,8 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
 	Alistair Popple <apopple@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
 	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
-	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
+	Barry Song <baohua@kernel.org>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
 	Chengming Zhou <chengming.zhou@linux.dev>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
 	Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
 	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
@@ -78,16 +79,15 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
 	Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
 	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
+	linux-mm@kvack.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 03/13] mm/rmap: convert remaining VMA flag tests to use
- vma_flags_t
-Message-ID: <au2yhvzWy6HID8jM@gremlin>
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH 02/13] mm/filemap: convert fault and readahead logic to
+ use vma_flags_t
+Message-ID: <au2_PPpdAMgRJZtX@gremlin>
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <20261105-late-2026-vma-flags-v1-3-0d3cd15ab75f@kernel.org>
- <CAGsJ_4wCd_j5or0uHwPLq0PUixcXgiFim=_d7uUhUhAuQf0nTQ@mail.gmail.com>
+ <20261105-late-2026-vma-flags-v1-2-0d3cd15ab75f@kernel.org>
+ <sashiko-outbox-200257@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -97,83 +97,144 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGsJ_4wCd_j5or0uHwPLq0PUixcXgiFim=_d7uUhUhAuQf0nTQ@mail.gmail.com>
+In-Reply-To: <sashiko-outbox-200257@kernel.org>
 
-On Fri, Nov 06, 2026 at 11:57:08AM +0800, Barry Song wrote:
-> On Fri, Nov 6, 2026 at 5:32â€¯AM Lorenzo Stoakes (ARM) <ljs@kernel.org> wrote:
-> >
-> > Replace the remaining uses of the legacy vm_flags_t flags in the rmap logic
-> > with vma_flags_t values.
-> >
-> > No functional change intended.
-> >
-> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> > ---
+On Thu, Nov 05, 2026 at 09:41:34PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> - [High] mm/filemap: use-after-free on vma in do_sync_mmap_readahead()
+> - [Low] mm/filemap: inner vma declaration shadows outer vma in do_sync_mmap_readahead()
+> --
 >
-> LGTM,
+> commit f5f0f8e634a6a2e2b76ad818de67e83f30cb7dea
+> Author: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 >
-> Reviewed-by: Barry Song <baohua@kernel.org>
+> mm/filemap: convert fault and readahead logic to use vma_flags_t
 >
-> >  mm/rmap.c | 8 +++++---
-> >  1 file changed, 5 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/mm/rmap.c b/mm/rmap.c
-> > index 1131b76bbbc2..cdc97fec8586 100644
-> > --- a/mm/rmap.c
-> > +++ b/mm/rmap.c
-> > @@ -1196,7 +1196,7 @@ static bool page_mkclean_one(struct folio *folio, struct vm_area_struct *vma,
-> >
-> >  static bool invalid_mkclean_vma(struct vm_area_struct *vma, void *arg)
-> >  {
-> > -       if (vma->vm_flags & VM_SHARED)
-> > +       if (vma_test(vma, VMA_SHARED_BIT))
-> >                 return false;
-> >
-> >         return true;
-> > @@ -1660,7 +1660,8 @@ void folio_add_new_anon_rmap(struct folio *folio, struct vm_area_struct *vma,
-> >          * VM_DROPPABLE mappings don't swap; instead they're just dropped when
-> >          * under memory pressure.
-> >          */
-> > -       if (!folio_test_swapbacked(folio) && !(vma->vm_flags & VM_DROPPABLE))
-> > +       if (!folio_test_swapbacked(folio) &&
-> > +           !vma_test_single_mask(vma, VMA_DROPPABLE))
+> This commit replaces direct checks of vm_flags_t values with vma_flags_t
+> helpers in the filemap fault and mmap readahead paths.
 >
-> Right, VMA_DROPPABLE_BIT is not available on
-> 32-bit architectures, so vma_test() cannot be
-> used here.
+> > diff --git a/mm/filemap.c b/mm/filemap.c
+> > index b74bc1e5015c6..d8b538bd14043 100644
+> > --- a/mm/filemap.c
+> > +++ b/mm/filemap.c
+> > @@ -3351,13 +3351,14 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+> >  	struct address_space *mapping = file->f_mapping;
+> >  	DEFINE_READAHEAD(ractl, file, ra, mapping, vmf->pgoff);
+> >  	struct file *fpin = NULL;
+> > -	vm_flags_t vm_flags = vmf->vma->vm_flags;
+> > +	struct vm_area_struct *vma = vmf->vma;
+> >  	bool force_thp_readahead = false;
+> >  	unsigned int thp_order = 0;
+> >  	unsigned short mmap_miss;
+>
+> [ ... ]
+>
+> > @@ -3414,7 +3416,7 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+> >  		 * Fetch two folios so we get the chance to actually
+> >  		 * readahead, unless we've been told not to.
+> >  		 */
+> > -		if (!(vm_flags & VM_RAND_READ))
+> > +		if (!vma_test(vma, VMA_RAND_READ_BIT))
+> >  			ra->size *= 2;
+> >  		ra->async_size = folio_nr_pages;
+> >  		ra->order = thp_order;
+>
+> [Severity: High]
+> Can this trigger a use-after-free on vma?
+>
+> Previously, do_sync_mmap_readahead() cached vmf->vma->vm_flags by value in a
+> local variable at entry while the fault lock was held, as introduced by
+> commit dcfa24ba6899 ("filemap: Cache the value of vm_flags").
+>
+> In the force_thp_readahead block, maybe_unlock_mmap_for_io() is called before
+> this check:
+>
+> 	if (force_thp_readahead) {
+> 		unsigned long folio_nr_pages = 1UL << thp_order;
+>
+> 		fpin = maybe_unlock_mmap_for_io(vmf, fpin);
+> 		ractl._index &= ~(folio_nr_pages - 1);
+> 		ra->size = folio_nr_pages;
+> 		/*
+> 		 * Fetch two folios so we get the chance to actually
+> 		 * readahead, unless we've been told not to.
+> 		 */
+> 		if (!vma_test(vma, VMA_RAND_READ_BIT))
+> 			ra->size *= 2;
+>
+> Since maybe_unlock_mmap_for_io() only pins vmf->vma->vm_file and calls
+> release_fault_lock(vmf) to drop mmap_lock or the per-VMA lock, isn't vma
+> unprotected against concurrent modification or freeing when vma_test(vma,
+> VMA_RAND_READ_BIT) dereferences vma->flags?
+>
+> > @@ -3422,7 +3424,7 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+> >  		return fpin;
+> >  	}
+> >
+> > -	if (vm_flags & VM_EXEC) {
+> > +	if (vma_test(vma, VMA_EXEC_BIT)) {
+> >  		/*
+> >  		 * Allow arch to request a preferred minimum folio order for
+> >  		 * executable memory. This can often be beneficial to
+>
+> [Severity: Low]
+> Does the newly added outer vma declaration in do_sync_mmap_readahead() cause
+> the existing inner declaration in this VMA_EXEC_BIT block to shadow it?
+>
+> 	if (vma_test(vma, VMA_EXEC_BIT)) {
+> 		...
+> 		struct vm_area_struct *vma = vmf->vma;
+> 		const unsigned long start = vma_start_pgoff(vma);
+> 		const unsigned long end = vma_end_pgoff(vma);
+>
+> Should the inner vma variable be removed now that vma is declared at function
+> scope?
+>
+> --
+> Sashiko AI review · https://sashiko.dev/#/patchset/20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org?part=2
 
-Yeah, it's an annoying wrinkle having to differentiate, but is necessary.
+It seems these are valid, oops!
 
-Eventually we will have 32-bit kernels move to the same size vma_flags_t as
-64-bit, e.g. something like:
+Andrew suggested a fix off-list, and I agreed to this as an in-place fixup to
+avoid respin.
 
-- #define NUM_VMA_FLAG_BITS BITS_PER_LONG
-+ #define NUM_VMA_FLAG_BITS 8
+I have also updated the series locally to reflect this change:
 
-But that's down the road :)
+----8<----
+ mm/filemap.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Which will solve the 'not in 32-bit-kernels' stuff.
+--- a/mm/filemap.c~mm-filemap-convert-fault-and-readahead-logic-to-use-vma_flags_t-fix
++++ a/mm/filemap.c
+@@ -3410,6 +3410,7 @@ static struct file *do_sync_mmap_readahe
 
-But also this form is also used for stuff that's not defined under certain
-configurations, in which case you get something like:
+	if (force_thp_readahead) {
+		unsigned long folio_nr_pages = 1UL << thp_order;
++		const bool random_read = vma_test(vma, VMA_RAND_READ_BIT);
 
-#ifdef CONFIG_FOOBAR
-#define VMA_BLAH	mk_vma_flags(VMA_BLAH_BIT)
-#else
-#define VMA_BLAH	EMPTY_VMA_FLAGS
-#endif
-
-And then vma_test_single_mask() is necessary too.
-
-An unfortunate outcome of defining per-bit (so no bit value means
-'nothing'), and any kind of invalid bit value solution has worse drawbacks.
-
-In the end all this stuff will be useful as it allows us to no longer be
-constrained by either 32-bit vs 64-bit or in only having 64 possible
-flags. :)
+		fpin = maybe_unlock_mmap_for_io(vmf, fpin);
+		ractl._index &= ~(folio_nr_pages - 1);
+@@ -3418,7 +3419,7 @@ static struct file *do_sync_mmap_readahe
+		 * Fetch two folios so we get the chance to actually
+		 * readahead, unless we've been told not to.
+		 */
+-		if (!vma_test(vma, VMA_RAND_READ_BIT))
++		if (!random_read)
+			ra->size *= 2;
+		ra->async_size = folio_nr_pages;
+		ra->order = thp_order;
+@@ -3438,7 +3439,6 @@ static struct file *do_sync_mmap_readahe
+		 * pad that might exist between sections, which would be a waste
+		 * of memory.
+		 */
+-		struct vm_area_struct *vma = vmf->vma;
+		const unsigned long start = vma_start_pgoff(vma);
+		const unsigned long end = vma_end_pgoff(vma);
+		unsigned long ra_end;
+_
 
 --
 Cheers, Lorenzo
