@@ -1,38 +1,38 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793967480;
-	b=FWd0+AdYHJIUzirhRRILoN9B6qpzSAJvUelFtt3EbVwEazj/zY47cWlXWTTEzorHIKDI
-	 CRF0OabTiaJ7nBniDTHA/cxDjHPUMRUzK0pla9BvaKx93pzK9Xz135V7J1swbAeCjQUyL
-	 hJfoqHlbyyNpkypYl3C9rQBKn5UteTb2s8496aEQ7mRaVxSOjKHiYZd7Ea6872bJMcQx1
-	 7ldnPtkeM9cq0gYikDQJ+nqu3t0hyrMeTcS+bbQdqjARAXJ+TeZ68W2B2BtsB7PotNKkF
-	 2YRLNtke6U3GUC2hMpLiLSsuYqxalnxg7FrcdCc6GFjLqFv32vPZcB9XqFyx6lZ5/lA==
+	b=Bj68faP26bfgj/I46Mlvj5B4pqezEkpTk6ya5VYH30wYc4y7AVWpia5dVE1qdAReNc+e
+	 n1JiMHsSWjbkDx3D1zXfkEQXc4W7J4onQvJ5OtW6/83UlKjac1ReWwI0cJ18af1JK2OvC
+	 0H4AO+eNXzdZ62ItSzPYrif4PsmRMlKdwlQTeqW/GkLso6ZHW/9jX6quqA9CLxyz62uma
+	 d4DpwbaBvFflga2aqxcTAecbAHLlL7bDTwYUegNiTGaJj7RZfXbP/76CGEoqGm2/J3R43
+	 Dtuuk8KdqWMezMR63mz+GzELhoxzNvAdULtNTJZ9OOx6nSJUPyMPNIf3MHgcoYO+fwQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793967480;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=4TqcvvdoqqFAB/FcShspArCAF4VCiJ6HTIRIM3HiQsY=;
-	b=X2idUYvwljnUFfYeNFo5IJGE0wJ8J3iiKJfUb145SKP5mJrCIGdac2eEV1167kdjHIEr
-	 DEC+HispbyUhO2J5EKtyuZLSen/J6E59MyCKNAFVgYTFDHCu27d+O7ALUbaPr0wnt/rdu
-	 XGoCBHDXhsbKw67JycM8p7Uc5C7bHhtmBLut/V3QoHy7K9/bpgqHXCtRis4knxgKOEia2
-	 qai760+thuUOE+cTg5HwTgAoZnwgxNykAsc90FuVB+H8BIPwperuE0sFTv1zjV26xvqWk
-	 3RKrUTUCY9otvqrcbOJx0me97nTH8Rx0QOLOOXqk3Gy+gJdo3lFSsFF5S951zW3VXHg==
+	bh=n1jzrvutq7Ia9kYi6MZP5NvCgsZxc4t4T4f6cGxiY0g=;
+	b=R2AglRiXOGAKatK1sFZquiaPnTCSvvQtYJiT4tBJJsxAzVKFK05B9OK5JoK4qsC+t2Cg
+	 N+iwti0LIDM2YfwXVcrR7mxCW2ifHwfSc1OhsbV278LkkLHPyKx9OL8etpiQFYD97GoWl
+	 JYkrwB66WzZAYZpA3yRIGcHsHHdw7GMcveIACLQ+rC7lnTI28vWkRz+WoxFBRKhalGTS4
+	 uWBfZovnuiUo/X6dxACdRwjzmyou87TFU3jWOUIAsZFU9IhrPap6NoZs4GLdbc+8Re97J
+	 5Q9RlG4hNx6Tv1SlJQ/8/KuKQK2FQE/WqD0QkiGWHigtF9JvW149xgfrTPeohXTsIoA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=dTlzzCQ1;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=rXagvX1O;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48585606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 486DD606A32D
 	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:17:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 48585606A329
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 486DD606A32D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=dTlzzCQ1
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=rXagvX1O
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1793967470;
@@ -41,17 +41,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4TqcvvdoqqFAB/FcShspArCAF4VCiJ6HTIRIM3HiQsY=;
-	b=dTlzzCQ1LObwVayfthl51EEpRXCsNuxFkqjY7OsIwUNe7/8LowtYYIcsvMO+q8aijvzbbK
-	9cS7HHva6rRzAp6N8qdZeFMVwS7A4UOFI5Q20HdZkQT/2JwcyazTnohmal5ct7WqmVtPcO
-	SSSgM3tKW+S/hLDyd53LP74oE1rnoIWfsDHxrl3RduPy0/7sZSozPioarFlF01ccwvMhRo
-	XN3WfiT71rb1PjBkSs+MEZ/Z9vJN/eH2nCOhkgJELLEDl98W9XQiuGDzOcmS4YmwJKolTO
-	74ksZm+66hnnz1642zH53UbLZMRFEGbgJaQdkD1Yt/TlML7g2vaYM8kFJgv+BA==
+	bh=n1jzrvutq7Ia9kYi6MZP5NvCgsZxc4t4T4f6cGxiY0g=;
+	b=rXagvX1ORnCpKzHkxhmofJD/p4EM7y73fEv3eIyeOQay4/vSp481qORCrr/jk9ZP2o+18w
+	M8TPWqNU010Mi+OWxMohCEJOYI4pzhjVn5udv9/Hs958E9roJL1XOJ9I/em+8N5SvVtnTr
+	uvriZeQ1UABRn8NaMPFESScfEnzi/IhsqI0B2gfx3CJHiT7Qs5xRW4n4IgJurGimT7zYa5
+	q705qr6a7dBdn094LV/BotXw22WEfevJipXOX7b1yvAP6sj4phVyTzPBQgjcUL68NSg7xi
+	3tRUdoKgQmBSqCX9Y1NbzXctaKGoxp4OC1A+vc2j6qx42qGEBz7vhJ3abVp0UA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 4/5] libselinux/audit2why: use public PyUnicode_AsUTF8 and Py_ssize_t list size
-Date: Fri,  6 Nov 2026 13:17:23 +0100
-Message-ID: <20261106121725.48778-3-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 3/5] libselinux/audit2why: do not return a value with a pending exception
+Date: Fri,  6 Nov 2026 13:17:22 +0100
+Message-ID: <20261106121725.48778-2-cgoettsche@seltendoof.de>
 In-Reply-To: <20261106121725.48778-1-cgoettsche@seltendoof.de>
 References: <20261106121725.48778-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,47 +69,54 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-_PyUnicode_AsString() is a deprecated private CPython alias for the public
-PyUnicode_AsUTF8(); switch to the latter.  Also store PyList_Size() in a
-Py_ssize_t (and index the list with one) instead of truncating to int.
+init() returned Py_BuildValue("i", result) even when __policy_init() had set an
+exception and returned non-zero; return NULL so the exception propagates.
+Likewise analyze() ignored an exception set by check_booleans() (e.g. a libsepol
+boolean query failure) and went on to build a result object; detect the pending
+exception, free the partial boolean list, and return NULL.
 
 Assisted-by: Claude:claude-4.8-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/audit2why.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ libselinux/src/audit2why.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-index 13d7b752..7bdc7acd 100644
+index 739174a4..13d7b752 100644
 --- a/libselinux/src/audit2why.c
 +++ b/libselinux/src/audit2why.c
-@@ -359,7 +359,7 @@ static PyObject *analyze(PyObject *self __attribute__((unused)), PyObject *args)
- 	char *tclassstr;
- 	PyObject *listObj;
- 	PyObject *strObj;
--	int numlines;
-+	Py_ssize_t numlines;
- 	struct boolean_t *bools = NULL;
- 	unsigned int reason;
- 	sepol_security_id_t ssid, tsid;
-@@ -368,7 +368,7 @@ static PyObject *analyze(PyObject *self __attribute__((unused)), PyObject *args)
+@@ -340,6 +340,9 @@ static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args)
+ 	if (!PyArg_ParseTuple(args, "|s:policy_init", &init_path))
+ 		return NULL;
+ 	result = __policy_init(init_path);
++	if (result)
++		/* __policy_init() set a Python exception */
++		return NULL;
+ 	return Py_BuildValue("i", result);
+ }
+ 
+@@ -364,6 +367,7 @@ static PyObject *analyze(PyObject *self __attribute__((unused)), PyObject *args)
+ 	sepol_access_vector_t perm, av;
  	struct sepol_av_decision avd;
  	int rc;
- 	int nbools;
--	int i = 0;
-+	Py_ssize_t i = 0;
++	int nbools;
+ 	int i = 0;
  
  	if (!PyArg_ParseTuple(args, "sssO!:audit2why", &scon, &tcon, &tclassstr,
- 			      &PyList_Type, &listObj))
-@@ -408,7 +408,7 @@ static PyObject *analyze(PyObject *self __attribute__((unused)), PyObject *args)
- 		strObj = PyList_GetItem(listObj, i); /* Can't fail */
- 
- 		/* make it a string */
--		permstr = _PyUnicode_AsString(strObj);
-+		permstr = PyUnicode_AsUTF8(strObj);
- 		if (!permstr)
- 			/* not a string; exception already set */
- 			return NULL;
+@@ -430,7 +434,12 @@ static PyObject *analyze(PyObject *self __attribute__((unused)), PyObject *args)
+ 		avc->tsid = tsid;
+ 		avc->tclass = tclass;
+ 		avc->av = av;
+-		if (check_booleans(&bools) == 0) {
++		nbools = check_booleans(&bools);
++		if (PyErr_Occurred()) {
++			free_bools(bools);
++			return NULL;
++		}
++		if (nbools == 0) {
+ 			if (av & ~avd.auditdeny) {
+ 				RETURN(DONTAUDIT)
+ 			} else {
 -- 
 2.55.0
 
