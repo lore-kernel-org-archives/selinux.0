@@ -1,100 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793994851;
-	b=Bjd4rk0WevJ/yEPrE9qlgFVV1KOSKeA32DuD88UvdB4NWusjZOmkPqeTyFCOh13bX03P
-	 yinEH2MoJbRPBT4wzbL55HfHj+m4l2EaBMoRi5DYaX1afK7yX1G8ZVHwjhKrsC1x5Mvye
-	 KAdKLzaboRpuVwe458Rn6YutLgbEZWbMeBS0NWw/WnT3af+zlxTnf2YbYY3Brn+nuZRfZ
-	 8i3+Q7WGCFigmtuJpnwfiboxBm+yq4aOdZURKmOW3Zc/6dhrf1HPAeDVuZflsViA2t6UV
-	 gMI2gjHB7D8xn795sN4HbPXc+O2xRJUvhJlxKeYi5OxN5pt/WRB0pC+w+Y2UFyOvvsw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793994851;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=O4/BKSrfbPeGPim10wKwPI+FdMk+5LA6+odvxgoI18s=;
-	b=g4VUdsVKUfWYYF95lhrkIsekMCE+VKBeS7VDJHjg7vuMXNpXDMogvO/CwuIgGbG/vTqr
-	 SnIn0VBAQaHUomKa9Jt+75gSZjgQ9CW59PRpmo6VJf09iHcgjhiLnGyqI9t94f/Wmgqh5
-	 qw5ibl3iAeUN5KWZRbHfISEu3MP696IK6hpFuUMpN29P5luiZrnXymedKGUOJ/d+3HuFn
-	 ElDFgrKsQ/ynAsugy9lFapbAUxPwQSFEPuzKdrsJAMLvZtiedjJa1eCBKvCXGmEo0PfaG
-	 VbdXm4f2w7JFLy8Cb33ubYNyMdHu4QTrt5dq/6IWa6OoSWaG7Ks9qcCWebseIr8qZsA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kamnkCrz;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.63.66.53
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793995176;
+	b=QU/1PkWmQj+0TOvJK1XRVCyctTRII06byVoPygsck1MYRQf5ghfw5i9b5iSlHXvN0t0m
+	 t+NCdTfN0RrdnwgnFjejomSPd4Lz7vQnLTBRdROCRHnRtCi3bTthjKmJ1p0zoJZ+ezehT
+	 TrOqHbEDYLPpO747fj7OO1bvwpP9aJSHzhuSJy/9jO2SKyFzV+DIxXViLm+BOjtryre7L
+	 DYiXkO16FNAlsjR6wf966acYrIXBgYwIwx2myZfmffHsRffYvWmLy5GT/Z/bjwJsx2T3s
+	 GoWdEV2P1IxvxGLkKlKk6vI0tXFzKR19SIREV1UAJKtCZVkkeAO+979llTqiO81SCnA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793995176;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=4JJO7J4fojnA0nt5hwOEl9UDSFikUampjKz664dNgaI=;
+	b=UxnQ84L8ykdngxvojz6bpdDPZBcvEsOUcuYs6V8KAlg6/05+Q3a8uJQ6HUxutiGevRXg
+	 I9Gurp536qurXsqKQ7UNZKYRCFm8mfhGTAbNyTpBZxlt7zQzPIR0vkAlePJd58Nk3v8PT
+	 iGIOk18LL55kD3jaSD8kSNlpQFBNmXVugofDcYEnajulfWdh+G5yboLx4fgMMQUPcxRa+
+	 wU+y9i6gGs5SCO3Y1eHh/shT0+rkHCMOdHwL8LckWqijxqmFwzVPl4JyNmsttJRtq+TSp
+	 Y91av6Xqotm7R3s0f15DVn3IQjf7u1McZhFNNOxcl20t/8HWLe4VHibHnE1BpcilsHQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=hallyn.com;
+	spf=pass smtp.mailfrom=hallyn.com;
+	dkim=pass header.d=hallyn.com header.i=@hallyn.com header.a=rsa-sha256 header.s=mail header.b=Opz9o4VQ;
+	arc=none smtp.remote-ip=178.63.66.53
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E710B606A326
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 19:54:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E710B606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92459606A326;
+	Fri,  6 Nov 2026 19:59:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 92459606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hallyn.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kamnkCrz
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-67bf3c6654fso1096833d50.1
-        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 11:54:10 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793994850; cv=none;
-        d=google.com; s=arc-20260327;
-        b=DOcv7KEsqinkc4E2gbyv5WTN/XhHvk50f7ZFY0YkWVR8iPQUK7+FvW/NodwPtNSdAh
-         lgcHsO7pO0uGR2LSqp4VzIac5gt+bHjeviQZQIAZirBtpoFIpP/BCpfHRdTENMdBD36m
-         xTvUPwZW8kJL/TVrZIe6x2xZCmn0SqY8nN+rBwwkmdqzotoMexDf/qcw3crU3+8/bXrU
-         s+QQB2Y/pNuCiSlpdSKb211po3PwNzev6tV3hFjkTQNnPfsu+GZTpTyN3kyPKNFp5av5
-         dBPwYwEktZQ8ZWHuLyENYaBpTCW2NK7C2iNPDLmpPJtI5hn8Yv3eoAUjXONkOvuhmZFw
-         ckuQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=O4/BKSrfbPeGPim10wKwPI+FdMk+5LA6+odvxgoI18s=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=H+qptik6cUcA5E3eM8Bhlz1//ThbzVNx5guUXH/bHwSlxwS/EZyzz28WEknwrlMMtG
-         +VpUOnngiLe4mz7XM7CK+SZdYlS6an9Fph1OhcX3arvzYOD6aGPU0FUE2LtVuVD82iqo
-         5UcMlwj5DOUc4HLPQ/7bjAxk8n026pvqiOhkfSi+vbsrNGcQ1iVZaf0lKd07bhm44Ubw
-         KvTiZd6H3bI6CS7N5+oQ/4iQKttVEqqV8eiAEgd50SG4FFq1tJJ1qsGXvbPeWmxiYJtw
-         urrHHLcmhBwClfADBb1qbJUan0wY5w7rfH10c/ZiBJtXk0MyZmQWv5urrs0T6o7eaqGI
-         WGgw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793994850; x=1794599650; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=O4/BKSrfbPeGPim10wKwPI+FdMk+5LA6+odvxgoI18s=;
-        b=kamnkCrz5VCEpD6NC2hUyrz+cKdE0CTP0sv2u2q7PS7QttWYkJ1VlxxP5wm3fCq+UR
-         MxGzhCAvfCuZ2NgPdo4SZxAh0JobHdttjlVnB87/FwmUWn+wm/RO2shpz5UvOFel3wR2
-         MTfx2UwnVuYOoDWVLsL+oMra4W9OAHhlgOxTjx8Vo4FOuVIAdggxnyc9nb9RMFwNiWYW
-         h8QBBGC4JOSyRbNWj8xdFgorXVQLUNMHBfJ5Yg98xMYJwH6ghudj1WTo+To5EH70ND5u
-         rvtGaMqGT6oXaWzdn5P9rncXZ7kMD/DXJ7Po5ilFpROiFb+1W00qi8FH+ZZxbAh9M12t
-         ls5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793994850; x=1794599650;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=O4/BKSrfbPeGPim10wKwPI+FdMk+5LA6+odvxgoI18s=;
-        b=sNY0da18w0WyGC8FbFZ3L1wFqgm8/ysZH2O0A+l3uLb0OQ6npYyobmWncO6vaz4ZAj
-         CCgPJMVuSmrf6f7qPBK83+PZUBNOCJCnExCuYCd5qR1BpI39H7SQFtkmoV3kx5pC5SzD
-         r9E3ImenerHJqJP86Klb1EIT0ABSPAcJbS2mfmUO0ZLsIjsP5YqRIq7hsbOx7FJ3j+HA
-         R7VXsyQDcU0McSF78KZR6apcC1qBIFuUe5q1VHm19wZWvpBxbt/3rgfP5hk6zmgaYXP7
-         H8oTBFdiFfUBzb1ycVx/Ht/XKY4SYaW0cC8RJry+ZMzm1rsIw4fGZ1IPznHvt71NVvvp
-         nvoA==
-X-Gm-Message-State: APuU4Z/W+VUkMseSs88TcvVpzXoHI56qBZ/TELicUy74HFhp4ZsRTe25
-	uZGigTO8EHagsx/qWxGeeOhy1a2dXOwrQJqspk18P1q9aC0j9b/ZF8JaSgmgGuaP4V/ZCZ/JGPL
-	oeNuUVGVuGpsPqMD68IwhtMXqT1X9aeISTSF+cMI=
-X-Gm-Gg: AYBFou12rSp+NiIckHaUZKQ1WEWpgXKkrRLGDurfji+98hJHmGQVTEWYi7xUWAo2JxT
-	AZ1QSrRVl1SXhlKzaxESuyWsFsDJB555Cw4yFDMqQwhVzFr2MF8Xf+Wy5te5By3YDy7JCOoynyu
-	OF4cf2n1bWzW70/D2vn75bhzqoavisSSR6/YTeHb3AZVOwn9RaMc7D0L1avbARiB706E3kR0ZmP
-	2mYxej/vonH47hTFcR9b3NMHlZWz5jZzeE1chmoTqL4clVUrosE5WjRSnGOK4/58zy9deWzW+AL
-	YzfZv+uCl+TKq1Dsc936gzYHBbLif5enMKPDcWMmjL4s5BV31M6515tQSPE24QkNFY0CD7WJi+9
-	ca9YPX9+coZMTmSM4ys++b1RSx5zdzC4r4mBoWU2+reslUtGnq+LlUmSJftBw/1jOlrsQOCq/On
-	1ZBxD/tw+hoNhhbKIButNKaVP399qN2FIaMwgtXqF7rmtlddAI0hCEmwntUQ==
-X-Received: by 2002:a05:690e:1505:b0:675:c1e8:d522 with SMTP id
- 956f58d0204a3-67c146028d2mr1371260d50.134.1793994849638; Fri, 06 Nov 2026
- 11:54:09 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=hallyn.com header.i=@hallyn.com header.a=rsa-sha256 header.s=mail header.b=Opz9o4VQ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hallyn.com; s=mail;
+	t=1793995173; bh=I8hBdflsjy5ULST78omV7Oaz6W+NqRtKI6XBIEd0n60=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Opz9o4VQjwN9tzX/hO5eSaQ5FQr2WLZl2g1ulAKlt/I2IxmzJ07EHL9LiEfJOVcZ1
+	 cx+7z1Uy5uM+BDh9hDXSmu4+YnsGU3op5jSCjUG33hSaM+zPGOjky5ElfFMhbwHAT1
+	 13EStbhliD7a6DbxEWKx0jLosOxuuYIn/Huix4qegeXUbaoah8N3m625DbjOYsK+4f
+	 7JNeWuVf9y2lKTxVFGvq2lheqSxd7h16n+LxptqmB8cjs41rJd9N/v+1Wiv0Up6Dmz
+	 pIMe67tgdd44TRJhG2FM9jstawe6mBUAFw5k4oHUGNTZOPLyKwPUmef05sBb2tl67/
+	 +C8idkqAnfGOQ==
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id 952DC8B5; Fri,  6 Nov 2026 13:59:33 -0600 (CST)
+Date: Fri, 6 Nov 2026 13:59:33 -0600
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org,
+	mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com,
+	casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org,
+	hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com,
+	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+	mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com,
+	omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io,
+	chjohnst@gmail.com, steve@abita.co, mproche@gmail.com,
+	nick.lange@gmail.com, cgroups@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5] security: Expand task_setscheduler LSM hook
+Message-ID: <au4xpT1D8WzBxdvY@hallyn.com>
+References: <20261105172210.76706-1-atomlin@atomlin.com>
+ <au4ovp/Ghd25rtfZ@hallyn.com>
+ <kn57okulm7cmodzdzvzqqswzafu3vopsatfcsptyrz5ztknx4w@ngwh6si3zgpo>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,40 +74,62 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106123510.76727-1-cgoettsche@seltendoof.de> <20261106123510.76727-9-cgoettsche@seltendoof.de>
-In-Reply-To: <20261106123510.76727-9-cgoettsche@seltendoof.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 6 Nov 2026 14:53:58 -0500
-X-Gm-Features: AclHuK9hrwKgE6907wszSqCapeg8rLSgLWuYl1OfEZUOBHoxi2ZxxFOqUv7Ji2Q
-Message-ID: <CAEjxPJ6qJNxFOgX-p2V45Np445Yo4V4yOWsgn=MUNvjtehh-Rg@mail.gmail.com>
-Subject: Re: [PATCH 10/16] libsepol/cil: verify the contexts of sidcontext statements
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <kn57okulm7cmodzdzvzqqswzafu3vopsatfcsptyrz5ztknx4w@ngwh6si3zgpo>
 
-On Fri, Nov 6, 2026 at 7:35=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> __cil_verify_helper() checks the anonymous contexts of every labeling
-> statement against the user's roles, the role's types and the user's
-> range, except those of sidcontext. An initial SID context whose range
-> exceeds the user's range, e.g.
->
->     (userrange USER ((s0) (s0)))
->     (sidcontext SID (USER ROLE TYPE ((s0) (s1))))
->
-> compiles without error, while checkpolicy rejects the equivalent
-> "sid kernel USER:ROLE:TYPE:s0 - s1" as an invalid security context and
-> the kernel refuses to load the policy. The same context given as a
-> named context is already rejected.
->
-> Verify anonymous sidcontext contexts like the other labeling
-> statements.
->
-> Assisted-by: Claude:claude-5.5-opus
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Fri, Nov 06, 2026 at 02:50:34PM -0500, Aaron Tomlin wrote:
+> On Fri, Nov 06, 2026 at 01:21:34PM -0600, Serge E. Hallyn wrote:
+> > > This change updates all in-tree security modules (capabilities, SELinux,
+> > > and Smack) to accommodate the new parameters mechanically, while
+> > > providing LSMs with the necessary context to enforce strict scheduling
+> > > and affinity policies.
+> > > 
+> > > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> > 
+> > This seems misleading - Casey explicitly said "for the smack bits".  This
+> > makes it seem like he reviewed and approved of the whole set.
+> 
+> Hi Serge,
+> 
+> Apologies for that, it was not my intention to misrepresent the scope of
+> Casey's review. The qualifier line was dropped when collecting the trailer.
+> I will update the tag in the next revision to explicitly scope it:
+> 
+>     Reviewed-by: Casey Schaufler <casey@schaufler-ca.com> # Smack
+> 
+> > I see no issues with the commoncap.c and security.c changes, but as
+> > Paul said two versions ago in
+> > https://lore.kernel.org/lkml/CAHC9VhSROg6RGUN4_ZVBoEwYjRnKvyjnkbx2D88c09KiTgY3KQ@mail.gmail.com/
+> > nothing appaers to be using these.  Where is the user?
+> 
+> The intended consumer is the BPF LSM (via the generated
+> bpf_lsm_task_setscheduler() hook and the __nullable BTF annotations in
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Ah, I see, thanks.
+
+> include/linux/lsm_hook_defs.h). As discussed with Peter and Paul in the v3
+> thread [1], when sched_setaffinity() is called, the cpuset controller
+> silently intersects and truncates the requested mask without surfacing the
+> original request, and seccomp cannot safely dereference the __user cpumask
+> or sched_attr pointers without TOCTOU races. Exposing the copied-in
+> sched_attr and cpumask to task_setscheduler allows BPF LSM programs to
+> audit or mediate the actual userspace request before it is sanitised or
+> applied.
+> 
+> In my reply to Paul on v3 [1], I mentioned that once the MIPS prerequisite
+> landed, I would include a concrete in-tree demonstration alongside the hook
+> expansion, which I neglected to include in v4 and v5.
+> 
+> Would adding a BPF LSM selftest (under tools/testing/selftests/bpf/) that
+> attaches to lsm/task_setscheduler and exercises both the sched_attr and
+> cpumask parameters (including NULL and non-NULL paths) be sufficient as an
+> in-tree user/test?
+
+Self-tests are good :)
+
+> [1]: https://lore.kernel.org/lkml/ozsngetxq44lahategdi43sqrwdnpotsrebssczymqtkbh7snl@u6ytkznmpne5/
+> 
+> Kind regards,
+> -- 
+> Aaron Tomlin
