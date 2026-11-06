@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793993254;
-	b=RKJrTstuoYmdAYmTeS6vtOpDivq71HJucokOzB+zm8NZBbaZU2Xcp08CzNvEu/hDzyPA
-	 aaHZQUtPZI8W2JJSidEH+1zu014S37PO3hxidLjpnQ8VJsPwmbcpnNfUy272/3qTes+km
-	 m2fSYeyQArm2sDwzsPDn9mscCDxK8/RgXLfXQIf6Pht1Hf6EHDkp/eSd39B6eE0QWsawL
-	 2eAwcqp203VELRAlqqvixtAf/BOMdRi1x95954BI9+5HK3GRPQ105xmRQqa16tuI/XL4x
-	 otLbZuaswPwnutJT+WD6nnmDOWMIfTg8VBluUGbzbIs/oMUyeKZ+qXbEWZSplaIn4yw==
+	t=1793993610;
+	b=RCFjKuTX9x5lAhwG/ehVcYSHSbvDdi/oXQtHYNaZQTE3JOidjO9nWtjb9vNOgJMKX3MK
+	 Q6C4YWcXxmT1sgSL3l1Vq5FjsMzFyTmUaOs2/68ieb6vuJYH/3zLXB3i17FKHYcLSj/FK
+	 +Anz10DrawbE0feeW1KfV6siLyx4yFWCMuEXys9j7trILk9zLRC56GkUWpmnsa0tFnKUw
+	 YOmXHCSxO7DLqZos7JNb3HTnHxxMEcY0NWBETrN61SKaF6kixVQ/meiOjVMsNrK0ITtVf
+	 UauChujVcDDPpE1gieZ9uGhPEvt33tB7n5XGDjsdK8gs6yYA/JA4YpOXgK70gYFh7ig==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793993254;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793993610;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=xbp7DrpvOE3RjVBSk3xUhsn+D2DKYU4+2mQJDUdF/xY=;
-	b=xXi5M9aVT9L48Fn0wi4GRXJM91e5Y096/ILQRX6YMb5Hh1ecNnMz32qeQ0bdEt+jmp15
-	 i52+BaFiCR9PuY63kdIlTbTuKRVE8hU4Ok3bYtoFUzhXggahL5ULcH5MmPCy4lld/eeeC
-	 4ZqFWWLUtWRGexFF1kKVFbGSFdQhEtaOvgVa6K9yAzHZ/vGyu2BWXj0E86lKBaRNk4bHS
-	 Rn43XDh468QyZ9slojiU8d8HtSnglSfy66z3JhntDRJbON5Z6baBFUF+CjWbMNn0a2azz
-	 NppXHOMOTrd7HM3T1h79qcWvf99kr98nc061dmGeN/UdoNomkZVEYFbUjUbdu4EkXng==
+	bh=Ik/IqQHc5Tkp8K+4oLC62Nd0bvCCzuKiw0WugIDKiOU=;
+	b=o3831hxnTRHDu/DnIgrxtBZjNLNr46wxq5A2aRjuLxaOl64ApNUHMyyVO+U1Jj8wOhKZ
+	 4NViKEMP9rmG6W5j4WzR/vl8htW9DklH3UJKrpWMoNgrqYmCP67r8mFgCUzGBjZl1Wyc+
+	 h+E2E+29YEqZOoHJx47Oi+yfRwdlKx9vCMMYIygu52OR+sKvM3lNmf0OxTFao1hu1MYsq
+	 c81rb5yZORpyzfzoSYhoGWysGBAv8LwnO87GTv3c0XueZaKlqUjD2mGKyj9AVdr8TAQam
+	 SLXMjOhiA6GjPRZWkhCuziYrQWsRiFd9CtGLrH8dkPikURnVPVxLkOB2qbYNUSFyK6Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="DBurw/dz";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.51
-Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uuFaq05R;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD38606A326
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 19:27:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2AD38606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3360F606A329
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 19:33:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3360F606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DBurw/dz
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-6774639a8a4so931341d50.0
-        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 11:27:34 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793993253; cv=none;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uuFaq05R
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-8b312be5de8so9843927b3.2
+        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 11:33:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793993609; cv=none;
         d=google.com; s=arc-20260327;
-        b=FUu2F6HzeI1iJJtcelAvYSyZINvMNMaQDI1On1TAaXCO6yz25ypWTVqxaq5G8rqDcN
-         rhmx13Q9MZnj8qvmF9iaKutZoqJxMMtQKbus3Mr6oLtYArj/FXvcOio1hfMoblX6x6qH
-         eJ4ssMLinBacNwEdmS9iDGt0SL9113q20fIT6phQRNvSiikJuPcQuBxHcNh5yF+4hbVm
-         qfQoioVYDoMiqYsFNLn780vFiSnBm1HGCNoiZz8isFD5oxcMVaOgy+/i/C3LtMLqNGdd
-         hV8ueijWMXDz7g9VSRUdGOjpBId5WzhyPHU51Rj7T06zw9xMorgpnxWl59HpLFx91XGQ
-         a/1w==
+        b=QGLsgzqUw6Mhz3mTYTrSTJcz2uBwHPvTHG3GFKvnIMcHouPogZWCcI7Sd1MvCJM7OH
+         kaj4sO+YxfJnFgglTx1QGANBIzTxAj+T+/oX6U4idqp74w34l0z57iVppfJOuXAB125L
+         HjJuEwOMf6U/SHX/NAjLsZXSsrut3EWceF2di/26nJUrF8wh1PDmnlYqtTpkkD47uWzM
+         Ev46ulZjTekpC405iN7UdtSpaZ/l5VcL6W66snE9jNuTwqEEswhIWMjbygcFjBRpF7nf
+         odyZJzsadYuOfkFlBs0dBfiv+zjiMBYz3C59OSLYrsbg6ALTrprqks7g+IRHEkrCzvc6
+         DZZA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=xbp7DrpvOE3RjVBSk3xUhsn+D2DKYU4+2mQJDUdF/xY=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=n7lme2sOJC22NuepdhJTLGSCcDr9qC/L7n7L0CYA0NkfYmnGGgGK5OkEpBdg7GR4UA
-         Sat/lEyvmrdJ4h6RfZPTYptNeB6KHVlmWcDGGpPPLzUY1iEnQiz/WNqojPP6uM0jwmfk
-         UHZkYBPUeLKehCvmsURJ1B6NXBvhf8fb/5wczyI77SpYfpwInrjqFeRpK+f144vIPcSa
-         einkTBeBenKz5t82YIypfQj2X6sGts9iRzbwjarMcEtPzcf+UNh9CkGXSYsTtCundtp7
-         mibyGY8AAPJTnl2b5uQJkAnw3Snas9CmQzBKL1Vm3+QfXX1xhDD4NqTTceAPMqTfc/vF
-         C5rA==;
+        bh=Ik/IqQHc5Tkp8K+4oLC62Nd0bvCCzuKiw0WugIDKiOU=;
+        fh=6ukFSrvF76AQcoFTaTVTCq+q3hg10Iykt9cHjSUbAks=;
+        b=RPzhqA/bJ7DnDo3HIRlIMZ1yhafU4Xge8M2Jaw5s9Mfv48360zFSUBU6dnhzg0KR1j
+         UfSZWKD0OoqMASXB4/bUDdGG6ffASLWOnYRIsfnfR3ZcZqTQWrl5PDUOtGd14v2G2FNr
+         R49LtvKSBAo8WypvZZVxfO5ZOIqcI6//qFZYO3XTeQM+WSrnq//XlO8kVsF2if+FzpdU
+         me7fKThAknuq7BFJD/anCWMtJNmj0ZtexSm22XWfsuAoFrVfbI+TJhqXJHjIly7AUuHs
+         upFz1WnJystgOCqZiEuZIbB5gUol44vWCdJU+vdMqTXiGStCISBpCms1fRNMicEa5i0y
+         RG5w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793993253; x=1794598053; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793993609; x=1794598409; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=xbp7DrpvOE3RjVBSk3xUhsn+D2DKYU4+2mQJDUdF/xY=;
-        b=DBurw/dzZ7VaDWWWoM2f6T/6UJghS9DxiTIPEoJuUv5WiupybH4D8PhqDwMpXnLpTs
-         ImVp6JsEpSopzb8kY6KPCN4NVrTzIOyW5apJr4B/DAqtFoyOEnfyd1AoVloPVviqsrfC
-         3FMvajdBjr3WTB01sLumqzqO72Vuv8r3m9cMJOlhC4jBEkQ5eb9zJ+KFUnuKmZ8j/cWE
-         CLOryWoJnDpTxuX2SPN3Cj7adMXuZDxoT+fIO+bBI94vTDApVmTwWp3f6OumHiGfzuv+
-         sowgIjN6539DBCZzkG7htRr4RwXrDHTO0bE2jLfy/NcVcOhVV1yjSYoYi00qrMKBluSi
-         ttlg==
+        bh=Ik/IqQHc5Tkp8K+4oLC62Nd0bvCCzuKiw0WugIDKiOU=;
+        b=uuFaq05R7u2epUDQM9WboaYMhC9I7Vx9MAZXFa1HW0Q6ZwfyapQaZ1Arf0xUWuXxRI
+         sXx8GFRlf8AW6uAyjGoW1s7Lx4UkvRuN1YVJl3V4zoc87q5VoqU8yyHyFv+KFDKc+90Z
+         JJHAxhxQIO+9haXXxsO3+OK5LT9x6yojBOL36LMpmSmqSuBwsOQu3lVxASebHyX1mPyj
+         glrHqi4ikw755Fxo6DIUEj4mk0Y+lI0nqyw5D1xo8ZDATivCaCK1kwGsTfExFA38JC7G
+         9NS7M3WXSzPcInunpwP+MeydNtAcFy8FLLrzBwRIbXqN5zDM4fpFI2fQNb01nIqTp8KK
+         CW4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793993253; x=1794598053;
+        d=1e100.net; s=20260707; t=1793993609; x=1794598409;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=xbp7DrpvOE3RjVBSk3xUhsn+D2DKYU4+2mQJDUdF/xY=;
-        b=Akg9ptDeM6iXw4XpCITf+LJnKkjX/+G6g0qW61k50Sdssy4olLBcp/VIemcus0/29f
-         GjOyZaOuNo8sc1AhvfSzutB3HLvUsXnOj24vCnPzWqR+EzQxF9TuOLRxYgnZnZZ4jxp7
-         CuuHDY8bix09Ubv5I2c3uGKGlPFokHlT9hpbFWOuhSX0lZMWWEqojoyg55VtHVyDQMZs
-         Sc40oDIiZyJBYiRXSNOUbMoEuExQMLyD4/qv23/4bdCgYy8ECPTEb91PO6PKNzfJPA2n
-         QGW8ThmzdMqlzPwfqRbtq+uX3iINi77BMesSdumdsESCQ39AlEdwyv/UdgQ+FM8UYF2h
-         zg4Q==
-X-Gm-Message-State: APuU4Z9lGQKvSY3JZsckMX8m+V58Acit7kJ7PRDQdqTRymEnTLUEwkqt
-	E1tXoBGje/AX51Q7vsb2Ph63FweiwuaWuws3IrIbIO90pqQs4QDOaQZhuPKFrztP50p/hvTxtIU
-	+LxblsAVHqFvYzgjDpayuLCgdCcKgqm1wDM5+ot0=
-X-Gm-Gg: AYBFou30TwYR/akM8nAcnjPP2FGbchm9OQb7qbrPJNYM/dn/36hiU+OqMnNDIxfugc8
-	VYciBPrrM9+zli94P+yFmViVRVi5GK54zuD+Z/Td937YnH7xI7QFw16sjzCxZsVu4dKdnBO8S2i
-	mdiA7BbG86kPd/nkqyYko3IvxTH6JpTvo+7U1x8cjd0chVbe/EXParRO+wLA855BtWPJXIzbmed
-	4xhg/DiZT97qoaVnnjOjC6MlvHWcKl40QjYJJhncgF8SxMAjPzuEgbdetWs+usFAU4y3PQePbZo
-	Cy5AaThrSS/w56B3RuTlW4sbKjECAs/IkBjNbqNHKCYcyHi+UpsVJ9SNTkuClx7WECoK3zVI4wb
-	z970ZJjkDImojLmfzrOD0R5e4DilrI50wvVzu/z0Wyug1laZbF98LH1fmCFB9GgEOtjdk4DP815
-	PzlpONBatliqPVqETPXagbWBmzyQgzrqzILSZVtuOEds/3xvN4bswk+7m3Gw==
-X-Received: by 2002:a05:690e:1a4e:b0:67c:9e3:575a with SMTP id
- 956f58d0204a3-67c145b441dmr1263106d50.70.1793993253285; Fri, 06 Nov 2026
- 11:27:33 -0800 (PST)
+        bh=Ik/IqQHc5Tkp8K+4oLC62Nd0bvCCzuKiw0WugIDKiOU=;
+        b=R+J5ZgPk/BKVg4K+x4HMGdMGlF4nkJC2tv+WPV0ubNug0JY6HeHh8ADRDtJAlMG3Jc
+         9uQWbRoXRa0KvhjB3bOfsrNzi+WNcHzsb1C0wml6m+5QdOMo3dkvEGKknycBuNTQ3klZ
+         ugQbEjDRXBf3W/PpcuEI7+U2KZmTvdeTFMxhm/voKoPh5UlzFAXVqQFjRjJuTapo9DTC
+         2rPgW0fUfpmL0EfeEz6oqJOlH9Hm6/iY5DzGez7KL1tCKiEghV0lo2yXT7ILowW9Lv8q
+         U0vjOS6WQvNqwxqwIPRWU1mezuxaUSHJWz25kJzvBlPj92YiAVIffeRVkpKJH2L8NrFJ
+         4BRg==
+X-Gm-Message-State: APuU4Z9ck9apd79aoLQru7omXaP/mMDHijnxKpIIXHzU5GdjLLOkl80h
+	tUvVMcnyFck4a4tekng80Piiqf8m0tTK/+Npp9iUMuxbd1YtYqoaI1DKDdD8ydTykVXdx/uwPsI
+	DO3M6UtkF2XM2yRdOfVrUfY/G3HJwHws=
+X-Gm-Gg: AYBFou1VG37Fz1NHeT8Yd8sIM0l9blTYFDqYJNhNj+vmkfGzEHV9fz6QKvNYwxpITxe
+	CeoihyvyDvAgk1zLsXIDTUvvhs03YLzhYkTe5O0uigWIpWkhUCChboJbIY/L6lHoVlhKVLg6FZv
+	awcBvtnPvhPe5L79LOq7zTu4pQE3F3Y8GKfI/UkSn1B93ivNvyJCjk59B9AXfTEbZQ7+4hKK31y
+	fsjwYjXssSGz3ZAkZYpHR+zS4gDJKF9tdHq4qVD6dZZh0Xj0AqlWiiW2wtCL4JOHqQSviJZADTl
+	oGQU3HhOrt27MIRnJCACaxmdH0ZvLDx/N1IofbPzaJh8LmUUDHdHYje9+rMkNLBBTlMLmbRkNdc
+	RwzcXowVNtArdxDkRsNQTh3q3nraUnkTJnS04tIKxh3hYDQ21swivQq3cXtI1WboBC86vmBM0Jl
+	NuUyGrHabIlzRIRVF7+m1vwV7YZtenCNZCg6p3SVTWqoIbeleUwtLij/uf7w==
+X-Received: by 2002:a05:690c:3481:b0:8b3:46b4:8f74 with SMTP id
+ 00721157ae682-8b346b48ffbmr12817987b3.102.1793993609242; Fri, 06 Nov 2026
+ 11:33:29 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,30 +104,33 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106121725.48778-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20261106121725.48778-1-cgoettsche@seltendoof.de>
+References: <20261106123510.76727-1-cgoettsche@seltendoof.de> <20261106123510.76727-16-cgoettsche@seltendoof.de>
+In-Reply-To: <20261106123510.76727-16-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 6 Nov 2026 14:27:21 -0500
-X-Gm-Features: AclHuK8r74dJk6xuJyZvAi_vXYn1Dw9y1CTENRih37t2tkhsRFIsR7OjbfOT_OE
-Message-ID: <CAEjxPJ4+n_yd=dJfDeyGKMbxLtG4sQHodkPACfWmBodiL=+R-w@mail.gmail.com>
-Subject: Re: [PATCH v2 2/5] libselinux/audit2why: check CPython allocations in analyze()
+Date: Fri, 6 Nov 2026 14:33:18 -0500
+X-Gm-Features: AclHuK8J30CfVES2gvoYMke1G2nBHWko_S8ddor9FyB1PQ4VF8QHYFDLG5lprrE
+Message-ID: <CAEjxPJ66DMfY2VqHT5hFG7Eq6XCPaOfxVMO+-CejNM++qCx+aA@mail.gmail.com>
+Subject: Re: [PATCH 01/16] libselinux: correct realpath_not_final() buffer
+ size documentation
 To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org, Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 6, 2026 at 7:23=E2=80=AFAM Christian G=C3=B6ttsche
+On Fri, Nov 6, 2026 at 7:35=E2=80=AFAM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> PyList_New() and Py_BuildValue() can fail; their results were used in
-> PyList_SetItem() without a NULL check, which on OOM would dereference NUL=
-L or
-> insert NULL holes into the returned list.  Check both and clean up on fai=
-lure.
+> realpath_not_final() checks the combined length of the resolved parent,
+> final component, separator and terminating NUL against PATH_MAX. A buffer
+> of PATH_MAX bytes is therefore sufficient, as for realpath().
 >
-> Assisted-by: Claude:claude-4.8-opus
+> Correct the public header's PATH_MAX + 1 requirement and fix the grammar
+> of the surrounding comment.
+>
+> Reported-by: Petr Lautrbach <plautrba@redhat.com>
+> Link: https://lore.kernel.org/selinux/87czpkacxf.fsf@redhat.com/
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
