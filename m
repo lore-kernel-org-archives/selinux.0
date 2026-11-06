@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793988375;
-	b=BufyRVglKkJQWtaw/WIVnvKnCnp5RJ+/bGnS94yS8laIbtRwwMfVY8XGy2UPlPTJg4/p
-	 wYtUa/23jsDGeu4RSp26CGXQvsZkjotXaqvcgRmpx7KhBEy0R6Dor+Ub24uqQEPCWjs+o
-	 4bDe+wOqOkwpqjOABKnkyi/Z0R+Ce3BeQqB98DQmpG+/gduUidoP2GG08CnRDBx60nMBm
-	 r1RXzrxvD898oHC5fd+Sk7g6mqhLESMPm0j9cmGlrG7XL03mxdCMQ4DNaWPZ3Am2bC0gx
-	 jF7cqsPkBgdndoAubhmcZ2fZU1ynZaWoVn8JgE3vj5fD0w5/4fAauHVnzm7HxsjapsA==
+	b=IaFf58TTlOZY60+HJ8jS4juHMEgtCEyHWAeI5T4S9lwQPKuThZ66EOX5XeVdarhp9RnE
+	 MEptcZMXoGOoA3mu0c0E+xSQj7r26t0v5BaZKKyiYON3KbbwNptihoo4A1E4Qbs5oXyYy
+	 EQmxuUBAQYvadDJWsIAQBXwb+yVNWV4CWJ+2+ya7zb9kLR8RHIkaUI+NUittvg9WLjiM6
+	 3YnftPMSQNNueE0WAv9ZKeasImGWxNgyt/LaKsJFYbH6Ix69MgfF3WJXr5eVcAzrRogH4
+	 v/JCATXricdez7GKrqN1CdBvnbYWs6hpSgSn7jjhnmxlvxTq48uLKNL+BmdTwNAcaJQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793988375;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
-	b=0BIAINJDu1vZQmbct0g/S9QLqEMxUByjlY/OzgLQc4jEfz4qzbUfdXshF2YwshpL9gVz
-	 aOeH4YcjexyLYnh+pDAnbhqhrkE+0mvxPFWxf28Fdl9f67ArcISoJZfn1U8nyW40FnMvM
-	 V+dgG7kcqSfMBGyUlCMx8zBzk+fMUPG6OSPaNmVT27ey7jKdHlrbflhsh5ZOrBUAYF3KI
-	 kC8FW3TQojYdfW+5jBw4oWIwRrNOb/fORi23U844GnZqv6bVQ7lDRO3qzSV5B0gxiYDuS
-	 k66s5YD/bnb4XeIbBldNp99obN3rZKHKeyEyGnbJxA2ZAVyfIhXnaod+izzWgbeQ9Cg==
+	bh=tfuvyZYevfnmOg2ZE5INf1rWkCSZtauqr6FRT5O//xQ=;
+	b=vpB1erJrP0s1S0GfH2ksSW6Ot+O+m7at9zoyMMLI6nScT+Ok6aRTmdU5aZiQ0KXnOPkI
+	 5LVgf6dCXrh5cUAY37i4mJITvW5HXaZaHPOwKhpTbRtacbBKM0EcJE68quD6stBniBIOw
+	 /jQHaLdjyJDtJoM7MfCrICyZjaWbQMS59W5yGknU65eTfrqvalm0lYmgRBOq9JmO4CgiL
+	 v3ognmRwfFaMKQAM7aS9ycUM8ZQLt6kUcnfxwynfz8EsNAMpfZVJxDu+KDA3OZKHiQGY0
+	 bx6xcL+/JLz4XPJWUKwaRqt6P+F4sLp8e5tLw+mlony/+nHFhjZpWVlsshqO8PvxhMw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UddLQjq9;
-	arc=none smtp.remote-ip=209.85.160.181
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=diD9U1qh;
+	arc=none smtp.remote-ip=209.85.160.180
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D118C606A32C
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 18:06:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D118C606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 823EF606A32E
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 18:06:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 823EF606A32E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UddLQjq9
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5366463571cso10353381cf.3
-        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 10:06:14 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=diD9U1qh
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-5430f70c827so10446731cf.2
+        for <selinux@vger.kernel.org>; Fri, 06 Nov 2026 10:06:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20260707; t=1793988374; x=1794593174; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
-        b=UddLQjq9gX+mJnUyQzCeyi6pEZAsQyOCG4Ysx3pi8AkpGeGQdajdhQ4jEstphmaqIk
-         0dDh49HjDHGjuP65SHpJwSefCrAe+H7avNeQxmB9UuKZFYzORN7ZZ81ZyENfqERrFrdu
-         JmpoHf3J7dWOpCIvOM1upPAMNdEnyrlwxWzfXZM4/TrAtUQpi1mHnaYGZnxchu0Ed1ac
-         ++cR5rg7trkEBvufmyX8ac/eKvkZDWiyndg5rWZxOdA2SbAY6EQ2eoLfnpy299CYyGm7
-         lgEBNPaaCEoqoDbzWURbnSqZKDxqIHK0I2Bl7FODwMhhOwm1LlrJqVsGH+2JR8MVQrZi
-         AjqQ==
+        bh=tfuvyZYevfnmOg2ZE5INf1rWkCSZtauqr6FRT5O//xQ=;
+        b=diD9U1qh6vlXXrPrGk1rSXmgIyo70iePlGZ+GU6sfGA2eCOQnKnj7P74McGiXPJwfu
+         VlomCLjRl/6RjFixVsQLHl9aSXv3FkMTKpaqIR3xOlcwccUePs/Ah4Q4IkqHUkQqPjtQ
+         vWLke3DDCsQfyyhy1noFdeS+8WPQ78PkJyoPt/eclZPlIyVqKULfNqk2Jgh9KNCKtGeA
+         AsC24i0E4vbKQXJPX4jjZx2soYBQAkvcf4H6e/8FFYiGR8zZ0TGZXQPSst6nDKRtB/6W
+         NJgNzRwRe61V3/l+wwTvHbnhzL4l0EijcmNF+ui6MZJk5sRGoGG7lEKpNPj/u14C0q7M
+         5flQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20260707; t=1793988374; x=1794593174;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=l0k7XUQ6HvbC0qSBfCgP2QdxE70sodMkbhgLBUQITTc=;
-        b=06iMSAEheoDsk/oQiXn6zj1O8QcQYC+NQ77BQ3X4PnAWtGDJXe3sMqEBVBCM4Hegd9
-         b2zn5ChODa6kRmmgfaR7s6fnCNKtNiX1XhZHaQlfRJ07l1jA0m4mEB7d9msKT6woYoxC
-         naYrh0UlNOUUJ/Nspd37DZsGAfocRiLX0XWhPsOHiAwLTbFStZDvZLox2+etWOoNzFIE
-         KM0mDdrbYppII+SkeyHGaBz33iVn5Gi8A35Pj2ZQUznsYz5nnWJ73KxazbxfWcl1WsxC
-         BudR+Vv3owExbM5dhS7UAi0DlsVqRptD9OqpW6AV+bpl2kaHxVXugv1HsNkQZwf71sCl
-         pUbw==
-X-Gm-Message-State: APuU4Z++z01pns5+6N6OYAe6oQ2eT1gm+CxO/J7K6pE0Hs1UjGfOhnRJ
-	+7hfXqDCoVKwUyM8VZWabdvaLNKnvJqNu17RKptGBSJKCVUlik1KbSlz4UcXwLNx
-X-Gm-Gg: AYBFou2U6Agmqi22sAkHwqOuab0+hYgFdMrbZYQNtrtyVZuoAPUQZImy8z6+03kDMgU
-	F05fWYV5TflYRf0B7ctvUATjvNPFHKwuh+spNn9nuguoUNrPX1uf4etjg1V3iQfbahZv0oqEwuf
-	zHMhjXVZeiat4+4atu2/BXjwyxtK83Ct2JieyHICWQa8z4Vh3P6n3yH/xACd/AGfSQbg8VY0man
-	Fo8I59uJq5kamnfcJTPoWKBJFGUN2VdqgYLs/liCZiV1zEBkk7MAFXhPoGd/EFyTUd4/QlCPqv7
-	c/6zoPDk15KJogdC1y1huPE1XfkbUSPZvdVq9pH/4wSShYuuGlUGpW4E2TfsIMf3RYOOfpgzU5I
-	fukwkr0fLVOeQTUfql+ciU0HERK2qE6qdPuEZ71+pDZkHQbxf2UTrepwuS5NW5m3sgoCINxnJ9f
-	VSNQO/NYSHaPQFlhVGRN/XM8xKaGGOx4EalUYnSQyP/xDec1a2q5W7mWam8+vCVIkzOXNxvLsNv
-	IPwN9KezHzZNZ5kbBXrodm/PhyKE/JCI4F+Qw263vLDw4FLatBQLK7bbE76rD2jGeIZQBFhApxY
-	LV84+Wi274swGoxF8xGGrCt7+/MO6gEkCQz7lyhqk2Y1EY26G209BzQHlRHdfiLsW7mA7ag8+ks
-	RSsgosIWmMMaiA2XZeTZNCzx1BJ2ayZJbbfi5cLkz8hXwdndRO8IOoNoCTD3+GVjoN5yRy45Zrk
-	XpOUKgeO5PpVDTQQQ1IT9wB6sh+RrY5GbSE/HIJtWmT0OL+yuYVKM=
-X-Received: by 2002:a05:622a:38a:b0:532:91f2:dd45 with SMTP id d75a77b69052e-54e14761738mr49979451cf.44.1793988373832;
-        Fri, 06 Nov 2026 10:06:13 -0800 (PST)
+        bh=tfuvyZYevfnmOg2ZE5INf1rWkCSZtauqr6FRT5O//xQ=;
+        b=eRD1tVCmiiqrVFZCNUicwblFB6TuvGLcTsy5g/1TC0+CogK86co6UiC6yDDFk3WS6m
+         Rtn2THfk92ikgxqze5Y6eH+zD2TGISABiksGvO34D28aFcFG5XtWHubdLkEHRQAp97Po
+         xrv3P7KkU09MRinSjm/HqV3z0KzvdT9HRV3Mav/GFz2Z1T+tOvNW27+vz6dOabmEXL7o
+         kCKeIcXG8GOnxuQlKhKRQtnQneS5IwWP/7dmOK9SuUVGEE0Whju3uge0dx6mYIPERh0u
+         lvgrsuuyQsyWT7WjFkq8ThD2WHnUL7us0NFm8Qp4pstWguVXs4WLIxu41AQYY1UPW3do
+         CeTg==
+X-Gm-Message-State: APuU4Z/h2wrtydTtDrF/iXwlDTdvtcoUMZR/a5yt5YmsjHoiFSCj+jk2
+	9/Gm5RgGP6SIIrfpKXwULVVCfUE0stAxSelUsxhwdD3ilvCIGdCJxKfQsW4xnrg4
+X-Gm-Gg: AYBFou0GMr+8ZPsckurn28xkAtBJWKo4FCFsEY17o/djYVTRgjtRiKTb0p1nchfuYGQ
+	p6NGsPY0yedzu7o4OV3zW25dCkg/oAEbdMrReAdqtAB3LGtb/jS4ZuUvngAGIYn0rML/7tAjs0t
+	F2vuZ6Ex89ty+cLr6HX0xKHmhmB1Ulo6s0ynxuROhM6dSlpIE+rTLSPA7Ehptj4GZRGIZAzx57C
+	oE6ddGem0/pqYM+3acfqJDSAfdHYeQEEPVzr9qBC7t1KrfkMpS3XrNheAJ4Ty8Mxo61fo/5Qedt
+	R7EK2vaBqDY6YB4h+NQsqV++50QZv3sg8K7frv0osRshhFtCwspKIXoZI0V9ntvJFh4unz4OM61
+	l+STiUBfZTqKyKrbxvhMr02yr0a9Hu1534tVUS0smOUQUQ6ODvMqPBU6ZlHuX/ojZzN5HnQylI7
+	tyoh5rvGnf704JHJD+q37k0ichOeG9+EoMfZnwgOvCNbIKF07lZqf4vRbXBVm86XcfWvnwt3wLA
+	hyNicpltTx7je158afAsDWf+nDx+4CwIBVQWDPtQRmbrUcE5j9K747MY4aDhJLL+0QzfMAUNXie
+	B8SRFFOUuseacKQ6BcEO7fLYs1MzLmcU0uuO7UwPt/SUyEYxvSdejFvOgyfss3SVSaHMVQHHwIQ
+	IPZwkXHpcSn2H+knl4vFYJhmqByevU+v43d72ZYj1GAIzYlcQPB80acB1qaCFyI3hGurDC5ehn3
+	nE5knCSuw+I3X3MgKzF7/6u3+ATtjZUyIHx1FxMFhbDjJrCJiVD24=
+X-Received: by 2002:ac8:5f0c:0:b0:536:7dd:16b3 with SMTP id d75a77b69052e-54e1596c274mr48957391cf.75.1793988374449;
+        Fri, 06 Nov 2026 10:06:14 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-54e26259cf0sm25893461cf.15.2026.11.06.10.06.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 10:06:13 -0800 (PST)
+        Fri, 06 Nov 2026 10:06:14 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,9 +89,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 3/4] libselinux: unwind audit2why initialization completely
-Date: Fri,  6 Nov 2026 13:05:55 -0500
-Message-ID: <20261106180556.243798-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH 4/4] libsepol: validate cached boolean IDs without limiting expression size
+Date: Fri,  6 Nov 2026 13:05:56 -0500
+Message-ID: <20261106180556.243798-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
 References: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
@@ -106,516 +106,277 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Initialization errors after boolean enumeration leave boolcnt stale and
-leak the loaded boolean entries. A subsequent init can report success with
-an empty boolean list and crash during finish. Enumeration failures are
-also ignored, allowing incomplete advice to be reported as success.
+COND_MAX_BOOLS bounds the boolean ID cache and truth-table precomputation,
+not the number of booleans permitted in a conditional expression.
+cond_normalize_expr() records the first COND_MAX_BOOLS IDs while allowing
+nbools to exceed that value, and cond_expr_equal() handles larger
+expressions without using the cache.
 
-Share complete policy cleanup between failed initialization and finish.
-Clear libsepol's borrowed pointers before freeing the private policy,
-free partial boolean entries, and reset the count. Check handle creation,
-boolean count and enumeration, free the policy-file wrapper on success,
-and return NULL when initialization has set a Python exception.
+validate_bool_id_array() rejects nbools >= COND_MAX_BOOLS. This rejects
+valid compiler-produced expressions with five or more booleans, although
+the same policy can be serialized and read successfully because the
+derived cache is not serialized. The checkpolicy pre-write validation
+added by 37344cd06d84 exposes this as a source compilation regression.
+The proposed secilc pre-write validation exposes it as well.
 
-Add an optional native Python regression for allocation and enumeration
-failures, repeated cleanup, and retry with a valid compiled policy.
+Validate only the populated, bounded portion of bool_ids. The complete
+expression continues to be checked by validate_cond_expr().
 
-Fixes: f8c290cc5901 ("libselinux: audit2why: clear static variables on init failure")
+Add a standalone libsepol regression for 1/4/5/6/8 booleans, rebuilding
+the cache after a binary round trip to obtain reader-side invariants.
+Check expression evaluation and reject invalid cached and expression IDs.
+Add checkpolicy source/binary round trips with and without optimization.
+
+Fixes: 0861c659b59c ("libsepol: Validate policydb values when reading binary policy")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/Makefile                   |   6 ++
- libselinux/src/audit2why.c            |  81 +++++++-------
- libselinux/tests/audit2why/.gitignore |   1 +
- libselinux/tests/audit2why/Makefile   |  35 ++++++
- libselinux/tests/audit2why/fault.c    | 150 ++++++++++++++++++++++++++
- libselinux/tests/audit2why/policy.c   |  31 ++++++
- libselinux/tests/audit2why/policy.cil |  21 ++++
- libselinux/tests/audit2why/test.py    |  52 +++++++++
- 8 files changed, 340 insertions(+), 37 deletions(-)
- create mode 100644 libselinux/tests/audit2why/.gitignore
- create mode 100644 libselinux/tests/audit2why/Makefile
- create mode 100644 libselinux/tests/audit2why/fault.c
- create mode 100644 libselinux/tests/audit2why/policy.c
- create mode 100644 libselinux/tests/audit2why/policy.cil
- create mode 100644 libselinux/tests/audit2why/test.py
+ checkpolicy/Makefile                          |   1 +
+ checkpolicy/tests/test_conditional_count.sh   |  34 ++++++
+ libsepol/.gitignore                           |   1 +
+ libsepol/src/policydb_validate.c              |   6 +-
+ libsepol/tests/.gitignore                     |   1 +
+ libsepol/tests/Makefile                       |  12 +-
+ .../tests/regression/test_conditional_count.c | 114 ++++++++++++++++++
+ 7 files changed, 162 insertions(+), 7 deletions(-)
+ create mode 100644 checkpolicy/tests/test_conditional_count.sh
+ create mode 100644 libsepol/tests/regression/test_conditional_count.c
 
-diff --git a/libselinux/Makefile b/libselinux/Makefile
-index be3923f0..1176b31e 100644
---- a/libselinux/Makefile
-+++ b/libselinux/Makefile
-@@ -93,3 +93,9 @@ clean-rubywrap:
+diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
+index 22c32a25..d974d156 100644
+--- a/checkpolicy/Makefile
++++ b/checkpolicy/Makefile
+@@ -54,6 +54,7 @@ lex.yy.c: policy_scan.l y.tab.c
+ test: checkpolicy checkmodule
+ 	./tests/test_roundtrip.sh
+ 	./tests/test_checkmodule_negative.sh
++	sh ./tests/test_conditional_count.sh
  
- test: all
- 	$(MAKE) -C tests test
-+
-+# Optional: requires Python development headers and a built tree libsepol.
-+test-audit2why:
-+	$(MAKE) -C tests/audit2why test
-+
-+.PHONY: test-audit2why
-diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-index 50dfefc3..5abc853d 100644
---- a/libselinux/src/audit2why.c
-+++ b/libselinux/src/audit2why.c
-@@ -46,6 +46,27 @@ static struct avc_t *avc = NULL;
- 
- static sidtab_t sidtab;
- 
-+static void policy_destroy(void)
-+{
-+	for (int i = 0; i < boolcnt; i++) {
-+		free(boollist[i]->name);
-+		free(boollist[i]);
-+	}
-+	free(boollist);
-+	boollist = NULL;
-+	boolcnt = 0;
-+	if (avc) {
-+		sepol_set_policydb(NULL);
-+		sepol_set_sidtab(NULL);
-+		sepol_sidtab_shutdown(&sidtab);
-+		sepol_sidtab_destroy(&sidtab);
-+		sepol_policydb_free(avc->policydb);
-+		sepol_handle_destroy(avc->handle);
-+		free(avc);
-+		avc = NULL;
-+	}
-+}
-+
- static int load_booleans(const sepol_bool_t *boolean, void *arg)
- {
- 	const unsigned int *boolmax = arg;
-@@ -182,31 +203,10 @@ static int check_booleans(struct boolean_t **bools)
- 
- static PyObject *finish(PyObject *self __attribute__((unused)), PyObject *args)
- {
--	PyObject *result = 0;
--
--	if (PyArg_ParseTuple(args, ":finish")) {
--		int i = 0;
--		if (!avc)
--			Py_RETURN_NONE;
--
--		for (i = 0; i < boolcnt; i++) {
--			free(boollist[i]->name);
--			free(boollist[i]);
--		}
--		free(boollist);
--		sepol_sidtab_shutdown(&sidtab);
--		sepol_sidtab_destroy(&sidtab);
--		sepol_policydb_free(avc->policydb);
--		sepol_handle_destroy(avc->handle);
--		free(avc);
--		avc = NULL;
--		boollist = NULL;
--		boolcnt = 0;
--
--		/* Boilerplate to return "None" */
--		Py_RETURN_NONE;
--	}
--	return result;
-+	if (!PyArg_ParseTuple(args, ":finish"))
-+		return NULL;
-+	policy_destroy();
-+	Py_RETURN_NONE;
- }
- 
- static int __policy_init(const char *init_path)
-@@ -268,6 +268,10 @@ static int __policy_init(const char *init_path)
- 	fp = NULL;
- 	sepol_set_policydb(&avc->policydb->p);
- 	avc->handle = sepol_handle_create();
-+	if (!avc->handle) {
-+		PyErr_NoMemory();
-+		goto err;
-+	}
- 	/* Turn off messages */
- 	sepol_msg_set_callback(avc->handle, NULL, NULL);
- 
-@@ -278,6 +282,10 @@ static int __policy_init(const char *init_path)
- 		goto err;
- 	}
- 
-+	if (cnt > INT_MAX) {
-+		PyErr_SetString(PyExc_OverflowError, "too many booleans\n");
-+		goto err;
-+	}
- 	if (cnt > 0) {
- 		boollist = calloc(cnt, sizeof(*boollist));
- 		if (!boollist) {
-@@ -285,8 +293,13 @@ static int __policy_init(const char *init_path)
- 			goto err;
- 		}
- 
--		sepol_bool_iterate(avc->handle, avc->policydb, load_booleans,
--				   &cnt);
-+		rc = sepol_bool_iterate(avc->handle, avc->policydb,
-+					load_booleans, &cnt);
-+		if (rc < 0 || (unsigned int)boolcnt != cnt) {
-+			PyErr_SetString(PyExc_RuntimeError,
-+					"unable to load booleans\n");
-+			goto err;
-+		}
- 	}
- 
- 	/* Initialize the sidtab for subsequent use by sepol_context_to_sid
-@@ -297,19 +310,11 @@ static int __policy_init(const char *init_path)
- 		goto err;
- 	}
- 	sepol_set_sidtab(&sidtab);
-+	sepol_policy_file_free(pf);
- 	return 0;
- 
- err:
--	free(boollist);
--	boollist = NULL;
--	if (avc) {
--		if (avc->handle)
--			sepol_handle_destroy(avc->handle);
--		if (avc->policydb)
--			sepol_policydb_free(avc->policydb);
--		free(avc);
--		avc = NULL;
--	}
-+	policy_destroy();
- 	if (pf)
- 		sepol_policy_file_free(pf);
- 	if (fp)
-@@ -329,6 +334,8 @@ static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args)
- 	if (!PyArg_ParseTuple(args, "|s:policy_init", &init_path))
- 		return NULL;
- 	result = __policy_init(init_path);
-+	if (result)
-+		return NULL;
- 	return Py_BuildValue("i", result);
- }
- 
-diff --git a/libselinux/tests/audit2why/.gitignore b/libselinux/tests/audit2why/.gitignore
+ # helper target for fuzzing
+ checkobjects: $(CHECKOBJS)
+diff --git a/checkpolicy/tests/test_conditional_count.sh b/checkpolicy/tests/test_conditional_count.sh
 new file mode 100644
-index 00000000..84c048a7
+index 00000000..e0fde192
 --- /dev/null
-+++ b/libselinux/tests/audit2why/.gitignore
-@@ -0,0 +1 @@
-+/build/
-diff --git a/libselinux/tests/audit2why/Makefile b/libselinux/tests/audit2why/Makefile
-new file mode 100644
-index 00000000..c2860a7e
---- /dev/null
-+++ b/libselinux/tests/audit2why/Makefile
-@@ -0,0 +1,35 @@
-+PYTHON ?= python3
-+PYTHON_CONFIG ?= $(PYTHON)-config
-+LIBSEPOL ?= ../../../libsepol/src/libsepol.a
-+LIBSELINUX ?= ../../src/libselinux.so.1
-+BUILD = build
-+CFLAGS ?= -O2 -g -Wall -Wextra -Werror
-+override CPPFLAGS += -I../../../libsepol/include -I../../include
-+PY_CFLAGS := $(shell $(PYTHON_CONFIG) --includes)
-+WRAPS = sepol_sidtab_init sepol_handle_create sepol_bool_iterate strdup sepol_policy_file_create sepol_policy_file_free
++++ b/checkpolicy/tests/test_conditional_count.sh
+@@ -0,0 +1,34 @@
++#!/bin/sh
++set -eu
 +
-+$(BUILD):
-+	mkdir -p $@
++BASEDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
++CHECKPOLICY=${CHECKPOLICY:-"${BASEDIR}/../checkpolicy"}
++OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/conditional-count.XXXXXX")
++trap 'rm -rf "$OUTDIR"' EXIT HUP INT TERM
 +
-+$(BUILD)/audit2why.o: ../../src/audit2why.c | $(BUILD)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(PY_CFLAGS) -fPIC -Dmalloc=audit_malloc -Dcalloc=audit_calloc -Dstrdup=audit_strdup -Dfree=audit_free -c $< -o $@
-+
-+$(BUILD)/fault.o: fault.c | $(BUILD)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -D_GNU_SOURCE -fPIC -c $< -o $@
-+
-+$(BUILD)/audit2why.so: $(BUILD)/audit2why.o $(BUILD)/fault.o $(LIBSEPOL) $(LIBSELINUX)
-+	$(CC) -shared $(LDFLAGS) -o $@ $^ $(foreach sym,$(WRAPS),-Wl,--wrap=$(sym)) -Wl,-rpath,$(abspath $(dir $(LIBSELINUX)))
-+
-+$(BUILD)/policy: policy.c $(LIBSEPOL) | $(BUILD)
++for count in 1 4 5 6 8; do
++    {
++        printf '%s\n' 'class file' 'sid kernel' 'class file { read write }'
++        i=1
++        expr=b1
++        while [ "$i" -le "$count" ]; do
++            printf 'bool b%s false;\n' "$i"
++            if [ "$i" -gt 1 ]; then
++                expr="($expr || b$i)"
++            fi
++            i=$((i + 1))
++        done
++        printf '%s\n' 'type test_t;' 'allow test_t self:file read;'
++        printf 'if (%s) { allow test_t self:file write; }\n' "$expr"
++        printf '%s\n' 'role test_r;' 'role test_r types test_t;' \
++            'user system_u roles test_r;' 'sid kernel system_u:test_r:test_t'
++    } > "$OUTDIR/policy.conf"
++    for optimize in '' '-O'; do
++        # The optional flag is deliberately unquoted when empty.
++        "$CHECKPOLICY" $optimize -o "$OUTDIR/policy.bin" "$OUTDIR/policy.conf"
++        "$CHECKPOLICY" -b -F -o "$OUTDIR/roundtrip.conf" "$OUTDIR/policy.bin"
++        "$CHECKPOLICY" $optimize -o "$OUTDIR/roundtrip.bin" "$OUTDIR/roundtrip.conf"
++        cmp "$OUTDIR/policy.bin" "$OUTDIR/roundtrip.bin"
++    done
++done
++printf '%s\n' 'conditional count: 10 compiler round trips passed'
+diff --git a/libsepol/.gitignore b/libsepol/.gitignore
+index abfb603b..2e7dc4cb 100644
+--- a/libsepol/.gitignore
++++ b/libsepol/.gitignore
+@@ -5,3 +5,4 @@ utils/sepol_compute_member
+ utils/sepol_compute_relabel
+ utils/sepol_validate_transition
+ libsepol.map
++tests/regression/test_conditional_count
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 7a7c613b..27a6917c 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -1341,10 +1341,8 @@ static int validate_bool_id_array(sepol_handle_t *handle,
+ {
+ 	unsigned int i;
+ 
+-	if (nbools >= COND_MAX_BOOLS)
+-		goto bad;
+-
+-	for (i = 0; i < nbools; i++) {
++	/* Larger expressions only cache their first COND_MAX_BOOLS IDs. */
++	for (i = 0; i < nbools && i < COND_MAX_BOOLS; i++) {
+ 		if (validate_value(bool_ids[i], boolean))
+ 			goto bad;
+ 	}
+diff --git a/libsepol/tests/.gitignore b/libsepol/tests/.gitignore
+index c3f60fd2..e2c3eb78 100644
+--- a/libsepol/tests/.gitignore
++++ b/libsepol/tests/.gitignore
+@@ -1 +1,2 @@
+ libsepol-tests
++/regression/test_conditional_count
+diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+index 273373b0..a47b452d 100644
+--- a/libsepol/tests/Makefile
++++ b/libsepol/tests/Makefile
+@@ -57,7 +57,7 @@ $(EXE): $(objs) $(parserobjs) $(LIBSEPOL)
+ 	$(M4) $(M4PARAMS) -D enable_mls $^ > $@
+ 
+ clean: 
+-	rm -f $(objs) $(EXE)
++	rm -f $(objs) $(EXE) regression/test_conditional_count
+ 	rm -f $(policies)
+ 	rm -f policies/test-downgrade/policy.hi policies/test-downgrade/policy.lo
+ 
+@@ -67,9 +67,15 @@ clean:
+ #   you should either link runtime to your application or manually preload it with LD_PRELOAD
+ #
+ # when the source code is built with ASan
+-test: $(EXE) $(policies)
++test: $(EXE) $(policies) test-conditional-count
+ 	$(ENV) -i $(MKDIR) -p policies/test-downgrade
+ 	../../checkpolicy/checkpolicy -M policies/test-cond/refpolicy-base.conf -o policies/test-downgrade/policy.hi	
+ 	./$(EXE)
+ 
+-.PHONY: all policies clean test
++regression/test_conditional_count: regression/test_conditional_count.c $(LIBSEPOL)
 +	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBSEPOL)
 +
-+$(BUILD)/policy.bin: policy.cil $(BUILD)/policy
-+	./$(BUILD)/policy $< $@
++test-conditional-count: regression/test_conditional_count
++	./regression/test_conditional_count
 +
-+test: $(BUILD)/audit2why.so $(BUILD)/policy.bin
-+	PYTHONPATH=$(abspath $(BUILD)) $(PYTHON) test.py $(abspath $(BUILD)/policy.bin)
-+
-+clean:
-+	rm -rf $(BUILD)
-+
-+.PHONY: test clean
-diff --git a/libselinux/tests/audit2why/fault.c b/libselinux/tests/audit2why/fault.c
++.PHONY: all policies clean test test-conditional-count
+diff --git a/libsepol/tests/regression/test_conditional_count.c b/libsepol/tests/regression/test_conditional_count.c
 new file mode 100644
-index 00000000..350c51fa
+index 00000000..a19dd90d
 --- /dev/null
-+++ b/libselinux/tests/audit2why/fault.c
-@@ -0,0 +1,150 @@
-+#include <assert.h>
-+#include <errno.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sepol/booleans.h>
-+#include <sepol/policydb/sidtab.h>
-+
-+void audit_fault(int kind, int nth);
-+int audit_fault_hits(void);
-+int audit_live(void);
-+void *audit_malloc(size_t size);
-+void *audit_calloc(size_t n, size_t size);
-+char *audit_strdup(const char *s);
-+void audit_free(void *p);
-+int __real_sepol_sidtab_init(sidtab_t *s);
-+int __wrap_sepol_sidtab_init(sidtab_t *s);
-+sepol_handle_t *__real_sepol_handle_create(void);
-+sepol_handle_t *__wrap_sepol_handle_create(void);
-+char *__real_strdup(const char *s);
-+char *__wrap_strdup(const char *s);
-+int __real_sepol_bool_iterate(sepol_handle_t *, const sepol_policydb_t *,
-+			      int (*)(const sepol_bool_t *, void *), void *);
-+int __wrap_sepol_bool_iterate(sepol_handle_t *, const sepol_policydb_t *,
-+			      int (*)(const sepol_bool_t *, void *), void *);
-+int __real_sepol_policy_file_create(sepol_policy_file_t **pf);
-+int __wrap_sepol_policy_file_create(sepol_policy_file_t **pf);
-+void __real_sepol_policy_file_free(sepol_policy_file_t *pf);
-+void __wrap_sepol_policy_file_free(sepol_policy_file_t *pf);
-+
-+static int mode, position, seen, hits, files;
-+static int iterating, in_callback;
-+static void *allocations[4096];
-+static int (*iterator_callback)(const sepol_bool_t *, void *);
-+
-+void audit_fault(int kind, int nth)
-+{
-+	mode = kind;
-+	position = nth;
-+	seen = hits = 0;
-+}
-+
-+int audit_fault_hits(void)
-+{
-+	return hits;
-+}
-+
-+int audit_live(void)
-+{
-+	int n = files;
-+	for (size_t i = 0; i < 4096; i++)
-+		n += allocations[i] != NULL;
-+	return n;
-+}
-+
-+static int fail(int kind)
-+{
-+	if (mode == kind && ++seen == position) {
-+		hits++;
-+		errno = ENOMEM;
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static void *track(void *p)
-+{
-+	if (!p)
-+		return NULL;
-+	for (size_t i = 0; i < 4096; i++) {
-+		if (!allocations[i]) {
-+			allocations[i] = p;
-+			return p;
-+		}
-+	}
-+	abort();
-+}
-+
-+void *audit_malloc(size_t size)
-+{
-+	return fail(1) ? NULL : track(malloc(size));
-+}
-+
-+char *audit_strdup(const char *s)
-+{
-+	return fail(2) ? NULL : track(strdup(s));
-+}
-+
-+void *audit_calloc(size_t n, size_t size)
-+{
-+	return fail(5) ? NULL : track(calloc(n, size));
-+}
-+
-+void audit_free(void *p)
-+{
-+	for (size_t i = 0; i < 4096; i++)
-+		if (allocations[i] == p)
-+			allocations[i] = NULL;
-+	free(p);
-+}
-+
-+int __wrap_sepol_sidtab_init(sidtab_t *s)
-+{
-+	return fail(6) ? -ENOMEM : __real_sepol_sidtab_init(s);
-+}
-+
-+sepol_handle_t *__wrap_sepol_handle_create(void)
-+{
-+	return fail(7) ? NULL : __real_sepol_handle_create();
-+}
-+
-+char *__wrap_strdup(const char *s)
-+{
-+	if (iterating && !in_callback && fail(4))
-+		return NULL;
-+	return __real_strdup(s);
-+}
-+
-+static int callback(const sepol_bool_t *b, void *arg)
-+{
-+	in_callback = 1;
-+	int rc = iterator_callback(b, arg);
-+	in_callback = 0;
-+	return rc;
-+}
-+
-+int __wrap_sepol_bool_iterate(sepol_handle_t *h, const sepol_policydb_t *p,
-+			      int (*fn)(const sepol_bool_t *, void *),
-+			      void *arg)
-+{
-+	iterator_callback = fn;
-+	iterating = 1;
-+	int rc = __real_sepol_bool_iterate(h, p, callback, arg);
-+	iterating = 0;
-+	return rc;
-+}
-+
-+int __wrap_sepol_policy_file_create(sepol_policy_file_t **pf)
-+{
-+	int rc = __real_sepol_policy_file_create(pf);
-+	if (!rc)
-+		files++;
-+	return rc;
-+}
-+
-+void __wrap_sepol_policy_file_free(sepol_policy_file_t *pf)
-+{
-+	if (pf)
-+		files--;
-+	__real_sepol_policy_file_free(pf);
-+}
-diff --git a/libselinux/tests/audit2why/policy.c b/libselinux/tests/audit2why/policy.c
-new file mode 100644
-index 00000000..f4739d92
---- /dev/null
-+++ b/libselinux/tests/audit2why/policy.c
-@@ -0,0 +1,31 @@
++++ b/libsepol/tests/regression/test_conditional_count.c
+@@ -0,0 +1,114 @@
 +#include <assert.h>
 +#include <stdio.h>
 +#include <stdlib.h>
-+#include <sepol/cil/cil.h>
++#include <string.h>
 +
-+int main(int argc, char **argv)
++#include <sepol/cil/cil.h>
++#include <sepol/policydb/conditional.h>
++#include <sepol/policydb/policydb.h>
++
++#include "../../src/policydb_validate.h"
++
++static void check_count(unsigned int count)
 +{
-+	assert(argc == 3);
-+	FILE *f = fopen(argv[1], "rb");
-+	assert(f);
-+	char text[8192];
-+	size_t n = fread(text, 1, sizeof(text), f);
-+	assert(n && n < sizeof(text) && !ferror(f));
-+	assert(!fclose(f));
++	const char *base =
++		"(handleunknown deny) (mls false) "
++		"(sid kernel) (sidorder (kernel)) "
++		"(sensitivity s0) (sensitivityorder (s0)) "
++		"(user system_u) (role test_r) (type test_t) "
++		"(userrole system_u test_r) (roletype test_r test_t) "
++		"(userlevel system_u (s0)) (userrange system_u ((s0) (s0))) "
++		"(sidcontext kernel (system_u test_r test_t ((s0) (s0)))) "
++		"(class file (read write)) (classorder (file)) "
++		"(allow test_t self (file (read))) ";
++	char text[8192], expr[2048], next[2048];
 +	cil_db_t *db;
-+	sepol_policydb_t *p;
-+	cil_db_init(&db);
-+	assert(!cil_add_file(db, argv[1], text, n));
-+	assert(!cil_compile(db));
-+	assert(!cil_build_policydb(db, &p));
++	sepol_policydb_t *compiled, *loaded;
++	cond_node_t *cond;
++	cond_expr_t *last_bool = NULL;
 +	void *image;
-+	size_t len;
-+	assert(!sepol_policydb_to_image(NULL, p, &image, &len));
-+	f = fopen(argv[2], "wb");
-+	assert(f && fwrite(image, 1, len, f) == len);
-+	assert(!fclose(f));
++	size_t image_len, used;
++	unsigned int i, slot;
++	uint32_t saved;
++	int n;
++
++	assert(count > 0);
++	used = strlen(base);
++	memcpy(text, base, used + 1);
++	strcpy(expr, "b1");
++	for (i = 1; i <= count; i++) {
++		n = snprintf(text + used, sizeof(text) - used,
++			     "(boolean b%u false) ", i);
++		assert(n > 0 && (size_t)n < sizeof(text) - used);
++		used += n;
++		if (i > 1) {
++			n = snprintf(next, sizeof(next), "(or %s b%u)", expr,
++				     i);
++			assert(n > 0 && (size_t)n < sizeof(next));
++			memcpy(expr, next, (size_t)n + 1);
++		}
++	}
++	n = snprintf(text + used, sizeof(text) - used,
++		     "(booleanif %s (true (allow test_t self (file (write)))))",
++		     expr);
++	assert(n > 0 && (size_t)n < sizeof(text) - used);
++	used += n;
++	cil_db_init(&db);
++	assert(cil_add_file(db, "conditional-count.cil", text, used) == 0);
++	assert(cil_compile(db) == 0);
++	assert(cil_build_policydb(db, &compiled) == 0);
++	assert(compiled->p.cond_list->nbools == count);
++	assert(sepol_policydb_to_image(NULL, compiled, &image, &image_len) ==
++	       0);
++	assert(sepol_policydb_create(&loaded) == 0);
++	assert(sepol_policydb_from_image(NULL, image, image_len, loaded) == 0);
 +	free(image);
-+	sepol_policydb_free(p);
++
++	/* Rebuild the derived cache on a reader-shaped policydb. */
++	cond = loaded->p.cond_list;
++	assert(cond && !cond->next && cond->nbools == 0);
++	assert(cond_normalize_expr(&loaded->p, cond) == 0);
++	assert(cond->nbools == count);
++	assert(policydb_validate(NULL, &loaded->p) == 0);
++	for (i = 0; i < count; i++) {
++		assert(cond_evaluate_expr(&loaded->p, cond->expr) == 0);
++		loaded->p.bool_val_to_struct[i]->state = 1;
++		assert(cond_evaluate_expr(&loaded->p, cond->expr) == 1);
++		loaded->p.bool_val_to_struct[i]->state = 0;
++	}
++
++	slot = count < COND_MAX_BOOLS ? count - 1 : COND_MAX_BOOLS - 1;
++	saved = cond->bool_ids[slot];
++	cond->bool_ids[slot] = 0;
++	assert(policydb_validate(NULL, &loaded->p) == -1);
++	cond->bool_ids[slot] = count + 1;
++	assert(policydb_validate(NULL, &loaded->p) == -1);
++	cond->bool_ids[slot] = saved;
++
++	for (cond_expr_t *e = cond->expr; e; e = e->next) {
++		if (e->expr_type == COND_BOOL)
++			last_bool = e;
++	}
++	assert(last_bool);
++	saved = last_bool->boolean;
++	last_bool->boolean = 0;
++	assert(policydb_validate(NULL, &loaded->p) == -1);
++	last_bool->boolean = count + 1;
++	assert(policydb_validate(NULL, &loaded->p) == -1);
++	last_bool->boolean = saved;
++	assert(policydb_validate(NULL, &loaded->p) == 0);
++
++	sepol_policydb_free(loaded);
++	sepol_policydb_free(compiled);
 +	cil_db_destroy(&db);
++}
++
++int main(void)
++{
++	const unsigned int counts[] = { 1, 4, 5, 6, 8 };
++
++	for (size_t i = 0; i < sizeof(counts) / sizeof(counts[0]); i++)
++		check_count(counts[i]);
++	puts("conditional count: 5 sizes and 20 invalid-ID controls passed");
 +	return 0;
 +}
-diff --git a/libselinux/tests/audit2why/policy.cil b/libselinux/tests/audit2why/policy.cil
-new file mode 100644
-index 00000000..2036a833
---- /dev/null
-+++ b/libselinux/tests/audit2why/policy.cil
-@@ -0,0 +1,21 @@
-+(handleunknown deny)
-+(mls true)
-+(sid security)
-+(sidorder (security))
-+(sensitivity s0)
-+(sensitivityorder (s0))
-+(user system_u)
-+(userrole system_u object_r)
-+(userlevel system_u (s0))
-+(userrange system_u ((s0) (s0)))
-+(role object_r)
-+(roletype object_r test_t)
-+(type test_t)
-+(sidcontext security (system_u object_r test_t ((s0) (s0))))
-+(class file (read write))
-+(classorder (file))
-+(allow test_t self (file (read)))
-+(boolean first_bool false)
-+(boolean second_bool false)
-+(booleanif first_bool (true (allow test_t self (file (write)))))
-+(booleanif second_bool (true (allow test_t self (file (write)))))
-diff --git a/libselinux/tests/audit2why/test.py b/libselinux/tests/audit2why/test.py
-new file mode 100644
-index 00000000..36aef535
---- /dev/null
-+++ b/libselinux/tests/audit2why/test.py
-@@ -0,0 +1,52 @@
-+import ctypes
-+import os
-+import subprocess
-+import sys
-+
-+
-+def analyze(api, permission="read"):
-+    return api.analyze("system_u:object_r:test_t:s0",
-+                       "system_u:object_r:test_t:s0", "file", [permission])
-+
-+
-+def child(policy, kind, nth):
-+    import audit2why as api
-+    fault = ctypes.CDLL(api.__file__)
-+    fault.audit_fault.argtypes = [ctypes.c_int, ctypes.c_int]
-+    api.finish()
-+    if kind:
-+        fault.audit_fault(kind, nth)
-+        try:
-+            api.init(policy)
-+        except (RuntimeError, MemoryError) as exc:
-+            assert not isinstance(exc, SystemError), str(exc)
-+        else:
-+            raise AssertionError("init accepted an injected failure")
-+        assert fault.audit_fault_hits() == 1
-+        assert fault.audit_live() == 0
-+        assert analyze(api) == (api.NOPOLICY, None)
-+        api.finish()
-+        api.finish()
-+    fault.audit_fault(0, 0)
-+    for _ in range(3):
-+        assert api.init(policy) == 0
-+        assert analyze(api) == (api.ALLOW, None)
-+        try:
-+            api.init(policy)
-+        except RuntimeError:
-+            pass
-+        else:
-+            raise AssertionError("double init accepted")
-+        api.finish()
-+        assert fault.audit_live() == 0
-+
-+
-+if len(sys.argv) == 4:
-+    child(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
-+else:
-+    cases = [(0, 0), (6, 1), (7, 1)]
-+    cases += [(kind, nth) for kind in (1, 2, 4, 5) for nth in (1, 2)]
-+    for kind, nth in cases:
-+        subprocess.run([sys.executable, __file__, sys.argv[1], str(kind), str(nth)],
-+                       check=True, timeout=30, env=os.environ)
-+    print("audit2why initialization: 11 cases passed")
 -- 
 2.56.0
 
