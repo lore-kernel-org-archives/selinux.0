@@ -1,51 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.233
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793945400;
-	b=DSyj4iBSChjZMvHo09uvoRSPMO1AWuHDoLAYECzUbOTfPxlIl6OOpZcgRoNZsxs8X2Oh
-	 uSwHnhkKzLbo7xL2nheh3r78qUUAYT8SRpqU1+zdsu5eNCZHXYMbBgrT0QWP13m4gtZ0T
-	 m/gEIc5AzI5L22WjXMgmKLHLZgbvo9unEECu9CqieDpPdB3zSKwYXh2HNi/99SZ6rmhfy
-	 S3vQNldLh9XHmjtEDpbQkPM/WBNjZnpxb3dsSVPSTvpXxiRHU0uu7nW+jbUE9Wyw6xXA8
-	 Q/6bL2wMtu16BSUUYLTDK2uGLA/hL6XT/T2f59DMKjO1QvJYw+wpmEAsgzqb0AKSyUw==
+	t=1793947100;
+	b=CnJCHOPRcykN+0npWASWVlRxcRdITTbieRFcEEtKI41wUQC0BeRMogEvDFahIxXVwz9D
+	 kc3p/iW/7eGyf79C+kqJuCPmsuSo6nSpc0IBL8KcPD9CtsVaP3oTRnaySVnOHMcASSS22
+	 WrujmVuNHpHBHPUhH0R2bjMcxYSGTKtDBOtwR4BDKceRqysNhH38tzVxfibCex9ZcTIG3
+	 xhTd4QD9UfNQ5BjwZcRf2JTIR61Uta7q0c8uRcbwCJsqrSppOaeSP0wfSf3jvy0y9Y/M+
+	 7Iq93UR2lvXt6ZlH+jitFPoOJRWWswOQjmTLjKJxpI3LUcrZgWVrsxlHb5ouvdxjf9A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793945400;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793947100;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=Lf0giC54COfoOdgBhV+lbp71w6egVz2uLYQE0MSpLfQ=;
-	b=a0euGxZMat+ktTwlZ8jiO2K0c0ck32ZZ7GyPE85QGHLPlxMi/Sw7a014jUCpNu2lLVMU
-	 dP12eVJXDGDV8yyaPdVmXRYch8psk7L2Rf8C5dxW3zOzgPBVlfK/CYKlsYpocgKtPF6Zt
-	 Vny++lVv53++ueyAs0+8apDbJZDsRxe18Bybc9+q7bwpmQqcATTcn7+hTB0QWtjUsEfR/
-	 Ihx9cIe0jUs6PFNFFzBDjJZy21vojOo0nszlAtYkwHTE+2YBnMFpHAX20a4P91B0gCSAK
-	 Jg0UgcggXv93hEuHQkV81v3gwAGuSwDBMiXMrjxcmFFxnANoV/XX9srutYRla26+f9A==
+	bh=tcht1R5s/T4pHG5HNU6dTugC2c81irUDLp57CkDkwJg=;
+	b=CZJOHV0ZQ5tIcrjGdAWJhJZZpBx6shIC2+TelenIRCp825S/FvyUv7+j8mZLoFxPlFgY
+	 P0VvuGkdNwKh1VguJHHwH70ZalwbCcX5QjHBX8hNZuivq9CkeIUkQnq7Mokqd4fh2yhwS
+	 bB4dq5GXg581bQeugqq/mTIxxbZcMSrGdti/GSAnXa8h7Yn1ErypB28uWFC2x40UJmxT9
+	 XzjMIo5qBbGlAXyNn0iS+emOlk+00KZw060OxT+MI40u5oGf0PKTBQ6HB+BWYGwVPWuDs
+	 MOiTRNjWyL0sYijslrl/8EhVrQDL18a9Vr3D9CdRPVbZsdGhnf2gx9GqDmhS3HlzQyg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=tp0iqckz;
-	arc=none smtp.remote-ip=91.218.175.52
-Received: from mta0.migadu.com (out-52.mta0.migadu.com [91.218.175.52])
+	arc=none smtp.remote-ip=95.215.58.233
+Received: from mta1.migadu.com (out-233.mta1.migadu.com [95.215.58.233])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACEC2606A32E
-	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 06:09:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACEC2606A32E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DCF1606A334
+	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 06:38:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DCF1606A334
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=tp0iqckz
 X-Envelope-To: selinux@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=Lf0giC54COfoOdgBhV+lbp71w6egVz2uLYQE0MSpLfQ=;
+DKIM-Signature: a=rsa-sha256; bh=tcht1R5s/T4pHG5HNU6dTugC2c81irUDLp57CkDkwJg=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793945392; v=1; x=1794550192;
- b=tp0iqckzpPVEgv8Q69icBcpjssLvQEpkPzCWaaLXiNP6MTlJ2y5CgE4a0nAVwR9wvqPJ23aC
- tZJ/Zq4vNB5EF/UcuLXn9Ybp3BjKhNpY7D2Kj9ly4zw3YbFXm5xhbsaTj6oLW42ELRhw564mwP+
- 2DtCXGzyEY897qFCR2g9woSE=
+ t=1793947096; v=1; x=1794551896;
+ b=QfFBfMJqKZgCax0UNwVIBGuXekl2lbdBW7zSO4+ipBP3z7qJ0nblJww6chQ8uL6nLj+Vy8i7
+ ZPl6wNO0XFcZ4/jmaoh0UFyBELnarRn3C9kvG9XCT6oSH61Os87h0wSAHV4yFtAIs4FKj51+3+7
+ A1ZBAI+9H5wEv0yPiJV0qTNc=
 X-Envelope-To: selinux@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id fc26a8218d0fb5f7;
-	Fri, 06 Nov 2026 06:09:50 +0000
-X-Mizu-Trace-ID: fc26a8218d0fb5f7
+Received: by smtp.migadu.com with ESMTPS id 28db605e17711592;
+	Fri, 06 Nov 2026 06:38:11 +0000
+X-Mizu-Trace-ID: 28db605e17711592
 X-Migadu-Flow: FLOW_OUT
 From: Lance Yang <lance.yang@linux.dev>
 To: ljs@kernel.org
@@ -137,12 +134,12 @@ Cc: akpm@linux-foundation.org,
 	linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: Re: [PATCH 06/13] mm/ksm: convert VMA flag tests to use vma_flags_t
-Date: Fri,  6 Nov 2026 14:09:41 +0800
-Message-ID: <20261106060941.44538-1-lance.yang@linux.dev>
+Subject: Re: [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use vma_flags_t
+Date: Fri,  6 Nov 2026 14:38:01 +0800
+Message-ID: <20261106063801.47076-1-lance.yang@linux.dev>
 X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20261105-late-2026-vma-flags-v1-6-0d3cd15ab75f@kernel.org>
-References: <20261105-late-2026-vma-flags-v1-6-0d3cd15ab75f@kernel.org>
+In-Reply-To: <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
+References: <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -156,12 +153,18 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
-On Thu, Nov 05, 2026 at 09:30:57PM +0000, Lorenzo Stoakes (ARM) wrote:
->Replace use of the legacy vm_flags_t flags with vma_flags_t values where
->KSM tests VMA flags directly.
+On Thu, Nov 05, 2026 at 09:30:58PM +0000, Lorenzo Stoakes (ARM) wrote:
+>Replace use of the legacy vm_flags_t flags with vma_flags_t values
+>throughout the madvise logic.
 >
->The ksm_madvise() interface continues to take legacy flags for the time
->being.
+>In order to do so, update ksm_madvise() and hugepage_madvise() to take a
+>vma_flags_t pointer, and update their other callers in mremap and the
+>powerpc KVM ultravisor code accordingly.
+>
+>In the latter case we replace vm_flags_reset() with vma_overwrite_flags().
+>The VMA is write locked at this point, so the atomic flags preserved by
+>vma_overwrite_flags() cannot differ from those copied, and the behaviour
+>is unchanged.
 >
 >No functional change intended.
 >
