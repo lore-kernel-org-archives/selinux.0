@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793968530;
-	b=MBeEC1F1c8rZiEo4zsSXH2ALdAA71pUpjMk2iT3ZG/iFg1mw30TWsJEoND57yeEwo6wP
-	 qvwsi3VzHEXPyvlg4T0b168d/TL82pEDhevFjmgrMFkIOZAq4QcyU0WJAyXltro6XYSmG
-	 5BEw7OoBDPQe1Az9JuNxkbByiM4b03TZfN8rO2xM4s5QI72F+BbjGULd5DfqQaBray8CL
-	 /jp55J+ZS2dMS4F9aVaJzwA67NHJywsTZ7vrUsH+gdkJxangfb0z9pnHbBaugWxcsKDLr
-	 yffvqQenI4eCj4pseH5eD78T4Uv26+Tfk+8U1tuPFJ1mJ0/U8C1nZ/RegODGeDuTZnA==
+	b=YaZ64ybX+j/AsZHs43TMXb7RhJGzND35nmOrPm1w8N8rG0unR0utZP7a/21j6tNM5I3t
+	 RN+cR2RO647a5sLiC15OhdJiA5n/8Q5jsq5M+RimBhSHxgrdNfrarg1T1QxgkDNVw0hlo
+	 4t7Itu0lCiGdq7AbspfpaX8XLHC1So+iRv2LudTJGaepRw7D7lSWLCtknQ5aKPzXonHkn
+	 S/yJUE0FcurtJ7hQ8xX7hl+rdAJN7aS4pgaoiXPVR9HuGLhzk7XQCY8rTLZbgJUdFMswI
+	 7BFIqVs/zQvgOacet4AqM9Y9gYwSpNW4Sh2KVH2rvdD3DWUaYdTTy7hFYLqxpI3f2kw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793968530;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=jyqM+WDGp2d1Pv/UWqhC7S6VSO7DLPlc4vArLJlYB64=;
-	b=PuoLz2COn646AnGceCz5mwim9+rmYSfqMm8FI2ionvZ4uuSuuVCZY5w/7XwG+L3fDOPS
-	 7E7fhB0na+eubdKWtKLezW7nsk4yDvdON+y8pVLxjiZzAMH/WMeRwy5TsGbxY0FeFTScT
-	 rJIrg6+LVvVBGsWrI85RiDNvZTTKOkeY+b736uI+GN7QWtEDUN2CUM51/jm2Chd10Uw1F
-	 mtO2aMH5S5G3PYwZBuzNPD24lBgRXpfT+CM8Hzobmv74Fi6ngv+QT9GXT+TvNigkNSzFU
-	 yA5h/qS3qSq2H92kxer9pK4i29/C4ejn/Wm1Q2KMvbmjR4MViNXyCI59vbF22+GEhAg==
+	bh=c1jUBzAEj2Wa6yKwv5fxgLMja5u6bqEn2+KJlhekvvA=;
+	b=EXqdtfOPV+06vPmvBCaxUHXYAlcyO6k5W+XEwFeQL3ZoKKxB2qNsg79UdDBo19DW9Kwh
+	 iQ7nMmMD8QD8LKq4P5wFNljAxyf4O21gTS7/T1XRqKtQ4iBMY5DS+AplWxc4jTkMQ6fjZ
+	 Mkz+A0pBkPvqJ4Gty5h/P+MuTT2/8NLEIvFvYmDxNGHgu5484YJS6SIiPfMFADYAzmbdQ
+	 2E4Upzs1JA7y1kI5PZyCiPiJ2MzuTCMi/iJ1QTTEG3UUA3UJj5hUJ1ySuF8TSi4ih0P55
+	 +Iyyc5W2Nj5KWrO0ex1JT1bWmTSd5jXE/WpUMkFzfV57AWEB4llixZBPAM6hZmk/bgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=R9mM5LDB;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b="cA/+Sg2p";
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C4F606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 069DB606A337
 	for <selinux@vger.kernel.org>; Fri,  6 Nov 2026 12:35:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60C4F606A33B
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 069DB606A337
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=R9mM5LDB
+	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=cA/+Sg2p
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1793968527;
+	s=2023072701; t=1793968525;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jyqM+WDGp2d1Pv/UWqhC7S6VSO7DLPlc4vArLJlYB64=;
-	b=R9mM5LDBhFrZrIotvWqMwn1XmsJOeiSyxG4ItsiTHLX3Eii8NszkqZtTSxeYaI++F8AjIL
-	XfwK02RVMeecdvJ72AFnqAaa00z1fLI2cQuTxHX3iU4LQH8rZffeQdfr/PYK6xk0AkvWfD
-	5+nM05ndFE4UOvyDQOWHWdrcza9ZTFRhRkoHceqyFg76lajCDQIB+mF/pckkK+YxQ/ghuu
-	fTy1LGnBzlNMBZb4qfbkdqewJyhbmK4KOYkP2yeVJ7oiB6pN4rEF+XgAKE3c41E6miwBa0
-	aHjlGjE7/OpW+KwbpkZV+RmJIUY6VGlkx0SeI2ye0ZgTi27wn77WvA1i/wlIbA==
+	bh=c1jUBzAEj2Wa6yKwv5fxgLMja5u6bqEn2+KJlhekvvA=;
+	b=cA/+Sg2p996uBVZ9p5w5cYHxfM0WNaz/Aq76cN4qpAjNaGDMbq7i+KwLGzD8feg00e3tc7
+	Wu4va+OGHUkflSsQz68X9t4BEN6MDYDu1kGndHOyB2jFERkzTantXGALCk1/oVffmLy4Uw
+	aP+qACPXJccJeth4hZQJ/Q+PO3qempF/p5zKTH+8N16MiiGnMhSM4lglCLNBnb1LixfwMj
+	ZXDpa5Nx5KK9BWnHnkMYwWJCfT2XIL96NyS1ZtX/hBC6Nt/v8zHNPWiplNiQqYW9O1mQf7
+	FFl2NiW49CscrPgyrxeLLXoIfPzGmzjsat75HTd3+BjwWUbodUrOWzvrnYNkAA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 16/16] libsepol/cil: name the members of expanded attributes in constraints
-Date: Fri,  6 Nov 2026 13:35:09 +0100
-Message-ID: <20261106123510.76727-15-cgoettsche@seltendoof.de>
+Subject: [PATCH 10/16] libsepol/cil: verify the contexts of sidcontext statements
+Date: Fri,  6 Nov 2026 13:35:03 +0100
+Message-ID: <20261106123510.76727-9-cgoettsche@seltendoof.de>
 In-Reply-To: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 References: <20261106123510.76727-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,61 +69,70 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Since policy version 29 a constraint expression stores the types it
-names in type_names alongside the expanded set in names. When a
-constraint names a type attribute that is not kept in the binary
-policy, e.g. one marked "(expandtypeattribute (ax) true)", secilc leaves
-type_names empty. The access decisions are unaffected, but every
-decompiler renders the operand as an empty name: checkpolicy -C writes
+__cil_verify_helper() checks the anonymous contexts of every labeling
+statement against the user's roles, the role's types and the user's
+range, except those of sidcontext. An initial SID context whose range
+exceeds the user's range, e.g.
 
-    (constrain (CLASS (PERM)) (eq t1 NO_IDENTIFIER))
+    (userrange USER ((s0) (s0)))
+    (sidcontext SID (USER ROLE TYPE ((s0) (s1))))
 
-which secilc refuses, and seinfo prints "t1 == ".
+compiles without error, while checkpolicy rejects the equivalent
+"sid kernel USER:ROLE:TYPE:s0 - s1" as an invalid security context and
+the kernel refuses to load the policy. The same context given as a
+named context is already rejected.
 
-Record the attribute's member types in type_names when the attribute
-itself is not written.
+Verify anonymous sidcontext contexts like the other labeling
+statements.
 
 Assisted-by: Claude:claude-5.5-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil_binary.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ libsepol/cil/src/cil_verify.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index ab221d2c..db25d409 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -3188,12 +3188,16 @@ static int __cil_constrain_expr_datum_to_sepol_expr(policydb_t *pdb,
- 		ebitmap_t type_bitmap;
- 		ebitmap_node_t *tnode;
- 		unsigned int i;
-+		int members_as_names = 0;
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 699cdccf..7e0ddf74 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1435,6 +1435,27 @@ exit:
+ 	return rc;
+ }
  
- 		rc = __cil_get_sepol_type_datum(pdb, item->data, &sepol_type);
- 		if (rc != SEPOL_OK) {
- 			if (FLAVOR(item->data) == CIL_TYPEATTRIBUTE) {
- 				struct cil_typeattribute *attr = item->data;
- 				if (!attr->keep) {
-+					/* not in the binary policy, so name
-+					 * its member types instead */
-+					members_as_names = 1;
- 					rc = 0;
- 				}
- 			}
-@@ -3225,6 +3229,13 @@ static int __cil_constrain_expr_datum_to_sepol_expr(policydb_t *pdb,
- 				ebitmap_destroy(&type_bitmap);
- 				goto exit;
- 			}
++static int __cil_verify_sidcontext(struct cil_db *db,
++				   struct cil_tree_node *node)
++{
++	int rc = SEPOL_ERR;
++	struct cil_sidcontext *sidcon = node->data;
++	struct cil_context *ctx = sidcon->context;
 +
-+			if (members_as_names &&
-+			    ebitmap_set_bit(&expr->type_names->types,
-+					    sepol_type->s.value - 1, 1)) {
-+				ebitmap_destroy(&type_bitmap);
-+				goto exit;
-+			}
- 		}
- 		ebitmap_destroy(&type_bitmap);
- 	} else {
++	/* Verify only when anonymous */
++	if (!ctx->datum.name) {
++		rc = __cil_verify_context(db, ctx);
++		if (rc != SEPOL_OK)
++			goto exit;
++	}
++
++	return SEPOL_OK;
++
++exit:
++	cil_tree_log(node, CIL_ERR, "Invalid sidcontext");
++	return rc;
++}
++
+ static int __cil_verify_genfscon(struct cil_db *db, struct cil_tree_node *node)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -1918,6 +1939,9 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished,
+ 		case CIL_IBENDPORTCON:
+ 			rc = __cil_verify_ibendportcon(db, node);
+ 			break;
++		case CIL_SIDCONTEXT:
++			rc = __cil_verify_sidcontext(db, node);
++			break;
+ 		case CIL_PORTCON:
+ 			rc = __cil_verify_portcon(db, node);
+ 			break;
 -- 
 2.55.0
 
