@@ -1,82 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.177
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794248656;
-	b=NQZXHVIrqJqdPtB2GR1es1ImqD6dJ0C18NPtn6x9YZSvo2nBZA49XjAfqi25TSd24ZQb
-	 6Uv2Cbar5/jduYyk8ITUbtS3AtOFxaSGL1+PRLMX/6wz6e5GRpywqHDEcahTGaZS0GOEq
-	 +2h3+/2YwaWN5FjBRAgT0fYgk8BBc3jvmuHzwEx92M8sWMsLEw0Ih1EgABygStTIGPgSL
-	 Drok6knKAuclfmAWxiJMYKu+3qxkqjP+BTD6GDRSV3baqd0X3qCzf90oY50wHjl4+51RN
-	 FR2S1cVI3etsvOib+64w7/6wDHcIPWz4iYlZ2jfc92a0h8/CwamELfodm9bZ0qJ8vBg==
+	t=1794249283;
+	b=W+Lu4+5FzDaOeS375Fpit8zkuKyCqCB8S45WyXS1kj6+S5Ot1otZ52KCD92WLonJG7p0
+	 zveCanhySCBjRlj4/2VJQbKwulxoQUXglrnRV8ljBOODTKkPG21QR5LfIFqilaWYV7FuD
+	 EslMr2XT8+Ou4KFNJwBbiYocDgC0453ph1TmIW2Wq8r8vw3xb5WfsEZrB6gk1cBwlrPR0
+	 8bE04JtXhkwyU8rhGLIS+w4XssuWgdzY9fjrjiDSCjJQkkunSJxxRlbqWi1viGhybqoCA
+	 AB9/mqvgc/RL3qrg0CGSOOuRNhLAb2w6+kUvmOMRNWEYn5CQzZ6GHWuWqzh8qRPQa6Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794248656;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794249283;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=Pd8gk4PlU6RZGmk+PTGzur0UVGqkyXIM7O6Iuele8iQ=;
-	b=nvPravW2KaVsWqPLSiFj98uLz4EkLWnZaR6rUtfqNksmXUdockAx5JlV5W+2EBIDcwZv
-	 +HZhD/ZoDMZH/pBX7BQsaRxEkeju68xIYc8eMaDLjgYlnbRZPD3/sxTENc2SyZdp/hKaC
-	 tIEn0LADoLp9A5Vy4zZPAiHuEm8vGdhjypRN7K57+1EkmHf3VimW8TtBHOneG/YWmVReo
-	 pa1Dl6E3qu6Gp37IQkZwtxAsF5cK/i3njfKgp2pdZwB1PLt6bq9fUeoJpRp26imdFczv2
-	 dw+U9qPczsUb9zo7+zVaXHJdKPScCyV//s7ayICDFsECFH3TAo5oQS+vOaZpc9ADYPQ==
+	bh=ZRfL0BB/fbXHP304qqvkmlF0LckB4JW6UMlCrqqJgAc=;
+	b=DLGsjAr1BgbW8VmVrRd4TCaN8yxVZeQZMxVCoE+LHrOHHKm7tM3mRegQsjQAX412p7rI
+	 fSb7cNrC9XT2jNfIvSRILWKmVXBcYPwtkIMDyLcq0d9dP+S1+nuZxI5foTYx3dlqDHP7Q
+	 KzVLvnwheH5edFBjnHhcKZbI1aefRX/mGeLzd5nWlFrky8Z9intJjasBvw2C3L4lcIM0S
+	 K0VuocKTn10C+tZs8xTvIKf0q72iJbP24NvOIfA4qPPg4/9L1uYgNn9tKGQ1K+pphFIPv
+	 ZpdoYYibXzicog1ZiuoNBmJZmravzPuRxmwduT4db1hf0knk8GtZleHLUNlfFpfmR3Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ldQpFQtR;
-	arc=none smtp.remote-ip=209.85.222.181
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dhHt1XWn;
+	arc=none smtp.remote-ip=209.85.160.177
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D379606A32A
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 18:24:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2D379606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23987606A5C3
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 18:34:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 23987606A5C3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ldQpFQtR
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-93f30660e69so94463585a.0
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 10:24:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dhHt1XWn
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5361e313e63so10872051cf.3
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 10:34:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794248655; x=1794853455; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794249282; x=1794854082; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Pd8gk4PlU6RZGmk+PTGzur0UVGqkyXIM7O6Iuele8iQ=;
-        b=ldQpFQtRK6QjgmBLSgZUkqqKUtNyjKSvFp5SH5hck/vtMPl4frxAN3lqRTBRaRJvGb
-         vFXotgJR7j029E22ghUGKDM8WVT8UsU/B4LuDv7691gnG5laZ3CuBEu6pPp5Vk4JdjEh
-         iGN1IwJL4JDV84ifxO+AHpymU8ZfjLKs7HDN8Mk8IP9GOstH8sVCgX6Me+fnqSpFRRyd
-         kz4Vg3UT7fo8V+ALnJJ/lktaqvyMYaxOQUhlCatzoDHcGJk8CEpbu/jbfDncKGMBQkDw
-         RPNbQfM9g0lN3agIxPlDfkjkp2+k7qqoKa7fg79PcmcS5huiFkShKlFlzgxuPspGZZFC
-         F85g==
+        bh=ZRfL0BB/fbXHP304qqvkmlF0LckB4JW6UMlCrqqJgAc=;
+        b=dhHt1XWnbgTwHoe7zBaVl1ouj+sEKQ6tWGueEl5bamwUsRaFA4Z/AFcz8012+knFKa
+         yX/wL1o3362kTgdgKTEP2/hEPuoTOa63qT0Q0n79MVS0cwCDtWMu8Uiqv9/YU86utOf5
+         rSHd3vxKUvvr85qCoKV6aGE+YK67ObVyAgMhcl7gJuHQt96P9auJk2CDeE1KycEtWJbW
+         LKPvLJpbS6uN2226w9rd8ZkCztGluIIq/iZstOj+JppBtbGd5xZJ2vE+WDto0MEjxqzE
+         4Z/RJDU44Sgd1HjbtDPEVebZp6GhPk4QsCsvsxsAekPoE37Pq0HWWmjJj2yrE1lZj2Id
+         JfeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794248655; x=1794853455;
+        d=1e100.net; s=20260707; t=1794249282; x=1794854082;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Pd8gk4PlU6RZGmk+PTGzur0UVGqkyXIM7O6Iuele8iQ=;
-        b=RWqBGwxTvvORFo5afuT+MpuDynkWuMw5cA2NY8neX/TaUiYOGqoZT/6zIo3LfVhgqm
-         Hgt/UTWEPpX7ziU0629hduM9NzZEEL+jAmQY9lSrEIgK8uEVxhWrGwckbSbq/QS+lJW6
-         YauC5ba2yBuoPzSetTQzqF9545XQDlQZ/EAZmd7FlQH2avinDC821JS8HvVJ9OnUMNKE
-         UzIfcPJISfXOZ3NsG9QV/WYsjKgdSZ/fnJfS8CsLnwG69axjC2a0cXf2Itv46AYgfxGS
-         tNc0Z71U56GAypsGvpTIgT/zU7gjWlWK+jaBQqKN7YBu/916hMbid34vx+gfeq6tzanN
-         nang==
-X-Gm-Message-State: APuU4Z80TxzHef2fJwNiTkAI6r0z63XA6LqiBrheVzjl4bcT2BkCIaBw
-	kFxLCdIECWNlE6tyZcHTdTAB8NETpB1l2HXWpRQDbc9TwGE12z1uwgDkOCU9GBUi
-X-Gm-Gg: AYBFou2EE4FOHclbLLBOxUyi+Y+4Nsf2iqCOWWfUEpCbHtPMk6JtedpPPzseK1MZLQc
-	FxmOwQt1MHjwwk8o9dCOqVZaJviYJAiyYDotdcTv8DPWcFL8iAe9oZ3kdg56M3B+5EkfbldZvxV
-	JDzWOCq8+b9YR6r/za1F8y0ED/iLVeZ2m5XR6IkrJyUUbj52Tzv2+8GvB9KcOb7LzY1B7cE3Jo1
-	86HOGG4pQY7qjD22tVJjbbxrfGiPqdBkTrI9E8UDo99qWWFin0PaZtdtq9Kj83mdmOaTMfCK8nc
-	R2i6IY33gfESp00m+C9O0ZWvkpQYA4N3yhrpd0aLv9wU17KMYIWk6w+8tBi8IALWEUcKXb9PHg/
-	aNN0wwFtuCeZYhmAk1NfN6FmwG3I8fV5nkzL6qXaw9wdR2opBdu/NUwg2BNDizgEIGMMpXLUUMx
-	e2Sy4NCZa5ptKLDnj6p4CxSJ3rYeIOJ33hOaDMw6LREbjw22uOf9wYNMuWhSHCrwo0C1DX/btQa
-	OwpH59OrBWngVrzbUY08Wr5hsd0wyDrCGqTVRxiz9Igs3528ccywZrnZyWhr2PHL1rDxXrSqybI
-	3Ics/KOIVtZkEbtDbtiy8BxDLO9cQGGP70HLj2B5czcdfMkEazJ56l3bc7llSA0t7r+13WIwATs
-	7cK7sfGI7OtKHTxT2OJzgw49Ux15tU5/7EECZUww2DxrvRQcY8FOQFRCQtEZi1Bx68jTZxUCrlN
-	7uVAJ144ZH0WF0XaEyThbpoerqCO5Kk4ZzalHJRAJi3JcDEA==
-X-Received: by 2002:a05:620a:8811:b0:93e:c12c:4412 with SMTP id af79cd13be357-9479f41744bmr44749385a.78.1794248654892;
-        Mon, 09 Nov 2026 10:24:14 -0800 (PST)
+        bh=ZRfL0BB/fbXHP304qqvkmlF0LckB4JW6UMlCrqqJgAc=;
+        b=EoIz3myR23EDK/wiPbDNva7VSzCLsyuAt3/uyqNTMBPlNU8vED7xgxSNk8nydRA6BK
+         gZys94UJaWr3GBlGRumMSrPEGhCONpQTpCx9l/zGdphkkeSgoxhxtfoU5aDZMAXE0Mtt
+         IKNX9ZHnskWFUmej15lC0p4d7vgAf8OEtLGB0e2ohTuHE1C+AGneHNCGkjvzpBt6HfoK
+         eot0yXnROohWWkgoA9Ggtj9qNMDEjBBj4XscfXcrnzI9U/UFfWylDjzj3Z4cZ8J39/bg
+         LQnj0zzRiIBKLGID6UP82vfKqWCVniihjmW7HzFmLS1FeerMEtsx3JDRkUcFpg2uwbg4
+         TU+A==
+X-Gm-Message-State: APuU4Z/LBXYXZ7vvbwTqLyLB0N/enSvyN67gbBQgxnOnGWFkDhw0R+/+
+	N0VS9mh8JoKvPRJ6JDcwT0GVd0rEbyoS0xuUx1E9ml0mA5R6GaFHP3c4oQWoFNjY
+X-Gm-Gg: AYBFou2gS9Und0mzmHTkgKqC1n7wyOZj2ORpyp37+M5aY7+1eYnkaCiaJGRoqnVnxJ9
+	EI56yfy5FaWAE3TBJl2bV6Pomryvp36c0m/aSTqNY3R/tV7hlRL47dTrzdHAV320q+/i3ZYmtgp
+	cPvYeLFc7eOT6OhKEdNIeJ8WNr/e7hhvSo4zqY/JKAd4OCBUrYQSJV0XIT/hKDsefPYa4GqcUJf
+	pANicUsXyqHDVqN4Aevhm2O7xIXyoCYLokPWxnlF0+REo+8S2e2lip3NNUt7WFxOeGBFsGKAg48
+	MGALFOkBStf8M6NGzmLzV97kpq+FlnsOjZDY0F5s6tFOY6d9G0UNOPx6siuJG/xN1qqimLIX5CV
+	RqCFuq8wXI7qRzi5RPhuI3GM2kGf0u2Vx55nE8KuBn6Q6fCk8Cy+lCEstfC6l2W7frtky3pngjI
+	KyGtyWHqtMnYbBNIRR3rTd3J44T/kK9/z0xRWdkOdzMetPqq3b8xddOBUaZtNJvXtfGQzTiP/Km
+	JYAlgGdB2VIoq4YrI4AdGpDAJjDOGLjAUJjF3vl114TzDaOr2QKMohXe/S9x4dl0nTAQOU6QYMM
+	FMCEJUJjdvxTmfmtD0okeFzr4zTQZBNuyV0dun2KLQ5ES4f54GfxhTdySBrGTwTSNf6IPiRrzeq
+	4+bIq5JpjAfbzocHxYKGiJsTEcOZ3XbWaeNWixa8mhMVFJT1qh2D0PPXpYKEMT/Fh69v1amMN3c
+	k25grI67wfDF/wgCCBr0Yr+z5XComnN84L9MIHs5ZxPeF46Q==
+X-Received: by 2002:ac8:5dc8:0:b0:535:a5fb:644c with SMTP id d75a77b69052e-55528bcf160mr2408771cf.70.1794249281857;
+        Mon, 09 Nov 2026 10:34:41 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ef04fe53asm1860336d6.27.2026.11.09.10.24.14
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5550af612dfsm3705311cf.8.2026.11.09.10.34.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 10:24:14 -0800 (PST)
+        Mon, 09 Nov 2026 10:34:41 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -87,9 +87,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsepol: check all declaring blocks when enabling types
-Date: Mon,  9 Nov 2026 13:24:00 -0500
-Message-ID: <20261109182400.145911-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: canonicalize NSS homes before deriving their parent
+Date: Mon,  9 Nov 2026 13:34:26 -0500
+Message-ID: <20261109183427.146748-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -102,270 +102,391 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The multiple-decls option permits repeated type and attribute
-declarations, but is_id_enabled() still checks only the last scope
-entry for types. A declaration in a disabled optional block can
-therefore hide a globally declared symbol or one declared in another
-enabled optional block.
+Apply path substitutions to the complete NSS home directory before
+removing its final component. Substituting the parent first misses
+rules that match the username, trailing wildcards, and per-user
+exceptions to broader equivalences.
 
-Besides removing types and positive rules, this can broaden
-permissions: dropping an attribute used in a negative type set removes
-the exclusion from the compiled allow rule.
+For example, /srv -> /canonical followed by /srv/alice -> /srv/special
+must retain /srv as a generated home root for Alice. The old ordering
+generated only /canonical, while runtime lookup used /srv/special and
+could no longer match the generated patterns.
 
-Check all scope entries for types, requiring an enabled block whose
-declared bitmap contains the symbol. Scope entries can also represent
-requirements, so an enabled requiring block must not enable an
-otherwise disabled declaration. Preserve the handling of other symbol
-classes.
+Keep the original-home filters and reject rewritten relative,
+root-level, or ignored homes before deriving the parent. Preserve
+conflict checks on the canonical parent and leave explicit-user
+handling unchanged.
 
-Add direct scope-order and requirement controls and native compiler
-regressions for positive rules, source and target exclusions, aliases,
-repeated types, optional ordering, and disabled dependent optionals.
+Add a standalone regression covering generated-pattern lookup, rule
+order, literal and wildcard mappings, two-stage substitutions, ignored
+paths, root guards, failure cleanup, and disabled NSS enumeration.
 
-Fixes: 392e42a8eb29 ("libsepol,checkpolicy: add --multiple-decls option")
+Fixes: ff54a2d3cdca ("libsemanage/genhomedircon: apply path substitution rules to home directories")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- checkpolicy/.gitignore                   |  1 +
- checkpolicy/Makefile                     |  8 ++-
- checkpolicy/tests/test_multiple_decls.sh | 83 ++++++++++++++++++++++++
- checkpolicy/tests/test_type_enabled.c    | 72 ++++++++++++++++++++
- libsepol/src/avrule_block.c              | 17 ++++-
- 5 files changed, 179 insertions(+), 2 deletions(-)
- create mode 100644 checkpolicy/tests/test_multiple_decls.sh
- create mode 100644 checkpolicy/tests/test_type_enabled.c
+ libsemanage/src/genhomedircon.c               |  12 +-
+ libsemanage/tests/.gitignore                  |   1 +
+ libsemanage/tests/Makefile                    |   9 +-
+ .../regression/test_genhomedircon_parent.c    | 281 ++++++++++++++++++
+ 4 files changed, 299 insertions(+), 4 deletions(-)
+ create mode 100644 libsemanage/tests/regression/test_genhomedircon_parent.c
 
-diff --git a/checkpolicy/.gitignore b/checkpolicy/.gitignore
-index 01a694d4..401747df 100644
---- a/checkpolicy/.gitignore
-+++ b/checkpolicy/.gitignore
-@@ -5,3 +5,4 @@ y.tab.c
- y.tab.h
- tests/testpol.bin
- tests/testpol.conf
-+tests/test-type-enabled
-diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-index 22c32a25..f160c992 100644
---- a/checkpolicy/Makefile
-+++ b/checkpolicy/Makefile
-@@ -51,9 +51,14 @@ lex.yy.c: policy_scan.l y.tab.c
- 	$(LEX) policy_scan.l
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 0b7159bd..b0482f0e 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -590,8 +590,6 @@ static int get_home_dirs(genhomedircon_settings_t *s, semanage_list_t **out)
+ 			break;
+ 		}
  
- .PHONY: test
--test: checkpolicy checkmodule
-+test: checkpolicy checkmodule tests/test-type-enabled
- 	./tests/test_roundtrip.sh
- 	./tests/test_checkmodule_negative.sh
-+	./tests/test-type-enabled
-+	sh ./tests/test_multiple_decls.sh
+-		semanage_rtrim(path, '/');
+-
+ 		{
+ 			char *canonical = NULL;
+ 
+@@ -603,9 +601,19 @@ static int get_home_dirs(genhomedircon_settings_t *s, semanage_list_t **out)
+ 			if (canonical) {
+ 				free(path);
+ 				path = canonical;
++				if (path[0] != '/' ||
++				    semanage_str_count(path, '/') <= 1 ||
++				    ignore(path)) {
++					free(path);
++					path = NULL;
++					continue;
++				}
+ 			}
+ 		}
+ 
++		/* Substitutions can match the username component of the home. */
++		semanage_rtrim(path, '/');
 +
-+tests/test-type-enabled: tests/test_type_enabled.c $(LIBSEPOLA)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
+ 		if (!semanage_list_find(homedir_list, path)) {
+ 			/*
+ 			 * Now check for an existing file context that matches
+diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
+index 47f2f45d..ba101a56 100644
+--- a/libsemanage/tests/.gitignore
++++ b/libsemanage/tests/.gitignore
+@@ -1,3 +1,4 @@
+ libsemanage-tests
+ *.policy
++test-genhomedircon-parent
+ /test-config-empty
+diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
+index 245c124c..72b86cc7 100644
+--- a/libsemanage/tests/Makefile
++++ b/libsemanage/tests/Makefile
+@@ -22,15 +22,20 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
  
- # helper target for fuzzing
- checkobjects: $(CHECKOBJS)
-@@ -80,6 +85,7 @@ relabel: install
- 	/sbin/restorecon $(DESTDIR)$(BINDIR)/checkmodule
+ clean distclean:
+ 	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE) test-config-empty
++	rm -f test-genhomedircon-parent
  
- clean:
-+	-rm -f tests/test-type-enabled
- 	-rm -f $(TARGETS) $(CHECKPOLOBJS) $(CHECKMODOBJS) y.tab.c y.tab.h lex.yy.c tests/testpol.conf tests/testpol.bin
- 	$(MAKE) -C test clean
- 	$(MAKE) -C fuzz clean
-diff --git a/checkpolicy/tests/test_multiple_decls.sh b/checkpolicy/tests/test_multiple_decls.sh
+-test: all
++test: all test-genhomedircon-parent
+ 	./$(EXECUTABLE)
+ 	./test-config-empty
+-
++	./test-genhomedircon-parent
+ 
+ test-config-empty: regression/test_config_empty.c ../src/libsemanage.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -Wl,--wrap=strdup $(LDLIBS)
+ 
++PARENT_WRAPS = semanage_findval sepol_context_check getpwent setpwent endpwent fopen stat semanage_fcontext_iterate asprintf
++COMMA := ,
++test-genhomedircon-parent: regression/test_genhomedircon_parent.c ../src/genhomedircon.c ../src/path_subs.c ../src/libsemanage.a
++	$(CC) $(CPPFLAGS) $(CFLAGS) -D_GNU_SOURCE -ffunction-sections -fdata-sections $(LDFLAGS) -Wl,--gc-sections -o $@ $< ../src/path_subs.c ../src/libsemanage.a $(addprefix -Wl$(COMMA)--wrap=,$(PARENT_WRAPS)) $(LDLIBS)
+ 
+ # Requires SWIG, Python development headers and the built shared library.
+ PYTHON ?= python3
+diff --git a/libsemanage/tests/regression/test_genhomedircon_parent.c b/libsemanage/tests/regression/test_genhomedircon_parent.c
 new file mode 100644
-index 00000000..6863c6fd
+index 00000000..62312109
 --- /dev/null
-+++ b/checkpolicy/tests/test_multiple_decls.sh
-@@ -0,0 +1,83 @@
-+#!/bin/sh
-+set -eu
-+
-+CHECKPOLICY=${CHECKPOLICY:-./checkpolicy}
-+tmp=$(mktemp -d)
-+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
-+
-+cat > "$tmp/prefix" <<'EOF'
-+class file
-+sid kernel
-+class file { read write }
-+attribute excluded;
-+attribute domain;
-+type source_t, domain;
-+type excluded_t, excluded, domain;
-+type ordinary_t, domain;
-+typealias source_t alias source_alias_t;
-+EOF
-+cat > "$tmp/suffix" <<'EOF'
-+user user_u roles role_r;
-+sid kernel user_u:role_r:source_t
-+EOF
-+
-+count=0
-+for side in source target positive; do
-+    case $side in
-+        source) rule='allow { domain -excluded } ordinary_t:file write;' ;;
-+        target) rule='allow source_t { domain -excluded }:file write;' ;;
-+        positive) rule='allow excluded self:file write;' ;;
-+    esac
-+    for variant in control enabled disabled last_enabled last_disabled repeated_type require_only optional_only; do
-+        cat "$tmp/prefix" > "$tmp/input.conf"
-+        printf '%s\n' "$rule" \
-+            'allow source_alias_t self:file read;' \
-+            'role role_r;' 'role role_r types domain;' >> "$tmp/input.conf"
-+        enabled='optional { require { class file { read }; } attribute excluded; }'
-+        disabled='optional { require { type missing_t; } attribute excluded; }'
-+        case $variant in
-+            control) ;;
-+            enabled) printf '%s\n' "$enabled" >> "$tmp/input.conf" ;;
-+            disabled) printf '%s\n' "$disabled" >> "$tmp/input.conf" ;;
-+            last_enabled) printf '%s\n' "$disabled" "$enabled" >> "$tmp/input.conf" ;;
-+            last_disabled) printf '%s\n' "$enabled" "$disabled" >> "$tmp/input.conf" ;;
-+            repeated_type)
-+                printf '%s\n' 'optional { require { type missing_t; } type excluded_t; }' >> "$tmp/input.conf" ;;
-+            require_only)
-+                printf '%s\n' 'optional { require { attribute excluded; } allow source_t self:file read; }' >> "$tmp/input.conf" ;;
-+            optional_only)
-+                printf '%s\n' \
-+                    'optional { require { type missing_t; } type absent_t; }' \
-+                    'optional { require { type absent_t; } allow ordinary_t self:file write; }' >> "$tmp/input.conf" ;;
-+        esac
-+        cat "$tmp/suffix" >> "$tmp/input.conf"
-+        "$CHECKPOLICY" -m -o "$tmp/policy.bin" "$tmp/input.conf"
-+        "$CHECKPOLICY" -b -F -o "$tmp/output.conf" "$tmp/policy.bin"
-+        # Full binary round-trip equality covers types, aliases, role membership,
-+        # and rules, including exclusions on either side of an allow rule.
-+        if [ "$variant" = control ]; then
-+	    # System cp may link libselinux without the sanitizer runtime.
-+            LD_LIBRARY_PATH= cp "$tmp/output.conf" "$tmp/expected.conf"
-+        else
-+            diff -u "$tmp/expected.conf" "$tmp/output.conf"
-+        fi
-+        count=$((count + 1))
-+    done
-+done
-+
-+for decl in \
-+    'type excluded_t;' \
-+    'typealias source_t alias source_alias_t;' \
-+    'attribute source_t;' \
-+    'type excluded;'; do
-+    cat "$tmp/prefix" > "$tmp/input.conf"
-+    printf '%s\n' "$decl" 'allow source_t self:file read;' \
-+        'role role_r;' 'role role_r types domain;' >> "$tmp/input.conf"
-+    cat "$tmp/suffix" >> "$tmp/input.conf"
-+    if "$CHECKPOLICY" -o "$tmp/policy.bin" "$tmp/input.conf" 2> "$tmp/error"; then
-+        echo 'unexpected duplicate declaration acceptance' >&2
-+        exit 1
-+    fi
-+    count=$((count + 1))
-+done
-+printf 'PASS %s multiple-declaration compiler cases\n' "$count"
-diff --git a/checkpolicy/tests/test_type_enabled.c b/checkpolicy/tests/test_type_enabled.c
-new file mode 100644
-index 00000000..c05feb13
---- /dev/null
-+++ b/checkpolicy/tests/test_type_enabled.c
-@@ -0,0 +1,72 @@
++++ b/libsemanage/tests/regression/test_genhomedircon_parent.c
+@@ -0,0 +1,281 @@
++/* SPDX-License-Identifier: CC0-1.0 */
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#undef NDEBUG
 +#include <assert.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <sepol/policydb/avrule_block.h>
-+#include <sepol/policydb/policydb.h>
++#include <stdarg.h>
++#ifndef GENERATOR_SOURCE
++#define GENERATOR_SOURCE "../../src/genhomedircon.c"
++#endif
++#include GENERATOR_SOURCE
++#include <selinux/label.h>
++
++static const char *home;
++static const char *conflict;
++static unsigned calls, failures;
++static unsigned fail_at, rewrite_calls;
++static bool iterator_error;
++
++char *__wrap_semanage_findval(const char *file, const char *key,
++			      const char *sep);
++char *__wrap_semanage_findval(const char *file, const char *key,
++			      const char *sep)
++{
++	(void)file;
++	(void)sep;
++	return !strcmp(key, "HOME") ? strdup("/home") : NULL;
++}
++
++void __wrap_setpwent(void);
++void __wrap_endpwent(void);
++struct passwd *__wrap_getpwent(void);
++void __wrap_setpwent(void)
++{
++	calls = 0;
++}
++void __wrap_endpwent(void)
++{
++}
++struct passwd *__wrap_getpwent(void)
++{
++	static char directory[256], name[] = "alice", shell[] = "/bin/bash";
++	static struct passwd pw = { .pw_name = name,
++				    .pw_uid = 1000,
++				    .pw_gid = 1000,
++				    .pw_shell = shell,
++				    .pw_dir = directory };
++	assert(strlen(home) < sizeof(directory));
++	strcpy(directory, home);
++	return calls++ == 0 ? &pw : NULL;
++}
++
++FILE *__real_fopen(const char *path, const char *mode);
++FILE *__wrap_fopen(const char *path, const char *mode);
++FILE *__wrap_fopen(const char *path, const char *mode)
++{
++	if (!strcmp(path, PATH_SHELLS_FILE) ||
++	    !strcmp(path, PATH_ETC_LOGIN_DEFS) ||
++	    !strcmp(path, PATH_ETC_LIBUSER)) {
++		FILE *fp = tmpfile();
++		assert(fp);
++		assert(fputs(!strcmp(path, PATH_SHELLS_FILE) ?
++				     "/bin/bash\n" :
++				     "UID_MIN 100\nUID_MAX 60000\n",
++			     fp) >= 0);
++		rewind(fp);
++		return fp;
++	}
++	return __real_fopen(path, mode);
++}
++
++int __wrap_stat(const char *path, struct stat *sb);
++int __real_stat(const char *path, struct stat *sb);
++int __wrap_stat(const char *path, struct stat *sb)
++{
++	if (!strcmp(path, PATH_EXPORT_HOME)) {
++		errno = ENOENT;
++		return -1;
++	}
++	return __real_stat(path, sb);
++}
++
++int __wrap_semanage_fcontext_iterate(semanage_handle_t *sh,
++				     int (*fn)(const semanage_fcontext_t *,
++					       void *),
++				     void *arg);
++int __wrap_semanage_fcontext_iterate(semanage_handle_t *sh,
++				     int (*fn)(const semanage_fcontext_t *,
++					       void *),
++				     void *arg)
++{
++	(void)sh;
++	(void)fn;
++	fc_match_handle_t *match = arg;
++	if (iterator_error)
++		return STATUS_ERR;
++	if (conflict) {
++		assert(!strcmp(match->dir, conflict));
++		match->matched = 1;
++	}
++	return 0;
++}
++
++int __wrap_sepol_context_check(sepol_handle_t *sh, const sepol_policydb_t *p,
++			       const sepol_context_t *c);
++int __wrap_sepol_context_check(sepol_handle_t *sh, const sepol_policydb_t *p,
++			       const sepol_context_t *c)
++{
++	(void)sh;
++	(void)p;
++	(void)c;
++	return 0;
++}
++
++int __wrap_asprintf(char **out, const char *fmt, ...)
++	__attribute__((format(printf, 2, 3)));
++int __wrap_asprintf(char **out, const char *fmt, ...)
++{
++	va_list ap;
++	int rc;
++	if (!strcmp(fmt, "%s%s") && ++rewrite_calls == fail_at) {
++		failures++;
++		errno = ENOMEM;
++		return -1;
++	}
++	va_start(ap, fmt);
++	rc = vasprintf(out, fmt, ap);
++	va_end(ap);
++	return rc;
++}
++
++static void put(const char *path, const char *text)
++{
++	FILE *fp = fopen(path, "we");
++	assert(fp && fputs(text, fp) >= 0 && fclose(fp) == 0);
++}
 +
 +int main(void)
 +{
-+	policydb_t p = { 0 };
-+	avrule_decl_t decls[3] = { 0 };
-+	avrule_decl_t *index[] = { &decls[0], &decls[1], &decls[2] };
-+	uint32_t ids[3];
-+	scope_datum_t scope = { .scope = SCOPE_DECL,
-+				.decl_ids = ids,
-+				.decl_ids_len = 3 };
-+	type_datum_t type = { .s.value = 1, .primary = 1 };
-+	char name[] = "test_type";
-+	const uint32_t orders[][3] = { { 1, 2, 3 }, { 1, 3, 2 }, { 2, 1, 3 },
-+				       { 2, 3, 1 }, { 3, 1, 2 }, { 3, 2, 1 } };
-+	unsigned int cases = 0;
-+
-+	assert(symtab_init(&p.scope[SYM_TYPES], 16) == 0);
-+	assert(symtab_init(&p.p_types, 16) == 0);
-+	assert(hashtab_insert(p.scope[SYM_TYPES].table, name, &scope) == 0);
-+	assert(hashtab_insert(p.p_types.table, name, &type) == 0);
-+	p.decl_val_to_struct = index;
-+	/* Types, attributes, and aliases use the declared bitmap, not merely
-+	 * the presence of an enabled block in the mixed scope list. */
-+	for (unsigned int flavor = TYPE_TYPE; flavor <= TYPE_ALIAS; flavor++) {
-+		type.flavor = flavor;
-+		for (unsigned int enabled = 0; enabled < 8; enabled++)
-+			for (unsigned int declared = 0; declared < 8;
-+			     declared++) {
-+				for (unsigned int i = 0; i < 3; i++) {
-+					decls[i].enabled =
-+						!!(enabled & (1U << i));
-+					assert(ebitmap_set_bit(
-+						       &decls[i].declared
-+								.scope[SYM_TYPES],
-+						       0,
-+						       !!(declared &
-+							  (1U << i))) == 0);
++	const struct {
++		const char *home, *local, *dist, *parent;
++	} scenarios[] = {
++		{ "/srv/alice", "",
++		  "/srv /canonical\n/srv/alice /srv/special\n", "/srv" },
++		{ "/srv/alice", "", "", "/srv" },
++		{ "/srv/alice/", "", "/srv /canonical\n", "/canonical" },
++		{ "/srv/alice", "", "/srv/alice /canonical/alice\n",
++		  "/canonical" },
++		{ "/srv/team/alice", "", "/srv/* /canonical\n", "/canonical" },
++		{ "/srv/team/alice", "", "/srv/*/alice /canonical/alice\n",
++		  "/canonical" },
++		{ "/srv/alice", "/srv /middle\n", "/middle /canonical\n",
++		  "/canonical" },
++		{ "/srv/alice", "/srv /middle\n",
++		  "/middle/alice /canonical/alice\n", "/canonical" },
++		{ "/srv/alice", "",
++		  "/srv /canonical\n/srv/alice /special/alice\n", "/special" },
++		{ "/srv/alice", "",
++		  "/srv/alice /srv/special\n/srv /canonical\n", "/canonical" },
++		{ "/srv/alice", "", "/srv/alice /\n", NULL },
++		{ "/srv/alice", "", "/srv/alice /alice\n", NULL },
++		{ "/srv/alice", "", "/srv/alice relative\n", NULL },
++		{ "/", "", "", NULL },
++		{ "/alice", "", "", NULL },
++	};
++	semanage_handle_t sh = { 0 };
++	sh.sepolh = sepol_handle_create();
++	assert(sh.sepolh);
++	unsigned cases = 0;
++	for (unsigned i = 0; i < sizeof(scenarios) / sizeof(scenarios[0]);
++	     i++) {
++		char tmp[] = "/tmp/genhomedircon-parent-XXXXXX";
++		char fc[256], local[256], dist[256], key[512];
++		assert(mkdtemp(tmp));
++		snprintf(fc, sizeof(fc), "%s/fc", tmp);
++		snprintf(local, sizeof(local), "%s/fc.subs", tmp);
++		snprintf(dist, sizeof(dist), "%s/fc.subs_dist", tmp);
++		put(local, scenarios[i].local);
++		put(dist, scenarios[i].dist);
++		home = scenarios[i].home;
++		genhomedircon_settings_t s = { .usepasswd = 1,
++					       .h_semanage = &sh };
++		assert(semanage_path_subs_load(&sh, local, &s.local_subs) == 0);
++		assert(semanage_path_subs_load(&sh, dist, &s.dist_subs) == 0);
++		for (unsigned mode = 0; mode < 8; mode++) {
++			semanage_list_t *homes = NULL;
++			char ignored[256];
++			s.usepasswd = mode != 7;
++			conflict = mode == 1 ? scenarios[i].parent : NULL;
++			iterator_error = mode == 4;
++			fail_at = mode == 5 ? 1 : mode == 6 ? 2 : 0;
++			rewrite_calls = failures = 0;
++			if (mode == 2 || mode == 3) {
++				char *canonical = NULL;
++				snprintf(ignored, sizeof(ignored), "%s", home);
++				size_t len = strlen(ignored);
++				while (len > 1 && ignored[len - 1] == '/')
++					ignored[--len] = '\0';
++				if (mode == 3) {
++					assert(semanage_path_subs_canonicalize(
++						       s.local_subs,
++						       s.dist_subs, ignored,
++						       &canonical) == 0);
++					if (canonical)
++						snprintf(ignored,
++							 sizeof(ignored), "%s",
++							 canonical);
++					free(canonical);
 +				}
-+				for (unsigned int order = 0; order < 6;
-+				     order++) {
-+					for (unsigned int i = 0; i < 3; i++)
-+						ids[i] = orders[order][i];
-+					scope.scope = SCOPE_DECL;
-+					assert(is_id_enabled(name, &p,
-+							     SYM_TYPES) ==
-+					       !!(enabled & declared));
-+					scope.scope = SCOPE_REQ;
-+					assert(is_id_enabled(name, &p,
-+							     SYM_TYPES) == 0);
-+					cases += 2;
-+				}
++				assert(ignore_setup(ignored) == 0);
 +			}
++			int rc = get_home_dirs(&s, &homes);
++			if (failures ||
++			    (iterator_error && scenarios[i].parent)) {
++				assert(rc == STATUS_ERR && !homes);
++			} else {
++				assert(rc == STATUS_SUCCESS && homes);
++				bool skipped = !scenarios[i].parent ||
++					       mode == 1 || mode == 2 ||
++					       mode == 3 || mode == 7;
++				assert(semanage_list_find(homes, "/home"));
++				if (scenarios[i].parent)
++					assert(!!semanage_list_find(
++						       homes,
++						       scenarios[i].parent) ==
++					       !skipped);
++				for (semanage_list_t *h = homes; h; h = h->next)
++					assert(!strcmp(h->data, "/home") ||
++					       (scenarios[i].parent &&
++						!strcmp(h->data,
++							scenarios[i].parent)));
++				if (!skipped && mode == 0) {
++					FILE *fp = fopen(fc, "we");
++					assert(fp);
++					char template[] =
++						"HOME_ROOT/[^/]+/ssh_key system_u:object_r:ssh_home_t:s0";
++					semanage_list_t tpl = {
++						.data = template
++					};
++					for (semanage_list_t *h = homes; h;
++					     h = h->next)
++						assert(write_home_root_context(
++							       &s, fp, &tpl,
++							       h->data) ==
++						       STATUS_SUCCESS);
++					assert(fclose(fp) == 0);
++					struct selinux_opt opt = {
++						SELABEL_OPT_PATH, fc
++					};
++					struct selabel_handle *labels =
++						selabel_open(SELABEL_CTX_FILE,
++							     &opt, 1);
++					assert(labels);
++					snprintf(key, sizeof(key), "%s/ssh_key",
++						 home);
++					char *context = NULL;
++					assert(selabel_lookup_raw(
++						       labels, &context, key,
++						       S_IFREG) == 0);
++					assert(strstr(context, ":ssh_home_t:"));
++					free(context);
++					selabel_close(labels);
++					assert(unlink(fc) == 0);
++				}
++				semanage_list_destroy(&homes);
++			}
++			ignore_free();
++			cases++;
++		}
++		fail_at = 0;
++		iterator_error = false;
++		conflict = NULL;
++		semanage_path_subs_free(&s.local_subs);
++		semanage_path_subs_free(&s.dist_subs);
++		assert(unlink(local) == 0 && unlink(dist) == 0 &&
++		       rmdir(tmp) == 0);
 +	}
-+	scope.scope = SCOPE_DECL;
-+	for (unsigned int i = 0; i < 3; i++)
-+		index[i] = NULL;
-+	assert(is_id_enabled(name, &p, SYM_TYPES) == 0);
-+	scope.decl_ids_len = 0;
-+	assert(is_id_enabled(name, &p, SYM_TYPES) == 0);
-+	assert(is_id_enabled("missing", &p, SYM_TYPES) == 0);
-+	for (unsigned int i = 0; i < 3; i++)
-+		ebitmap_destroy(&decls[i].declared.scope[SYM_TYPES]);
-+	hashtab_destroy(p.scope[SYM_TYPES].table);
-+	hashtab_destroy(p.p_types.table);
-+	printf("PASS %u type enablement checks\n", cases + 3);
++	sepol_handle_destroy(sh.sepolh);
++	printf("genhomedircon canonical parent: %u cases passed\n", cases);
 +	return 0;
 +}
-diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
-index 60f637ff..7293b6fc 100644
---- a/libsepol/src/avrule_block.c
-+++ b/libsepol/src/avrule_block.c
-@@ -164,7 +164,22 @@ int is_id_enabled(const char *id, const policydb_t *p, int symbol_table)
- 		return 0;
- 	}
- 
--	if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
-+	if (symbol_table == SYM_TYPES) {
-+		const type_datum_t *type = hashtab_search(p->p_types.table, id);
-+		uint32_t i;
-+
-+		if (!type)
-+			return 0;
-+		/* The scope list can also contain requirements. Only an enabled
-+		 * declaration can make a multiply declared type available. */
-+		for (i = 0; i < len; i++) {
-+			decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
-+			if (decl && decl->enabled &&
-+			    ebitmap_get_bit(&decl->declared.scope[SYM_TYPES],
-+					    type->s.value - 1))
-+				return 1;
-+		}
-+	} else if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
- 		uint32_t i;
- 		for (i = 0; i < len; i++) {
- 			decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
 -- 
 2.56.0
 
