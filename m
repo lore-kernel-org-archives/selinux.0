@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794231072;
-	b=kzZl37a+FglJtDd3hbEQxcoXRX49IpGWFZ648qKGHeQP+Zbta4XTZS03iSXqjjFqgI6a
-	 uQwf6f12oFmZlbkjdeu4/3/UAr623CEqJFjxgSsRiwBY4ufjEVVWcHqvsYZFsEYldBAMs
-	 ZCfoIPCrYAzK7xDfL3DGWrhboZRqzTmVmChqt8tguu7yzJ2SPN81sJB8UR+Na+hZLTnHh
-	 f+v5hiahKSkMOmNXy0615nBqiOuMfahz3b+7Nz+YfwHNyoZtPT+eD/pCga/+JKLzQ5dhz
-	 uDZxvd/EgEB/o/atsLXXd+xqIGGCPT7FsQnHn1ufl58ZQ4LUK0UKgCjlf0SugLOYeCw==
+	t=1794231109;
+	b=ie7zAvMm/PbWmDnFyz3VRYUvlTsjCN6pY3IyQaM9FZrjb9W0hncHhG2c17utdEfJN+fr
+	 qyMmo1Ocv9MRRf1i/Z9rU+IHRGOfXVSWbcHTQZ69mDSl4SqnxQ3w4AQbox9/tB3bA0UlG
+	 AyHLmbNF3TtqOX0UMNxa6ESzalrGKL+CIaez8/ABsWuIdw2/JOkLpCUMqwPV2S2kZYjBw
+	 o0WH/qGcZGcRMwJ6+eN9IiyD1VcuoBWF0hMQDeumSuqo1Bns06+Fxj/okpSmBX8lme4bH
+	 8iL/LqoHe89AHfqsCtUl5WvAZGxn8euGx91OA6klw7PhbRA1umqINupDJWHj9dnj5EA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794231072;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794231109;
 	h=Received:DKIM-Signature:From:To:Cc:In-Reply-To:References:Subject:
 	 Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 X-Mailer;
-	bh=HZb1ecY9gAspjaczVb/ho/JkduHza/gfWZak6QZzsog=;
-	b=C6uDIIIoU9BiCJ0CV8DLmPkkg9RC2jB4EuePHMT8q5gxbCeylY8YJ0fzj/oB3NHuAk1W
-	 dxTiPYTmvHAqU/oKBDPaNHb7etKN3gXfrIIVlVVI5kEi3GhMHctVKPH995S+O2L3uKE6G
-	 DJznco/9A3kWPt2Z3vydT/zYOvGTOvVsa731fwZtCjSOGg7SMzvapZUvecq9ecxZyJ9RE
-	 sAqcXHb73ljluVRWhefXCvgJ6pQEXuI/rF1IQ/yTU4I6iutLx6nmTsNxC+X62Yw7vd0SD
-	 62LVSjDuPLA9oBL+cLV7hpWxIEVTV8Ps69FZY9K+TefwJQx4zMLPYIBELkkr7quXtyQ==
+	bh=J9hDzei4f8OCxDxAWxM/wfgiQG7uywFP6rebfNmExOI=;
+	b=v49iIJxokeKZz6+dre8GFW0HksrGk5IWl6rM+uScimqLQuxORThxWaNkDrExVTzrx8wm
+	 RedOD2dbiaUHcaWigM94uIIUtISOYbJc8KvOMpOZE4iLVP5xn3TOlgobq0TFGYQW1XGLj
+	 ujsTlImZSjaVHTKzNTxk1SM/qoVJLwmjFSKam1xP5TEtl86r0ybw21bAmDLTqXVWgNXDX
+	 PcC1BEdIvCgLuOnvTsb474cOcWu5moJRTh+RChwhP1Gm5ujGcoD+VMgtXPb+eYPy+w7wB
+	 wHA9a7EDTuATspmJ/IeSD/dql5amjvqy4lHm0+nbrCCBVTJLIuwF6dpQeW6V2QqdX7Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=moJaaXVs;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MiXLiEgg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907F7606A31C;
-	Mon,  9 Nov 2026 13:31:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70037606A321;
+	Mon,  9 Nov 2026 13:31:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=moJaaXVs
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A331F0089F;
-	Mon,  9 Nov 2026 13:30:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MiXLiEgg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499B61F008A6;
+	Mon,  9 Nov 2026 13:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794231071;
-	bh=HZb1ecY9gAspjaczVb/ho/JkduHza/gfWZak6QZzsog=;
+	s=k20260515; t=1794231109;
+	bh=J9hDzei4f8OCxDxAWxM/wfgiQG7uywFP6rebfNmExOI=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=moJaaXVsjzU7SL4CI8JBlVbPKjmyaTD3NHAgdTnwk/M1L60N+Lk5weuwkobiTd93C
-	 8s5kF6qwjOZc6FI/CH+6n9ves3n9Dt3ncPHme7MMz8CrOWrXu7GVA3alW12QVQxfFC
-	 dYdxN3at+z/1sifp3qbo3ReksK4F/0ytjastLvz2FzQpT5Hf4HIrH6DUDcYCRbwUm+
-	 dEj416YDQH6bI4b6I/NGuMzR1qG7vWeEqkoYkCakzFXeyTPSKb1bte6mOADwhhJ34m
-	 oj57425c6Psc1SXo2+31xoM4HAfQoI0isPU+xPj1eF0X/18EEWq+95be4Si8H/sog8
-	 62xe9bzzf6Bpg==
+	b=MiXLiEgghPUOGcvs6oBh8SjxhDpzDdm93oOC7wBp36PR4aRXZCBfzyY8pYVK+mF5W
+	 8Q1p1lSm/UfhTrZdh6nrBdWOERBoks35DD2LxW590LnMDt2k7UxuDNsGDKqj+6pSGG
+	 V93BEmYQm4xmxz4+w4TbH8CQGQebjNz0kr3y+62G6v2bCkBCV0VBIf2igcw7/cl2hI
+	 A46TImS9+vIqeS0SJlbcC4U2jxvS3ZTyJf5U3b6v2h/YDHF2UNXOTAH6+UC+m2pNgW
+	 gRr32oeePKKCSsaIMonl4S5iW6F5oWe240wU2Gf3B2Tg75fhs3AKIuHdLyYcGXAokl
+	 a7GivVblgSh8w==
 From: David Hildenbrand <david@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
  David Hildenbrand <david@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
@@ -97,12 +97,12 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
  apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20261105-late-2026-vma-flags-v1-6-0d3cd15ab75f@kernel.org>
-References: <20261105-late-2026-vma-flags-v1-6-0d3cd15ab75f@kernel.org>
-Subject: Re: [PATCH 06/13] mm/ksm: convert VMA flag tests to use
+In-Reply-To: <20261105-late-2026-vma-flags-v1-4-0d3cd15ab75f@kernel.org>
+References: <20261105-late-2026-vma-flags-v1-4-0d3cd15ab75f@kernel.org>
+Subject: Re: [PATCH 04/13] mm/migrate: convert VMA flag tests to use
  vma_flags_t
-Message-Id: <179423105176.12172.13163434370832642610.b4-ty@b4>
-Date: Mon, 09 Nov 2026 14:30:51 +0100
+Message-Id: <179423108696.12416.1867664320008779953.b4-ty@b4>
+Date: Mon, 09 Nov 2026 14:31:26 +0100
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -116,21 +116,20 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.16.0
 
-On Thu, 05 Nov 2026 21:30:57 +0000, Lorenzo Stoakes (ARM) wrote:
-> Replace use of the legacy vm_flags_t flags with vma_flags_t values where
-> KSM tests VMA flags directly.
+On Thu, 05 Nov 2026 21:30:55 +0000, Lorenzo Stoakes (ARM) wrote:
+> Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
+> migration logic.
 > 
-> The ksm_madvise() interface continues to take legacy flags for the time
-> being.
-> 
-> No functional change intended.
+> We retain the READ_ONCE() of vma->vm_flags in remove_migration_pte(), as
+> there is no vma_flags_t equivalent, and arch_make_huge_pte() continues to
+> take legacy flags for the time being.
 > 
 > [...]
 
 Applied, thanks!
 
 tree: mm/core.git
-branch: ksm-7.5.misc
+branch: migrate-7.5.misc
 
 Applied patches will appear soon in mm-next, followed by linux-next.
 
@@ -145,8 +144,8 @@ Note that commit hashes shown below are subject to change due to rebase,
 trailer updates or similar. Further, this is not a guarantee that the
 patches will go upstream. If in doubt, please check the listed branch.
 
-[06/13] mm/ksm: convert VMA flag tests to use vma_flags_t
-        https://git.kernel.org/mm/core/c/4ec4530e
+[04/13] mm/migrate: convert VMA flag tests to use vma_flags_t
+        https://git.kernel.org/mm/core/c/ec215c56
 
 -- 
 Cheers,
