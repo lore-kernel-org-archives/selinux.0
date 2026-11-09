@@ -1,47 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794233433;
-	b=bx1ORRxqhPZ55UJVPaPUzZ/620eKi7h73tInjYE7G/j5pGaoiFZZYG+j08b7Ol8Ooq0b
-	 KebfAX3UuoWLccwFxbhl47k7Hx+5M6QaPfrjtUFaLxG/AHYF8mHSPQ2Nje6avjCHm94+e
-	 bzJDkN/NFCLPn/0KcJv28P4MlRE7+3qxZkn/TO/Hfh0pKHg0lOrWVRNOwKvnmFWL70HOc
-	 sZuJqa/u94XoM987zuggM0k6KHpAacFb3+t208AIRZfF7n0CdjHbkowIEpxaRsR522Okh
-	 UUBg/n4CvfaGxciMTi17pbaSGkUJmqX0n8jbP63nKA9gwiWp9uF7+eEvWaym8n419Uw==
+	t=1794233957;
+	b=Pl6ez33E9XgWjIUkIawhxOfnY1xdAA7RPI8thvWPwSGd5wgYIWmNT8cImBIQ1s9QSz7U
+	 ob4ZfnkHvCoTu0FZn9EMtS/cJwPuU36NCMvaoB2e5Pi38JGo8ZOTUQ7n2lV3331xVSE4R
+	 4zOv7abLh85JiAlh9Cb+POlbCmNEkpDPbKsqTDrgcyBVoy+/h2fKuSG57WdaBDIMNJjbC
+	 uNSjim8CxrEz4KtSYL0pWBFoY9etFQYmZbF5zVfK5IAObcv7kuYhrKDDyAqjjxkuJgxd1
+	 lBG833Jq9R+YfTiBwi1k7VgzAbP5qgNLdw4GYXWvj5nIxwW04hIhEIAy+jDmDaaHC1Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794233433;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=myMKGYz65TX3ZV2HLEDYXummVbvvcxR6eJbeormWLNY=;
-	b=Xr4mMi3tbGKF7vP3dEuJWZ+PuO+52niQiAVBNia+/+4KDyDnHmtBSTKLTx7ANmMBRlq8
-	 3IhnfYqeqc/ebeBXmDB3Y0nhJKtS7xb8TZB0sQ5suGbcB0wExl98xfXNcrKQUd4cFWqE2
-	 8+gkI2XbA4cWr+0aUAH0+B7LtHiaBVMxWquMCInCX6kWQnpy4EKyiK1YWuWgamEHBmoOg
-	 TdwY5QZJQDBAJ++xdMkNWQArRxw/eVc92+vSRZckRleUrHYIMObIEVLdqs0YuZ58Nw0+k
-	 V+qLQWASbBOfpZpy74D3t/hZ/jdssUZkAxzQQu8Ughd6csz+CtDbvNlDO9vtXfWi32Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794233957;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=Mook2e7CukNIhdM9G0flj6H/F+LU44sBvC2L3XEUjNU=;
+	b=BZRs4lnoR67hW11M27Dc2W/BVSKmqA89Pxpef/ipTqiWS36yS61Ap7WIFZETdQS+CmvK
+	 sOoRxJcTHvrYU0t/pATry8eJ4LM6+uN4WsSc7O5E5ASg4EhMUBeKKyLj+L93cE4XGStSg
+	 uN/DkGgBNLXcZ2YnDTQnVMobZQOQs8Zk3j86C2Nzk0fPs3MiMYZz7t0oCmsDLFGb8p6qP
+	 h4DE+JTU77jWOP6eifjbw2HoSOUVoA8yVneDuLUJjqYg3/cl1Ic8qXovU9pjVX7SRVLnN
+	 VISc0kdZ7HRiuV5VS2AFZ0+QXq2XSJ7guITROjTy2Apc2+pBVPBS2eJMlWD9zXeCyCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bglofv8p;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=spsdEhXY;
+	arc=none smtp.remote-ip=209.85.160.182
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1300606D82B;
-	Mon,  9 Nov 2026 14:10:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB7F606A323
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 14:19:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2BB7F606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bglofv8p
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12FC1F008A6;
-	Mon,  9 Nov 2026 14:10:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794233432;
-	bh=myMKGYz65TX3ZV2HLEDYXummVbvvcxR6eJbeormWLNY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Bglofv8pDUgq9hvZ4rVha6IMx3/tuTzNQNjSHYP9CIWyepDI27syAaVFBas8f6RVD
-	 UVmdyKqTyz0b0NheG+FZ+AE2pIAr4hBiDl86UsGhA2o+J9ROCIUnuGugx2665zjVgQ
-	 TMdl9gtEp1MxF8F7yzZNtAdWogd9Qrd7XfK+Cn9/CyV+VmkQv5SDfWRp1jUA83/KWa
-	 0go/uTrk3kXniLmF1Y9T5JU/bstxbmS1HQc2z9qgBDZR2I/KcxQxVBiBGjfDxu/sgz
-	 lACX7WdmvIxb++wMDKFjor2fBrrIUzrhV7UHlSvhb14W9EZvqdLp4aUCwYHftZoSEC
-	 9xf7LvowSWk1Q==
-Message-ID: <65038fdc-f4a1-461d-b7b9-669885f15c3c@kernel.org>
-Date: Mon, 9 Nov 2026 15:10:12 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=spsdEhXY
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5365f9a04c5so11917771cf.1
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 06:19:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794233956; x=1794838756; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Mook2e7CukNIhdM9G0flj6H/F+LU44sBvC2L3XEUjNU=;
+        b=spsdEhXYBhFxJiS2rwmgEv5/MbJvml7e6uKhpQNrhQIFGBaFGblYLVGHarQ3Gg7yC4
+         Mz31ppST13g1JB9Rg8zjgim6bRRyI+Y1oJu59duXigeB/S+p23pOR2g/oaIV9hJiSUl/
+         s6SRaSkXx7vzj82YT8YxjtkV4aiWx3TG4D9pcghsE4jFgAJ80b2B0YFVfgEs3oIYiVaH
+         qRU8Awt0YIJ+G4AfcOY/IPJro9bNi7KArF3FNbTd45KuWJ8yrqrzQPmfq+T5sTgKlV4D
+         PaHlC+9LRVSoII1gZ4EbWHXbaCPhBlhj6SHRH6hVRT5wOf6UYHQlAGtqyUhC/Lrl6qSa
+         /UoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794233956; x=1794838756;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Mook2e7CukNIhdM9G0flj6H/F+LU44sBvC2L3XEUjNU=;
+        b=kWuCeLYAGM2383J116qYE7oi9RbvTINBaSDQNkAx8u964qVWA26HYhFM+TLzBV7PXA
+         xnBCTVWVZMkIeAYuN6lr0Bg2YiaRwPDCg3Dy+C8KlqmOpa/DeiiTyrYA76m5SvSzuGP1
+         TrSC8gHNFgm3I76fpmzFLibUA1czthlnd9bzESU0cF+kFD/FhX9DKbMk/Kh94FusxPf7
+         pkqF66IdSKE0iiLaPeNwAYqhl6clYXV5n9o4Pv+3xgZpeXkU0jOvFuXuQXoWvY5wOchS
+         hRj6rcCZvGzMlFGpERESeqeNkmEjY/FnWH4+hfRLJAJPgjC3MKZjQHGJptkfNGVnUFMa
+         p1pQ==
+X-Gm-Message-State: APuU4Z9DVq2D0CbEyL3GWPgXUnWrKDqx6iIaoRW6MvKEo966I8e/3wuc
+	XyWYh5X29gimmKzlRkt76Ck0IZjGAeLN9T/OPTU+W34KbYkOo/Di6k8pmUYfsHUr
+X-Gm-Gg: AYBFou11fiRxDQunpaMv6OzL8eS6DpsaDDnVrAr3i3bwHWUSziyFCAtCxheKp1quFHt
+	VWaGaSbfglNomTMKXYnmX6WqVoWA1MsrYmj0nwXb77wM1mGI+i+IxmllaZy9tvAq8/LkMIUyege
+	wY851vx3Mn9sDMvS9oiw/zzgrjmuUJF8wOkCI1UBujkv8LYGlURO4f6ySc4MagQFs/mw2eXLXuO
+	L4ySSJtKiZU5S989XaIGLVEJYnThsI0IQ+tXar5HtuGpsB0Yqg/TsFMAII09K38tgo5yvfrcvjO
+	S5rSr6l7CEB4UtODOkxd70NVyngaTM/wAAVVvUYnalVVcwrHroNmLGm6sgosgUclx4Cz+bSzIIz
+	iYM3DFfDVhzL9O3SOx2D6CQHHZZyQzm+XupPS31WVBoZLyMXXqLRRMqfeIQGhLQp2PFVor+/x51
+	BAIOInvUu/hXrKN87Gup43vyxx6iZ7U1jhVKn0TzC/6o8VnD3QUwkqUCSrERe/1jsijY5o0KI9f
+	Fe/AhVTd2CDFS068HBj1oRUiDYtdVKpQFSe6Oz7jUlQLXpvhDlm7m2R4lXgpL8rh5xeu+tEsfaq
+	48GmvApcV2vFeBNZ8Srjq1XOlQ5YNDHM5zI/FlgHXhIf65P6gsvDk7YNLiZDNB92oHT2XXk+lr1
+	ewYEuzF8jdzO9YND1LEirIgZzJKnop6aO5ORzHvjQdQueR3amYPBXPUh5htlXqA7WMWi2RHAuex
+	CMQ1igbEqlc1jAAhJmYY5fjc4t/iHFlUC+4zXt8DWqEJSmsQ==
+X-Received: by 2002:a05:622a:409:b0:536:990d:79a0 with SMTP id d75a77b69052e-552a604fa4cmr59833661cf.49.1794233955802;
+        Mon, 09 Nov 2026 06:19:15 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55263e658eesm41565991cf.10.2026.11.09.06.19.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 06:19:15 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	cgzones@googlemail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/2] python/semanage: fix permissive add with bytes module bindings
+Date: Mon,  9 Nov 2026 09:19:02 -0500
+Message-ID: <20261109141903.121983-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -51,132 +101,46 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use
- vma_flags_t
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@ziepe.ca>,
- John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- Rik van Riel <riel@surriel.com>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Harry Yoo <harry@kernel.org>,
- Jann Horn <jannh@google.com>, Lance Yang <lance.yang@linux.dev>,
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Byungchul Park <byungchul@sk.com>,
- Gregory Price <gourry@gourry.net>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
- Xu Xin <xu.xin@linux.dev>, Chengming Zhou <chengming.zhou@linux.dev>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
- Shrikanth Hegde <sshegde@linux.ibm.com>, Pedro Falcato <pfalcato@suse.de>,
- Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>,
- Shakeel Butt <shakeel.butt@linux.dev>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Baoquan He <baoquan.he@linux.dev>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Leon Romanovsky <leon@kernel.org>,
- SJ Park <sj@kernel.org>, Rakie Kim <rakie.kim@sk.com>,
- David Rientjes <rientjes@google.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Peter Zijlstra
- <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, James Clark
- <james.clark@linaro.org>, Masami Hiramatsu <mhiramat@kernel.org>,
- Oleg Nesterov <oleg@redhat.com>, John Johansen
- <john.johansen@canonical.com>, Georgia Garcia
- <georgia.garcia@canonical.com>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- kvm@vger.kernel.org, damon@lists.linux.dev,
- linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-> --- a/mm/ksm.c
-> +++ b/mm/ksm.c
-> @@ -779,7 +779,8 @@ static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
->  	if (ksm_test_exit(mm))
->  		return NULL;
->  	vma = vma_lookup(mm, addr);
-> -	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) || !vma_has_anon_rmap(vma))
-> +	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) ||
-> +	    !vma_has_anon_rmap(vma))
+Stub the sepolicy module in test-permissive-store.py when it cannot be
+imported: seobject pulls in sepolicy (and thereby setools) at module
+level, but the permissive record operations exercised by the tests
+never use it. Without this the new test fails in CI, whre setools is
+not installed, before exercising the bindings at all.
 
-This change should be dropped form this patch IIUC.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ python/semanage/test-permissive-store.py | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-It would have to go into the previous one (that I applied) but it's not actually
-required.
-
-Unless I am missing something :)
-
+diff --git a/python/semanage/test-permissive-store.py b/python/semanage/test-permissive-store.py
+index f8e657ee..5792ffe6 100755
+--- a/python/semanage/test-permissive-store.py
++++ b/python/semanage/test-permissive-store.py
+@@ -7,10 +7,22 @@
+ 
+ import os
+ import shutil
++import sys
+ import tempfile
++import types
+ import unittest
+ 
+ import semanage
++
++# seobject imports sepolicy (which requires setools) at module level, but
++# the permissive record operations exercised here never use it. Provide an
++# empty placeholder when setools is not available, e.g. in CI, so that the
++# bindings themselves are still exercised.
++try:
++    import sepolicy  # noqa: F401
++except ImportError:
++    sys.modules["sepolicy"] = types.ModuleType("sepolicy")
++
+ import seobject
+ 
+ BASE_CIL = b"""
 -- 
-Cheers,
+2.56.0
 
-David
