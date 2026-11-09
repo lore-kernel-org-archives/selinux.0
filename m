@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794238959;
-	b=qgpF/Nj2XU7CG2JldP0AA1MTFlHzxr3g8W1baIbHX5R5w/0b9XgkIMrBve+B0Lq7q45N
-	 GGN0KJ6vE4ZyXF4+Z8eb0Va2mw97fHss/RTgs8Sa60v6Ga/j34LIgBqBFAOyh+mpxEqFw
-	 84ctyLXFxhRr0a2RSygWuEqfW3mee81gs9UHmdeqsqcJvp38r9WcrFVndO5x4K9NaZUGk
-	 EGC5zwQggeCs7xBL+S/KeXgRweaW2AcPAqhFOjRlxIJru8fFBVnHFw5Z7Rihpm9cDDTPN
-	 hR7SfDFyTdBXvZmOC8Io8xvca16/W9gk+Ou83qctmMtZ2c6iqgRrxNA4dIRCB+sgPLQ==
+	t=1794238990;
+	b=bXv3VPI8pyWrj/wMICmeAE4tUfG2vLvbriECy6W1vxIS3rjN61sp+1aHZOGuBwnfvjaY
+	 nkxiWvuUPNFEHdQtoNZ5s08REWQKl8iQfNovxJEhy+pcCMJLn56eovqzEBr96oMTxyz2k
+	 KmPGhwgSFj6P0rjVW708PI6Hq5+a5tgd0tW7yz0yd64iJloZMROsREeA8JwD1HAN8tWHs
+	 +onSVCu2gqk+xtt92I8mDcAQycads8twPbKbQhFo/7ndKvfddoToSp2CkyQaW4bJ+cu3E
+	 6FSS1QE7xPCoSRO3bXxQ6pssl39lwGNlSnHw5meAwpuNeZeeVG8+vaxIvnfGvTJPq+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794238959;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794238990;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=GR7m3SMLSalIL9HwwQx10qZ53E0cPneODotPrJ6wTys=;
-	b=oSPXZe2Ny82GrgEok9RWoVAdLGNqRfYfSQKl/z0JUA7XMTUePQZBJ+b9SYP9ExyD33xN
-	 Fh8ZjVeCWnjPujD9vF7TAtRzMdCU2YiNAlVh0e8iAjTCo8Tx5xU5APk4eX29htYNDMOLM
-	 Gqz78fue6TEcvLkrtAfpODWdA4EDhars20r4+YS69qUr8V3BF6rsXEkxYFG4HXh2rQQ/g
-	 NrWspDJRaBdZrHVoz9AJGuR1jVDhqzyEZO/VdQj17VdXTv5veGIZa6pBWFh6mfP5V0KI4
-	 lqlVt+uZ/PeIZV6lq3xZ9iQOVLjiLnFhyKOuz4QXTTExhJf2XY1leFMGTcx9YaQx4bw==
+	bh=bihVS8QPyaCg10UM/+4V/ozgn44NGfV4WwxWfUjU3hs=;
+	b=LNHRWntY16nS6xq1CO1WENlhyR6g2qwzAnxdbT3VEEQ4Vhx9jgnsNJCMCZXj5dk4HHPK
+	 CAHLmAgDWughkpCczm8PHyDVLst6mHKeK8PjGLsOVXUIHVzI+RI5K6hiXfJFP4fq3Uoja
+	 dy4F5keCe+dPKd2wpRul/BJ9zcHJWhZhRzPXpZJDHINbBvduDi1I6Aed6164zOvWc17pr
+	 3Mr/HXL8NJszxjH0V8NmfTW8s4PeXkw7If3CZMWNijFQLeusy/MjqWdH9Y1Q52G6Z/5Ls
+	 zDQ3JxGZ+mxavgzCvda7wtauf1/Anba/UbJSZQyVcbPATBzEXeNogu5BYeHowM7emPQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CJEXgPjU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TS+T2QU7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00916606A31C
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:42:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9573F606A321
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:43:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CJEXgPjU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740651F0089F
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:42:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TS+T2QU7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF8D1F0089F
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794238958;
-	bh=GR7m3SMLSalIL9HwwQx10qZ53E0cPneODotPrJ6wTys=;
+	s=k20260515; t=1794238990;
+	bh=bihVS8QPyaCg10UM/+4V/ozgn44NGfV4WwxWfUjU3hs=;
 	h=From:Subject:Reply-To:To:In-Reply-To:References:Date;
-	b=CJEXgPjU7TnvG5VLbBlOp9L9sPHZF1oZXqWV+bIQLTEf2Ofa5f5GWu5joeBU7Ojc8
-	 7tdPmn+eGs6YBDmukMefXBmIO1991fpkYLJPV5VaTBdEBZI0EY+/9y+FKtOHAtSywL
-	 ahxdkRHehzW9xnNSJ5eAldxXfuAZ8TtGj/f6yjP28VbR8nfxLgjnzJxJa/YX2nfrAR
-	 J+VDK2jI++HUz+X0g5N11PFnYHNZvmwIA5BfXQj/McEDIVmbTPFFrf9lwEDrLS0ayp
-	 f4NOaxLaQ9WSSFkzppjtvEiR51dLcf5WaYJSIvwkZR4R5C1lyZeMjR6nxP4sYRTHQK
-	 fhsOuibTlSpaA==
-Message-ID: <sashiko-outbox-205168@kernel.org>
+	b=TS+T2QU7lOXjObHbBzJ81yOleeB+7S3l6IJBVRTSU4+A7rn9oOV+rUyAHtdlHeX57
+	 xnaChI7XGbAH724TuiDgm3gJPSLDtJAoADqXO2oozbkeQTeI3ZX6jn4C0So6e/690v
+	 CeZ2SkMgDYiBHf1qGX+2lGxIlpgebYd8HRuSL8kZFXxYJ5z5mRb9gdkKnyaem41YdY
+	 b94KStzSwEU3GgjHpvivq9/ruDpMJ5JBIjXdQ62RZJbvIQ3Am0h0zIzWy3kTRnapNh
+	 vJf21iDvg7QS8XBFy/QFyobn9lrxMWnOPQccMQIoAg+U04iEpUgUz+3bMTcclV4Ahw
+	 J5oM2J3g2bUYA==
+Message-ID: <sashiko-outbox-205170@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/5] selinux: zero-initialize permission name array
- in masked av dump
+Subject: Re: [PATCH v2 2/5] selinux: restore the context string on -ESTALE
+ retry
 Reply-To: sashiko-reviews@lists.linux.dev
 To: selinux@vger.kernel.org
-In-Reply-To: <20261109153802.76176-5-cgoettsche@seltendoof.de>
+In-Reply-To: <20261109153802.76176-1-cgoettsche@seltendoof.de>
 References: <20261109153802.76176-1-cgoettsche@seltendoof.de>
- <20261109153802.76176-5-cgoettsche@seltendoof.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 15:42:38 +0000
+Date: Mon, 09 Nov 2026 15:43:08 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -62,31 +61,32 @@ Precedence: list
 
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >=20
-> security_dump_masked_av() declares an on-stack array
+> security_context_to_sid_core() retries the conversion when
+> sidtab_context_to_sid() returns -ESTALE because a policy reload froze
+> the sidtab in the meantime.  The retry passes scontext2 to
+> string_to_context_struct() again, but that function mutates its input:
+> it replaces the ':' separators with NUL bytes while parsing.  On the
+> second pass the user field is followed by a NUL instead of a ':', so the
+> parse fails with -EINVAL for any context, including a perfectly valid
+> one.
 >=20
-> 	char *permission_names[SEL_VEC_MAX];
+> Without force this makes the caller see -EINVAL for a valid context.
+> With force the (pristine) saved copy gets stored as an uninterpreted,
+> unmapped context, so a valid context is treated as unlabeled until the
+> next policy reload.
 >=20
-> and only fills the entries that correspond to permissions actually
-> defined for the target class (and its common) via hashtab_map() and
-> dump_masked_av_helper().  It then walks the set bits of the masked
-> access vector and logs, for each bit, permission_names[index] or the
-> "????" fallback when the slot is NULL.
+> Restore scontext2 from the caller's buffer before retrying, as
+> services_convert_context() already does for the same reason.  The
+> buffer was allocated by kmemdup_nul() with scontext_len + 1 bytes and
+> the parser never writes past the terminating NUL, so copying
+> scontext_len bytes restores it exactly.
 >=20
-> The array is never initialized, so any set bit whose index has no
-> defined permission for the class reads an uninitialized stack pointer,
-> which is then passed to audit_log_format("%s").
->=20
-> Zero-initialize the array so undefined slots are NULL and are reported
-> as "????", exactly as the existing fallback intends.  Rejecting such AV
-> rules at load time is deliberately not done here: it would break
-> policies that older toolchains legitimately produced.
->=20
-> Fixes: 44c2d9bdd702 ("Add audit messages on type boundary violations")
+> Fixes: 9ad6e9cb39c6 ("selinux: fix race between old and new sidtab")
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109153802.7617=
-6-5-cgoettsche@seltendoof.de?part=3D1
+6-5-cgoettsche@seltendoof.de?part=3D2
 
