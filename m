@@ -1,100 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.41
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794237622;
-	b=VT82zZS/ZuP9His7fVZumgtY0COJjv0cTo7TGLZUI7do9MNhWP2M3L4g82vS9yjsJUYq
-	 jxeAv+4wqUF7ZpAjnx2qWhqRnmb7tKm4AP+thUnHUeSZsKvWJ8rzLp4UAoPUEJl4BLNcT
-	 cPGofJhHsKHmgcTS0fCcSSSxxuDdIjmHt40WGwppc2Gp06qh3mvlDezVhkvetrxV12Zcw
-	 H0f6EYIT7D0U0mRVhinexfySf+CnvDyhVJmVzR0FmBJ+Pfvi7vtB/iaDDOJlpSdgeciHN
-	 wa3eh0SOadyn/A0t1uUl6tp0+vwGX/JPJbJ3+cMW+5YlduVkRLw0RGxwDSpPrU2IuWw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794237622;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.48
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794237919;
+	b=srVjOVkk9Pc+S4RMqQDoJPYuudDCFE27KcyHIx5rqQ5zdpV6o7vOLFVsw0i7ySazvmGB
+	 RC1TUOmWvAD52vnVhpDs5PUYKNsEwmwNs+e23U+x6aQf5KRlERaV4E9IJJfZZU2ERKBs1
+	 Gy/w9h8Xl+kZp09b3ctky5sZztya2DGwhd+hnkO4TLl7PoyibIIGlZyPrndUi/1Vaj4Zk
+	 t+BR0PRJE7i4JkgsoWfX+LRTJ9F+QfbXC7PYEYZGwXdNhfGFnz62zA9mJSMHgi9re1OtD
+	 1kjP5G7Eg3jLdy79YwBUiwPK1K/+PCPKKcvsICR3EAcJDRflj5TR3ABCFbOyHjU41Qg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794237919;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=ZbRXFrDPxo9TEgcFEs8CF+aBhAr2BLLBO84rzxJ4xgw=;
-	b=i4HtGwpaXqQzJxIwqPS4LhsNW9wNfOj0tuc/gRGUd8TsA7EmZoOCr6T5hWek5FToIvC8
-	 nDyBiHYU9WWoXOsQ+3pD/JYD8suHp3Z4u03pa07ZbBy9af6qDfhF+fQpWocoe5dKE7Y5p
-	 TZVO0NeCSMXXKst8Ey6aP7TGTqfzUUI+8bTnM+4EZSC72C1huChgNHfA+dDH0tj++epz/
-	 jpeUBZ5USdOeX0iBM6NRDBZ7IH3yNhoQUHW6hBuyZkrj+gs6VVzsZwZ9GvFOO0PH36Gkd
-	 Da/eWsHoa5Q3I1oRaygQjTAtR88wuOv13XDSLKFaZc5SEhc7OrrQxSWQTjrhDGDEmkA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=s9wN64PtUvXhnvW9hj3C94/kv4lfhxO9dkGy9dfJwys=;
+	b=u/FtDc9E8ZnTK4IrPrE/NTdfNhmwGPw/2M22mFSXz/0kSjy3iyFjthRrkv0IBQqFpIi8
+	 oK9kQ/MuShR81qXuNluQUDDB2O8ElYpxkzHcw78LJJIH0dzWRhmrzdYphYfgt5QZrbwqS
+	 qGEiotLq1qRvaMqv+1A4usVcEH0ivI333EUZ+7QFjfv/YIybUD+JPhBJi8cYp+HON4f1z
+	 wu0rHt7gWk59zo5ETy4y/v/D2uJXubVdNtoGrb3/FlyDsmx4wfYC7k9tZMj/GBTEU89An
+	 gRRE7edHePxxXGST5asW///JdyOpy6wEmoZmr2kEY+2GvT3w9vx0qYdP0BMas3vNScQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fEDC5NNa;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.41
-Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jCS6444+;
+	arc=none smtp.remote-ip=209.85.219.48
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F33F3606A321
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:20:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F33F3606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44DBC606A31C
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:25:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 44DBC606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fEDC5NNa
-Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-677af43eed4so1062456d50.0
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 07:20:21 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794237621; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AzCjk6p2NvjC0/fSN5dj36V2297D/p8m3ZfkX12/injPS4q7PvI7L57sXJ5Lxx5cYg
-         iTRyB37zeGvzwtM+nkrMGPB2rzB9Oo3jDoKlJqC1qDcsREtkGTwaVbv1LfdrEYQMqwh0
-         1rHrwvzolXFaqxZ3/jWQvyyeXJ0ywGUh7xpBiqLPerHVMtrAtu5G1Yvpr8vOUPcii7o/
-         EPHlRxtam04q8UkVb1z1E1dzmerqpajgUzgDyjPRmCApnrGX+qb+DOdDIHLYdM/77Ezk
-         AFdBOL0euCScc8OHBcOwTRMpG+F3XHSffpayIEQEkhs+iWbAs5rVnLKNEAz5deXBRd0x
-         UZJw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ZbRXFrDPxo9TEgcFEs8CF+aBhAr2BLLBO84rzxJ4xgw=;
-        fh=XPfnPeS4wglRmelDXjWECDrUzh1HlzFzhPotAf04/Ag=;
-        b=Tr63dfta/7HuuQFZRLMfuDHS48AUZvD6C+wYvFGyHkVVv/ExTuv/trSVOEIvFDzMfM
-         q1jk2NijG1DZgwvuMrAA3y+d/fg1CrF5R5wXd4ABdMiyCacA8f1wfn88sv7VA/PgoGMs
-         j6ZsM0yCfPPAi6f9WnErJUnc9nrirxFw8RBmy5XT3GCx1V6CRK5VJZUMO2pbOq8abMR3
-         4zCw5Rct+8+blGzLVwli+P8LXpGY1zYTS+sgq+lq/4AXELFM1D6BmpTjy+QSqx4M/s1n
-         4g6VnpHM/EBcAo7YqYkH9+32C3qnuBhwz9n5R9lTsEA3kZnzZo1y9E3SZp2XliWDtuLW
-         aasQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jCS6444+
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-91ec2d42231so10758116d6.2
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 07:25:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794237621; x=1794842421; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ZbRXFrDPxo9TEgcFEs8CF+aBhAr2BLLBO84rzxJ4xgw=;
-        b=fEDC5NNaNm49WxPSl1qNuGutcwMpFtYIlKd0ff6HdNe6NwxLBe8UgUO3Slj1OqPrAe
-         sdnE48VLC/BApi3D2K4tLHDSjaIJYh4boNakRg6d5LmkKjIDi1LQvXqJ1q/XFh7Ws29/
-         s/Wgq2Rfb2pSJ2e6/v6cGfbi6EW13JBFB8324He5qvPLbc3X7f4M2BbkbzJQ9dO1VMfi
-         NeiprTbA9FVAPiJCGc+UUk+68URhd0J/L0VTEtUWdtyQfL2iux7nuFW4CAV+R2svisgL
-         WVbWmB+9lk00GOajVw6zMguUIHmUceY9AGSNK6adeUC1c7MR4gRL1h2HezPCqoCvayhy
-         eVlw==
+        d=gmail.com; s=20260707; t=1794237918; x=1794842718; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=s9wN64PtUvXhnvW9hj3C94/kv4lfhxO9dkGy9dfJwys=;
+        b=jCS6444+L1/2gmOZUxEYhbGLoR3fdVWhblC1U/pl5AlIg8LJ9ewElZ/I/LcxicMDTl
+         d5+tbDdyq3VXO1+bssJgmXz4BifssaKhcpEnrkXFyXi39nr3d5dHjRPw29iIVQVEydRR
+         Ig1rlpV1xzuNeHhPZ+izymmGfGQxdOU8RnMyPCziS2tvXpb/+lpmIX1VXMc3BwUekxQc
+         SPl8KmpYTX9n9XI6Vr2mpwDDN80SQiOW24eo2/UBQsuBK58wq3e3xnxQmhlpTacnMjAd
+         Wk7TeperG/8iM07SZK3fdEyMDT9d2wMKjCU3PjGtBIMve4igdQYjKpy19rzCQKzfibcR
+         XiFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794237621; x=1794842421;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZbRXFrDPxo9TEgcFEs8CF+aBhAr2BLLBO84rzxJ4xgw=;
-        b=BtM+bi1Q7AmR2wm250l93n2WkUPHRNbLwZCPNiYsQTTZsvJDceLrtALAnlnhg/PO5O
-         sU8WGJy6gvFS8gYj/OdzRqZJcF6bW9StTSsKgFpD0GLv05zkaGHAhQWQaPrUa/BYuVQ/
-         DvEsDFiOBVXihtn1Y3/+YZ3PmyP0xAVHhEAZyOgLoAeo3r6Nn5JnD1dTNzRyFhcbo3la
-         AVsL+lCnG13mQa3Pm/yx+HL5acxIQ0Vo4mkw8BNDKmaRVFn1wOOXBQW01WqwNDrgljhG
-         HVCgSM9dhPtIrUceW7oVwYTDBeIAzICbGQiR2RNYPpi2yCa+0i8Ar5vLkdj0rSAb7RGu
-         sGuw==
-X-Gm-Message-State: APuU4Z+Wngkn4Ky63UvmGam5egKSUO/4tyytrr0LOeXFGTkOUECiCiTW
-	EINIypriLAgVBn3Irg9QcveCn6YI11qbr1UQrDHcvyOhw5b/re12YZjYkUkqsaQZE4QUjvArY4/
-	wI3SMCjlw+WGh4CGFClnIKIyNZATLGL0Omn92
-X-Gm-Gg: AYBFou2tBS//cwkdhI1BjtmjdRvHI6xF5W25AjsmS0HNOj5OpBmRgTzZRh6SiqS7vpR
-	KAF07L1xkLTvIMsGzK9+58SDBh8pShas1a2jCr6ZYs9uEvogVjuwfajRxuoPh5Rw74J9+F/gnG5
-	3kJZPlbHdO4qngC4tVs+P0EP1FmALJYWrR6HRvEz8lNK6YiaMYG5+2RjBnhb5s5p8fKgsnXfexf
-	NKMoIuXGGHaVDL70kqw46+5ROTHFOzRrf0UBc6w41h9fDCC+P9/a9uwY0Rj3wSvGTOLVknmN94S
-	4fOhRd5U6+5fkdLyKbjRQT/5ISyGHpGoDfdRoM/xevs02OBsK3kMiQgRmGY5fS69+E0FrOIg14W
-	eQfmfLLVkpSRzXRt/Lkm9ESSqrlDk4SBNoD1jrWgBeWmeEErUBlVa5f6K+hcKOyP7Zq7xRjOtxo
-	oqDeSUGTOTjdL6c8i+qBSAZGJAFEwOGxfU9ImV3MwWDeHHIRBJtlUrLR99FQ==
-X-Received: by 2002:a05:690e:441c:b0:67c:608:b375 with SMTP id
- 956f58d0204a3-67c3da7825dmr2017003d50.101.1794237620950; Mon, 09 Nov 2026
- 07:20:20 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794237918; x=1794842718;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=s9wN64PtUvXhnvW9hj3C94/kv4lfhxO9dkGy9dfJwys=;
+        b=LFedaGtCHeye92aIx4I7sd4sDrch9sSGfmUI3BRTxaFhUeWXzBp9sJb/TuvVUcPc8/
+         G2IbPClfrQIYN2iabNMeql+WG5MGtxAXDLcTQNwk24N/S0BNl5bkxPVQHMdPs+0J+ZBN
+         jjzf72TjO8q8z0w/1PKhHIchZ/irMuWPCcOejHwJ2P8BaCf9YyI4YkbJX8Lr9/jB2WTf
+         eqjr0e1mwFE+75JXqbh5Ntx7wdlZIMPjsdjqjZhMRau65ndGShh0aoxcYE8uHfLvbmPX
+         cgUOkhUU10CzV6yKoDnDOcOcrWr0mBaN2V7MC747Pyznhl5NaenPiKDik8gjCvTrxF3C
+         nxhA==
+X-Gm-Message-State: APuU4Z/gSqbIfNIFbxZo6Ffozyt3DbbNX/ljeBjwceJNwegPdecVoMTq
+	Xo/ut/7iKJUcUX4gW9pfWzcB012t9vrHvAo3+g7CSIopsbIKaCyNz/ZRnTu4R4mj
+X-Gm-Gg: AYBFou3BrEcrmCHx8BExdRYpo2yy1x/jTfO2j36QHTWNZmdRuLiMN8+9CGhMFziEW5M
+	UVkvnppvxb6bR1Sdf04dzOm9JuvYIJfEoS9AlK+PSlH4X3W0GUaSqtJoiKikSbFqFLkWAuNqxBl
+	UHOT75FKBDYEXB0nmGXLwraGpp6dcFFa2hKg8PUkxjFxkSsZCjl2jRIy+KM8G2QRM94V0Ce+fm+
+	NqfJZkMq4YIpls5btj6foK6+T02tu5pB8MIzZdM8EOS9RjXAXBpEjUpCPmmI1yBmbyGLokxK4U+
+	8W7l7LbxFFtqqXchdyFXvSEPOSclRyvQIudmwNAPdn0VaVxpChF0jwShBN30GWDHn4p58Durxpi
+	2oA/LJZyji7/2GbBqDtcdfC5SyVisbixA0Uzm4mhqaMkdpJLBC9ie7MQx8URvlWcAm+VqpTtb9E
+	A0bu14cfi0w0xRdyWFOZoODLoABDFIclIuXRyYh+hwkxvWzz5rtMX68NTHO2fjIV8phMP3X/b9A
+	4c7wE8e1B5EESQSa8ZNmOAeUVDPB9WBEOzqyX4RBi1GrTmGBYpfZKCEG1qqqerZUBnPP2J6QrKY
+	yASPPnbzX0yesCYRFI0/w/o4ioLZpwejWG+aOx90k81BpmqAv3/k3qGnfKCfuR3yrcgxmXGMXFe
+	Yf4AMIc+JOGCpNaxdDXA8UbfpslWHTYA3f3Sdzq024cZqJMkIabyOOQBICepSNW4QujFHFoCinl
+	Hhm/VUjPKHsdEl7oiDZMMfmkCp5jMVKGnmiwNEBLhhqX2Xcg==
+X-Received: by 2002:a05:6214:d6d:b0:91e:89ce:ceee with SMTP id 6a1803df08f44-91ed24376cemr57213116d6.43.1794237917785;
+        Mon, 09 Nov 2026 07:25:17 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ecee766c1sm44208046d6.36.2026.11.09.07.25.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 07:25:17 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	cgzones@googlemail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 1/3] python/semanage: fix test-permissive-store.py when run by CI
+Date: Mon,  9 Nov 2026 10:25:00 -0500
+Message-ID: <20261109152502.124123-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,77 +101,92 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106131652.267648-1-cgoettsche@seltendoof.de>
- <CAEjxPJ5GXUcUD58w3NeWqqTGPJirii-HHUR67pK+SEDv14Awgw@mail.gmail.com> <CAJ2a_Dc4hUqbQQGvUaAZzbmGn2HEk_4XoaaZRb_-3h5Ze3RNvw@mail.gmail.com>
-In-Reply-To: <CAJ2a_Dc4hUqbQQGvUaAZzbmGn2HEk_4XoaaZRb_-3h5Ze3RNvw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 9 Nov 2026 10:20:09 -0500
-X-Gm-Features: AclHuK9NUk-CtLwwk5Dh1tdMoUKH4NM2fHr_jBhMye5_uTtqN1tjGkA5W-R_oC4
-Message-ID: <CAEjxPJ6KQ_fC2omz-HtLCToghYW_i0KD_6bzgsXjnyArVic70A@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libsepol: keep the uncompressed filename transition
- format for Xen
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 9, 2026 at 10:18=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> On Fri, 6 Nov 2026 at 21:16, Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Fri, Nov 6, 2026 at 8:18=E2=80=AFAM Christian G=C3=B6ttsche
-> > <cgoettsche@seltendoof.de> wrote:
-> > >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > Commit 890bc6bf ("libsepol,checkpolicy: update remaining policyvers
-> > > comparisons to correctly handle Xen policies") restricted the
-> > > uncompressed filename transition format to SELinux policies older tha=
-n
-> > > POLICYDB_VERSION_COMP_FTRANS. Xen policy versions are numbered
-> > > separately and never gained the compressed format, so Xen policies ar=
-e
-> > > now read and written in the compressed format instead, which is
-> > > incompatible with every earlier release. For example, a Xen v30 polic=
-y
-> > > with a named type transition written by checkpolicy 3.11 fails to loa=
-d:
-> > >
-> > >     ebitmap: map size 4 does not match my size 64 (high bit was 8)
-> > >
-> > > and policies written now cannot be read by 3.11.
-> > >
-> > > Use the compressed format only for SELinux policies of version
-> > > POLICYDB_VERSION_COMP_FTRANS or later, via a common helper for readin=
-g
-> > > and writing.
-> > >
-> > > Add a Xen v30 binary policy written by checkpolicy 3.11 to the
-> > > checkpolicy tests and check that it is read correctly and that the sa=
-me
-> > > source compiles to an identical binary, as a roundtrip through a sing=
-le
-> > > implementation does not detect such format changes.
-> > >
-> > > Assisted-by: Claude:claude-5.5-opus
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > This breaks make check-format:
-> > libsepol/src/private.h:53:36: error: code should be clang-formatted
-> > [-Wclang-format-violations]
-> > #define policydb_has_comp_ftrans(p)                       \
-> >
-> > Otherwise,
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >
-> > For this and other format-only issues, if you want me to reformat them
-> > for you, let me know and I will do so.
->
-> If its okay for you, it'll be great if you could reformat them before
-> applying. I'll try to check for format issues before posting in the
-> future.
+Stub the sepolicy module in test-permissive-store.py when it cannot be
+imported: seobject pulls in sepolicy (and thereby setools) at module
+level, but the permissive record operations exercised by the tests
+never use it. Without this the new test fails in CI, where setools is
+not installed, before exercising the bindings at all.
 
-Ok, will do. I'm also working through some CI breakage from your
-patches, fixing as I go.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ python/semanage/Makefile                 |  1 +
+ python/semanage/test-permissive-store.py | 32 ++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+index 314fe359..0474390b 100644
+--- a/python/semanage/Makefile
++++ b/python/semanage/Makefile
+@@ -35,5 +35,6 @@ test:
+ 	@$(PYTHON) test-permissive-store.py
+ 	@$(PYTHON) test-semanage.py -a
+ clean:
++	rm -rf __pycache__
+ 
+ relabel:
+diff --git a/python/semanage/test-permissive-store.py b/python/semanage/test-permissive-store.py
+index f8e657ee..d7719a1b 100755
+--- a/python/semanage/test-permissive-store.py
++++ b/python/semanage/test-permissive-store.py
+@@ -7,10 +7,34 @@
+ 
+ import os
+ import shutil
++import sys
+ import tempfile
++import types
+ import unittest
+ 
+ import semanage
++
++# seobject imports sepolicy (which requires setools) at module level, but
++# the permissive record operations exercised here never use it. Provide an
++# empty placeholder when setools is not available, e.g. in CI, so that the
++# bindings themselves are still exercised.
++try:
++    import sepolicy  # noqa: F401
++except ImportError:
++    sys.modules["sepolicy"] = types.ModuleType("sepolicy")
++
++try:
++    import setools  # noqa: F401
++except ImportError:
++    setools = types.ModuleType("setools")
++    setools.policyrep = types.ModuleType("setools.policyrep")
++    setools.policyrep.SELinuxPolicy = type("SELinuxPolicy", (), {})
++    setools.typequery = types.ModuleType("setools.typequery")
++    setools.typequery.TypeQuery = type("TypeQuery", (), {})
++    sys.modules["setools"] = setools
++    sys.modules["setools.policyrep"] = setools.policyrep
++    sys.modules["setools.typequery"] = setools.typequery
++
+ import seobject
+ 
+ BASE_CIL = b"""
+@@ -45,6 +69,10 @@ class PermissiveStoreTests(unittest.TestCase):
+         os.makedirs(os.path.join(self.root, "etc", "selinux"))
+         with open(os.path.join(self.root, "etc", "selinux", "semanage.conf"), "w") as f:
+             f.write("disable-genhomedircon = true\n")
++            f.write("[sefcontext_compile]\n")
++            f.write("path = /bin/true\n")
++            f.write("args = $@\n")
++            f.write("[end]\n")
+         base = os.path.join(self.root, STORE, "active", "modules", "100", "base")
+         os.makedirs(base)
+         with open(os.path.join(base, "cil"), "wb") as f:
+@@ -57,6 +85,10 @@ class PermissiveStoreTests(unittest.TestCase):
+         self.assertIsNotNone(self.sh)
+         semanage.semanage_set_create_store(self.sh, 1)
+         semanage.semanage_set_reload(self.sh, 0)
++        # Do not spawn setfiles to validate file contexts: the test policy
++        # defines none, and the host setfiles may not match the libsepol
++        # this test was built against (or may not exist at all).
++        semanage.semanage_set_check_contexts(self.sh, 0)
+         semanage.semanage_set_store_root(self.sh, "")
+         semanage.semanage_select_store(self.sh, STORE, semanage.SEMANAGE_CON_DIRECT)
+         self.assertGreaterEqual(semanage.semanage_connect(self.sh), 0)
+-- 
+2.56.0
+
