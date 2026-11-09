@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.50
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794241444;
-	b=pT4m5dWcpovIB94ehA8R7G/4p8UJ7qW2SvaArGVHaVh9JdQRFDQSr5rReIHyBlKUN/L6
-	 iQqz5OZuGuNLkR38pivvy65RKJe6TJgYjMhyjiOWbP3VJtCh9lXBET0A9WKJWnK0f8FJV
-	 QoFQvImnrLr6AwHaxMdxAFbYSEX1xlv3Ps7N3DGhQtZESOh4YkLVliTl7bctYwDT+tImL
-	 ufeIYqSVUklDe4Xb4ifIaqFoEdYURqqPkQLarnHcy4BNTIwCAeRUAarQDV4twfCI+DuqU
-	 MlBjfIYgkf3q8vxDc8aaqCfn+cNIatlKYJoK4gvqzkz3uamBHhR9xbSpXk1+BmMERww==
+	t=1794241519;
+	b=aIDYsYVej+3lpxRdh07iYCPGxhg/fJ8+SQLKA2qL5DqX8Fk8DAyfOcokWio7U9pCFt6w
+	 5Tc3yBd+wxzk3J03bbVK2HfcDky7o5L0SbItj+75ZMcl6245D9zWTMe+wpz9eEoL5l97j
+	 Iw/t3DtOal24LJbggzp57vM3XxV4AnbnayMYo0Mj/Z9w/DLPMNvXjtbosyVdXGUNFoY7B
+	 /gdVjgBZO4O/vGgcLpsbDH9sJoAYnb/ZNnTzEkiP34bTpRTb7nAIeB9gwjps4BRCsoe+D
+	 v6ZsRifqGu+t+I/b+PrWR8HxKYB9NsmkQhu5z4AIR5pfvO6v9XbXvrjiq+iw7z9IcAg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794241444;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794241519;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=WFMEIkXFSWDem+pxKDbBTWU4agrhaHzBdOyiYscj0S0=;
-	b=Fokq/5f3uNbWg+6QPMKpyPIjru4DcGh/dgC3CmOIgh89mulaFscbGqALhMCjJPbH3/vV
-	 sMJtBFn0TRSVJlJfaWV/osW4iD9bvgAmJWWgWrotWbYfKYgbiJhBXuJsvU0nI7dvGdyUO
-	 q4ygodCHms2AHZU0wvn0kvut90ldROrgS2MTor2T0ue+TABYKTRu2aDmjkWIJ0l8vfn+M
-	 AURdTJIAdSY4ClUCzoT5EFOW2BKLoK0dg5HRrbmpCTTfyphGduAZQrvr6kjySdOLKyV9j
-	 V1J3BJbLmMcPPSDtdmOgucNq/GauI1xe3h3Qd4XTj0rWIi3GaDFObI0dogfsNNqXghA==
+	bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
+	b=thEloLqLmw6743lSbWyBBt+9Gld2kv0H2ApYib1oFAoCtAbbISLXi5i5p9Jw8DnLf0WH
+	 fcZGunfHYG0S9xfESWn/ynZPqWL4cer6UJGbLoVeGdPN3D0+WvIn6wqrh5jl6dm+guN/9
+	 ZwlJbWk81WoliBjQ5XSDX8q1p5qp3PWlVjZRhecyig74sXQ5TAiKbYJKsms58aKTUXVhO
+	 6IX+kwzwVA3y4xUZwz+Ro8q3oRBePs/IDnmjLTIrxttZVXsxtrgq9TlmoEZxFs1NxKcR/
+	 U0ZKzrZH+5Li+8hnUvHIRm4jh9Aj594oaSjhUB4JgYRPL96NnqfJEAY/2v/wQdFtBOg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ApocDFDc;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.50
-Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wgrgih8Z;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
+Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAAC5606A321
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 16:24:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CAAC5606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E552A606A31C
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 16:25:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E552A606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ApocDFDc
-Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-67bf3c6654fso1100845d50.1
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 08:24:03 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794241443; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wgrgih8Z
+Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-67c2c2ac1c3so1654632d50.1
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 08:25:18 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794241518; cv=none;
         d=google.com; s=arc-20260327;
-        b=hl2FQg1ZlLZWiRxxlfg2fpZRr2UGq00h0nov8V2aY7EsSwjAOxmSHArYo1xKgus5r7
-         z+O8H59GsAjLnJNsd2QGAtSzIYcLVt2dKNvinEaDkAI72vuJ2OVFihLtB0DPKwLPqgHS
-         OOxsG1GUjl4QB7UFdyUwfgvlqhWnP/zAeD5ku8jt087nwC1tNg8S1FVyuYUMyCHeqS4D
-         MVXYnyOjs70/BtuzfTYhkqZ0M8CVur2LIwgGO5WZ6tl0C7Q0i468zMium591Y4XTEcEl
-         TOxZLxqXK8ckNN34mJmPOXL462JvxqdZZPJxVCre8a5tXzcnDGCl0CcjCBavMD71hZYU
-         XLxQ==
+        b=VrYqGK0sw/xLzy0lYMjhk/rJ7nTFgsHoTUyC6dqh41CAnjtWrnqNv4AX363xHGLZeF
+         pJ/GWWSH7d1Mp1uFD8lDghq/CDHdZy6Ws/iFcRxkx5Us/YmyQBIthYppcRWjsIZvqS4N
+         9XmtEC/hj/gpQByH402cM6+fwFshYUx9/Dg7Sc7m8cI9JoRx56EwqC0GKNY8TH0zOLWv
+         Hsqwm9kkhAriKl4wCu9JXRsmMNL8XNhlW5nlXbCQWL7EdW4IZRzDFy6ioTq91m6Gcvnc
+         FncxczXXHVjRtlE0joKIFXTYBjpcaQhB7h//AC0rwZVzdLVl0dwL1zh5qBN7/bwLGXGM
+         bM6Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=WFMEIkXFSWDem+pxKDbBTWU4agrhaHzBdOyiYscj0S0=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=QM35rY8DMe/z49HKw3k+GYI4UHI2HOiKkaxGYKKpsUro4LqgHHKD+ifWP8jmCjMnVA
-         eGndRPqCmV9MX6lNry880q/uIjDXTDC04JHbbCByYnuol1TRptYR+hkMA3mzgaze4yLI
-         UPdoLP9B73wbUWaaC5qCABx6yWsXFuQK+7tbo46UrLDpHVJ7/7DOu4VoNBy2wSzlHY8s
-         tto3dvJhQuolAgtwqqrs5Q32VJl2T0baIeWDi1rGchSys8JG1+JpL+55dwrrXE/ZSnpc
-         sNENL8oeLCgmobvXi1clTwLDzqYEKyCis5q1YrOhe5bfzsh/5Z11kuHNo5/lk7irr6/j
-         AgmA==;
+        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
+        fh=QFKa48eN4AZKFIyrSiZk3FCE4nUKAEfyzhRYxfFXB60=;
+        b=f9TKcV8vo3osZ1dTR7eQG82+uGrZ4PuKggppi3SnnpRVHZbz4FLnc0ekVTEAMtX33N
+         qgmvbGMjiqSZ2vX5k7oAbogjY/VL4n6yeTxykiU1JBtH+Yrz6xbnXRiB5KY2B2DGZuUI
+         dztoEi0JGoQT7GYWwWkORmLMvm+UEjtkF5ZTAbnz5Jj+txc6ol2oUppOZvd7/s+2OxWU
+         kT+1t5sqJD6dvcGTrltiZieWMNby3Vnw/JV+imfNHSaHE8YrwCXENu45JAc9Fqz/W38x
+         i+J52a6ixH8RhjoT1PCjYMjPe76F2CBS2DuKFPW8YX48xh7DHk4ylCxBFszdm5bpZ6sc
+         Fh4w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794241442; x=1794846242; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794241518; x=1794846318; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=WFMEIkXFSWDem+pxKDbBTWU4agrhaHzBdOyiYscj0S0=;
-        b=ApocDFDcttWfM8zbfWw66D/wtvcKQ10EJgOhPvSSYHygxWU1oXYY2garDDDs/CZRBr
-         GLrBYgLyMxY3c5xGQsFTk0whDJJfD2yZyNuvoazyccY6FVtKKQuhp9hAe3H8Qg1s8EMr
-         z8SaJm2hW2Pz5hsnksCLfQZuSc9bx3zxoMIBQMslyaoFoS/hKy6ENQFRQXBuQK3z3HEA
-         3qbvlhBXh8Kf9ze18olJff3ya53A7UHfYBp0H5LOOxTaxIH/fv6XUFRvK1JRHwRawUou
-         78A1jlVBVdqhb4ta2vuoJ4toPFPS9Lv6r8y3+fLito0if89zGWvQ2kBiHQD9eTdCi+uO
-         YKNg==
+        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
+        b=wgrgih8ZdSXnsI4mBc+wAt8vyCNw1uQnEXhCw0Qjn5aZh/wb8NWBWzDos88EprAR0G
+         yxC9DQWNUCBCwaUFdG34tAsk3Rv12U91svXirdHtWFgoH9F42tdQJOtp/knWitvpxKJ6
+         aHMq0dVEwqneazLElcuc4j3/ZJaaMYgT9c4tcqBw+CvWoJU7ltm2TdtO1juQr1/bt2On
+         lR5LuOC/rOmFZSqHATHuPZ+2NszwOMCeYh9hquAZ8hRVPKPA4hFVZ894HFDiMZcxCLUC
+         T9X/vxmY4ZT/ShwkZulJIQiSfB12pzSALDhRZnfN3GJ967SZWhdn3k9u1E09th8wMiWh
+         WsuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794241443; x=1794846243;
+        d=1e100.net; s=20260707; t=1794241518; x=1794846318;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=WFMEIkXFSWDem+pxKDbBTWU4agrhaHzBdOyiYscj0S0=;
-        b=zeTErvI6b4BVBYmJ17qHgE9QjQhgUqOuQlvJSdPZ0QMQM9MICCvMtdtjP3ufrBZyA1
-         409hGYz4Qti42CLIUFv/jI7s9bP/T/j5blXEoLsMDJpz+/mAHThwIzIfMztEB4TTZxOX
-         66dZ0XjcQilbS6+XF5ztjJSrY4znpQsK1Zr11aa7/Q9HBlHlqFlKr4aQ3WLmWDIY37R9
-         gS2PzVW5czFBmm2cWUZWqRf+CuwZToe4/MxWuO/ueIJ6A+m8U3eYxKqsjCoA889awF7C
-         YaBB9NjankQ9Pr6NBGdk97hT2gzKt3wcjeTElVMJhA6CiyNO4AsXIL4hB6WNAwhs1D2Z
-         +5Mg==
-X-Gm-Message-State: APuU4Z83ixGXW92neWAxY9hSdjpOwsTRPtrR4hFChJCga2ch3ZdW/1oT
-	jeqnbj3ET9xC+8tJ9bs/LmNGU3xepc+FKuOZwWtv7Eg4zNMcRDfmW7l6fwmQZZlbj2xuOevAVQc
-	UtU9HtSPMpU4+ycqGbQMxs2RE1QKtKwDqTtz6
-X-Gm-Gg: AYBFou3rxZo+zv92isE/FisrggPioqNKRKtUCZQ+yINRUS3QsUfl7MwelaOC/x+uqx6
-	v9Z/4gCbytthk9eYDGkdYezn3cYx7ovQoaxQtu8S8WLPAJtarbFxf3wmCA0gqkP+wU87I8PTWPz
-	PBr6inRVI7ilrc0TpbA33/IyMI+MRzlrhDHEe4j8mP8qmod9MtYGMcIgogojiciXVTY3ZhFXkXz
-	YaQBYKvc1qEw5faIRhNhau/LYXJeHoXbnouMdgdHTkFPiRzc7VSibT1kBqJKxf46UhenasTWZqA
-	+dSt8fDqcEr4zbwwvIpJGM53G7IYjnILW0SgebFthrs++z44x6T0h2b4h2oRXGSCaeI6zPZ8rcU
-	mniPckjJ2NZplAZIaSYlgR0ve4Zuw8YQWA/i1rUdRKYRULZFimqzBkqRyEdW4AM+6tkpcQtOBX1
-	ysgJWmCcLnAO7o4gvOhtpearMnRk5FKpZRAWWhbOKGtC8mJ3UoIfvF+uNQBg==
-X-Received: by 2002:a05:690e:108a:10b0:67c:288c:f6a8 with SMTP id
- 956f58d0204a3-67c5643bcb2mr42866d50.4.1794241441193; Mon, 09 Nov 2026
- 08:24:01 -0800 (PST)
+        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
+        b=EQ8xXGjDTxNFcxLnrhvKigq+5Jrq1YQf9rrDnQgyGV0A412bmuSmQTSDIUiftMoyP5
+         od1Yhsnei/lNYe30Dg7GM+8+XkeKD9gWTVrFF6wPpdJb781Lbx2ETAmXBt7th9x1OB+z
+         N4fYjXjzF16NFHV/3yyMUEmaBvyJrAN5XvIh88bpYiWGMclSRFwFnkjWI9BN2VxLTY/9
+         VdcIHf99699+KOT1rYE4JK9ycsc4ocYfrQ/w26vMunp25In9rIPBcyVijzzMUg2Xeb5r
+         6zKK5vwanWLt4HDwZBQlomjiJtJYOyUrsQWmyHMN8RfC/pFqFzSv7DKAAl7Jqn1LG5ji
+         Dhhg==
+X-Gm-Message-State: APuU4Z+JTSWn47RLavJDzKe3spiVtfMHzA38i2fk2sGM157gasLhA1j9
+	BPdCqg4tkZZH+ej1vMWYuUk2fA5aIRsWDODSL9cF95bHH6XeZTePRidX5JF5QqjkNWfnW5zb7uy
+	BiBzy2HQBD9MqFVCTJOypIz3jGTfZPEe66Uja
+X-Gm-Gg: AYBFou1YumaxdbST85mvaIiIEFLs6x/dMuCRA/fj+qoOF9JO6CluO31kuheHRLI6bvA
+	7XhSfj7smDXCOpBo49zTUF5S86yJbVkAz1BI5Icg0ZJtHnHGIfGBTt/Gt/n0QiVJwPq3Kl97/BX
+	uKYlmYQrYRrDW/ez6m9S9McRHUL6/FVTV1UQ/PYXhBdTSdWjX1WO3bq7kHU9J7QMX1teKPbKSvE
+	Y/xwWLi7KzmU29v0p7h9Jqa+av7eJsvVv2okMT9qcxNS4ZVlU5Nw2XSBBv5bTBYCb/A+Umkdwyt
+	vJE6cutp7sQCYU4TIcO/ZvD9xnzRxbvT2yOHHolRdCG58bRFCbdASUlUEDde4zb9DQpS2cjungk
+	2+K0S1KBhe4gLhuqeKlDOqz8W+bFeb7xKNOLgTkda5V7PSt/7Sjo/W2LA5Hn0pGC7R64ccjScCb
+	+Fa7TeguVoisC76AjLuYpRQwpgd1poOkcnyk1t9X3mi5jcVepmU22ApqFQ3A==
+X-Received: by 2002:a05:690e:164c:b0:67c:3655:5875 with SMTP id
+ 956f58d0204a3-67c5660ca40mr63921d50.5.1794241516580; Mon, 09 Nov 2026
+ 08:25:16 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,48 +104,41 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106142302.512540-1-cgoettsche@seltendoof.de> <CAEjxPJ4C=e89ta+1FwErVnc9aFjSTULDG5r_-3b2wYk38USDrA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4C=e89ta+1FwErVnc9aFjSTULDG5r_-3b2wYk38USDrA@mail.gmail.com>
+References: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 9 Nov 2026 11:23:50 -0500
-X-Gm-Features: AclHuK8qD8UumfZGpiA4dS14jIY3wZ1GHDxHW1d0Hvsz4Ag6YQNyOo6LNXR1QUs
-Message-ID: <CAEjxPJ70x1phrr5FHK0LyaPVtE3_81yzfoNrZQ4qf8rKgWZ9MA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: avoid quadratic removal of redundant
- conditional rules
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+Date: Mon, 9 Nov 2026 11:25:05 -0500
+X-Gm-Features: AclHuK_UI4kW84GBKR_7JzZR6vuebOqSYBFSy47BAYhWjZq7hwKU1H4zlSOGQSQ
+Message-ID: <CAEjxPJ5gqia+ardsraOZou5VASK0tmgsPE=w-BJkp6bBz8rbUw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libsemanage: reject missing scalar configuration arguments
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
+	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 6, 2026 at 3:38=E2=80=AFPM Stephen Smalley
+On Fri, Nov 6, 2026 at 1:06=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Fri, Nov 6, 2026 at 9:23=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > optimize_cond_avtab() collects the redundant conditional rules in a lis=
-t
-> > and then, for every entry of the conditional avtab, scans that list
-> > linearly to check whether the entry is to be deleted. The cost is the
-> > product of both sizes; on a modular Reference Policy build this single
-> > loop accounted for about 12% of the runtime of `semodule -B`.
-> >
-> > Sort the addresses of the nodes to delete once and look up each avtab
-> > entry with bsearch(3). Addresses are stored as uintptr_t, so no pointer
-> > to a freed node is read after its deletion. Should the allocation fail,
-> > fall back to the previous linear scan, so the function stays infallible
-> > and policydb_optimize() keeps its behavior.
-> >
-> > Also free the list entries left over after the scan, which were leaked
-> > before if a collected node was not found in the table.
-> >
-> > The resulting policy is unchanged.
-> >
-> > Assisted-by: Claude:claude-5.5-opus
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> The configuration scanner returns a NULL ARG for empty and quoted-empty
+> values, as well as on token allocation failure. Scalar actions pass this
+> pointer to strcasecmp, strtol or strdup. In particular, the recently adde=
+d
+> sort-local-fcontexts option crashes instead of rejecting an empty value.
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Add a shared scalar argument production that rejects NULL before entering
+> these actions. Preserve empty external-program arguments, which have a
+> different contract. This also covers older scalar options with the same
+> problem.
+>
+> Add 114 regression checks for scalar rejection, valid values, parser reus=
+e,
+> empty external arguments and token allocation failure.
+>
+> Fixes: ee7e4e1e4e97 ("libsemanage: optionally sort file_contexts.local by=
+ specificity")
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-This has been merged.
+This series except for the audit2why patch which conflicts with the
+just-merged series from cgzones has been merged.
+I'll rebase the audit2why patch later.
