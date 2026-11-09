@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794231956;
-	b=MtjIAwGofTR8te5XeXQS1pJUTnX1bmw8kbE0Im8qkVgISKl7eVHZ/c16FoeWpNlrfj2X
-	 IG0tNa/YnYYsXRjjSvRGsZ5NfWcvdt3vAE8XOwhV5eeVSO1qXsUbWhQQpT20Ve4h1ZCYT
-	 quieKqGTmCzBjJR3pOGCBm71ymYI8G5biB0tbcX4mdUTRAu8ZbdGYTMcinIQTafCKM8a6
-	 0yNrN4cy2LfGzfL+FbcipB1s1Ku0d/gt3/H0pLHKrmxC2jF3sFnfijaONL0pPVrOh3cWm
-	 /C19BlryRo2mlEDRoAo1XL9SMDrFYOtGflg5tjdx5g52x8b8HxDF0kQWEyPbLUZPzuw==
+	t=1794233433;
+	b=bx1ORRxqhPZ55UJVPaPUzZ/620eKi7h73tInjYE7G/j5pGaoiFZZYG+j08b7Ol8Ooq0b
+	 KebfAX3UuoWLccwFxbhl47k7Hx+5M6QaPfrjtUFaLxG/AHYF8mHSPQ2Nje6avjCHm94+e
+	 bzJDkN/NFCLPn/0KcJv28P4MlRE7+3qxZkn/TO/Hfh0pKHg0lOrWVRNOwKvnmFWL70HOc
+	 sZuJqa/u94XoM987zuggM0k6KHpAacFb3+t208AIRZfF7n0CdjHbkowIEpxaRsR522Okh
+	 UUBg/n4CvfaGxciMTi17pbaSGkUJmqX0n8jbP63nKA9gwiWp9uF7+eEvWaym8n419Uw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794231956;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794233433;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=3ghSULc2A7bxoq3cD5WNGj7immrzLVvXymVlkFnE2uA=;
-	b=kCXumlaL1hVacw2Ls0U3j9fgBAy9PqQ+zXPhWXc9uKhklqlppC+nIfJweHkQT7Dp3lYq
-	 HoH24jEFO6gdvM/DGEWJLNWEljxYVMS9E/cGV5O04AgqQX/geyVBhd7seS3OPNwff9zzL
-	 LSuMYx2NZ6JKTZdR7veCbhgtHF9bTCxcged3tgebSHt2Sq7YuEopJTxIiC09FnPs6sznB
-	 a8/xBIivcdZCmhqzsHMxnKciTZ4XIJd2HtV7s67iwTS7IZlR7ELj+A/b7lwc9R3L5qYPA
-	 L7Q7Yg9StNzhrPoNRy9t7Kc8R5fLW4Dl9Bv2XF2+CUfIY6qIEfTbAwwgaFl8dpmC0nw==
+	bh=myMKGYz65TX3ZV2HLEDYXummVbvvcxR6eJbeormWLNY=;
+	b=Xr4mMi3tbGKF7vP3dEuJWZ+PuO+52niQiAVBNia+/+4KDyDnHmtBSTKLTx7ANmMBRlq8
+	 3IhnfYqeqc/ebeBXmDB3Y0nhJKtS7xb8TZB0sQ5suGbcB0wExl98xfXNcrKQUd4cFWqE2
+	 8+gkI2XbA4cWr+0aUAH0+B7LtHiaBVMxWquMCInCX6kWQnpy4EKyiK1YWuWgamEHBmoOg
+	 TdwY5QZJQDBAJ++xdMkNWQArRxw/eVc92+vSRZckRleUrHYIMObIEVLdqs0YuZ58Nw0+k
+	 V+qLQWASbBOfpZpy74D3t/hZ/jdssUZkAxzQQu8Ughd6csz+CtDbvNlDO9vtXfWi32Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cAyJbuaR;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bglofv8p;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6295D606A31C;
-	Mon,  9 Nov 2026 13:45:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1300606D82B;
+	Mon,  9 Nov 2026 14:10:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cAyJbuaR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DC61F008A3;
-	Mon,  9 Nov 2026 13:45:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bglofv8p
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12FC1F008A6;
+	Mon,  9 Nov 2026 14:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794231955;
-	bh=3ghSULc2A7bxoq3cD5WNGj7immrzLVvXymVlkFnE2uA=;
+	s=k20260515; t=1794233432;
+	bh=myMKGYz65TX3ZV2HLEDYXummVbvvcxR6eJbeormWLNY=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=cAyJbuaRo5t2m54P4kPq3SpgBAKBf+y4BE7lmKKdKQR+pUdsGj9/KWxMhgBOLwJCu
-	 87ScRAGM8yKF/0wDiTdZv5p1K+GdBjqMuOe2efCNwQ9llvWO+0B6LLSXRFB4zx/q74
-	 RXczWEHiyFMveg8dSv/aK3X3mp2l427U4eDFuT7AH7lRMJxBs4IaxWDNp1KfHGGOlH
-	 E0aQJDJZxpFQ0QJzyMWGsztQj+QGKBptDyam9y5ZJQd1w6z1Oo4y9u5ijQn5GU2kDz
-	 AOtF3mERTys2EVr8ImaKve05QFh5vuStEsb0Jf7UuWdyZNWQqLnmYG3YvXmuiE9KmR
-	 /SUF2gsOHTSmA==
-Message-ID: <cd62d951-65d4-4841-a5de-b2551089f3b6@kernel.org>
-Date: Mon, 9 Nov 2026 14:45:34 +0100
+	b=Bglofv8pDUgq9hvZ4rVha6IMx3/tuTzNQNjSHYP9CIWyepDI27syAaVFBas8f6RVD
+	 UVmdyKqTyz0b0NheG+FZ+AE2pIAr4hBiDl86UsGhA2o+J9ROCIUnuGugx2665zjVgQ
+	 TMdl9gtEp1MxF8F7yzZNtAdWogd9Qrd7XfK+Cn9/CyV+VmkQv5SDfWRp1jUA83/KWa
+	 0go/uTrk3kXniLmF1Y9T5JU/bstxbmS1HQc2z9qgBDZR2I/KcxQxVBiBGjfDxu/sgz
+	 lACX7WdmvIxb++wMDKFjor2fBrrIUzrhV7UHlSvhb14W9EZvqdLp4aUCwYHftZoSEC
+	 9xf7LvowSWk1Q==
+Message-ID: <65038fdc-f4a1-461d-b7b9-669885f15c3c@kernel.org>
+Date: Mon, 9 Nov 2026 15:10:12 +0100
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -52,7 +52,7 @@ List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/13] mm: convert miscellaneous VMA flag tests to use
+Subject: Re: [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use
  vma_flags_t
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@ziepe.ca>,
@@ -108,7 +108,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <20261105-late-2026-vma-flags-v1-8-0d3cd15ab75f@kernel.org>
+ <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -155,21 +155,26 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20261105-late-2026-vma-flags-v1-8-0d3cd15ab75f@kernel.org>
+In-Reply-To: <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 11/5/26 22:30, Lorenzo Stoakes (ARM) wrote:
-> Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
-> remaining straightforward VMA flag tests scattered throughout core mm, HMM
-> (and its test module), DAMON and the OOM reaper.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
+> --- a/mm/ksm.c
+> +++ b/mm/ksm.c
+> @@ -779,7 +779,8 @@ static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
+>  	if (ksm_test_exit(mm))
+>  		return NULL;
+>  	vma = vma_lookup(mm, addr);
+> -	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) || !vma_has_anon_rmap(vma))
+> +	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) ||
+> +	    !vma_has_anon_rmap(vma))
 
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+This change should be dropped form this patch IIUC.
+
+It would have to go into the previous one (that I applied) but it's not actually
+required.
+
+Unless I am missing something :)
 
 -- 
 Cheers,
