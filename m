@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794231673;
-	b=XQW/mmxFhMIXJ3PmOELZboxk5PW1Zu1jOxU560L0jvSD2kHI6W3v9tdQHc4PIvZP2Rs3
-	 xjMnk5GcyvI/qUJV2NKrlCHcC+SUQAfUWM3OhCbCRc7cXY0H9/3hRVoTiaFF7rTYtiW2S
-	 WT7PctUGRJDdxBpld7uwyQdOpl4WDR/bvBw+Sso9ZSsUHqA5n0PNWv3sdFrlSBYXutrVm
-	 MG4R731TQY3cKi73kcrvV2W8yQDUDbKmxh4990hCD0sOuHaj3x/odDFgTvb2OCouHdR25
-	 e5nVR9/Zk1S6X8d2Dw60TwE2mUUTI5vkC/oOY6Xm5xbEGcR8b0rCI2DWsulseiU6zGA==
+	t=1794231907;
+	b=H6pJCI7jNlcEpnZ1vPWzyAFaa7gkOBtkTaKLIdE15oTahuB8jmem6NCtrH5iEemCjQb/
+	 AJkPi9PwzDoCc6/uNSDvDmBMrnVAqsEDz5lmHjRMpsNHSYbsMa0oyfBxebA3tM8hSnmHU
+	 L7WxjEg7xrABwFpQWpmZcUButm+7/HD4CxWPNGEFBmrT5B2476yIEf8vGivYnX39++Msi
+	 mTM+P4bomee38acOslTUVRbuCVKIaQLslML4UtAoBAWCXOsKlV9h0paa0D7EwL6Tbm+I8
+	 jYQs0tXwQQd8n6vgU1w6rQ6b9QERamUb7S0b/rT27X5wKl9Ovr4IaohkYjJ0AQBOdUg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794231673;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794231907;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=vXnN4wP7YrRqcl/kzLqC3ibVyCYH5Vwpm+s2u3nE+fM=;
-	b=neoO1VdL3Su1/IYhm8sv+3FjnPfSxvbjEoHt0u4Ma9176SXZdI0v2FgOqAMVe90vR5SN
-	 D8VtNzciLOUAZwv09UevSHK/8twW6EzHjVpztSqaddssWLXxQNEAWPKT6V9L3acZLtJIG
-	 P7jqKJ/uyYuOfJQd6D54//wbqQZztUYKU7QSBxmmSug8LPk9pTEDlUkX1Dsy7E5R1jt7s
-	 5HET06w5UlbIoLv6WN3giRsBi0kNF70AZOVoq07X+55ZgZ9G/+nHHXDnFtBebCZGSw0eg
-	 eB/OrLq5GU1X8uyFzhlvCLAtUH/XgGM26Sphk9KJi5fb+I0A0RdrY+Vzj8BMMmpJtaw==
+	bh=SjhNGKAFa/LGrtAPePCfHjw2jptgU6AWjXk819xv4y0=;
+	b=fySqSUz65Zfm5mMH+ltjqvVlk+MgNo+Q6rOKqs/ttBoxsF4inkiMXsF5Inay3B8oT81N
+	 9RdegqnCzsd4nRd2mfDBafP4i+AvnV0J/zpawKeajXb3rhdbaT1W2TT9w/qE6lQ7BrL5n
+	 0TayA4OuutGE4c1yS6VQhnO5Nn7zPXYQYbwLK8z1TR4FX7XfTpJ+gkyh/YEOcTrEOteMg
+	 xIjbsqENJiuLBKkXRjYpWKMRUBHMz1e+L8qyMvBGYSnh+R3zGI5rUQUPiXJ4Bu5FNMd5v
+	 zFA2ceQrpwoKBXHa77ml+SPL+QJ0hybhf9Ml2sghRaoFDgUDX36R+MCFCZjxMXV1Q+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bk9tlQV3;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gz5j+IRt;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C30CB606A31C;
-	Mon,  9 Nov 2026 13:41:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656FC606A337;
+	Mon,  9 Nov 2026 13:45:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bk9tlQV3
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686A01F008A7;
-	Mon,  9 Nov 2026 13:40:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gz5j+IRt
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F641F008A1;
+	Mon,  9 Nov 2026 13:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794231672;
-	bh=vXnN4wP7YrRqcl/kzLqC3ibVyCYH5Vwpm+s2u3nE+fM=;
+	s=k20260515; t=1794231906;
+	bh=SjhNGKAFa/LGrtAPePCfHjw2jptgU6AWjXk819xv4y0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=bk9tlQV3JmFD9uT+BBoFG0Y2WscnfjTaEiPgkxT5GhrocFAfv9ZeQD1n0cBbBuRDD
-	 UvCJlkW+8VKOAZty6EKE1cUNirPOPuGRa+XgB8OZ8sGJDyfxug+ZyO05kgjatX20tT
-	 qGntVXE1JDp2J8VcnZTRCvGoC7wOupjpNOt7UVEaDBdIdwYVw6UYEIHcm2TlaZEX/Z
-	 v4NVV8K6Bn/X8aVHuF5ian/BFE4kbCHIAF6YgOGLuXJAVdTtBWVaLxshIRZNd554lM
-	 3PBoA/jda9ss8181UzzC4N0lg9o5iZKdeCq+m6QaCVehjcyruhpjKnKWYughz+93qL
-	 5rIHrNEXZKRUQ==
-Message-ID: <93fef824-9f60-4940-9ee6-80c9c8e3f945@kernel.org>
-Date: Mon, 9 Nov 2026 14:40:48 +0100
+	b=gz5j+IRt16UMA6Uf8i7EiWjJIBV4vUN9Xy0DKD3/t3wCmxXemR+4mZb4wvMKa+MmX
+	 f5HAwCJPOHi3ECi2nnYFk4cj5S/zAPOZ2LN9cK/+ZjkYO2qsnmOqFygzSsugJjLhqm
+	 XGRy5hq8F0U4PLasq04Uo0A8njicFtwJd+tVw9S5/oDT+gwbYpzSWYp9+YFgcFxTSP
+	 lY7NQStpmvJvsKMIHeFroSHfXp3NwGG0it00SCNdbhEez/eZikwWMazkfHuz+638K3
+	 clgUGputwUFM5yxXtCj0F3eWtXusMjSAYPVemwnv/PNJjY3t4VgVd157Fgzi20jQkR
+	 WpW6XsNlxhqFw==
+Message-ID: <ac29cf71-a1af-4ce7-96c3-aea5a771979a@kernel.org>
+Date: Mon, 9 Nov 2026 14:44:40 +0100
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -52,12 +52,12 @@ List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/13] mm: continue vma_flags_t conversion
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe
- <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, "Matthew Wilcox (Oracle)"
- <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+Subject: Re: [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use
+ vma_flags_t
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+ John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
  Rik van Riel <riel@surriel.com>, "Liam R. Howlett" <liam@infradead.org>,
  Vlastimil Babka <vbabka@kernel.org>, Harry Yoo <harry@kernel.org>,
  Jann Horn <jannh@google.com>, Lance Yang <lance.yang@linux.dev>,
@@ -100,16 +100,15 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe
  Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
  Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>,
  Stephen Smalley <stephen.smalley.work@gmail.com>,
- =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
  kvm@vger.kernel.org, damon@lists.linux.dev,
  linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
  apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <d0ea7929-7c12-4245-ba3f-6dd5c0269e6b@kernel.org> <au3r0-geuwtRYPiC@gremlin>
- <1c0b1368-a381-4b25-bba9-7a4f8e92b764@kernel.org> <au-DXpEi4wHwsz0r@gremlin>
+ <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -156,94 +155,230 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <au-DXpEi4wHwsz0r@gremlin>
+In-Reply-To: <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 11/7/26 21:09, Lorenzo Stoakes (ARM) wrote:
-> I think we're slightly talking across purposes, so to be clear - I am totally
-> fine with you taking any of this through your tree or whatever works for you and
-> Andrew to avoid merge pain :)
+On 11/5/26 22:30, Lorenzo Stoakes (ARM) wrote:
+> Replace use of the legacy vm_flags_t flags with vma_flags_t values
+> throughout the madvise logic.
 > 
-> I was just talking more generally about how to merge series that touch a lot of
-> subsystems and maintainers-who-may-never-reply, etc.
+> In order to do so, update ksm_madvise() and hugepage_madvise() to take a
+> vma_flags_t pointer, and update their other callers in mremap and the
+> powerpc KVM ultravisor code accordingly.
 > 
-> These are the edge cases that make things... fun :)
+> In the latter case we replace vm_flags_reset() with vma_overwrite_flags().
+> The VMA is write locked at this point, so the atomic flags preserved by
+> vma_overwrite_flags() cannot differ from those copied, and the behaviour
+> is unchanged.
 > 
-> Anyway, I guess easiest resolution here is for you to take the bits that belong
-> to your trees and Andrew takes the bits that belong elsewhere?
+> No functional change intended.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
+>  arch/powerpc/kvm/book3s_hv_uvmem.c | 10 ++++----
+>  include/linux/huge_mm.h            |  4 ++--
+>  include/linux/ksm.h                |  4 ++--
+>  mm/khugepaged.c                    | 10 ++++----
+>  mm/ksm.c                           | 11 +++++----
+>  mm/madvise.c                       | 47 ++++++++++++++++++++------------------
+>  mm/mremap.c                        |  2 +-
+>  7 files changed, 46 insertions(+), 42 deletions(-)
+> 
+> diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+> index 463aef870c4e..0fa50bee2ffc 100644
+> --- a/arch/powerpc/kvm/book3s_hv_uvmem.c
+> +++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+> @@ -393,7 +393,7 @@ static int kvmppc_memslot_page_merge(struct kvm *kvm,
+>  {
+>  	unsigned long gfn = memslot->base_gfn;
+>  	unsigned long end, start = gfn_to_hva(kvm, gfn);
+> -	vm_flags_t vm_flags;
+> +	vma_flags_t vma_flags;
+>  	int ret = 0;
+>  	struct vm_area_struct *vma;
+>  	int merge_flag = (merge) ? MADV_MERGEABLE : MADV_UNMERGEABLE;
+> @@ -411,15 +411,15 @@ static int kvmppc_memslot_page_merge(struct kvm *kvm,
+>  			break;
+>  		}
+>  		vma_start_write(vma);
+> -		/* Copy vm_flags to avoid partial modifications in ksm_madvise */
+> -		vm_flags = vma->vm_flags;
+> +		/* Copy flags to avoid partial modifications in ksm_madvise */
+> +		vma_flags = vma->flags;
+>  		ret = ksm_madvise(vma, vma->vm_start, vma->vm_end,
+> -			  merge_flag, &vm_flags);
+> +			  merge_flag, &vma_flags);
 
-Yes, that's what I did now, applying #1,#3,#4,#5,#6
+Unusual indentation (before your change).
 
-7+8 touches some of my components, but the chance for conflicts are hopefully small.
+>  		if (ret) {
+>  			ret = H_STATE;
+>  			break;
+>  		}
+> -		vm_flags_reset(vma, vm_flags);
+> +		vma_overwrite_flags(vma, vma_flags);
+>  		start = vma->vm_end;
+>  	} while (end > vma->vm_end);
+>  
+> diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+> index c745f7ad2298..8b6f4101eabf 100644
+> --- a/include/linux/huge_mm.h
+> +++ b/include/linux/huge_mm.h
+> @@ -508,7 +508,7 @@ change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
+>  			__split_huge_pud(__vma, __pud, __address);	\
+>  	}  while (0)
+>  
+> -int hugepage_madvise(struct vm_area_struct *vma, vm_flags_t *vm_flags,
+> +int hugepage_madvise(struct vm_area_struct *vma, vma_flags_t *vma_flags,
+>  		     int advice);
+>  int madvise_collapse(struct vm_area_struct *vma, unsigned long start,
+>  		     unsigned long end, bool *lock_dropped);
+> @@ -710,7 +710,7 @@ static inline bool unmap_huge_pmd_locked(struct vm_area_struct *vma,
+>  	do { } while (0)
+>  
+>  static inline int hugepage_madvise(struct vm_area_struct *vma,
+> -				   vm_flags_t *vm_flags, int advice)
+> +				   vma_flags_t *vma_flags, int advice)
 
-> 
-> I don't think anything here has an inter-dependency.
-> 
+Could do two tabs while at it.
 
-Yeah that makes it a lot easier.
+>  {
+>  	return -EINVAL;
+>  }
+> diff --git a/include/linux/ksm.h b/include/linux/ksm.h
+> index d39d0d5483a2..1ffc69a72a1a 100644
+> --- a/include/linux/ksm.h
+> +++ b/include/linux/ksm.h
+> @@ -16,7 +16,7 @@
+>  
+>  #ifdef CONFIG_KSM
+>  int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+> -		unsigned long end, int advice, vm_flags_t *vm_flags);
+> +		unsigned long end, int advice, vma_flags_t *vma_flags);
+>  vma_flags_t ksm_vma_flags(struct mm_struct *mm, const struct file *file,
+>  			  vma_flags_t vma_flags);
+>  int ksm_enable_merge_any(struct mm_struct *mm);
+> @@ -139,7 +139,7 @@ static inline void collect_procs_ksm(const struct folio *folio,
+>  
+>  #ifdef CONFIG_MMU
+>  static inline int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+> -		unsigned long end, int advice, vm_flags_t *vm_flags)
+> +		unsigned long end, int advice, vma_flags_t *vma_flags)
+>  {
+>  	return 0;
+>  }
+> diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+> index a2c7c6a0768d..be1f779c8da5 100644
+> --- a/mm/khugepaged.c
+> +++ b/mm/khugepaged.c
+> @@ -363,16 +363,16 @@ static unsigned int collapse_max_ptes_swap(struct collapse_control *cc,
+>  }
+>  
+>  int hugepage_madvise(struct vm_area_struct *vma,
+> -		     vm_flags_t *vm_flags, int advice)
+> +		     vma_flags_t *vma_flags, int advice)
+>  {
+>  	switch (advice) {
+>  	case MADV_HUGEPAGE:
+> -		*vm_flags &= ~VM_NOHUGEPAGE;
+> -		*vm_flags |= VM_HUGEPAGE;
+> +		vma_flags_clear(vma_flags, VMA_NOHUGEPAGE_BIT);
+> +		vma_flags_set(vma_flags, VMA_HUGEPAGE_BIT);
+>  		break;
+>  	case MADV_NOHUGEPAGE:
+> -		*vm_flags &= ~VM_HUGEPAGE;
+> -		*vm_flags |= VM_NOHUGEPAGE;
+> +		vma_flags_clear(vma_flags, VMA_HUGEPAGE_BIT);
+> +		vma_flags_set(vma_flags, VMA_NOHUGEPAGE_BIT);
+>  		/*
+>  		 * Setting VM_NOHUGEPAGE will prevent khugepaged from scanning
+>  		 * this vma even if we leave the mm registered in khugepaged if
+> diff --git a/mm/ksm.c b/mm/ksm.c
+> index 61b772bba229..3eb9c1ec2f87 100644
+> --- a/mm/ksm.c
+> +++ b/mm/ksm.c
+> @@ -779,7 +779,8 @@ static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
+>  	if (ksm_test_exit(mm))
+>  		return NULL;
+>  	vma = vma_lookup(mm, addr);
+> -	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) || !vma_has_anon_rmap(vma))
+> +	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) ||
+> +	    !vma_has_anon_rmap(vma))
+>  		return NULL;
+>  	return vma;
+>  }
+> @@ -3021,7 +3022,7 @@ int ksm_disable(struct mm_struct *mm)
+>  }
+>  
+>  int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+> -		unsigned long end, int advice, vm_flags_t *vm_flags)
+> +		unsigned long end, int advice, vma_flags_t *vma_flags)
+>  {
+>  	struct mm_struct *mm = vma->vm_mm;
+>  	int err;
+> @@ -3039,11 +3040,11 @@ int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+>  				return err;
+>  		}
+>  
+> -		*vm_flags |= VM_MERGEABLE;
+> +		vma_flags_set(vma_flags, VMA_MERGEABLE_BIT);
+>  		break;
+>  
+>  	case MADV_UNMERGEABLE:
+> -		if (!(*vm_flags & VM_MERGEABLE))
+> +		if (!vma_flags_test(vma_flags, VMA_MERGEABLE_BIT))
+>  			return 0;		/* just ignore the advice */
+>  
+>  		if (vma_has_anon_rmap(vma)) {
+> @@ -3052,7 +3053,7 @@ int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+>  				return err;
+>  		}
+>  
+> -		*vm_flags &= ~VM_MERGEABLE;
+> +		vma_flags_clear(vma_flags, VMA_MERGEABLE_BIT);
+>  		break;
+>  	}
+>  
+> diff --git a/mm/madvise.c b/mm/madvise.c
+> index e9fa4f71efea..1b539e67b00d 100644
+> --- a/mm/madvise.c
+> +++ b/mm/madvise.c
+> @@ -148,11 +148,10 @@ static int replace_anon_vma_name(struct vm_area_struct *vma,
+>   * Update the vm_flags or anon_name on region of a vma, splitting it or merging
+>   * it as necessary. Must be called with mmap_lock held for writing.
+>   */
+> -static int madvise_update_vma(vm_flags_t new_flags,
+> +static int madvise_update_vma(vma_flags_t new_vma_flags,
+>  		struct madvise_behavior *madv_behavior)
+>  {
+>  	struct vm_area_struct *vma = madv_behavior->vma;
+> -	vma_flags_t new_vma_flags = legacy_to_vma_flags(new_flags);
+>  	struct madvise_behavior_range *range = &madv_behavior->range;
+>  	struct anon_vma_name *anon_name = madv_behavior->anon_name;
+>  	bool set_new_anon_name = madv_behavior->behavior == __MADV_SET_ANON_VMA_NAME;
+> @@ -601,7 +600,8 @@ static void madvise_cold_page_range(struct mmu_gather *tlb,
+>  
+>  static inline bool can_madv_lru_vma(struct vm_area_struct *vma)
+>  {
+> -	return !(vma->vm_flags & (VM_LOCKED|VM_PFNMAP|VM_HUGETLB));
+> +	return !vma_test_any(vma, VMA_LOCKED_BIT, VMA_PFNMAP_BIT,
+> +			     VMA_HUGETLB_BIT);
+>  }
+>  
+>  static long madvise_cold(struct madvise_behavior *madv_behavior)
+> @@ -650,7 +650,7 @@ static long madvise_pageout(struct madvise_behavior *madv_behavior)
+>  	 * further to pageout dirty anon pages.
+>  	 */
+>  	if (!vma_is_anonymous(vma) && (!can_do_file_pageout(vma) &&
+> -				(vma->vm_flags & VM_MAYSHARE)))
+> +				vma_test(vma, VMA_MAYSHARE_BIT)))
 
-> 
-> On Sat, Nov 07, 2026 at 08:26:29PM +0100, David Hildenbrand (Arm) wrote:
-> [ ... ]
->>
->> Because of [PATCH 05/13] mm: convert THP VMA flag tests to use vma_flags_t which
->> is THP-only, and feels like it could go straight through one of my trees,
->> avoiding conflicts with Andrew's tree. But maybe there is more to it that I am
->> missing.
-> 
-> Sorry about that! Please take that through your tree.
-> 
+Another weird indentation. Likely because the spare set of () that are not
+necessary?
 
-Not your fault, I guess we'll have to get used to merging stuff through separate
-trees, and dealing with conflicts that cannot be avoided :)
 
->>
->> I assume stable topic branches would fix that, but they are currently
->> unfortunately not on the table ... :)
-> 
-> I guess we need everybody-on-git for this!
-> 
-> I guess when Liam and & I have the VMA tree we can do that at least for stuff
-> that goes there :)
-
-Ack!
-
-> 
->>
->>>
->>>
->>> Right, but sometimes functions are declared in one place and called in
->>> others. It is impossible to change the signature of one without also touching
->>> the others.
->>
->> Yes. Something like that is unavoidable. Or if you need new APIs/
-> 
-> Yes.
-> 
->>
->>>
->>>
->>> It's not really all over the place, it's converting vm_flags_t to
->>> vma_flags_t across madvise.c, which involves changing a few function
->>> signatures, whose callers must be updated.
->>
->> Ah, yeah. What on earth does arch/powerpc/kvm/book3s_hv_uvmem.c do with madvise :(
-> 
-> Yeah it's quite worrying that... :)
-> 
->>
->>>
->>> I could split it up into 3 patches where 1 does internal-only, one changes 1
->>> function, and the next changes another, if that works?
->>
->> No, these things really have to go in as one unit, no need to split that up.
-> 
-> Thanks, yeah, it's a pain I know but eventually 'one fine day' (probably in
-> 2028) everything will be converted to vma_flags_t/mmap_prepare and we won't have
-> to think about this :P
-
-Right! :)
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
