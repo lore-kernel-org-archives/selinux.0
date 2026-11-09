@@ -1,50 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794227183;
-	b=NrIrE9yApcsqVd5SU3ZiyjqhfbZBh5i9xqCllwy+/hpyEwnCiS9SINaoa6Nt+fUm03/o
-	 fSO+N6hU2uCUpIlnNgaOXaadMOlPMsC0NbaZzZNjjDV8PC/xItR0ckRcVlGT9kxIFFixY
-	 VUf+T1NyZCkRZcPK7JdMhmUUFxBOjZVGNELacL30Wk8gmNM6dTX685/qV+C5OD9OmUqUb
-	 Ok1ugviyAv9D9QiIIn34Pw2u2P2+5TZYwomOD28zXQCQ4npqdbrc7HGXcX3E4SE0pfRZs
-	 a99t9hcKkDfF4UhcVQfzZVLN6+IvL511H/gq5aIBZiSzAsJ5tFBnycme0oiHzRvPguA==
+	t=1794227244;
+	b=srFN5VCe6g9DUFvI6/7vzQQ+zNiLnsYnrMjDjXXBAr39tbx4MGZRw4JN3IJLS7BHJDHC
+	 8rdpKa0KFmxZXsniJBE2w7/R1kon/XN1HHC9AmiKfc5Sq6C4lYV08Z0+6c+H/EQ/kSqA+
+	 fYYPla3ePT3oVUuyDYLPBnY/G3DoeuU7NwhSpfKpSsgutPkaggXOBYaNpD25gXrcggb9N
+	 qDDTDJfhVWOp0blCe4H8pta5wpPBZrf/6ymoW9Lobb5+DAXo9+5xHsZPL477JihtLXEK4
+	 8KUMdXq4478ADejRAQqBN/oYWLv5M7GemEZalq3vikERpHjQNJgXs1XzBZGUiYyX7fA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794227183;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794227244;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=6+EKYQdPiDyWXkzzfV/UN8vBxInBjW4N6ZELhlBfhOI=;
-	b=FravJIZPmJWItFVVMLMskbgWqU7crZr5vlViguxVfCH3UAh8W/8KcprpC5sqA27dNA6I
-	 XfQfEuYpWdg10AGdYVERwxyvnJTUiRbAtpxtRdMnRBKrQfCMFQsYR6la6ycqBr5L+cbF/
-	 CCbl8pXhNakEck3IKSCctFEHMMlJCfRDWgGqSd0sTvU0F/UU1Gl9Q44SM7pZ2reCzL6G7
-	 S5F3OJANODDPdlcak96qiA+K+bKGmxy7eqE0fMlif8fmo552dmgDtzyPPyyfH0yYLfS4h
-	 R3KWz87o4PQqkpirYcU3rc+cEthaL0341PymLTfKsM8Ova9CwXG1AeVGR9mIkY44iEQ==
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=RYIcWcYzIUZ35LbYpg6XHYKMwvcMU7zN300uv/7AjsM=;
+	b=5L3gcaWF4f153ORc5lQUt+i37o2pI0gDGZx6wvKghUNHjj4jL6ql+0HHEeKLXyK5xR08
+	 SfZhxoqnBZ130dJc9KVNs0oHOcXuJKC7agxPakP5Pj1ir+GmiDlu9VF4U8SX9TUP+uuCZ
+	 eRFccs1vW4sfrWsVLeSrXl7ZAN7PseEnZy2Bk/AQot6AhotKyWKcdU6pebF6kQx7wYaTq
+	 1irsGhfWYYXr+pMomL2CXpnY6OJxYwDYnCwLXf8MxGWIVAuStia+J+ZY3QKBEtXCKQCJl
+	 Xpopa0X+OLGPCclNMhvOGaS1skReCjGfGsBgPdR6kGCWEFmAy26d28mHpJARKstA1Qw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VhodTs+A;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WkYzP4rt;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9811606A321;
-	Mon,  9 Nov 2026 12:26:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED134606A31C;
+	Mon,  9 Nov 2026 12:27:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VhodTs+A
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937971F0089F;
-	Mon,  9 Nov 2026 12:26:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WkYzP4rt
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0D91F0089F;
+	Mon,  9 Nov 2026 12:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794227182;
-	bh=6+EKYQdPiDyWXkzzfV/UN8vBxInBjW4N6ZELhlBfhOI=;
+	s=k20260515; t=1794227243;
+	bh=RYIcWcYzIUZ35LbYpg6XHYKMwvcMU7zN300uv/7AjsM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=VhodTs+AWpB6b78audXhz1hdToGnTfiqsIeh7C9iS51ypshI9FNnayYXFucaMgeLZ
-	 xeEIungcy0zjIPzwmpAqArp8eRXgn6aLR4nNmqHiWaRHWsbsQ7Qxh3+PgSaQmGodli
-	 iH97FzOVZfiuF5Da5WjkLmXe3XJknzf7SbtxrzdHDZZM2QKqqAHZOHOY4doionvKHw
-	 4h930muPKhPQSSHI+AAJgxUYDe3aTAGC8NAItOXceOH2dwmRr1lJ1teB6f1iCQBu+D
-	 7GUCaRQliXvLQza+jV5DiZhXeIr64nvzKuidlvAiLong4iDN+nDILPyMHrAS7gpG/t
-	 Sxhmv2E4eHoMw==
-Date: Mon, 9 Nov 2026 12:26:00 +0000
+	b=WkYzP4rt/AxJflSDY4QvHlo3QQtj+85opjVNNjFvMZqJZn+bBCQKsOR1Vc56wCsWw
+	 FHwDkIcJj0dA8rBrIwiablgEvMq9q7ucu+JfX5ZN/0yOM8xaxvKN1o/8G1XCL0eIBJ
+	 b0Cv7HUFzyyS7CUgxu7a5sjYbh8AKtzd//4hZ8f+wOi407hdVAolsL1UEeBF+yDk3z
+	 Cz0noIGTuP+nGcjHMqce1MVu5INeoK3aRdrWAaXkeN9Rfm7WjlKS4/wg/Th3S/XzAR
+	 k2GkQM8y0M0SzQ1l9cxFRP1xd1zIG5cLpSzvpH/O1BlNyrFDSrS7beg0mpHerpJWoL
+	 FtSvpRHC0A2SA==
+Date: Mon, 9 Nov 2026 12:27:00 +0000
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Barry Song <baohua@kernel.org>
-Cc: sashiko-reviews@lists.linux.dev, 
-	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
 	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
 	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Rik van Riel <riel@surriel.com>, 
 	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
@@ -54,7 +52,8 @@ Cc: sashiko-reviews@lists.linux.dev,
 	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
 	Alistair Popple <apopple@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
 	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
-	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
+	Barry Song <baohua@kernel.org>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
 	Chengming Zhou <chengming.zhou@linux.dev>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
 	Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
 	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
@@ -78,18 +77,15 @@ Cc: sashiko-reviews@lists.linux.dev,
 	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
 	Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
 	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>, 
-	linux-mm@kvack.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 02/13] mm/filemap: convert fault and readahead logic to
- use vma_flags_t
-Message-ID: <avG7mvt0okaFGUT7@gremlin>
+	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH 05/13] mm: convert THP VMA flag tests to use vma_flags_t
+Message-ID: <avG7_rb_PtU1jsbH@gremlin>
 References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <20261105-late-2026-vma-flags-v1-2-0d3cd15ab75f@kernel.org>
- <sashiko-outbox-200257@kernel.org>
- <au2_PPpdAMgRJZtX@gremlin>
- <CAGsJ_4yWQom=cG5vw2B-FR8+7wNU+rwZkvghjAxusym+3OH96A@mail.gmail.com>
- <CAGsJ_4zvRSUSspBe_hNwTYDjK3-TLuq6Mhi5gDyOPZGDXN8gDw@mail.gmail.com>
+ <20261105-late-2026-vma-flags-v1-5-0d3cd15ab75f@kernel.org>
+ <631047fa-8a19-44b8-9fed-6607ec79a1c1@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -99,56 +95,50 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGsJ_4zvRSUSspBe_hNwTYDjK3-TLuq6Mhi5gDyOPZGDXN8gDw@mail.gmail.com>
+In-Reply-To: <631047fa-8a19-44b8-9fed-6607ec79a1c1@kernel.org>
 
-On Sun, Nov 08, 2026 at 03:42:36PM +0800, Barry Song wrote:
-> On Sun, Nov 8, 2026 at 3:20 PM Barry Song <baohua@kernel.org> wrote:
-> >
-> > On Fri, Nov 6, 2026 at 7:53 PM Lorenzo Stoakes (ARM) <ljs@kernel.org> wrote:
-> > [...]
-> > > > --
-> > > > Sashiko AI review · https://sashiko.dev/#/patchset/20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org?part=2
-> > >
-> > > It seems these are valid, oops!
-> > >
-> > > Andrew suggested a fix off-list, and I agreed to this as an in-place fixup to
-> > > avoid respin.
-> > >
-> > > I have also updated the series locally to reflect this change:
-> >
-> > Seems like a reasonable fix. maybe_unlock_mmap_for_io()
-> > could have released mmap_lock, leaving the VMA
-> > unprotected. but  ra->size *= 2 is still going there no matter
-> > if the vma has disappeared
-> >
-> > For the original patch combined with the fix,
-> >
-> > Reviewed-by: Barry Song <baohua@kernel.org>
-> >
+On Fri, Nov 06, 2026 at 03:36:55PM +0100, David Hildenbrand (Arm) wrote:
+> > diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+> > index 0d3bd9e23613..a2c7c6a0768d 100644
+> > --- a/mm/khugepaged.c
+> > +++ b/mm/khugepaged.c
+> > @@ -640,7 +640,8 @@ static enum scan_result __collapse_huge_page_isolate(struct vm_area_struct *vma,
+> >  		 * If the vma has the VM_DROPPABLE flag, the collapse will
+> >  		 * preserve the lazyfree property without needing to skip.
+> >  		 */
+> > -		if (cc->policy.anon_skip_lazyfree && !(vma->vm_flags & VM_DROPPABLE) &&
+> > +		if (cc->policy.anon_skip_lazyfree &&
+> > +		    !vma_test_single_mask(vma, VMA_DROPPABLE) &&
+> >  		    folio_test_lazyfree(folio) && !pte_dirty(pteval)) {
+> >  			result = SCAN_PAGE_LAZYFREE;
+> >  			goto out;
+> > @@ -1683,7 +1684,8 @@ static enum scan_result collapse_scan_anon(struct vm_area_struct *vma,
+> >  		 * If the vma has the VM_DROPPABLE flag, the collapse will
+> >  		 * preserve the lazyfree property without needing to skip.
+> >  		 */
+> > -		if (cc->policy.anon_skip_lazyfree && !(vma->vm_flags & VM_DROPPABLE) &&
+> > +		if (cc->policy.anon_skip_lazyfree &&
+> > +		    !vma_test_single_mask(vma, VMA_DROPPABLE) &&
+> >  		    folio_test_lazyfree(folio) && !pte_dirty(pteval)) {
+> >  			result = SCAN_PAGE_LAZYFREE;
+> >  			failed_pfn = folio_pfn(folio);
+> > @@ -1948,7 +1950,7 @@ static enum scan_result try_collapse_pte_mapped_thp(struct mm_struct *mm, unsign
+> >  	 * So page lock of folio does not protect from it, so we must not drop
+> >  	 * ptl before pgt_pmd is removed, so uffd private needs pml taken now.
+> >  	 */
+> > -	if (userfaultfd_armed(vma) && !(vma->vm_flags & VM_SHARED))
+> > +	if (userfaultfd_armed(vma) && !vma_test(vma, VMA_SHARED_BIT))
+> >  		pml = pmd_lock(mm, pmd);
 >
-> BTW, one question is whether mmap-based readahead is
-> still worthwhile if the VMA is actually gone after we
-> release mmap_lock (or the VMA lock). Perhaps we don't
-> need to continue readahead in that case.
+> A patch in mm/core.git will remove that entirely.
 >
-> However, we don't have a reliable way to know whether
-> the VMA is really gone until the page fault is retried.
-> We release the lock to perform readahead, so in this
-> racy case, readahead might be happening for a VMA that
-> is being removed.
+> Right now it results in a conflict between mm-new and mm/core.git.
 >
-> I'm not challenging this patch, just leaving a note
-> to think about later :-)
+> Beat to drop this here entirely. (I can also drop it when applying)
 
-I suspect it's one of those 'not worth checking' situations, VMAs can come
-and go at will at any time and theoretically you can do useless work, as
-long as that's mostly not the case I think we're OK.
-
-And in general I think these code paths need significant rework before we
-revisit stuff like this, we always pay a tax for code complexity!
+Sorry I missed this, feel free to apply with this bit removed!
 
 --
 Cheers, Lorenzo
