@@ -1,92 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794243693;
-	b=bo5N8n5pghPISVXkWWLZa/ka9T65WL/RPtlUjuquAlvOzMc/w/YZ7M5bgcofMRL5z9Ut
-	 0srDCxGsD926nEEIofJvwuDMnxyqSld04U7QxdNAT0Wa0QdeRmJJssFfWHWZp/mGAOK2H
-	 k4/ggjJBn1Rk8dDPecI2DxIVFwtDo9mA6YTQ4Rqd0GZJdccibtkyS0dyaI7mvfKNtI2Qg
-	 D4cfuoWwD4/revKwhsibQpyWUn8UHGtuh2aJICu/vmkO5JgkPLgbxSwNvYy3Ko4VO79aV
-	 QBqqz6TorZPxA53GU2dH4w9fkzVJYqbYwY8pxKXJrc96xXZBmmIxyEMLIJgNMhTcjrg==
+	t=1794243818;
+	b=3sz0SVSYyTVHJ9SkycTM6GLLR452gh8HG2h3mgghfAY0eWbnoPI2M4nHbTeaPoH3dSF1
+	 uNYCw9svtfYe288yykQ/gEdG3OX5/NvMwWfsPQv50EUrs3E2o7P+aYlvn4seABir6fLMa
+	 aUbK0QGh1yg4e51eLb6LwM3bnBH5U4TnzCy8UzbZYzCUyNJyddNuP04PcsBDvfcQCdWkD
+	 keVMZtfWpJw3oHcoFTMvCCgveuAfITO0cZaOyWwGsulXdtqLWqP8o5iunk1ad+yqeMUNg
+	 w6WD0EexIwULd+XGXa9hrszs77WRrVYSUAaNkfDv55mtNV7Gb9/26d/Eqb6AhNNHxBg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794243693;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=IJJA/oulexA9Wi8BzNg299HmiKK85/J/7UwO2YuuFAE=;
-	b=eSfCMfqMaI8ss/HQPgU0e21qC/QmM46qLqk2O1T470sBkdhumKod9yct53gg+J366mfA
-	 3tBpEMkR1DR6CEhBYvrBK7XOdLMAfKdA9799MYeJpe5x1EPKXql6CX5nIFV+R+BUGIFLT
-	 U0gXIKhr9N0jxDVHkhGWl/OSsgF6bZoKC+TpStpKAUDrxk/GipDOkk4cSTspCisJNkQjf
-	 eR/xXJk5fUdildMHKwauOQodQBBDEIBDroKs7/Q4jCp5n52AKy6yOTljT1UfXBl2NqYie
-	 FD40p+VqF4qx/RhAK+WbUOKQtQ6Z35cqRy9tXaRxMFb4pzqQQGtuJ4pt+YSzDsNK2tQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794243818;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=X+N4/8eXh7fLf1DIk0fCzdsYTCukgnApR8yyfj/9b1A=;
+	b=U+yxuEKa5F+uBG6b0oyFpuowQuMgp/Nw+Q3lpM2rjTHZRBsEOeK7DsyqxfX4EQsIT/Eg
+	 VGrqgqj2181uMXKrMItj9enSLi6Q6rbETYyy5Kp8H0ZRn4cbSo3Xy28z4oonLxbvwWr5f
+	 PLcQtF2vzl7lyDET2U15cNpnQY3rdHoMfxSWhkvLkPOj5WQ5GsMOe5SXxzNGag0rH/82H
+	 uYs3TL396FzUFzEkSu7ldPkAtBrjNK0vhGZFSPrvOqzAWn/y708Z7dB4HIikzJtBONOin
+	 L5YucDbfgbZBKVh0zIylcyGG/bbd9IDVAfw7sIdeUDx3x6ySk4jHqDdF2Nw54YUS34Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OXe4ayyk;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NhHhc6ow;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BC2C606A31C;
-	Mon,  9 Nov 2026 17:01:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C44606A325
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 17:03:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OXe4ayyk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE241F008A1;
-	Mon,  9 Nov 2026 17:01:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NhHhc6ow
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E5751F008A1
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 17:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794243693;
-	bh=IJJA/oulexA9Wi8BzNg299HmiKK85/J/7UwO2YuuFAE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OXe4ayykX8PUhC/4mrNJvncbfHA3iL/5BrhRULUfvCb//HukvqL4y9L8+ZI2+vW9+
-	 doj8jdAoDBms4Y/TX9s9GeRGv6bI1Ltpt/Lu8J5o8F0yXtKHYH960N4EPGuHQUuiS/
-	 B22zxkwtnpfjOTfPuxCsPIbzylf0Elc7CEBHgMSoo+UQXgyzRCL+P50xk8E142A+WV
-	 j64x0q5W0uSDp/Hk2Xq4WbWA/NCM/42wyA2jcpJB/sy6XhQedT2XBt20lZtmVJqQ2t
-	 K4ASDB/NlEAdIJVJoGnNwe0XMIyt/1Qbr/6ykjLENJ/RenFPKeiz7rH3eSvw6S5CQS
-	 hlY+XwYPl3T9g==
-Date: Mon, 9 Nov 2026 17:01:17 +0000
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Rik van Riel <riel@surriel.com>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Harry Yoo <harry@kernel.org>, Jann Horn <jannh@google.com>, Lance Yang <lance.yang@linux.dev>, 
-	Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
-	Barry Song <baohua@kernel.org>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Xu Xin <xu.xin@linux.dev>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
-	Shrikanth Hegde <sshegde@linux.ibm.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Leon Romanovsky <leon@kernel.org>, SJ Park <sj@kernel.org>, 
-	Rakie Kim <rakie.kim@sk.com>, David Rientjes <rientjes@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
-	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	John Johansen <john.johansen@canonical.com>, Georgia Garcia <georgia.garcia@canonical.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, damon@lists.linux.dev, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 07/13] mm/madvise: convert madvise_vma_behavior() to use
- vma_flags_t
-Message-ID: <avH8PeBwpa2K5vK6@gremlin>
-References: <20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org>
- <20261105-late-2026-vma-flags-v1-7-0d3cd15ab75f@kernel.org>
- <65038fdc-f4a1-461d-b7b9-669885f15c3c@kernel.org>
+	s=k20260515; t=1794243817;
+	bh=X+N4/8eXh7fLf1DIk0fCzdsYTCukgnApR8yyfj/9b1A=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=NhHhc6ow744LEbMsu1N+zZTb2TtniqDxxGAMXu9WfNkB/+l0MkMsV0O/iDOr81eon
+	 D+l24UP6k0B65+aL5gQdQRFyEE73LpJTm3+1KR5a/JCPD7m3Hq0RmaOzD2Ud35iQu/
+	 q4PkfomvON1lBnGpNFuvW7uWDK6e/3CuTgkUlYhbtmthCvgVQ+VfBx3y574q0gSztV
+	 rRseA4h6KTVbXU5M95+/GsYaNazen9qBT62RIlrXIcyq7/xmq5hqWOmPKIhfpc9AQr
+	 dtJ7R4QmznJhxJWOdX0yg0v8i14oqkMtzxUcc0EKNvOJaqbiIZ+uZpJ3wYWH0Z652Q
+	 wyQjb/zGjP/Kg==
+Message-ID: <sashiko-outbox-205264@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] selinux: fix potential use-after-free in
+ sel_netif_flush()
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20261109165939.138448-1-mdshahid03@gmail.com>
+References: <20261109165939.138448-1-mdshahid03@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 09 Nov 2026 17:03:37 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -95,30 +58,22 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <65038fdc-f4a1-461d-b7b9-669885f15c3c@kernel.org>
 
-On Mon, Nov 09, 2026 at 03:10:12PM +0100, David Hildenbrand (Arm) wrote:
-> > --- a/mm/ksm.c
-> > +++ b/mm/ksm.c
-> > @@ -779,7 +779,8 @@ static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
-> >  	if (ksm_test_exit(mm))
-> >  		return NULL;
-> >  	vma = vma_lookup(mm, addr);
-> > -	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) || !vma_has_anon_rmap(vma))
-> > +	if (!vma || !vma_test(vma, VMA_MERGEABLE_BIT) ||
-> > +	    !vma_has_anon_rmap(vma))
->
-> This change should be dropped form this patch IIUC.
->
-> It would have to go into the previous one (that I applied) but it's not actually
-> required.
->
-> Unless I am missing something :)
+> From: Mohammad Shahid <mdshahid03@gmail.com>
+>=20
+> sel_netif_flush() use list_for_each_entry() while deleting
+> entries from the network interface list.
+>=20
+> Use list_for_each_entry_safe() to save the next entry before
+> deleting the current one and avoid accessing freed memory.
+>=20
+> The issue is reported by smatch as potential use-after-free.
+>=20
+> Signed-off-by: Mohammad Shahid <mdshahid03@gmail.com>
 
-Yup I'm not bothered by whitespace-only changes :P Feel free to drop this bit!
+Sashiko has reviewed this patch and found no issues.
 
---
-Cheers, Lorenzo
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109165939.1384=
+48-1-mdshahid03@gmail.com?part=3D1
+
