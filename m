@@ -1,100 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794241519;
-	b=aIDYsYVej+3lpxRdh07iYCPGxhg/fJ8+SQLKA2qL5DqX8Fk8DAyfOcokWio7U9pCFt6w
-	 5Tc3yBd+wxzk3J03bbVK2HfcDky7o5L0SbItj+75ZMcl6245D9zWTMe+wpz9eEoL5l97j
-	 Iw/t3DtOal24LJbggzp57vM3XxV4AnbnayMYo0Mj/Z9w/DLPMNvXjtbosyVdXGUNFoY7B
-	 /gdVjgBZO4O/vGgcLpsbDH9sJoAYnb/ZNnTzEkiP34bTpRTb7nAIeB9gwjps4BRCsoe+D
-	 v6ZsRifqGu+t+I/b+PrWR8HxKYB9NsmkQhu5z4AIR5pfvO6v9XbXvrjiq+iw7z9IcAg==
+	t=1794241582;
+	b=AGviLyYVYRICLKw8RE82jt55FbnT0a3kdils86t60Btq0fh92YnR4mYZQSAC69cLhgyR
+	 NhOs+8X41x0/R6JF7ma964JsPJ+9MQFyR04Koe7vjVeik46RL+y7y2epKvkZZkRRSvExJ
+	 X9kqEov/C4hG7iJSCv2gmnET5hh76IiVwlzWQpkQAAL+HnBfazw5XFZFY3++RHYOvJPK3
+	 TCt/JhdDsi69QDrPUzC7Q5E22fbgQQxL57B6UpASFPKDMgZ6mpoBluNJuVtHYfIMkNyvi
+	 lyHGIwZUjjCf4wcJlaaCBRUtF8z5MoUTI55JH6y2jEHth1qMoo7R+1K++jP1D5A5TEg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794241519;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794241582;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
 	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
-	b=thEloLqLmw6743lSbWyBBt+9Gld2kv0H2ApYib1oFAoCtAbbISLXi5i5p9Jw8DnLf0WH
-	 fcZGunfHYG0S9xfESWn/ynZPqWL4cer6UJGbLoVeGdPN3D0+WvIn6wqrh5jl6dm+guN/9
-	 ZwlJbWk81WoliBjQ5XSDX8q1p5qp3PWlVjZRhecyig74sXQ5TAiKbYJKsms58aKTUXVhO
-	 6IX+kwzwVA3y4xUZwz+Ro8q3oRBePs/IDnmjLTIrxttZVXsxtrgq9TlmoEZxFs1NxKcR/
-	 U0ZKzrZH+5Li+8hnUvHIRm4jh9Aj594oaSjhUB4JgYRPL96NnqfJEAY/2v/wQdFtBOg==
+	bh=QBbg5/LmXhRXkqvrFfgfEtZQxAOw8GKV2D6U/ZLdAOc=;
+	b=kBeEKRcWM+D7TYzR2IoXU2K8o1WqKzjUr6LbM9WbXvxVkK9KttTyswGlMrcnsH7orC6D
+	 s/TLioOpbmO57/pKnAh0ptiAjZyFVGBAkL6lH6lk64p3hYR59ySes7aFGRLeECSUH1BtZ
+	 1XnqGHPrPfSS+zCdPwz2jabGh/KzdNtQaAVjrwavo05EnVgPDLzeqGU1iSoFY8WVI6XRF
+	 7X5ar9cVDWDQZi2j8wCl6YAbm2ubYAmnh+RkXH/dPXJZ54pz8/NFIOLmzqeX/73gUVLgs
+	 OT+9nzWCh9L6XaWq4zlYfRkNE7rXHsUaqkw2isO8J1/t04wdGcZmK8hOY3DyGO4UPtA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wgrgih8Z;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.44
-Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ASFWGINQ;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E552A606A31C
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 16:25:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E552A606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A47D606A321
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 16:26:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6A47D606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wgrgih8Z
-Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-67c2c2ac1c3so1654632d50.1
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 08:25:18 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794241518; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ASFWGINQ
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-8b336de3d38so7394117b3.2
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 08:26:22 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794241581; cv=none;
         d=google.com; s=arc-20260327;
-        b=VrYqGK0sw/xLzy0lYMjhk/rJ7nTFgsHoTUyC6dqh41CAnjtWrnqNv4AX363xHGLZeF
-         pJ/GWWSH7d1Mp1uFD8lDghq/CDHdZy6Ws/iFcRxkx5Us/YmyQBIthYppcRWjsIZvqS4N
-         9XmtEC/hj/gpQByH402cM6+fwFshYUx9/Dg7Sc7m8cI9JoRx56EwqC0GKNY8TH0zOLWv
-         Hsqwm9kkhAriKl4wCu9JXRsmMNL8XNhlW5nlXbCQWL7EdW4IZRzDFy6ioTq91m6Gcvnc
-         FncxczXXHVjRtlE0joKIFXTYBjpcaQhB7h//AC0rwZVzdLVl0dwL1zh5qBN7/bwLGXGM
-         bM6Q==
+        b=UYpjw61gXUbXv3/k0WTlPHWetk1wbTO+aeAI8rNw8VDTbxx5Qyw6H1E+MlSn7OkFFf
+         CgsFsp7EpqhWDtado+9CfTqcai8D3Y/lYBXpLNo+efxY4SSnoK7H2rGZJiUfPxeDwyPM
+         nVY/diIu56i3efR7cT/t9lUZtVnr5FeqjB/FThvobHXPMXnsxMRP6t3F2Z0oyzL3/p2T
+         /vGLeO2mIrrTdTzy3eLbCzxAurELLHaX/4ATZPT7hIwUM9I18lcocjarzwCsc4TG/iCc
+         NYfXr4PYg5VpRAayt7c5l0C9fC+pESX23nGrOMh383b8gmneSLiyo//Hk6MvD6/VwQtY
+         fGNg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
-        fh=QFKa48eN4AZKFIyrSiZk3FCE4nUKAEfyzhRYxfFXB60=;
-        b=f9TKcV8vo3osZ1dTR7eQG82+uGrZ4PuKggppi3SnnpRVHZbz4FLnc0ekVTEAMtX33N
-         qgmvbGMjiqSZ2vX5k7oAbogjY/VL4n6yeTxykiU1JBtH+Yrz6xbnXRiB5KY2B2DGZuUI
-         dztoEi0JGoQT7GYWwWkORmLMvm+UEjtkF5ZTAbnz5Jj+txc6ol2oUppOZvd7/s+2OxWU
-         kT+1t5sqJD6dvcGTrltiZieWMNby3Vnw/JV+imfNHSaHE8YrwCXENu45JAc9Fqz/W38x
-         i+J52a6ixH8RhjoT1PCjYMjPe76F2CBS2DuKFPW8YX48xh7DHk4ylCxBFszdm5bpZ6sc
-         Fh4w==;
+        bh=QBbg5/LmXhRXkqvrFfgfEtZQxAOw8GKV2D6U/ZLdAOc=;
+        fh=o4NAU2CFCwsduo82xwTJCpPE0LyXQN8vgfWzXifkzQE=;
+        b=dpi8eOgXlKn1LFlkPcbCTrXw0DLubHi1PxfDfnKKnCiUbRgsMlcS6BtOww/WG13kjn
+         FsnIouOEL12DGGEVC0SRhAN9YA5MucWD0zUbDYIXdQctWUZDl9xLg/Yl8DmvgxJ0EHoS
+         w21r75KIRnA6GVnpEPx6LHhJ98EF6F9GWxxvNBlimjAD90LimNU1GutdSj6fswgbb6p5
+         82N/orupA7mab4t7BiXM+L/5IvdjAWuO9Rs5EXeHyz8Brq7amE3siNwvHf6mZc9UYDb8
+         r7tboYYyeFmYoDn6UdJyxQTCtbhGZgZ/YtyGfCemo82XSaOdCvGcG7ML+EzWTJ0xh1Oa
+         o4Aw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794241518; x=1794846318; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794241581; x=1794846381; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
-        b=wgrgih8ZdSXnsI4mBc+wAt8vyCNw1uQnEXhCw0Qjn5aZh/wb8NWBWzDos88EprAR0G
-         yxC9DQWNUCBCwaUFdG34tAsk3Rv12U91svXirdHtWFgoH9F42tdQJOtp/knWitvpxKJ6
-         aHMq0dVEwqneazLElcuc4j3/ZJaaMYgT9c4tcqBw+CvWoJU7ltm2TdtO1juQr1/bt2On
-         lR5LuOC/rOmFZSqHATHuPZ+2NszwOMCeYh9hquAZ8hRVPKPA4hFVZ894HFDiMZcxCLUC
-         T9X/vxmY4ZT/ShwkZulJIQiSfB12pzSALDhRZnfN3GJ967SZWhdn3k9u1E09th8wMiWh
-         WsuQ==
+        bh=QBbg5/LmXhRXkqvrFfgfEtZQxAOw8GKV2D6U/ZLdAOc=;
+        b=ASFWGINQHk9vISS7HQcRZNb1sE8GRsuKPNOhFKWZTihUqPKZ11dHCSoth9wC4UzBjw
+         sJ8oM0fs/jxg3Q2NSmpjVBgx4mP1KFK/KMwBk9c8yN4naJqtp83mC2BgM/u6EVHnI+Bi
+         YJr6EztRrSuhHec9uGJuPQ6J92dA0pLJQkQhqUkY24WWlUc0RukYpkswVed2MixJFm+n
+         8OHbh+pQ9Eyh8Vt/OBOuU5mHQosqlKgSfbiYWDKH/PwuitGVs017uJy49V69SzN6LPQW
+         /JiMdenXDgo2IzPjt8Zqq3rNov0x45j3XJxtxufEUznKXQrTmmyDHVfNA/6wPCpoUVyw
+         a7Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794241518; x=1794846318;
+        d=1e100.net; s=20260707; t=1794241581; x=1794846381;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=C9Pncgv0qtiIHTENTtBT4u3VCHF4NXnZdO3wuIoFoBM=;
-        b=EQ8xXGjDTxNFcxLnrhvKigq+5Jrq1YQf9rrDnQgyGV0A412bmuSmQTSDIUiftMoyP5
-         od1Yhsnei/lNYe30Dg7GM+8+XkeKD9gWTVrFF6wPpdJb781Lbx2ETAmXBt7th9x1OB+z
-         N4fYjXjzF16NFHV/3yyMUEmaBvyJrAN5XvIh88bpYiWGMclSRFwFnkjWI9BN2VxLTY/9
-         VdcIHf99699+KOT1rYE4JK9ycsc4ocYfrQ/w26vMunp25In9rIPBcyVijzzMUg2Xeb5r
-         6zKK5vwanWLt4HDwZBQlomjiJtJYOyUrsQWmyHMN8RfC/pFqFzSv7DKAAl7Jqn1LG5ji
-         Dhhg==
-X-Gm-Message-State: APuU4Z+JTSWn47RLavJDzKe3spiVtfMHzA38i2fk2sGM157gasLhA1j9
-	BPdCqg4tkZZH+ej1vMWYuUk2fA5aIRsWDODSL9cF95bHH6XeZTePRidX5JF5QqjkNWfnW5zb7uy
-	BiBzy2HQBD9MqFVCTJOypIz3jGTfZPEe66Uja
-X-Gm-Gg: AYBFou1YumaxdbST85mvaIiIEFLs6x/dMuCRA/fj+qoOF9JO6CluO31kuheHRLI6bvA
-	7XhSfj7smDXCOpBo49zTUF5S86yJbVkAz1BI5Icg0ZJtHnHGIfGBTt/Gt/n0QiVJwPq3Kl97/BX
-	uKYlmYQrYRrDW/ez6m9S9McRHUL6/FVTV1UQ/PYXhBdTSdWjX1WO3bq7kHU9J7QMX1teKPbKSvE
-	Y/xwWLi7KzmU29v0p7h9Jqa+av7eJsvVv2okMT9qcxNS4ZVlU5Nw2XSBBv5bTBYCb/A+Umkdwyt
-	vJE6cutp7sQCYU4TIcO/ZvD9xnzRxbvT2yOHHolRdCG58bRFCbdASUlUEDde4zb9DQpS2cjungk
-	2+K0S1KBhe4gLhuqeKlDOqz8W+bFeb7xKNOLgTkda5V7PSt/7Sjo/W2LA5Hn0pGC7R64ccjScCb
-	+Fa7TeguVoisC76AjLuYpRQwpgd1poOkcnyk1t9X3mi5jcVepmU22ApqFQ3A==
-X-Received: by 2002:a05:690e:164c:b0:67c:3655:5875 with SMTP id
- 956f58d0204a3-67c5660ca40mr63921d50.5.1794241516580; Mon, 09 Nov 2026
- 08:25:16 -0800 (PST)
+        bh=QBbg5/LmXhRXkqvrFfgfEtZQxAOw8GKV2D6U/ZLdAOc=;
+        b=1WsvSoZVV6TkaeQZu5ICrnCCvNThbtnc5kmGsaZPxLjj9NXHiowrQNkd846hPmFU0U
+         jcjXgzygenfFCq/kDyWpkwpQvV2v4D79aaYK5yjVu6vEvw/mfNq04cBdYiYyb8VeUU0i
+         YsfwL1pTnzNJbuRMb7451jzvJKf/LDwDYydi/FZ98p90ClN7v2LgFEFFabNjc3CQOwZ5
+         f9HWOjliOweaPKOBEnwGFxVyB6G9tCod44J+TmL1ZuTmHFytFu4fsvZT7P/sA3MTenYP
+         oJbpeNpsuMxGE9nQovvvC5DhHr12Sz4HhmvR/j1mi/7+a18BUrmyLcM4fOKudW/8MMLC
+         Qkqg==
+X-Gm-Message-State: APuU4Z9UjMJejoqjhmw90oTlbxEr32NxvV8AYhC9qAKecSB3W/F2UdxW
+	g5GVhQYXLcUNEeXcxrYT7szvHcosOSE6opSir5Jp7LAfF+KIScLbMLPD7nS6fldlqXqeVm/FbMa
+	TRkaLpG/dFyu1+vjMhuDV8H006oFtuhRjktXJ
+X-Gm-Gg: AYBFou3EXmH/OMGI5slaIqtpv/bTlJNiH153CWXLzPbY2WqhQKFhqtYN8wOkNmMyO4/
+	lVSIwGq4rglEDrkYha78oghtIbB2Ly5YJsyOoycTOHHKF/HrftrlhzEKFW5Sb2eXHZEOGhWI3XD
+	UWK/UWLCsOWq0/JLeXz43pljDyZ3FUA2SCM+ibUUB4WANVes5uPxSvReKM0pKk6rLHjZIDkHMEy
+	p7TTrVXN9lP5zDObec73xWlO8IUKxAakXY6XxPJeqQaJiFK0INNqL+i/YL4EYUqfa1KmrOA7YEC
+	lV8MIAeyfXLxdTsJYnS70Q+ZSOImlOUByFHv6HnSFBivLtgJrBCQ7eC1fpRoxtLOxJmzaHvvx5E
+	fUrRLHBVpxe3Ke6UVfhs4649JF3+DcxkH6bq0j8MaVFQx0KrGIoVIUPu8pPw3u1B2d6pxscjstv
+	6ihkwDS/ygOs75JhUZynGEK7/En/eWY1DZub5mjMWLj3lcyzDhZTEqwa2Sh9ZIQuYJHBSo4VJHK
+	vGvgRGH
+X-Received: by 2002:a05:690e:4146:b0:679:8c5f:3fd0 with SMTP id
+ 956f58d0204a3-67c564394ffmr56852d50.19.1794241581363; Mon, 09 Nov 2026
+ 08:26:21 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,41 +105,45 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261106180556.243798-1-stephen.smalley.work@gmail.com>
+References: <20261106181033.252493-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261106181033.252493-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 9 Nov 2026 11:25:05 -0500
-X-Gm-Features: AclHuK_UI4kW84GBKR_7JzZR6vuebOqSYBFSy47BAYhWjZq7hwKU1H4zlSOGQSQ
-Message-ID: <CAEjxPJ5gqia+ardsraOZou5VASK0tmgsPE=w-BJkp6bBz8rbUw@mail.gmail.com>
-Subject: Re: [PATCH 1/4] libsemanage: reject missing scalar configuration arguments
+Date: Mon, 9 Nov 2026 11:26:10 -0500
+X-Gm-Features: AclHuK9HAyLpfGlgD4i5B_XYsWfp75TYUW9zx5n1xs1WtT5sIvq0mbxh2Jc5ofw
+Message-ID: <CAEjxPJ53OUs2oNcZova3T_dwtX_CU2poxF4zjMx79q7Du3iJgA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: apply requested level to failsafe contexts
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com
+	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com, 
+	Filippo Bonazzi <fbonazzi@suse.de>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 6, 2026 at 1:06=E2=80=AFPM Stephen Smalley
+On Fri, Nov 6, 2026 at 1:10=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> The configuration scanner returns a NULL ARG for empty and quoted-empty
-> values, as well as on token allocation failure. Scalar actions pass this
-> pointer to strcasecmp, strtol or strdup. In particular, the recently adde=
-d
-> sort-local-fcontexts option crashes instead of rejecting an empty value.
+> The level-aware context lookup APIs replace the range in the starting
+> context, which get_context_user() then copies into matching
+> candidates. When no candidate survives, get_failsafe_context() instead
+> returns the configured failsafe range unchanged. A NULL starting
+> context also hits this path when the current role and type have no
+> matching entry.
 >
-> Add a shared scalar argument production that rejects NULL before entering
-> these actions. Preserve empty external-program arguments, which have a
-> different contract. This also covers older scalar options with the same
-> problem.
+> Carry the explicitly requested level through an internal list lookup
+> and apply it to the failsafe context before
+> security_check_context(). Keep the configured range for ordinary
+> lookups and preserve the existing ENOENT validation exception. Route
+> role-and-level lookup through the same level-aware list implementation
+> so it receives the fix too.
 >
-> Add 114 regression checks for scalar rejection, valid values, parser reus=
-e,
-> empty external arguments and token allocation failure.
+> Add 309 regression cases covering all three APIs, explicit and current
+> starting contexts, per-user/global/missing configuration, rejected
+> candidates, validation of the final range, and failure/retry at the
+> new allocation steps. The test uses private configuration files and
+> wraps getcon and kernel validation; no host policy is changed.
 >
-> Fixes: ee7e4e1e4e97 ("libsemanage: optionally sort file_contexts.local by=
- specificity")
+> Reported-by: Filippo Bonazzi <fbonazzi@suse.de>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/508
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-This series except for the audit2why patch which conflicts with the
-just-merged series from cgzones has been merged.
-I'll rebase the audit2why patch later.
+This has been merged.
