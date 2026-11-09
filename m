@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794239188;
-	b=BgGAxQLmnZ9tQ/CORUYpWUqRXnIx2skCv44/zuHGsEt8sXo5+1ZfDkgVLXak8Y2Trmic
-	 vgiNPNf+ekUCbF/WJCgnOKSlD/8zi9vML90iIyxFSfHKa/82yc5cQtZ3ZBjLSEdU81X+7
-	 6osiH7Boi3KgQ814mxhZ4iokmBTTZsquxEFrbGT0XhGVmfZsOYRQoCVTmT9x2eHr1bcNV
-	 H6wCrjImDshrqNvyj9psFvM0tREsjAsZVQI53VNgYtHxRss518/jS7U0labLU4QGWOERV
-	 eMqYOo/kJa3ItjAGHVECjB+crCTInAFqpRIgsyEwb19zMf1iDF3pwZfibW7dYNVA9kQ==
+	t=1794239219;
+	b=HVUmWjlWrU7ztJUZmKuYMmX3seadeXFexFM/WKbbABicnTEFk0kVc2etS3jEloeBRi3Y
+	 +bwPC0jKQfzXCKXcm7UGG9dnyq2TA/RTKkgLkkA/c+9INdQu3KhFh/Qgjv3rSryzlTn/+
+	 GV4B339vCJaEZjrZpUNtlcjj8Hg1UHWyik1PVWjsFezSKQoXM5YXVZwfH4C9eC+Z0I1HD
+	 0OoO9M+xqjPfF1yObwevvGmBeLe83FHjcBxJVrUK/g0DhqQ6NoXNGAkTOOFCRBh59pemO
+	 WLnssX8y5wcTfTXbylNRCMlkkFvEWUr+Oj6qmrNBWds9ia9HRUtVbch5Ys5OLjA9YGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794239188;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794239219;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=l21ZTklP4MgAXylFvClFv6SnpbWXYs40bm0Q0j1nYoo=;
-	b=oN9gbY4Tn0m1NPxwgLiTnEHx8NUl3CzifjSdXSjgsh0LZC7c/V42a4/uog84NjBaYpPR
-	 PyPbmzbDkesLCfPsuU0BxX4rKbpCpf1eLvgydhiV3XAtAXz0pRNgJg1b79Zg3aQcV83XH
-	 LW1NpC1E1IyB81mJDdqFikI5eHV1hckDZq9k2kj8ZwGiTIEPpiLIYcdNchQmjH5Vf120N
-	 2NSyPSVBun01YHBpvNMY1Qujx4adt5niBIvIXLMXLJfBZ+WBoPPT+Wx/eepz1HBy/eYKh
-	 yG5xoPt35FyNwcv55QmnnCUdyDfuEY4Xx+Jr4zINFP5+Il1+Xl1QZWv9eMdp+YZdkKQ==
+	bh=ItfM4V5MJEWOrmuxmeF6FdgWskOSzn1nV9vlVs/n6N4=;
+	b=n+GJPkWgOxOY2JJGFX2sLj+ateHTAHIv63gHspMhkPNAzSxVLv5Eiy/qEaTkcxAEVG5z
+	 JC48cCzU1vgFFKfCITAkyHGBHKEZGmroav30Hpit8Mc25IKWUf55C6VEmwh5tzlzM6e83
+	 0tYqtfw6HOVqWLYiLAvVoDksIPZxpmeW3zG3sXl8M9yFcEsxUuI+Op2qcKhRAzEKoOEo3
+	 /VvPTQMvh+MSwpYFsODfEJTx1Zl3ilP5i/hMNYyhVBM2EjNGqBjYa7CiqkGPuBx9p6aTT
+	 7p+cEv+uthEeRDJoEhV8BwLBLfKn9v0Q6ng8i1Q+8CFcf1cRibQMlNz3eewMTn0y+Xw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HFhIEDMo;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V2iMBlPM;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76495606A331
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:46:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037AA606A31C
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:46:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HFhIEDMo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D25431F0089F
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:46:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V2iMBlPM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7F51F0089F
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794239187;
-	bh=l21ZTklP4MgAXylFvClFv6SnpbWXYs40bm0Q0j1nYoo=;
+	s=k20260515; t=1794239218;
+	bh=ItfM4V5MJEWOrmuxmeF6FdgWskOSzn1nV9vlVs/n6N4=;
 	h=From:Subject:Reply-To:To:In-Reply-To:References:Date;
-	b=HFhIEDMop+y7Zy/+4Qn0T8OLut1nO7Zo9/undk4mpzBiJoGTSATK4GJEN4G1XTPyR
-	 ie9TpN/SVXnZO8ZqkPtbHVcFG/1u6l8ydrfkCFNJhm5UvvRJpMsiyIabK10uX2TC/Z
-	 hwjcf0hhClWp2K1dwcrKfCrxc7aztn03e9eKfkC+7avZtYnCp0eGwQqpSiarMyf9Cs
-	 CiGyFKsT+h0My2N0O7++KSxSUAbZEVydZs7ju2/urskIPPS3ctLaF4YtYoG6j9alcs
-	 cvgPguK6D3cbkyb9Yq0F9RhaVuuasxJvJZypwXmVESkc06dbZUdqbTlhBjc98M6LUh
-	 ++ISRHpR6+rXA==
-Message-ID: <sashiko-outbox-205177@kernel.org>
+	b=V2iMBlPMnI1QLVVYs1WWP+sQCc20TqOB9ITPO0skNyilOV7QxJu4ChznLbjpRZaD4
+	 0hTHScMkYH7fkVD9rAyo286SQyDDzJWSIQ52sDJvTx09a1n1sSL9qPpR6YQVyFiQnK
+	 6cVfc0cgXVL21LalLpumOmm8LGiXPLyZBKkonexlu9Aw3GYzCaiSC4bYvFJ3GQbiXt
+	 188D12Vodvgwbeh8/vTMlEDJXvk7M2ztl6cl1DO/CI85ozYgJ9JvHrUisfNUpszgHC
+	 sN7loAFKwIQJVd0q2sBaJ1OsnX+4Tl3fNyGvCj3MB7Rr9rUrgdTvuk4gW0amkGIuUD
+	 Jv+YxDOKw19uQ==
+Message-ID: <sashiko-outbox-205180@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 5/5] selinux: do not cache permissive grants after
- enabling enforcing mode
+Subject: Re: [PATCH v2 3/5] selinux: prevent stale AVC insertions after
+ policy changes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: selinux@vger.kernel.org
-In-Reply-To: <20261109153802.76176-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20261109153802.76176-2-cgoettsche@seltendoof.de>
 References: <20261109153802.76176-1-cgoettsche@seltendoof.de>
- <20261109153802.76176-4-cgoettsche@seltendoof.de>
+ <20261109153802.76176-2-cgoettsche@seltendoof.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 15:46:27 +0000
+Date: Mon, 09 Nov 2026 15:46:58 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -62,22 +62,22 @@ Precedence: list
 
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >=20
-> In permissive mode avc_denied() allows a denied access and records the
-> grant in the AVC node via avc_update_node(AVC_CALLBACK_GRANT).  Enabling
-> enforcing mode relies on the subsequent avc_ss_reset() to flush such
-> grants.  The enforcing check and the node update are not atomic though:
+> A cache miss can compute a decision under the old policy and pass the
+> latest_notif check in avc_insert(), then be delayed until after a policy
+> change has flushed the AVC and updated latest_notif.  Inserting the old
+> decision at that point allows subsequent cache hits to keep using the
+> old permissions, including permissions revoked by the new policy.
 >=20
->   CPU A (permissive check)     CPU B (setenforce 1)  CPU C (same access)
->   avc_denied()
->     enforcing_enabled() false
->                                enforcing_set(1)
->                                avc_flush()
->                                                      cache miss,
->                                                      avc_insert()
->     avc_update_node(GRANT)
-> [ ... ]
-> before is removed by the flush.  The current access is still allowed,
-> as it was checked before the switch; only the grant is not cached.
+> Keep security_compute_av() and avc_insert() in one RCU read-side
+> critical section.  Both selinux_policy_commit() and security_set_bools()
+> publish the new policy and wait for an RCU grace period before flushing
+> the AVC.  This ensures that insertions based on the old policy finish
+> before the flush.  The sequence-number check alone cannot provide that
+> guarantee, even when it takes the notification lock.
+>=20
+> The insertion path uses nonblocking allocations and already runs under
+> RCU when called from avc_has_extended_perms(), where the new read-side
+> critical section simply nests within the existing one.
 >=20
 > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
@@ -86,5 +86,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109153802.7617=
-6-5-cgoettsche@seltendoof.de?part=3D5
+6-5-cgoettsche@seltendoof.de?part=3D3
 
