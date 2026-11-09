@@ -1,38 +1,38 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794238709;
-	b=eOpg272iUCMegaAPJplfXSqSyFuTWzcjJy9SpZsLGcq2xrttPy0frDaHIdlg7kZW7k17
-	 Trd9LQQ9DuhfQrtYzYHy4/j5RfJ1hh0rfrSAQHv+bp+i2rEiIEtd/s3i6smH95j729kSV
-	 OKsNPnETRJeJGU80ilgqa02L/D69Fxv1phI5TcPKmN7VsrpC+vR6o+nQpk2CtpFimxUzb
-	 CwbOHfUlsf+/QWZCIqgj0i7++PKOmNXNlO5z6ImB5075YoGdFKtotQ+ka8EDdMIcrvRbf
-	 6FQspTG/lrc4rSWt9WgMNq+ea2wHNCffNIJGZtFI2RP+mnVsKBw4iG/t/OJmDYwfOAg==
+	t=1794238710;
+	b=TG9JyuRqo3da5UiE3sPfXrDu5ij382/Oj+DeOemvgPngmD7Lh2ZCgLkAx8pyFbtkIVeH
+	 Zh7GTeqKiNxcrrx6tD0jC3eur0XqbHosrHWlzUWGzZjZEMPaQ1Gy6pJW9GrAuAGcD5GsT
+	 XJr6p0lm88JgL87sZDtp054yXWfHBsOyryfXid1HvgeMb2Z80+OpUGnq5AUNyLLEGy4eH
+	 8CEyx2lEx2mGR3xy7GBqWTdOQEU09pePiUawYf0HLFNv3LvP/CIS62u2+sMnfLPkw0GaL
+	 bKl0McDW3niGSjxKBWa1vKLXwvbfIqVTmGOfF1d5rO1p2l3wlNoMGW76IJbCyJ6dw0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794238709;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794238710;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=kRTOSOAgyO1FRznoPqL9r1KdI6pxSL3wTHiTlIBblUc=;
-	b=cG8kIcBUZ2djc7tmTkv7GW8aRBxwKEQOKAINi4fzXEAM0NIMixCQD6cEdVxNG7bw8skR
-	 r7GhAETr20OA3G+MXzoBdLyFgpMQY/rrxtfGijPzXiBkblasRJRcndu5Z8ldAea0qhe8f
-	 mnnXSAPijb+uRru/kmj0K3zRt7nk6TGk8X0+hC7jrhuOH8+fZ56lpDNUaO27lgZiQxmQJ
-	 8zfoHTf6T4o8avCEWJgmYm6jztU3SKsPy6EHKe5Pt0USb+3hFYvIVkYEPQA+mpxPaEyPu
-	 eIKOWHwSN+PkUYj8FW0V4B3SbbeFP+bWNKMRyWxeJRPwzEDC4hWBQ8Bo9xxfxdg+0uA==
+	bh=QYHfWIZAbLD7CTQkiCFylQrP52hNN0avwWJVgDpG7BQ=;
+	b=fiEf1/ZoAokcA3A7AJKqqEZ+ROyNUAKajsu8GS9PZffAhMpx9ResNyWs0uFL5zsgSjSG
+	 dtS3bc5Kh1mT+INVo3L23njVfQQvwofCwrRWi1+jWfTwhvM2Vds0R5DAW4pXEhiE16tYh
+	 ipfll0v7CiYsyWNQdIPA2g7UGVHRsjA5UmaQiYINyQ3s7nd22olflc5JCGRZw8+vSQc0B
+	 38mv/gIJBdQukipow79o+tqqqdSzeYs9bacVka3EyArUWvYRqr2u8rlZU26BE28MskoqK
+	 py01/7mkKZuE7lnzcoiO2SVs5xLP07ylkb+6px7dKBa5v/dwvRn03uO0LzDbcNnws0g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=GwvKPOWt;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Cr8Akaj2;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB216606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0AD606A31C
 	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 15:38:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB216606A32A
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB0AD606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=GwvKPOWt
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Cr8Akaj2
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1794238700;
@@ -41,20 +41,20 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kRTOSOAgyO1FRznoPqL9r1KdI6pxSL3wTHiTlIBblUc=;
-	b=GwvKPOWtu5TmVqVb1eZkv12AE8QrYyOl9aGx9TdN1I3fWHIiXIhJBCnSRM995+pa2Q8KDJ
-	fa6+O/nrSwIm8KL+VIdD72QEqX4ewbvDpnKal9VxCdcuRF6v+Zf1evYfq7Hr1+3YPfAYoC
-	TGY4pICLeS/ce4qZRnPQ7+SJUZo50VsLv2tPbqnSHlFWXQW9xOYpfqpiO3DPbLtrcrEAAJ
-	o4dVaZXFLRln6jhcN3blY1rqD313ifbqG4u72BvFb4uN0gOCGPRIOA3BtDNk67OBGwRlH3
-	buyUrBCgiAlorpy+gDN23xaWwGeNDpksO9+Sa4n66yVh0KrGVgpN3BdClAaKVQ==
+	bh=QYHfWIZAbLD7CTQkiCFylQrP52hNN0avwWJVgDpG7BQ=;
+	b=Cr8Akaj27FZ89I97uALLeY49ivQsFsB0ZPfYJ0kVFg8rz8HcEPQGUmxwg6mH6cW3uwfVyx
+	erqbXs5b74fSREeQ6a5sCh0X3e0WsiVdktDxKBxaSJ+nMCYkdCQ92MHbfcebl7hEdhhJ5h
+	/+bTBjRLuwGvEFTc6O+L4pl+BATsxq3KYfQ9U6CupQWiDUlE52vWtAzK5t+VRzzsOY8pBo
+	CIFvJFOZVQcJXNORXzNCHOwFELJPwK5Y1DXnpRec48FrPSlTV+JfkL39Fv9AmhzlgJIXhy
+	JMq45VuC737687i6XJN9qz3WieYMIFK5A8fziKoKOCYTbjKdrvjs9Ydgjurw5A==
 To: selinux@vger.kernel.org
 Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnacek@gmail.com>,
 	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 5/5] selinux: do not cache permissive grants after enabling enforcing mode
-Date: Mon,  9 Nov 2026 16:38:01 +0100
-Message-ID: <20261109153802.76176-4-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 4/5] selinux: keep pending boolean values across policy loads
+Date: Mon,  9 Nov 2026 16:38:00 +0100
+Message-ID: <20261109153802.76176-3-cgoettsche@seltendoof.de>
 In-Reply-To: <20261109153802.76176-1-cgoettsche@seltendoof.de>
 References: <20261109153802.76176-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -72,66 +72,109 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-In permissive mode avc_denied() allows a denied access and records the
-grant in the AVC node via avc_update_node(AVC_CALLBACK_GRANT).  Enabling
-enforcing mode relies on the subsequent avc_ss_reset() to flush such
-grants.  The enforcing check and the node update are not atomic though:
+Setting a boolean via selinuxfs takes two steps: writing the pending
+value to /sys/fs/selinux/booleans/<name> and then committing all pending
+values via /sys/fs/selinux/commit_pending_bools.  A policy load in
+between recreates the pending values from the committed ones of the new
+policy, so the subsequent commit silently drops the change, while both
+writes report success.  With concurrent policy loads, setsebool(8)
+therefore occasionally loses updates.
 
-  CPU A (permissive check)     CPU B (setenforce 1)  CPU C (same access)
-  avc_denied()
-    enforcing_enabled() false
-                               enforcing_set(1)
-                               avc_flush()
-                                                     cache miss,
-                                                     avc_insert()
-    avc_update_node(GRANT)
-      finds the new node
+Carry over the pending values of the booleans present in both the old
+and the new policy.  For booleans without a pending change this is a
+no-op, since security_preserve_bools() already transfers the committed
+values to the new policy.  Both the pending values and the policy load
+are serialized by the policy mutex.
 
-Toggling enforcing mode does not change the policy seqno, so the node
-inserted by CPU C has the same seqno as the decision CPU A checked, and
-the seqno check in avc_update_node() does not catch it.  The grant then
-stays cached in enforcing mode, and subsequent checks allow the access
-without a denial until the node is flushed or reclaimed.  The same
-applies to extended permission grants.
-
-Recheck the enforcing mode under the bucket lock before applying a
-grant, unless the domain is permissive.  avc_flush() takes every bucket
-lock after enforcing_set(), so an update that takes the lock after the
-flush of its bucket observes enforcing mode, while any grant applied
-before is removed by the flush.  The current access is still allowed,
-as it was checked before the switch; only the grant is not cached.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/avc.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+v2: drop Fixes tag since Stephen mentioned this was not an API guarantee
+---
+ security/selinux/include/conditional.h |  2 ++
+ security/selinux/selinuxfs.c           | 23 +++++++++++++++++++++++
+ security/selinux/ss/services.c         | 16 ++++++++++++++++
+ 3 files changed, 41 insertions(+)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 6dcb4b354d7c..9064f688f553 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -872,6 +872,19 @@ static int avc_update_node(u32 event, u32 perms, u8 driver, u8 base_perm,
- 		goto out_unlock;
- 	}
+diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
+index 060833e2dba2..aa29189179fa 100644
+--- a/security/selinux/include/conditional.h
++++ b/security/selinux/include/conditional.h
+@@ -20,4 +20,6 @@ int security_set_bools(u32 len, const int *values);
  
-+	/*
-+	 * A grant made in permissive mode must not be cached once enforcing
-+	 * mode is enabled.  A concurrent switch to enforcing mode can flush
-+	 * the node checked by avc_denied(), after which a new node with the
-+	 * same seqno can be inserted.  avc_flush() takes every bucket lock
-+	 * after enforcing_set(), so checking again under the lock suffices.
-+	 */
-+	if (event == AVC_CALLBACK_GRANT && enforcing_enabled() &&
-+	    !(orig->ae.avd.flags & AVD_FLAGS_PERMISSIVE)) {
-+		avc_node_kill(node);
-+		goto out_unlock;
-+	}
+ int security_get_bool_value(u32 index);
+ 
++int security_get_bool_index(struct selinux_policy *policy, const char *name);
 +
- 	/*
- 	 * Copy and replace original node.
- 	 */
+ #endif
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 310e19efff1d..96a33b7d2b7b 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -447,6 +447,27 @@ static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
+ 	kfree(bool_values);
+ }
+ 
++/*
++ * The pending boolean values of a new policy start out as its committed
++ * values.  Carry over the pending values of the booleans that exist in both
++ * policies, so a value written but not yet committed is not silently lost
++ * if a policy load happens in between.
++ */
++static void sel_keep_pending_bools(const struct selinux_fs_info *fsi,
++				   struct selinux_policy *newpolicy,
++				   int *bool_values)
++{
++	unsigned int i;
++	int index;
++
++	for (i = 0; i < fsi->bool_num; i++) {
++		index = security_get_bool_index(newpolicy,
++						fsi->bool_pending_names[i]);
++		if (index >= 0)
++			bool_values[index] = fsi->bool_pending_values[i];
++	}
++}
++
+ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 				struct selinux_policy *newpolicy)
+ {
+@@ -481,6 +502,8 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 	if (ret)
+ 		goto out;
+ 
++	sel_keep_pending_bools(fsi, newpolicy, bool_values);
++
+ 	ret = sel_make_classes(newpolicy, tmp_class_dir,
+ 			       &fsi->last_class_ino);
+ 	if (ret)
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 79b24500ca7b..19acbb1ee436 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3077,6 +3077,22 @@ int security_get_bool_value(u32 index)
+ 	return rc;
+ }
+ 
++/*
++ * security_get_bool_index() - look up the index of a boolean by name in the
++ * given policy, e.g. one not yet committed.  Returns -ENOENT if the policy
++ * does not define the boolean.
++ */
++int security_get_bool_index(struct selinux_policy *policy, const char *name)
++{
++	struct cond_bool_datum *booldatum;
++
++	booldatum = symtab_search(&policy->policydb.p_bools, name);
++	if (!booldatum)
++		return -ENOENT;
++
++	return booldatum->value - 1;
++}
++
+ static int security_preserve_bools(struct selinux_policy *oldpolicy,
+ 				struct selinux_policy *newpolicy)
+ {
 -- 
 2.55.0
 
