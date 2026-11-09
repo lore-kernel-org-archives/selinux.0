@@ -1,101 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794246806;
-	b=WsSALE8dRBLD1tuFtt8sTCIMvsHGENjoHHCjwLJjwn2WqFuNw4FFyJi0J7+cC8OaHc33
-	 T/dj2znegtHz/7wxzhyNNc0W+gFHBbZJVTLJCicXSlQOJsFXz7hnog7QE+oL7IOQUDO46
-	 +3vJbr2oBRcmPvLjS5DSt0ckOSpnNPSshTRFuus7l50+tp/LOvu//Zv630AjUObuZtPcv
-	 BYSUrXsP32U/+1wqxJYSi1jJG7ve6UOnxomTi7H3+ILq+sBv7HOKpbGY48pa18M/PFiUZ
-	 dF1/dJuvDr1O7dTlIc3d0Trw1udLFZiPLE/PnA91OsjmB0nHk/IEyZLLke83JA7skeg==
+	t=1794247150;
+	b=pf+1IDM5WsD+xXTKHna55tBnQl9eb1cThirnD+PMImgDbqSJ9jXNmqImEct64qExiBKJ
+	 S7g2l3tR8y6sDFKWScfGZEsFi9EuGiSa2K1ZDbz4ovj6NB/Q5t+Bi0zA5zgxO6psEJvEd
+	 IG4/f9hzctU+5d+6CHrZL+O3oRvp/jm5nYPaUnUKBrhHwuTJe2NHYryDRd5qkDg3hcm6L
+	 j7GpPqB7PNJyXjW0oIRA1yTWHkRZ/Xxr6yWmASFu5Sga6mm5Cn4rLOXflY8Qn4jDjoTWT
+	 hZKmFpdFk78Zv2dhHdEam+pb1vDQGs/bNZQCuHwdVgjnnEsmqDF6r71WLJctnElLFEQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794246806;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794247150;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=gHrvOf8UdBPYz9FCbQg8xcR+wgCvHVFr6aRCIkQKsr8=;
-	b=Sj1w9Njo+IeT8YhFmKMl/JGBC1WqEqZI4inyneZFTvTiuv8KMqkeXriXD8HNJ0U8HtbT
-	 21ermMMwRl7WcC1uAmFL+4Kyx45DQBzliswKbyxflcY3NPduthTZpOY7juKPi8WFZfDSR
-	 mMsPw0EWJrpB/Odm3rNmiO+R8jnAb1LMW1DEXKhxCh7OaRQ+HnB40kU8q5vWqnBerGK2U
-	 0cA+tGuGUDGb4UtGOYGnOToPy5BM3X/VpAOHsUm0Thg5lapsXIF7dUERVGdAoOaqGACVi
-	 T99kTSEOpFsM4anX6gJdFVj53WCSE/Sn3v4denQZFyRt3NYA5dp7THJjPI7kncReK2A==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=Z/ZNHj0Rn68UKNmdBxxUTiUBJqPFSpfv4f03+17ya94=;
+	b=vs05/w3YTwJ9f4cXJ+Wbo2TYRfq41INjqCfJcQtQj21XVkq4TxTTyAhVZZEH2MapPpJe
+	 nXoslCDDWDf1SASZ1GiP9XiDVga/dlcmLoKAU1Q7Iay+qRODBmmzyrzjm0M8Mrlw447yg
+	 fD7OVH9LzKY5lBCBHmKosJaqkKLDfS477j4l3H7bWi4PL+5uAqo/2VBaQMZwXcRc52DR+
+	 pm03tj3wLFB8IU56hKU2xP181ljj47qoK+V1GeDGQgqPvNbEuT8ymg6zf0AREViVfVFxF
+	 g5lx5Cmb0tI78w4g4rd04JeuXnqGvHYQVIoTqNNjNXZhTwcM1/t5/4JqDPkCJUQUmDA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mpcN8uUl;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
-Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AIo4bkEN;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
+Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED95606A326
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 17:53:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EED95606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED21606A339
+	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 17:59:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5ED21606A339
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mpcN8uUl
-Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-675617e81f9so1012581d50.3
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 09:53:25 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794246805; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AIo4bkEN
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-679aeeddc6bso1402859d50.2
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 09:59:10 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794247149; cv=none;
         d=google.com; s=arc-20260327;
-        b=V5wpsDBUKH736EHKGUFW0MXO/pZqcZR7RD0d2/9fhyHOtjudwaXU0HmLQ9hPIlStfX
-         qHy0jmiGQJDAcg6Z8KtaAChu10ErvfIMFEOu8bbFBbp/Inn+Y51Ghdyw34hQ8Vr5rH19
-         bTSIGNp8WKyc1hnHXpNAIg4qN8Fve1ipxAPg77eYwGohZ5yN+IAsbxpfxaUMOYw025CN
-         BLkxA1zvzwCvIdRcXt0v0RMyT+c/90H2pWsHslOVGFTtQVMwVbz1dScvGrQLHG9DIw3t
-         ++npukUioePJt1VB5+CmuG2SXcSMVGFKbSknfdLHskRMvAPtUrzHsVaUWM7wh6EoxItb
-         /u3g==
+        b=QZ5qu6E6oRkWwdam3SF06a1lJw9j/EAfDbO6cFBewVUEftqZfgV7jQluhCcOZcIBz/
+         hVEoqATPtE23+xfW1m+FalGBgVS8nxuig1nd+Z9FRDd94IMjhWesxLU1it6SdizUcfdU
+         gudx5qleywPUZz0WxKsOJ4mVDsJqn8gWCwyKN5yrgoZD4itZvFm7MQcFtzYL3a6O/WXj
+         YRmZaf7r5y8HCUr/FLzh0ks3I0cTKtcHozXMt1KdVMVsvWivfDK3PzfKxvn+3KISIDWu
+         8mT93QTAhUmVJOHMqegOAbPPLsMPfNA5eSHt3orRg6HhuGm/tLxnQqErLxag44HI22Qf
+         AcIQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=gHrvOf8UdBPYz9FCbQg8xcR+wgCvHVFr6aRCIkQKsr8=;
-        fh=ynz/8+FwD6qg4pGsVrM1o3ZMcJz6Z9Ld9eMncvonVNU=;
-        b=U/DQNSIETK7PTh6f0oT379DTsQ/mWUlx03RRy6s6MX98xtYtm8pOh65MSIcLu7xZds
-         x7oQ6gzj+qScTawtkPX7Ls+NM8xBbMiNzzPt3/BYqaatmBk461PqkmGonGzNDI7JvWRH
-         LiXZ5bnQHa0NIj+P2tgVXV5pGNWaina+Q7ANwlkkoXu8pYG4+Ftn80vbD1OTlRlIXkFY
-         7rs89zsDJY0pFw5bvkohCAmxPLsMWybqgZcchgp+DhZFeXO/KPr3atiFCKQ5q5W7NKGi
-         ffTeb01DEJUZ/jPH9tCHi/rLeDyMFfan+6oq5/Rokti7Tk4R6wMCulEe5KxcfS+3W/l9
-         muPg==;
+        bh=Z/ZNHj0Rn68UKNmdBxxUTiUBJqPFSpfv4f03+17ya94=;
+        fh=MbnmceO4hSFmkZAnSyiJr6EUuExCW9TEZxUoZ3Mb0t4=;
+        b=M0GYjYilc2/qoZh6Srvo5WqaZnAKA1X9DQRRGq84sSUpkJBkTdjpVrq2eR/XIoIM9I
+         PAWh1E88cdXqSsiV7MvgUqCTxWlminCLzcvpKGAEZRx+L30ZhsC0O8P98bpaywsQOmSy
+         /lov2I4nmd6X3MPkyo66u+Pn+4A3Kcm7lT53TH0viscuaqLj1OsDDZNvoAy/Dp56DGHX
+         Vk4xBGf9le+JsM0Az7r8lN5B2RTCpBgFZedVIbVr8z5a9PIlTlSJhmnkffjee7ZLe287
+         FffmbZ2EN1f+iIz8K2KoChreUyokwS96hV2EU2DV4ToLiPPL8/jViZSM/77pJg24WyYN
+         0ZYA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794246805; x=1794851605; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794247149; x=1794851949; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=gHrvOf8UdBPYz9FCbQg8xcR+wgCvHVFr6aRCIkQKsr8=;
-        b=mpcN8uUlXAMjgw9zokKjLvaL63t9+L3V1GMiXQJ1nPURidhTnt9G2pnSvrxQT7pMcj
-         a3Wj2KBZKcVkaOUzYWNzQAM95s4RTRQcwNXNd/QbMHX9HX8UVhj1kA7d/gwD7yVBEMFw
-         C2cRO60EKLSU+YjxBI0ZsbHpk+QgZIYz3rIfqaHMvF0519FMiaiOzKEi+App+DVEyBYT
-         tRJ4+IvKzxpuD2pVNAvrkXy64rz3vaouHNMPrYYzOQPtf+T2AcNYRrNjrNjLb0rzZizh
-         5Ger4UTzVnnv+1QxtL7HmhtqUUiSqoyeNCGln+kwwTXykaOLi0NIo0v8cq+oGGYhjIb6
-         aYNQ==
+        bh=Z/ZNHj0Rn68UKNmdBxxUTiUBJqPFSpfv4f03+17ya94=;
+        b=AIo4bkENCltLwdrhDOZewdicQonBGCTBeQaFNVBEliAS7m9/i3hKneycQdveLgr8ZM
+         FEekiHI3WHCXhSHf/ycI2V4XlVTWenynjHLnoJsebDlk/YEP8paOC+Aed4lBOWTEPKhG
+         P8yo8WRqPR8B6G+3WkngiNWDTOA96V1IsaJw/DAbLam/H8VXhlJq0WnVhf1Z/Tw6LzS5
+         vk51tVv1X+KkoG8qSPwMEy0ZcIR51QFt7/I51IiJeH1cZjmX6R8oa82Dq6sXSAKMgAs2
+         vYS8ymODLfSHrABA0Exg7U5dcGeXxvulRyUb5vjjqNu8VEHI+BOCfkfVA9fqubYvAQZZ
+         uA7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794246805; x=1794851605;
+        d=1e100.net; s=20260707; t=1794247149; x=1794851949;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=gHrvOf8UdBPYz9FCbQg8xcR+wgCvHVFr6aRCIkQKsr8=;
-        b=S67LwLjJOA7oNDlVq2902hXJ2Qfv4NVvbxsCHFK2f+t/QWeId7hdjEjoOGQwl0MFOv
-         HmHLNdBamDdCPRpAN+QxDGNE33LhjR4wFlPAwZwi6ReQkOY6XtkA52asHo/ZuyENmhuz
-         6UDhDUeQHR4xhp5cIZLothoM+PlmAlRktRP8z1BHlrc1AXbzKw4eccESm6W+3YU4erm0
-         qcjZOzp5ZS5lYI3bcI1mugO4B/mEvFWKAHqwZ+5NoXCPSOv6zA/5PQQTOyxDJZRi+/KD
-         j7SbZrOu14NW1UF5jbD91DXBBg/4kBpC2470waLJoEo+lqilOgS+uVyflZNdlt38pJso
-         jjqw==
-X-Gm-Message-State: APuU4Z80YVELlczDtmuSLnA5smhoT2cu2F378oxV3Hz7mYi8vfyIRNK3
-	Z0pzx1M0cgtd3RPOnPMqX7W9z9CF9mnYVIKa4Ia7g2jgz9etGM7oB+MRA0APGTtJLSKVdl8vL5O
-	RDQtsOKwFOISuhifm+3BVc0YeKkqkIp8=
-X-Gm-Gg: AYBFou35d209mcHPnSLojf8vkhtKR+fKAi7VuMcf98jaG7IKY2yGZE1YH4PIJZNDR7U
-	9Y6YEoPmQKj2eInETjuM/a1x4kIfHzGCjq0iLCy0g5mhcrvDOpEGAowNb3uN4VABpxX7mqNl1Kq
-	ViAfavM+mULG/IBaN/x5kDq2RBB3H5RvFMkvSMTPMFWxjkSCLp0vLZz0ZNhYEQrJs/yjBfIhT9z
-	mjEsoENCaYUK1fRL7FIPJo64oH1WePO/Lm/Pq7SnhrYucSLNwzlxVaKxqjsagLwBBqK+nS0BK2A
-	e0tliaAp9o9VY3owrz2VZ3WpgjNB4I36sf7EGGxX0CQPmrpIzuQhok925lJCUYoQ/8vRIRqoyqx
-	jgSE3mdZCLnSJPvQtvSLrI0m7dyeOmpUfwuEfOdS19yEKXZ7pKNCoeprIS+weYpP49h836cV06u
-	UwFlboZk1l68Xrw2TaeRK8mf9Ev5JVTqDyV4Bbt+yLGG7ZfaOx9UlHllKUwjcJo7b0PKdfXd2Lj
-	xjfjQo=
-X-Received: by 2002:a53:c5d1:0:b0:67c:27ad:5554 with SMTP id
- 956f58d0204a3-67c56903790mr139743d50.100.1794246805111; Mon, 09 Nov 2026
- 09:53:25 -0800 (PST)
+        bh=Z/ZNHj0Rn68UKNmdBxxUTiUBJqPFSpfv4f03+17ya94=;
+        b=rQB/OAsLI0gHiC3HJA3EjPVThnypFwvlFLeWjf0fQk7f2mxoQ1++bUwLK6t3++ntkr
+         ofZGacmS9zLx4U2LOA4VYzypmPqYsQCroITNWG8S0Xm3DFMbuE7srsFm32LXtAfoCqvO
+         NhLlhM9ZdCUOcZ+lv28WkGeijOaJJKNvGnjx2VGDGdTXn7J7v7hTecr0tzcX0R4Xk1EV
+         z348B2KaxrM61z9qoE4+7lO8jQ8ihsPKGBKHGgmqZUCWhmKIQQaZgy8egiBLfEI4E4LA
+         td0g4df5fnWmF88VfeJrhNGX4ZW/4mI7hyLzVg5oGHTj9bpTOElrkN76DPEM+1MDXk+W
+         DOZQ==
+X-Forwarded-Encrypted: i=1; AL+hErFMQlNtrIo4jQywz2QYNRgnaE1vswMUj/2UpFncuY4jTcpzjt+essYg4wnCkEKYXAmcSkrVdlRu@vger.kernel.org
+X-Gm-Message-State: APuU4Z9kqCUpkEl/z3PAHrKZiFBjXUKNxwp7W7o0EccFPPJtdvqv8Qas
+	pJgoJbF8pSO+B7p/QEExQL8KAec7LAJS1OG0ZUHlG6tt/QEUXFj0hrbUdRqJ2EMvvQ5V2AxfIE+
+	zTh7Rjm8F76/1mWgNthJbPDe1fV2hebs=
+X-Gm-Gg: AYBFou3f5viOhDAa74LrS6f97dn8SRDjlJHXv/5OZo7MwtUke9yvqbKUJ0Pjie1YJHb
+	KaXpj1lXmvs4+j7/167gb8RpPSi0PSWcXmowg4VSjJPrlEE0Mt3a2Tczqok5/unz3tb9y+4aK35
+	/fJ+cMHBmdPT5CUwg6bBd5RsJMFrwpws8nPmT9AJbK9KXd8a+VotU0xl4xrjh7a3u0PSum3kzc2
+	ZYGgmb0qbWRO57eMZHlLvUzAuGXTnjl8Bc4MocfNPgAMMnEfXr/S1/g2Zb4GSD8ZQoQtI8vX3Wi
+	7eES2lyzH4xZcqqw7KKLtPAR0cYai9hCVJRSRIHAV1jka6cqa1BS619BOgFSNH7CUSZQF/Keiar
+	P4r6en7mIOZiB2Tb0k+Vzi31PuvdoDPMutxyrku1QuzGoKkrxFNFyaiTRDOm1NpvuGfgo1/AlR0
+	S6Zci+3z01Km5ln8OgsWEOiOJRq2vBzPQCtY/pbsE6pgA76dRwK5UkVqnYsA==
+X-Received: by 2002:a05:690e:138c:b0:679:fa54:1ea6 with SMTP id
+ 956f58d0204a3-67c56830448mr223512d50.88.1794247146395; Mon, 09 Nov 2026
+ 09:59:06 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -105,49 +105,34 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261109153802.76176-1-cgoettsche@seltendoof.de> <20261109153802.76176-5-cgoettsche@seltendoof.de>
-In-Reply-To: <20261109153802.76176-5-cgoettsche@seltendoof.de>
+References: <20261109165939.138448-1-mdshahid03@gmail.com>
+In-Reply-To: <20261109165939.138448-1-mdshahid03@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 9 Nov 2026 12:53:14 -0500
-X-Gm-Features: AclHuK_2gn6k2XOK0XpYoS8HjPRyUfK6u-zdd5M2h1LTXcj3VMKD4twPklX6yMw
-Message-ID: <CAEjxPJ5mcMGCJq5tGESYiQL76hDv0KD36qrOmuocJBsuX8jhzA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] selinux: zero-initialize permission name array in
- masked av dump
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnacek@gmail.com>
+Date: Mon, 9 Nov 2026 12:58:55 -0500
+X-Gm-Features: AclHuK9ejIQT6HgBplyFvbZQHs5s3CbaGps3p33veN7nSZEUOaWjdoafe_Z68xc
+Message-ID: <CAEjxPJ6DApZN+Ri=9dZ6Ff4d-aegQzVKpTT04EtgOaJtdjy8Yg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix potential use-after-free in sel_netif_flush()
+To: mdshahid03@gmail.com
+Cc: Paul Moore <paul@paul-moore.com>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 9, 2026 at 10:38=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Mon, Nov 9, 2026 at 12:00=E2=80=AFPM <mdshahid03@gmail.com> wrote:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> From: Mohammad Shahid <mdshahid03@gmail.com>
 >
-> security_dump_masked_av() declares an on-stack array
+> sel_netif_flush() use list_for_each_entry() while deleting
+> entries from the network interface list.
 >
->         char *permission_names[SEL_VEC_MAX];
+> Use list_for_each_entry_safe() to save the next entry before
+> deleting the current one and avoid accessing freed memory.
 >
-> and only fills the entries that correspond to permissions actually
-> defined for the target class (and its common) via hashtab_map() and
-> dump_masked_av_helper().  It then walks the set bits of the masked
-> access vector and logs, for each bit, permission_names[index] or the
-> "????" fallback when the slot is NULL.
+> The issue is reported by smatch as potential use-after-free.
 >
-> The array is never initialized, so any set bit whose index has no
-> defined permission for the class reads an uninitialized stack pointer,
-> which is then passed to audit_log_format("%s").
->
-> Zero-initialize the array so undefined slots are NULL and are reported
-> as "????", exactly as the existing fallback intends.  Rejecting such AV
-> rules at load time is deliberately not done here: it would break
-> policies that older toolchains legitimately produced.
->
-> Fixes: 44c2d9bdd702 ("Add audit messages on type boundary violations")
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2: cc public mailing list
-> ---
+> Signed-off-by: Mohammad Shahid <mdshahid03@gmail.com>
 
-Just FTR, my Acked-by for this series remains valid.
+This isn't actually necessary AFAICT - sel_netif_destroy() preserves
+the forward link with list_del_rcu() and defers reclamation with
+kfree_rcu(). The loop holds spin_lock_bh() throughout, so the current
+entry remains alive through the iterator increment.
