@@ -1,88 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794268567;
-	b=PF5RE1pi8+ivnTzGoWjpK3CTcmsyRMaKP6Z5dTTbLhql9dKubxPA/lnTPIeAIqVsJMvt
-	 9ZLhWw4vITBj98c3GNbhLFXui1j8RonoxN65Iu96f+nhATnFNHGD0QldQscSnNAEZgb6h
-	 S9nQYZEuCmdTHKJnZACFvqHvZ0MXntE8kcBZ15/oKXN9nLSxobuj1kK71igUrclVgfPqx
-	 QERr6AFQ8DVMHPq7i21VQig+SyFuVgdlLx4UqMJnj65mzkuFSe1c10xBj7Xk79cel5JA1
-	 K1YVflO8EYdQieW8rV6pgbLM5iRHF8vP0imxCjiarbGxZbZwI3NKjuEYULj9dMvIurA==
+	t=1794302158;
+	b=0zv7/Dgh8pSlneqhC72WhVX24TtxuBgXn3ZzNiG+vqilvBaQedHthC+PQHsqham3x9iz
+	 BJZGgXBymJ/Fj7D3K2BzH/Pi03hcN5DFGqy5120TwJ6beShyNA6YmtPZ5X4tbUk8V+Q2o
+	 iHoPtb74a1nvY5136NDlyiLE794xynvupG52j+VjVgRqK2Z0iuZPteDIBsPVsq8qF8VRP
+	 bnYjFNGUQNyfZRJL2Im2xqvV0iJiA3OWmzYNl2plB3YTkfH0Gv3Ujh7D/rE5JRMmQB/UL
+	 R4AEm4Frmlw+X/AWm3n6UfXWsZ6+4wO2fCxXJa01aT0/j6rqJbfGDz5ftOLNkQubL2w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794268567;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer:From:To:Cc:Subject:References:In-Reply-To;
-	bh=nlqOFSAQ9H7dnLsW36/WDhDu5EY2v33GDHCwxLLecp0=;
-	b=2cSoGMGY37X43YWB6GzYv+eQXTPRecrOPOMReful8WVA6ZFj+u1jPBFCvYYnda/eP+Xu
-	 vzWRgruNsw4HWbgLRa4LMPb6yxWMmmHhN8MUN2fSPhX2yds2Lox7dtcl0KDk7M9Wlz2fR
-	 p9W5jwaVWqI0M0SifF0YjfAvJGEbPpMhdrcD4787PadDbEPznjobSPRIGzytUn86flXDl
-	 PY4vco7oUExWa5ahaOwhDMzX4hG49Jnnw70gjpiDucUhsQG6KEbNmEnrqAx0JQ7GuJ2bY
-	 eFnqb+OXGEGR0ThYW84T7F91Eyhc26g9zzhamqslUt6lXzqTogQ+5U+hbivd2VRq4jA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302158;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=PuZuHEnsND00fHRoxO3q8GjJUd6kGJ0dXTi/U306um4=;
+	b=Rf1yyJVwBdY9vkQoPfbJy7zET1ym1qPFDbc//9rofl1EDV0A/VmK0XhbDph9GIDBqfH6
+	 5lMq2wIzgC4wRPgZQz4B21xjaH2MnQthAMVBQfw/dWlbf4bpCtAiriSiVQ9eQzl2cD5cl
+	 WY+Qu3Ld2XLlPxEymSj0+Y1IP7aeyGGxtU9OXuoeyGs0tHedTR3Pz2hus7w5Gj0qc5iDx
+	 E9ErdbBqIPO/9zy46XsNb8/pCOlTUPLpNRRcgAGYoc95uY30iIMweHZdj79jQG7jEkrRH
+	 M8/qKVnmvddbKYBX2999KR5YKr8lWt3/lp5GbOyFgUOUc7cj4gkVtHjo5Q5o0cVMgxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=Qz1X22J3;
-	arc=none smtp.remote-ip=209.85.219.49
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iJREp1Nw;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9207606A325
-	for <selinux@vger.kernel.org>; Mon,  9 Nov 2026 23:56:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C9207606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2BC9606A31C;
+	Tue, 10 Nov 2026 09:15:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=Qz1X22J3
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-91eb53957cbso19921876d6.3
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2026 15:56:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1794268565; x=1794873365; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=nlqOFSAQ9H7dnLsW36/WDhDu5EY2v33GDHCwxLLecp0=;
-        b=Qz1X22J308Z0pwN4ph/SpbaqCDLhrYfm2/s985T7MYAxMwFI6+WtTal8ogRpJXmDZc
-         YizbP4AaoI7JqwqSum0kIuNYtmrj9bYTw2Z4ZqOUJEMWH8IxZPx8V600M1H4wTQzMG0n
-         dBeqV+zBkY9z6aFUUiYf4j/EHTQUhnR4vW9XpyU5tFEPwjOYWSVYr5d9zhk8GaHU04IN
-         kagJuSxM6qk+XMD87K/Pfrwb+4tZHOEClPvbMnUi+Tx1OoA3pYl5nNvkBfepcZArxHiz
-         yYOoFFVg1IqBYd+IJerZXSrI8KZgtwv9AVnQbWhlmi/VwLbWbKLyLAtQSSaws5TqG/zS
-         p2ZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794268565; x=1794873365;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nlqOFSAQ9H7dnLsW36/WDhDu5EY2v33GDHCwxLLecp0=;
-        b=s9zogEOg+UE0oB7mbltimmA+oeE+PHZR9h8cIIIYzCXejXkLMZ1c7ZJvQOxae07KOF
-         ptYAUaA/jEYuRF+A0wg7nLK/mx6MFiuWleGCjQ6JPmOKxKnwStVjsdBJsQ4+c7kVRtkv
-         Bd7/LoFqbTQV4pNCou3qVr9fhRdxPdeReDYGBXzSE/Z2Pmu0prEdwtCoMO/GPYKkdhPo
-         whagqnqr+LKXchipdRtXdTU65G9PpPJPp+2ok50T2+kIajqgQ4KpYVXqHTna+Z/nnVIR
-         HyvPZqmoW/YGISfms0sBfmUiwNxxL9YgiGGUsVUHcarozwQvXpiR6vT91kfVAiWId9Wj
-         gH2Q==
-X-Forwarded-Encrypted: i=1; AL+hErEMfMhxep9oH4mV+yDbK8EWOocyWjriqxtbn/v1pUugZFH8FGFBFLqZVcNhdCTHnZC9JRdvlRbu@vger.kernel.org
-X-Gm-Message-State: APuU4Z9b/63uWLNDUVaakk8bS78UhHh1/e0/4uAqBdLbqTsDjW1qAf6P
-	r0+4Oaopna9xvCXHGNA3PjN909OTY0A3NuDY+0BppVIL91ZlgNmVTjspdoLlPl7lP1luugu+wZz
-	9Xbg=
-X-Gm-Gg: AYBFou3igl49/+CQlZwcdNqWzMtTbH5Y210AkGC8jkAsTZby0D96Zb3W8dmguVd1/hN
-	GNsrir5FbFarHnEh2gHg4WbcfQmkdxJoMzM2UnhY6W9gpWCixuLH2WB8uOvHMnCDkZ9iC1KxH4i
-	fVCJRt/4jl5Vlvnbt5BkxRA0fJGkimbhWmBw2I1kwDs17mHdrN5ipfR4umTMv3qFdLvlTCP70oP
-	huvpWqtwrhJIpvlJD1k4h61PKX6C6VkAB2/p2ZToDOJuVuJBoPdvLSu6rAuNK2zaAFRoih+d+8h
-	+UoZzWiT3Ww9hGnSq/76YqPJemQECmHz//vJNKEgXZaa3cF6MD7Lh9YmUMtz7oGhZNnInzFCDM7
-	hvRh1RcHK2Gjo4qQ+ja0vWhF2qvyPKyrPTEwAxY7z3APwaVHD5kQU++r2isG0dqMwqK29LBKY9Z
-	YgtJA0HYyHVzNGrtkhlf35JvkJEaHQ5NFCHGfcSKyMNGuaF1pLb7X+9JTLQBym1E/P9U/k6USjO
-	3zW8QAq7kjFgYxa0CMGktuOdnL6RJboSTA7B5aAdx++a4wo1F3gkyoheSxT7121IC1/jZ4n9PgB
-	x5o5XdN54qsZDnZj10ZzE9i7Aax21VgNc+RnxS3tigV82pf4gYaNRE0T3A9da5tKmJ376402E/O
-	YLd49ncV4ubFmK92Bm0SJk0/hyhyLDiw=
-X-Received: by 2002:a05:6214:54c8:b0:91b:5d39:e13c with SMTP id 6a1803df08f44-91eef8650e9mr21004816d6.49.1794268565495;
-        Mon, 09 Nov 2026 15:56:05 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91ef04ae351sm7869386d6.12.2026.11.09.15.56.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 15:56:04 -0800 (PST)
-Date: Mon, 09 Nov 2026 18:56:04 -0500
-Message-ID: <a8542108f56e8cac5c6e65977ee01ffd@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iJREp1Nw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CCE11F008A1;
+	Tue, 10 Nov 2026 09:15:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794302157;
+	bh=PuZuHEnsND00fHRoxO3q8GjJUd6kGJ0dXTi/U306um4=;
+	h=From:Subject:Date:To:Cc;
+	b=iJREp1NwHp3BdNh6YhirQMz3aLkdMJad9SaoqicwlHouUofyAaOyHUxlQAMyZlF7r
+	 dxoDogK7Z/SmQMPjvGb107aIw98Hug2c7nyD4DMV9g1SOQKjCPLz3oKAbIbpZoqTaD
+	 pZrbqTndD5C37PARA3QH+ymdbAjgpqhVM8lgzWc8vdrxfAWdPiJr4Zuz7epLK6TvTH
+	 K8+0uuv2p91CoV2BZDxur21nCPhrfDd3bYEfgv9CR8OaiC0kdRmQmvH415KgWFHkQX
+	 DEVbxCY/pgx0ga6OIRh+WS9KothVO+G1SwN3cmU1cAxe1h0Acn2ceEg6DAhgL9k4pG
+	 roZHSfl8QE69g==
+From: Christian Brauner <brauner@kernel.org>
+Subject: [PATCH RFC 00/41] fs: don't use pseudo filesystem files as storage
+Date: Tue, 10 Nov 2026 10:14:16 +0100
+Message-Id: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -91,62 +52,251 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20261109_1829/pstg-lib:20261109_1442/pstg-pwork:20261109_1829
-From: Paul Moore <paul@paul-moore.com>
-To: Joas Antonio dos Santos <joasantonio108@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnacek@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: don't label bridged packets in  selinux_ip_forward()
-References: <179216146138.25460.7866279004288174372@gmail.com>
-In-Reply-To: <179216146138.25460.7866279004288174372@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CMBAF0KuQWTtNSwgpbk08AFvjoi2DVE3bd
+ ERNCHeXyvL/+fMWYMqeGI7VApnenn0MW1CHCtxkwo3QD1uGWtatUrLDT8wPfMaYMDHNQ0TdSd0
+ 0qtU0KtjeUqbRf//kBfrzCa57ybO9k3sVrMysYUKbTXBTqQorCit2VpQ7rOsPZFHYQaEAAAA=
+X-Change-ID: 20261109-work-loop-pseudo-890844168ef1
+To: linux-fsdevel@vger.kernel.org
+Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, 
+ Josef Bacik <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, 
+ linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, 
+ target-devel@vger.kernel.org, driver-core@lists.linux.dev, 
+ linux-mm@kvack.org, bpf@vger.kernel.org, 
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+ apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, 
+ netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
+ linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, 
+ ocfs2-devel@lists.linux.dev, linux-s390@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
+ Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
+ linux-kselftest@vger.kernel.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, stable@vger.kernel.org
+X-Mailer: b4 0.17-dev-ce4c1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10223; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=WAx5V1LxGhR1UvA5SWC4CADg+JxO9oBzu81M/1sMo5Y=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejD52Vp9Rt+JU9PPyLRYcDzr9thcK9op63nkT0XG0
+ 9tVb6tZO0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACbiG8XI8J1572stqcqPZ3dm
+ znK65z3nlUlHTqE/T8hKpkDxSwpWsgz/FKwaX6+8IPBNt3Ftpf31vw35c90UOxbdS3Dp+3xJ6N0
+ RDgA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Oct 16, 2026 Joas Antonio dos Santos <joasantonio108@gmail.com> wrote:
-> 
-> With br_netfilter and bridge-nf-call-ip{,6}tables enabled, bridged IP
-> packets go through the NF_INET_FORWARD hook, where selinux_ip_forward()
-> calls selinux_netlbl_skbuff_setsid() and NetLabel may add or remove a
-> CIPSO or CALIPSO option.  cipso_v4_skbuff_setattr(),
-> calipso_skbuff_setattr() and calipso_skbuff_delattr() move the IP
-> header and reset the network header, but the Ethernet header stays
-> where it was; when the bridge pushes it back in front of the packet it
-> picks up stale bytes and the frame goes out with a garbage destination
-> MAC and EtherType.
-> 
-> Labeling a bridged packet based on its IP addresses is not what we want
-> here anyway, so leave bridged packets alone.  Add a stub of
-> nf_bridge_info_exists() for CONFIG_BRIDGE_NETFILTER=n.
-> 
-> Tested with QEMU, two veths enslaved to a bridge with br_netfilter in
-> the middle, SELinux and a NetLabel DOI 16 configuration, 5 UDP packets
-> per case:
-> 
->   case                                        before        after
->   CALIPSO packet, unlabeled destination       MAC garbage   5/5
->   unlabeled IPv6, CALIPSO destination         MAC garbage   5/5
->   unlabeled IPv4, CIPSO destination           MAC garbage   5/5
-> 
-> Routed packets are still labeled (an unlabeled packet forwarded towards
-> a CALIPSO destination gets the option, 5/5).
-> 
-> Fixes: 948bf85c1bc9 ("netlabel: Add functionality to set the security attributes of a packet")
-> Link: https://lore.kernel.org/netdev/CAHC9VhS+bdL_YnLQtd0sPmKKfy9BvS-LWV_6EhAuu4qfUFe_mw@mail.gmail.com/
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> Signed-off-by: Joas Antonio dos Santos <joasantonio108@gmail.com>
-> Assisted-by: Claude:claude-opus-5-5
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  include/linux/netfilter_bridge.h |  5 +++++
->  security/selinux/hooks.c         | 13 ++++++++-----
->  2 files changed, 13 insertions(+), 5 deletions(-)
+Loop happily takes any regular file with ->read_iter() as a backing
+file and any file that also has ->write_iter() as a writable one. A few
+examples:
 
-This looks good to me, thanks for all the work you put into this!  It's
-been several weeks with no objections from the netdev folks about the
-nf_bridge_info_exists() dummy function so I'm going to assume they are
-okay with that; if that's not the case, please speak up soon :)
+* /proc/kcore attaches read-only as a loop device the size of the
+  kernel's virtual address space (64 PiB with 5-level paging)
+* sysfs attributes attach read-write as 4096 byte loop devices
+* using /sys/kernel/mm/transparent_hugepage/enabled for the loop device
+  and writing a block to the loop device changes the THP setting
 
-Merged into selinux/dev.
+It's not just silly. It's abusable (is that a word?). Loop calls
+->read_iter() and ->write_iter() of the backing file directly from its
+kworker which runs with kernel credentials.
 
---
-paul-moore.com
+But pseudo files enforce part of their access rules at read and write
+against the caller. So dozens of sysfs ->show() and ->store() methods
+call capable().
+
+But setting up a loop device requires no capabilities. It only requires
+access to the device nodes. So whoever has a loop device skips all of
+the capable() checks.
+
+A couple of fun examples:
+
+On v7.4-rc1 uid 0 without any capabilities can't kill a process of uid
+1000 and can't poison its memory either:
+
+    $ grep CapEff /proc/self/status
+    CapEff: 0000000000000000
+    $ kill -9 327
+    bash: kill: (327) - Operation not permitted
+    $ echo 0x220689000 > /sys/devices/system/memory/hard_offline_page
+    bash: echo: write error: Operation not permitted
+
+But put hard_offline_page behind a loop device, write a block
+containing 0x220689000 to the loop device and the loop worker happily
+does it:
+
+    Memory failure: 0x220689: recovery action for dirty LRU page: Recovered
+    MCE: Killing victim:327 due to hardware memory corruption fault at 7f468e972000
+
+That hard_offline_page is a write-only file doesn't stop loop from
+using it as a writable backing file either.
+
+Other fun examples:
+
+(1) soft-block radios via /sys/class/rfkill/rfkill*/soft
+    (CAP_NET_ADMIN)
+
+(2) change the reboot mode via /sys/kernel/reboot/mode (CAP_SYS_BOOT)
+
+(3) reconfigure md arrays via /sys/block/md*/md/. md_attr_store()
+    requires CAP_SYS_ADMIN for every md attribute.
+
+(4) reconfigure scsi disks via /sys/class/scsi_disk/*/allow_restart and
+    friends (CAP_SYS_ADMIN)
+
+(5) read dmi-sysfs attributes (CAP_SYS_ADMIN)
+
+And an unprivileged container that was handed a loop device can change
+gro_flush_timeout of its own network devices. That usually requires
+CAP_NET_ADMIN in the initial user namespace (via sysfs and via netlink).
+
+I've reproduced that all on v7.4-rc1.
+
+Aaaand zloop, the nvme target's file backend, the scsi target's fileio
+backend, fuse passthrough and the usb mass storage gadget have the same
+problem. erofs takes pseudo files as images for file-backed mounts as
+well. It reads them with the mounter's credentials though so that's just
+silly and not abusable.
+
+Fwiw, device mapper doesn't need anything. It only takes block devices.
+md's deprecated bitmap file is fine as well. It maps the file with
+bmap() which no pseudo filesystem implements.
+
+So this series adds SB_I_PSEUDO to state that the regular files of a
+filesystem are kernel interfaces and not storage and makes all seven
+refuse such files.
+
+I didn't want to sprinkle SB_I_PSEUDO over all pseudo filesystems one by
+one. Instead there's now a common initialization point for all of them
+via fc_init_pseudo().
+
+init_pseudo() uses it for the internal pseudo filesystems and all
+mountable pseudo filesystems call it from their ->init_fs_context().
+
+kernfs does it once in kernfs_get_tree(). It raises SB_I_PSEUDO,
+SB_I_NOEXEC and SB_I_NODEV. Pseudo filesystems never hold executables or
+device nodes. Some of them raised SB_I_NOEXEC and SB_I_NODEV already,
+most didn't.
+
+I went through every single one of them. None of them needs to execute
+anything. The files that can be mmap()ed map data and the tracing ring
+buffer refuses VM_EXEC anyway.
+
+SB_I_NODEV is cleared again by devpts, binderfs and selinuxfs. The first
+two did that already. selinuxfs needs it because Android init opens
+/sys/fs/selinux/null by path as /dev/null doesn't exist yet at that
+point. Note that systemd mounts most of these filesystems with noexec
+and nodev already.
+
+file_is_pseudo() looks at d_real_inode(). overlayfs happily stacks on
+top of sysfs, cgroup2, debugfs, tracefs, configfs and securityfs and
+reads of such overlayfs files are served by the pseudo file. Only procfs
+and binfmt_misc are refused as they set s_stack_depth to
+FILESYSTEM_MAX_STACK_DEPTH.
+
+Whether all pseudo filesystems should refuse stacking is a separate
+discussion. overlayfs reads the lower file with the mounter's
+credentials so a root-mounted overlayfs on top of a sysfs directory
+hands capability gated reads to every reader. With SB_I_PSEUDO overlayfs
+could easily refuse them.
+
+The first three patches are independent fixes. Loop never checked
+whether its backing file is open for reading. It relied on
+vfs_iter_read() refusing such files. Direct I/O never went through
+vfs_iter_read() and since v6.15 buffered I/O doesn't either. So whoever
+has a loop device can read files they could only open for writing. And
+the nvme target's file backend and the scsi target's fileio backend call
+->read_iter() and ->write_iter() without checking that they exist.
+
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+Christian Brauner (41):
+      loop: refuse backing files that aren't open for reading
+      nvmet: check that the file backend supports ->{read,write}_iter
+      target: fileio: check that the backing file supports ->{read,write}_iter
+      fs: add SB_I_PSEUDO
+      kernfs: use fc_init_pseudo()
+      proc: use fc_init_pseudo()
+      binfmt_misc: use fc_init_pseudo()
+      mqueue: use fc_init_pseudo()
+      bpf: use fc_init_pseudo() for bpffs
+      nullfs: use fc_init_pseudo()
+      failfs: use fc_init_pseudo()
+      rust_binderfs: use fc_init_pseudo()
+      devpts: use fc_init_pseudo()
+      debugfs: use fc_init_pseudo()
+      tracefs: use fc_init_pseudo()
+      configfs: use fc_init_pseudo()
+      securityfs: use fc_init_pseudo()
+      selinux: use fc_init_pseudo() for selinuxfs
+      smack: use fc_init_pseudo() for smackfs
+      apparmor: use fc_init_pseudo() for apparmorfs
+      nfsd: use fc_init_pseudo()
+      sunrpc: use fc_init_pseudo() for rpc_pipefs
+      fuse: use fc_init_pseudo() for fusectl
+      efivarfs: use fc_init_pseudo()
+      pstore: use fc_init_pseudo()
+      xenfs: use fc_init_pseudo()
+      openpromfs: use fc_init_pseudo()
+      ocfs2: use fc_init_pseudo() for dlmfs
+      s390/hypfs: use fc_init_pseudo()
+      powerpc/spufs: use fc_init_pseudo()
+      usb: gadget: f_fs: use fc_init_pseudo()
+      usb: gadget: gadgetfs: use fc_init_pseudo()
+      fs: add file_is_pseudo()
+      loop: refuse files on pseudo filesystems as backing files
+      zloop: refuse zone files on pseudo filesystems
+      nvmet: refuse files on pseudo filesystems as namespace backing files
+      target: fileio: refuse files on pseudo filesystems as backing files
+      fuse: refuse files on pseudo filesystems as passthrough backing files
+      usb: gadget: f_mass_storage: refuse files on pseudo filesystems
+      erofs: refuse files on pseudo filesystems as backing files
+      selftests/filesystems: add backing file tests for pseudo files
+
+ arch/powerpc/platforms/cell/spufs/inode.c          |   2 +
+ arch/s390/hypfs/inode.c                            |   2 +
+ drivers/android/binder/rust_binderfs.c             |   3 +-
+ drivers/block/loop.c                               |   6 +
+ drivers/block/zloop.c                              |   5 +
+ drivers/nvme/target/io-cmd-file.c                  |  10 +
+ drivers/target/target_core_file.c                  |  15 ++
+ drivers/usb/gadget/function/f_fs.c                 |   2 +
+ drivers/usb/gadget/function/storage_common.c       |   5 +
+ drivers/usb/gadget/legacy/inode.c                  |   2 +
+ drivers/xen/xenfs/super.c                          |   2 +
+ fs/binfmt_misc.c                                   |   5 +-
+ fs/configfs/mount.c                                |   2 +
+ fs/debugfs/inode.c                                 |   2 +
+ fs/devpts/inode.c                                  |   2 +
+ fs/efivarfs/super.c                                |   2 +
+ fs/erofs/super.c                                   |   6 +-
+ fs/failfs.c                                        |   3 +-
+ fs/fuse/backing.c                                  |   3 +
+ fs/fuse/control.c                                  |   2 +
+ fs/kernfs/mount.c                                  |   4 +-
+ fs/libfs.c                                         |   2 +-
+ fs/nfsd/nfsctl.c                                   |   2 +
+ fs/nullfs.c                                        |   3 +-
+ fs/ocfs2/dlmfs/dlmfs.c                             |   2 +
+ fs/openpromfs/inode.c                              |   2 +
+ fs/proc/root.c                                     |   4 +-
+ fs/pstore/inode.c                                  |   2 +
+ fs/tracefs/inode.c                                 |   2 +
+ include/linux/fs.h                                 |  12 +
+ include/linux/fs/super_types.h                     |   1 +
+ include/linux/pseudo_fs.h                          |  11 +
+ ipc/mqueue.c                                       |   3 +-
+ kernel/bpf/inode.c                                 |   4 +-
+ net/sunrpc/rpc_pipe.c                              |   2 +
+ security/apparmor/apparmorfs.c                     |   2 +
+ security/inode.c                                   |   2 +
+ security/selinux/selinuxfs.c                       |   5 +
+ security/smack/smackfs.c                           |   2 +
+ tools/testing/selftests/filesystems/.gitignore     |   1 +
+ tools/testing/selftests/filesystems/Makefile       |   2 +-
+ tools/testing/selftests/filesystems/config         |   9 +
+ .../selftests/filesystems/pseudo_backing_test.c    | 274 +++++++++++++++++++++
+ 43 files changed, 419 insertions(+), 15 deletions(-)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261109-work-loop-pseudo-890844168ef1
+
