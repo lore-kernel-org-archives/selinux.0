@@ -1,54 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794310188;
-	b=0eqb9SjLVfpxMwA1MCsJM6nHJP50iIWgpqrM/GFEGtRUnMlCkZyfdwwZI4FR1j3t0zX7
-	 fT5/nee3DuZYKzLCI6yynvs62jq8bmvmbf7qfpKuUzmLwWCJE4VFeERg+EOiEKjQUKqHQ
-	 eHhwavGqyiUdH6YO+uPnegNwAp4C5RZNoNmxejqiGsOm2tKh66RVL8vmvSXKHG9RGBS2R
-	 Lhxq/pxM5sB7c6QSk5SIjvZ7exSIAqP4uj5+9L5KSUFVBvChk8fHgyVaLJ3QEy5E8rv3V
-	 nE32jZ0t7M3wfPwiqhSAxJNPH27TbVc7r7AYDWjqTzJSYER9n4gvw144SJKlRmTeERQ==
+	t=1794310189;
+	b=JbVkFiHnyJk6dXugHMp7HvImVCpTYuaKCIc7HZxt6RDfFYj+ZSP8hEUt+oVbniGwmojz
+	 OwrXqnTB/NLPlef7/26J0sAd1oMzL8Qf5GL8Xzocq4Kbm8HDJJcuyZgDHLy6STUHcB4Ji
+	 z+IlKl47nQbFB5MDYoxu6YDU0G5i39gQprAYR+81YLjFcR0ufdfUHBgDRA3KsMu5ybu57
+	 HyfGFFJT5VFJQx9rIDHd2wI14yLRYSEgn0Ro1fJQXcc68rI1DTbgFNrO8bRR5EpK2ju1r
+	 xtZoahINkW/q81kE4qdWQDbPutKz0xG2Gv9BeYK+CNukktTZFRvkFDkz+IEBhKF7fvg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794310188;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794310189;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=Jnvd+1s3akKxyKvu9AuPz2kt8a6zYQInW+MGx6uXyBY=;
-	b=rigztM/jBmmCYdDXCid3RRoIRxHw8XlN3nsaAKs0x2r2+j8yhK8ujHr4XGrzpweqAJo3
-	 1YsqffbtainvxeQakZCZM1JMsLjdqVrst08dFesQB1pFukgG+/HivqgYzi/tyL2RHKANV
-	 GqKHv1Ze30UzEoIqhGhnz1Sdz+RFcB+bA7Mtp/3xVvEtO1i023Qj9EHCN4LH+x+DP7qvT
-	 BsoSuc+knJgeJ7V91C+fWWfYvUPDUCderonBCjWhWxc3ibSXqHnoM2Dkp2ppFyUcZmWTP
-	 uhhn4c2xydRBKs9gDSLKrfD2eBPuihskcnHfKzoDMpyGVLAoJYl5y9L1OoHDxlvR+dw==
+	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=xzO5GS7NPAGFMWWDILQyYg9dp9p89pFawt+I0DDrk9w=;
+	b=j64WhZsppmfAJZl783/TfT6QuQMhJHtFetR+mB0tZbaQUkO8LLRek5yJp7KAoqhkq2Tv
+	 JhSGKPemLl8hL7EszMjyHNuBScl+QF1Akr+MQ6jSO4PJn/ezyhe/163UoYzqVoK26c0N+
+	 UpRQRNsOsVkihMyW4WywgUOhjhJBbiXIOYHoQuQ0OSIC0iOhBJyv4CYIpbS+IwFBjrgTo
+	 KZNHtl0V+AC6DxqgCmjClTUD7fZEikaRku2Dadm8C0v5UZiPVqSQ7RvjdmHWfaeqktzxq
+	 gl89TgivJQtlRhUdtXMgjyjuvHt2H4FLVeyDtmj0fCfaRjt/GYqNFkwCKT3OiYcbFJA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=PMDEKaAN;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=SnvFq7B0;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10A15606A31C
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:29:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 10A15606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFBE5606A326
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:29:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFBE5606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=PMDEKaAN
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=SnvFq7B0
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1794310186;
+	s=2023072701; t=1794310187;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=Jnvd+1s3akKxyKvu9AuPz2kt8a6zYQInW+MGx6uXyBY=;
-	b=PMDEKaANzPAYrrsZOhaf1juhi7i7+sojsN8C8nMGhEoZuptZnRVg+5Qlv48jfWy0bvKe5M
-	Rlxa/hjiuFOoKyKDAFFjuvRtc+waxJ1Zqs4lDwfWtwU1zkWfYk+X4S1jnorXmmWM3dRD4X
-	WtP509OQOxrdx+5ytLBVf9dCPkIhyvsIUmAGORfg3go3+Q0mkhzhGXLUkiUB0V4vj3Z2nF
-	/mdgKTCycHVwM1MNw+Ak+zif0xDYD40gqh88ZkpWWuRw32vMZd7iTB3nf85vBKTDnWIVMT
-	BQtM7wx2rcpH7RAWDMq9E3AuN3vNa8p/8jqNgzpjXEM6I+DXo6s6OkwrVg9hzw==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xzO5GS7NPAGFMWWDILQyYg9dp9p89pFawt+I0DDrk9w=;
+	b=SnvFq7B0sDl6TSfc9gAamrjbZc84pYkTk6bedOe61xnzp0nRGZQBWlJPKBY5u63RaxzLAe
+	u9WXJ+NcJmtDLAbFxCNRtJ9feKO/YMXk2/QwdCYz89c1E6Im+KOHpBXrB373hlstn8kwpW
+	+Wm/PIj3JXHOCzf1Ts6dymtB8CEXibdxZafmziCwgx36cIeNXH+BSzb1Wed4EXqgvpMRMj
+	vv/Gl1CdtKRre3HOvQbzl/vM7ZW8QkDlklI2j9HnmA8vQehNSPko+J2Vc8ZVw/YEAd6ZO3
+	eEg3CHGq/nR41elXKeZ+CxhlgQ5/zn4hKPMQXZV69HLaTQnARHe8y/WBxm2TtQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 2/8] libselinux/man: make set_selinuxmnt(3) the canonical mountpoint page
-Date: Tue, 10 Nov 2026 12:29:24 +0100
-Message-ID: <20261110112931.99557-1-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 5/8] libselinux/man: document seuser matching precedence
+Date: Tue, 10 Nov 2026 12:29:27 +0100
+Message-ID: <20261110112931.99557-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20261110112931.99557-1-cgoettsche@seltendoof.de>
+References: <20261110112931.99557-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,109 +69,77 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The selinuxfs mountpoint functions are documented in init_selinuxmnt(3),
-but init_selinuxmnt() is a static constructor that is neither exported
-nor declared in any public header, and fini_selinuxmnt() is shown as
-static although it is part of the public API.
-
-Move the content to set_selinuxmnt(3), drop init_selinuxmnt() from it,
-describe when setting the mountpoint explicitly is needed, and turn
-init_selinuxmnt.3 into an alias so existing references keep working.
+Describe in getseuserbyname(3) the order in which seusers entries are
+matched (exact user, then group, then __default__) and the fallback to
+the Linux username, which is disabled by REQUIRESEUSERS. Point
+seusers(5) to it.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/man/man3/fini_selinuxmnt.3 |  2 +-
- libselinux/man/man3/init_selinuxmnt.3 | 32 +---------------------
- libselinux/man/man3/set_selinuxmnt.3  | 38 ++++++++++++++++++++++++++-
- 3 files changed, 39 insertions(+), 33 deletions(-)
+ libselinux/man/man3/getseuserbyname.3 | 33 ++++++++++++++++++++++++++-
+ libselinux/man/man5/seusers.5         |  1 +
+ 2 files changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/man/man3/fini_selinuxmnt.3 b/libselinux/man/man3/fini_selinuxmnt.3
-index d7805c97..fe9a35cc 100644
---- a/libselinux/man/man3/fini_selinuxmnt.3
-+++ b/libselinux/man/man3/fini_selinuxmnt.3
-@@ -1 +1 @@
--.so man3/init_selinuxmnt.3
-+.so man3/set_selinuxmnt.3
-diff --git a/libselinux/man/man3/init_selinuxmnt.3 b/libselinux/man/man3/init_selinuxmnt.3
-index 6c83698a..fe9a35cc 100644
---- a/libselinux/man/man3/init_selinuxmnt.3
-+++ b/libselinux/man/man3/init_selinuxmnt.3
-@@ -1,31 +1 @@
--.TH "init_selinuxmnt" "3" "21 Nov 2009" "" "SELinux API documentation"
--.SH "NAME"
--init_selinuxmnt \- initialize the global variable selinux_mnt
--.
--.SH "SYNOPSIS"
--.BI "static void init_selinuxmnt(void);"
--.sp
--.BI "static void fini_selinuxmnt(void);"
--.sp
--.BI "void set_selinuxmnt(const char *" mnt ");"
--.
--.SH "DESCRIPTION"
--.BR init_selinuxmnt ()
--initializes the global variable
--.I selinux_mnt
--to the selinuxfs mountpoint.
--
--.BR fini_selinuxmnt ()
--deinitializes the global variable
--.I selinux_mnt
--that stores the selinuxfs mountpoint.
--
--.BR set_selinuxmnt ()
--changes the selinuxfs mountpoint to
--.IR mnt .
--.
--.SH "AUTHOR"
--This manual page has been written by Guido Trentalancia <guido@trentalancia.com>
--.
--.SH "SEE ALSO"
--.BR selinux (8),
-+.so man3/set_selinuxmnt.3
-diff --git a/libselinux/man/man3/set_selinuxmnt.3 b/libselinux/man/man3/set_selinuxmnt.3
-index d7805c97..254f5d55 100644
---- a/libselinux/man/man3/set_selinuxmnt.3
-+++ b/libselinux/man/man3/set_selinuxmnt.3
-@@ -1 +1,37 @@
--.so man3/init_selinuxmnt.3
-+.TH "set_selinuxmnt" "3" "2026-06-18" "Security Enhanced Linux" "SELinux API documentation"
-+.SH "NAME"
-+set_selinuxmnt, fini_selinuxmnt \- manage the selinuxfs
-+mountpoint used by libselinux
-+.
-+.SH "SYNOPSIS"
-+.B #include <selinux/selinux.h>
-+.sp
-+.BI "void set_selinuxmnt(const char *" mnt ");"
-+.sp
-+.BI "void fini_selinuxmnt(void);"
-+.
-+.SH "DESCRIPTION"
-+libselinux determines the selinuxfs mountpoint automatically when the library
-+is loaded (in a constructor, before any API function is called) and stores it
-+internally. The discovery is not repeated later. The functions below allow this
-+mountpoint to be set explicitly or reset.
+diff --git a/libselinux/man/man3/getseuserbyname.3 b/libselinux/man/man3/getseuserbyname.3
+index c0515dd9..92d305d0 100644
+--- a/libselinux/man/man3/getseuserbyname.3
++++ b/libselinux/man/man3/getseuserbyname.3
+@@ -18,6 +18,34 @@ then be passed to other libselinux functions such as
+ and
+ .BR \%get_default_context_with_level (3).
+ 
++.BR getseuserbyname ()
++reads the
++.BR seusers (5)
++mapping file and resolves
++.I linuxuser
++using the following order of precedence:
++.IP "1." 4
++an entry whose login name matches
++.I linuxuser
++exactly;
++.IP "2." 4
++otherwise the first matching group entry
++.RI ( %groupname ),
++tried in the order the entries appear in the file, for a group of which
++.I linuxuser
++is a member;
++.IP "3." 4
++otherwise the
++.B __default__
++entry, if one is present.
++.PP
++If none of these match, the Linux username is used directly as the SELinux user
++with no level.  This fallback is disabled when
++.B REQUIRESEUSERS=1
++is set in the SELinux configuration file (see
++.BR selinux_config (5)),
++in which case the lookup fails instead.
 +
-+.BR set_selinuxmnt ()
-+sets the selinuxfs mountpoint explicitly to
-+.IR mnt .
-+This is normally determined automatically during libselinux initialization, but
-+that is not always possible, e.g. for
-+.BR init (8),
-+which performs the initial mount of selinuxfs. An application that mounts
-+selinuxfs after libselinux has been loaded must call
-+.BR set_selinuxmnt ()
-+afterwards, even if it has not called any other libselinux function yet.
-+
-+.BR fini_selinuxmnt ()
-+clears the stored selinuxfs mountpoint and frees the associated memory.
-+.
-+.SH "AUTHOR"
-+This manual page has been written by Guido Trentalancia <guido@trentalancia.com>
-+.
-+.SH "SEE ALSO"
-+.BR selinux (8)
+ The returned SELinux username and level should be freed by the caller
+ using free.
+ 
+@@ -45,4 +73,7 @@ The errors documented for the
+ system call are also applicable here.
+ .
+ .SH "SEE ALSO"
+-.BR selinux "(8)"
++.BR selinux (8),
++.BR seusers (5),
++.BR service_seusers (5),
++.BR selinux_config (5)
+diff --git a/libselinux/man/man5/seusers.5 b/libselinux/man/man5/seusers.5
+index 7fb341ca..049be6ea 100644
+--- a/libselinux/man/man5/seusers.5
++++ b/libselinux/man/man5/seusers.5
+@@ -16,6 +16,7 @@ will return the active policy path to this file. The default SELinux users mappi
+ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+ .sp
+ .BR getseuserbyname "(3) reads this file to map a GNU/Linux user or group to an SELinux user. "
++See that page for the order in which entries are matched.
+ .
+ .SH "FILE FORMAT"
+ Each line of the
 -- 
 2.55.0
 
