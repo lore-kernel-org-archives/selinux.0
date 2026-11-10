@@ -1,38 +1,38 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794308367;
-	b=FhWO+TF5ByosPFMgWCZ1mNrCixAu44WCo+wRBxoq9Wkl7kWmkqto9GozLkwPGRyXQE4z
-	 Mfh79nF3s1a2skI75Q04/7070+fRJLumASf2QJ1NoEbQgGj2dfr+liPd+pjlvtpReR4T3
-	 UpMVWmn3vWZ4KwLGrmNouL9aNA0FzlHM4o+8BcK+8Zyw1Y1g3pm2h1jZ6QCtYC8q7I9gy
-	 wwzOF9aiCaDvEulYpEMCw0+SinrXHkdjKw4Db4uk7e10qNvlLG+iBnjv4tyCAfWrQTtov
-	 9NfXCO2Wf2N/qSlpSye4UewicDgtF4av4RNnHuVQzD8nhGiFDoTDMJKWGS8FbyWRe+g==
+	b=UNjE+fiRXrjBUcghOagwHBRhR7k0APDTx+QC7DXrljPfy/lnBT/MMcebd7sGrtiqVyjm
+	 sj0jcF91W0yxGhuGVzm2K2O9ELgoa/72tffkHVBPl1t/6lIOGD2en9T8F6uJ/GWSh9tWk
+	 cLfc8j5izjviAY3h74mo7midVnXGD04fxJ9SgpaOSD52h1LzaexDfTALBK35FTUO8Zi3c
+	 KnsHPLRmwKPm/QIvK43T+dl/FjNc/Hz0nUTUvLg75QHCGvlhhFRc4ZKFNpYQNxrjC0vV5
+	 NzBKFNAII0HlimidWV8Fmtcgg0ikXBjuGA/3imFY3sNvZhtYIneZeCKXN7sXn7u0fbQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794308367;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=9U4K89f72jsoixo+atuiGGxK4qF4/AAnABzRpFF8+JU=;
-	b=rxkfSXFUtFBJbKILTiR/uZIuK1kCV4qK0XlKnHcTffIHyvhnY0eQo/5jio2G+qzWA9Dy
-	 CcGnM9rUgD4g+XWQsA7WI25zCWzzR1BhvqdrdnizSP6pJy55DZRiq/momzPiSnRMgxy0p
-	 iqgbfyJLLHHm7T6e1fjEDJiXikjJuqmiJOPWkC8y0oEJwsFxqBbSB09O87OPFuN5CTeQ9
-	 FSoqXslMy01VsMYJZ+CR/LgbwiofLeze7OR5Pf42MDeUfreTm7j2fVCaNl47n9OhRiZwG
-	 5Ux+/axQq/GJoLvFVMqGk5uSjaIozgJFqhKtqaV69M4UvboBYds/xg/6gIvDREofHYQ==
+	bh=tSGaXzrmz8TsON06qYmnmRUrdt63ZC7hoL9UccxjrKM=;
+	b=3nud8jHZJXlcL3EfiGj8fe+AMoKZvaVzCG21cSxWSghTHmG0J45tnS1H8ft2io6b/sRP
+	 c4GPEEu82ZKYNI4vicPGnm8XYZ6sPKWBwM5W2lm4x+uTZca3vQpOFhc4wqoAwLbFGr6B5
+	 G9FiMQtwZjIWZQohxNkPOLZuYEK/cuvzIeRAMUqG7fiJOohTlXEuW7vB+NQL57DWihIGH
+	 l5rOwBNEXIEpzh/fbajuuxH/InliRvlj8Kj5ahxoJw7VNgtgzt7byTs5Nnhj8ujdxB3Pj
+	 xOeadCAxc+1PLulmwHzBoZVaJwZ1r/urU9z9XPJzDvvKC5byHLFAc8JNMxyDBSP6zeQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Jx4zUeYj;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=paT4hBG2;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C501C60A5BC4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FD160A5BC2
 	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 10:59:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C501C60A5BC4
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4FD160A5BC2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Jx4zUeYj
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=paT4hBG2
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1794308361;
@@ -41,17 +41,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9U4K89f72jsoixo+atuiGGxK4qF4/AAnABzRpFF8+JU=;
-	b=Jx4zUeYjO9G0g5uziDwCZJUVA6XfUuJqY5zHr9kISFfzCZbN8LyQAgnXTztk1/SoA7lFi+
-	R1duqtFkHuak+TYpmK20ZFlx8M7uvjREQRZR0IR7FVGtjnpfMgdAhoQjDaIv6Qf7EOH4hh
-	7XbohhUFU1hqPqroJtTigT8JLl/HsjVpJwtgm8dcHB6uGJlCIfSdMtxm6I2CcfW9UQ6PWY
-	LpLYQbzjJtuvU95BEdCC3HGVd4IAmQgA7lKBdUIWLm/y4JfChstNbHv3gloT7BhDZGSjHU
-	GV8mj50lhBk1HERroH5PcILE9dqrBYvfRr02eOd0rFlrlH5Py8DtCG4/xHwARA==
+	bh=tSGaXzrmz8TsON06qYmnmRUrdt63ZC7hoL9UccxjrKM=;
+	b=paT4hBG2ZPxv3lMsVDQ9IKAzdxgTrsL3uD4j2zo75BmJ5R6glRRfbpM7vuRmsrcmTC2EVy
+	XoliR01D0oMNpbupGU7ByHQD+OP6GaNHmCxaRIQ9j/B1yzHpgSYKc2UW/uiiJcDMbgxRYZ
+	Irsm4JbBzpZ1FAJ4j1N8EzJdec74MKTWtdba9uCpDJfIcRaNDBP2lKe3GqBFR2vtLV6BvU
+	7JFfeFjGRtKCFwEEflV5l8y+DKT1D5UkkY9T+56Imuq4U00hiIU3tK0pmHzLfgUVLPHBVG
+	/hmjO4X1GC8vb5zGtrdG4TiQJCKrBNEIJX9UlBERM+YCaPd7LCDYeq/2HsnYtA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 6/7] libselinux: set errno on is_context_customizable() failure
-Date: Tue, 10 Nov 2026 11:59:04 +0100
-Message-ID: <20261110105906.58509-6-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/7] libselinux: avoid NULL deref when serializing a cleared context
+Date: Tue, 10 Nov 2026 11:59:06 +0100
+Message-ID: <20261110105906.58509-8-cgoettsche@seltendoof.de>
 In-Reply-To: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 References: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,39 +69,77 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The unavailable-list and missing-type paths returned -1 without
-setting errno. Set ENOENT when the customizable types list could
-not be loaded and EINVAL when the context has no type.
+context_str() and context_to_str() unconditionally stpcpy()'d component[0],
+but a component can be cleared via context_user_set(con, NULL) (and role/type)
+since set_comp() treats a NULL string as "remove".  Serializing such a context
+dereferenced NULL.  Emit only the present components, joining with ':', which
+also keeps the allocation size exact for any combination of set components.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/is_customizable_type.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ libselinux/src/context.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_customizable_type.c
-index b39539bd..5781860b 100644
---- a/libselinux/src/is_customizable_type.c
-+++ b/libselinux/src/is_customizable_type.c
-@@ -73,8 +73,10 @@ int is_context_customizable(const char *scontext)
- 	context_t c;
- 
- 	__selinux_once(customizable_once, customizable_init);
--	if (!customizable_list)
-+	if (!customizable_list) {
-+		errno = ENOENT;
- 		return -1;
-+	}
- 
- 	c = context_new(scontext);
- 	if (!c)
-@@ -83,6 +85,7 @@ int is_context_customizable(const char *scontext)
- 	type = context_type_get(c);
- 	if (!type) {
- 		context_free(c);
-+		errno = EINVAL;
- 		return -1;
+diff --git a/libselinux/src/context.c b/libselinux/src/context.c
+index cd1cd431..59c33c34 100644
+--- a/libselinux/src/context.c
++++ b/libselinux/src/context.c
+@@ -125,17 +125,21 @@ const char *context_str(context_t context)
+ 			total += strlen(n->component[i]) + 1;
+ 		}
  	}
+-	n->current_str = malloc(total);
++	n->current_str = malloc(total ? total : 1);
+ 	if (n->current_str != NULL) {
+ 		char *cp = n->current_str;
++		int first = 1;
  
+-		cp = stpcpy(cp, n->component[0]);
+-		for (i = 1; i < 4; i++) {
+-			if (n->component[i]) {
++		for (i = 0; i < 4; i++) {
++			if (!n->component[i])
++				continue;
++			if (!first)
+ 				*cp++ = ':';
+-				cp = stpcpy(cp, n->component[i]);
+-			}
++			cp = stpcpy(cp, n->component[i]);
++			first = 0;
+ 		}
++		if (first)
++			*cp = '\0';
+ 	}
+ 	return n->current_str;
+ }
+@@ -154,17 +158,21 @@ char *context_to_str(context_t context)
+ 			total += strlen(n->component[i]) + 1;
+ 		}
+ 	}
+-	buf = malloc(total);
++	buf = malloc(total ? total : 1);
+ 	if (buf != NULL) {
+ 		char *cp = buf;
++		int first = 1;
+ 
+-		cp = stpcpy(cp, n->component[0]);
+-		for (int i = 1; i < 4; i++) {
+-			if (n->component[i]) {
++		for (int i = 0; i < 4; i++) {
++			if (!n->component[i])
++				continue;
++			if (!first)
+ 				*cp++ = ':';
+-				cp = stpcpy(cp, n->component[i]);
+-			}
++			cp = stpcpy(cp, n->component[i]);
++			first = 0;
+ 		}
++		if (first)
++			*cp = '\0';
+ 	}
+ 	return buf;
+ }
 -- 
 2.55.0
 
