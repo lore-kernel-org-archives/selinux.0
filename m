@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794302212;
-	b=UX8+KchCsgabl7+WABiwjxmaPDWaVHMrG8qcUVzYL5KyNpomFBQ1yo3HqTugJzNaJhe9
-	 4uarePjHE599ae/3x5C5qCU1z2IBJ4nnPIc7gRACCOArLgy2x+UWcbjFMoTtev2CYLXXp
-	 qscnzIdDekY27D2RqCVo+RgHxs88ZzAODHz+z0N/XzhUo9duXZXfdzKOmhq4dt9VMvJ7/
-	 3AU7kOoOEgI92+8G5UKPx+80YoeqjyH7clwVOeqvNo18V1WcmjsTMXnT576bkgwV0busr
-	 NvlY+91U600016fL3jCBRhbbyPwgVsdQFMNItJJdTY+etAUHHxNymEhd3NFBAXpvTZw==
+	t=1794302226;
+	b=rO0mxl+arGntcVkkKsYOGEnFGKaQeCd9vunrY/8dWo9PeU1F8d7ozUIwZO9Uzv9XCJfv
+	 WGiNNrsrLO69xObcycpbM92WttPEA/pSqMXxoUOFHboNShnP0bcJ6aFbJ9WhFrMEhOU0W
+	 0G0PLLH4YUIKqjhAqkdSQwYlOPrVuHp5qdBQzCPAqRr2a/uzt38vi+EZNECjG0kB0Tdif
+	 2zCLvHKKW43+ZyPOeHX7Stq3a8rOal9AElQMXTSEEN+bm8U0JIhX9FHQUQmga0o2DkBYi
+	 EByZR62abY/3vtk+PUk1Cuir9lPhYmyI0GR0TrrOkPVxstc10sDLMJthtqTZsVuZAjw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794302212;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302226;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=rTt9ZODnqMGXt2QPWO0j4LWRDHe8dvGNICyHTYt985E=;
-	b=EjhNTgBl2JHOCtXred4uvCMfgww8sFiB7AArD/8Z/gEPGK+Sdfs7E0A49TclsaxSmuQl
-	 ZcwnoPNk+U86OBWn879b+jQtGcdgmDWDzx55RM469kaAc0xZsGCPisg0sSBNnRGDUBauw
-	 fyEkiP546RZgJh8vDjDAlDfZ+yZ/NlAwaNe5nzenQn6U6/rwOqQ8/+ZfmD3hK3x+LUsnr
-	 apnjxktsLhGUca4JCPbSwztWmtU8+OseAvwZnOz1XrCtV300q95KkbKt2NoC5Vmt96jDZ
-	 7ZZFO3OLU0TCF527AGYn9/vMoFqGJZ2aRXWfmcwkGePGM+IcloJ9dqrm30VXxRY/tCQ==
+	bh=ZmsVWE65gHf0tYCZOotZ2fbgGfTg77o991kqs+Fgm8I=;
+	b=yxx6+HbQTaE7H3zLMM0sqttqGclhCvT5XzWpgEPyzwhg7rpHTHzRdRDHpk1BtjU+B9ir
+	 dnz79nD8huiqDa0DNs1ExxXN7vctybkbaBjVzVZZmqB1vS8Ie27CggwTcjYYljNDlA/FH
+	 F3tropWKsE1Ub4+rnZyjc/hsns/udxJCoufFwYNzOkeSC0FeK7z1QGtAj12GB3gUmXxMz
+	 5zYdEu4x3rQimjQ+NQ3vSSoKZpVDL49Ig/vCxQZgDZ/ddKdzRfAnG+M2K2s5MEHnE/Apg
+	 tgYifbp9lNPNT7FIRwWMA47CsCYyn0SyvVXBH4pnKPq4n/BSPDMzXdyo4bhF1D25rIQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nXwsv5rT;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BW8cSBu5;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96B23606A33C;
-	Tue, 10 Nov 2026 09:16:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34334606DA05;
+	Tue, 10 Nov 2026 09:17:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nXwsv5rT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49B51F0089F;
-	Tue, 10 Nov 2026 09:16:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BW8cSBu5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977E81F008A3;
+	Tue, 10 Nov 2026 09:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302212;
-	bh=rTt9ZODnqMGXt2QPWO0j4LWRDHe8dvGNICyHTYt985E=;
+	s=k20260515; t=1794302226;
+	bh=ZmsVWE65gHf0tYCZOotZ2fbgGfTg77o991kqs+Fgm8I=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=nXwsv5rTzvrG122CXPiddOJ0ugXqcsoi/AaGfNNbu7zvGK8mvUz48SAGlBU/zLVkz
-	 LooUWqRoN/4S8I3xcJYcAEFNAJv7CmbUQiM+ChF5ZHpfxf63bNo7Z0QdCAiOO59dr1
-	 8fhU2KVqLBCjOH3X9bxaSSk/C75cMEo2HD2kESGJ6Y10yT4ZTrwrUuApzZmSmAZkyq
-	 7KypYuKqM5Pjoxx7X2T/0YDQPSzhDhTa8yf55w0TWoYWrEVFZ6el7TpOiZWeC8kVq8
-	 oCDfcYgrQZNoq58895X8dxus9Cy79YWYO/viOCOJpKnTNCeln3Zt2fAQjdrWaXV2Jd
-	 BAdVF5Rtw3JRQ==
+	b=BW8cSBu5u5r410tEcT+zMEpXHphJlFpdpAvRKAvEiKkqyi0xID6vk2b0Tbjr4F3K7
+	 awaBsefdY+MBphndwr9KbPvoSGcCvsFqAgttwi2fLxH3+R18Qt4275it2lfQHkFKW3
+	 UWJSti38mAmdmLS3tX3vRlC5H3kzbz/lg2YywjKPfSIrMY163nLZvxRzgh12Gfu740
+	 fCVYcWuwLy19s6iKyC6ZAEcLuBFbK0G08kyGDUPlYe/7HLPPSEk9rvbQ36ZpaFxa7H
+	 vhskSHci2E1kOmUw3DCi+DzAu6HlXgBa1yUahbo2TZ2iHpM1c2csxa56tO5nlkWHht
+	 owe5/3f9zcJNw==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:24 +0100
-Subject: [PATCH RFC 08/41] mqueue: use fc_init_pseudo()
+Date: Tue, 10 Nov 2026 10:14:26 +0100
+Subject: [PATCH RFC 10/41] nullfs: use fc_init_pseudo()
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -54,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-8-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-10-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -75,51 +75,44 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1198; i=brauner@kernel.org;
- h=from:subject:message-id; bh=McdhKaZYT4i07Xats25HT8jpBIeYReCKfIiqQkLDh7c=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejDXp05OOqNfiGfutU+mD244ZPwWu6w2Ner6mY67a
- 1N9rz580VHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRz8EM/8zfXf24LmZt6Maf
- 748F7bqwrvMdv95q947nnlLsuYdn/j3N8JvF0yvka11ts23/pvzN+To/re7tc+Vlrptwd4bj6ob
- /3vwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=901; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=sE5h4xDpaVEC2u2QAThbBNjL9uzfl1yRVOrJAX0MUt4=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejD//EYdt1/rJsiFfvkoZ/8qOqx4q8M6HwH1m6/ZZ
+ AI224nydZSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEykdCnDPxurz9VH1LyPmPhq
+ vwyuY532xsvTcZ32qt+q1sFHglVuuzD8D18Z213yU2Sl5aU3uX8PWyTKlr/7O0218syUZaL+TwX
+ WcgEA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Initialize mqueue as a pseudo filesystem instead of raising
+Initialize nullfs as a pseudo filesystem instead of raising
 SB_I_NOEXEC and SB_I_NODEV by hand. This adds SB_I_PSEUDO.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- ipc/mqueue.c | 3 ++-
+ fs/nullfs.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 322c3dd98c44..8bbe32d0881f 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -18,6 +18,7 @@
- #include <linux/file.h>
- #include <linux/mount.h>
+diff --git a/fs/nullfs.c b/fs/nullfs.c
+index 319c2f5c5a67..2fe24cb97160 100644
+--- a/fs/nullfs.c
++++ b/fs/nullfs.c
+@@ -2,6 +2,7 @@
+ /* Copyright (c) 2026 Christian Brauner <brauner@kernel.org> */
+ #include <linux/fs/super_types.h>
  #include <linux/fs_context.h>
 +#include <linux/pseudo_fs.h>
- #include <linux/namei.h>
- #include <linux/sysctl.h>
- #include <linux/poll.h>
-@@ -405,7 +406,6 @@ static int mqueue_fill_super(struct super_block *sb, struct fs_context *fc)
- 	struct inode *inode;
- 	struct ipc_namespace *ns = sb->s_fs_info;
- 
--	sb->s_iflags |= SB_I_NOEXEC | SB_I_NODEV;
- 	sb->s_blocksize = PAGE_SIZE;
- 	sb->s_blocksize_bits = PAGE_SHIFT;
- 	sb->s_magic = MQUEUE_MAGIC;
-@@ -457,6 +457,7 @@ static int mqueue_init_fs_context(struct fs_context *fc)
- 	put_user_ns(fc->user_ns);
- 	fc->user_ns = get_user_ns(ctx->ipc_ns->user_ns);
- 	fc->fs_private = ctx;
+ #include <linux/magic.h>
+ #include <linux/splice.h>
+ #include <linux/uio.h>
+@@ -174,7 +175,7 @@ static int nullfs_init_fs_context(struct fs_context *fc)
+ {
+ 	fc->ops		= &nullfs_fs_context_ops;
+ 	fc->sb_flags	|= SB_NOUSER;
+-	fc->s_iflags	|= SB_I_NOEXEC | SB_I_NODEV;
 +	fc_init_pseudo(fc);
- 	fc->ops = &mqueue_fs_context_ops;
  	return 0;
  }
+ 
 
 -- 
 2.53.0
