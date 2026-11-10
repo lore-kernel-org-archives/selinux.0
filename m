@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794308367;
-	b=UNjE+fiRXrjBUcghOagwHBRhR7k0APDTx+QC7DXrljPfy/lnBT/MMcebd7sGrtiqVyjm
-	 sj0jcF91W0yxGhuGVzm2K2O9ELgoa/72tffkHVBPl1t/6lIOGD2en9T8F6uJ/GWSh9tWk
-	 cLfc8j5izjviAY3h74mo7midVnXGD04fxJ9SgpaOSD52h1LzaexDfTALBK35FTUO8Zi3c
-	 KnsHPLRmwKPm/QIvK43T+dl/FjNc/Hz0nUTUvLg75QHCGvlhhFRc4ZKFNpYQNxrjC0vV5
-	 NzBKFNAII0HlimidWV8Fmtcgg0ikXBjuGA/3imFY3sNvZhtYIneZeCKXN7sXn7u0fbQ==
+	t=1794308364;
+	b=cHn/cZIjlCYj6eDWZCQ3ysGLBA0IXi1K4Nq7T3gxAvl4bDHdroUNAHpis2CrLujl65kf
+	 PYs7wSCpE+xBkM9P+MPbocY9QCOAn3nohicxXnEGdL3JEpIDI1lDVG4RavkCJOGlisn0C
+	 67arW0foFB5ms+xg/7cYa3tI1+GgnkfqEVO6foGGL2Z2C14W5B1SJU4le0gVs7i82MGha
+	 coStUzlJlehNYj7+roLbP+d305lvnFZSY3CBSwJqyUAqW7w4Plv+JYkZYgWtZbuEwjneN
+	 byxMS68GKA4qMIATndGDSivqna834laSFFHyh5RswG30aQ14WCon4ASy9g6+QHFhQvQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794308367;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794308364;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=tSGaXzrmz8TsON06qYmnmRUrdt63ZC7hoL9UccxjrKM=;
-	b=3nud8jHZJXlcL3EfiGj8fe+AMoKZvaVzCG21cSxWSghTHmG0J45tnS1H8ft2io6b/sRP
-	 c4GPEEu82ZKYNI4vicPGnm8XYZ6sPKWBwM5W2lm4x+uTZca3vQpOFhc4wqoAwLbFGr6B5
-	 G9FiMQtwZjIWZQohxNkPOLZuYEK/cuvzIeRAMUqG7fiJOohTlXEuW7vB+NQL57DWihIGH
-	 l5rOwBNEXIEpzh/fbajuuxH/InliRvlj8Kj5ahxoJw7VNgtgzt7byTs5Nnhj8ujdxB3Pj
-	 xOeadCAxc+1PLulmwHzBoZVaJwZ1r/urU9z9XPJzDvvKC5byHLFAc8JNMxyDBSP6zeQ==
+	bh=AEhoMch2RIFKIifTY+xsNXjeiSN+rVqSYYSe0sRVagk=;
+	b=WRDP6ooi54LsB51unEMR/srkBe6sCHJaCySVR2lYhaIHjCg7m3NvcUQu607ey/AocHJj
+	 /mFGOnEgxA9OFTqpNwowpAWxLvXhtumaLUskNlwTYXLccl7QvD5PpCm7legPgXiZg9Zgq
+	 EATcJ7ZDYvhy9BqOfZhKbcdDTPTJ8bA/+svDZesiC/jXDgea1BxGLZ5G9B8pfsN1W4RMe
+	 BQRredBJLHok246tjOy+F0gbTHH/9WcFAXDzIM3yJYQH8uLGwDfqG0cJK1+9ZcmytgNzI
+	 LCUB64m6VpRF4DGmw4l1ItFtX4pYWlo4f4w492olbYyx6j3cM2PVcUN/GjtoWAYhC2g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=paT4hBG2;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=E1gilP2k;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FD160A5BC2
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 10:59:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4FD160A5BC2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD7660A262D
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 10:59:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FD7660A262D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=paT4hBG2
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=E1gilP2k
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1794308361;
+	s=2023072701; t=1794308360;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=tSGaXzrmz8TsON06qYmnmRUrdt63ZC7hoL9UccxjrKM=;
-	b=paT4hBG2ZPxv3lMsVDQ9IKAzdxgTrsL3uD4j2zo75BmJ5R6glRRfbpM7vuRmsrcmTC2EVy
-	XoliR01D0oMNpbupGU7ByHQD+OP6GaNHmCxaRIQ9j/B1yzHpgSYKc2UW/uiiJcDMbgxRYZ
-	Irsm4JbBzpZ1FAJ4j1N8EzJdec74MKTWtdba9uCpDJfIcRaNDBP2lKe3GqBFR2vtLV6BvU
-	7JFfeFjGRtKCFwEEflV5l8y+DKT1D5UkkY9T+56Imuq4U00hiIU3tK0pmHzLfgUVLPHBVG
-	/hmjO4X1GC8vb5zGtrdG4TiQJCKrBNEIJX9UlBERM+YCaPd7LCDYeq/2HsnYtA==
+	bh=AEhoMch2RIFKIifTY+xsNXjeiSN+rVqSYYSe0sRVagk=;
+	b=E1gilP2krZ567+ZsZgXbkvg++YlkP4XFv0MIJBDzA6+4xUNr7AeGZTPOcucgnGQyNl8lb/
+	nRZrlBBK42e95iL64VPh7WTILorS0UlofSEDuebipNzZHQZKriC7Ae4Kw6pDGfWNHM+sHT
+	Z7ak2Cd/A1Yssuhy65NPHdFvz+gN2ErJ/5jdVG6DBbYW5RyqfM1iEpzvUT00W8jTthHRyw
+	JZ/KYcNhdt8qWkDytBjVMqQClhqrwwhmEjxEWmTz/C7LYV/wLHSZfLDtypvP5sWCSNHvYp
+	aMjZ1Bt4RN+nNFGZl2bgLzfXpgkAEa22iYn+V/NRdTmALBAt9qmC1Y5RoCxwtQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 1/7] libselinux: avoid NULL deref when serializing a cleared context
-Date: Tue, 10 Nov 2026 11:59:06 +0100
-Message-ID: <20261110105906.58509-8-cgoettsche@seltendoof.de>
+Subject: [PATCH 5/7] libselinux: only strip a trailing newline in matchmediacon()
+Date: Tue, 10 Nov 2026 11:59:03 +0100
+Message-ID: <20261110105906.58509-5-cgoettsche@seltendoof.de>
 In-Reply-To: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 References: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,77 +69,29 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-context_str() and context_to_str() unconditionally stpcpy()'d component[0],
-but a component can be cleared via context_user_set(con, NULL) (and role/type)
-since set_comp() treats a NULL string as "remove".  Serializing such a context
-dereferenced NULL.  Emit only the present components, joining with ':', which
-also keeps the allocation size exact for any combination of set components.
+The line trimming tested for any non-NUL last byte instead of '\n',
+so an entry on a final line without a newline lost its last
+character, truncating the parsed context.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/context.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ libselinux/src/matchmediacon.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/src/context.c b/libselinux/src/context.c
-index cd1cd431..59c33c34 100644
---- a/libselinux/src/context.c
-+++ b/libselinux/src/context.c
-@@ -125,17 +125,21 @@ const char *context_str(context_t context)
- 			total += strlen(n->component[i]) + 1;
+diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
+index 38311413..3fcb8ddb 100644
+--- a/libselinux/src/matchmediacon.c
++++ b/libselinux/src/matchmediacon.c
+@@ -27,7 +27,8 @@ int matchmediacon(const char *media, char **con)
+ 			errno = ENOENT;
+ 			return -1;
  		}
- 	}
--	n->current_str = malloc(total);
-+	n->current_str = malloc(total ? total : 1);
- 	if (n->current_str != NULL) {
- 		char *cp = n->current_str;
-+		int first = 1;
- 
--		cp = stpcpy(cp, n->component[0]);
--		for (i = 1; i < 4; i++) {
--			if (n->component[i]) {
-+		for (i = 0; i < 4; i++) {
-+			if (!n->component[i])
-+				continue;
-+			if (!first)
- 				*cp++ = ':';
--				cp = stpcpy(cp, n->component[i]);
--			}
-+			cp = stpcpy(cp, n->component[i]);
-+			first = 0;
- 		}
-+		if (first)
-+			*cp = '\0';
- 	}
- 	return n->current_str;
- }
-@@ -154,17 +158,21 @@ char *context_to_str(context_t context)
- 			total += strlen(n->component[i]) + 1;
- 		}
- 	}
--	buf = malloc(total);
-+	buf = malloc(total ? total : 1);
- 	if (buf != NULL) {
- 		char *cp = buf;
-+		int first = 1;
- 
--		cp = stpcpy(cp, n->component[0]);
--		for (int i = 1; i < 4; i++) {
--			if (n->component[i]) {
-+		for (int i = 0; i < 4; i++) {
-+			if (!n->component[i])
-+				continue;
-+			if (!first)
- 				*cp++ = ':';
--				cp = stpcpy(cp, n->component[i]);
--			}
-+			cp = stpcpy(cp, n->component[i]);
-+			first = 0;
- 		}
-+		if (first)
-+			*cp = '\0';
- 	}
- 	return buf;
- }
+-		if (current_line[0] && current_line[strlen(current_line) - 1])
++		if (current_line[0] &&
++		    current_line[strlen(current_line) - 1] == '\n')
+ 			current_line[strlen(current_line) - 1] = '\0';
+ 		/* Skip leading whitespace before the partial context. */
+ 		ptr = current_line;
 -- 
 2.55.0
 
