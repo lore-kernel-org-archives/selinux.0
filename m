@@ -1,54 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794308875;
-	b=PNUvIKB+dJ5Jbbq6TT/NL0smrSnz7r/Z/ovXuxb8jRa1fovm9C5H1LIeFFs3Dj8Od9PD
-	 kHGI8Yq9homEMz0B6DU1EiQmmu09h+IVcOakq9bMBPwPM3/wBY9CQY463mB1TxhCGFBh4
-	 Ld6sd/r8oeK7ONAoBK2ERZhxd2JH1Q/2o/A+AxtOLQkN0Ty0xO94gQmvDxE/dvpO00Erq
-	 4aNaDFYerzbTUzg+R4hoUKmsHWmgZNfFJ2Nc6CjkBMyf//Du2Mn22Sfi+R5hRZlKnrjKk
-	 CVTuSDbMTmns9qccMhJiXDru8M/R0m218Auuw4Fldsy4MrjRBkErbTcPerWlLrcn5Eg==
+	b=T7WpYgmSNfHV3nJuD73OthiODnj/y7vhezm0ACFOm1pJ9zqTokCOZSg3frq17YcRiOQd
+	 qvpz+IVA0aJwu2vcOrt1TeYtf5QRleYMXplYin9q/NDzWn7YNBOopRhU+GEZtTDz3HtDm
+	 2mKyf4ot+vluSLbyRnedwYoDfRTpuP+TYy+4fCKxJxBKKNhYRZ8yrtNc0LWi+2z7hcXyf
+	 jiEUoGt2klOooHPVnlzDjPInTKnprlewsm8812owkuJwAu9iSUszhTXRODhf/UQuL9A/T
+	 prmQviHgLRfHs+DphsjnOso7N2yuP233Bagy+JqAwxB75DhZK+owM4dGSKU2KgzT8QA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794308875;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=jeCKayLYrFSuvsH2wwmAKPLxK7o56oV283deB0oW6QA=;
-	b=qnbZ58sY7Kpco2DlIQuFzkJAITuPQrWuUooonfCCl2nm+lFO5dpd2FFN1A3ocv2MpiZd
-	 GZzRHndAgORhYcxXMA9LfUqZZRYlbU9ym9Fu1gBtOBixRnACwu3vb7JVU3AiDOLtrO8b+
-	 nYFmnYnxDG8SXUEVSfiWDRA10+o9GXmzp1CKoX8zmW2fHcJ1gy/cXkFD3iw/X5CG/P3VG
-	 ZvImnTitVuD4Xa13/MCh+cxLOhVR/kLzrby7ID7/2gEjHlIRtwXPr+olWFdOZAaoCZ5j7
-	 oRawcUpN+7CwrU5PhRpsvwKlmZqfUUYt4tBPFyDRGwv0z9Auy8jUI5CQrmc0jxq0iVw==
+	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=vSamUlcNjPhn05ytFIe84Fz0BNLhKqmjBacbw4CZTCc=;
+	b=tToghAHRGZ8Lbzfbi2EibHezhaWO/wHP0mpxngg29yeerkgHwmO27ravEGJ0+VOsetEJ
+	 8stAzxRZxEMD132qL7QKMEqkSllFwYeGF40GjYrdt3oGfX810M9ohUVeFzUYD1zhWoiuW
+	 Drg7iavNO+6WsCSrISANAXINh0DebcQONzKGZffTkC/GPw37xyOGjS1Qa5+ny31XAVn11
+	 eFhWLbK8QCh7ZsOKIUlZaSaW5w4PIYTUarWVe/l0LUJxPTnA/8M94a/VXf5XxMVcull9P
+	 8RyL0ozjUot9dWJIvaibkURKlOcXAu5qqj8ET59eLtxMOwAJPgHADQz8XBjKCSces2Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=kWumPXYq;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b="Wu2W/UXV";
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC5D8606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC54C606A321
 	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:07:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC5D8606A325
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC54C606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=kWumPXYq
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=Wu2W/UXV
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1794308872;
+	s=2023072701; t=1794308873;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=jeCKayLYrFSuvsH2wwmAKPLxK7o56oV283deB0oW6QA=;
-	b=kWumPXYqqNXCXNJP20iBHFR2/NUgceL+eOM8Ol1HvmyZ6EYKEuI3wavw19r6HziMN7/zi7
-	vZfemxIYIyoZyPd626SiuC8zsvQhr3FjHCRtQeQJa2n6g0lzvJVuzyVkKfLNpFPScNhoaS
-	QeAMKUw9ROAoQ91iKXmJNYUSz86wGDPhvXiiC1r3vKHTw/wfv4hpGS+lqbG5GG0SO3oFay
-	6b9gw+zBifAsNHdAMF9X7hvNgyescTqpjj5FkCEM6053ANGLqFMpCSiP9u5jY2BhN9xPG+
-	sNP97M6v20G5yHbbzq5lXUyIcWCuWHOag1WGsK79AvrIAzTKNAjmtzyxDvinUg==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vSamUlcNjPhn05ytFIe84Fz0BNLhKqmjBacbw4CZTCc=;
+	b=Wu2W/UXVQvPOihezatu7YVxnh4VMmzUrysx7id6s0ZTdwKAXuW3MoXHEXV+Qbll1uEuIsf
+	QOhWhyLwiOFbkrnC+S2bFrp77J6g6ImV+3HWqUaqiYMjkld95vepijWH3010vpBW956vol
+	FUBLbpHRqi5EWOAbc6nZEB87wyhgtT6PynytfHpnQQezxUiAhP/WdrgMbi5Abf81PBye/4
+	3UocKsImCedflgP5j3vk50J53z3bbksa5QqPr4p6H74nI3gAtC3LUZwP1MDFxpXh7wPLh3
+	80qpcGTiiI2ttQ9+6UYORW9GIygWdIDiqwMUFm0oQ7IH3p0Y7ODOYCscCeINXw==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 2/6] libsepol: skip the conditional lists without matching rules for neverallowx
-Date: Tue, 10 Nov 2026 12:07:34 +0100
-Message-ID: <20261110110739.67209-1-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 5/6] libsepol/cil: do not allocate hash tables for unused symtabs
+Date: Tue, 10 Nov 2026 12:07:37 +0100
+Message-ID: <20261110110739.67209-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20261110110739.67209-1-cgoettsche@seltendoof.de>
+References: <20261110110739.67209-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,60 +69,76 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-For every allow rule matching a neverallowx rule
-check_assertion_extended_permissions_avtab() iterates over all
-combinations of the attributes of the source and the target type and
-for each of them scans every rule of every conditional list for one
-with the same source, target and class.
+Every block, macro, in-statement and conditional block has an array of
+19 symtabs, one for each kind of declaration, and almost all of them
+stay empty. All of them except four of the symtabs of blocks are
+created with a single bucket, which still costs two allocations each.
+Policies making heavy use of macros and block inheritance create
+hundreds of thousands of them, since the blocks and macros are copied.
 
-All rules of the conditional lists are part of the conditional avtab,
-which check_assertion() already relies on for checking them. Look up
-the key there first and skip the scan if there is no conditional rule
-for it, which is the common case.
+Create the hash table of symtabs with a size of one on the first
+insertion. The hashtab functions used for looking up, iterating over
+and destroying symtabs already handle a missing table.
 
-Compiling a policy with about 1000 conditional rules and 64
-neverallowx rules with secilc takes 1.1s instead of 1.5s.
+Compiling DSSP5 peaks at 175MB instead of 364MB of memory and takes
+about 15% less time.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/assertion.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ libsepol/cil/src/cil_symtab.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 94172e5a..9572a5c4 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -172,6 +172,20 @@ static bool match_node_key(const struct avtab_node *node,
- 	       node->key.target_class == key->target_class;
+diff --git a/libsepol/cil/src/cil_symtab.c b/libsepol/cil/src/cil_symtab.c
+index 03322abe..31073e52 100644
+--- a/libsepol/cil/src/cil_symtab.c
++++ b/libsepol/cil/src/cil_symtab.c
+@@ -52,7 +52,7 @@ cil_symtab_error(const char *msg, ...)
+ 	exit(1);
  }
  
-+/*
-+ * Whether there is any conditional rule for the source type, target type and
-+ * class of the key. All rules of the conditional lists are part of the
-+ * conditional avtab, so this permits to skip searching the lists.
-+ */
-+static bool has_cond_rules(policydb_t *p, const avtab_key_t *key)
+-void cil_symtab_init(symtab_t *symtab, unsigned int size)
++static void cil_symtab_create_table(symtab_t *symtab, unsigned int size)
+ {
+ 	int rc = symtab_init(symtab, size);
+ 	if (rc != SEPOL_OK) {
+@@ -60,6 +60,22 @@ void cil_symtab_init(symtab_t *symtab, unsigned int size)
+ 	}
+ }
+ 
++void cil_symtab_init(symtab_t *symtab, unsigned int size)
 +{
-+	avtab_key_t tmp_key = *key;
++	if (size <= 1) {
++		/*
++		 * Every block, macro, etc. has a symtab for each kind of
++		 * declaration and most of them are never used. Do not
++		 * allocate a minimal hash table until something is inserted.
++		 */
++		symtab->table = NULL;
++		symtab->nprim = 0;
++		return;
++	}
 +
-+	tmp_key.specified = AVTAB_AV | AVTAB_TYPE | AVTAB_XPERMS;
-+
-+	return avtab_search_node(&p->te_cond_avtab, &tmp_key) != NULL;
++	cil_symtab_create_table(symtab, size);
 +}
 +
- /* Same scenarios of interest as check_assertion_extended_permissions */
- static int report_assertion_extended_permissions(
- 	sepol_handle_t *handle, policydb_t *p, const avrule_t *narule,
-@@ -574,6 +588,9 @@ static bool check_assertion_extended_permissions_avtab(
- 					return true;
- 			}
- 
-+			if (!has_cond_rules(p, &tmp_key))
-+				continue;
+ void cil_symtab_datum_init(struct cil_symtab_datum *datum)
+ {
+ 	datum->name = NULL;
+@@ -91,7 +107,13 @@ int cil_symtab_insert(symtab_t *symtab, hashtab_key_t key,
+ 		      struct cil_symtab_datum *datum,
+ 		      struct cil_tree_node *node)
+ {
+-	int rc = hashtab_insert(symtab->table, key, (hashtab_datum_t)datum);
++	int rc;
 +
- 			for (const cond_list_t *cl = p->cond_list; cl;
- 			     cl = cl->next) {
- 				bool found_true_base = false,
++	if (symtab->table == NULL) {
++		cil_symtab_create_table(symtab, 1);
++	}
++
++	rc = hashtab_insert(symtab->table, key, (hashtab_datum_t)datum);
+ 	if (rc == SEPOL_OK) {
+ 		datum->name = key;
+ 		datum->fqn = key;
 -- 
 2.55.0
 
