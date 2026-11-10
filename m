@@ -1,94 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=83.166.143.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794338137;
-	b=2jmd0YvS9bNix4eM2qGitR3XUYfHWCakPwzDQwrRY8l/E2XSBQPypMmdtq/Mvl5zJP/l
-	 j4Xcbx+oHH7y7Fo3MGGUxUihRVNcM+I0tQ0vfmROyq4I/hxrOujyv5jqjoeCZgI8DKmj3
-	 JZadfzuuVN5ObUKzAk6Cp+ymxBtf3llYiyA2FNhwKENRlx7ttB4F1SlyiM6aTdyrOkDuM
-	 mK6RTWuREqJ+2siJ7SeCZlsPtxB6d6t12ME9hpLH2w7Y1NoLG3Qje/IcTUEcTK/OYRj5P
-	 Zd76edVrx6B4Sw2612wZfOJwceZpkIIUo0fHVKF+jL+p2pDtnqhn2AjuEwvOqZ9O7NQ==
+	t=1794342502;
+	b=io//G8DK7hB02jX584EVC3V8zu8aUJdRrV0hOv3flOIneGAfpLMn852Z5Bs5oJPgF1cl
+	 WcQoTPuWmLWDldoPyOczi1AWsYXk7H6IE5zrFlTroHoHpjQUCxjNZnhmhCUuzz+vDc3Ba
+	 eC02xQ5zwDyoL+l7ki4vNhPyFR20vOybXfhyYeFl6tEK8llcc+pNM/BiPLQdh5ld8blkg
+	 gdmtdVQrBaBGg0+h1jS7id5zqyQ8BprIpwyqMzCzMAmAkTnZOP1j8GYJUhhPgnO9Kkfk9
+	 16Y7Ykbr6YDsaIMIwgj+/2kDGtoc5qr4bEj1u+WIC06u6SP/tGPYumFT2la2zExJNDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794338137;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=8hFLIbOeC6mghuk4ve8S4CC/NaYjPFZLqcdBb1Zx4XM=;
-	b=Hj2bnXoWuQbMzh+uNNlVCy4aY/jrjfRZRZuYbS3F8rCLl9plUAzXDvIOqza11n8azI3F
-	 qorP19SUhSpx2OljZw4iSVScD7q183IptGT4gXXYAbX8iSR/WwqOaptKRbW9BSSEF+d7d
-	 7KMfEWFlYqhIh+TT1J89l8L0QULFjOfrwY55PyNyorJVIYajzhJN71K3b4BFcTiIvNWf8
-	 HQh502SUQaiGwhzI8FMlHv/IsseMhsEnmr/0JoBMlP0sSA8ya/rS6yAqi3Bm6PlgFU/v0
-	 nyOXg6mcAY7MTWkAmZurFXlLEXefsc/Ii59wDAIY3VflG1RAN8mMBcHiKKceHraVDgQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794342502;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
+	 Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Infomaniak-Routing;
+	bh=ZIYDZloriPMk7SgdWjx1Bnwqinw66Jn4lozpHN9Yguo=;
+	b=GPYkBuJHp38fVb9wORWy2iuibI3mFPjhWA0sQGQ4/R0d6Jlt/M1nzmeNdiiPdOXE0rcZ
+	 X+E9RciiGbIIwTnCyQoJitRLKrYErJq8IfcwV3TcOSLdFjyMTwf6zN6ueXVom8IHMyqe8
+	 8Qkx9vQA+HzxkCOSJV1Ly1jvxU9m3zKmThIuPJoT6quWZwHEa4Qa2uh2cTlF0yhyDV1kw
+	 +bijeY9UCnBXtV75vw1ot8GpOMl2lHsFdKRAS6wYx+QP3VxJHSebdiE69H4YHOJaV8i/i
+	 4/aH25ttsSqhP//pVj90iSz+2EFsWRhTtmC1Jj5HdrJh27irWAXsbUzCIz1pn+lKUbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=hxuRv1o2;
-	arc=none smtp.remote-ip=209.85.214.174
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=digikod.net;
+	spf=pass smtp.mailfrom=digikod.net;
+	dkim=pass header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=YPc9tNKW;
+	arc=none smtp.remote-ip=83.166.143.170
+Received: from smtp-8faa.mail.infomaniak.ch (smtp-8faa.mail.infomaniak.ch [83.166.143.170])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1AE606A31C
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 19:15:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7F1AE606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9078606A89B
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 20:28:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9078606A89B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=hxuRv1o2
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ed3f563739so7905ad.0
-        for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:15:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794338137; x=1794942937; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8hFLIbOeC6mghuk4ve8S4CC/NaYjPFZLqcdBb1Zx4XM=;
-        b=hxuRv1o2s4ufz1mKfYOgAmDC5D5EFs7ZKdIq6QW5ondCD/S1BituV2zf3q12lHc2eJ
-         75ZqK3I0nNe7NyY/RPB9pzV9jn2i8rRMUwfKq5PBBv5aTovBJF7pWCx3A9rOy2VpaSL9
-         vb1bR3iu4BsEApEHj/5uyvIwnAAv0qTv+rGPW6AdLMsLRE5g6WhGL+do/hxLkVYdBdXj
-         dPOspbR942+KHvmqyKdn/ErEdnJgqYQKPQttzFeka3patTKjUcTkbfWAmh0vr96z1K9U
-         KNkN2mGLnzV33EVFa6O5dE662dxnwCGcQxhFj7gYa6zAGoredDAHzxvPKjD2YMeBn41W
-         LBrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794338137; x=1794942937;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8hFLIbOeC6mghuk4ve8S4CC/NaYjPFZLqcdBb1Zx4XM=;
-        b=rdf/aiID9uS653GZLCwMqFntBGRXNEaOTgf4UvEaxaXulZm+Qz5zP/HWts+dIJ/Ldi
-         9pi42Xz3py28A3a1jQvBsa1tRAryAVuNj2IfEfT7p7MuhjVRNEofztK/IvohtYAII5Sx
-         jJP6SKTKcXdQeISySd4CpwdAxREtMqAFCNkdlYT8Zh7RTaQfQhF/MNZgoN/KzYMazFZm
-         mIOdGLJyzbtiNk3+sWJMjJojCLLx/66OqqwfldFBAK2YyFeJZUKzigR5QyBn3Ak9v+oq
-         wpmR1PHcFe8siWAQMhFxgEx94/vMWLlGcXf+NyOz4jqSjCu7+WkP1lVy5jcog+CCxW29
-         Wwyw==
-X-Gm-Message-State: APuU4Z/QFeoZYxQq61ISz08foa8w7kln4I5LXnSe4vUTjPUmcw3TV9xj
-	obLVGaFJF0HYWQI7TetaKim1WrPNNKfyZR0xGJSorm2sdnWalYkgiKSDjytkVVPTBw==
-X-Gm-Gg: AYBFou320v8SQcUic9nzOwWCfYk7a5lgOIDWz4KEqiiYgBCwIGs6RQH0W7EfM4gy5Ad
-	WZJI3sYGdJIVqxIZyNOT5c4BdZ6FzypzRZYn1GEmZ65rd6bNpn3T4pTMGZHHaoe9f9jCQCx877o
-	gBVszWcUuCs7lwDpO7/4nNkNVvxqBs8kb2opq7iQ/FUL2do/K1OoIuH/OM3sotVqQWpVVeFmX+t
-	oTxIvpv5ddxsUVZoju0zYR9ehL1QZibrMaZnc2YVYBsufGTyuER90a30TcoC+sRNPDrwgHddfVA
-	uLMjtTo461uY0y1M8zVXhpMrfkCR17FV2FZ8eBvgzGGhq6XKv+vrWCjaomTcW8/wnzeM7WdXdVH
-	Hyt0zpOlCtJcz7+qI8v8IUKAVCicvPmhMfW+pk2DZh84ie5oABDoqHwmlSHcz0tsTbrWNytorX3
-	etV6ygrBFHvGESdeD+7WdsOCHCFojHwhpjzBPv/gXdUhgbx/SHakW7yE3ljdcbtUi/CaSJ70DWW
-	9Z9ypp4zrX1m8t0WydZJ6O21u6TDIXlbQmHBU/q6IZ32m7FemN7zH0tyysHEZPUx9ioDQnsXdk1
-	EvCkNifhqeM0OB1gIt09IaoPB39T88jKg5HrGEdAITysRp3NI2e0otekUQ0MEzMfekmVNxiH7WS
-	tDahFRO4i2nNVMJWbb7MlgshD/M5gvPFyjo34ovN1VhCOPtuhE2TV6vke3KUfDTAF3twLM8DjX3
-	TdJiQ3Z8HfIlPUtC4pK4J3Chya9D9LCvQPrWOBTllClRHLfvFTmKZ8I6mWe0Ek24UYLg==
-X-Received: by 2002:a17:902:e803:b0:2d5:db38:8013 with SMTP id d9443c01a7336-2edba402f4dmr5150485ad.18.1794338136247;
-        Tue, 10 Nov 2026 11:15:36 -0800 (PST)
-Received: from google.com (25.229.125.34.bc.googleusercontent.com. [34.125.229.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2edb6a3e61bsm12047015ad.11.2026.11.10.11.15.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 11:15:35 -0800 (PST)
-Date: Tue, 10 Nov 2026 19:15:30 +0000
-From: Carlos Llamas <cmllamas@google.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnacek@gmail.com,
-	jeffv@google.com, tweek@google.com
-Subject: Re: [PATCH] tests/binder: fix binder tests to work with the Rust
- binder driver
-Message-ID: <avNtUlzhXQprWQBA@google.com>
-References: <20261110153110.29256-1-stephen.smalley.work@gmail.com>
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=YPc9tNKW
+Received: from smtp-4-0001 (unknown [IPv6:2001:1600:7:10::a6c])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4jPJBV6X0WzJF3;
+	Tue, 10 Nov 2026 21:28:18 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1794342498;
+	bh=ZIYDZloriPMk7SgdWjx1Bnwqinw66Jn4lozpHN9Yguo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=YPc9tNKW7xsY1BBIeO1Cx5gpjT8dSyxOPcUoTyR3lQDDcPDtVTR8TSQq+SMwntDEx
+	 DV2HHv0sJNe+e6CXO+qh2LMm4iAuiUXrlpfDSCBmcX1Qy6pyFAMvVv09uuY07TuoqV
+	 tTZWl4MSLaXOe+d4EfRjyTTF9kWTYzbJUTL7aJJ0=
+Received: from unknown by smtp-4-0001 (Postfix) with ESMTPA id 4jPJBT3nv1z4Nc;
+	Tue, 10 Nov 2026 21:28:17 +0100 (CET)
+From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+To: James Morris <jmorris@namei.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Serge Hallyn <serge@hallyn.com>
+Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	Ada Smith <adasmithgt@gmail.com>,
+	Christian Brauner <brauner@kernel.org>,
+	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	John Johansen <john.johansen@canonical.com>,
+	KP Singh <kpsingh@kernel.org>,
+	Matt Bobrowski <matt@bobrowski.net>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	apparmor@lists.ubuntu.com,
+	bpf@vger.kernel.org,
+	kernel-team@cloudflare.com,
+	linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH 1/2] capabilities: Check PR_SET_SECUREBITS with ns_capable()
+Date: Tue, 10 Nov 2026 21:28:06 +0100
+Message-ID: <20261110202811.2409395-2-mic@digikod.net>
+In-Reply-To: <20261110202811.2409395-1-mic@digikod.net>
+References: <20261110202811.2409395-1-mic@digikod.net>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -98,29 +78,111 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110153110.29256-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Infomaniak-Routing: alpha
 
-On Tue, Nov 10, 2026 at 10:31:10AM -0500, Stephen Smalley wrote:
-> With the original Android binder driver it was possible for a process
-> to invoke binder transactions on a binder fd opened by another
-> process. Hence, SELinux originally implemented an impersonate
-> permission check to control such usage. This however was never used in
-> practice by the Android userspace and never allowed in Android SELinux
-> policy.
-> 
-> The Rust reimplementation of the binder driver intentionally prevents
-> such impersonation from ever happening, failing such operations with
-> EINVAL. Update the SELinux binder tests accordingly to drop the
-> testing of this now-obsolete SELinux permission and to not rely on its
-> availability for the other tests. It doesn't seem worthwhile to retain
-> the test for the older driver since it was never allowed in Android
-> even when it was possible.
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
+Per-process securebits were introduced with a direct cap_capable() check
+for CAP_SETPCAP.  The capable LSM hook and SELinux capability policy
+already existed, and SELinux forwarded task_prctl operations to
+commoncap.  The direct call therefore bypassed SELinux policy from the
+start.  It now also bypasses AppArmor, Landlock, and BPF LSM programs
+attached to the capable hook.
 
-FWIW, this looks correct to me. Thanks!
+A task with CAP_SETPCAP in its effective set can consequently change
+privileged securebits despite an LSM denial.  This can alter how its
+capabilities evolve across UID and execution transitions without the
+expected LSM denial or audit record.
 
-Reviewed-by: Carlos Llamas <cmllamas@google.com>
+Use ns_capable(), as cap_prctl_drop() already does for PR_CAPBSET_DROP.
+Call it only for a no-op, which requires privilege for legacy reasons,
+or when a privileged bit changes.  Changes limited to
+SECURE_ALL_UNPRIVILEGED and their lock bits do not need the capability,
+so they must not invoke an LSM check or set PF_SUPERPRIV.  Successful
+privileged checks now set PF_SUPERPRIV, as other ns_capable() callers
+do.  Without other LSMs, the same requests remain allowed as before.
+
+The check now reaches every capable hook before commoncap commits the
+new credentials.  A later task_prctl hook cannot provide equivalent
+mediation because commoncap runs first and commits the change itself.
+
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Günther Noack <gnoack@google.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: John Johansen <john.johansen@canonical.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Matt Bobrowski <matt@bobrowski.net>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Serge Hallyn <serge@hallyn.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: stable@vger.kernel.org
+Reported-by: Ada Smith <adasmithgt@gmail.com>
+Fixes: 3898b1b4ebff ("capabilities: implement per-process securebits")
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
+---
+ security/commoncap.c | 42 ++++++++++++++++++++----------------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
+
+diff --git a/security/commoncap.c b/security/commoncap.c
+index d47ab3022343..1947128396e2 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -1283,6 +1283,23 @@ static int cap_prctl_drop(unsigned long cap)
+ 	return commit_creds(new);
+ }
+ 
++/*
++ * Doing anything with securebits requires privilege (go read about the
++ * "sendmail capabilities bug"), except for unprivileged bits.  Indeed, the
++ * SECURE_ALL_UNPRIVILEGED bits are not restrictions enforced by the kernel but
++ * by user space on itself.  For legacy reasons, a non-change requires
++ * privilege too.  Only checking CAP_SETPCAP when it is needed keeps LSMs from
++ * seeing (and logging) a capability check for unprivileged changes.
++ */
++static bool securebits_need_setpcap(unsigned long old, unsigned long new)
++{
++	const unsigned long unpriv_and_locks = SECURE_ALL_UNPRIVILEGED |
++					       SECURE_ALL_UNPRIVILEGED << 1;
++	const unsigned long changed = old ^ new;
++
++	return !changed || (changed & ~unpriv_and_locks);
++}
++
+ /**
+  * cap_task_prctl - Implement process control functions for this security module
+  * @option: The process control function requested
+@@ -1346,28 +1363,9 @@ int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			/* cannot change a locked bit */
+ 			return -EPERM;
+ 
+-		/*
+-		 * Doing anything requires privilege (go read about the
+-		 * "sendmail capabilities bug"), except for unprivileged bits.
+-		 * Indeed, the SECURE_ALL_UNPRIVILEGED bits are not
+-		 * restrictions enforced by the kernel but by user space on
+-		 * itself.
+-		 */
+-		if (cap_capable(current_cred(), current_cred()->user_ns,
+-				CAP_SETPCAP, CAP_OPT_NONE) != 0) {
+-			const unsigned long unpriv_and_locks =
+-				SECURE_ALL_UNPRIVILEGED |
+-				SECURE_ALL_UNPRIVILEGED << 1;
+-			const unsigned long changed = old->securebits ^ arg2;
+-
+-			/* For legacy reason, denies non-change. */
+-			if (!changed)
+-				return -EPERM;
+-
+-			/* Denies privileged changes. */
+-			if (changed & ~unpriv_and_locks)
+-				return -EPERM;
+-		}
++		if (securebits_need_setpcap(old->securebits, arg2) &&
++		    !ns_capable(current_user_ns(), CAP_SETPCAP))
++			return -EPERM;
+ 
+ 		new = prepare_creds();
+ 		if (!new)
+-- 
+2.56.0
+
