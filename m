@@ -1,116 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794315802;
-	b=uCLByQljC/l08kH9TfWom6cjwV8PUXQI96SZL4kmTvEU+USMswxkiwcJGa8MMDrYoDqz
-	 dyG2oGVBnkR51sxAmC0I7Z+szOCVGYg3EDi65D5xqyc9B2kV3AvFvLDHqInWy4wCeoATY
-	 fIrxI6rykQq6X3d7OOXtJGAkXzSxz8BgvXADU6AcZH1NiWQ8TiK1rNR1w3gepktwokKn1
-	 u9LeFc4op7Uw5CIjTh16gVIIC3ZZpXHpBYweTkyZ2PL3fVdal2Sxb5fbL2ZTnsMBzC2Zn
-	 SZX0Sq2sDZGx1AAdtyXJZAHctd04/Hx/gKtUBiZ8ymI2v0sTfRx3y40yZKligA0gsjw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794315802;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Flag:X-Spam-Level:X-Spamd-Result:X-Spam-Score;
-	bh=l0P34w8QQvLO5YW5vCLMJ84QpfDMX9/Bu1FrRmyy2v8=;
-	b=DFbQ+mz6Xx6CA3XASYaFPM6Yn6qN9Ub78vKEXY6qCm8Y0mdL/kLpahcnw+wk2hrJMdZw
-	 ia0qgYyFJaV4i9JOTeBVZZicZ0tm4VFaBIGta7Nv4XnzjF/rIH2iPXB717S13KbjHdV78
-	 B8h/yr/w5T8DrD+yiubMM8+Mh3vxXbu/3P4iuDboF03h+LwQtFJe/f3UNHp+69C4TblzO
-	 /0Zr4Aw+5dw8zTMvt1W9p6CgCAriSYFVjAXcjFtZ29PxNclgFC/RyJK4hqae4oKSyqjlV
-	 IAAqXRsqOhm+zwHCrjrnlvui3jAm7tCBmxfhXq7PwxrFvl3W6+MccduJGwGwMO9G6FQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=suse.cz;
-	spf=pass smtp.mailfrom=suse.cz;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=nU4XxgAL;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Mnc4QrSZ;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=nU4XxgAL;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Mnc4QrSZ;
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794318845;
+	b=jNbwA6oZ/lgY2BsiYoLdPOYeSf0jZ/NpwfwyFiwCHc8s334lthYldNXEDo6UGeik36gB
+	 yDry1/2rNCiKkdf9ZzIXJMBvvQ0SLx/7L/ilapPj5JVi7/9oCKE/LzxyqkM++qrfjevKU
+	 XyMusivS9kU1Vl62/2Fp8+kGhBj8Quk+z6m9W8NQGileQEmZCMzhamrEKmmlrXyAgxm/L
+	 yuIu/nmHRJJLBnlYZ8hWHSWlbi1djNcvyA/39PxeIhTHa10reSsBhfjkwUP9C+713JKGi
+	 4slJCH0/dtM/JZBOzU9StE/kJ/IX6zijT4ZQpHDGESKRkginX0r+KKp1xJP3nUJHbXg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794318845;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=L0KEmNbaeGUrJjWJfvOOPMv27yR8L08pJ0S56jL+15M=;
+	b=5nTwD1aG88EEMWBggrHnC45z9ITTthu92Nm6e0gfzz9FXGqplUXvhoGoSMbviM34OZVC
+	 moUrwS2lVuMVKpToWg5uEg0xAmmslylZtMBdDumexRB1iZhC6z5bDr1zj8/DBfWOq6r/h
+	 WXYb9GDvGqxyszAeTW1vd/YrjWeCwd5Wj17l4V/wdB1/OkeTVEuYZNaPOYUvFQJczCFEg
+	 swGziIBtblPoahS29nkZRxutlySl3f283hXFCbJ8AscumPZwSLMOBTS3MlUxxSvcf3nOD
+	 h/Kak657LJT3m/VxeIpqPp5apyhFW9Ha+fUD30ALZ3UHjN+MvCv01qIQmEpfSDtBX/Q==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VtKpFtNW;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
+Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88A0C606A74B;
-	Tue, 10 Nov 2026 13:03:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 88A0C606A74B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CDF3606A31C
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 13:54:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CDF3606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=nU4XxgAL;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Mnc4QrSZ;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=nU4XxgAL;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Mnc4QrSZ
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C0D9421F77;
-	Tue, 10 Nov 2026 13:03:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1794315799; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l0P34w8QQvLO5YW5vCLMJ84QpfDMX9/Bu1FrRmyy2v8=;
-	b=nU4XxgALhU6j4K3Mxr5ngQH1kaedGJkQyEqwlGUplEx9hMxQ3fo4McMmOwr1ERv3Mkpxw3
-	gLCfI+EWYKzq/l9mRzhXb6GJ0h3nlI+5tsg9MpjQ2PJDBC1XC/U5s6EqGl5dlEXIEKPAnz
-	BBcKQlac9Q1+gcOvfNs3dKHhhfnARxs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1794315799;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l0P34w8QQvLO5YW5vCLMJ84QpfDMX9/Bu1FrRmyy2v8=;
-	b=Mnc4QrSZrRmpafaJe4iOnLi1RuOTcqJe/GGSNdftVub9UNeD+cHjavH2Su/fUJ6PuunSLs
-	aVyAWefkY3MWbuCw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1794315799; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l0P34w8QQvLO5YW5vCLMJ84QpfDMX9/Bu1FrRmyy2v8=;
-	b=nU4XxgALhU6j4K3Mxr5ngQH1kaedGJkQyEqwlGUplEx9hMxQ3fo4McMmOwr1ERv3Mkpxw3
-	gLCfI+EWYKzq/l9mRzhXb6GJ0h3nlI+5tsg9MpjQ2PJDBC1XC/U5s6EqGl5dlEXIEKPAnz
-	BBcKQlac9Q1+gcOvfNs3dKHhhfnARxs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1794315799;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l0P34w8QQvLO5YW5vCLMJ84QpfDMX9/Bu1FrRmyy2v8=;
-	b=Mnc4QrSZrRmpafaJe4iOnLi1RuOTcqJe/GGSNdftVub9UNeD+cHjavH2Su/fUJ6PuunSLs
-	aVyAWefkY3MWbuCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 960C61339F;
-	Tue, 10 Nov 2026 13:03:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id e3rfGxcW82q6SgAAD6G6ig
-	(envelope-from <jack@suse.cz>); Tue, 10 Nov 2026 13:03:19 +0000
-Received: by quack.suse.cz (Postfix, from userid 1000)
-	id 35CB1224F7; Tue, 10 Nov 2026 14:03:15 +0100 (CET)
-Date: Tue, 10 Nov 2026 14:03:15 +0100
-From: Jan Kara <jack@suse.cz>
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
-	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, 
-	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
-	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-nfs@vger.kernel.org, netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
-	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
-	Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH RFC 34/41] loop: refuse files on pseudo filesystems as
- backing files
-Message-ID: <xlql7gc5uyvehjvin4ls3okfnv32xxdj45bjvamf2vdkrakvjx@u4iwy4ydmphs>
-References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-34-4c998976c6c7@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VtKpFtNW
+Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-677d35fd1d2so2449451d50.1
+        for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 05:54:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794318844; cv=none;
+        d=google.com; s=arc-20260327;
+        b=PuDgL0EdAJP5xi/zZEOIWge8GmuDLTcVxShphaPoJxzo7eM4NRC4XP91Y0p2ZT1cIK
+         tYz/I6hk+0Olpw62ZLOBuZJMkMMgArifXIiiicncsByx+qwEOj30fg4jqVwv9z/zkkJE
+         1goBRI07/aK3iODacNOg8a17JJkI09f89+gXSV9N6GeJcvw6DzRarQ3ld/YFGOmE/5e+
+         88UxXXs/7dK/prCOAYZWDDeeRkg1IzGYZGMBKp5vaSt/47oFXx3LihZH2HyhwcAElajV
+         mrAd5iIILdESk0cpropubgObNNpdlmX2YZFLt/MslGA10c8mP2gIjG54xWPVmKE24CWA
+         xeWQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=L0KEmNbaeGUrJjWJfvOOPMv27yR8L08pJ0S56jL+15M=;
+        fh=QFKa48eN4AZKFIyrSiZk3FCE4nUKAEfyzhRYxfFXB60=;
+        b=D6t2XzJnZCP5LO3iW7WEAZ45eooxnYp826KRu8+4ZJ54vs3e+G+9v8/OTbPIWAYwDe
+         xU5eOHIeCIiB76BJuOsff6bRuFd3OVr3FDD44UBbtvMa4ly1zHAPiefWcsKCehHZG4Y3
+         trpupu7GUYyAfBcpEUjsxhNTT6cg107lBNhKTh/wBhx4dgeMDpCJzcxiiPSviLyGh09u
+         PWU8p7MaasIJvfOkeJ34jAO1yYWGZVRdSSU60ZW668P98AkW27G+qwY8PxeFxzf1CQLa
+         UcH5K1cdkeDytOWfXYUz3vRmEiSGwHMX3baceWqZB0fpJKoNLiy8wBriORmqjzx86NLc
+         f/6g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794318844; x=1794923644; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=L0KEmNbaeGUrJjWJfvOOPMv27yR8L08pJ0S56jL+15M=;
+        b=VtKpFtNWZqy0+l3rm0fPoHDbpmSuAzmmx+eOxQEnHrocv8FSSqc0GcL9bh36EyUqgO
+         P0/xV1eKUYckK/nV3K5MMQuTmEPeSf1p89rB5nKM6bSZ7uvs2Z0F+eoyu6GLRKHZl8Md
+         eroSVG4hXdPHe5ncLGrKPlWG5wcZMRh6Hf75lnX46y76+2tS4deyeYgd4AwauGMhCx7G
+         P2XFHXA2YEO/BzT9LO2jtudQ5Jh8E0EgW/S7+BQ+7ieRTfiD9wQN7R7xgjJCXSKlS4yB
+         kRv1TATKWA4RvYnkiYYgM6nUXRuOn9+5lvTPfNrqvkDEHqdZhys6ZDTHCOwPKOS/c/Z+
+         q5wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794318844; x=1794923644;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=L0KEmNbaeGUrJjWJfvOOPMv27yR8L08pJ0S56jL+15M=;
+        b=gjlIQjN7aXP3POtN0PatYO7ayP5ow7XdDuviA10IYsaIfsQVwSQeURFPUAX7k0y4mQ
+         uX2sY0HnnQyARcXtIo6qmH4Th6g1xI3gFLW+BJgbDV98vs/2z9/xTqL5W81xABHCCB5N
+         VH5QdBvMVao13FTtonX79Z5ght9Wx8/SwqivbBIS07rsUri/tArbmiqhoLdASWo7ymEP
+         BSqs53efvxyVks1BZN7YIb1az4m7jB0LLC6NC8HlnUENHkz4M9OxSv9DnJoA3Pd9zuMu
+         3eXZT8/d/eH1YaGr45HEeUE2vXudIWpRPNUqIGu5Iwg/6xqQX/5AcS68Py28fweXQ/kd
+         56mQ==
+X-Gm-Message-State: APuU4Z+qLZyNMQ+j2C3qIoHeGec1aflrFHc+kXxF2fQ4niahfgRq6WqO
+	c5vBub+44eZZhpQ+zXn5OA+1lQZ8QHXLzzhsSecCRiUnON+hQZEgo0dUBqyYU6T6oKuDbJsRht+
+	XutBubvE2XBbLXui1IDBAa/rQ5nQGsALfzYdd
+X-Gm-Gg: AYBFou2JIUJjoGYZI7fe8OWfC02coR1p/9JwwUlmSLAEAS2nswx6WbsjreV+/AaukQo
+	+lU9wToYubmTERGGyLWR1gAcTh6ZxIvICgFwCAf/D5NhJMKS1Sk7DOBin4V6pqEZ1cDSSMKY08j
+	WwBVNIhI0SJ2+/fjggB4HKIi7GnAgN+OEn89HhBusCt6pGjNaMLegw3KKwCYR3xjao8Qb0dPhtD
+	Sibc37iDg54a9aufwWUbd2gqyG+ONYfovdtOkEImeMUKa+9r7BWCh726Xh4KzPwDVzeZ3Zke8m3
+	urn0nHCsNglzbPiTU4PStmwwNaB+xJDUGLQqMDQBDh7JPia1yfaMts5YaXE7R533xCTGipk9GKJ
+	390tK2Py+4DOk4LErrd2yBOAe5zZJ0oz4iwWm4iD4qMHMlT6giyxSEOnsEFOlkqee/2KpOR/jPH
+	BLnFT+J5AicG3MqLQaKFe7fCKHpu66BmU4DJ+aZEnqIOOk12xykOO21CIIcQ==
+X-Received: by 2002:a05:690e:212:b0:67a:3a11:cf1e with SMTP id
+ 956f58d0204a3-67c56608be3mr1057104d50.7.1794318844501; Tue, 10 Nov 2026
+ 05:54:04 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -120,104 +104,43 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110-work-loop-pseudo-v1-34-4c998976c6c7@kernel.org>
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spamd-Result: default: False [-12.80 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[31];
-	RCVD_COUNT_THREE(0.00)[3];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[vger.kernel.org,google.com,kernel.org,toxicpanda.com,lst.de,lists.infradead.org,zeniv.linux.org.uk,suse.cz,lists.linux.dev,kvack.org,lists.ubuntu.com,lists.xenproject.org,lists.ozlabs.org,gmail.com];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Score: -12.80
+References: <20261109183427.146748-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20261109183427.146748-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 10 Nov 2026 08:53:52 -0500
+X-Gm-Features: AclHuK8BWzaTNXcN8-tIuVJlFwBf3jqY8rLW6BBuH6wINErhQrb7a8vEo7QJuYc
+Message-ID: <CAEjxPJ6VjiUxQ-M5h7eDCPf=gEd054R931ve2oGzeDnDt6rqww@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: canonicalize NSS homes before deriving their parent
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
+	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue 10-11-26 10:14:50, Christian Brauner wrote:
-> Currently loop accepts any regular file that implements ->read_iter() as
-> a backing file and any that also implements ->write_iter() as a writable
-> one. That includes files on procfs, sysfs and other pseudo filesystems.
-> For example, /proc/kcore attaches read-only as a loop device the size of
-> the kernel's virtual address space, 64 PiB with 5-level paging. sysfs
-> attributes attach read-write as 4096 byte loop devices. Writing a block
-> to the loop device of /sys/kernel/mm/transparent_hugepage/enabled
-> changes the THP setting.
-> 
-> That's not just nonsensical, it can be abused. Loop calls ->read_iter()
-> and ->write_iter() of the backing file directly from its worker which
-> runs with kernel credentials. But pseudo files enforce part of their
-> access rules at read and write time against current. Dozens of sysfs
-> ->show() and ->store() methods call capable(). Behind a loop device all
-> of these checks are done against the loop worker instead of the task
-> that opened the file. And setting up a loop device requires no
-> capabilities, only access to the device nodes. So on v7.4-rc1:
-> 
-> - uid 0 without any capabilities can't write to /sys/kernel/reboot/mode
->   as mode_store() requires CAP_SYS_BOOT. Writing "warm" through a loop
->   device works.
-> 
-> - uid 0 without any capabilities can't read the files in
->   /sys/firmware/dmi/entries/*/ as dmi_sysfs_attr_show() requires
->   CAP_SYS_ADMIN. Reading them through a loop device works.
-> 
-> - An unprivileged container that was handed a loop device can't change
->   gro_flush_timeout of its own network devices as
->   gro_flush_timeout_store() requires CAP_NET_ADMIN in the initial user
->   namespace. Writing it through a loop device works.
-> 
-> The same goes for hard_offline_page, the md and sd attributes, rfkill
-> and others.
-> 
-> Refuse files on pseudo filesystems as loop backing files. Note that
-> file_is_pseudo() looks through overlayfs so stacking overlayfs on top of
-> sysfs doesn't get around this.
-> 
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+On Mon, Nov 9, 2026 at 1:34=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Apply path substitutions to the complete NSS home directory before
+> removing its final component. Substituting the parent first misses
+> rules that match the username, trailing wildcards, and per-user
+> exceptions to broader equivalences.
+>
+> For example, /srv -> /canonical followed by /srv/alice -> /srv/special
+> must retain /srv as a generated home root for Alice. The old ordering
+> generated only /canonical, while runtime lookup used /srv/special and
+> could no longer match the generated patterns.
+>
+> Keep the original-home filters and reject rewritten relative,
+> root-level, or ignored homes before deriving the parent. Preserve
+> conflict checks on the canonical parent and leave explicit-user
+> handling unchanged.
+>
+> Add a standalone regression covering generated-pattern lookup, rule
+> order, literal and wildcard mappings, two-stage substitutions, ignored
+> paths, root guards, failure cleanup, and disabled NSS enumeration.
+>
+> Fixes: ff54a2d3cdca ("libsemanage/genhomedircon: apply path substitution =
+rules to home directories")
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Looks good. Feel free to add:
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-
-								Honza
-
-> ---
->  drivers/block/loop.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index c96e35c3ef42..1482580a1979 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -537,6 +537,9 @@ static int loop_check_backing_file(struct file *file)
->  	if ((file->f_mode & FMODE_WRITE) && !file->f_op->write_iter)
->  		return -EINVAL;
->  
-> +	if (file_is_pseudo(file))
-> +		return -EINVAL;
-> +
->  	return 0;
->  }
->  
-> 
-> -- 
-> 2.53.0
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+This patch has been merged.
