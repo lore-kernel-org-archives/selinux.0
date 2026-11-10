@@ -1,50 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=45.157.188.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.125.25.15
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794342656;
-	b=PozsYLdlHEDHSDEQXgiYzECo8/1ANnkv7919sIR9Z3TH9UdZYHgI8fR+/a8EHRKUXgHj
-	 1WMvFyqh8zoU3E4JTlOLrF1V6GX3lKqRc+1Q/Uwxi5p3sqByBzD3Y7C9u4qgy98kwEqOw
-	 WXfAZPFXgu5+mdmFwXHNCQ3ZHc+WURaDmMBXLTXRZQpiaocvTzo9fzWCr+Rl3JNxUeX/P
-	 nixIcnBsSLDVs/jlM6BOgL1XFPU+ZCCZexfleXunqdlrjCkxOuh9+FEuQE3VcAvY30Zf/
-	 FsIDSuEzoUVN/gCYsyJhbcmBNue4C+Nw5WtvyIXTz7YeyiktKhYBAfVNCn1J5ZNLKbg==
+	t=1794342658;
+	b=ycbe+2eXqpuasU3L8Ej0U/B9WiJZaE2N75I8E2dKu6SN7MgNveWcEqsePLduS9NpeFxQ
+	 0RnO+faBAXL8y/lscaMK0EoFnARCZRzeGhabNlD0+H4pqIWk8AGGG5Ca3teNU/CoAkFuv
+	 3xIzQYqgAjxyqWp1tNtng9Mee4erSlCUBVqcok2o29VywVj6dUWpFpMnBASSsEagEuwfj
+	 9V2sl7SrsZAqdtCuGH4bDjN2WNg437Toj2bhb4RqcobX9elJJAvL/C56zGXNMFPaWegG+
+	 rH8B2vb1UaqO0BHA/mAYpklmRfP3UqoQLKxLoQu6yqsZNDZs99T79z2AbM9iuiOrukw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794342656;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794342658;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
 	 Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:X-Infomaniak-Routing;
-	bh=SM98pyL04tF+7b6zq1mfi19SPm3b/NbAbRakcCqfmR8=;
-	b=XN5ISgyEL7qdOJR9gz/gk8LvHzPbUepn6p5hKA4MfGiR10YEjynj/qczKAdAioDcQThk
-	 9EgDf8xeRbjoLf8iAwsA63MUgiLJHiyCnqMfqHpxe3H1LTSU/W8EaOWQjmAwy0wuw165U
-	 4UdR/tOkuJOv7G3zdqWzcxfgqc75pu84V5agM5/s6q8XZegU+ABIu2B8KrQJUxcN1QCwM
-	 J0GLGZUzzunW6iAVsGuWGDAjPZDkikTDKoOO16QlH+M9BShR1319Ih2DIAsBfRF41FgfZ
-	 qJFI/LhpII5CRmAXoufNbFzcL2BvgOiEXV5P8Wy/5HBHVEaoIVn2B93fDBaFiAh/L3w==
+	bh=nb6Y3qBz5md8bEdKSYVr1uCQAxRH1CiYfiJZ2O+ozgw=;
+	b=2Nzc0L0AS53OvmphVIhAkb6xMqloFAAjtocW90fA/GzokGiYgId2Y3APsSO+fBAet7Ps
+	 zawePZAvOcwLVQEvCWgiGMo9AFbRe4RQIVnL9mdvljyfgdJ0pfjjbNHcSORyt6MpBFk6k
+	 dkMrSJWj+WDllJX+WdPX/fX6GD10kwGrPNd1Fv2jmnS30LHI0qP7pzu32C4vjEbwNe+Nu
+	 9xKh9s0Bi2bnpJI4ITGVtNisy5XdRHo2WZD7lFg0uF/NPAXNUS8q5EPm+seLN05xzhLDN
+	 W009fBhB/4ZFSlztdz2IYXtqmQGS2bSKKLgA3IGFp2cLxNdlYmpN4W78NP+ToBlC51A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=digikod.net;
 	spf=pass smtp.mailfrom=digikod.net;
-	dkim=pass header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=rolKb3HK;
-	arc=none smtp.remote-ip=45.157.188.9
-Received: from smtp-bc09.mail.infomaniak.ch (smtp-bc09.mail.infomaniak.ch [45.157.188.9])
+	dkim=pass header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=RkLx8uZi;
+	arc=none smtp.remote-ip=185.125.25.15
+Received: from smtp-190f.mail.infomaniak.ch (smtp-190f.mail.infomaniak.ch [185.125.25.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB130606C8E1
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 20:30:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB130606C8E1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFB63606A8B2
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 20:30:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BFB63606A8B2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=rolKb3HK
-Received: from smtp-3-0000.mail.infomaniak.ch (smtp-3-0000.mail.infomaniak.ch [10.4.36.107])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4jPJFT6zx7zDjP;
-	Tue, 10 Nov 2026 21:30:53 +0100 (CET)
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=RkLx8uZi
+Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4jPJFX0MH0zGl7;
+	Tue, 10 Nov 2026 21:30:56 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1794342653;
-	bh=SM98pyL04tF+7b6zq1mfi19SPm3b/NbAbRakcCqfmR8=;
+	s=20191114; t=1794342654;
+	bh=nb6Y3qBz5md8bEdKSYVr1uCQAxRH1CiYfiJZ2O+ozgw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=rolKb3HKRqO39/Awloed/b8BWTVrX+LlFv0UTgeljSoFELAgAK9EmpYBA6u+3/ipZ
-	 U89QZBuMikl4qHhAZ01ueYMjURr2omtc4MgRrm4D+WPwrSnlX7pJG+e+ToNEsGsASZ
-	 jcgWTrbEETcfvShDXaloGnWTWqiuU9u2HLdmhVFk=
-Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4jPJFS1yXkz1WH;
-	Tue, 10 Nov 2026 21:30:52 +0100 (CET)
+	b=RkLx8uZieNxXzrjKg5Q7RvMY/4DP2HAAxxCnTZDhFsvsTTZiQQatSu2cd8I1dmptx
+	 vvFATq3PBHrmTiqJ+8Y1ZhSQfM+bECDi0QV2v3TKRYvRLraHNoiRMAAZ1Ffx/VPryk
+	 My8PBshjHTHR1ypFM5mB9/WWIUdQeEbbzz6vdUjA=
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4jPJFV0L4TzwgN;
+	Tue, 10 Nov 2026 21:30:54 +0100 (CET)
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Casey Schaufler <casey@schaufler-ca.com>,
 	Georgia Garcia <georgia.garcia@canonical.com>,
@@ -65,9 +65,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	linux-kernel@vger.kernel.org,
 	linux-security-module@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: [PATCH 4/6] smack: Use security_capable_lsm() for privilege checks
-Date: Tue, 10 Nov 2026 21:30:38 +0100
-Message-ID: <20261110203042.2410140-5-mic@digikod.net>
+Subject: [PATCH 5/6] selinux: Use security_capable_lsm() for CAP_MAC_ADMIN checks
+Date: Tue, 10 Nov 2026 21:30:39 +0100
+Message-ID: <20261110203042.2410140-6-mic@digikod.net>
 In-Reply-To: <20261110203042.2410140-1-mic@digikod.net>
 References: <20261110203042.2410140-1-mic@digikod.net>
 X-Mailing-List: selinux@vger.kernel.org
@@ -83,49 +83,40 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Infomaniak-Routing: alpha
 
-smack_privileged_cred() checks the capabilities that guard Smack policy
-(CAP_MAC_ADMIN to change it, CAP_MAC_OVERRIDE to bypass it, and
-CAP_SYS_PTRACE for the ptrace rule) with cap_capable() instead of
-capable(), so that other stacked LSMs are not asked (see commit
-f28e783ff668 ("Smack: Use cap_capable in privilege check")).  This also
-lets a process in a Landlock domain that denies these capabilities
-manage or bypass Smack policy.
+has_cap_mac_admin() checks CAP_MAC_ADMIN with cap_capable() and then
+with SELinux's own check, so that other stacked LSMs do not have to
+authorize it (see commit db59000ab760 ("selinux: only invoke
+capabilities and selinux for CAP_MAC_ADMIN checks")).  This also lets a
+process in a Landlock domain that denies CAP_MAC_ADMIN get or set
+security contexts unknown to the loaded policy.
 
-Switch this check to security_capable_lsm(), as for AppArmor in the
-previous commit.  The onlycap rule still applies.
-smack_privileged_cred() may check another task's credentials (the
-tracer's for the ptrace rule, the SIGIO recipient's), and may run in
-interrupt context for SIGIO delivery, which the capable_lsm hook allows.
+Switch this check to security_capable_lsm(), as for AppArmor and Smack
+in the previous commits.  The cred_has_capability() check is kept.
 
-Smack passes CAP_OPT_NONE everywhere, so Landlock logs every denial of
-these capabilities like any other capability denial.  This includes the
-checks that some Smack hooks make before their label rules (e.g.
-smack_syslog(), smack_unix_may_send()): the override is denied, and the
-label rules then decide.
-
-Cc: Casey Schaufler <casey@schaufler-ca.com>
 Cc: Günther Noack <gnoack@google.com>
+Cc: Ondrej Mosnáček <omosnacek@gmail.com>
 Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
 Fixes: 97c8386f1d74 ("landlock: Enforce capability restrictions")
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 ---
- security/smack/smack_access.c | 3 ++-
+ security/selinux/hooks.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
-index fb85356266e5..7e282e0b716a 100644
---- a/security/smack/smack_access.c
-+++ b/security/smack/smack_access.c
-@@ -723,7 +723,8 @@ bool smack_privileged_cred(int cap, const struct cred *cred)
- 	struct smack_known_list_elem *sklep;
- 	int rc;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9950f89dfaa2..5d85bc06f4c5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3363,7 +3363,8 @@ static bool has_cap_mac_admin(bool audit)
+ 	const struct cred *cred = current_cred();
+ 	unsigned int opts = audit ? CAP_OPT_NONE : CAP_OPT_NOAUDIT;
  
--	rc = cap_capable(cred, &init_user_ns, cap, CAP_OPT_NONE);
-+	rc = security_capable_lsm(cred, &init_user_ns, cap, CAP_OPT_NONE,
-+				  LSM_ID_SMACK);
- 	if (rc)
+-	if (cap_capable(cred, &init_user_ns, CAP_MAC_ADMIN, opts))
++	if (security_capable_lsm(cred, &init_user_ns, CAP_MAC_ADMIN, opts,
++				 LSM_ID_SELINUX))
  		return false;
- 
+ 	if (cred_has_capability(cred, CAP_MAC_ADMIN, opts, true))
+ 		return false;
 -- 
 2.56.0
 
