@@ -1,80 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=66.163.184.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=66.163.188.153
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794327240;
-	b=ENZ61O2NYggsjCeP/t15ckPFocyjI/4eh61vhrm0yAuQxqEdFdxD30l1uO+VI21F+yVj
-	 9o8j67g25vb5n9g9HB67tYndi/UF/U1DzxavV1Sj749QcE4uZssEPdqm7Mwxo093EHoSu
-	 g46LDxqpWdpBZOTMPkYHeKzUGS+oOyxAiDuBvWc5Xm6rVVKXt/pRDvLscs0lg7rl8a6eG
-	 hIGrLwlVpyALySRDxd+xnQ0Re7f9engXeNWYgzw7KyfeL8cCknp1Qk58Zn/Zkh7czx9Ez
-	 QHfuePk3ji+Kgw9qBhp7w9wAusGzmK/Y0jGzCzi2HbkSJ0hiSymSkr7e1q0vCMB6w0A==
+	t=1794328899;
+	b=XP/GWYa+Jq+EWuC5evb5Yfr8UG/4XD2ohqekpZGGRn0cvfQ7Te43ueqjNg7SA4FG+Cdk
+	 +pHWV3/oiFIwXpGHganggpjS6uWJExvDZ7f5TSWvCBrjkohhhOvY722cwNRS1Spb5FAPz
+	 +Xb//S6WzcVcDZRuXAx9NJQap/00DrYQdA6vTVYJEsAPslEnKmT+/MZ9N4HXOByeqbU2c
+	 BmvR1iky4XJw6aUVD5k/bmVpCLUv9k9i/8MiYCHQkLVJ0dxhyhNf9K9JmQOYXVdiyemC8
+	 SQaYcNGW7b0Oh7ukk3uckYig1Xn/HfAaofpsNIQNoboHGnb1gXnbSf+NsD4Z0quO+FA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794327240;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794328899;
 	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
 	 X-Sonic-ID:Received:Received:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=g3puA/Rs8Op3gQUg0J/vl+syCCZwXxu4Foqvmyce9W4=;
-	b=XmwqRwzq2SlAaPezDWDPrO68JQUBx8+5LUZHJzJIO1njALlT++tYGMYSQS71U59czODt
-	 833N7O3rcEP7RSeKBf6zg3d/EQuRmqvMA0diSVXW/gL1esQeZQFN8Vmp/g9QZLHhhWBG/
-	 me37oZL/UV4Qmffy0EfrVUMpwPZsAaKGAh7+6t8Ozh/0zqINuwNuIgeV4odjZnb7wg0bx
-	 IPr3iwJO6QEhkJQtDgJXaQ1fVozQI4Ep5qtaLkQw3XlTxtSvPdfjYSUnM8tX7QzYvpg68
-	 uahzlBzZ1J5rQFPsFcssjVCkEodmddp2uGLArX9K2FPEBzDoSKKgDX9JslL0xOlH5cw==
+	bh=ybspi0irVzBObVnvymayoasXUFA6ZUc1FYq9F7jfk0M=;
+	b=F/C8kkyGPF8slqyCH39SXSAFAFQUbnZRUr3EC1V5Xx2v22oqiqxNlsqDLZb9tFqoxP5K
+	 UU72xl6yrmB2T2qElWX9hA59vaB++WhsHSzVzis09mjeatvp7MeQ90nufWHcBaKBZrlBh
+	 l30zy5k2q0I73fsEIpHcyp7lTrg51poAuP5MAMi3Udn6yUpbVTKMKdhn1lZGhq8XCRS7I
+	 OKM2SMby2uqNdWI5rnG7hHOpvKYb02uzVDiRL5P8F00KcMdYINGgs+ieMK8acxtSWGfK6
+	 bQ4iJ2sNHTynvpuntP30jbsS5mMfa7AjE5knsQyYtj9c4cBABf9fmlc8geCnw5sVdOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=schaufler-ca.com;
 	spf=pass smtp.mailfrom=schaufler-ca.com;
-	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=RDGd6J64;
-	arc=none smtp.remote-ip=66.163.184.49
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com (sonic317-38.consmr.mail.ne1.yahoo.com [66.163.184.49])
+	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=DFKZ+25R;
+	arc=none smtp.remote-ip=66.163.188.153
+Received: from sonic303-27.consmr.mail.ne1.yahoo.com (sonic303-27.consmr.mail.ne1.yahoo.com [66.163.188.153])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985EE606A338
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 16:13:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 985EE606A338
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68730606A207
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 16:41:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68730606A207
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=RDGd6J64
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794327238; bh=g3puA/Rs8Op3gQUg0J/vl+syCCZwXxu4Foqvmyce9W4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:Content-Type:From:Subject:Reply-To:Content-Type; b=RDGd6J64KFdUM7VGvUfJOJ8S39HfQojQbc02rHRHnll4+eFp09C8JD6kW8aBOQLyrqcKGr09PqSQWggmf2bfP9Vhj6Ope4/1O7EHKejyYQi59nBV5GLSE0Mt47vDBq8/eSYpTzOP065mJIuWwTzB8Frbmzr1bRSNaNCceXs6fsVHkW5xQcnUh3twnWE32aF9l35SVlz0GPlOQdhXi8a1Lv7heecxMJuENe5Mm07v/XnTfVhUI90f81+5pxtKs16ZyZ1dBHONujX86KEr8oFHMAXmZZWU796BbMWTn0fb4rLGhoyytHv1F0nrVY3xsiJrZOTdtlfpVEy3yMrKFWNwEw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794327238; bh=sYEQKp0KtFvQAK0J3M4QRw/Tkxc1uvwLJaeWJQ8gWyZ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=BwudvB+03jhVnO10NtONX7aiHcEuZP5bhu5eG/BN0jxXhZmUudkpUnYCE1m7KXbFIBoi5+m1c4k0Jkh3LdYjJm/Jp2lo7/5h3H7GJwL+cSj5G0LQ3rC02xp+Db0QAoeHdKgoVCzGep5TVAqC3Yq4uYu9qBiMTU4x444Ysy/OaSw9+yGk8nbHmxvUKuMqlpoKwmsy7sbGhMpQA27xXFQovpYTxcDOclmuAadh+IhsAQFlkB/PDw3uPsMVwpbJVbSsn0iQWd6YSvx7pYYWz5VAQsnU738WymI8Z4LIo1aK/908HH7j4MmuOOP07fBh7jrpoWGIi7Ads5qsXEbvUFTkqg==
-X-YMail-OSG: 4a8g204VM1n9PqiRa7yv3CpcO8VH9DBXllKXBFIvB8iIKOCdy1oyCJDXz.qc1xz
- pikdKsSa0vyEI_0VrAIE.SJA80Wb.KBtgC49c6.wmwlO1amPEf0yHRhYnABpmItnZOEsIKqpGPCA
- oFFeOEUyit70BQmpM1.kjy7Vm17d54mv1rfu8lS6v.xU.PwtD6Bp.tfE3ojQbM.C6X7rGGLNKRNa
- zetOw2TVFmA1A.wnSWTwZiIEEl_rEKknXXH6u7TXA_6_.XOKDDySO..E28RubUtd74UWM2Uv8aZ_
- v0qezE8MJ9WFmzj_9i481qgsj9tyGjXb.awkKulhb9NgB.GhHC1L5FcOxOYG36TOWScQXrKWEq8m
- m3A26J2RlJroVkRXbo2HrImRvDzsXe.jNd8qxSAqoInFulAmasIRdTkavo9UabjpDQLtm3bJMHdV
- ravk_TH6Xa9rSX5Xg4m4azf2JyThWCMO1DZI2Iwm27HSv6E8wWqivGCVTmA.XhwJdW0Zndq4OxfE
- nKxwlOCbPgcB3_BAsWxXug80z.gwtjyk3LfFwbEPzwfgF0m92XC_AOaDemlFRwDWj2XeFcvo8.7c
- PH3XDwJ5SykDe_Ic_2r9Bpet52fWyXiaOzqJO7STLFBNRoJp1dklQesTH2iX0n48cKb8wst_HBYS
- 1.NXayAYbPR6lCIkccrKXMOCPKu6rLinl.w3jm7XMf7TdAj81lrNRaj54SQt4JDxl3_er44tSj6e
- vVZsV.6stxY21Xpe12CsWtuJ9i0W.CSkIK8txHnnWvh._cdVb6EyulHbkskfu3hPwFovNR75EV_R
- Xt4rZscdTC6VPrG2kU.P8MyZWjz_fcvHR0dZyBP5KlCTTtjhXRk9kRy3QjNsorL5.A6B1cfFEaAk
- _AEKEYP8BruqiPLlAgyFM8Z.8u_2OGdd1jDvSovuE8xLfaEyirmGRLyEfD_XyKP7wTK.PqW4K932
- lAsWrGoJLGjTa_ZbrjXR0igCzNFg_3hq1yU82MXS0kNXiCi3KmKaj1K51gy0s9lK1BeBk1OM5xNY
- Hutcgt47SRJCIBJucehLSDs3cOIM9YvPDQ5d0WIqaVApG7PETw0Qa9zJzQFUVgRersz5BDaUL5DV
- as3fiZVF.ftPgP5q9imZs_5DBiNy16gaqiyu6Clsoxd3B8HJ3FXDMCMfP.KNaWKbI5fkZ0nvs85Z
- L1bYXbd0G3G5W51iQjtuAIokuU94jV6NquWJPuJfGg.kx9axW0MnCJEAVdaqvaIK6dYG29Hzoq0y
- _siDbT2UVD.SC_Ai7d7GRsGNuuS8Xf1IDNCAqq._UIyl36r1V4JeNck45lHJwh1wC.UyM9PJ3IgU
- cXD5Yef270fy_7uj6dJxB9we1gQ6.GdeQLh.uM35x_9iidC3zFdGLJB08ZieRG.zX5EweOVHoV29
- w8pLRtlJq6aVZzaYD_eLA.4v_pg1H3zbqG_6FZwReQ3aRu__yALuggSZTDZBge5z4DD3cyCKdXuJ
- fdAXYhvzhfgYFV7ebT7Jepsh0QgK_USUXRHyKus5c5eSqqTfnDOmiq8IuOoWzvWRM.ttHHmPtEX_
- tnucnxdlFSvCuxYNs.FRn0g6mvqli4vnzySQq1yUfqopylR8eNQmr2AX2o.xF5fu2KxVwE3P5vWM
- aGNGu70BGvxgkIEGTXdBBlh_3XQI5U0HwzNfP38mdUhjjGqNThgAHW9.eDNG05hJsPKCtt4QV18c
- rqcJKhYzwhPSY74xsUslsJa6orTvPYlbC0xgIVi98r34bEEa7c_TGBfIhp41p6fsHkEt6uu.p64w
- Eq77mjiPzmnx54fHtet_cyCF6RbW15Rm3_o4syW9iXsVKyhCGdL_3ZVp32E284C2FFy_leaYePZJ
- 87zzdzIRQCNxYkPXQF8QiWVms3NaGb4xfgV67vTbBKeyaB2W9RPIAzGoqfqS9maZDETnLp6oKgOu
- 3j7Cb9WsrP2sfJ3tIt229KLDQoA_CZshPnym48HYnJaVivYYeM2j7zdFKsYy8KKwbWH4Hixz86lP
- 7CW1LIX.T0a_eUIXxlUOjPr1Otm.QLTeQ__8p_.5prn1LJeG5eueWUUJ7ybnYqsjFOHBxUG8hZHk
- xdpHjuFhEIy7ilpVYrOEIu5pP7qD9KVwJ6wI0npIhNiJHyMQudG2.G.mWXxgaX48oKnM8gJvG6o1
- CnEd3mACQAjw79eZXQh1OKhbiKuskcH05P2CxD3iKGkvPzxmlVmQQ35xAZJ9HzZy6Z9KPZ1rRIfv
- yNhawAEJ1APH1m125O0E7u6qAmo3C30Xw180TcsLCbqiSZiW69D8IBf05Vp1NrB9JfAW1IUiUXZy
- gsmLO8BBi_PZmmcdoWZRwhFNlX8GNtbao
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=DFKZ+25R
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794328897; bh=ybspi0irVzBObVnvymayoasXUFA6ZUc1FYq9F7jfk0M=; h=Date:Subject:To:Cc:References:From:In-Reply-To:Content-Type:From:Subject:Reply-To:Content-Type; b=DFKZ+25R+hMfA+OelXsBgoP9YUBAEfYECjdFYI6wKdBY0TULnSau2RuJl9cZH7caioJqYi03bAY3i3nDCImIZu8erv7sXQcKj7NQkJomyXjo2woNfQ8f0rWHesY3gJ0oTPXBEJh6ZgHk4vGeB3pj8oeBCSgdbRdPIUVWI+I73RMoUWuxcD/Ft6xwGBopMtZpN74huiDWtQu7ZGKIY/npqf6VvsGwHsbVsH2aQ5kpYyk4rJpUf9VrTNIq0o5IGfTdx/8Y2n0+7AjJuUXDrkiyoZAb0Z0pzr8rSsmDD2BIkbkI3ZpnaTlecwUem/9LLmKUbcpL1ji/Apqx322dPD2eGA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794328897; bh=gFlTntCLbDEELEgOcaRbmxFuK8XpymMLrulQKVDRVqy=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=fxrDNdd7XuXHTSGF4+egQlaXcsqUUx32z8528OdrTqhM6XUZ+/XBq1xAT/blCINA/j5+9MPEQKWDRw9Gd7RXg5vzVkdEsAU5/0rNGEDypMTgL3EoV+B1DgMuRaLIsUD8E4493P+YBVWCHci8+N+yN6D0sLmutqYsaXkn8R8WeTsTeiaynHeTPPANx3QP5qgAUthV7HEeojomNy4Yld8TZkz3rUZJSiBq/Uvcvxq6w4skxAv1Lk6TxBlOkat6kwSXAy2NhliDJHdohyUxvDa9LhS/hp/LD024jq83lQ9iXZBZdHvtoIr1wNbOYEVOhtyD/6s1Urvk8evGMJJcix/itA==
+X-YMail-OSG: f14cNqYVM1nYwAlXL0IhP5bumijed33nHCbgTs0pNALSfbKKFkBasRoP8tpS3gx
+ y406fp13ndveZe22DYhiZx4KVJy5188t.ZAQnsBsvfENRoZyQ9v.pt7Dav1WGimu_OIjNk1JjuTh
+ Lv5_jFG9OSEwPWHYa2qmGhYqGZKDEWdikyTgHKpcjVTFKaaFzJJ8yl0mgAe4BlPOeod3iUrFDDtz
+ D4OPIHFmcERjp9a604TkEM40aTBIawTnIHtWqOq1XQLZTV4C_3_aIV.QcaGtJTSSX3XMHU3pwCBf
+ 9FjVlfWMbkUgp7fiBUwdMwiMEIZ64ZIOYxhaajl3N27vEuBiMXwCMtxapwrCbfBNL9ULSYnjuIQ_
+ e3RoxDmsdVSP.u7ptV8EcPsd0x0vABGNFwVy8oiomeyf5MihZzNM6otV5Y8ydXoJSK4CqlckPxvG
+ nhD0RoO_q2Rq0W49a.7VcYHelsHWFSKx2KVSUreL5SE3bssO3ntQk2cEjHa6CkkJqrPNYxLTfY3y
+ 3UIAZUuKEsthuZL5ew0vr56qNq8CA0SCAeZUP5vjEYP2AcT5rbcdUMCESDP7fHK.FQs_fCMM7Dn.
+ Q3s2xlAHwawk3eQlebpOaBsviXWl7jG9OwA6KwfCopRY2Nu9DvM0wGeZL6JcGftwg.19olJgu9PO
+ ndhmpn6cnhWJn1Psa5ZNm5_iOFnefjlQTJDeF8a5lDNkTRT76zNr93_XZOBzc5.0WKOlpvgoQfep
+ a1l5xk1dOLMte9ZEcVzf3HRmIujdCTQH81sBid_QI_EdUfknKxtYdXiNniEjfLmHM3CrK387opsw
+ qxY_XZdU28BiGbsxIVwMnNnWYvSmZzcSnBieUA4oGF4zQPqTB7Q0mFULhRxW5Yf14_pPgo.474zw
+ MXP9KxUTdyhkfmE_Nw2fqBt7iuYqETKr3HHrDPNz6R94nCic0GLnFajLhki7LRARiBvmJ1ZwBrdw
+ lSto2p4Tj_gIEWxlt4eoJUWRIhrPt56ju.NtvwJTj81CJ.9hrHkQ_Sc9y27db121HKWH.NkZ6bl7
+ XeNjc_Xh6VuAA8B97XMeYqQiqTmnxcXZZHA5s_RCHQg81e5MznvwmePddNFjkUKoYKOyROTjzr8n
+ Euo92hvlaemGUK1odQj0CQcLi6XvNdsPzNQmcwnris.b3kJCJyCMufltww4yJh8c5xT2YXTKWF2N
+ 7RX.LPotqzovl_AN55sOC.ZGvE42jDES_cPCeWqBYywfzL3OUwXnsbrH1NSB6iCyeacMT8JECckx
+ PRfMgairVFbntC55HLROpi0jaJttKX6hXFTL48PC6ozd3ZzevuBWzH8OP5ZWxAKTDj8WMU_it7GM
+ WM5WA7itFNwhfnNBwsGxbW_Ms2POiwNfZ0xz041FGOl9kwxSIhHIWH1iOja_T0XQCAHRCjt_uiBz
+ VVkeH7kD9tzDCbFM6pJ47i8fhRgDUiq17vviYfeZr1Kr6Ky0S8SkTjU7KQ_n7nlyemXmm1XGAQZS
+ J1h.Qmkj_ikmRjkmJyizztj7pEdmy_JbTdxWomnIB_KZ5ZF91JngaeaRJNmRy5YyrOXC7tyURDel
+ czjl8oxakTTGq5NdUYT2hpLDvWSaPzuV7NhrUAkWbGHPMvyMSI4XLhHz5hBGjH9CZkOSexQDCNUD
+ WgFX3bGqTJImA5xLSw8J6a2aaL4GgeWLXXU8JIxe03TMbdSI8sfA5H6ZBKhryp9FnmAC.FtR.b_L
+ NZh1eTvMIw2Em0aLZ9vftASyKXpIbkeHfbqTzmZ_bthIiOWclTKWFOHNfDFne0iH0yKrNVc5uqdI
+ jejiqUtNB0PbqdlWlpvuYwds37pKIkIjbAoTQfTdvaE_w.cqvsFqYX_F706eFlTsgo4DSTB4ls5I
+ fuL1rminsYfKzycq7VXMvFdaemIU3Tf2BTOnPARorm9FOpwMp6qekg9.jmDi1YcGufwI_3r2eG24
+ eDQXMfpu1EBMAZfuQlBcde69_9O0ASwNpuiwOa5v3P8nFyvls6KYJ6Z0iwUdCOg.H9j3XVGUX42s
+ 99DcSoqrleMPn2KCbcsXbAm9vvjqduORB2BaiXz8Xiag2hMhqp1SHS8_57dOlg6gMnPvi6PQDiCm
+ mMoyPu1OMaYe_zFRXOjNtLavvwpsfdUvdELuKXa9DmRMA9ISvje8UYyYVYFamtED1OFudSYW4Erh
+ q.JxzUvX_sZj571lO8QPWAMNHKHn0acKXTayiufqUVG_jNw03ZA.SieoxJnWmrfdick8KgZr4zSb
+ sOZybakVvlBG_i.T9NN_SQlATxPLjRZbTYNOPlldWfr38p.Ryq9kfe7udbMAeVAF_OdNEm11D0RK
+ eMfm5UivZOIyzsp4NsWMSLMG1WcOLAX8.NA--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: cfdf2d2a-b498-44b5-958c-5f67e753d496
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Tue, 10 Nov 2026 16:13:58 +0000
-Received: by hermes--production-gq1-fd7994565-nddcd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 477e123a5d70e851d8294a1398b4519e;
-          Tue, 10 Nov 2026 16:13:53 +0000 (UTC)
-Message-ID: <b943c17c-32a2-4c59-9037-a7f41bd163ea@schaufler-ca.com>
-Date: Tue, 10 Nov 2026 08:13:50 -0800
+X-Sonic-ID: 4647b4e5-10c3-4ff0-9fd5-fa634f8860ed
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Tue, 10 Nov 2026 16:41:37 +0000
+Received: by hermes--production-gq1-fd7994565-2s7m9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID daaf98ec744735fc8c9286a06b483fbd;
+          Tue, 10 Nov 2026 16:41:32 +0000 (UTC)
+Message-ID: <0f1b2571-c573-4762-92fc-e3a8e4695f23@schaufler-ca.com>
+Date: Tue, 10 Nov 2026 08:41:30 -0800
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -86,9 +86,9 @@ Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net] cipso: stop modifying live ip_options_rcu
-To: Paul Moore <paul@paul-moore.com>, Jann Horn <jannh@google.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+To: Eric Dumazet <edumazet@kernel.org>, Jann Horn <jannh@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, "David S. Miller"
+ <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>, James Morris <jmorris@namei.org>,
  "Serge E. Hallyn" <serge@hallyn.com>, Simon Horman <horms@kernel.org>,
  Stephen Smalley <stephen.smalley.work@gmail.com>,
@@ -97,16 +97,16 @@ Cc: "David S. Miller" <davem@davemloft.net>,
  linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
  stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
 References: <20261106-cipso-rcuopts-v1-1-31ae931d7a0f@google.com>
- <CAHC9VhR+U3i8xNce8Ps8k76EZr_AeVf+fHET_Ncu1+yO1G2zSQ@mail.gmail.com>
+ <CAL4Wiiob6K=Y1ne0G+8L6b8fxNxdCz3z+THgCiCBX_5MjtSzcg@mail.gmail.com>
 Content-Language: en-US
 From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhR+U3i8xNce8Ps8k76EZr_AeVf+fHET_Ncu1+yO1G2zSQ@mail.gmail.com>
+In-Reply-To: <CAL4Wiiob6K=Y1ne0G+8L6b8fxNxdCz3z+THgCiCBX_5MjtSzcg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Mailer: WebService/1.1.26943 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 11/9/2026 12:13 PM, Paul Moore wrote:
-> On Fri, Nov 6, 2026 at 4:40 PM Jann Horn <jannh@google.com> wrote:
+On 11/6/2026 3:06 PM, Eric Dumazet wrote:
+> Le ven. 6 nov. 2026 à 22:40, Jann Horn <jannh@google.com> a écrit :
 >> cipso_v4_delopt() operates on the ip_options_rcu of a socket or a request
 >> socket, and tries to remove CIPSO options from the middle by moving all
 >> subsequent options.
@@ -126,23 +126,22 @@ On 11/9/2026 12:13 PM, Paul Moore wrote:
 >> Signed-off-by: Jann Horn <jannh@google.com>
 >> ---
 >> I've sent a separate mail with a reproducer to Paul Moore.
->> ---
->>  include/net/cipso_ipv4.h     | 11 ++++++-----
->>  include/net/netlabel.h       | 11 ++++++-----
->>  net/ipv4/cipso_ipv4.c        | 16 +++++++++++++---
->>  net/netlabel/netlabel_kapi.c | 24 ++++++++++--------------
->>  security/selinux/netlabel.c  |  5 +++--
->>  security/smack/smack_lsm.c   | 14 +++++++++-----
->>  6 files changed, 47 insertions(+), 34 deletions(-)
-> Thanks Jann, this looks good to me.  In a perfect world it would be
-> nice to get Casey's ACK on the Smack changes, but since they are very
-> minor and basically just pass the return code through I think it's
-> okay to merge this in another day or so if we don't hear from him.
+> Reviewed-by: Eric Dumazet <edumazet@kernel.org>
+>
+> Side note, not for this patch: Smack calls netlbl_sock_delattr()
+> and netlbl_sock_setattr() under bh_lock_sock_nested() only, which does
+> not exclude a concurrent lock_sock() owner such as
+> setsockopt(IP_OPTIONS). Both sides can then kfree_rcu() the same
+> old inet_opt. This already exists in the "cipso only" branch of
+> cipso_v4_delopt() and in cipso_v4_sock_setattr(), and with this patch
+> the copy branch has the same issue.
+>
+> The rcu_dereference_protected(*opt_ptr, 1) in cipso_v4_delopt() hides
+> this from lockdep. Smack should probably use lock_sock() like
+> SELinux does in selinux_netlbl_socket_connect().
 
-I don't see any reason to wait for my testing to complete. I'll shout
-if anything fails.
-
+Thank you. I will give this a try. I would be happy to accept a viable
+patch from any of the numerous people who know locking better than I.
 
 >
-> Acked-by: Paul Moore <paul@paul-moore.com>
->
+> Thanks !
