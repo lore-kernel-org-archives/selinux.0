@@ -1,38 +1,38 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794308364;
-	b=cHn/cZIjlCYj6eDWZCQ3ysGLBA0IXi1K4Nq7T3gxAvl4bDHdroUNAHpis2CrLujl65kf
-	 PYs7wSCpE+xBkM9P+MPbocY9QCOAn3nohicxXnEGdL3JEpIDI1lDVG4RavkCJOGlisn0C
-	 67arW0foFB5ms+xg/7cYa3tI1+GgnkfqEVO6foGGL2Z2C14W5B1SJU4le0gVs7i82MGha
-	 coStUzlJlehNYj7+roLbP+d305lvnFZSY3CBSwJqyUAqW7w4Plv+JYkZYgWtZbuEwjneN
-	 byxMS68GKA4qMIATndGDSivqna834laSFFHyh5RswG30aQ14WCon4ASy9g6+QHFhQvQ==
+	b=IjLNP0waOH+rg2zP6Q8+iT9LfTzomtmvC4v3hV31gnCmHR/2PqOYVNe0LA00ERVtfXum
+	 Wy9X//zyZnQ9isgt10JnlyRDESuI0tBnKyH8Lcpiq8m8MI/+n3a5gQ4scBNx0XvUbTUtx
+	 fP7EH8Kb/xUPQNuDyxedogcKKxw6RL9YozQ3YT4I8XzSXFHGAR3uB5ga9Pj5iaT53rfS6
+	 us058+k8qoMBc9PnzoARJqDLJR5Oz6kBk/64L5HLFzJYH/71ppRDQc/YtMpUu83+yzRwo
+	 ggIR8KhnYjEzlzypR3gL5ct928i2ZpP23HJylJLgK0w04nIsk02HAcdDTHK8Da3EE7w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794308364;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=AEhoMch2RIFKIifTY+xsNXjeiSN+rVqSYYSe0sRVagk=;
-	b=WRDP6ooi54LsB51unEMR/srkBe6sCHJaCySVR2lYhaIHjCg7m3NvcUQu607ey/AocHJj
-	 /mFGOnEgxA9OFTqpNwowpAWxLvXhtumaLUskNlwTYXLccl7QvD5PpCm7legPgXiZg9Zgq
-	 EATcJ7ZDYvhy9BqOfZhKbcdDTPTJ8bA/+svDZesiC/jXDgea1BxGLZ5G9B8pfsN1W4RMe
-	 BQRredBJLHok246tjOy+F0gbTHH/9WcFAXDzIM3yJYQH8uLGwDfqG0cJK1+9ZcmytgNzI
-	 LCUB64m6VpRF4DGmw4l1ItFtX4pYWlo4f4w492olbYyx6j3cM2PVcUN/GjtoWAYhC2g==
+	bh=Yv96u5D1USAL7B2qIujlX8Oxggq4WUeu90jUnny3nKQ=;
+	b=UWrI4ckny1EM+fcG5nLr+w9BkAF/JXtJ/08wPK3UKjV6pIMN3IxbvQ06aVUorAtn/R41
+	 WkMuFLRtmTeyEjlCS3fbf0+8kIJfXSPXHXTf/R6LPci6Vuc18TX+aWu9bS+qCwahxHiaJ
+	 yK4OiMSlJChXAuuNw6rixvFBZyBbId2YarmRf6aL8eSnie5XP0NA+xOZjVBF4HEC0m+FL
+	 ILzwRJU8Pm7cIPlio9Cl/OsREq+f6GHRoJmLMdxDfdVMwnlGY3DrnIBe9REXAEkbZlhIK
+	 DM72xzyTX3+3IfU/VPbBefbSqSRbxxWFbsSQBfKy6nT9HzCyc00QAhI0yXcVFg/dsCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=E1gilP2k;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=j8AWe00D;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD7660A262D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EFEF606A331
 	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 10:59:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FD7660A262D
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4EFEF606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=E1gilP2k
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=j8AWe00D
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1794308360;
@@ -41,17 +41,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AEhoMch2RIFKIifTY+xsNXjeiSN+rVqSYYSe0sRVagk=;
-	b=E1gilP2krZ567+ZsZgXbkvg++YlkP4XFv0MIJBDzA6+4xUNr7AeGZTPOcucgnGQyNl8lb/
-	nRZrlBBK42e95iL64VPh7WTILorS0UlofSEDuebipNzZHQZKriC7Ae4Kw6pDGfWNHM+sHT
-	Z7ak2Cd/A1Yssuhy65NPHdFvz+gN2ErJ/5jdVG6DBbYW5RyqfM1iEpzvUT00W8jTthHRyw
-	JZ/KYcNhdt8qWkDytBjVMqQClhqrwwhmEjxEWmTz/C7LYV/wLHSZfLDtypvP5sWCSNHvYp
-	aMjZ1Bt4RN+nNFGZl2bgLzfXpgkAEa22iYn+V/NRdTmALBAt9qmC1Y5RoCxwtQ==
+	bh=Yv96u5D1USAL7B2qIujlX8Oxggq4WUeu90jUnny3nKQ=;
+	b=j8AWe00Dz2p1ViNpHe1p6rjU1wX6h0j42UHf61z0m1t7vdg53BpPEz5gvraXn58DO4HfIs
+	/FnJ07GBL/7lOe9qOzvzZ/a3qWgTLeqr0iWnjvpPj3wVAsvz2tmdIGXymCY5sJRbc5sW+G
+	bjwaS9julK8MhlA7gsCTcEZCiPYxcmILjtEOtx9Ca0Zzp7+AvQklYwXST5Dq24vCaq+cuQ
+	XJpjdJGhiWYaHnsv8vpeWm/BWaHgPsesSH3S0xfq5UY1Pg52pJ5D4bv5ncOdy4RTgP6riN
+	ecMn1v+K6+ISowpcwPQOT9+gHrO59HFYIgNqkDXhZSzxImeOPzLZ0FOtyv/fbg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 5/7] libselinux: only strip a trailing newline in matchmediacon()
-Date: Tue, 10 Nov 2026 11:59:03 +0100
-Message-ID: <20261110105906.58509-5-cgoettsche@seltendoof.de>
+Subject: [PATCH 4/7] libselinux: set errno when the failsafe context file is empty
+Date: Tue, 10 Nov 2026 11:59:02 +0100
+Message-ID: <20261110105906.58509-4-cgoettsche@seltendoof.de>
 In-Reply-To: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 References: <20261110105906.58509-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -69,29 +69,31 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The line trimming tested for any non-NUL last byte instead of '\n',
-so an entry on a final line without a newline lost its last
-character, truncating the parsed context.
+get_failsafe_context() returned -1 without setting errno when
+fgets() hit EOF on an empty failsafe_context file, leaking through
+get_ordered_context_list(). Set ENOENT.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/matchmediacon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ libselinux/src/get_context_list.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
-index 38311413..3fcb8ddb 100644
---- a/libselinux/src/matchmediacon.c
-+++ b/libselinux/src/matchmediacon.c
-@@ -27,7 +27,8 @@ int matchmediacon(const char *media, char **con)
- 			errno = ENOENT;
- 			return -1;
- 		}
--		if (current_line[0] && current_line[strlen(current_line) - 1])
-+		if (current_line[0] &&
-+		    current_line[strlen(current_line) - 1] == '\n')
- 			current_line[strlen(current_line) - 1] = '\0';
- 		/* Skip leading whitespace before the partial context. */
- 		ptr = current_line;
+diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+index 06cec418..4c9b6118 100644
+--- a/libselinux/src/get_context_list.c
++++ b/libselinux/src/get_context_list.c
+@@ -287,8 +287,10 @@ static int get_failsafe_context(const char *user, const char *level,
+ 	ptr = fgets_unlocked(buf, sizeof buf, fp);
+ 	fclose(fp);
+ 
+-	if (!ptr)
++	if (!ptr) {
++		errno = ENOENT;
+ 		return -1;
++	}
+ 	plen = strlen(ptr);
+ 	if (plen && buf[plen - 1] == '\n')
+ 		buf[plen - 1] = '\0';
 -- 
 2.55.0
 
