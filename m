@@ -1,60 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794308875;
-	b=gB6Ek7RObNGSx6K4SGYpmGjfqXvw5rGxGXmYkuV1jkm2Dm02sf/BRwfe/ROe2AcZlc8d
-	 +0mkRl1h55+1RI7H+Wlskpcf5zaafJ3LQD8fB0LcZoGXlh99DBe9pKvWkUJdPNu0E4vYP
-	 aZVA8jp6anHRMGF1NJpGDXPpmo1Or3vOZesRhI4dWV2UPxzR854VG7JD16Ztd2x6d8WEs
-	 AN8VGObsxJb314uxPJrCT0+uH5dO9evCeMS6BkOHHgNBsuzO/+zJOxTPGmSzNmCbDokqS
-	 lskqr2UlEOWelDY0ckgcU+OcNFiIMaVPVPT/6qdkMCtnWPBih1LQFbu9YYtXwEp+RHQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794308875;
-	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=98gP7rlIKTCHWjF1UqUbV86m4O+F9t2eWRinjNirrNs=;
-	b=BG2Iu01/LnC/BD4h7Uf7/AxK0r1+o3vDVIyn+HUdG4/DpAjoGrftLPxdMyvXy6XwZQie
-	 I1yf3BNMBIvuY95m+b9L+Nyur3Rbsyvk/fZmh2eNtPAt9CI7y/co91FWBmqHPo9hkclUD
-	 Z/EeYO7SWPTBQ92c6WMlffL0UyM3ve0hNBAh7O7yUpdoaCPMuOayFPGroFbA3bsczEGkw
-	 l7V0bWM3qcGIK7G3td3q1L+Mkufy9XznxWKDORXHlUrZ/jG/OkjeSHw7usGwuYr90ATVF
-	 nhg0GVhTHmIVFcc0WZL1QHpaxSwwF4aUKopvqxKzsLwGx1vEZELwRqBoJE7kCTdex7w==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=seltendoof.de;
-	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=lEzLTpUa;
-	arc=none smtp.remote-ip=168.119.48.163
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.52
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794309075;
+	b=psxCA/Pz5WMRC8kLFYOt1FvYZu59Zw8WBdM9ni1pq3FjmiJhjzzbL07LMWtLznPYksv4
+	 9CSjOlFR4O5TqSd+P4K1G3kCMHq4Lf1HKYshBrjMDCJAWwgghhNuEN9UZwkjgk6Cp9Vqz
+	 gNUuWqoTwHxv6nr5HKgboNj5MNyfe2fr3rOjkVkzUTNk/bO6ml1KMez1cNRfvHOARvWPp
+	 urm6IWCZ1oeMkZJL4yhnsLQEkqGuqK+SQxyDwjP7oKik3MzTymnSfgFnQ/2DEkslvHgtm
+	 bEchvKnB4kizOB9VxOReOGOdpy6D58CTub5H5NPRqdiJTLZhkFBM+OXGoIM3/tRYQFg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794309075;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=v2Y69AZ4DfBzehDnc7cMThQ6uONNFd5ZHo6Kl6Q8Ta8=;
+	b=ow1u5sKeQAMhfSA9aJS2IOoBvYURwJJTKQNZKZBOBykrgsBNfG63N6Fb+Kn6GFGpd4M0
+	 Nnj+EPFZkxqNCC32fJv9mmStPMMS0hftBD8Ip1uC2Upn7oeTcycBEumRHRtk3scr6ni4s
+	 auBBPOkZT2cmXVu3n2LjpPoWbQ9838LtqhhsWO26S+11s4+aAMAU2UMmgRMjPFGaimsbj
+	 l0NxzK6jVzbAYy6fGzruev4TMB+/tQVNJLOt4S/VtB5wbsFDtWzjri52m6XOKOSbUyEec
+	 JmFZOADr0+0aZb4HJVCLV0czj02USmpOMAxah+NmATH3+9/AEpM91dR2Y2NV1CdkuSQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=googlemail.com;
+	spf=pass smtp.mailfrom=googlemail.com;
+	dkim=pass header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=WLp4eZqq;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.52
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289EE606A32A
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:07:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 289EE606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB76C606A31C
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:11:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BB76C606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=lEzLTpUa
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1794308873;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=98gP7rlIKTCHWjF1UqUbV86m4O+F9t2eWRinjNirrNs=;
-	b=lEzLTpUa5H6ZIy+OONbmGuGd0QuSvGQ73smDcls4178myGj75WLTmOZOMrLnSlKT3QpxTT
-	8C8HLjhtUCpiIAllS/6qPWD/6e5yaWuaK9/0zzPu16ug1SHBC1xOrq5cQTBOxCWFp6cKV6
-	ZMy1KlLInsaGKThORwEowm+skR7TMESmisvFtI8tcIMPqlraydlZFDekPYLLDelvmYh8OI
-	VaPl/viY9cupQYE05ua/epia959HfZ5fxAxQoKwZ97IV1AD1HumI7hbsOE3CkM55i85rRC
-	NhIt5nCBY1KdBxaTwx1Jm/xccridg7RP1W85a2PPyy2fV4T4NY6lheaq9+baUA==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 6/6] libsepol/cil: verify all ordered statements in a single tree walk
-Date: Tue, 10 Nov 2026 12:07:38 +0100
-Message-ID: <20261110110739.67209-5-cgoettsche@seltendoof.de>
-In-Reply-To: <20261110110739.67209-1-cgoettsche@seltendoof.de>
-References: <20261110110739.67209-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key, unprotected) header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=WLp4eZqq
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-497614c95f0so904281f8f.1
+        for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 03:11:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794309073; cv=none;
+        d=google.com; s=arc-20260327;
+        b=k3fPoIBGvb7NwC4esuF57lCV0QjrncpputBGu2jJ7FcSs6Qtgb6CVyD+f8IJfHsKAi
+         GHEgIogoPDA2sG0HKvbdtY9ON9mPknRgVLzyWfuI8Yy5+NypAqNw9z2D3Q/0JVjC3MZI
+         uE8HOTC/sxNdU8nb/edrtzExCnQzTy+FPhjy+QkOK0/03KjqY9Ykw/koL+4mmtcOt7GT
+         2dRI0EfywWLz71eCoOGY0Uf115SMFWUFOAm6cN66kSrca9fOeTSgmVNrtiisH6qh0ZgI
+         Ns5nTJEUoDgeHw5shNjOPDkngSJxdkdCB21xl5OsPhyY/1eq7o0O2bJry4tqfAZ7pe4W
+         8ltA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=v2Y69AZ4DfBzehDnc7cMThQ6uONNFd5ZHo6Kl6Q8Ta8=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=dgNh5xlSpzjs/PnKTu5hy6dkRNt9f8fVB0kXdIcsxWcgtjVqKJzjNy47U0r1lWK2E2
+         nJw82NaCCmki1NiTV0Z2S4plFnnJJr7kbVUNvtnjp0fekPPE06i+ZFgrON0xxPesqAx8
+         rBkmEws1uROZiT8APJGNZqEaXEl2w69nGtHPj/JO4EwF8/EPt6J1YDXF4J0ah+JAa5ez
+         +qDbWot2QigI2sqYcxNVJc+ENcSr2ZFiA32iwjJJXFWAE4QCwNPvELG+7ZfiC8wJ0l5q
+         7oEGMNGGNtlQsLudhtiqaxjbmRfKjnth9OBU1TuFhLj6Iqi8xWJebe+ba1hW4MOQOKwm
+         A2iQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20260707; t=1794309073; x=1794913873; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=v2Y69AZ4DfBzehDnc7cMThQ6uONNFd5ZHo6Kl6Q8Ta8=;
+        b=WLp4eZqqz401G1npaSBV6hSncVyP/uQO0LS8Alrh7fH1/5qec+5eYkijPENWeiIFGs
+         FuU+Oe2Z0DMd2yZW597+hGGrMQotbGpVcugufunggmfuGKeuU42s2bpFsOVgb++JrUXi
+         pnALAMU5KnG7I4RgKaiA7mHXLZQhFa1o/21cBJStprjqV9XtFa1dab4w4+CyPlVFU7xW
+         qopMRhOhiElP9/a1/m8UjQW0tsrrPXnCqkAoVpGp9TXs+GZrTc3upxa+rJt/ljYREnQw
+         pVA1x29Xhsw/SrqSPoxQefKOWyUVE1mo412yfn/43yAtqc7alSyws0OX1wobZtSv/Dte
+         91yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794309073; x=1794913873;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=v2Y69AZ4DfBzehDnc7cMThQ6uONNFd5ZHo6Kl6Q8Ta8=;
+        b=OrvLcqxcHKzsljBfRpx0cspddak96pvNhH9FVyJQNqq3z8ugjoGAE1/gAtJ3qRqy3M
+         36AfeeniBNSo2YCTGWocT2kEBukJqrI/xuMyF1MJkXCuxQhQnEnstiulMq1qLsNPXW6v
+         xnXoEk2qYvTbSVs3ivoip0Xvx5nMGLBrtEBf6jQyDFFdTy3HBhWXp9OW439KkFrLTbdN
+         cYu9cakEhiE6R1sbDXjKynuF7cYC1Ww4Bisrhi7wlgyNzoHHFYQ+/RMu6udFj0eHfZVC
+         4vg8O1WKJ//FsrBcEL6iXqP/ep3xyUSZPUgYeV00GFs0kMswNeoK2+NMRlnvnHuj71Er
+         zmZw==
+X-Gm-Message-State: APuU4Z+8JjCnHp2ErPa9Mk6sCpTJENB+xMBKUxSLvCeyKWTi95e2w/r/
+	/tM6rv3LRWaA3k036q7v7WSTnETdMyM9O8YvqvRZ+BVOeG7BDzjBbIfyFRK/0+056M7WqUr/saX
+	RFveM4VwhiMVyF/n/L3NJxYhanY9VMtM=
+X-Gm-Gg: AYBFou2Vi+Gk4u7RBNgRMtabA8Duq7hoXsbKMWW8yqudei1t/xD4h9u1uWMK315QtHw
+	+8Rqx75jLsUDRcZRBxCseNd9qql1vhZYIe+memJT8m6PMLuMq2uroWzP9+VXAVi1XJNwRnPFm12
+	JEYomysXWEW8KywHIyiIjtRV5IzJ9+k0qDyG4h8opJaHNhaF00+il5hFwnmRuL+jEP9WNADIFyE
+	kh3/gt9e7pTrq+Ikq4x3eoIT5IAhYtB43PD4cR4YfWeguLnb2vX+TAceG2s/EvT9+6h9g86TDNy
+	+5ME/DK9gVnU62agJQNTkrwoKWXxNLiT07bGsQypzWiNk4qRfnpmLIg5brUNg28udUb7nuW+Pd1
+	HC2SqoRbcVa0JxzOJ1TtZIHyGNNh1sAXtnf4i5BCMIZYzWLaaRr4=
+X-Received: by 2002:a05:6000:230f:b0:48d:f7f9:6a29 with SMTP id
+ ffacd0b85a97d-4982fb52467mr4122686f8f.20.1794309072754; Tue, 10 Nov 2026
+ 03:11:12 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -64,221 +103,42 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20261110105906.58509-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20261110105906.58509-1-cgoettsche@seltendoof.de>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Tue, 10 Nov 2026 12:11:01 +0100
+X-Gm-Features: AclHuK9Zd-ig1ws9j9rDovJiUNnGbeaVoQ0Y3N890IvSuOjBgNiZIXEm75n4-Co
+Message-ID: <CAJ2a_Dd0KGEaPnGRhdMqLvMJB8eo+-_4BoAneW5CoixvT5CtAg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: avoid quadratic removal of redundant
+ conditional rules
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Tue, 10 Nov 2026 at 11:59, Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> optimize_cond_avtab() collects the redundant conditional rules in a list
+> and then, for every entry of the conditional avtab, scans that list
+> linearly to check whether the entry is to be deleted. The cost is the
+> product of both sizes; on a modular Reference Policy build this single
+> loop accounted for about 12% of the runtime of `semodule -B`.
+>
+> Sort the addresses of the nodes to delete once and look up each avtab
+> entry with bsearch(3). Addresses are stored as uintptr_t, so no pointer
+> to a freed node is read after its deletion. Should the allocation fail,
+> fall back to the previous linear scan, so the function stays infallible
+> and policydb_optimize() keeps its behavior.
+>
+> Also free the list entries left over after the scan, which were leaked
+> before if a collected node was not found in the table.
+>
+> The resulting policy is unchanged.
+>
+> Assisted-by: Claude:claude-5.5-opus
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Whether all SIDs, classes, categories and sensitivities are part of an
-ordering statement is verified by walking the whole AST once for each
-of the four flavors.
-
-Walk the tree once, remember the first unordered node of each flavor
-and report them in the same order as before.
-
-Compiling DSSP5 takes about 5% less time.
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/cil/src/cil_resolve_ast.c |  17 +---
- libsepol/cil/src/cil_verify.c      | 124 ++++++++++++++++++-----------
- libsepol/cil/src/cil_verify.h      |   4 +-
- 3 files changed, 79 insertions(+), 66 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index a805ca17..7b9c585e 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -4549,22 +4549,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 				goto exit;
- 			}
- 
--			rc = __cil_verify_ordered(current, CIL_SID);
--			if (rc != SEPOL_OK) {
--				goto exit;
--			}
--
--			rc = __cil_verify_ordered(current, CIL_CLASS);
--			if (rc != SEPOL_OK) {
--				goto exit;
--			}
--
--			rc = __cil_verify_ordered(current, CIL_CAT);
--			if (rc != SEPOL_OK) {
--				goto exit;
--			}
--
--			rc = __cil_verify_ordered(current, CIL_SENS);
-+			rc = __cil_verify_ordered(current);
- 			if (rc != SEPOL_OK) {
- 				goto exit;
- 			}
-diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-index 0578428a..745277f2 100644
---- a/libsepol/cil/src/cil_verify.c
-+++ b/libsepol/cil/src/cil_verify.c
-@@ -678,69 +678,99 @@ int cil_verify_completed_ordered_list(struct cil_list *complete,
- }
- 
- struct cil_args_verify_order {
--	uint32_t *flavor;
-+	struct cil_tree_node *sid;
-+	struct cil_tree_node *class;
-+	struct cil_tree_node *cat;
-+	struct cil_tree_node *sens;
- };
- 
--int __cil_verify_ordered_node_helper(struct cil_tree_node *node,
--				     __attribute__((unused)) uint32_t *finished,
--				     void *extra_args)
-+/* Record the first unordered node of each flavor */
-+static int __cil_verify_ordered_node_helper(struct cil_tree_node *node,
-+					    __attribute__((unused))
-+					    uint32_t *finished,
-+					    void *extra_args)
- {
- 	struct cil_args_verify_order *args = extra_args;
--	uint32_t *flavor = args->flavor;
--
--	if (node->flavor == *flavor) {
--		if (node->flavor == CIL_SID) {
--			struct cil_sid *sid = node->data;
--			if (sid->ordered == CIL_FALSE) {
--				cil_tree_log(node, CIL_ERR,
--					     "SID %s not in sidorder statement",
--					     sid->datum.name);
--				return SEPOL_ERR;
--			}
--		} else if (node->flavor == CIL_CLASS) {
--			struct cil_class *class = node->data;
--			if (class->ordered == CIL_FALSE) {
--				cil_tree_log(
--					node, CIL_ERR,
--					"Class %s not in classorder statement",
--					class->datum.name);
--				return SEPOL_ERR;
--			}
--		} else if (node->flavor == CIL_CAT) {
--			struct cil_cat *cat = node->data;
--			if (cat->ordered == CIL_FALSE) {
--				cil_tree_log(
--					node, CIL_ERR,
--					"Category %s not in categoryorder statement",
--					cat->datum.name);
--				return SEPOL_ERR;
--			}
--		} else if (node->flavor == CIL_SENS) {
--			struct cil_sens *sens = node->data;
--			if (sens->ordered == CIL_FALSE) {
--				cil_tree_log(
--					node, CIL_ERR,
--					"Sensitivity %s not in sensitivityorder statement",
--					sens->datum.name);
--				return SEPOL_ERR;
--			}
-+
-+	switch (node->flavor) {
-+	case CIL_SID: {
-+		struct cil_sid *sid = node->data;
-+		if (sid->ordered == CIL_FALSE && args->sid == NULL) {
-+			args->sid = node;
-+		}
-+		break;
-+	}
-+	case CIL_CLASS: {
-+		struct cil_class *class = node->data;
-+		if (class->ordered == CIL_FALSE && args->class == NULL) {
-+			args->class = node;
-+		}
-+		break;
-+	}
-+	case CIL_CAT: {
-+		struct cil_cat *cat = node->data;
-+		if (cat->ordered == CIL_FALSE && args->cat == NULL) {
-+			args->cat = node;
-+		}
-+		break;
-+	}
-+	case CIL_SENS: {
-+		struct cil_sens *sens = node->data;
-+		if (sens->ordered == CIL_FALSE && args->sens == NULL) {
-+			args->sens = node;
- 		}
-+		break;
-+	}
-+	default:
-+		break;
- 	}
- 
- 	return SEPOL_OK;
- }
- 
--int __cil_verify_ordered(struct cil_tree_node *current, enum cil_flavor flavor)
-+/*
-+ * Verify that all SIDs, classes, categories and sensitivities are part of
-+ * an ordering statement, using a single walk of the tree.
-+ */
-+int __cil_verify_ordered(struct cil_tree_node *current)
- {
--	struct cil_args_verify_order extra_args;
-+	struct cil_args_verify_order extra_args = { NULL, NULL, NULL, NULL };
-+	struct cil_tree_node *node;
- 	int rc = SEPOL_ERR;
- 
--	extra_args.flavor = &flavor;
--
- 	rc = cil_tree_walk(current, __cil_verify_ordered_node_helper, NULL,
- 			   NULL, &extra_args);
-+	if (rc != SEPOL_OK) {
-+		return rc;
-+	}
-+
-+	if (extra_args.sid != NULL) {
-+		node = extra_args.sid;
-+		cil_tree_log(node, CIL_ERR, "SID %s not in sidorder statement",
-+			     DATUM(node->data)->name);
-+	} else if (extra_args.class != NULL) {
-+		node = extra_args.class;
-+		cil_tree_log(node, CIL_ERR,
-+			     "Class %s not in classorder statement",
-+			     DATUM(node->data)->name);
-+	} else if (extra_args.cat != NULL) {
-+		node = extra_args.cat;
-+		cil_tree_log(node, CIL_ERR,
-+			     "Category %s not in categoryorder statement",
-+			     DATUM(node->data)->name);
-+	} else if (extra_args.sens != NULL) {
-+		node = extra_args.sens;
-+		cil_tree_log(node, CIL_ERR,
-+			     "Sensitivity %s not in sensitivityorder statement",
-+			     DATUM(node->data)->name);
-+	} else {
-+		return SEPOL_OK;
-+	}
- 
--	return rc;
-+	/* Same trace as for a failing tree walk */
-+	cil_tree_log(node, CIL_INFO, "Problem");
-+
-+	return SEPOL_ERR;
- }
- 
- int __cil_verify_initsids(struct cil_list *sids)
-diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
-index 7852f570..f60bf9f3 100644
---- a/libsepol/cil/src/cil_verify.h
-+++ b/libsepol/cil/src/cil_verify.h
-@@ -74,9 +74,7 @@ int cil_verify_decl_does_not_shadow_macro_parameter(struct cil_macro *macro,
- int __cil_verify_ranges(struct cil_list *list);
- int cil_verify_completed_ordered_list(struct cil_list *complete,
- 				      struct cil_list *ordered_lists);
--int __cil_verify_ordered_node_helper(struct cil_tree_node *node,
--				     uint32_t *finished, void *extra_args);
--int __cil_verify_ordered(struct cil_tree_node *current, enum cil_flavor flavor);
-+int __cil_verify_ordered(struct cil_tree_node *current);
- int __cil_verify_initsids(struct cil_list *sids);
- int __cil_verify_senscat(struct cil_sens *sens, struct cil_cat *cat);
- int __cil_verify_helper(struct cil_tree_node *node,
--- 
-2.55.0
-
+Please disregard this patch, send by accident.
