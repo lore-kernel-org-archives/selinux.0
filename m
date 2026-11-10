@@ -1,80 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=66.163.188.153
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794328899;
-	b=XP/GWYa+Jq+EWuC5evb5Yfr8UG/4XD2ohqekpZGGRn0cvfQ7Te43ueqjNg7SA4FG+Cdk
-	 +pHWV3/oiFIwXpGHganggpjS6uWJExvDZ7f5TSWvCBrjkohhhOvY722cwNRS1Spb5FAPz
-	 +Xb//S6WzcVcDZRuXAx9NJQap/00DrYQdA6vTVYJEsAPslEnKmT+/MZ9N4HXOByeqbU2c
-	 BmvR1iky4XJw6aUVD5k/bmVpCLUv9k9i/8MiYCHQkLVJ0dxhyhNf9K9JmQOYXVdiyemC8
-	 SQaYcNGW7b0Oh7ukk3uckYig1Xn/HfAaofpsNIQNoboHGnb1gXnbSf+NsD4Z0quO+FA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794328899;
-	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
-	 X-Sonic-ID:Received:Received:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=ybspi0irVzBObVnvymayoasXUFA6ZUc1FYq9F7jfk0M=;
-	b=F/C8kkyGPF8slqyCH39SXSAFAFQUbnZRUr3EC1V5Xx2v22oqiqxNlsqDLZb9tFqoxP5K
-	 UU72xl6yrmB2T2qElWX9hA59vaB++WhsHSzVzis09mjeatvp7MeQ90nufWHcBaKBZrlBh
-	 l30zy5k2q0I73fsEIpHcyp7lTrg51poAuP5MAMi3Udn6yUpbVTKMKdhn1lZGhq8XCRS7I
-	 OKM2SMby2uqNdWI5rnG7hHOpvKYb02uzVDiRL5P8F00KcMdYINGgs+ieMK8acxtSWGfK6
-	 bQ4iJ2sNHTynvpuntP30jbsS5mMfa7AjE5knsQyYtj9c4cBABf9fmlc8geCnw5sVdOw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=schaufler-ca.com;
-	spf=pass smtp.mailfrom=schaufler-ca.com;
-	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=DFKZ+25R;
-	arc=none smtp.remote-ip=66.163.188.153
-Received: from sonic303-27.consmr.mail.ne1.yahoo.com (sonic303-27.consmr.mail.ne1.yahoo.com [66.163.188.153])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794329444;
+	b=vwNue7PjqXxHXu/QMoCM6eBG7S20mVBE0X5j32We/GyZec0GLJY3ahVQ57WCC+ypL8aU
+	 I5oeSvGLCXkQbTQDD6g6CC09i0B7gfyoe5PKv4nA6fIT0OuvZBYLX7ndfiVsDbffcWZ4S
+	 stSVdzkK5cohsQbwPvSoyeNZuLVuq0GgVbMypV+DfMOqg8Tsm9/0o/Lue0FJwd3BBOEv7
+	 7x1fjrNCrD2RF4hKCnjmLeh0ABPB8jskF68004YXh3/08e5aCDUiA8ZbuRm0Dxo6KmHEq
+	 uMoab1s1wO3RJqNQ0RUCwtkvQzWiizqzBLFoWjee8cWgUChhWQQ9y9RcNbUpIrpH6kg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794329444;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=9oR8tJyOiORTZNZdl7JgbEiMduotOMSbAzHe9qfpYes=;
+	b=kVj42bOq70gOICgHrGb8Tlp4d6njELe7OA0+lEEQuqb+L5+zM9VymsqhoN5NJSqflrzl
+	 dg87fOjd0iq3oCea6SG23QrjP7hvHjQP1hqKx7aHowBMIoumbA1YHGX9w1eGeNvh5pU/f
+	 Yv1iHvsiFsu/bxNpCj8HvtcDEVYbuQInY8rygv8sQkv4gvlrUA3NyHDirtCzZ2V53U9VU
+	 q+4W1FFoX+7n3CN8R8vuiTryR4x67mOFjAJpKwh3wEtD+Y/pmRT6POBwAaj0uMlwxBURD
+	 cIm6gs4KPHtEcRtsZP301jmw1QvpslDHflP2I4JcstqmEXnc2FTb+Gd95xV2MNPrupw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oAAnomOj;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
+Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68730606A207
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 16:41:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68730606A207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C0E606A325
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 16:50:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C3C0E606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=DFKZ+25R
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794328897; bh=ybspi0irVzBObVnvymayoasXUFA6ZUc1FYq9F7jfk0M=; h=Date:Subject:To:Cc:References:From:In-Reply-To:Content-Type:From:Subject:Reply-To:Content-Type; b=DFKZ+25R+hMfA+OelXsBgoP9YUBAEfYECjdFYI6wKdBY0TULnSau2RuJl9cZH7caioJqYi03bAY3i3nDCImIZu8erv7sXQcKj7NQkJomyXjo2woNfQ8f0rWHesY3gJ0oTPXBEJh6ZgHk4vGeB3pj8oeBCSgdbRdPIUVWI+I73RMoUWuxcD/Ft6xwGBopMtZpN74huiDWtQu7ZGKIY/npqf6VvsGwHsbVsH2aQ5kpYyk4rJpUf9VrTNIq0o5IGfTdx/8Y2n0+7AjJuUXDrkiyoZAb0Z0pzr8rSsmDD2BIkbkI3ZpnaTlecwUem/9LLmKUbcpL1ji/Apqx322dPD2eGA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794328897; bh=gFlTntCLbDEELEgOcaRbmxFuK8XpymMLrulQKVDRVqy=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=fxrDNdd7XuXHTSGF4+egQlaXcsqUUx32z8528OdrTqhM6XUZ+/XBq1xAT/blCINA/j5+9MPEQKWDRw9Gd7RXg5vzVkdEsAU5/0rNGEDypMTgL3EoV+B1DgMuRaLIsUD8E4493P+YBVWCHci8+N+yN6D0sLmutqYsaXkn8R8WeTsTeiaynHeTPPANx3QP5qgAUthV7HEeojomNy4Yld8TZkz3rUZJSiBq/Uvcvxq6w4skxAv1Lk6TxBlOkat6kwSXAy2NhliDJHdohyUxvDa9LhS/hp/LD024jq83lQ9iXZBZdHvtoIr1wNbOYEVOhtyD/6s1Urvk8evGMJJcix/itA==
-X-YMail-OSG: f14cNqYVM1nYwAlXL0IhP5bumijed33nHCbgTs0pNALSfbKKFkBasRoP8tpS3gx
- y406fp13ndveZe22DYhiZx4KVJy5188t.ZAQnsBsvfENRoZyQ9v.pt7Dav1WGimu_OIjNk1JjuTh
- Lv5_jFG9OSEwPWHYa2qmGhYqGZKDEWdikyTgHKpcjVTFKaaFzJJ8yl0mgAe4BlPOeod3iUrFDDtz
- D4OPIHFmcERjp9a604TkEM40aTBIawTnIHtWqOq1XQLZTV4C_3_aIV.QcaGtJTSSX3XMHU3pwCBf
- 9FjVlfWMbkUgp7fiBUwdMwiMEIZ64ZIOYxhaajl3N27vEuBiMXwCMtxapwrCbfBNL9ULSYnjuIQ_
- e3RoxDmsdVSP.u7ptV8EcPsd0x0vABGNFwVy8oiomeyf5MihZzNM6otV5Y8ydXoJSK4CqlckPxvG
- nhD0RoO_q2Rq0W49a.7VcYHelsHWFSKx2KVSUreL5SE3bssO3ntQk2cEjHa6CkkJqrPNYxLTfY3y
- 3UIAZUuKEsthuZL5ew0vr56qNq8CA0SCAeZUP5vjEYP2AcT5rbcdUMCESDP7fHK.FQs_fCMM7Dn.
- Q3s2xlAHwawk3eQlebpOaBsviXWl7jG9OwA6KwfCopRY2Nu9DvM0wGeZL6JcGftwg.19olJgu9PO
- ndhmpn6cnhWJn1Psa5ZNm5_iOFnefjlQTJDeF8a5lDNkTRT76zNr93_XZOBzc5.0WKOlpvgoQfep
- a1l5xk1dOLMte9ZEcVzf3HRmIujdCTQH81sBid_QI_EdUfknKxtYdXiNniEjfLmHM3CrK387opsw
- qxY_XZdU28BiGbsxIVwMnNnWYvSmZzcSnBieUA4oGF4zQPqTB7Q0mFULhRxW5Yf14_pPgo.474zw
- MXP9KxUTdyhkfmE_Nw2fqBt7iuYqETKr3HHrDPNz6R94nCic0GLnFajLhki7LRARiBvmJ1ZwBrdw
- lSto2p4Tj_gIEWxlt4eoJUWRIhrPt56ju.NtvwJTj81CJ.9hrHkQ_Sc9y27db121HKWH.NkZ6bl7
- XeNjc_Xh6VuAA8B97XMeYqQiqTmnxcXZZHA5s_RCHQg81e5MznvwmePddNFjkUKoYKOyROTjzr8n
- Euo92hvlaemGUK1odQj0CQcLi6XvNdsPzNQmcwnris.b3kJCJyCMufltww4yJh8c5xT2YXTKWF2N
- 7RX.LPotqzovl_AN55sOC.ZGvE42jDES_cPCeWqBYywfzL3OUwXnsbrH1NSB6iCyeacMT8JECckx
- PRfMgairVFbntC55HLROpi0jaJttKX6hXFTL48PC6ozd3ZzevuBWzH8OP5ZWxAKTDj8WMU_it7GM
- WM5WA7itFNwhfnNBwsGxbW_Ms2POiwNfZ0xz041FGOl9kwxSIhHIWH1iOja_T0XQCAHRCjt_uiBz
- VVkeH7kD9tzDCbFM6pJ47i8fhRgDUiq17vviYfeZr1Kr6Ky0S8SkTjU7KQ_n7nlyemXmm1XGAQZS
- J1h.Qmkj_ikmRjkmJyizztj7pEdmy_JbTdxWomnIB_KZ5ZF91JngaeaRJNmRy5YyrOXC7tyURDel
- czjl8oxakTTGq5NdUYT2hpLDvWSaPzuV7NhrUAkWbGHPMvyMSI4XLhHz5hBGjH9CZkOSexQDCNUD
- WgFX3bGqTJImA5xLSw8J6a2aaL4GgeWLXXU8JIxe03TMbdSI8sfA5H6ZBKhryp9FnmAC.FtR.b_L
- NZh1eTvMIw2Em0aLZ9vftASyKXpIbkeHfbqTzmZ_bthIiOWclTKWFOHNfDFne0iH0yKrNVc5uqdI
- jejiqUtNB0PbqdlWlpvuYwds37pKIkIjbAoTQfTdvaE_w.cqvsFqYX_F706eFlTsgo4DSTB4ls5I
- fuL1rminsYfKzycq7VXMvFdaemIU3Tf2BTOnPARorm9FOpwMp6qekg9.jmDi1YcGufwI_3r2eG24
- eDQXMfpu1EBMAZfuQlBcde69_9O0ASwNpuiwOa5v3P8nFyvls6KYJ6Z0iwUdCOg.H9j3XVGUX42s
- 99DcSoqrleMPn2KCbcsXbAm9vvjqduORB2BaiXz8Xiag2hMhqp1SHS8_57dOlg6gMnPvi6PQDiCm
- mMoyPu1OMaYe_zFRXOjNtLavvwpsfdUvdELuKXa9DmRMA9ISvje8UYyYVYFamtED1OFudSYW4Erh
- q.JxzUvX_sZj571lO8QPWAMNHKHn0acKXTayiufqUVG_jNw03ZA.SieoxJnWmrfdick8KgZr4zSb
- sOZybakVvlBG_i.T9NN_SQlATxPLjRZbTYNOPlldWfr38p.Ryq9kfe7udbMAeVAF_OdNEm11D0RK
- eMfm5UivZOIyzsp4NsWMSLMG1WcOLAX8.NA--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 4647b4e5-10c3-4ff0-9fd5-fa634f8860ed
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Tue, 10 Nov 2026 16:41:37 +0000
-Received: by hermes--production-gq1-fd7994565-2s7m9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID daaf98ec744735fc8c9286a06b483fbd;
-          Tue, 10 Nov 2026 16:41:32 +0000 (UTC)
-Message-ID: <0f1b2571-c573-4762-92fc-e3a8e4695f23@schaufler-ca.com>
-Date: Tue, 10 Nov 2026 08:41:30 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oAAnomOj
+Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-67921b515a7so2488817d50.2
+        for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 08:50:43 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794329443; cv=none;
+        d=google.com; s=arc-20260327;
+        b=HHfNOgvJiQKKFIwB+oXeup4pJUnHCK0sLEL/O7OjxPv4uOmiZloSOhLU/1CZ7XMsF2
+         ztmoiaR+ZbqntU+6BTfKZBdFEJ6ppNrNZ9g+fGrxqXAxtEdzOxoFiemVubqAzysClbXB
+         FmLjmPI94oTfqXP9JzvdDKPUD6xLicy9mC30X7FO+OD1d2s+qknFPjUDmqN6px1uVC2x
+         Nm04jDtIJW55gr5epp2hrXn8qii7R5S7r7ExIHWCS/FnSGrY9NHKi9TRiPC5M+AcI1Em
+         uUik4fm/0pOkLwZhUH/sa6/eNb2Qnp/nWbPYD8/pXkbG23m5KCevKdSeqrw4eyQfbKJ4
+         TwYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=9oR8tJyOiORTZNZdl7JgbEiMduotOMSbAzHe9qfpYes=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=LKug9JTTfyCPDPKKWbyCVn3Me61gHONghZ2JExYxqM+K3vGmKxmAU0BJ9xu47WBJrb
+         nGbFPX8GkaL6jTJrW3lDuQ0eKsxZjlCnVNt+n3W+UXdKD/x14cPk7eQzu0G9F0bj1x9Q
+         HNOyy64rQZFeLRLSoGPy/PdAUkpE0KWV2uCYo5+ZXwDHxwhs1DLGYQoGwnXcNw2rF8X4
+         6qdZPubWiEaml53L0W0WiXjNnwn0oUj06cPAvWZ9ut3Zs5wmU6/AWwhprjvvvyrrm4jK
+         iXlXezqdreZKqQq8qJtYZLKvA0A3sqlLqwUNv1ug2hTH6vn1VNIdBAVrCb/4IDTZUwmz
+         FlTA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794329443; x=1794934243; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=9oR8tJyOiORTZNZdl7JgbEiMduotOMSbAzHe9qfpYes=;
+        b=oAAnomOj16c5XlbwzOhpcFpTY+eVw5ZKQdVQAK42yXQ4bf2zAap1DBdYzSuWvLAjo6
+         1VelEPQYEcRXbu6GJb/aCj3g2XP0iCFtYdxue3Xe10dt7eMpWV6dfI0Ts4TTrL/Ulpyf
+         uS0jHMYXgufIEMq3N9XdQhk4GRjjXKGDX7O9CcVqfSQ0nI8fPW4TiT/MUBwdKmv+cUH1
+         NStA3RWqOIFz4GOKlO5ub0zIxVcq0BP8PLVRsL93ZQvTxXrqM6sEDJgJLrXoQwQjk4vw
+         V9Rmxx7e090B3ckOzsMwdcbwiIslRCGzoUKLGtr1RS0yaEFj9+C5kTq8tj0JSK0PHe/4
+         vkZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794329443; x=1794934243;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9oR8tJyOiORTZNZdl7JgbEiMduotOMSbAzHe9qfpYes=;
+        b=YnaFNUlA8Q4y1EM7P7O7P8RSN8VMn8skllasyqMbgYd4Kn18WSNpYjzKUR2c68P+TP
+         cVwDUur99jwk98+odkthtCiT+ZpmrIF+qbPKRZ/w2cgRTpZyK2sFHGzy49u3KplElaWY
+         5kd1Asz5jg3+n/49CwjC4uO7lfCrWsTR3oYhqEdHkzigUj8OxF/hjU/u18w4mH5eqQ8B
+         eW21GxPwlLoReQQtgXsptN9gyC417t6rkwfgGgDWXFI74UknJJl0OyvaAtU+1Qm9l/BG
+         DXNer7/1YjMWwL1imqtUASl68xo9NA80tcZa32eDTEuAyKgUbfj/iAfoptV6DCxyCcwu
+         9kIQ==
+X-Gm-Message-State: APuU4Z+xsugZESfMPFQMbKTm0OGAEdZq1Y7TYsmtqeh73CiyRPtKcZDU
+	xUFCmbqosz9S4dPFMufYKLE7c++xYunFfGiuTiCQx6wHN6Y9UeQitpTF6BAxPjqi+o6fBIDuer0
+	KPmhlm3GzUG5sCoYiqoTuk2E4wrlRVPM=
+X-Gm-Gg: AYBFou3R7A9eH9tBjo2GuPyGPiUObBog4rIgq2uIC1tpUI2HSE6q5Wxmcey3FeHwOx/
+	1euhKN8lBREHkC4hFPO3kJ5O97DzAHoM/a0x0JZpohuDpkneRgaD4Yru5ISRkQ8TQG1zz4sGhhU
+	DoYV3Y8xu9rKxY9EZpLrvR/US3GLksxHISCmayyC9i2sBbTejlRe/wqTGYxvdAt96HvLdunCjjk
+	dy6taHOtm8B6zLBOa8I+vZrC6yWOAycS1aJEtAA1rAjjVX0zdejpOqRRHh3Mpma2y+faYptQ3z+
+	ZPXJ0z4z3gQV8TyI8vlAMQvdGrovFv6HHCCyIaEnEicOjbP0/BKMzDyXdOWOXW6OdMIKPPYqCCh
+	W3aJFAz5ris4JcQZ0nVqh70ukGocGwmCljM0BdzHZxc1508kIUUGDjlkfEc2zGq/1Mw0LrTZLDy
+	1G/uyjRHJyybZbogpr0fbmSC2qU2SUNyyFb0VS/tezQhyW2LT+jFHEVANITw==
+X-Received: by 2002:a05:690e:144b:b0:679:992e:3ac2 with SMTP id
+ 956f58d0204a3-67c66e88627mr84290d50.40.1794329442824; Tue, 10 Nov 2026
+ 08:50:42 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -84,64 +104,55 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] cipso: stop modifying live ip_options_rcu
-To: Eric Dumazet <edumazet@kernel.org>, Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, "David S. Miller"
- <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Simon Horman <horms@kernel.org>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>,
- netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
- stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20261106-cipso-rcuopts-v1-1-31ae931d7a0f@google.com>
- <CAL4Wiiob6K=Y1ne0G+8L6b8fxNxdCz3z+THgCiCBX_5MjtSzcg@mail.gmail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAL4Wiiob6K=Y1ne0G+8L6b8fxNxdCz3z+THgCiCBX_5MjtSzcg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.26943 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20261110105906.58509-1-cgoettsche@seltendoof.de> <20261110105906.58509-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20261110105906.58509-2-cgoettsche@seltendoof.de>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 10 Nov 2026 11:50:30 -0500
+X-Gm-Features: AclHuK-1tuGLmBavhSJzg4PSyzxtL1Ud7kJ0lrsOz3MopfeSNk31SK3_zccGW5s
+Message-ID: <CAEjxPJ7gHJGudaYteAX1gkL1ZMR0S_GhO5w=mFa1m=fuj0J+0w@mail.gmail.com>
+Subject: Re: [PATCH 2/7] libselinux: set errno on getseuserbyname() failure
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/6/2026 3:06 PM, Eric Dumazet wrote:
-> Le ven. 6 nov. 2026 à 22:40, Jann Horn <jannh@google.com> a écrit :
->> cipso_v4_delopt() operates on the ip_options_rcu of a socket or a request
->> socket, and tries to remove CIPSO options from the middle by moving all
->> subsequent options.
->> That's not allowed - ip_options_rcu can be read locklessly and must always
->> be consistent. For example, ip_options_undo() reads trusted offsets and
->> length values from the options buffer.
->> Fix it by doing the modification in a copy.
->>
->> The core change is in cipso_v4_delopt(), the rest is ugly plumbing to
->> propagate memory allocation failures.
->>
->> Triggering this bug requires that the system is configured to use CIPSO.
->> (Setting up CIPSO requires privileges in init_user_ns.)
->>
->> Fixes: f6d8bd051c39 ("inet: add RCU protection to inet->opt")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Jann Horn <jannh@google.com>
->> ---
->> I've sent a separate mail with a reproducer to Paul Moore.
-> Reviewed-by: Eric Dumazet <edumazet@kernel.org>
+On Tue, Nov 10, 2026 at 6:05=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> Side note, not for this patch: Smack calls netlbl_sock_delattr()
-> and netlbl_sock_setattr() under bh_lock_sock_nested() only, which does
-> not exclude a concurrent lock_sock() owner such as
-> setsockopt(IP_OPTIONS). Both sides can then kfree_rcu() the same
-> old inet_opt. This already exists in the "cipso only" branch of
-> cipso_v4_delopt() and in cipso_v4_sock_setattr(), and with this patch
-> the copy branch has the same issue.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> The rcu_dereference_protected(*opt_ptr, 1) in cipso_v4_delopt() hides
-> this from lockdep. Smack should probably use lock_sock() like
-> SELinux does in selinux_netlbl_socket_connect().
+> The require_seusers no-match path returned -1 without touching errno,
+> contradicting the documented contract. Set ENOENT there while letting
+> the fopen() failure path keep its own errno.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/seusers.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+> index ea542392..659626fe 100644
+> --- a/libselinux/src/seusers.c
+> +++ b/libselinux/src/seusers.c
+> @@ -269,6 +269,10 @@ int getseuserbyname(const char *name, char **r_seuse=
+r, char **r_level)
+>                 return 0;
+>         }
+>
+> +       /* No matching entry found; the fopen() failure path jumps past t=
+his
+> +          to nomatch and keeps its own errno. */
+> +       errno =3D ENOENT;
 
-Thank you. I will give this a try. I would be happy to accept a viable
-patch from any of the numerous people who know locking better than I.
+With require_seusers=3Dtrue, an unsuccessful getline() would be reported
+as ENOENT even on a read error by this change. Distinguish clean EOF
+from failure before closing the stream.
 
+> +
+>  nomatch:
+>         if (require_seusers)
+>                 return -1;
+> --
+> 2.55.0
 >
-> Thanks !
+>
