@@ -1,59 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=168.119.48.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794308364;
-	b=CMwtamRiwCOob5yeMaY4T5G5+IOU6sSt49/E35nVQ4o+Pe/Ij58QZSVGYRIBCvjy8opk
-	 sP5W/2+fmJzqQOBOT0Th3o1UZuUFEihYWLi10VY3Gb2Amyy7Mf1G76oY8SYTLSEUT47TN
-	 Bntd5iYDCN+gxa7UlvXTYLKBapVdXzvGMFrMbYr/H8/1iYhtFYUi66k8qgzxXD2OS4Vb+
-	 alDc3zVxOoxLw7r48ywaP1jCWZ66FYH/RWkVrc/J25cjfV/p/MC+DaOcZ0Ry7mxDuZssd
-	 nePTpbHrnrc4h0OxvN39b4K2K6UjW4JzTQzB84Wt2Y+yFCBFwIpWdTg6fJkpS2eOEEg==
+	t=1794308875;
+	b=PNUvIKB+dJ5Jbbq6TT/NL0smrSnz7r/Z/ovXuxb8jRa1fovm9C5H1LIeFFs3Dj8Od9PD
+	 kHGI8Yq9homEMz0B6DU1EiQmmu09h+IVcOakq9bMBPwPM3/wBY9CQY463mB1TxhCGFBh4
+	 Ld6sd/r8oeK7ONAoBK2ERZhxd2JH1Q/2o/A+AxtOLQkN0Ty0xO94gQmvDxE/dvpO00Erq
+	 4aNaDFYerzbTUzg+R4hoUKmsHWmgZNfFJ2Nc6CjkBMyf//Du2Mn22Sfi+R5hRZlKnrjKk
+	 CVTuSDbMTmns9qccMhJiXDru8M/R0m218Auuw4Fldsy4MrjRBkErbTcPerWlLrcn5Eg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794308364;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794308875;
 	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Reply-To:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=k7WIdv+TtXfZgSsJSa6yYMaoFv0Y7XQ14XSp4gRJeSQ=;
-	b=v+Tf49Hhi6gJL82StYzofQvZJJVXAbFI6oSdisRzft/KKn8FHbKK9VL4UjrFB355+VJ9
-	 zGssNUOhNG+NXY57zisuICOLW5Epc3jEVvMjVA8/n+thHD2CIEjX6doeJ4KhY9BwmYnnT
-	 B69SGNO/meABjEX0KvybD5RLV1BMWbYppBCJrzVa7LByz+6h4BNOgXDu57UivmMJsKZjs
-	 Y21ORRGusICLL3CiSg5N3cWI05rAUGDz4UmMAe8HQT3HX0p7DcusqLHIazh0ufFPQ0c5v
-	 te80gJD/2MwUX8ACKVo1nRii0yYObbeysLo62xX3IoacVh89vrkEfK1/oyF+urb7mow==
+	 Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=jeCKayLYrFSuvsH2wwmAKPLxK7o56oV283deB0oW6QA=;
+	b=qnbZ58sY7Kpco2DlIQuFzkJAITuPQrWuUooonfCCl2nm+lFO5dpd2FFN1A3ocv2MpiZd
+	 GZzRHndAgORhYcxXMA9LfUqZZRYlbU9ym9Fu1gBtOBixRnACwu3vb7JVU3AiDOLtrO8b+
+	 nYFmnYnxDG8SXUEVSfiWDRA10+o9GXmzp1CKoX8zmW2fHcJ1gy/cXkFD3iw/X5CG/P3VG
+	 ZvImnTitVuD4Xa13/MCh+cxLOhVR/kLzrby7ID7/2gEjHlIRtwXPr+olWFdOZAaoCZ5j7
+	 oRawcUpN+7CwrU5PhRpsvwKlmZqfUUYt4tBPFyDRGwv0z9Auy8jUI5CQrmc0jxq0iVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=seltendoof.de;
 	spf=pass smtp.mailfrom=seltendoof.de;
-	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=lvNr3Vq3;
+	dkim=pass header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=kWumPXYq;
 	arc=none smtp.remote-ip=168.119.48.163
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A9760A262C
-	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 10:59:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 46A9760A262C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC5D8606A325
+	for <selinux@vger.kernel.org>; Tue, 10 Nov 2026 11:07:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC5D8606A325
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=lvNr3Vq3
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.a=rsa-sha256 header.s=2023072701 header.b=kWumPXYq
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1794308360;
+	s=2023072701; t=1794308872;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=k7WIdv+TtXfZgSsJSa6yYMaoFv0Y7XQ14XSp4gRJeSQ=;
-	b=lvNr3Vq3izMoqaHWblS0v+n0eUz2SfcEBW4x3EtzLPIu7PJxvUlmsWoJADv7tbyWgVLbIW
-	ZTAHs/bkYVn1NtRvnztUdKawluN6AAlWF0QOpuRkqa4AR9SlIJzJhAUCf0BvuWC31b/8rU
-	bRE07l0gL2XCpR7+devzo/e4VutYcKvFEixsX1RDJUSTVkun7lPwUHCV8coCvsW13ErGMO
-	2gHTBvZ+peJTiyAKWmQ2RfqwVEiCThOez1zzM2e7gs6H6juo3JGOjwz6TEHNYDzUx+9TOm
-	UTPOTUbns6MhYdB3jurlKEo5tX13zYH+i59vXOJR2TvRS+kzjDU4g/Ks0nFjTQ==
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=jeCKayLYrFSuvsH2wwmAKPLxK7o56oV283deB0oW6QA=;
+	b=kWumPXYqqNXCXNJP20iBHFR2/NUgceL+eOM8Ol1HvmyZ6EYKEuI3wavw19r6HziMN7/zi7
+	vZfemxIYIyoZyPd626SiuC8zsvQhr3FjHCRtQeQJa2n6g0lzvJVuzyVkKfLNpFPScNhoaS
+	QeAMKUw9ROAoQ91iKXmJNYUSz86wGDPhvXiiC1r3vKHTw/wfv4hpGS+lqbG5GG0SO3oFay
+	6b9gw+zBifAsNHdAMF9X7hvNgyescTqpjj5FkCEM6053ANGLqFMpCSiP9u5jY2BhN9xPG+
+	sNP97M6v20G5yHbbzq5lXUyIcWCuWHOag1WGsK79AvrIAzTKNAjmtzyxDvinUg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 3/7] libselinux: set errno on matchmediacon() failure
-Date: Tue, 10 Nov 2026 11:59:01 +0100
-Message-ID: <20261110105906.58509-3-cgoettsche@seltendoof.de>
-In-Reply-To: <20261110105906.58509-1-cgoettsche@seltendoof.de>
-References: <20261110105906.58509-1-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 2/6] libsepol: skip the conditional lists without matching rules for neverallowx
+Date: Tue, 10 Nov 2026 12:07:34 +0100
+Message-ID: <20261110110739.67209-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -69,44 +64,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The not-found and empty-context paths returned -1 without touching
-errno, unlike the sibling context lookups. Set ENOENT there.
+For every allow rule matching a neverallowx rule
+check_assertion_extended_permissions_avtab() iterates over all
+combinations of the attributes of the source and the target type and
+for each of them scans every rule of every conditional list for one
+with the same source, target and class.
+
+All rules of the conditional lists are part of the conditional avtab,
+which check_assertion() already relies on for checking them. Look up
+the key there first and skip the scan if there is no conditional rule
+for it, which is the common case.
+
+Compiling a policy with about 1000 conditional rules and 64
+neverallowx rules with secilc takes 1.1s instead of 1.5s.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/matchmediacon.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ libsepol/src/assertion.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
-index 6ef3a217..38311413 100644
---- a/libselinux/src/matchmediacon.c
-+++ b/libselinux/src/matchmediacon.c
-@@ -24,6 +24,7 @@ int matchmediacon(const char *media, char **con)
- 		if (!fgets_unlocked(current_line, sizeof(current_line),
- 				    infile)) {
- 			fclose(infile);
-+			errno = ENOENT;
- 			return -1;
- 		}
- 		if (current_line[0] && current_line[strlen(current_line) - 1])
-@@ -50,13 +51,16 @@ int matchmediacon(const char *media, char **con)
- 		}
- 	}
- 	fclose(infile);
--	if (!found)
-+	if (!found) {
-+		errno = ENOENT;
- 		return -1;
-+	}
+diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+index 94172e5a..9572a5c4 100644
+--- a/libsepol/src/assertion.c
++++ b/libsepol/src/assertion.c
+@@ -172,6 +172,20 @@ static bool match_node_key(const struct avtab_node *node,
+ 	       node->key.target_class == key->target_class;
+ }
  
- 	/* Skip whitespace. */
- 	while (*ptr2 && isspace((unsigned char)*ptr2))
- 		ptr2++;
- 	if (!(*ptr2)) {
-+		errno = ENOENT;
- 		return -1;
- 	}
++/*
++ * Whether there is any conditional rule for the source type, target type and
++ * class of the key. All rules of the conditional lists are part of the
++ * conditional avtab, so this permits to skip searching the lists.
++ */
++static bool has_cond_rules(policydb_t *p, const avtab_key_t *key)
++{
++	avtab_key_t tmp_key = *key;
++
++	tmp_key.specified = AVTAB_AV | AVTAB_TYPE | AVTAB_XPERMS;
++
++	return avtab_search_node(&p->te_cond_avtab, &tmp_key) != NULL;
++}
++
+ /* Same scenarios of interest as check_assertion_extended_permissions */
+ static int report_assertion_extended_permissions(
+ 	sepol_handle_t *handle, policydb_t *p, const avrule_t *narule,
+@@ -574,6 +588,9 @@ static bool check_assertion_extended_permissions_avtab(
+ 					return true;
+ 			}
  
++			if (!has_cond_rules(p, &tmp_key))
++				continue;
++
+ 			for (const cond_list_t *cl = p->cond_list; cl;
+ 			     cl = cl->next) {
+ 				bool found_true_base = false,
 -- 
 2.55.0
 
