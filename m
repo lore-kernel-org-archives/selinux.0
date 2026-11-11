@@ -1,56 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794362793;
-	b=LH1qajopfe4VyRkGcu5NEgg1hSEx02OdFIqiYAhIgbraQiKE9HLoIN1OCPkZAEC1s6g5
-	 6mUOql8LSmTM0k0S7AxoY7zu5XDN1ovUbfbTc5+OVNOEOJsRT6AHNj+a49alBs/creD8Z
-	 OQq/Wctouhg7N0DP86ASZYX58MAysl51Ezh3SQ725pyJTc38Nma5WFXEq9RQWGYiFKfLi
-	 mY4Y+BVSnoh1yEnZnldrNTA2E2FjvzuosfqmEEdywyBqUv2YZ73SQAXb5Yie3NvWXsuat
-	 zq9VokdGZbZXbwlBH6Id/ASuejdbbGeScvsVBmD99MrwD+tmog6acgzF88PvMDdXwTg==
+	t=1794390418;
+	b=Nhg17AHd9HIsgif4fVjmYtD/xKXR+uvPcs3IYUG3gJChisY2yxpIKMyBa6l0T1/NbsSq
+	 EYYJGywpl7EdxgBl8jYPljIws1lM368Pqk9GPcDVGGI67G44dCXiSZFGmgdVgWoShTCRP
+	 wIrtM6S0f/VLX+QQSIXgFVzoyeoglxgdJRyjtGFjGoZ1SG+Hrr9gjHPlRDNzktmrCt95J
+	 8bBRmZYy2HeXjR+QxNau+0VzK9STPFreHMv90uwyI7klW1CopIxlfUPgEViqIxj1EhRnH
+	 U94oxaU/dZIdfz4QWzSSg1O69Wt6cexCjRZFKveTyhZKPD+rxl+g/HPH8za6UmRWJqw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794362793;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=wJS5vxw+eGUaWeOZHp6vv5M+wA6RCpUuc0QEcXw6JuU=;
-	b=Sje417kn00QPx3ilxCP4MKL2KoSaFp6XXEJZIivkyf3ijDjCh/S353yC7bfrLDigqtZd
-	 o/zuS1bv2mLr/HCUpbH+k7uo9Uzj44/Kw6Fh0aoTli9CDbdnJfqPixfiUdVg6b1Nop7jR
-	 87kKVgxwLeet7OzLb1EVA9YkO4UnnGi1uOEgHmLXidta8ZL4zkR1mDeWmlDWiYD+HrRpF
-	 Ksw+Zxcp8hdeY9w1QbHRq44Ylnl3mvR1hncMGkkjgUDAbSk7OTFlRJtjB8E3eeGRYe17o
-	 IeDn+OUsy/rF/1QMZRGTZx9RcH1cNLHQ0RJ2srRYNfSwnUj0gbVQ3cLUUSByanWl8gg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794390418;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-Debian-User;
+	bh=g4FJ8o8UQUtyD0eGI0sUCpicqPvdI4Vdc4LMM0bmn0w=;
+	b=Hswx4nOcAxEn2mYXM+ZJr7H/uWd6tZV0QzCT4hYr1fl+14rNU9s+/ViqQ9z1Ugna1oRS
+	 BFkTk1j+MqQiagMQvynOawuKEKyONjBiV18uaMTwiPLVAq7qzB8keqRfSSA42kc6ODfXz
+	 i1+GfJfXQwnp8403YtvM1/TYnjXvY21mSx2W/lDKVBjpVKjMcIfgQdOpTRQe1RmRd7ZaQ
+	 bXcnFeiSpsBlotq3RK0uh3T+hRiWbt4uovHA8I7iYaz1An7qvtsK2GXwM4oWNwVjWkjHF
+	 06u2vbn8KvnfDrbtUbRfIimbv4xggVXvUlwGDZG1XSbiMUrd1DLUsP0sDl3FiaimEdg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K6JZFjyU;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=debian.org;
+	spf=pass smtp.mailfrom=debian.org;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=cmZW0raJ;
+	arc=none smtp.remote-ip=82.195.75.108
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18617606A31C;
-	Wed, 11 Nov 2026 02:06:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A60BA606A332;
+	Wed, 11 Nov 2026 09:46:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A60BA606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K6JZFjyU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB1D1F0089F;
-	Wed, 11 Nov 2026 02:06:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794362792;
-	bh=wJS5vxw+eGUaWeOZHp6vv5M+wA6RCpUuc0QEcXw6JuU=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=K6JZFjyUhJ1QbqwKK+hRTubeWNYP2giUsRCSbCmcBteYSYtYDAtFR4hL2liowRq93
-	 lkaHvmdE9mgffi930OFoouPtFHvtjmTBgggcVs/zTaoOGNey1ZFIII1u7LhoX0iD2+
-	 wBa0SGSCB59ajvBrKaG8MsJo2EM+W4Ln+GAPqnpIvkZ78NXOny+tpTJHt/ZCQv+rvz
-	 n03ThE2njdDqVz/dyOhojXOGAqaayLuR7VNZOpIRAOvRJzxNegwGIezutp9w6ohnAK
-	 AK3LwGjK72lvb7peEruDTp0eWujgOXnIOjw8ND3uoUILbDiQYL8rwrCG/Wr2Lf+PVx
-	 +t7rj7BXIK/MA==
-Message-ID: <sashiko-outbox-208066@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] selftests/landlock: Test PR_SET_SECUREBITS
- mediation
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20261110202811.2409395-3-mic@digikod.net>
-References: <20261110202811.2409395-1-mic@digikod.net>
- <20261110202811.2409395-3-mic@digikod.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 02:06:31 +0000
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=cmZW0raJ
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=g4FJ8o8UQUtyD0eGI0sUCpicqPvdI4Vdc4LMM0bmn0w=; b=cmZW0raJpZImC504fK0B0kMd2h
+	XJQXfLj15TrbtRxuoXIll7+dYj88ZVAl2AayT9vhDBlAQ57+Eho/cFEk5It94wIbKS4EH4G+cdutI
+	0K9jgabrgunrLX95HA3KOWeYRz+hLh5iGe5EyD3w5xx8w9MzCtlstOcNUcfrAtIPd3RxiWEjnELaD
+	hbo41pU2e/eygmvhOngKp7971UVKKEY71/mIvuWf0WfaOur34IyUdpGFowB9/oVJFRm81ZxsZDxLw
+	5M54Kif6OKPedXxyOCO9YpK4/4uqCIxZE2p81NHj3kV9mf9cnMGZSmbBCsLntHmPvgWT1OTOymjci
+	CwvzesXA==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1xR4up-00D5nW-2D;
+	Wed, 11 Nov 2026 09:46:51 +0000
+Date: Wed, 11 Nov 2026 01:46:43 -0800
+From: Breno Leitao <leitao@debian.org>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, 
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
+	Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC 16/41] configfs: use fc_init_pseudo()
+Message-ID: <avQ5dv0747H-XKmD@gmail.com>
+References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
+ <20261110-work-loop-pseudo-v1-16-4c998976c6c7@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -59,32 +75,17 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261110-work-loop-pseudo-v1-16-4c998976c6c7@kernel.org>
+X-Debian-User: leitao
 
-> The preceding commoncap fix routes the CAP_SETPCAP check for privileged
-> PR_SET_SECUREBITS requests through the ordinary capable hooks.  Add a
-> focused Landlock regression test for this path.
->=20
-> Keep CAP_SETPCAP effective to isolate Landlock mediation and run the
-> audit case in a child domain.  A privileged change returns EPERM and
-> emits an exact CAP_SETPCAP record, then an unprivileged-only change
-> succeeds.  After the child exits, require the domain deallocation record
-> to report exactly one denial; this proves that the second operation did
-> not create a hidden denial without relying on an asynchronous no-record
-> timeout.
->=20
-> The existing check-exec securebits fixture already covers commoncap's
-> privileged, unprivileged, locked, and user-namespace semantics.  Without
-> the preceding fix, this Landlock audit test fails.
->=20
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: G=C3=BCnther Noack <gnoack@google.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Serge Hallyn <serge@hallyn.com>
-> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
+On Tue, Nov 10, 2026 at 10:14:32AM +0100, Christian Brauner wrote:
+> Initialize configfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. configfs never holds executables or
+> device nodes.
+> 
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110202811.2409=
-395-1-mic@digikod.net?part=3D2
-
+Acked-by: Breno Leitao <leitao@debian.org>
