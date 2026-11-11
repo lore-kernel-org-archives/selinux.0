@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794362315;
-	b=wWIb7tGCjBLq/phWCKNsllutkCy6G5iqh4c/qFmNNBpaG0Lu6BTznQIkrokaYYD3Us7X
-	 yNmkvJ4g1SpJOAawg4FZzQlyYR1CdSqHLuDdFEP2QUPYbBUhssHTK+pcL1vQXVkMn720C
-	 +Q7peh+ARhx28rlp7S/bWe2lkDB8lokzflOeZFow5ir6+hxztuyQEEz/ZCmbHA6yD1VT6
-	 X1I7SOa4qfbEWRGKraPNjqKbZOaE0uiSWPQ8eHS6T7YhyrCRIS3FS/Sk47QBtZIsorWUP
-	 M38G2jjUKrqPKZkO1wMZUxsSQ9osYeOINuQXxev4OdTA9RC2/9+r8x/fYx5KZalDvvw==
+	t=1794362793;
+	b=LH1qajopfe4VyRkGcu5NEgg1hSEx02OdFIqiYAhIgbraQiKE9HLoIN1OCPkZAEC1s6g5
+	 6mUOql8LSmTM0k0S7AxoY7zu5XDN1ovUbfbTc5+OVNOEOJsRT6AHNj+a49alBs/creD8Z
+	 OQq/Wctouhg7N0DP86ASZYX58MAysl51Ezh3SQ725pyJTc38Nma5WFXEq9RQWGYiFKfLi
+	 mY4Y+BVSnoh1yEnZnldrNTA2E2FjvzuosfqmEEdywyBqUv2YZ73SQAXb5Yie3NvWXsuat
+	 zq9VokdGZbZXbwlBH6Id/ASuejdbbGeScvsVBmD99MrwD+tmog6acgzF88PvMDdXwTg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794362315;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794362793;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=kvCJOy58fNvfSG1kPSX5WdPQGylv7GwLupRo9Uurt4A=;
-	b=ivyT54lroAAzTo0lsIjUBFzhqm68T4YKg/OskQjhQ7LzeA09aOVQpXEPHx8z6XSaZrjv
-	 M7Y4oPmEG5vVW8Na2Ff3rv4/L8zr/8MPnjpXqxUis+OHO7MP8LmQu7BFOBPcivHlnstyb
-	 jSlKNnFgqD92AC+7MIaqNwtbEx/wQ7tLzGYESPJ9sQEyoR3vXojP+ZzfcrAJxMn+tbkNa
-	 cJDFY1w3Tt4rFNTvHY+hNxo4TJUWpZdiTAGh1bqyQccfwSc+5eV8GmHFan8zlZgsnflH8
-	 XkdvnTefS4d8l240ZEaR+H46C1CDkXoIku/sHILKWzuK4C5ReybKenPzlTjamtPfiEg==
+	bh=wJS5vxw+eGUaWeOZHp6vv5M+wA6RCpUuc0QEcXw6JuU=;
+	b=Sje417kn00QPx3ilxCP4MKL2KoSaFp6XXEJZIivkyf3ijDjCh/S353yC7bfrLDigqtZd
+	 o/zuS1bv2mLr/HCUpbH+k7uo9Uzj44/Kw6Fh0aoTli9CDbdnJfqPixfiUdVg6b1Nop7jR
+	 87kKVgxwLeet7OzLb1EVA9YkO4UnnGi1uOEgHmLXidta8ZL4zkR1mDeWmlDWiYD+HrRpF
+	 Ksw+Zxcp8hdeY9w1QbHRq44Ylnl3mvR1hncMGkkjgUDAbSk7OTFlRJtjB8E3eeGRYe17o
+	 IeDn+OUsy/rF/1QMZRGTZx9RcH1cNLHQ0RJ2srRYNfSwnUj0gbVQ3cLUUSByanWl8gg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BAK1wa/R";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K6JZFjyU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70667606A31C;
-	Wed, 11 Nov 2026 01:58:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18617606A31C;
+	Wed, 11 Nov 2026 02:06:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BAK1wa/R
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262DD1F0089F;
-	Wed, 11 Nov 2026 01:58:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K6JZFjyU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB1D1F0089F;
+	Wed, 11 Nov 2026 02:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794362315;
-	bh=kvCJOy58fNvfSG1kPSX5WdPQGylv7GwLupRo9Uurt4A=;
+	s=k20260515; t=1794362792;
+	bh=wJS5vxw+eGUaWeOZHp6vv5M+wA6RCpUuc0QEcXw6JuU=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=BAK1wa/RmpyqYcA9GoYt0bOYC60A3jy2tPvscxYb73tTz1ZFkGhHQhB9SuH2es2oa
-	 xBhyDhcOx7ILPrHmetpNtBAEEqdTGAxzOYISxw+WY9YBdwi3p+kz2PZjcZRVUq+bE+
-	 vVIAl3juAdFncgt2MPju8SAdSttxtFBGmTGkaeggFubsa4JIw4Y2MyoM96w/iKIHHE
-	 6GNhXwDi6+R9O1NNhYwlMyyu8JyEjzrjKuItxTU4E2X0ecRDRAeX7rkcYeqAVB64to
-	 zAN7v+r/MiR9vKZek36zIPm5T69FDYcYwqNuRMMJtGDAu0EKyJOuPblhl2xtfu2NbT
-	 7dvJRKBeXIjxQ==
-Message-ID: <sashiko-outbox-208061@kernel.org>
+	b=K6JZFjyUhJ1QbqwKK+hRTubeWNYP2giUsRCSbCmcBteYSYtYDAtFR4hL2liowRq93
+	 lkaHvmdE9mgffi930OFoouPtFHvtjmTBgggcVs/zTaoOGNey1ZFIII1u7LhoX0iD2+
+	 wBa0SGSCB59ajvBrKaG8MsJo2EM+W4Ln+GAPqnpIvkZ78NXOny+tpTJHt/ZCQv+rvz
+	 n03ThE2njdDqVz/dyOhojXOGAqaayLuR7VNZOpIRAOvRJzxNegwGIezutp9w6ohnAK
+	 AK3LwGjK72lvb7peEruDTp0eWujgOXnIOjw8ND3uoUILbDiQYL8rwrCG/Wr2Lf+PVx
+	 +t7rj7BXIK/MA==
+Message-ID: <sashiko-outbox-208066@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] capabilities: Check PR_SET_SECUREBITS with
- ns_capable()
+Subject: Re: [PATCH 2/2] selftests/landlock: Test PR_SET_SECUREBITS
+ mediation
 Reply-To: sashiko-reviews@lists.linux.dev
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20261110202811.2409395-2-mic@digikod.net>
+In-Reply-To: <20261110202811.2409395-3-mic@digikod.net>
 References: <20261110202811.2409395-1-mic@digikod.net>
- <20261110202811.2409395-2-mic@digikod.net>
+ <20261110202811.2409395-3-mic@digikod.net>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 01:58:34 +0000
+Date: Wed, 11 Nov 2026 02:06:31 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -60,31 +60,31 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 
-> Per-process securebits were introduced with a direct cap_capable() check
-> for CAP_SETPCAP.  The capable LSM hook and SELinux capability policy
-> already existed, and SELinux forwarded task_prctl operations to
-> commoncap.  The direct call therefore bypassed SELinux policy from the
-> start.  It now also bypasses AppArmor, Landlock, and BPF LSM programs
-> attached to the capable hook.
+> The preceding commoncap fix routes the CAP_SETPCAP check for privileged
+> PR_SET_SECUREBITS requests through the ordinary capable hooks.  Add a
+> focused Landlock regression test for this path.
 >=20
-> A task with CAP_SETPCAP in its effective set can consequently change
-> privileged securebits despite an LSM denial.  This can alter how its
-> capabilities evolve across UID and execution transitions without the
-> expected LSM denial or audit record.
+> Keep CAP_SETPCAP effective to isolate Landlock mediation and run the
+> audit case in a child domain.  A privileged change returns EPERM and
+> emits an exact CAP_SETPCAP record, then an unprivileged-only change
+> succeeds.  After the child exits, require the domain deallocation record
+> to report exactly one denial; this proves that the second operation did
+> not create a hidden denial without relying on an asynchronous no-record
+> timeout.
 >=20
-> Use ns_capable(), as cap_prctl_drop() already does for PR_CAPBSET_DROP.
-> Call it only for a no-op, which requires privilege for legacy reasons,
-> or when a privileged bit changes.  Changes limited to
-> [ ... ]
-> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Cc: stable@vger.kernel.org
-> Reported-by: Ada Smith <adasmithgt@gmail.com>
-> Fixes: 3898b1b4ebff ("capabilities: implement per-process securebits")
+> The existing check-exec securebits fixture already covers commoncap's
+> privileged, unprivileged, locked, and user-namespace semantics.  Without
+> the preceding fix, this Landlock audit test fails.
+>=20
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: G=C3=BCnther Noack <gnoack@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Serge Hallyn <serge@hallyn.com>
 > Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110202811.2409=
-395-1-mic@digikod.net?part=3D1
+395-1-mic@digikod.net?part=3D2
 
