@@ -1,49 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794358207;
-	b=v67XvonSUIOHNRAUCrZmhi5qD0zx8MXN1R13CNZCh9nUxQiN2xEeECUSrZDxK7rVBC9w
-	 1gBuhZFnQclZSjY08v/KoXAS3pUCwDTpsptBdhyRstRzeyKqtz2v+j43X4ZLcOc3NnOzu
-	 jiyW9HSdOt7bahHdqrEmgNq/mjt8qFPXj78XmlaEPgGk4f5QQAhMvoQOU+yXhyNqbA2vY
-	 +ZPhq3Lioj4epNM+sRs8ovBXa52d3zTPhpsZlYCmxuPSM/7+ETAn2fe4Nxb8XdkY+nyzM
-	 ZyTe+cs1XSNexx4AEGZ59XUg2uy+B2gqinxh9hrNQoisG6aj1gY9i3sdEgt75JLnx3g==
+	t=1794362315;
+	b=wWIb7tGCjBLq/phWCKNsllutkCy6G5iqh4c/qFmNNBpaG0Lu6BTznQIkrokaYYD3Us7X
+	 yNmkvJ4g1SpJOAawg4FZzQlyYR1CdSqHLuDdFEP2QUPYbBUhssHTK+pcL1vQXVkMn720C
+	 +Q7peh+ARhx28rlp7S/bWe2lkDB8lokzflOeZFow5ir6+hxztuyQEEz/ZCmbHA6yD1VT6
+	 X1I7SOa4qfbEWRGKraPNjqKbZOaE0uiSWPQ8eHS6T7YhyrCRIS3FS/Sk47QBtZIsorWUP
+	 M38G2jjUKrqPKZkO1wMZUxsSQ9osYeOINuQXxev4OdTA9RC2/9+r8x/fYx5KZalDvvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794358207;
-	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc;
-	bh=d5faOEgw9/xCBeRgP4qFBQ9+iauNTkgah4zQf/hKjwc=;
-	b=pVaytooKu44mWGMCQK307xlt/oPvFOto674+3Olzs2eEqNO7a8W2tXAvs2DIhc/G3Pp5
-	 hdCL5LjbVUI87Bora75BM3TXZPlRQfLmRW4n00AXVfX5LGdojK85sV9M5t7ODvjwgnsTy
-	 y3hpeJXffAbEHo3opjXRYXN1xT54NEkYWK9m7QdaBq9JMkWTzyV23d7yDWsn1wjAR3jqz
-	 x0BbkkDP0/yp0kERK6MAuMD0wopXzu7TUaDe6UfaTDawshopk2V+uMvu4rO3dOvA7KFMU
-	 O+tx4iXK97Z5iIH/v5Olh0SPAAG03io3iA5GbR/7F+N/srBOPeEdGwDelsg7wXnDL1A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794362315;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=kvCJOy58fNvfSG1kPSX5WdPQGylv7GwLupRo9Uurt4A=;
+	b=ivyT54lroAAzTo0lsIjUBFzhqm68T4YKg/OskQjhQ7LzeA09aOVQpXEPHx8z6XSaZrjv
+	 M7Y4oPmEG5vVW8Na2Ff3rv4/L8zr/8MPnjpXqxUis+OHO7MP8LmQu7BFOBPcivHlnstyb
+	 jSlKNnFgqD92AC+7MIaqNwtbEx/wQ7tLzGYESPJ9sQEyoR3vXojP+ZzfcrAJxMn+tbkNa
+	 cJDFY1w3Tt4rFNTvHY+hNxo4TJUWpZdiTAGh1bqyQccfwSc+5eV8GmHFan8zlZgsnflH8
+	 XkdvnTefS4d8l240ZEaR+H46C1CDkXoIku/sHILKWzuK4C5ReybKenPzlTjamtPfiEg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=neVdYXZw;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BAK1wa/R";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5F20606A31C;
-	Wed, 11 Nov 2026 00:50:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70667606A31C;
+	Wed, 11 Nov 2026 01:58:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=neVdYXZw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B5691F0089F;
-	Wed, 11 Nov 2026 00:50:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BAK1wa/R
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262DD1F0089F;
+	Wed, 11 Nov 2026 01:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794358206;
-	bh=d5faOEgw9/xCBeRgP4qFBQ9+iauNTkgah4zQf/hKjwc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=neVdYXZwsoWzXbS0Ns29tqjDabZmucPjU3doSpLTzSh5AnhvIqT3+tdKRb8a2soVA
-	 AGOuquDi8QwqSg3q2RLbUn5CGHLx4Av8R2iCg9iAN1VW2f4worR6QUw0kLgJvRW/XU
-	 9UMqbiTe8wN4YJP0qm/HGKmgSESg01HRfSsbeu9242FFnec1+hTJvdcF9941GqldwN
-	 dFtFV9AjY0F7+j5cML5EupPlJPwA+GpXxwe083+SjOOVSQdmVwoGmGkS6ufj6SfOtv
-	 WrmjRVw/EV6ltRQTuJM3MfvbWCMlJ2euECeTan4V1ybmNjoWxTPovOdmqMaciqSel/
-	 fRBfMQiGmEBIA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 5E08639E8A55;
-	Wed, 11 Nov 2026 00:50:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1794362315;
+	bh=kvCJOy58fNvfSG1kPSX5WdPQGylv7GwLupRo9Uurt4A=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=BAK1wa/RmpyqYcA9GoYt0bOYC60A3jy2tPvscxYb73tTz1ZFkGhHQhB9SuH2es2oa
+	 xBhyDhcOx7ILPrHmetpNtBAEEqdTGAxzOYISxw+WY9YBdwi3p+kz2PZjcZRVUq+bE+
+	 vVIAl3juAdFncgt2MPju8SAdSttxtFBGmTGkaeggFubsa4JIw4Y2MyoM96w/iKIHHE
+	 6GNhXwDi6+R9O1NNhYwlMyyu8JyEjzrjKuItxTU4E2X0ecRDRAeX7rkcYeqAVB64to
+	 zAN7v+r/MiR9vKZek36zIPm5T69FDYcYwqNuRMMJtGDAu0EKyJOuPblhl2xtfu2NbT
+	 7dvJRKBeXIjxQ==
+Message-ID: <sashiko-outbox-208061@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] capabilities: Check PR_SET_SECUREBITS with
+ ns_capable()
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+In-Reply-To: <20261110202811.2409395-2-mic@digikod.net>
+References: <20261110202811.2409395-1-mic@digikod.net>
+ <20261110202811.2409395-2-mic@digikod.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 11 Nov 2026 01:58:34 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -52,46 +59,32 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] cipso: stop modifying live ip_options_rcu
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179435820518.142717.5535232865040780378.git-patchwork-notify@kernel.org>
-Date: Wed, 11 Nov 2026 00:50:05 +0000
-References: <20261106-cipso-rcuopts-v1-1-31ae931d7a0f@google.com>
-In-Reply-To: <20261106-cipso-rcuopts-v1-1-31ae931d7a0f@google.com>
-To: Jann Horn <jannh@google.com>
-Cc: paul@paul-moore.com, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, jmorris@namei.org, serge@hallyn.com,
- horms@kernel.org, stephen.smalley.work@gmail.com, omosnacek@gmail.com,
- casey@schaufler-ca.com, netdev@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@vger.kernel.org, stable@vger.kernel.org
 
-Hello:
+> Per-process securebits were introduced with a direct cap_capable() check
+> for CAP_SETPCAP.  The capable LSM hook and SELinux capability policy
+> already existed, and SELinux forwarded task_prctl operations to
+> commoncap.  The direct call therefore bypassed SELinux policy from the
+> start.  It now also bypasses AppArmor, Landlock, and BPF LSM programs
+> attached to the capable hook.
+>=20
+> A task with CAP_SETPCAP in its effective set can consequently change
+> privileged securebits despite an LSM denial.  This can alter how its
+> capabilities evolve across UID and execution transitions without the
+> expected LSM denial or audit record.
+>=20
+> Use ns_capable(), as cap_prctl_drop() already does for PR_CAPBSET_DROP.
+> Call it only for a no-op, which requires privilege for legacy reasons,
+> or when a privileged bit changes.  Changes limited to
+> [ ... ]
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: stable@vger.kernel.org
+> Reported-by: Ada Smith <adasmithgt@gmail.com>
+> Fixes: 3898b1b4ebff ("capabilities: implement per-process securebits")
+> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Sashiko has reviewed this patch and found no issues.
 
-On Fri, 06 Nov 2026 22:40:31 +0100 you wrote:
-> cipso_v4_delopt() operates on the ip_options_rcu of a socket or a request
-> socket, and tries to remove CIPSO options from the middle by moving all
-> subsequent options.
-> That's not allowed - ip_options_rcu can be read locklessly and must always
-> be consistent. For example, ip_options_undo() reads trusted offsets and
-> length values from the options buffer.
-> Fix it by doing the modification in a copy.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] cipso: stop modifying live ip_options_rcu
-    https://git.kernel.org/netdev/net/c/1f2c5183fc09
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110202811.2409=
+395-1-mic@digikod.net?part=3D1
 
