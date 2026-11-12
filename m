@@ -1,100 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.214.176
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794513093;
-	b=cAiG6flb49qztRHEF52FjoexM2N/AIcuL4uQyvAzy4o3+e0qjBEntOe6GD0dt3qUL8zr
-	 3I8b/x5cFt9e/X3QAz7dWLwnTZBweqZQCIBg1iJkj9fJyARElICSsFPy16mNV8AuLzda0
-	 R7tiJ3X6U7WfXE6+tGF1Oh7HIP4Fj3yYM6YVrAZ4RYyQ1jxECUFXS84UwQ4CJYTx6jq7D
-	 ok+ThTWNDcRiOCI48v1y8VFX3J1kxHClOR4JcSc3Cffb44UeILKOKuNA+v4/MydtxdukA
-	 mGVxe8wnjQ43QuMO3ouH/2SYQ5i3y8Q9UY525wGIJTjugbg87h0QqKb1lN+609085ug==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794513093;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794523590;
+	b=CCCFuZrnQ1fUwZYdmMAe5I43K+ANok3D+MIFKWHDirSyq5McBEdbLLDOa+x6vJ3BGWxP
+	 YW+6NEBIU+bhEtJl4YtdN0xNtPDRBIVoXNnBAGvLb9QijuRGAZbzy8/Wq7J9tRKzNDvic
+	 Xgpz1fa3ppApU/bS/WF7yHyAIoaK+eBD4vdafEDK5cNZOACBnbSntUqq+n+Qq86mKD35b
+	 Z5FtBp+s/LOrpXgPnF9Cl7PXjnbBs7TjzirKtHQDdsdpAkzchdA/743OcuKAHeZqQzoaX
+	 C9sX8hvqw0DPaSa6sPDh6v874slMXXowshANhS+S+8lMLYGCdMdudxxMFVvLt2VF3UQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794523590;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=ox554g5AFUOxbiquAxy3AbKjOG2lAdQFzas4Xt+QLpA=;
-	b=trQ9Ah+KWJAQ1c0cL0H1mC+me9XKTfpQtDOg827me5k9COSuOwm97ipohgB6sPA4C1ow
-	 XMsTAY7qAJl6nGA9b8gpgwf5Wvni8aHa53HC/8F/2BeMm+MIcjef1KgUEenjHqLRoacX9
-	 Ko8KeZGXpgHQAKAy7PVbyeuK29DSFSbU4c7hWOLsC7qLeRG0sh5Cq+r5DyeRWReb8KJcM
-	 vwQ+XfEVHU6u2if1KtKBuMd+dtbkHS4AB50nNmu3tqSs+HAgIWKv+Iy8q9nh8LtFtjqNd
-	 998syt6inixKR5fyWJqx3A3LMVq+90r9kcZDVtcFJuoZI7UgtdxcJOl6eGvPQ6pNksQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b="MfTK/eW8";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.214.176
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:In-Reply-To:References:MIME-Version:
+	 Content-Type:Content-Disposition:Message-ID:User-Agent;
+	bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
+	b=HXoBvuO2G6DY6DIMCIf2FEjW6L3t7kaoTxtuFcWESv7KOGzaszsif9QGENkJnkYtWWV1
+	 xRbE1ztZ6p2PfRZk1q4JuoMnQ889qDy/qwJQOAzOytTSI9nAUFXxKXPKc43moWWL5ZZzR
+	 3cvEAnqYANSZ8E7qd+E0qETb4fpzoRb4pf1cPImr2EhBgPW4zBHoA4AjxEFSINDExtYND
+	 KcHz/YP/EpLvhQcW6YSaWJ42F6XrigmhcYzmD9jwbnSda4Udv4uWvYKWhcFj3BJZwwmUB
+	 orI68M7Xs7MSdnpQJdxu8gKEHI+N6FfmTwVk/B9T6qxukOTE1xBABaMZ63issCB6FQQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=chrisdown.name;
+	spf=pass smtp.mailfrom=chrisdown.name;
+	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ebkrXilb;
+	arc=none smtp.remote-ip=209.85.221.46
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DEA0606A8A5
-	for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 19:51:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1DEA0606A8A5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14433606A323
+	for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 22:46:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14433606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=chrisdown.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chrisdown.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=MfTK/eW8
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2ede7cb02daso10171555ad.1
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 11:51:32 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794513092; cv=none;
-        d=google.com; s=arc-20260327;
-        b=qZQ59ewAdW0IxFq5FwEzOFqzz03ZSHPY1BSk8AT14UFL8NHswP2UNlCdBcLZ6+B0Be
-         hRHxLsQaz8PhL2td0UhmglC0uQf8DipN705csUPY3SfCtKWueed9yyFkHD7b+V5YQZzo
-         UxddkLHV6YNIMXwIg9RYnMw1r0KKRc231H+5TZF9t91bfHdeDEKHIk8++3BYmDib9mEl
-         r5AtMyW9aSaYIKuIVv4wtEAwUTVBkGwRSGZvmnl7867MhC3cFSf4xb/eouyxEcQXKLID
-         gF3xz3ZB1sQaXxItrV1CAsjdLksb7lmNB4Rm7x9CdKYyAV/oqV6VLgfJZ7O+ePNGwEss
-         Zkow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ox554g5AFUOxbiquAxy3AbKjOG2lAdQFzas4Xt+QLpA=;
-        fh=KSRXpfC1k3YggboT3SfAZBngCOQOtOP4zBOS5/hTi44=;
-        b=A1NEJw3Xi4Q2TLy6FdvZoEOGFu2IubTmAIcIf+Jtfi3f0IuzNxNmGGr1WGsRY3Nj1z
-         XP+FtUXbUJvYhq/80+YLggqgihthBTRKqesWgvos9JbLgXQ5Owk7OGAb20AC873obLJW
-         hpCltPQVUaHCbu8/XD7g7YqifaUk/zHsmG3jyYUuJ3dSiLf9nX9FlKy6lVNfbxwyXcKk
-         ohxjiCnM9LQlNuamVqejU9nDfD7ySO/gl+GRA1W62bkQbnr1Z3AzQJP+3KbqfYGjO4x0
-         tmR+eY4UpxV06ZFA/oHLK9rKZDbLO5ebMIen/ZCy7Q4T5xplxy67Nx6Kc355iXgLomQp
-         q/xA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ebkrXilb
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-498f5fa4f70so352086f8f.0
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 14:46:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1794513092; x=1795117892; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+        d=chrisdown.name; s=google; t=1794523587; x=1795128387; darn=vger.kernel.org;
+        h=user-agent:message-id:content-disposition:content-type:mime-version
+         :references:in-reply-to:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ox554g5AFUOxbiquAxy3AbKjOG2lAdQFzas4Xt+QLpA=;
-        b=MfTK/eW8yDpUXVRfQkOUgsheQ3aTOMAxjq0s70Fgbe95v/4p90T+o1wUclNz5aa3F/
-         xp/SRmdHDkpe5g0OmGFbEeu1R3+l1pn80OijKazcTAnQOD1VJXOGNSY1Zvjw16Zc24sI
-         vEuLLtUrEuMgfgQvxMQbeHy3VaTzQV9R5pd9uhfd0sv009qJyd7StWjXJuNOUDsR2VsI
-         /HITaodUNbpaUt/9Exd79sVLXrvK77UZnPkPlp4C5TqfI/1IIS52FCNPqmnqJq+t04Zr
-         HQwqRir07zOFIperkU9KaRzR4f+I67ZHVAccMmIsYg/iIDUbeY8dEz7bqYYqzlBww/6h
-         862Q==
+        bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
+        b=ebkrXilbj9spVaHW9PDW3KQNpqmqI4+4NOB68oQOLq+07vtNzaBA8OzPAUS9CcsePT
+         8Kjg8BdAuCo3mV77DJ+j0I94WcjCRoV9fZV+wxCYZ49UIFzTMPcPTgg29Atqgy9WVWs2
+         OlA64TH/oKxQCTcIaOXxFG9ghWOzXAc97hNLU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794513092; x=1795117892;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1794523587; x=1795128387;
+        h=user-agent:message-id:content-disposition:content-type:mime-version
+         :references:in-reply-to:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ox554g5AFUOxbiquAxy3AbKjOG2lAdQFzas4Xt+QLpA=;
-        b=QqN3KXY9PCxtWhR5imgz9/62WSWo3B6SphmdwjEZSHpFU9EO5aWdgXO+62TNVa8+iG
-         v0iaq2QRbZKzzVC57A9IPKWbsLahWLN0UshgbN+/BFk6qRp2QHgRLF7SNe4XEmBH4W/q
-         N/F34skCpYWJL4QNeOSUxnSxP6N5JgZBl57rhxQ687DEElpm8KEulGB214qCB5mZod62
-         mayleqEkD+Sc7XHciCo1kmqs9ODIMniKr8bHQWzEHqASVxCyNWeKKmwZHp1YH4DkosdX
-         LEqcMHbF001NMnizCMx8WNoB5doJr2ODeo0O4oLhYlDdWPrxGU46k7lRSuNRKE5d05w9
-         pSRQ==
-X-Gm-Message-State: APuU4Z8uK+UgbKH55cQBEbblam3OlvG+o0DIKcqjMkAF7lZSPKQb7EjT
-	2IJXoTvawg072OWk2rse95jnYsUqC+tITHLZRUQ5RHvRMvF/Zv7IzsJtxpiAMf8moq0/EZobKW5
-	atOifE21+VqCUJ9mEMn9ngP2u/WhhWaKBdKeIbuMw
-X-Gm-Gg: AYBFou2AmERNCE6zm5Vl+XfrErzmMsgw111jpZAj9uTGvn/C7AlQYVrqnRjHKeXPLbJ
-	RO/RmQ1HYd6yTrL+gRSVptYeK1i0quUP0lu8ohkAiQcbzwDsMPEPqHw7rizarbLmYapB4KASSq3
-	pwWAHzM5vPA7dftjdZ3zc5D0U6fQmoRCJJ6gKAyc5jJ2OzoyyiLK1XPB1dOVa52EDxqu+nELM39
-	qlteHp9iGSqZKLrFzCY8Sof5J5MkvbINSiXXDFkYB/xiTYrqqNcM9e7rIybRF+pmhErpE1tbC9L
-	4Smv2+HjZh6Gz2Rtz6NEr5J2qFujA8gKBm0SaZFAsGFhHP+YyMkiTXXhjEunLYo/Iu0cdfwdlB+
-	MbQfVnaysgTSbmbe+rkLlvCR9OhjM1hMSGHG10Nq2u2btYVJB4Fy2pHRtcsvdnDGoJErzk4L19p
-	kha9F0VeKGsWymAA==
-X-Received: by 2002:a17:903:3886:b0:2ea:dee6:d672 with SMTP id
- d9443c01a7336-2edf1f2a656mr26108765ad.19.1794513092208; Thu, 12 Nov 2026
- 11:51:32 -0800 (PST)
+        bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
+        b=23QcyvsjL96IDZGD+0BN21CA6Qa8KeJ/0tNK5uJ3yk5DzHAMpnDbHfH63EFBxRVUdZ
+         laPrm45EIdYO52n0vueAuJWnWdvUjNCAx60WYlt8i1hsGvLLALIWnVdy11PnMjI0B0VC
+         hbmJSz6tf3QmbB3hviWw0nAhn+R6umbuxbhdA2acktbBv350LOmrlh3Fivv1xAfLhowg
+         b3iMcecn0xc1dKLN0mnoRkXKun8enDSa5BDSxDxpynni/QDo7+q9dJLEaKBzYPfForzI
+         L3KR6eHZ3AR7E5XZGqWL9DrL30aowPjaKaXoqESUeBuky1Re44Mj6Czk/uyYuf4PnV+5
+         PIfg==
+X-Forwarded-Encrypted: i=1; AL+hErHx77jFnEIgylpwxMG1tn8TJXjQu8KLASfDyB4z6fEubzzXOyhB5k18AHZsyNFOydorC1xhftI1@vger.kernel.org
+X-Gm-Message-State: APuU4Z+l6yaqCrLy9T2LgO5w5mapmaHV0e5KYxLRiiGcn9FYKvDQiSPr
+	QBa4a4bhd3vS4c1vRaoR1T+j71DxCMUSJbDwpSNJmhZKCQ8/q15/nuK7NDd7ck1Rb2w=
+X-Gm-Gg: AYBFou22E4MmZUxNyBpuv1EGjzTXKiB0ZsOh7EMeTQ9mKdEtWPKSxgcPDg/h2RBUslM
+	dEjMJJe4FiVbIN37QCfN4PQpZ2EmgrEWn+t3KakLXas58m6D0ObHYhXBc+H+yO1q1oagZtqJ+CM
+	7Be+vvVa+NkgupM+hII8UIPLQordWhukI/s5fMUFE5DMsiH2XlQixnW3R3h2c3vcLtC3lnGOJHT
+	UDPxhewBRSE2LGAMzB9R9FMiUSQ5oOiFYnzoqLR7oAqJgPw7mItJS6LzW7GuihyuLgvTb4WBgec
+	Q+1pOw3bEmKNZ4b7Ta66yB2z72fPw1SXT57MnFV3PBvyNkmYkAexrTwKOnXF0PhLRHYRUr8TNGV
+	ZWKdjHVkfcSOWxR0ixfiydo9eiYTvVXQQPrxsiEp4LfLFJMitAPe4efhm87ZzEfTPHouOCSPUZB
+	7LSs2UTabQUVgH8nIZAiemu29QfkE+Oal8kKYu0SMAmC4LEGZzWwWhp1XDlzV/il4kq9jxOuK8h
+	2pqDX/BpBV+qhZJQdY5/OMNZJDjVXIIcmb/XAAgv0quCQyXGA5/Qq0XA0NK6JVuBVJSjP54joOk
+	W857f02OcM4rF/Ege35s331sxoPWbZBqVFB56y5SakMLJtcW3Eicxr9CvL1/av3XApvK7rrGmTV
+	04bFixsVHTOi50Ezx8Oy9/YrXypxk73zZSpd6jc8jzcLAYCZB0kyKB6orWPse47sJ7EsN13OQZm
+	G0A0FqqLJS23iSPjDaTF1gQiwlJrBKHRc4/FaKpae7aV8GDpLHSUWSGFxP4g==
+X-Received: by 2002:a05:6000:2087:b0:488:57ad:d5c8 with SMTP id ffacd0b85a97d-49c6d453dbbmr2169176f8f.3.1794523587286;
+        Thu, 12 Nov 2026 14:46:27 -0800 (PST)
+Received: from [172.18.0.2] ([199.201.64.8])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c6020bb0fsm1504046f8f.34.2026.11.12.14.46.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2026 14:46:26 -0800 (PST)
+Date: Thu, 12 Nov 2026 14:46:15 -0800
+From: Chris Down <chris@chrisdown.name>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com, dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io, chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com, cgroups@vger.kernel.org, linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5] security: Expand task_setscheduler LSM hook
+In-Reply-To: <20261105172210.76706-1-atomlin@atomlin.com>
+References: <20261105172210.76706-1-atomlin@atomlin.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,50 +94,97 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110154125.31153-2-stephen.smalley.work@gmail.com> <CAEjxPJ4=X+nmp-abqfQQY4HbXB=nRvpMSN3RcpkMH-DPNp=8xQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4=X+nmp-abqfQQY4HbXB=nRvpMSN3RcpkMH-DPNp=8xQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 12 Nov 2026 14:51:18 -0500
-X-Gm-Features: AclHuK9Pj6gjn_3oaIxUJLIhi5O34nJZCDrMVa6Dg24VDycPDmzF_nHTugf7NmI
-Message-ID: <CAHC9VhQbAj8E0b8jUmgq1egqMdSivEwBXVYq01A5uGCpnys-8g@mail.gmail.com>
-Subject: Re: [PATCH v2] tests/binder: fix binder tests to work with the Rust
- binder driver
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnacek@gmail.com, jeffv@google.com, 
-	tweek@google.com, Petr Lautrbach <lautrbach@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Message-ID: <20261112144615.df72a3bef0a52f3c@chrisdown.name>
+User-Agent: Mutt/2.4.3 (cc9e3943) (2026-10-09)
 
-On Thu, Nov 12, 2026 at 9:48=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Nov 10, 2026 at 10:42=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > With the original Android binder driver it was possible for a process
-> > to invoke binder transactions on a binder fd opened by another
-> > process. Hence, SELinux originally implemented an impersonate
-> > permission check to control such usage. This however was never used in
-> > practice by the Android userspace and never allowed in Android SELinux
-> > policy.
-> >
-> > The Rust reimplementation of the binder driver intentionally prevents
-> > such impersonation from ever happening, failing such operations with
-> > EINVAL. Update the SELinux binder tests accordingly to drop the
-> > testing of this now-obsolete SELinux permission and to not rely on its
-> > availability for the other tests. It doesn't seem worthwhile to retain
-> > the test for the older driver since it was never allowed in Android
-> > even when it was possible.
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > v2 just re-runs ./tools/check-syntax -f to fix a formatting nit.
->
-> This has been applied and fixed selinux-testsuite runs for the
-> userspace testing (selinux-testsuite testing is still breaking on the
-> restored NFSv4 tests presumably due to running with a kernel that does
-> not yet have those fixes).
+Hi Aaron,
 
-I can confirm this fixes the binder tests on my systems.
+Aaron Tomlin writes:
+>In modern multi-tenant and real-time environments, CPU and scheduling
+>isolation are critical boundaries. The inability to audit or restrict
+>specific scheduling policy changes or CPU pinning requests limits the
+>effectiveness of security policies, particularly when attempting to
+>shield isolated or cryptographic cores from unprivileged or compromised
+>tasks.
 
---=20
-paul-moore.com
+Peter objected to this paragraph on v3, and you said there that you would
+drop it. What you told him the patch is really for was auditing the
+affinity mask as userspace asked for it, before cpuset intersects it with
+the allowed CPUs, which seccomp can't do because the mask is behind a user
+pointer. That should be in the changelog in place of this paragraph. (I
+object to it as well. Please avoid such LLM grandiosity.)
+
+>This change updates all in-tree security modules (capabilities, SELinux,
+>and Smack) to accommodate the new parameters mechanically, while
+>providing LSMs with the necessary context to enforce strict scheduling
+>and affinity policies.
+
+An LSM can only enforce an affinity policy through this hook if all possible
+ways of changing a task's affinity go through it, but writes to cpuset.cpus
+don't. With a BPF LSM program on this hook that rejects any mask containing
+CPU 3, sched_setaffinity() to CPU 3 gets EPERM. An unprivileged user with a
+delegated cgroup v2 subtree can still write 3 to the task's cpuset.cpus,
+though, and the task ends up on CPU 3 without the hook being called.
+cpuset_update_tasks_cpumask() just calls set_cpus_allowed_ptr() on every
+task in the cpuset.
+
+So what this gives an LSM is visibility into sched_setaffinity() requests
+and cpuset migrations, not control over where a task runs. That may be
+enough for auditing, but the changelog shouldn't promise enforcement. It
+also looks like the kind of gap Paul meant on v3 when he asked how this
+fits into a more comprehensive approach to resource control in the LSM.
+
+>-LSM_HOOK(int, 0, task_setscheduler, struct task_struct *p)
+>+LSM_HOOK(int, 0, task_setscheduler, struct task_struct *p,
+>+	 const struct sched_attr *attr__nullable,
+>+	 const struct cpumask *in_mask__nullable)
+
+Since the BPF LSM is the only thing that reads these, please Cc
+bpf@vger.kernel.org and the BPF LSM maintainers (KP Singh and Matt
+Bobrowski) on the next version.
+
+While the __nullable annotations do what you say, and a program that
+dereferences either argument without a NULL check is rejected by the
+verifier here, there is still a problem. Existing programs on this hook
+that follow Documentation/bpf/prog_lsm.rst and pass on the previous
+program's ret now get attr in that slot. One declared as
+
+     int BPF_PROG(x, struct task_struct *p, int ret)
+
+that returns ret when it's non-zero loads and runs fine, but with this
+patch the verifier rejects it. LSM hooks aren't stable ABI, so that may
+well be fine, but the BPF folks should get to say so :-)
+
+> 		if (setsched_check) {
+>-			ret = security_task_setscheduler(task);
+>+			ret = security_task_setscheduler(task, NULL, cs->effective_cpus);
+
+The kerneldoc you add in security.c says @in_mask is NULL if affinity
+isn't changing, but that isn't what happens in cpuset_can_attach(). On v1
+setsched_check is always true, so moving a task between two cpusets with
+the same cpus and mems still calls the hook with the destination's
+effective_cpus. With a v1 cpuset mount I see the hook get 0xf for a move
+between two cpusets that both have cpus 0-3, and Cpus_allowed_list stays
+at 0-3. On v2 the same happens for moves where only the mems differ.
+
+The hook also can't tell this from a sched_setaffinity() call, since both
+pass a NULL attr and a mask, but here the mask is the destination cpuset's
+configuration, rather than something anyone asked to pin to. Please say
+in the kerneldoc what @in_mask means for cgroup migration and
+CLONE_INTO_CGROUP, so LSM authors don't treat it as a pinning request.
+
+>+		lsm_attr.sched_policy = policy;
+>+		retval = security_task_setscheduler(p, &lsm_attr, NULL);
+
+For sched_setparam() and SCHED_FLAG_KEEP_POLICY, the reset-on-fork setting
+that gets applied also comes from the task (reset_on_fork is set from
+p->sched_reset_on_fork above), but lsm_attr.sched_flags still belongs to
+the caller. On a task with SCHED_RESET_ON_FORK set, sched_setparam() reaches
+the hook with sched_flags of 0, and sched_getscheduler() still reports
+SCHED_RESET_ON_FORK afterwards. If lsm_attr is meant to show the hook what
+will be applied, SCHED_FLAG_RESET_ON_FORK should follow reset_on_fork as
+well.
+
+Chris
