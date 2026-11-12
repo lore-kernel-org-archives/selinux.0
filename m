@@ -1,75 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794484465;
-	b=HnTuyZSAUez2+u1VJZWxWBOgANUtf87YsJ709ZuOLuemAhPR4TZBukQKZqBgwYgcl4iD
-	 BryVyNgS/9p3PtipLSWuW8iwRL2qpAUhAjL6hAls76fnb+UdMYjubg4cZ/aqK6MKfqdF1
-	 ZBU7J1gwGaSzYqa5ZK+gNWwf2W+yp5vDul2OG11N0YILH4Sq7YxYPI2Z3vlJwWWZVW6yC
-	 fn+spKmGMB8XwbLgyew1gu7th4Wr282xUWsNYtRLoHkscpOe0P4sHeqlOXnzBy83j7wE0
-	 OlFmb0p0OzYeKpnsKxx81z9bPbTyXxSGuTkF+sOgOJv5vzf8pdZvfxkNGJa31oWUJQQ==
+	t=1794488581;
+	b=tWUydDuWyltVYkZrDdca+qPwZkdQTBXWM9XS7P/ELXKb6H3a5VEXbDrGZM/ypN8Ech1v
+	 e+vfd5/G8V/E0csxosE/P9Sc7K0dFHfXEIzPJ3v/OqbqRzNUxSdiaml5wa4jhZgb5q4ow
+	 NHlozCvkBAqQ5tISWvSFk51kJIE5STC6xmxYyy1FmFzXFr8xvtY6wm8tpHqErPAfm9mRT
+	 fwxGspkQjK5ShhhT8MYeCk5TqwDe/N6UBG+60z1xNmjiVO59Xnof1QzTlrHeNFY9ITWdB
+	 kIJkBwV73G6Og7xmaEyB7N53xmSSNPWchjewtxfrcYMGm1v5UQt+/m+r2HG23I4I9Fw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794484465;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:
-	 In-Reply-To:References:Date:Message-ID:MIME-Version:Content-Type:
-	 X-Scanned-By;
-	bh=Jxrlw+8Y3BG0pobZzphXVsf8hxE6Wy2weILXDH8H3rc=;
-	b=ixaEehUuBKUQH/ImS9K7uEeZpiCj3T50tuW4CSpuZ3GTsNdI4bW1X6PG1cGG4Zb6eNgX
-	 uCh7Q4rUThXA5aw6OOjm//t+2/ECzk3pdu3j+JbTF5ptjPIafGNtq127xnaiY/PecBQ2Q
-	 q0m5JiMN19BWcV3HpF3EEYDveIU8kZL4D45PM1rEcxb7RSL6hE9b4g1L58BYBXDBjvIei
-	 M4amuS6MKN7QbtLRn6DlOBC50DxEgitPBzOgvobUZbwsXrMEoP/XekkcO49ecR8Fm0BSd
-	 HXYzzsjbilkCe88x8v4bP8RlqsZldNHhVorGBRcOBNP3lgH+A5x7iQPICX7OSLxhRog==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794488581;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=PBMXrFHASTKvrJ3Cb5b0x0+RtF3vzzYr8AtwvtbYKsw=;
+	b=eBzqwnKj6nxRAs85F9d91ojB97+YahzPdIXl/RtjQ3NbF/tNRp6AAdXKGpV/pQIG8LC2
+	 w6e20KzXfULHK5lQVuHGplwZ2f75fp2Qnsnxj2H15qk8blvyxVX4dyyYbO+6KTinp1LUT
+	 STXee7gYvX8A8JMglOqwno0Xcr5BZZOWqruowKQ0pmtmj4bjGDKOoWtTOFxRWr6/U7gJi
+	 FWjLDPi0iYdwev/wdfzc9uoY3miudsdS4g4pmpaavtRgcyj3TMURCjAATxwWjjxyD+FRI
+	 QM5sSwSTGpM3sclHhtK0A8eTYxyc5ZdyAJLHXEfFGoQ+6re5KlGR8179qDzteYNYV1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Vj4SrPmV;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jRHY2zLx;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C10F1606A89E
-	for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 11:54:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C10F1606A89E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE87606A32D;
+	Thu, 12 Nov 2026 13:03:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Vj4SrPmV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794484463;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Jxrlw+8Y3BG0pobZzphXVsf8hxE6Wy2weILXDH8H3rc=;
-	b=Vj4SrPmVaFl85ql+BWKJYT327oA7wXau7BlWzHr+HfqQwi+S7N550TY2IJF+1PHAGSqTnZ
-	lvfputAE1pNIJqEYNr+JGinElGQMdLpsMe6SCLuyoFDGU4G2Wl2iEKoOBsMJrN38Myw79K
-	pmDUpfS0e+dv1+EGgU/k9D3a28bV20A=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-307-uoFxDBFeOE2-lqiwwYxm1w-1; Thu,
- 12 Nov 2026 06:54:19 -0500
-X-MC-Unique: uoFxDBFeOE2-lqiwwYxm1w-1
-X-Mimecast-MFC-AGG-ID: uoFxDBFeOE2-lqiwwYxm1w_1794484458
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6F20C18005AA;
-	Thu, 12 Nov 2026 11:54:17 +0000 (UTC)
-Received: from plautrba-thinkpadp16vgen1.rmtcz.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6E21F1956087;
-	Thu, 12 Nov 2026 11:54:14 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnacek@gmail.com, jason@perfinion.com, jwcart2@gmail.com,
- cahu@suse.de, jsegitz@suse.de, tweek@google.com, Stephen Smalley
- <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v2] libsepol: check all declaring blocks when enabling
- types
-In-Reply-To: <20261110135404.9965-1-stephen.smalley.work@gmail.com>
-References: <20261110135404.9965-1-stephen.smalley.work@gmail.com>
-Date: Thu, 12 Nov 2026 12:54:11 +0100
-Message-ID: <pjdqzgq9sf0.fsf@plautrba-thinkpadp16vgen1.rmtcz.csb>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jRHY2zLx
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FD91F00A05;
+	Thu, 12 Nov 2026 13:02:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794488581;
+	bh=PBMXrFHASTKvrJ3Cb5b0x0+RtF3vzzYr8AtwvtbYKsw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=jRHY2zLxOj7WOeDeEhGyK3iIohwoIz8uR9UPmPqVT352H9skpMuFTV9PBQ/6y/1Fx
+	 GzdmrtGGqJQ63ZNgLxvdxP6/TqfDfv+pWpyJzzJjsEy0uLq0gCHvLtP2kFaPaF2gmD
+	 k+82GEbMTwloLecctiZmDuG7AmYK6+EdtzWP4kHBvpz/QaP6+ggdm+v2Euvg+7jxrf
+	 dZ8PsSmiuOYeuKxv4Ga7Hc56IzIDxYY5JTbQN7bguZv3KvKcNni9eKjMhpoB8uQHcL
+	 gImrGD5cw+GOgZatap3BjEF7H+jbUQyRB1xDogkvH5zB1pphPHXsBWhyi9bL21hoJy
+	 iD99ShP63r5Fg==
+Date: Thu, 12 Nov 2026 07:02:54 -0600
+From: "Serge Hallyn (AMD)" <sergeh@kernel.org>
+To: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
+Cc: James Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>,
+	Serge Hallyn <serge@hallyn.com>, Ada Smith <adasmithgt@gmail.com>,
+	Christian Brauner <brauner@kernel.org>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	John Johansen <john.johansen@canonical.com>,
+	KP Singh <kpsingh@kernel.org>, Matt Bobrowski <matt@bobrowski.net>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	apparmor@lists.ubuntu.com, bpf@vger.kernel.org,
+	kernel-team@cloudflare.com, linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] capabilities: Check PR_SET_SECUREBITS with
+ ns_capable()
+Message-ID: <avW4_r3IwLTNsXDg@shallyn-amd>
+References: <20261110202811.2409395-1-mic@digikod.net>
+ <20261110202811.2409395-2-mic@digikod.net>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -79,281 +68,128 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20261110202811.2409395-2-mic@digikod.net>
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+On Tue, Nov 10, 2026 at 09:28:06PM +0100, Mickaël Salaün wrote:
+> Per-process securebits were introduced with a direct cap_capable() check
+> for CAP_SETPCAP.  The capable LSM hook and SELinux capability policy
+> already existed, and SELinux forwarded task_prctl operations to
+> commoncap.  The direct call therefore bypassed SELinux policy from the
+> start.  It now also bypasses AppArmor, Landlock, and BPF LSM programs
+> attached to the capable hook.
+> 
+> A task with CAP_SETPCAP in its effective set can consequently change
+> privileged securebits despite an LSM denial.  This can alter how its
+> capabilities evolve across UID and execution transitions without the
+> expected LSM denial or audit record.
+> 
+> Use ns_capable(), as cap_prctl_drop() already does for PR_CAPBSET_DROP.
+> Call it only for a no-op, which requires privilege for legacy reasons,
+> or when a privileged bit changes.  Changes limited to
+> SECURE_ALL_UNPRIVILEGED and their lock bits do not need the capability,
+> so they must not invoke an LSM check or set PF_SUPERPRIV.  Successful
+> privileged checks now set PF_SUPERPRIV, as other ns_capable() callers
+> do.  Without other LSMs, the same requests remain allowed as before.
+> 
+> The check now reaches every capable hook before commoncap commits the
+> new credentials.  A later task_prctl hook cannot provide equivalent
+> mediation because commoncap runs first and commits the change itself.
+> 
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: Günther Noack <gnoack@google.com>
+> Cc: James Morris <jmorris@namei.org>
+> Cc: John Johansen <john.johansen@canonical.com>
+> Cc: KP Singh <kpsingh@kernel.org>
+> Cc: Matt Bobrowski <matt@bobrowski.net>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Serge Hallyn <serge@hallyn.com>
 
-> The multiple-decls option permits repeated type and attribute
-> declarations, but is_id_enabled() still checks only the last scope
-> entry for types. A declaration in a disabled optional block can
-> therefore hide a globally declared symbol or one declared in another
-> enabled optional block.
->
-> Besides removing types and positive rules, this can broaden
-> permissions: dropping an attribute used in a negative type set removes
-> the exclusion from the compiled allow rule.
->
-> Check all scope entries for types, requiring an enabled block whose
-> declared bitmap contains the symbol. Scope entries can also represent
-> requirements, so an enabled requiring block must not enable an
-> otherwise disabled declaration. Preserve the handling of other symbol
-> classes.
->
-> Add direct scope-order and requirement controls and native compiler
-> regressions for positive rules, source and target exclusions, aliases,
-> repeated types, optional ordering, and disabled dependent optionals.
->
-> Fixes: 392e42a8eb29 ("libsepol,checkpolicy: add --multiple-decls option")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The commit message is a bit wordy.  All it really needed to say was
+that 1. s/cap_capable/ns_capable to query other lsms, and 2. move
+the check to a concise helper.  I really do not relish looking through
+a git log where every commit message re-litigates the full history of
+any code that is touched or moved.
 
-Merged.
+But it looks good, thanks.
 
+Reviewed-by: Serge Hallyn (AMD) <sergeh@kernel.org>
 
-
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: stable@vger.kernel.org
+> Reported-by: Ada Smith <adasmithgt@gmail.com>
+> Fixes: 3898b1b4ebff ("capabilities: implement per-process securebits")
+> Signed-off-by: Mickaël Salaün <mic@digikod.net>
 > ---
->  checkpolicy/.gitignore                   |  1 +
->  checkpolicy/Makefile                     |  8 ++-
->  checkpolicy/tests/test_multiple_decls.sh | 83 ++++++++++++++++++++++++
->  checkpolicy/tests/test_type_enabled.c    | 72 ++++++++++++++++++++
->  libsepol/src/avrule_block.c              | 17 ++++-
->  5 files changed, 179 insertions(+), 2 deletions(-)
->  create mode 100644 checkpolicy/tests/test_multiple_decls.sh
->  create mode 100644 checkpolicy/tests/test_type_enabled.c
->
-> diff --git a/checkpolicy/.gitignore b/checkpolicy/.gitignore
-> index 01a694d4..401747df 100644
-> --- a/checkpolicy/.gitignore
-> +++ b/checkpolicy/.gitignore
-> @@ -5,3 +5,4 @@ y.tab.c
->  y.tab.h
->  tests/testpol.bin
->  tests/testpol.conf
-> +tests/test-type-enabled
-> diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-> index d974d156..9d5b7123 100644
-> --- a/checkpolicy/Makefile
-> +++ b/checkpolicy/Makefile
-> @@ -51,10 +51,15 @@ lex.yy.c: policy_scan.l y.tab.c
->  	$(LEX) policy_scan.l
+>  security/commoncap.c | 42 ++++++++++++++++++++----------------------
+>  1 file changed, 20 insertions(+), 22 deletions(-)
+> 
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index d47ab3022343..1947128396e2 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -1283,6 +1283,23 @@ static int cap_prctl_drop(unsigned long cap)
+>  	return commit_creds(new);
+>  }
 >  
->  .PHONY: test
-> -test: checkpolicy checkmodule
-> +test: checkpolicy checkmodule tests/test-type-enabled
->  	./tests/test_roundtrip.sh
->  	./tests/test_checkmodule_negative.sh
->  	sh ./tests/test_conditional_count.sh
-> +	./tests/test-type-enabled
-> +	sh ./tests/test_multiple_decls.sh
-> +
-> +tests/test-type-enabled: tests/test_type_enabled.c $(LIBSEPOLA)
-> +	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
->  
->  # helper target for fuzzing
->  checkobjects: $(CHECKOBJS)
-> @@ -81,6 +86,7 @@ relabel: install
->  	/sbin/restorecon $(DESTDIR)$(BINDIR)/checkmodule
->  
->  clean:
-> +	-rm -f tests/test-type-enabled
->  	-rm -f $(TARGETS) $(CHECKPOLOBJS) $(CHECKMODOBJS) y.tab.c y.tab.h lex.yy.c tests/testpol.conf tests/testpol.bin
->  	$(MAKE) -C test clean
->  	$(MAKE) -C fuzz clean
-> diff --git a/checkpolicy/tests/test_multiple_decls.sh b/checkpolicy/tests/test_multiple_decls.sh
-> new file mode 100644
-> index 00000000..6863c6fd
-> --- /dev/null
-> +++ b/checkpolicy/tests/test_multiple_decls.sh
-> @@ -0,0 +1,83 @@
-> +#!/bin/sh
-> +set -eu
-> +
-> +CHECKPOLICY=${CHECKPOLICY:-./checkpolicy}
-> +tmp=$(mktemp -d)
-> +trap 'rm -rf "$tmp"' EXIT HUP INT TERM
-> +
-> +cat > "$tmp/prefix" <<'EOF'
-> +class file
-> +sid kernel
-> +class file { read write }
-> +attribute excluded;
-> +attribute domain;
-> +type source_t, domain;
-> +type excluded_t, excluded, domain;
-> +type ordinary_t, domain;
-> +typealias source_t alias source_alias_t;
-> +EOF
-> +cat > "$tmp/suffix" <<'EOF'
-> +user user_u roles role_r;
-> +sid kernel user_u:role_r:source_t
-> +EOF
-> +
-> +count=0
-> +for side in source target positive; do
-> +    case $side in
-> +        source) rule='allow { domain -excluded } ordinary_t:file write;' ;;
-> +        target) rule='allow source_t { domain -excluded }:file write;' ;;
-> +        positive) rule='allow excluded self:file write;' ;;
-> +    esac
-> +    for variant in control enabled disabled last_enabled last_disabled repeated_type require_only optional_only; do
-> +        cat "$tmp/prefix" > "$tmp/input.conf"
-> +        printf '%s\n' "$rule" \
-> +            'allow source_alias_t self:file read;' \
-> +            'role role_r;' 'role role_r types domain;' >> "$tmp/input.conf"
-> +        enabled='optional { require { class file { read }; } attribute excluded; }'
-> +        disabled='optional { require { type missing_t; } attribute excluded; }'
-> +        case $variant in
-> +            control) ;;
-> +            enabled) printf '%s\n' "$enabled" >> "$tmp/input.conf" ;;
-> +            disabled) printf '%s\n' "$disabled" >> "$tmp/input.conf" ;;
-> +            last_enabled) printf '%s\n' "$disabled" "$enabled" >> "$tmp/input.conf" ;;
-> +            last_disabled) printf '%s\n' "$enabled" "$disabled" >> "$tmp/input.conf" ;;
-> +            repeated_type)
-> +                printf '%s\n' 'optional { require { type missing_t; } type excluded_t; }' >> "$tmp/input.conf" ;;
-> +            require_only)
-> +                printf '%s\n' 'optional { require { attribute excluded; } allow source_t self:file read; }' >> "$tmp/input.conf" ;;
-> +            optional_only)
-> +                printf '%s\n' \
-> +                    'optional { require { type missing_t; } type absent_t; }' \
-> +                    'optional { require { type absent_t; } allow ordinary_t self:file write; }' >> "$tmp/input.conf" ;;
-> +        esac
-> +        cat "$tmp/suffix" >> "$tmp/input.conf"
-> +        "$CHECKPOLICY" -m -o "$tmp/policy.bin" "$tmp/input.conf"
-> +        "$CHECKPOLICY" -b -F -o "$tmp/output.conf" "$tmp/policy.bin"
-> +        # Full binary round-trip equality covers types, aliases, role membership,
-> +        # and rules, including exclusions on either side of an allow rule.
-> +        if [ "$variant" = control ]; then
-> +	    # System cp may link libselinux without the sanitizer runtime.
-> +            LD_LIBRARY_PATH= cp "$tmp/output.conf" "$tmp/expected.conf"
-> +        else
-> +            diff -u "$tmp/expected.conf" "$tmp/output.conf"
-> +        fi
-> +        count=$((count + 1))
-> +    done
-> +done
-> +
-> +for decl in \
-> +    'type excluded_t;' \
-> +    'typealias source_t alias source_alias_t;' \
-> +    'attribute source_t;' \
-> +    'type excluded;'; do
-> +    cat "$tmp/prefix" > "$tmp/input.conf"
-> +    printf '%s\n' "$decl" 'allow source_t self:file read;' \
-> +        'role role_r;' 'role role_r types domain;' >> "$tmp/input.conf"
-> +    cat "$tmp/suffix" >> "$tmp/input.conf"
-> +    if "$CHECKPOLICY" -o "$tmp/policy.bin" "$tmp/input.conf" 2> "$tmp/error"; then
-> +        echo 'unexpected duplicate declaration acceptance' >&2
-> +        exit 1
-> +    fi
-> +    count=$((count + 1))
-> +done
-> +printf 'PASS %s multiple-declaration compiler cases\n' "$count"
-> diff --git a/checkpolicy/tests/test_type_enabled.c b/checkpolicy/tests/test_type_enabled.c
-> new file mode 100644
-> index 00000000..c05feb13
-> --- /dev/null
-> +++ b/checkpolicy/tests/test_type_enabled.c
-> @@ -0,0 +1,72 @@
-> +#include <assert.h>
-> +#include <stdint.h>
-> +#include <stdio.h>
-> +#include <sepol/policydb/avrule_block.h>
-> +#include <sepol/policydb/policydb.h>
-> +
-> +int main(void)
+> +/*
+> + * Doing anything with securebits requires privilege (go read about the
+> + * "sendmail capabilities bug"), except for unprivileged bits.  Indeed, the
+> + * SECURE_ALL_UNPRIVILEGED bits are not restrictions enforced by the kernel but
+> + * by user space on itself.  For legacy reasons, a non-change requires
+> + * privilege too.  Only checking CAP_SETPCAP when it is needed keeps LSMs from
+> + * seeing (and logging) a capability check for unprivileged changes.
+> + */
+> +static bool securebits_need_setpcap(unsigned long old, unsigned long new)
 > +{
-> +	policydb_t p = { 0 };
-> +	avrule_decl_t decls[3] = { 0 };
-> +	avrule_decl_t *index[] = { &decls[0], &decls[1], &decls[2] };
-> +	uint32_t ids[3];
-> +	scope_datum_t scope = { .scope = SCOPE_DECL,
-> +				.decl_ids = ids,
-> +				.decl_ids_len = 3 };
-> +	type_datum_t type = { .s.value = 1, .primary = 1 };
-> +	char name[] = "test_type";
-> +	const uint32_t orders[][3] = { { 1, 2, 3 }, { 1, 3, 2 }, { 2, 1, 3 },
-> +				       { 2, 3, 1 }, { 3, 1, 2 }, { 3, 2, 1 } };
-> +	unsigned int cases = 0;
+> +	const unsigned long unpriv_and_locks = SECURE_ALL_UNPRIVILEGED |
+> +					       SECURE_ALL_UNPRIVILEGED << 1;
+> +	const unsigned long changed = old ^ new;
 > +
-> +	assert(symtab_init(&p.scope[SYM_TYPES], 16) == 0);
-> +	assert(symtab_init(&p.p_types, 16) == 0);
-> +	assert(hashtab_insert(p.scope[SYM_TYPES].table, name, &scope) == 0);
-> +	assert(hashtab_insert(p.p_types.table, name, &type) == 0);
-> +	p.decl_val_to_struct = index;
-> +	/* Types, attributes, and aliases use the declared bitmap, not merely
-> +	 * the presence of an enabled block in the mixed scope list. */
-> +	for (unsigned int flavor = TYPE_TYPE; flavor <= TYPE_ALIAS; flavor++) {
-> +		type.flavor = flavor;
-> +		for (unsigned int enabled = 0; enabled < 8; enabled++)
-> +			for (unsigned int declared = 0; declared < 8;
-> +			     declared++) {
-> +				for (unsigned int i = 0; i < 3; i++) {
-> +					decls[i].enabled =
-> +						!!(enabled & (1U << i));
-> +					assert(ebitmap_set_bit(
-> +						       &decls[i].declared
-> +								.scope[SYM_TYPES],
-> +						       0,
-> +						       !!(declared &
-> +							  (1U << i))) == 0);
-> +				}
-> +				for (unsigned int order = 0; order < 6;
-> +				     order++) {
-> +					for (unsigned int i = 0; i < 3; i++)
-> +						ids[i] = orders[order][i];
-> +					scope.scope = SCOPE_DECL;
-> +					assert(is_id_enabled(name, &p,
-> +							     SYM_TYPES) ==
-> +					       !!(enabled & declared));
-> +					scope.scope = SCOPE_REQ;
-> +					assert(is_id_enabled(name, &p,
-> +							     SYM_TYPES) == 0);
-> +					cases += 2;
-> +				}
-> +			}
-> +	}
-> +	scope.scope = SCOPE_DECL;
-> +	for (unsigned int i = 0; i < 3; i++)
-> +		index[i] = NULL;
-> +	assert(is_id_enabled(name, &p, SYM_TYPES) == 0);
-> +	scope.decl_ids_len = 0;
-> +	assert(is_id_enabled(name, &p, SYM_TYPES) == 0);
-> +	assert(is_id_enabled("missing", &p, SYM_TYPES) == 0);
-> +	for (unsigned int i = 0; i < 3; i++)
-> +		ebitmap_destroy(&decls[i].declared.scope[SYM_TYPES]);
-> +	hashtab_destroy(p.scope[SYM_TYPES].table);
-> +	hashtab_destroy(p.p_types.table);
-> +	printf("PASS %u type enablement checks\n", cases + 3);
-> +	return 0;
+
+FWIW, I think the code was clearer when the !changed was separate with a
+one line comment above it, than rolled into this return.
+
+> +	return !changed || (changed & ~unpriv_and_locks);
 > +}
-> diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
-> index 60f637ff..7293b6fc 100644
-> --- a/libsepol/src/avrule_block.c
-> +++ b/libsepol/src/avrule_block.c
-> @@ -164,7 +164,22 @@ int is_id_enabled(const char *id, const policydb_t *p, int symbol_table)
->  		return 0;
->  	}
->  
-> -	if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
-> +	if (symbol_table == SYM_TYPES) {
-> +		const type_datum_t *type = hashtab_search(p->p_types.table, id);
-> +		uint32_t i;
 > +
-> +		if (!type)
-> +			return 0;
-> +		/* The scope list can also contain requirements. Only an enabled
-> +		 * declaration can make a multiply declared type available. */
-> +		for (i = 0; i < len; i++) {
-> +			decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
-> +			if (decl && decl->enabled &&
-> +			    ebitmap_get_bit(&decl->declared.scope[SYM_TYPES],
-> +					    type->s.value - 1))
-> +				return 1;
-> +		}
-> +	} else if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
->  		uint32_t i;
->  		for (i = 0; i < len; i++) {
->  			decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
+>  /**
+>   * cap_task_prctl - Implement process control functions for this security module
+>   * @option: The process control function requested
+> @@ -1346,28 +1363,9 @@ int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+>  			/* cannot change a locked bit */
+>  			return -EPERM;
+>  
+> -		/*
+> -		 * Doing anything requires privilege (go read about the
+> -		 * "sendmail capabilities bug"), except for unprivileged bits.
+> -		 * Indeed, the SECURE_ALL_UNPRIVILEGED bits are not
+> -		 * restrictions enforced by the kernel but by user space on
+> -		 * itself.
+> -		 */
+> -		if (cap_capable(current_cred(), current_cred()->user_ns,
+> -				CAP_SETPCAP, CAP_OPT_NONE) != 0) {
+> -			const unsigned long unpriv_and_locks =
+> -				SECURE_ALL_UNPRIVILEGED |
+> -				SECURE_ALL_UNPRIVILEGED << 1;
+> -			const unsigned long changed = old->securebits ^ arg2;
+> -
+> -			/* For legacy reason, denies non-change. */
+> -			if (!changed)
+> -				return -EPERM;
+> -
+> -			/* Denies privileged changes. */
+> -			if (changed & ~unpriv_and_locks)
+> -				return -EPERM;
+> -		}
+> +		if (securebits_need_setpcap(old->securebits, arg2) &&
+> +		    !ns_capable(current_user_ns(), CAP_SETPCAP))
+> +			return -EPERM;
+>  
+>  		new = prepare_creds();
+>  		if (!new)
 > -- 
 > 2.56.0
-
+> 
