@@ -1,90 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.224
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794523590;
-	b=CCCFuZrnQ1fUwZYdmMAe5I43K+ANok3D+MIFKWHDirSyq5McBEdbLLDOa+x6vJ3BGWxP
-	 YW+6NEBIU+bhEtJl4YtdN0xNtPDRBIVoXNnBAGvLb9QijuRGAZbzy8/Wq7J9tRKzNDvic
-	 Xgpz1fa3ppApU/bS/WF7yHyAIoaK+eBD4vdafEDK5cNZOACBnbSntUqq+n+Qq86mKD35b
-	 Z5FtBp+s/LOrpXgPnF9Cl7PXjnbBs7TjzirKtHQDdsdpAkzchdA/743OcuKAHeZqQzoaX
-	 C9sX8hvqw0DPaSa6sPDh6v874slMXXowshANhS+S+8lMLYGCdMdudxxMFVvLt2VF3UQ==
+	t=1794535692;
+	b=p+OCAdGyQTluAMXM2IMjhPqoDssF3k0v9cXs1PByJ8sQNTntlLl32u9gYFwRGQxoMsuF
+	 FpPG/uNtz8O8rMCukKoRuiXR90YdYwVEEHfhh616wlsW0OR8aRmepRvL3T0vJ7Oe+/PoU
+	 4h70MG50RqjBv4F69D6wB4lIn6PTxbuH6sLiTBTRz4YpwRIpEBaGqe7Y3kjI0ldcuXT2y
+	 RE7GRQphiYobnV4CB8aXdO9qtkyzxFSD4zKhKBTSTYrGSWn8nrhPQ784N5tWBWXnkSx6L
+	 cm/ce2LhWJlRj8jWTXMnlBy6cZxSt34FRzAUDB4jMReP09fSxH6cKHxxTMlSsaXEyKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794523590;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:In-Reply-To:References:MIME-Version:
-	 Content-Type:Content-Disposition:Message-ID:User-Agent;
-	bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
-	b=HXoBvuO2G6DY6DIMCIf2FEjW6L3t7kaoTxtuFcWESv7KOGzaszsif9QGENkJnkYtWWV1
-	 xRbE1ztZ6p2PfRZk1q4JuoMnQ889qDy/qwJQOAzOytTSI9nAUFXxKXPKc43moWWL5ZZzR
-	 3cvEAnqYANSZ8E7qd+E0qETb4fpzoRb4pf1cPImr2EhBgPW4zBHoA4AjxEFSINDExtYND
-	 KcHz/YP/EpLvhQcW6YSaWJ42F6XrigmhcYzmD9jwbnSda4Udv4uWvYKWhcFj3BJZwwmUB
-	 orI68M7Xs7MSdnpQJdxu8gKEHI+N6FfmTwVk/B9T6qxukOTE1xBABaMZ63issCB6FQQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794535692;
+	h=DMARC-Filter:dkim-signature:Received:Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:CC:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+	bh=fRlFnEwOyhCsf6bntFNWmv0q3cjwumqt5gvXEY0j99s=;
+	b=h/zV89+qLgaCReHEGqt6Yz7QuMFLau76PrUC64xyupskVtNCPQ+nmxOMNmYpHzOqslFo
+	 kgKw5ZY2wbzhJd0lF+zjKrlPUCmjb5IgsUFtoQqhIVm9cnGfBBQV27Zmw0SOuawfTJrqj
+	 COUDeteeu91XQma3e/4ndW4VEdrl3CeyYA6qLcmmNoBHr88AeGjUDrznix08ey7CkL7dN
+	 ATYbiJ85jaQA4TqrEF0OxrluHBWYxqRn9fPvtPMnNG9q6tAJkXdtwGsMyPUdrjdmiatZM
+	 Nm2oKKg5nghW9PZOToKPGBNxCtDI6DTaPEoBLZidyMqSogmB9o3taotFsdyv1n5vU6w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chrisdown.name;
-	spf=pass smtp.mailfrom=chrisdown.name;
-	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ebkrXilb;
-	arc=none smtp.remote-ip=209.85.221.46
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=huawei.com;
+	spf=pass smtp.mailfrom=huawei.com;
+	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=tgB76D+u;
+	arc=none smtp.remote-ip=113.46.200.224
+Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14433606A323
-	for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 22:46:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14433606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=chrisdown.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chrisdown.name
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81167606A31C;
+	Fri, 13 Nov 2026 02:08:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81167606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ebkrXilb
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-498f5fa4f70so352086f8f.0
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2026 14:46:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chrisdown.name; s=google; t=1794523587; x=1795128387; darn=vger.kernel.org;
-        h=user-agent:message-id:content-disposition:content-type:mime-version
-         :references:in-reply-to:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
-        b=ebkrXilbj9spVaHW9PDW3KQNpqmqI4+4NOB68oQOLq+07vtNzaBA8OzPAUS9CcsePT
-         8Kjg8BdAuCo3mV77DJ+j0I94WcjCRoV9fZV+wxCYZ49UIFzTMPcPTgg29Atqgy9WVWs2
-         OlA64TH/oKxQCTcIaOXxFG9ghWOzXAc97hNLU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794523587; x=1795128387;
-        h=user-agent:message-id:content-disposition:content-type:mime-version
-         :references:in-reply-to:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Qp/CYO9Y9QR0dXHUfw6yCZHzw+ctBhl7YE1TC+1vOS8=;
-        b=23QcyvsjL96IDZGD+0BN21CA6Qa8KeJ/0tNK5uJ3yk5DzHAMpnDbHfH63EFBxRVUdZ
-         laPrm45EIdYO52n0vueAuJWnWdvUjNCAx60WYlt8i1hsGvLLALIWnVdy11PnMjI0B0VC
-         hbmJSz6tf3QmbB3hviWw0nAhn+R6umbuxbhdA2acktbBv350LOmrlh3Fivv1xAfLhowg
-         b3iMcecn0xc1dKLN0mnoRkXKun8enDSa5BDSxDxpynni/QDo7+q9dJLEaKBzYPfForzI
-         L3KR6eHZ3AR7E5XZGqWL9DrL30aowPjaKaXoqESUeBuky1Re44Mj6Czk/uyYuf4PnV+5
-         PIfg==
-X-Forwarded-Encrypted: i=1; AL+hErHx77jFnEIgylpwxMG1tn8TJXjQu8KLASfDyB4z6fEubzzXOyhB5k18AHZsyNFOydorC1xhftI1@vger.kernel.org
-X-Gm-Message-State: APuU4Z+l6yaqCrLy9T2LgO5w5mapmaHV0e5KYxLRiiGcn9FYKvDQiSPr
-	QBa4a4bhd3vS4c1vRaoR1T+j71DxCMUSJbDwpSNJmhZKCQ8/q15/nuK7NDd7ck1Rb2w=
-X-Gm-Gg: AYBFou22E4MmZUxNyBpuv1EGjzTXKiB0ZsOh7EMeTQ9mKdEtWPKSxgcPDg/h2RBUslM
-	dEjMJJe4FiVbIN37QCfN4PQpZ2EmgrEWn+t3KakLXas58m6D0ObHYhXBc+H+yO1q1oagZtqJ+CM
-	7Be+vvVa+NkgupM+hII8UIPLQordWhukI/s5fMUFE5DMsiH2XlQixnW3R3h2c3vcLtC3lnGOJHT
-	UDPxhewBRSE2LGAMzB9R9FMiUSQ5oOiFYnzoqLR7oAqJgPw7mItJS6LzW7GuihyuLgvTb4WBgec
-	Q+1pOw3bEmKNZ4b7Ta66yB2z72fPw1SXT57MnFV3PBvyNkmYkAexrTwKOnXF0PhLRHYRUr8TNGV
-	ZWKdjHVkfcSOWxR0ixfiydo9eiYTvVXQQPrxsiEp4LfLFJMitAPe4efhm87ZzEfTPHouOCSPUZB
-	7LSs2UTabQUVgH8nIZAiemu29QfkE+Oal8kKYu0SMAmC4LEGZzWwWhp1XDlzV/il4kq9jxOuK8h
-	2pqDX/BpBV+qhZJQdY5/OMNZJDjVXIIcmb/XAAgv0quCQyXGA5/Qq0XA0NK6JVuBVJSjP54joOk
-	W857f02OcM4rF/Ege35s331sxoPWbZBqVFB56y5SakMLJtcW3Eicxr9CvL1/av3XApvK7rrGmTV
-	04bFixsVHTOi50Ezx8Oy9/YrXypxk73zZSpd6jc8jzcLAYCZB0kyKB6orWPse47sJ7EsN13OQZm
-	G0A0FqqLJS23iSPjDaTF1gQiwlJrBKHRc4/FaKpae7aV8GDpLHSUWSGFxP4g==
-X-Received: by 2002:a05:6000:2087:b0:488:57ad:d5c8 with SMTP id ffacd0b85a97d-49c6d453dbbmr2169176f8f.3.1794523587286;
-        Thu, 12 Nov 2026 14:46:27 -0800 (PST)
-Received: from [172.18.0.2] ([199.201.64.8])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c6020bb0fsm1504046f8f.34.2026.11.12.14.46.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 14:46:26 -0800 (PST)
-Date: Thu, 12 Nov 2026 14:46:15 -0800
-From: Chris Down <chris@chrisdown.name>
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com, dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io, chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com, cgroups@vger.kernel.org, linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5] security: Expand task_setscheduler LSM hook
-In-Reply-To: <20261105172210.76706-1-atomlin@atomlin.com>
-References: <20261105172210.76706-1-atomlin@atomlin.com>
+	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=tgB76D+u
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=fRlFnEwOyhCsf6bntFNWmv0q3cjwumqt5gvXEY0j99s=;
+	b=tgB76D+uPHT+xoP/MsIq5QT99tPRFyjCjYAa5bPvS0n/BLMW7GmhAJphWd0AaFaCXwNcxc4Ka
+	dPjWkV3Gm+TFWMTFawukI93MmREL5xwGs2ILp3CVZdJ2RNXEKTgDHIK4mZDlwgvononmGVpnLul
+	eI6cXevbd8zNABceS1BMSf4=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4jQgdL6LlBz1cyTG;
+	Fri, 13 Nov 2026 10:07:50 +0800 (CST)
+Received: from whupemk100010.china.huawei.com (unknown [7.152.184.41])
+	by mail.maildlp.com (Postfix) with ESMTPS id 63B8C40572;
+	Fri, 13 Nov 2026 10:08:07 +0800 (CST)
+Received: from [10.67.110.140] (10.67.110.140) by
+ whupemk100010.china.huawei.com (7.152.184.41) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Fri, 13 Nov 2026 10:08:00 +0800
+Message-ID: <2dbd365b-eac5-448b-b6c2-4ed8754551a7@huawei.com>
+Date: Fri, 13 Nov 2026 10:07:59 +0800
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -94,97 +62,95 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Message-ID: <20261112144615.df72a3bef0a52f3c@chrisdown.name>
-User-Agent: Mutt/2.4.3 (cc9e3943) (2026-10-09)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 -next 00/18] landlock: Add READ_METADATA and
+ WRITE_METADATA access rights
+To: Christian Brauner <brauner@kernel.org>
+CC: <mic@digikod.net>, <gnoack@google.com>, <paul@paul-moore.com>,
+	<jmorris@namei.org>, <serge@hallyn.com>, <corbet@lwn.net>,
+	<skhan@linuxfoundation.org>, <utilityemal77@gmail.com>, <ast@kernel.org>,
+	<daniel@iogearbox.net>, <andrii@kernel.org>, <eddyz87@gmail.com>,
+	<memxor@gmail.com>, <martin.lau@linux.dev>, <song@kernel.org>,
+	<yonghong.song@linux.dev>, <jolsa@kernel.org>, <emil@etsalapatis.com>,
+	<ihor.solodrai@linux.dev>, <rdunlap@infradead.org>,
+	<gregkh@linuxfoundation.org>, <rafael@kernel.org>, <dakr@kernel.org>,
+	<johan@kernel.org>, <dlemoal@kernel.org>, <hch@lst.de>, <axboe@kernel.dk>,
+	<viro@zeniv.linux.org.uk>, <jack@suse.cz>, <dhowells@redhat.com>,
+	<code@tyhicks.com>, <linkinjeon@kernel.org>, <sj1557.seo@samsung.com>,
+	<yuezhang.mo@sony.com>, <hirofumi@mail.parknet.co.jp>, <cel@kernel.org>,
+	<jlayton@kernel.org>, <neil@brown.name>, <okorniev@redhat.com>,
+	<Dai.Ngo@oracle.com>, <tom@talpey.com>, <hyc.lee@gmail.com>,
+	<miklos@szeredi.hu>, <amir73il@gmail.com>, <senozhatsky@chromium.org>,
+	<chenxiaosong@chenxiaosong.com>, <dsterba@suse.com>, <mason@kernel.org>,
+	<kpsingh@kernel.org>, <matt@bobrowski.net>, <rostedt@goodmis.org>,
+	<mhiramat@kernel.org>, <mathieu.desnoyers@efficios.com>,
+	<john.johansen@canonical.com>, <georgia.garcia@canonical.com>,
+	<zohar@linux.ibm.com>, <roberto.sassu@huawei.com>,
+	<dmitry.kasatkin@gmail.com>, <eric.snowberg@oracle.com>,
+	<stephen.smalley.work@gmail.com>, <omosnacek@gmail.com>,
+	<casey@schaufler-ca.com>, <takedakn@nttdata.co.jp>,
+	<penguin-kernel@i-love.sakura.ne.jp>, <xiujianfeng@huawei.com>,
+	<nanx95726@gmail.com>, <djwong@kernel.org>, <lujialin4@huawei.com>,
+	<bpf@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
+	<driver-core@lists.linux.dev>, <linux-block@vger.kernel.org>,
+	<linux-btrfs@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+	<netfs@lists.linux.dev>, <ecryptfs@vger.kernel.org>, <exfat@lists.linux.dev>,
+	<linux-nfs@vger.kernel.org>, <ntfs@lists.linux.dev>,
+	<linux-unionfs@vger.kernel.org>, <linux-cifs@vger.kernel.org>,
+	<linux-trace-kernel@vger.kernel.org>, <apparmor@lists.ubuntu.com>,
+	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>,
+	<linux-kselftest@vger.kernel.org>
+References: <20261027121151.1887650-1-caixinchen1@huawei.com>
+ <20261110-rekonstruieren-erbfolge-vollversammlung-26be74966211@brauner>
+Content-Language: en-US
+From: Cai Xinchen <caixinchen1@huawei.com>
+In-Reply-To: <20261110-rekonstruieren-erbfolge-vollversammlung-26be74966211@brauner>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ whupemk100010.china.huawei.com (7.152.184.41)
 
-Hi Aaron,
+You are right, and thanks for catching it.
 
-Aaron Tomlin writes:
->In modern multi-tenant and real-time environments, CPU and scheduling
->isolation are critical boundaries. The inability to audit or restrict
->specific scheduling policy changes or CPU pinning requests limits the
->effectiveness of security policies, particularly when attempting to
->shield isolated or cryptographic cores from unprivileged or compromised
->tasks.
+I have been working on these modifications over the past two weeks and 
+have deployed sashiko locally. However, my current changes are still 
+being flagged for some bugs by my local sashiko, and I am still in the 
+process of fixing them. I expect to release v4 in a few days. Regarding 
+these issues, my current fixes are as follows: - AT_EMPTY_PATH: v4 will 
+use CLASS(fd_raw, f)(dfd), the   same lookup path_init() does for an 
+empty path, so O_PATH descriptors   work again.  do_utimes_fd() 
+(futimens(2)) intentionally keeps   CLASS(fd, f), matching 
+fchmod(2)/fchown(2); AT_EMPTY_PATH returns   -EINVAL there anyway.  The 
+same patch rejects a NULL pathname with   -EFAULT before 
+CLASS(filename_maybe_null) can turn it into an empty   path relative to 
+AT_FDCWD, and adds the missing audit_file() on the   do_utimes_path() fd 
+branch. - __nullable (patches 5-9, 11-13): v4 will extend 
+kernel/bpf/bpf_lsm_proto.c (the existing   strong-override file used for 
+mmap_file) with strong definitions for   all 11 hooks that gained a file 
+argument, each declared   file__nullable, so the verifier sees 
+PTR_MAYBE_NULL and a program must   check before dereferencing. - ntfs 
+named stream setattr (patch 1): v3 forwarded with   
+__notify_change(idmap, base_dentry, ...).  v4 will use   
+notify_change_target(idmap, attr->ia_path, base_dentry, ...), so the   
+hook is checked against the path the syscall used while the attributes   
+still land on the base inode. - overlayfs fileattr (patch 8): v3 removed 
+the ovl_security_fileattr()   workaround but then called the unchecked 
+__vfs_fileattr_get()/_set()   on the real dentry, which bypasses the 
+hooks.  v4 will call the checked   vfs_fileattr_get()/_set() with the 
+real upper/lower path, so the hooks   also run for the underlying layer; 
+ecryptfs is switched the same way.
 
-Peter objected to this paragraph on v3, and you said there that you would
-drop it. What you told him the patch is really for was auditing the
-affinity mask as userspace asked for it, before cpuset intersects it with
-the allowed CPUs, which seccomp can't do because the mask is behind a user
-pointer. That should be in the changelog in place of this paragraph. (I
-object to it as well. Please avoid such LLM grandiosity.)
+Best regards.
 
->This change updates all in-tree security modules (capabilities, SELinux,
->and Smack) to accommodate the new parameters mechanically, while
->providing LSMs with the necessary context to enforce strict scheduling
->and affinity policies.
+Cai
 
-An LSM can only enforce an affinity policy through this hook if all possible
-ways of changing a task's affinity go through it, but writes to cpuset.cpus
-don't. With a BPF LSM program on this hook that rejects any mask containing
-CPU 3, sched_setaffinity() to CPU 3 gets EPERM. An unprivileged user with a
-delegated cgroup v2 subtree can still write 3 to the task's cpuset.cpus,
-though, and the task ends up on CPU 3 without the hook being called.
-cpuset_update_tasks_cpumask() just calls set_cpus_allowed_ptr() on every
-task in the cpuset.
-
-So what this gives an LSM is visibility into sched_setaffinity() requests
-and cpuset migrations, not control over where a task runs. That may be
-enough for auditing, but the changelog shouldn't promise enforcement. It
-also looks like the kind of gap Paul meant on v3 when he asked how this
-fits into a more comprehensive approach to resource control in the LSM.
-
->-LSM_HOOK(int, 0, task_setscheduler, struct task_struct *p)
->+LSM_HOOK(int, 0, task_setscheduler, struct task_struct *p,
->+	 const struct sched_attr *attr__nullable,
->+	 const struct cpumask *in_mask__nullable)
-
-Since the BPF LSM is the only thing that reads these, please Cc
-bpf@vger.kernel.org and the BPF LSM maintainers (KP Singh and Matt
-Bobrowski) on the next version.
-
-While the __nullable annotations do what you say, and a program that
-dereferences either argument without a NULL check is rejected by the
-verifier here, there is still a problem. Existing programs on this hook
-that follow Documentation/bpf/prog_lsm.rst and pass on the previous
-program's ret now get attr in that slot. One declared as
-
-     int BPF_PROG(x, struct task_struct *p, int ret)
-
-that returns ret when it's non-zero loads and runs fine, but with this
-patch the verifier rejects it. LSM hooks aren't stable ABI, so that may
-well be fine, but the BPF folks should get to say so :-)
-
-> 		if (setsched_check) {
->-			ret = security_task_setscheduler(task);
->+			ret = security_task_setscheduler(task, NULL, cs->effective_cpus);
-
-The kerneldoc you add in security.c says @in_mask is NULL if affinity
-isn't changing, but that isn't what happens in cpuset_can_attach(). On v1
-setsched_check is always true, so moving a task between two cpusets with
-the same cpus and mems still calls the hook with the destination's
-effective_cpus. With a v1 cpuset mount I see the hook get 0xf for a move
-between two cpusets that both have cpus 0-3, and Cpus_allowed_list stays
-at 0-3. On v2 the same happens for moves where only the mems differ.
-
-The hook also can't tell this from a sched_setaffinity() call, since both
-pass a NULL attr and a mask, but here the mask is the destination cpuset's
-configuration, rather than something anyone asked to pin to. Please say
-in the kerneldoc what @in_mask means for cgroup migration and
-CLONE_INTO_CGROUP, so LSM authors don't treat it as a pinning request.
-
->+		lsm_attr.sched_policy = policy;
->+		retval = security_task_setscheduler(p, &lsm_attr, NULL);
-
-For sched_setparam() and SCHED_FLAG_KEEP_POLICY, the reset-on-fork setting
-that gets applied also comes from the task (reset_on_fork is set from
-p->sched_reset_on_fork above), but lsm_attr.sched_flags still belongs to
-the caller. On a task with SCHED_RESET_ON_FORK set, sched_setparam() reaches
-the hook with sched_flags of 0, and sched_getscheduler() still reports
-SCHED_RESET_ON_FORK afterwards. If lsm_attr is meant to show the hook what
-will be applied, SCHED_FLAG_RESET_ON_FORK should follow reset_on_fork as
-well.
-
-Chris
+On 11/11/2026 12:52 AM, Christian Brauner wrote:
+> This regresses AT_EMPTY_PATH. fchmodat2(), fchownat() and utimensat()
+> with an empty path now go through CLASS(fd) which is fdget() and that
+> refuses O_PATH file descriptors. IOW, this is very very broken.
+>
+> Please also go through Sashiko's review of v3 (cf. [1]). The new struct
+> file arguments need __nullable or bpf programs can dereference NULL,
+> and the ntfs3 stream setattr and overlayfs fileattr paths that bypass
+> the hooks need treatment.
