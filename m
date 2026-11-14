@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794686760;
-	b=uEmkR7ymOM7Dn7+rqVfexzVzo9oHRbhLeyRNwXza72oFzlNiKf6QksiWVWBGpTm3xQg+
-	 UnozxnE6t1NI/UFe8jxenvdLy71Up26zwCXR/2lola/1GTysuzL52dEQQON9ucZ/VKBPm
-	 dQ/BzIvQghru2AX+kpQKGDE0qQ5x6eN2EG6ljQtw2oLnGxcYLghgJ4sEO42A1mggD6Zim
-	 BvBvOusxPlj1VNHNPlzNrKNtiLxwLN/pS3diSbJiDbMVYce/Y8jjWsUF1zIxCipU1gr0b
-	 T4NgGBFeAwLN2CHtV9Ywd8eRvL2s5quZryp1fh/optpY6exllXiXTJnKew/Hm6AgKvg==
+	t=1794686762;
+	b=j0HFTX2/y5nLL9dHqxtw2sACvdTUnsevC4lrUcY0MEkcQoswiAbh7/BdzS1bWXnSVh60
+	 aPUGpksdDY53Zw7ZRK7h2xhzugAb0s8o9bhJz4j5lj9heLQmw1LRxAEjDFWgkWsK6CHhB
+	 86a9UYgFo/OAlc4LDeDfsyN0OlupvjBATxHTgiqa4l5EMNBujsYzBI40Rxa8iErk6xxoU
+	 vyutijcif8aYi3azyAcDv+thIwkNPXwIHZZqAQs4CmZOLhTOhz8tazHrz48/0MNSnNeqM
+	 vKOI38S16JhXeS/U28nhu0YWI/mSHSBgWxvDCyyqcesaVIp1Orm+mDICyv651uoJ5Bg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794686760;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794686762;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:In-Reply-To:References:MIME-Version:
 	 Content-Type:Content-Disposition:Message-ID:User-Agent;
-	bh=cEK0v6G1yB2cz/8630PKsjvi8Z78P9QyctaIU0ylRW4=;
-	b=0gjPrs/qqctcYviaBnbCZTkE8cSVm2QRxTuW2wmSD+YxT2pI7epczcUOteTItUFN5xh1
-	 dkBqZVD7UVBfYgGQzLQkj/V2CfI11vLAxGMWDvNPuiOi2dCMwS/CBc3+2i07wITwglJhc
-	 d1jv+PKdx1o2XKrKJTbm0jNKjETQLrAz6+EgjV/8tS7VdxZjAf3PoqDFHoyWXEMh9ln6j
-	 NMizvObn1+eivFUvPFJzRxi1ynsZQIl/hS4yVwiVQW7KHk8U8DWfPnx5NQTQp7D27pN23
-	 4PLVzPspMnyflb6MHo0qlllnchG9RmgaifGw/Z5i2FKpHSptzCI4EOnn90JeBBVfNrA==
+	bh=L9fh6nGpkdQ3PKE1Pv6VuACg3WWhS00/MicQv00SggM=;
+	b=kjGZInKufoMCL52lHZoxfQlqsj6gEjlOGszr4hujaSTZtpXLbsWtr+ny823aKvQuUb39
+	 gA8HaQPOJgEgGlc/6ZyrJllKa6Q8rvncI/0T+quc47OWyP6/oTJQWl/3vAk70irxtFbXZ
+	 KpSdO0mpoSPslucp58br9cxmsD7Hhx8XgLlJsOAOpQ4LSuUJDqkN71zUiZMISRzIHbCAu
+	 EHxxsTiWxVOHLjjAaHOQYZe4GSgK/930+pzitgKZnBbn3gYqeYsHxfCiql21x6Gn+Pi6a
+	 WVXZNSg8J18uFF8BVTR4MUvqP652Fs1+vg1IZQEopgFxo+W9qyfrwA12GLAYOFFK9NA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=chrisdown.name;
 	spf=pass smtp.mailfrom=chrisdown.name;
-	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=t4xxtvlP;
-	arc=none smtp.remote-ip=209.85.215.177
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=WyNKKpAN;
+	arc=none smtp.remote-ip=209.85.216.48
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46BA360A2602
-	for <selinux@vger.kernel.org>; Sat, 14 Nov 2026 20:05:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 46BA360A2602
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CA060A3807
+	for <selinux@vger.kernel.org>; Sat, 14 Nov 2026 20:06:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8CA060A3807
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=chrisdown.name
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chrisdown.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=t4xxtvlP
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-cc4be0e5351so814323a12.0
-        for <selinux@vger.kernel.org>; Sat, 14 Nov 2026 12:05:59 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=WyNKKpAN
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3b09a83d12aso2481002a91.2
+        for <selinux@vger.kernel.org>; Sat, 14 Nov 2026 12:06:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chrisdown.name; s=google; t=1794686758; x=1795291558; darn=vger.kernel.org;
+        d=chrisdown.name; s=google; t=1794686761; x=1795291561; darn=vger.kernel.org;
         h=user-agent:message-id:content-disposition:content-type:mime-version
          :references:in-reply-to:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=cEK0v6G1yB2cz/8630PKsjvi8Z78P9QyctaIU0ylRW4=;
-        b=t4xxtvlP4RAICjpBIWPIkESb6EJJVOcRd9+LEytv251d1ZQsfD2pYblwETMOf/zroc
-         BDzAo5elUgpAiRA0oYEfExHYSjjGywxztBxThvGs665InMbo4S8LytfXKr2B4Cw2IX6x
-         hCl30XcWjOl3zGKKK0Vny1KN9lt2zjyLiPz3U=
+        bh=L9fh6nGpkdQ3PKE1Pv6VuACg3WWhS00/MicQv00SggM=;
+        b=WyNKKpANsG5sdrHWGAt+Y38DvSIGt+WnCUyNYCZoBM4YbSq3wCVAHI95jQ8BFTGgLn
+         +vM7af/q0i5zrzjZXXnriwzXN4L/RbeBg/iztvO0eyeIXYNiQp/OYlS5LD9yZqr2gKgm
+         1I+5A88e/cV4J0nLZfgp0f7sQwj9jY0Q4quBE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794686758; x=1795291558;
+        d=1e100.net; s=20260707; t=1794686761; x=1795291561;
         h=user-agent:message-id:content-disposition:content-type:mime-version
          :references:in-reply-to:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=cEK0v6G1yB2cz/8630PKsjvi8Z78P9QyctaIU0ylRW4=;
-        b=YdNffEJTE5hOyFv4qtNrde7iH6wFYytIq3U9j4SlHjURVRltiz7V7/B0pf0q1vKt1g
-         eOHO4UtbgcdDsi80iO1g4eZ8+tirnCmwN4j2U+YZwuXSRcc5TwL3yhLmzXH4Zg0MAwgv
-         xVC4cIp7l2kCqQVPKxiiDYyq/ZtT15PZZkCULhgLd6EDrLehwqeCUxleNs6wLV8fd2QA
-         5Gg1OOukicpKq1tytSH4mSFXLx6w4O0+K/3P3Tv6Ngse88bJvIUaQo1FO/DwcvOGQ55p
-         U0k2lt8yFZ5o93DvMA4HSv8E9PY4E0spxeuMy2oPtZ4SH3tZ6KyH8KtfIzd0fxKPp7wb
-         GPrA==
-X-Forwarded-Encrypted: i=1; AL+hErGX70+6SZ23TIYwtiTfdXVCbUmT1alrod/uacNXvLEDjzN9raI6EzpoeelxoO+VLGytBg1jhlM9@vger.kernel.org
-X-Gm-Message-State: APuU4Z+WaZ+peuAs6rd4VbYRQO/jkCXLQZFbxP0CZQzC/lYIUOXUpa3C
-	CA38lhk6WQswiR3HfylF005Vf4wILpxQhuNzwsKZ9sOvbk+ofKP2pANXB1y6Oi8vB8U=
-X-Gm-Gg: AYBFou27C9pEgjzakJPIaDzH54TeNUoCHqHVE5WFuGngrajQkYm9tytm5/J6fljeluA
-	P1WCtwexqOvEoxAU5Z7fKWjlwJ/BQhLhIQ3UaMoBj8u1HhkkILJCElJ45EeRGHGlpNOf4pbbHBc
-	/qlPYzftYWkNA3bF3VdZpGJwtx3jr9Sw6JOrIZY5XsUK3Q4h99ru//z8B5xq3OXNAKSgCEF6UAT
-	vJTKVZME9W4nPds9UhuYn+Eli9IrIAYsZhvL2smVWU1swqoPwJigvkY1DJKFyDeFicUQW82H5tx
-	NLe1pBQL4CgTMruK3KoHca8BlheLWUDxmzFuTgFbGLbdU1dYUij8vxNf9e12UOFoPYMjMhFS/v+
-	D9RxrweeoIEnT0BiN0e/gyFsSPePPb0kA9DlRxKrwncsAxYGgJxCdomIgeW/N+/d/1G29PZizqu
-	W7J0cbClWpGa8o5uK1ldT2+SPb7EmAj5SO7D+ref4eDlz/eaNvAJf16By9KWHRnt28JNw32n7Qv
-	1S8knw2/gDfjkeTSU2k4eX8PgEa+0fkdMdMahN3uS06YZhQNmP2YDI4hY+yuKJ2ZdvY5yDYpyzI
-	26VQ9vS360a45ppXfIjFG3Je7efCACXsW+9Y3TB0997YV55QUyS2RAuRCdTzXGics3GKmIPU3E0
-	ZLRPZxy39WBNmJqZugm9mOfCPUEJwHrxVN/3+QPhm6m1xQ3ANBIMlMPGE2v/R1Wi4l7s1BKrgmb
-	fi7x4AzsmG7RNhJSPoWszpwH0tVFt1gLAGpoLsl9YzfmeXJWaih7b+TEbl
-X-Received: by 2002:a17:90b:3b8a:b0:3b0:9f53:e8a8 with SMTP id 98e67ed59e1d1-3b1b0b5f2c1mr6192503a91.52.1794686758572;
-        Sat, 14 Nov 2026 12:05:58 -0800 (PST)
+        bh=L9fh6nGpkdQ3PKE1Pv6VuACg3WWhS00/MicQv00SggM=;
+        b=K5tT119Jc0xCyJcNskkAS5OmPh/l0cb0XeolXTgC2nMztDbd/mndO7HZ+0OVU7srt7
+         CcO3QqWMJ/R4NIYgL3tCPnO8SfL8q0qR1pXpsNT+7SImG70fPXi1myxuPEJJNbHlNTYy
+         x1rEmLQfhBchKINt1x4/qXY0xpTGXY/Kv8+VqJeO9eJKWKhWgS9MMQNmmJWzE5/F8jse
+         M5rlb64xA2glgkOkcNgZcpfqc/SaikFscuQERbxe36iL81E3iAhNCZu8FZo0pM6tyUV2
+         ZT3t0o8mjLjPwCOwo0j9dTcNh+QukWRR52pT9GZZQORSx2Syf9GqC8i3GM62zCR2UShA
+         qRCw==
+X-Forwarded-Encrypted: i=1; AL+hErEI5cWsrtV9u7GGUNWd228NvTjlMlcCG932URRuhX7/9/tN5YE4ByITYGYxHiWGv9nL4kMrB08C@vger.kernel.org
+X-Gm-Message-State: APuU4Z/kdYYL9MZwgJ4hK6y24SzFF/a5dLMmcVsP3QsaBlRa63baK5sB
+	MQax8ZiiuHfeOy7Xj/zZep/wSs1zWTBvIS/iGunGhrpEmYlPMRfRiAF5goNEmovLiWM=
+X-Gm-Gg: AYBFou1GAMAEka8kqqJLvAbFd9QYFr10NZZfItQ2yRb6XjyLGU5lyIczcdY1rEcy9F3
+	dFIQp3JcgWawRJGF1YaYms/Agkca3tur3DswDehPeQWE3Uf/qm+Ui45p3o5vp2GDHq7JQc9TQRr
+	C1Y133RHJ/n8372E4gPGdcO7s0Ks9ZYV1DmuenNXiPPZ3rXjfJr2/oPDkg4Wt/yIr/XhMAvh8hk
+	vWdLrXV+cI41zGNzoEzlgX6lPVXJeKIlkFodN5irZJ+fBNnm0yPqNfxE3qJB8HtFPYIgOtMBbBx
+	wCDGO6qlKY3uobji1DCBwmTfkE9Cwj4u11FDc3vOzvp+ZnjDhzLtFcxzliyHLnfYIfMGbJzpgr2
+	dhNAUe1JY8nMb56GP+sDrP0c6+qn3vtKwRG+O44No96zl1Ki5Z3+eDTzyQ2LgZwVQCt09eXWCng
+	wQlBV47Pa9t7oUFMFNUy7ERQmj2ukG0b89aO4sxM0o+sh2sBS9fRwwjnl8QmuqX3B9xaFkkRCYB
+	enBvNBf04kCNQqPeIkBTpK9XbCF4zQVF3eXAs6fecry0zo/eqYG0oituFVYSUZ7uKPyLJ8oHtny
+	HZPKjr9dIhj2y9KW4m0xKOT4zIiQBSC8L8NtIVNgjwCi8zhM0xbOs5b9xu1GtG9vsB6z9Ruo9sI
+	G5KyuZcQKH+EtrRRWnl0fHGMDFbt+78+gIBTkiqL2CI+mSpubjUsv1FHtr0XtUtdOLov4XCItzi
+	2mJGNnLWc7ZUpFYeb3sm68MKKqcYqEtom0JNvspHjPTt9CBpZ2dXjbBYNs
+X-Received: by 2002:a17:90b:2584:b0:3ac:9f00:3bc7 with SMTP id 98e67ed59e1d1-3b1b0ba61famr5629200a91.33.1794686761104;
+        Sat, 14 Nov 2026 12:06:01 -0800 (PST)
 Received: from [172.22.0.2] ([64.16.22.130])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b1b266d873sm4654869a91.1.2026.11.14.12.05.57
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b1b1e9ef15sm5258887a91.0.2026.11.14.12.05.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 12:05:57 -0800 (PST)
-Date: Sat, 14 Nov 2026 12:05:55 -0800
+        Sat, 14 Nov 2026 12:06:00 -0800 (PST)
+Date: Sat, 14 Nov 2026 12:05:57 -0800
 From: Chris Down <chris@chrisdown.name>
 To: Christian Brauner <brauner@kernel.org>
 Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
@@ -94,12 +94,11 @@ Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
 	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
 	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org,
-	Alexander Mikhalitsyn <alex@amutable.com>
-Subject: Re: [PATCH RFC v2 17/42] securityfs: use fc_init_pseudo()
-In-Reply-To: <20261114-work-loop-pseudo-v2-17-98639a2286fb@kernel.org>
+	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC v2 33/42] fs: add file_check_backing()
+In-Reply-To: <20261114-work-loop-pseudo-v2-33-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
-	<20261114-work-loop-pseudo-v2-17-98639a2286fb@kernel.org>
+	<20261114-work-loop-pseudo-v2-33-98639a2286fb@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -111,23 +110,45 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-Message-ID: <20261114120555.cbfaf8ab8a92fb25@chrisdown.name>
+Message-ID: <20261114120557.4bc1eb6e57218cdc@chrisdown.name>
 User-Agent: Mutt/2.4.3 (cc9e3943) (2026-10-09)
 
 Hi Christian,
 
 Christian Brauner writes:
->AppArmor puts a .null device node into securityfs but only ever opens
->it via dentry_open() which doesn't care about SB_I_NODEV.
+>+	/* Look through stacking filesystems at the inode with the data. */
+>+	if (d_real_inode(file->f_path.dentry)->i_sb->s_iflags & SB_I_PSEUDO)
+>+		return -EINVAL;
 
-Not a big deal, but userspace can see that node too, as
-/sys/kernel/security/apparmor/.null. Opening it by path works in current
-kernels and fails with EACCES after this patch. Now, I don't know of
-anything that does that, but selinuxfs gets SB_I_NODEV cleared again in
-the next patch for the same kind of node, so I think we should do the
-same thing here. If not, it would be good to have a line in the
-changelog saying that opening it by path is meant to stop working.
+This looks good in general, but what the bots said about O_PATH files
+here is real. With FMODE_PATH this is reached for a file that was never
+opened, so on overlayfs nothing has been through ovl_open() to look up
+the lowerdata of a metacopy file yet. ovl_d_real() then does the lookup
+itself, and when that fails it hits the WARN(1) at its end and returns
+the overlayfs dentry, so the check passes as well.
 
-Once that's fixed, please feel free to add:
+Only fuse passes FMODE_PATH, so it takes CAP_SYS_ADMIN to get there, but
+it's easy to trigger with that. From a quick test with a metacopy file
+whose redirect into a data-only layer points at nothing, registering an
+O_PATH fd of it with FUSE_DEV_IOC_BACKING_OPEN gives
 
-Reviewed-by: Chris Down <chris@chrisdown.name>
+     ovl_d_real(/f, 0): real dentry not found
+     WARNING: fs/overlayfs/super.c:79 at ovl_d_real+0xc9/0x210
+     [...]
+      file_check_backing+0x308/0x5e0
+      fuse_backing_new+0x219/0x4a0
+      fuse_backing_open+0xe8/0x390
+      fuse_dev_ioctl+0x53a/0x7d0
+
+and the ioctl still succeeds. A normal open of that file fails with
+ENOENT, so nothing could have used it as a backing file anyway, but with
+panic_on_warn this is now a panic.
+
+Maybe ovl_d_real() should just stop warning when the lookup fails, now
+that it has a caller that isn't trace_uprobe? The check would still pass
+for an O_PATH file whose lowerdata couldn't be looked up at that point,
+though.
+
+Thanks!
+
+Chris
