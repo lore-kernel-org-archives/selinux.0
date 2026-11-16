@@ -1,84 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794840887;
-	b=w7htZI2a1uFnLlg5ONxfw16dRQoAjtnyQyUXvH1/VT3kytUYSlsoDnwBYg2h0s+wmO7l
-	 ZFz5bB72X+0UQ8L7aiT/UbXtE3eCiLP9w/JnzFngcjppCR5eGf4YBlSapH+slEaOomS4c
-	 iTkbhoRpfGNH91alXwsS4B9/qW2i/lDmlZ18JI0EAW6HjK4VpbcBXm1AZXf/q+n9DUwln
-	 2L45rTvrCrmN7AzNsHBY8PDHRvDCP3qpYbMAbAgOpfiammSDG2w0/Ho8KsKXddmYFIUNh
-	 tjHjOjpzf7jIlghKExbMhzXBvQkZLQl8jMEuVz8R0C854EBc5T49x2he5RTlWFiaNvQ==
+	t=1794842911;
+	b=wfuOAzbdr5mOwHMmRI44J7J/B9zQt3+9K8nQJ0MQxwrJ43XYrVlJW5o/kSzKc6AYAxIQ
+	 cM5bPhJAGxNzbCfUKDXidYusHJ/aDIg1vinB21fySdRPYCPcqK8JsbMCyR3AU54cBzDqa
+	 F+udEfryzsma2Tny3IIWngWQLmCJU40LmE+Z14TE5HVTcdlgyxTAHt26bbz3WldT1wUom
+	 O2aTrOKf6ZE5A9EZJQFpKZFMgu8Mf/VTf2/JVg7oXfxOhVtzrJE99CccPWGRIOl452CUb
+	 Lwqg5ebr3F2F8kp4cXNNYDotFEoNDavNMXMvulymEniaw8mwBhv5BztPZfcxnzStpZQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794840887;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794842911;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=vyxfgyqSCSgv26hGb/4RPkExELeGjQIYx/YX7rznghQ=;
-	b=g8/6RudmGAlS1IhBgiHQyDPAFP4xr2Zczk61+VqhgGGJgPh757aT4C4eW428TinnL+Q6
-	 2KFIbVnwC/Nsg51DRM9Mmq7nsgspKHHa5n+fueehTs5mI7P+OarS8qpisMD+nh5BIVBGX
-	 c9ibq15JMxuCOw5cpQU7V8RuQP898hiNhBKnRELqktN90HLgOp5say2ROVskPioBQp2wj
-	 0FJ5Jmmbha4LhwXGxgL3Oy4GNw7vmLPyM3CsunSfe7TYPslOr3rrx+s6BhbqE7jq+4IPS
-	 qXH3rCGiAJsdB4qq8xo0LqMm9NgxYP/Thy+CakfF0nB3icl5IOgxGEK9LQwsrpd286w==
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=oVi4hXjB7D/dNF+GAUkTbKmVsiaoym0gEXTGv+6A7/c=;
+	b=TiQfEEHdSoNR3Rbw06cvg0l+xU91c8GuaBMJ5+b9PljcQFQnThMjaBKQGcOYc93Gr9Fg
+	 fnlxmPwGk1rgeG3bLkBbYPR8if7V4BX2qaDi4/Kwprqfl+qgc90E8Bop42E7lQ4SQrhm3
+	 StjO1froWQC9isN1VcmXR97rb1RXZL4M7BrttDhL6dxX+vcwDns4E5OQjHUKqs4LwrvZV
+	 ocKAWwd950eg0t+/84BLKmOqNL9g9anIBj2VgEjFl/Wrc55bXFq9RaIE9xhwKKxawFIbp
+	 kuod2hO/TZDTba6TlWzVU9H0YVpovecty3VHNM3aiIworymJg0koufBFFYKodCk6oVQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXdApYyq;
-	arc=none smtp.remote-ip=209.85.222.178
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=C2YRmEv1;
+	arc=none smtp.remote-ip=209.85.219.46
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B152606A31C
-	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 14:54:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4B152606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5BFC606A88E
+	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 15:28:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5BFC606A88E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXdApYyq
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9495e8ae239so353159585a.2
-        for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 06:54:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=C2YRmEv1
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-91f1e3dd08cso14588876d6.3
+        for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 07:28:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794840886; x=1795445686; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=vyxfgyqSCSgv26hGb/4RPkExELeGjQIYx/YX7rznghQ=;
-        b=uXdApYyqUInnITQMTPfea2TMN4p9lT6jcYwCZZvz8HXUKMXnHsvEjbIMrCfG45bHku
-         KD/QN1vWxhpZ48rrctnUslTkKD9hSPD9lTnNp8kP9UUs5+eyNknUaSnVCEwB9GrY+fG/
-         V4PUG4A/wO4PlVJUERqIQdWTOBKmlPrOot6tToubIy8txIxwdpnSqnh/b2cnyaO9WMe8
-         8gjFCahjU5ukaHav9UZIif8v1jbghjszeZIT6B/Lji3kMTnXRff8jqMpszRCJk+WvTwS
-         x/q4/MH9aY3ydNW/sNIaf15y9sKDLcY7ButQxeIS/JfUk3mmmJnEorsh6L2usVrw4cMJ
-         pGdQ==
+        d=gmail.com; s=20260707; t=1794842910; x=1795447710; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oVi4hXjB7D/dNF+GAUkTbKmVsiaoym0gEXTGv+6A7/c=;
+        b=C2YRmEv1WN822ed9QYsvGBG/5G6vhi9gLY5k+hxFJMW6taFB5DIIIX8d2e0Pcq38YQ
+         fKtrJaO4s6LlpY0Mb6IHfbieqrTB6iK0mAIdNvUJajj+e6qRCP2ip3Bek3W/kIAw8Dcl
+         OCx1cYIy/m7ehdp1IfCm44Cu352GiioFu776m/Iu6NBIglDU4qFkPkD86vsxo7v5YAuT
+         ETDutoAhMhIwmPN6FwkMOYM72KkwduP4O0NsRdu3YIS+ewpzBt91T44evHUR/uSDey0n
+         8sj2LIxyMS+PuRo3lGEyU8mpfjWf8swuppesBO/jlJxklPdup4E6BgQC/MKJmgTuby79
+         8owQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794840886; x=1795445686;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=vyxfgyqSCSgv26hGb/4RPkExELeGjQIYx/YX7rznghQ=;
-        b=ERw0PK2t+AXNDJjsp4JxVevvNrj/FYFcjRW4jQovWHPI9KbyQ7LqjkCIhp+a4soDWb
-         E4GSo/UdHovIpsRm+D2ejtYZF4+tbBrlmXVGyH4Msyf1FVgrnn6eR32HUAQSMRZCPxqL
-         QeH3wbX4sCObQZ2lhmey5L6yhHCTcr7GKBAZvSAnPhXuWUs9Cv6S0qKSto+hNaTVa7jH
-         6uaI+gxYQZwA8RbdDI+sYpBRI01MfpaKDFvYMiw+PEyEkGVS3q4lyLPUPVLYeJ0G/K7U
-         rg9isqGotmJtqpke8bbbzcR6dSnIiKaHdYRA+5DO/q8FE2vqiMbYHYPAUbrnTH5YyfaK
-         VSow==
-X-Gm-Message-State: APuU4Z+53ObEB5M+5EXBhJf0s0IbQkZ6b2LP02qBHkV4Jk+bJPcs4Pav
-	XX+xdXHmP9cV7GxTbFwXBSy8X2NOMEw/g4pcW8QDfXjC/C+tZamp0/wi3E/YTlXI
-X-Gm-Gg: AYBFou1CkHrCgkv51DXuhwy4GsnXN7zWRm+xVpuZ1tD8LfRbiUfm4IjJ40mzwBqXCs4
-	lihtv+ZPCtkvrDjL4bgCDZhYZA7eaEHTL/b+4H9s2bny5xesKeHEQDSpRQpGVNaD72TwkVwu31R
-	eDcDO5kQ1zupUfAAjHdP2wvRJhHUsM83CPihE2WZpYe11E4jAdGsBBllHZtaTNY2kqS0vqU8Kca
-	gU/mcDLE/x/ygPo5Vr2A5tJnzffsQPKzVGqzEQiZidR15wHMFPLvcCDZyiCmaqwLmPyCcGBnvT7
-	jwk2TNgscxgvwSC6lv9BJ7TxIqUOk8ul4D7R5jjqk2Nomzd/kIIFHM8+hjjKgCaZTrEojM27xaI
-	N3pJpN2t+WcsVhJZAoYaV5ihoQMvMQBgimcSoTfO8rx3RKwazhNakfNKi/9tX85F2mSiz8Y/W+8
-	tbN/Ec57rQvqg8C4XDn5qSOgoodKGZUmAy+Wjgz6Iu1hHezrHuaDCqARsWP7hbCwd+6XOK6/IHn
-	6UfI3puLAUecSIfU9PlnTUXGRj6NWyfia4On05rRleg88ms5fHT6DEFW42CDPzLZ22oF3/lu7FV
-	OmxB9ZuOSAMZsrHKdJ0b5a9yXKyg/r3UW8ZJHinSsSxBX3n8DUyiODBfAMeihmGJIGevHuj7fnP
-	frwIzxfuxgqpCa05t4sLrF5cwiCSmNG5htE7xtuqIVqb61PbzwaO4G+cCXgGByyNMTvQ2XrdvEA
-	9QHVFuIlsI7L2OYHBZTx4Cw6eeLxIhPeUpMNywBJD7JjTodoWUC3I=
-X-Received: by 2002:a05:620a:880a:b0:93f:2c95:658c with SMTP id af79cd13be357-9494bb77a89mr1689274785a.14.1794840885978;
-        Mon, 16 Nov 2026 06:54:45 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794842910; x=1795447710;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oVi4hXjB7D/dNF+GAUkTbKmVsiaoym0gEXTGv+6A7/c=;
+        b=qL3Rln6ia64lVaN+rcm/xapqMgx6pAjX5SqBXm90K499E+UtyoV+XM1Ap6tZbD+wCR
+         uAiCIchcG8oB/oecF6etUwTMEOiHhbX5BTDbUEIa3guiOXb6RjFwr8vv1pjbMTpjCG4B
+         fFWYJepw6qmjyGud0kDb9x7goqPjsWub3tCTi1bf485hhbgO/SHDvFhrW6CTCcPlYBIV
+         3b9kSeh3/2ip/jHQ40aeTl4X8d6Lm74Lo/QrquEiMhzdSrGVWrSikwN+bxw3uqCvs+/7
+         +oYDqBGafhC/VzS8hnJJOZjFvOnA34aTKksNNRfAegBnRWDhaU5KDNC79lAkWWC13NsL
+         K6fw==
+X-Gm-Message-State: APuU4Z8FyJsf/NSSmvOJOwnz4FXon7USTeNyeukzz2rP7xVveM2ukwNY
+	1WK9+Fs0dr3i+0vzCVuVlN0WMEcy5fUw4X3S2n8KYnHvCgqR0I7RGk3oB+4suEDj
+X-Gm-Gg: AZFdTZfDdEB1Ux9XBpCM6ZF/KCZQicWMiv88sudR4TR1dfiE9FNZZ+7lunQIfmVGgYu
+	wLUOel1RRxjxjyqQeZSLp5dw5YlWWnLTqMi/gLctaW2xnus96meV/5BYkF/Qifq1AwZV2URx+o6
+	kDUAYVO6c1R30adkE1ILgSf3hpvhvpjsm92rT0Q37w20aXF0S6hKoGvp1zf7cgpNSRywt5AS6/U
+	TWsHnM0VUHE9EYb7ZQ4HgTFnkq21Y4TA9GRwlYmeV3rOTHhM1NDmQX2ebHiO1LhRBkkXWNOQ3TG
+	4tnBZSXTWkClSr7ftLvWjfjliNBj+G2PrUJPAS7b64XNEukoe3JxOVO7UHhsc/VTkQ/u37pBG+4
+	T4QApJmscUQdG6bg4x4by+ae4O+zmnw9a2Kxdevm+u3+SU/4MrNs/Xu1EnXx6ySuY8UnSolT5xc
+	kP8wRDC3kSeVYUUPE24zu+n6xpNAp+Us6bguCbpX0HNTSYgpWs0QaJ1AT+rwK3BU7PvRsM+DN+4
+	ZNZjg4StBrL19cCC/Zfa6tdq+TkkwEeMYfAZcPi3FEazAxLxkAd+2erO75YzQ0lsXvLk6+IeNSz
+	iPjsNO0MIou/RIfvvkYYz91Jaa6b3wMC3bXTt+Vx++DgtHynBVHBNXVo1LWHVsbSXNv/QyEbbwp
+	Xuc5EfRXuJpE+cL98j7vvevYsL2h/21GSVnd3oG1V/Nc5yB/96c/Cz3+kJXKiXzZBu26avhxSMb
+	Y60Fl8Bja+FN12FRhB1dpPCD70l02GSP1tZmNOjYO56pt0D5FD1GhvXzNVP9CMXKtSJ58wXsor
+X-Received: by 2002:a05:6214:762:b0:91e:b7fd:b35f with SMTP id 6a1803df08f44-91f2421e092mr172870106d6.30.1794842909660;
+        Mon, 16 Nov 2026 07:28:29 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91f23d952fesm86406956d6.32.2026.11.16.06.54.45
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91f23db49c5sm88286056d6.41.2026.11.16.07.28.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 06:54:45 -0800 (PST)
+        Mon, 16 Nov 2026 07:28:29 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -89,12 +87,10 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 2/2] libsemanage: use LF record boundaries when sorting file contexts
-Date: Mon, 16 Nov 2026 09:53:53 -0500
-Message-ID: <20261116145351.132137-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: require a pathname in Python policy_open
+Date: Mon, 16 Nov 2026 10:28:14 -0500
+Message-ID: <20261116152814.137764-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261116145351.132137-2-stephen.smalley.work@gmail.com>
-References: <20261116145351.132137-2-stephen.smalley.work@gmail.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -106,93 +102,67 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Match the getline() record boundaries used by the file-context reader.
-Consume any remaining bytes as the last line when no newline is found.
-Otherwise an unterminated rule can disappear, or a carriage return in
-a final comment can turn commented text into an active labeling rule.
+Python open() accepts an integer descriptor and then ignores the
+opener.  This lets policy_open() adopt and close a caller-owned
+descriptor and bypasses the read-only policy configuration file
+lookup.
 
-Check the sorted bytes and length for terminated and unterminated rules,
-CRLF input, and comments containing non-delimiter bytes. Leave the
-netfilter context sorter unchanged.
+Normalize the argument with os.fspath() before passing it to open().
+Test both an integer descriptor and a path-like object that also has
+an integer representation.
 
-Fixes: ee7e4e1e4e97 ("libsemanage: optionally sort file_contexts.local by specificity")
+Fixes: 98c2eb900519 ("libselinux: let Python own policy_open descriptor cleanup")
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 adds a Fixes tag.                                                            
- libsemanage/src/semanage_store.c        |  6 +++-
- libsemanage/tests/test_semanage_store.c | 38 +++++++++++++++++++++++++
- 2 files changed, 43 insertions(+), 1 deletion(-)
+ libselinux/src/selinuxswig_python.i  |  2 +-
+ libselinux/tests/test_policy_open.py | 21 +++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 2ada797b..067643ad 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -2847,7 +2847,11 @@ int semanage_fc_sort(semanage_handle_t *sh, const char *buf, size_t buf_len,
- 	/* Parse the char buffer into a semanage_file_context_node_t linked list. */
- 	line_buf = buf;
- 	buf_remainder = buf_len;
--	while ((line_end = semanage_get_line_end(line_buf, buf_remainder))) {
-+	while (buf_remainder) {
-+		/* Match the LF-delimited records read by getline(). */
-+		line_end = memchr(line_buf, '\n', buf_remainder);
-+		if (!line_end)
-+			line_end = line_buf + (buf_remainder - 1);
- 		line_len = line_end - line_buf + 1;
- 		sanity_check = buf_remainder - line_len;
- 		buf_remainder = buf_remainder - line_len;
-diff --git a/libsemanage/tests/test_semanage_store.c b/libsemanage/tests/test_semanage_store.c
-index f6d19332..3275970f 100644
---- a/libsemanage/tests/test_semanage_store.c
-+++ b/libsemanage/tests/test_semanage_store.c
-@@ -151,10 +151,48 @@ int semanage_store_test_cleanup(void)
- 	return 0;
- }
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 28d37e92..e3f98a49 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -68,7 +68,7 @@ def policy_open(path, mode="r", **kwargs):
+     def opener(name, flags):
+         return selinux_policy_open(name, os.O_RDONLY | os.O_CLOEXEC)
  
-+static void test_fc_sort_final_line(void)
-+{
-+	static const char rule[] = "/probe/private -- u:r:private_t:s0\n";
-+	static const char sorted_rule[] =
-+		"/probe/private\t--\tu:r:private_t:s0\n";
-+	static const struct {
-+		const char *input;
-+		const char *expected;
-+	} cases[] = {
-+		{ rule, sorted_rule },
-+		{ "/probe/private -- u:r:private_t:s0", sorted_rule },
-+		{ "/probe/private -- u:r:private_t:s0\r\n", sorted_rule },
-+		{ "# disabled\r/probe/private -- u:r:private_t:s0", "" },
-+		{ "# disabled\r/probe/private -- u:r:private_t:s0\r", "" },
-+		{ "# disabled\xff/probe/private -- u:r:private_t:s0", "" },
-+		{ "# disabled\n/probe/private -- u:r:private_t:s0",
-+		  sorted_rule },
-+	};
+-    return open(path, mode, opener=opener, **kwargs)
++    return open(os.fspath(path), mode, opener=opener, **kwargs)
+ %}
+ 
+ /* security_get_boolean_names() typemap */
+diff --git a/libselinux/tests/test_policy_open.py b/libselinux/tests/test_policy_open.py
+index 337be348..dda2886a 100644
+--- a/libselinux/tests/test_policy_open.py
++++ b/libselinux/tests/test_policy_open.py
+@@ -70,6 +70,27 @@ class PolicyOpenTests(unittest.TestCase):
+         with self.assertRaises(FileNotFoundError):
+             policy_open(self.path + ".missing")
+ 
++    def test_integer_descriptor_remains_owned_by_caller(self):
++        with open(self.path, "r+b") as owner:
++            with self.assertRaises(TypeError):
++                with policy_open(owner.fileno(), "wb", buffering=0):
++                    pass
++            self.assertEqual(owner.read(), b"policy data\n")
 +
-+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
-+		char *sorted = NULL;
-+		size_t len = 0;
-+		int rc = semanage_fc_sort(sh, cases[i].input,
-+					  strlen(cases[i].input), &sorted,
-+					  &len);
-+		CU_ASSERT_EQUAL_FATAL(rc, 0);
-+		CU_ASSERT_EQUAL(len, strlen(cases[i].expected) + 1);
-+		CU_ASSERT_STRING_EQUAL(sorted, cases[i].expected);
-+		free(sorted);
-+	}
-+}
++    def test_pathlike_uses_path_not_descriptor(self):
++        with open(self.path, "rb") as owner:
++            class Both:
++                def __index__(self):
++                    return owner.fileno()
 +
- /* Adds all the tests needed for this suite.
-  */
- int semanage_store_add_tests(CU_pSuite suite)
- {
-+	if (!CU_add_test(suite, "fc_sort_final_line",
-+			 test_fc_sort_final_line)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
++                def __fspath__(self):
++                    return owner.name
 +
- 	if (NULL == CU_add_test(suite, "semanage_store_access_check",
- 				test_semanage_store_access_check)) {
- 		CU_cleanup_registry();
++            with policy_open(Both(), "rb") as stream:
++                self.assertNotEqual(stream.fileno(), owner.fileno())
++                self.assertEqual(stream.read(), b"policy data\n")
++            self.assertEqual(owner.read(), b"policy data\n")
++
+     def test_late_failure_does_not_close_reused_fd(self):
+         namespace = policy_open.__globals__
+         original = namespace["selinux_policy_open"]
 -- 
 2.56.0
 
