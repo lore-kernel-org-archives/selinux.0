@@ -1,65 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794851363;
-	b=jEv83v+esef4xRHECBvjhqzOi6BM4E2ZbqPJa5ATDJAPtisxO/f0k1xZwwRTk5QgNO2j
-	 XueuQtNeBe5/AK4SFVaTjbzllCsufffryEa/GAjTEhwsR7V+6IgVyOQLVe2cuBt6EuD7A
-	 N5Z2LoZfUAXb0/zdKzfJxcqkB4UX/Piy8KtUOc/1cvEGrEpJN7V8S5FEp6Chq69zNLYyV
-	 pzFJzjj2O7LnT5aUCRUDW/KtZjIvV4/eMyGKjs7UpShCa3tVh2D890rkatBP5BXvYjrdz
-	 s/ibKLwb3Hl/AtwkAjb2+X4cOfT7ihRwaqcmKVdZNZBBVzws+ohcei+6U916qeyPbSg==
+	t=1794856471;
+	b=N2i0XYPzLH98iu00HBW9IWsd0sIDb3F61Wd4vwwWWr+5l56O4kwhxDbgKQkiJQB6g2VO
+	 0aFgdp7YrlC7+U1KUHOoJ+TXqn4D2JuXGTwVGP4iB2z06K+8XvNLirtMOB0T5J7+y562Q
+	 P5ltQRflg8EjM1UHZbmeB2k3gSeX9DJJwNV4wsXhsPpmRbgiq+siCpsN0sIi8ygIdPhxR
+	 aiyx6vaI0eflCCuGKwC3dHbhlMFNQLVBAt7OKiXyy3OapD4QZZElFbR8ahq5no9mHNv9V
+	 Tot3jFS3xmBgcZwUKWf9q7GKVwE3ha2UYB8b6tEFyGc8ptQp9Zm1cJsii1h+FvSgYKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794851363;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=ED8m1EUNyZbVy60KlCH1nfmXFCVOvYy5WXRoQrkl9dY=;
-	b=Pxsm24yvp3ZM3Dhn/NkZuYB3x8IkX6EE44h//EKUvXXYOz/mhraya2Na1NfwBLT0yOvb
-	 CkxqBew1/nBrRGzimV8O+JjKEJgJY9CxCuKXwhjwKB5AX5JpLJB1C4OPoTPRFFLX4s45M
-	 8WvC9GihuT0uhKchkHTFVDAEENqEH8k9DVZF31PmiQACZivX1JaVgleiDocJemK5XID9x
-	 b4lvUauuK1G1YFZdp7SXapEe7Y+7FUOy9XA0eAfv2b3L8x12ft9PVPSUqMFDxSxZDHfxP
-	 savIqIulMuur9cuqN0yW6YUr725mCXCZPEmdLC3CyfR8Hq8c9tpjrvmHVr6ujj6+W8g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794856471;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=AyviebTlidN/fRVPA9QzC5rktuAuojHstR/52uUgrTo=;
+	b=t5dK3Vbq8rpKtcGzNfoG64bS69INmyWuTIZ+NG3bZixx4DwrCQSgEeCnub/2LYBsF5kI
+	 5gwQ69me/YiZqI5CWVUxLE5aO0edbraAC22IJ2Ma6h6uesE3xMgArt8ljDASL5FBd3jgU
+	 tt4PBTv3UCq7ZFiq6DiZw/gteDxbdTXQav4DYiAy+ggZKl4bvONKTNQe+rQq/a71vANyM
+	 78VKQ0nr1OfoxH4SL2ZKU84NAxOJcRntwqBvQ6arglPIs5m6PS5EPgxwAt9vf2xg78fzH
+	 Z6z4jltNZ/wlT3uwctrt10Uc1cQ62VgaBPLbiBzl9D7/jj7iQLgctxFzwuIcGSa95TQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LWj9kUC8;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=f0LErZUH;
+	arc=none smtp.remote-ip=209.85.222.172
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CACC6606A32F;
-	Mon, 16 Nov 2026 17:49:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D045606A323
+	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 19:14:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8D045606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LWj9kUC8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6A261F02813;
-	Mon, 16 Nov 2026 17:49:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794851363;
-	bh=ED8m1EUNyZbVy60KlCH1nfmXFCVOvYy5WXRoQrkl9dY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LWj9kUC8kQFC5SfD1vjbud2HBFDNnZqFBwsM7D7EkixcrkbHslvvXUPplnT67OEDa
-	 Ojxvc/9bBfh+7M7IgMwLe0/MW3vEZ7MNK475jdjW9gzIKFiwKQYtp2o3epkEHr1OUY
-	 ut8wZMtQ6WwDI4R/4NjZmngdKNKdP+t6PoX5HnYwVJTKEbOQrvDnGzw7NTHVCoa2iV
-	 Az2pSjHFx32LhMnzCRrFLDjD1DXtR7qLBdQXkQEuVAl0z7iuGlB/eKvhfmNtzTqNut
-	 eiuM63/QtPtS1+8sCvNSNotSJGDSOZKb/xcO1WCvyJtafHJlrptV+MYpMU1CW9c9N/
-	 f6aB01Y3d7oMw==
-Date: Mon, 16 Nov 2026 18:49:14 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Amir Goldstein <amir73il@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
-	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, 
-	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
-	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-nfs@vger.kernel.org, netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
-	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH RFC v3 33/44] ovl: refuse data-only layers on pseudo
- filesystems
-Message-ID: <20261116-kriterien-getoppt-kauern-5a0c1fba70cf@brauner>
-References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
- <20261116-work-loop-pseudo-v3-33-8cbbea1cf34f@kernel.org>
- <CAOQ4uxgPerkkG4ie0SyHVXaBD9VZN2wYfQpEAEi4hytn=ara3A@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=f0LErZUH
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93f22a8515eso407159685a.2
+        for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 11:14:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794856468; x=1795461268; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=AyviebTlidN/fRVPA9QzC5rktuAuojHstR/52uUgrTo=;
+        b=f0LErZUHko02o9ZyZsAQcqVfcB6PfycUyt3nJDTfucwX0lonQlTTqAiCIRnPFrKrS1
+         iuU0tliec3LDJ2cBEX50JXyDnBPrqI2LytqVeUDGVZbBbh3cpksEWcppq7AqjBChb07+
+         Gp5olREhPMRCHdJkjdNgH6CW7Hvy0+U9i9rs1qd95Fd1FyYNNqruMPjjjAbmcPjIQclq
+         hoHzZhPMXkeoNbqL0BUGQaVybVYDBtVzGQrAO8i67c/aQkfTM45jZaOVli4PdEFnsfRQ
+         sZBYFsiDasFHeWgXy5bn3P4GZbSxNdakUJ0sjJeIRmY1IsVaYQ5cXMR4eww/cCoAtvlT
+         1Iew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794856468; x=1795461268;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=AyviebTlidN/fRVPA9QzC5rktuAuojHstR/52uUgrTo=;
+        b=sXCaSxc5ZACMC9oNJtRFzzb3Eii6L+CXQJLO2qCWqoe8ywqgCswcNQAjdAe+DDbtrM
+         SEZISXs1In3QdE+eZJriklsu+G0z5Aj5WGOdAAvsBR+oAsKm63We/YTJXMtL1APMaW9E
+         nS4J1g3OSof1OXx6BiAmgvDaJRl6gf5h0VZPlZxHKCJP9BgCGGSv83yPVao2Q7oASDGp
+         xspIyGcvK0fmImEHBAJDJ8JyNOFq3y+mbL2T35n/qSk9nx/P/jSrkqsITtD0IjflbxaM
+         Xv6yCsR9GR/7BQbcN+h35Fx2mESbFVef1sNJk9+V0jpRw9tVwvLX+/YIFFRdY6nj4HFg
+         F64A==
+X-Gm-Message-State: APuU4Z+9Jc9j6Uiz8phn/6gNzwoYFcP65rZ4cH+XnIdkx50cmJC2h9QC
+	ud/2ps1wCuWE+JWxePBYrgL9jLd4fzDeDuugS/y3s8iVXIfsM0+mT1eBpm/GpKac
+X-Gm-Gg: AYBFou1XIxloAcRbZ/oZI43ul6sZxNob9QKWSpkKaFqpwnzGoMW4K7grC5n0lQ47Cjg
+	sgbtxu9hIGEmR+Njxc2pQjIRNpHwE+c9N/lcEJrx74WDGY/H+rYu0Fv+B2wPJk7U+ChgPnGBXaW
+	xmPpoRRNesbpz8grBiFfhzvuLcjT9ObrZQZAzM02d6aCzutmF1dOq4vYYKzRXpGWT0z8i7ctCQQ
+	dKqvixVJNj7214NPnfocDxi5iC/OdHuuJY5XFXBMj4+MEUl8KbL4XF8FXu9klTRmDBjnP7JBADQ
+	5O5Fjs0bC7UiR64E4XmCAJRI52lGTBaYzoE6+jQVR66eTqBnUI3cPDbZLrryrmQ7OqZc0GLYJxH
+	d5k4wmeC67rBGuPFLyMXBSUrRzopWRnb/J/3io0T694ZUayiyg3PEGP/sl2soh7W9H/L9kYk7Ke
+	5VJdAGvQVMw0oGkqmD43qs4g7VkyPpDVn6HqFKQwtHblvJxlUM+WGcfwemx8VsOWk1bd/Hj+L90
+	/GQeRTM9kdjcleDq8M547sqgk+jEBFrOZyhx/7d9O82eZpTsTd0tv2VD8YudJuda7dFiqrdz0qe
+	WQpa2WDnYwHcXsiJ61jKHjk6e3TwGgAFGu3tvWikbxThhjjdZ2W95jwpkb8t0AS30uyb4RfESho
+	MoI0LIHEVHi6THIUmEYVA/Zp4NzEYAqZDwK8oramlbywzk/zcxWarG/K4SBxcNfrUHrrxMNLBip
+	CH0f5Y44hpnmRSd7Lrqvf8HXBavu9cpHy31ljxzqFZxoxyJmYid/4=
+X-Received: by 2002:a05:620a:400e:b0:93f:3bb5:5454 with SMTP id af79cd13be357-9494bbb2205mr1969638385a.14.1794856468518;
+        Mon, 16 Nov 2026 11:14:28 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c831b7dsm911815985a.20.2026.11.16.11.14.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 11:14:28 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH oss-scanner] projects/selinux: fix running all the tests
+Date: Mon, 16 Nov 2026 14:14:07 -0500
+Message-ID: <20261116191406.209164-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -69,74 +100,68 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxgPerkkG4ie0SyHVXaBD9VZN2wYfQpEAEi4hytn=ara3A@mail.gmail.com>
 
-On Mon, Nov 16, 2026 at 06:37:16PM +0100, Amir Goldstein wrote:
-> On Mon, Nov 16, 2026 at 12:10 PM Christian Brauner <brauner@kernel.org> wrote:
-> >
-> > The data of a metacopy file can live in a data-only layer. overlayfs
-> > doesn't look that data up when it looks up the file. It only remembers
-> > the absolute redirect and looks up the data lazily the first time
-> > someone needs it. So until then nothing can tell which filesystem holds
-> > the data of such a file.
-> >
-> > But a data-only layer has no business being a pseudo filesystem in the
-> > first place. All it does is hold the data of metacopy files and the
-> > regular files of a pseudo filesystem are kernel interfaces, not storage.
-> > So let's refuse data-only layers on superblocks with SB_I_PSEUDO at
-> > mount time.
-> >
-> > Data-only layers can be added via the "::" separator in "lowerdir=" and
-> > via "datadir+" by path or by file descriptor. All of them end up at the
-> > end of ctx->lower. So a single check in ovl_get_lowerstack() covers all
-> > of them.
-> >
-> > Note that regular lower layers on pseudo filesystems are left alone.
-> > Stacking overlayfs on top of sysfs keeps working.
-> >
-> > Suggested-by: Amir Goldstein <amir73il@gmail.com>
-> > Link: https://lore.kernel.org/all/CAOQ4uxhGxpBtMZ5kfuzR1tQAewiecoX7UjXQRo91QjJHH9T_Yw@mail.gmail.com
-> > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> > ---
-> >  fs/overlayfs/super.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> >
-> > diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-> > index 39d4d57dec230..719c2569dfeaf 100644
-> > --- a/fs/overlayfs/super.c
-> > +++ b/fs/overlayfs/super.c
-> > @@ -1237,6 +1237,14 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
-> >         for (i = 0; i < ctx->nr; i++) {
-> >                 l = &ctx->lower[i];
-> >
-> > +               /* Pseudo filesystems don't hold data for metacopy files. */
-> > +               if (i >= ctx->nr - ctx->nr_data &&
-> > +                   (l->path.dentry->d_sb->s_iflags & SB_I_PSEUDO)) {
-> > +                       pr_err("filesystem on %s not supported as data-only layer\n",
-> > +                              l->name);
-> > +                       return ERR_PTR(-EINVAL);
-> > +               }
-> > +
-> 
-> How about we make this just a tad more restrictive:
-> 
->                 /* Pseudo filesystems don't belong in composefs setup */
->                 if (ctx->nr_data &&
->                     (l->path.dentry->d_sb->s_iflags & SB_I_PSEUDO)) {
->                         pr_err("filesystem on %s not supported along
-> with data-only layers\n",
->                                l->name);
->                         return ERR_PTR(-EINVAL);
->                 }
-> 
-> I could send this as followup patch, but since this version is simpler
-> there is no real reason to have the intermediate "only ban datadir" step.
-> 
-> Only the commit message needs a little more flexing to justify this.
+The original Dockerfile and instructions for exercising the tests
+weren't quite adequate to the task. Amend them to ensure all required
+dependencies are in place, including creation and use of a non-root
+user for running the tests and using the selinux repo's existing
+scripts/env_use_destdir to ensure the environment is set up properly
+to use the freshly built libraries rather than any distro-provided
+ones. With this, ./tools/check selinux ran all the tests successfully
+for me.
 
-Just sent me the diff on top of the series and I can fold it with the
-commit message you want and slap your Co-developed-by and SoB on it,
-please?
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ projects/selinux/Dockerfile      | 11 +++++++++--
+ projects/selinux/threat_model.md |  7 ++++++-
+ 2 files changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/projects/selinux/Dockerfile b/projects/selinux/Dockerfile
+index b81a35e..5a0bc64 100644
+--- a/projects/selinux/Dockerfile
++++ b/projects/selinux/Dockerfile
+@@ -24,13 +24,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
+ 	python3-pip \
+ 	python3-setuptools \
+ 	python3-wheel \
++	selinux-policy-dev \
+ 	&& rm -rf /var/lib/apt/lists/*
+ 
+ # scanner contract: the checkout lives inside the image, at /src
+ COPY . /src
+ WORKDIR /src
+ 
++# Build and install everything.
+ RUN make -k DEBUG=1 LSPP_PRIV=y DESTDIR=/src/build install install-pywrap
+ 
+-# Smoke-test
+-RUN make -k DESTDIR=/src/build -C libsepol test
++# Run tests as an unprivileged user, matching upstream CI: several test
++# expectations assert DAC mode-bit semantics that do not hold for uid 0.
++RUN useradd -m scanner && chown -R scanner:scanner /src
++USER scanner
++
++# Run the tests once
++RUN DESTDIR=/src/build ./scripts/env_use_destdir make -k test
+diff --git a/projects/selinux/threat_model.md b/projects/selinux/threat_model.md
+index f049921..b1deb86 100644
+--- a/projects/selinux/threat_model.md
++++ b/projects/selinux/threat_model.md
+@@ -108,7 +108,12 @@ Last review any remaining components e.g. semodule-utils.
+ 
+ .github/actions/build-userspace/action.yml is the GitHub action for
+ building the code, and .github/workflows/run_tests.yml is the workflow
+-for running the tests. The TL;DR version is 'make DESTDIR=/src/build test'.
++for running the tests. The TL;DR version is 'DESTDIR=/src/build
++./scripts/env_use_destdir make test'. env_use_destdir is required so
++that the tests run against the freshly built libraries rather than the
++distribution-provided ones; the tests must also run as an unprivileged
++user, since several test expectations (e.g. DAC permission denials) do
++not hold for uid 0.
+ 
+ FUZZING.md contains instructions for fuzzing selected components;
+ oss-fuzz is used to regularly run the fuzzers.
+-- 
+2.56.0
+
