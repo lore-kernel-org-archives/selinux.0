@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794826633;
-	b=x362PoJB4g8GL0qXibLTpTPAyjb13E7IYs3Y0HqYvhJSyiOSnxwPM5ODKpE9kaXk6gXE
-	 55KxT7DHDU7LeEIUahjUkOYrdEtPdBYzmQBf8RwBLVaXmtRUKXVKWQjl6bj3+Cmtkv+lk
-	 m3t2i5b4/tSI/AdXQmjc49+mhvmQykqto9+MQFRl83djHf0lEv6tVjOSzBYE5NbLz/ATN
-	 NYGIZ2NvxltnbdP0xulh9wvG2H25naVaT8Gj24hG9T732sXRiJ9XcFWHxafwN2w7S9iLD
-	 RThtPp54nPC4zKA/cJVKQ7tEwv+jRPYG4UOnFiHCzGJZdnvNyERF4JmO706H0j0xzkw==
+	t=1794826674;
+	b=PpZYE22T5P2ZE93ZwltFE8cazgtNkE3XeLwinxFq6tEmpwh2UmSLLFp2cO73pc5gVKgg
+	 gFh/vh67A1aKnS3eujydU3kAiTCbqkZewTWxO6Qw5AH42enFzXE2P5JOgAC+LjLvc85+U
+	 3aZmKe5T86y7+1nVbNvVkMAiLXas2NlXibraeGoTHtAy0Upt4HRrDVT3aLaSRUcc6ne7+
+	 WJXNGfQtnEcvhwIQicysGGCz42H7k0M+687bsfgAoz3bpZDqAQWybI7TSQzZz2u+69OU2
+	 s+WKHlhr8U9ocC3Ote+ozIQNVBiH/U0sPbnynNFjT6IPqhp/EXmZX31u4bjjO7JTlhw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794826633;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794826674;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1+UUpJ8AKQELtP/PpEJvHsL6SjSFrf2KgE2FgGKV9wk=;
-	b=xjoi+IrSPBUn+otcFl8sqYzU7qsInzZFynTXPpiCCmSD+GwQKGaVS32aOROixAOLTfUb
-	 DWPaCGHqrNIW3+ZrXYP8qfU3Q2HoBzVnt1VHlunVVXW1kVbMmfRFxeAaqgjOGW8t23SbE
-	 ZM7RAY3oDj+szr75M5cDu9oyAjjli6+NE/5CFKwRIshIFASah2RqyE15RoNLBXQIUTtNq
-	 3IHBfiIv9t+Pj1MUmU6FlH6tAWTAZEa1QKW+18044YlsLZUFh0TtOx4XRw++spLOCOB2U
-	 cSPQnRjYfmuEDAODlTEkQPiHFYpfnIdIynoxw1AQMlVbrKmMiwADh/jrMAUxiDFarzA==
+	bh=qsWCgJChCk75h6c9rlFEt1Gaqj6Qblo3al0QyqAiB9g=;
+	b=KCx4lCloWZBmUaerDCdn24ZDlVU3W3vyRp1j2qLsoB3zShAbgniQ8wn0EoD2f7f/kH/T
+	 jKXUykk0+j7IRQZcOx6YxWuu7l4NO6/8Ks2s1auTyVP6xGRNj5dlP3TumxJ/rk6ejUPy+
+	 Ed2crJieqCh68sG7XO1la6drYeWV+auJ/5U5FCMj1FYT/+nHMC+93L4gdABLyiXjpGnZl
+	 90zygu73SadzekwJGqrC6P5cUPSDoyZnFs9N4FM26sCGmXZmFA7XlreMwWZYGBxg+6p0t
+	 pSy5lo9DJJy4whPcVQwXVdEaoLSbqKdURwlGWm5BbkGCYPrQY6Cc7bdOPXp7mjrvYYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M23wxNdf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ELWj4svX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 653B9606A31C
-	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 10:57:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E90B606A32C
+	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 10:57:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M23wxNdf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4561F000C4
-	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 10:57:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ELWj4svX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D959E1F000C9
+	for <selinux@vger.kernel.org>; Mon, 16 Nov 2026 10:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794826633;
-	bh=1+UUpJ8AKQELtP/PpEJvHsL6SjSFrf2KgE2FgGKV9wk=;
+	s=k20260515; t=1794826674;
+	bh=qsWCgJChCk75h6c9rlFEt1Gaqj6Qblo3al0QyqAiB9g=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=M23wxNdf76ZolL29rGorilINeNPIcQS3cPeUenM5pd/yIPhSLzdT/5PdMpODTXKky
-	 yMLIqFOCTD31dwEJdj/fbqZ4SHKRyGgKnSm+z+Igytm73Fdpe11Hgxuy8eCDlvmlRC
-	 EuKkyAG48+CRRYjY56TfuF719jIUCqL9Ch4whM3Z8ibqtSzvcXj5S9zMN1pxaR7/C0
-	 NhrIkW7kzqKNqiXwz/R47XmOMzoKyU8GSOEXtgVFu/sP0KwbzpRpuu095W/pzBnbAN
-	 7YofvXnUk2WWnU8qAe0+S5h+AG9/BRHy/8S/hY0wUvSC3Ec2eQM7zmlOc0WpwwKAAI
-	 UuZd6nL2EhCsw==
-Message-ID: <sashiko-outbox-216811@kernel.org>
+	b=ELWj4svXvBKNa6eFKYkh0mroO95SnWBonm+nMuPXsdD80Iz5fQM9nwV7CgkqyQved
+	 NvyHeJylt2aunj1Pv1Z01DPfUJh15uHltfr0GHhMNNVcPBuMs4XdS/mWKChduNdUiX
+	 WCZV4LTxI7JqxEb17w8ZhF0bAzupMiNkoujd6ubN836KRxKMuvWozs7a24HQanqdmo
+	 sRV3jmgDA0QRj0ENJOWQOy0nm3muOfU8xozlxnbtWLwWXnJCzuisErq33hcDsziA6L
+	 KL+MlHP0yZ/udNeFe9m6mlHujdQ6gP/OozvwS/SCEc8m/nUpHSRFLUxo8QSQHuqByo
+	 kxDZ+S4OfG1WQ==
+Message-ID: <sashiko-outbox-216813@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6.1] selinux: prevent KMSAN warning in
+Subject: Re: [PATCH 5.10] selinux: prevent KMSAN warning in
  selinux_inet_conn_request()
 Reply-To: sashiko-reviews@lists.linux.dev
 Cc: selinux@vger.kernel.org
-In-Reply-To: <20261116105307.89727-1-petrvaganoff@gmail.com>
-References: <20261116105307.89727-1-petrvaganoff@gmail.com>
+In-Reply-To: <20261116105355.89902-1-petrvaganoff@gmail.com>
+References: <20261116105355.89902-1-petrvaganoff@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 10:57:12 +0000
+Date: Mon, 16 Nov 2026 10:57:53 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -87,6 +87,6 @@ Precedence: list
 Sashiko has reviewed this patch and found no issues.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116105307.8972=
-7-1-petrvaganoff@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116105355.8990=
+2-1-petrvaganoff@gmail.com?part=3D1
 
