@@ -1,75 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=84.16.66.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794910745;
-	b=K4MUOYNjZb6/Nsg9cwwuOfpe4WN2Dod930H75MAPk6RspkdjeDTTyRZohBFFfIqL/I6t
-	 AyYGRPXq8lojrGhmeP8M32nJ7DCJGYyZ/yxO+BnPyy5N4+UtPzAp03S5GaMraP8Rwa2lv
-	 L1uJQ7JOYZy+URnbleS/yBmXJQQT6eTuxF8hz0MEWx+p3jrGO3rrl9kx+F4RhjxqcRIJV
-	 jM6Qr57Yuf6ZanX2DlHtEdCHeXpG1B9Qo+nszbT7ejqG/APr1TvswrQUXida05a9DxGTd
-	 9tqg4CiGgJnDbaFhmGUuU2RGo26BP+VEPDWvsmsZXjh+5lx2+loM4YIEEXu1NLUJU9g==
+	t=1794910985;
+	b=A0VruczBhM6T2HknNd4L04Enr3Wf4LPp3H5pZSUxdVN7ggBKNbsd0mWTym8I81C9v2ea
+	 Ml0qH/hCjfBGAGeWvCBNF1o4yfxSrQBNbQII74Ase1iKId7GctPe6cWZlVuy63ZTka3Un
+	 yBtRv4JUrUEanXl/y0IznLiSE94upN4u8iwD7upDhwa+zQVYSHxf3rWhTLeY8kUmFCvn3
+	 JgxZ6LzDrhoI6auOq7ENS0b9VYq3+wveHgTlTThMIu1OqWZOC32A0opCPJ5xuSON/C23e
+	 4icVP1dgNObMvUfw8bLdj0NvehPgHLd4Z4FmJrPQ0MAQwZKmMgFc5LnqqSkP4Qs7Ssw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794910745;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
-	 Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Infomaniak-Routing;
-	bh=nb6Y3qBz5md8bEdKSYVr1uCQAxRH1CiYfiJZ2O+ozgw=;
-	b=sCWyOxrDD6iTCXOPH5Gh+WLL1LPzAq1dFCgYshJE94SgnmzHhkU+LyA7xFB5vxdNhLDk
-	 LTOQ9/MwBXkCJINDf6G037kWCeP1I70xZWnwzn/H0HZsMr4ZKp68oTtk4Z12bCfzHte/j
-	 xVP1sK++GzS5JKb4yofmvpvKKVhwdL1QMmKJarNgFQ7kiFKX7mA4PVgkDNUUELBjRv5A7
-	 2kF31aYnf9F2FH9EDbFJuF3cHh7zDknGLE2DmLEhaNlHWsYPhE7Ss7P9UkXM8ThjWcDtL
-	 tdLa3jsKqrANq/K/YRvDE2pCKZh5Rs5Z2MWU577JSWVEB15l707Im65FwKeGIEoFo3A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794910985;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=j4OOiJemTPOgMV+vgmMayMBBHZoLW6w0m52087MOA5g=;
+	b=eyJ2ft1KJvqSthHD+1DGv8W+WrAA8WbVqM0IQEHtHiUGzoAUwetckuleXDWRpIHFOTpu
+	 qrTXZdhyexCUNUbNZAptsoxWkzb3DqHCDnz0bp7XinSXZH84oJP7IOB6dUwMiEyxgtbbv
+	 vf8HZzbrMb2BZhtpwq6gX2Oqgx7RJIJZ6RHGcytUukW0JI2Ana5f96TdlbjkqFUororbG
+	 VIzNKaoIwLcjpoqxRscptbsMeRHOCuIUcoWEiCT4/YHdht0Ok3dGmnBEiRdpIuK1LwtM6
+	 VLz4e0D7K81VqWA+NNiB3o/CFAUi02bsZhRgLoAj4ADN3aiBKZDrLmFPaB1goWwfYPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=digikod.net;
-	spf=pass smtp.mailfrom=digikod.net;
-	dkim=pass header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=xaWcp5Pp;
-	arc=none smtp.remote-ip=84.16.66.173
-Received: from smtp-42ad.mail.infomaniak.ch (smtp-42ad.mail.infomaniak.ch [84.16.66.173])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dINzs3fI;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E8F1606A887
-	for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 10:19:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7E8F1606A887
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 599E3606A333;
+	Tue, 17 Nov 2026 10:23:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=xaWcp5Pp
-Received: from smtp-4-0001 (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4jTLL91k7hzWVh;
-	Tue, 17 Nov 2026 11:18:57 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1794910736;
-	bh=nb6Y3qBz5md8bEdKSYVr1uCQAxRH1CiYfiJZ2O+ozgw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=xaWcp5PpJnfMZk8QtNBy5SgREAEo8OKPqQtqrQlAkAfQqJMtqzO3+yDfEhfGcpS/B
-	 f55mw+OmjW5Z5/a5LtuAVUb2CREXTnGQk/cu4jpwmXLQjSH5Vys9bVCaq79JFHROjv
-	 1PaV+vYKtkjT2G2k1fP+VlM7QcOW3999ttZQTL9A=
-Received: from unknown by smtp-4-0001 (Postfix) with ESMTPA id 4jTLL73kJhzV1D;
-	Tue, 17 Nov 2026 11:18:55 +0100 (CET)
-From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-To: Casey Schaufler <casey@schaufler-ca.com>,
-	Georgia Garcia <georgia.garcia@canonical.com>,
-	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
-	James Morris <jmorris@namei.org>,
-	John Johansen <john.johansen@canonical.com>,
-	=?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Serge Hallyn <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-	Christian Brauner <brauner@kernel.org>,
-	KP Singh <kpsingh@kernel.org>,
-	Matt Bobrowski <matt@bobrowski.net>,
-	apparmor@lists.ubuntu.com,
-	bpf@vger.kernel.org,
-	kernel-team@cloudflare.com,
-	linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [PATCH v2 5/6] selinux: Use security_capable_lsm() for CAP_MAC_ADMIN checks
-Date: Tue, 17 Nov 2026 11:18:42 +0100
-Message-ID: <20261117101845.2523770-6-mic@digikod.net>
-In-Reply-To: <20261117101845.2523770-1-mic@digikod.net>
-References: <20261117101845.2523770-1-mic@digikod.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dINzs3fI
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1719A1F000C5;
+	Tue, 17 Nov 2026 10:23:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794910985;
+	bh=j4OOiJemTPOgMV+vgmMayMBBHZoLW6w0m52087MOA5g=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=dINzs3fIrNq4w/5mHjc83vvCIMssZNsq1fVQaAP06RIzPq4dL8RZnU5w4leeB1iKi
+	 p9jmo7Aa7ofGx535H7vqeup46+RLCvROR4EGHtFk23OHx0X7Sd2QD6Hr13VB1t3z4A
+	 7acd2LZZ1qBgfMMOIJMWVBrmCQsFFa3912J1N4vSeHK2wCGr5siHF4bOMFvBDZY3N5
+	 fQHYbc37QHUxlQeltLjGcWqI88abT+1mNgdYuIE1Z0QaRJimchJBg/zTu67vJWr3x8
+	 KVKWzOYKup0rkLmFlrPKwJGKxIMf1X0ONLgxmZu/pHqp/IgE+9BweYN2oWFNlvEti+
+	 pV/ASAZX4LVug==
+Message-ID: <sashiko-outbox-218604@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/2] selftests/landlock: Test PR_SET_SECUREBITS
+ mediation
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+In-Reply-To: <20261117101738.2523492-3-mic@digikod.net>
+References: <20261117101738.2523492-1-mic@digikod.net>
+ <20261117101738.2523492-3-mic@digikod.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 17 Nov 2026 10:23:04 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -78,45 +59,32 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Infomaniak-Routing: alpha
 
-has_cap_mac_admin() checks CAP_MAC_ADMIN with cap_capable() and then
-with SELinux's own check, so that other stacked LSMs do not have to
-authorize it (see commit db59000ab760 ("selinux: only invoke
-capabilities and selinux for CAP_MAC_ADMIN checks")).  This also lets a
-process in a Landlock domain that denies CAP_MAC_ADMIN get or set
-security contexts unknown to the loaded policy.
+> The preceding commoncap fix routes the CAP_SETPCAP check for privileged
+> PR_SET_SECUREBITS requests through the ordinary capable hooks.  Add a
+> focused Landlock regression test for this path.
+>=20
+> Keep CAP_SETPCAP effective to isolate Landlock mediation and run the
+> audit case in a child domain.  A privileged change returns EPERM and
+> emits an exact CAP_SETPCAP record, then an unprivileged-only change
+> succeeds.  After the child exits, require the domain deallocation record
+> to report exactly one denial; this proves that the second operation did
+> not create a hidden denial without relying on an asynchronous no-record
+> timeout.
+>=20
+> The existing check-exec securebits fixture already covers commoncap's
+> privileged, unprivileged, locked, and user-namespace semantics.  Without
+> the preceding fix, this Landlock audit test fails.
+>=20
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: G=C3=BCnther Noack <gnoack@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Serge Hallyn <serge@hallyn.com>
+> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
 
-Switch this check to security_capable_lsm(), as for AppArmor and Smack
-in the previous commits.  The cred_has_capability() check is kept.
+Sashiko has reviewed this patch and found no issues.
 
-Cc: Günther Noack <gnoack@google.com>
-Cc: Ondrej Mosnáček <omosnacek@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Fixes: 97c8386f1d74 ("landlock: Enforce capability restrictions")
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
----
- security/selinux/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9950f89dfaa2..5d85bc06f4c5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3363,7 +3363,8 @@ static bool has_cap_mac_admin(bool audit)
- 	const struct cred *cred = current_cred();
- 	unsigned int opts = audit ? CAP_OPT_NONE : CAP_OPT_NOAUDIT;
- 
--	if (cap_capable(cred, &init_user_ns, CAP_MAC_ADMIN, opts))
-+	if (security_capable_lsm(cred, &init_user_ns, CAP_MAC_ADMIN, opts,
-+				 LSM_ID_SELINUX))
- 		return false;
- 	if (cred_has_capability(cred, CAP_MAC_ADMIN, opts, true))
- 		return false;
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117101738.2523=
+492-1-mic@digikod.net?part=3D2
 
