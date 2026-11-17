@@ -1,87 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794904114;
-	b=oXHgWfpBvWW2UAZZqyP+1FyCWYryt1f8LRv85bGqKUakGN7QGEgBJCATid01BVd18iNO
-	 QH9XcgnAux3CcMpi6Kd3O32DaQr6fBr3A4jLW/qITt2bMWwo7inyYf4GBf/YZMPC/Yqy/
-	 WBPifeh/bwmt0CZFhLvGM0o4S8idsMPCsRcfiVtt8p4pfWYsqOY5i+yn2Ws91veUjymMV
-	 jb+v9IOBYF4donlG/ka1h/aVSnD5tO56KzRB4DgZM1ZUsMcPr0LbwYjmO9MqJodI51ys/
-	 f/F/v+9zQ7Jxkhcod4cAYztWVyWn3BnZn/M0vB1f4lIbO41ssEMFtX2ORZNjEPCsGZw==
+	t=1794904345;
+	b=YPfz+pBjih1I5gAiFA2O4x7g3+ZxK8XH63lrbrNiN42d0G52JyKQHNcFLh6nP2Wcu73F
+	 BpshM9hoHIQJSKqFd2F6c968DmjDdMWoDCy8oTMZ/TH9qgKuLCge4SPCtpdKtOmOad0ZU
+	 flnYzFTkIz+aqZDbn0kLYcG4zu3pDOhQ1+3gMGE1Df7Aw7TW6y29mNwt4mgWwJO0dcSa3
+	 eCmdnm1PKmiXH1PitAqSIzAt/xp8D4wK3wa8Ak6xENWkIqncTEG7/5g3y01OKynP+MMgx
+	 tyeA+1AkcXdUy0acPxgtdAD7UHo8/QZstIwlGjooO2Vjot4GHuem7zO4Kb/zA42xj3w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794904114;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794904345;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
 	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-	b=FQ3Byr84p7io0M70gP7Z4I84/AcrpDgcI2oTVxp7S6eYfuc3rQvbpIxsn8QdeUWDclHI
-	 GjMEMwEvwQ6pACkfetnos8K8lVLIXy5yTG9eJ6/wYXv17O8Uphh7szjPdEviED0nGEGCS
-	 B5KlpFr4xll/POc69BYTKq+7YVToUwsUPNmInVy2JeiJaXspvae1XtN+ZK/BGMLcOxQvt
-	 Y5DT6hB69ZtRJQseEFXE95ItJCwuL5i1w0AhzmJuXmkKVziU0xdIczarNyBODJ7z+OEV9
-	 5XYlcKu/2MqOJdl46/LZKOH8QxLilkPicqrGWpuG3U+jqWgFcdVRN0bdCGuru+hxv5A==
+	bh=iGZ2JImQ8AaSp09QdDpLN1PoylGc+Kk+7WphF44IQ4E=;
+	b=OmWFLBJn7XqotHKN3Ge2vS332sYIOwL7VJoQ4HvQIX2qCqL+OFwSCDy8NpqJzgQ+Tljv
+	 fJvCj38JxtSHgqHGgvcICWKoh2DtkSy+Hord3LdBlAKKk8PCXbu0xmNLrH7PBipi0UUZq
+	 J7djEi4PJQBNdx40HJ+WuY6GLWkYhV6HCfz7W1wc+0CsC1WiBOoQe3DE5r7N1JfU7F3wb
+	 IYyn5YSc8i3fhlWPGRuxMHsGg9U7TQDFpVOmAw4U495xf68GZvwm8+bB0rnqKAnRjCx8f
+	 c4KgelmE4C682DBwa9jSfgIN21b1YSgx5jvxKVZjosr5Xjrjbrkk7JB7WAMTGiQ2pCA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=amutable.com;
 	spf=pass smtp.mailfrom=amutable.com;
-	dkim=pass header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b="lDHE/E60";
-	arc=none smtp.remote-ip=209.85.128.52
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	dkim=pass header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=EFPX8Vuf;
+	arc=none smtp.remote-ip=209.85.221.52
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1DCF60A260F
-	for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 08:28:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F1DCF60A260F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4343606A89D
+	for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 08:32:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D4343606A89D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amutable.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amutable.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=lDHE/E60
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4a2153c8525so27360695e9.3
-        for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 00:28:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=EFPX8Vuf
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4a358881793so377434f8f.0
+        for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 00:32:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794904108; x=1795508908; darn=vger.kernel.org;
+        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794904343; x=1795509143; darn=vger.kernel.org;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
          :cc:subject:date:message-id:reply-to:content-type;
-        bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-        b=lDHE/E60fAF7y/GcfWe7zssqpibfABjaDWc4DbPAbANFwY7mipSCQzk/tGna/Yk9Yp
-         5M31Ja6Q4S90Eg4jWdoE2GH6TurYV9Y9Yxd6SoBGFySZlSGgcD3Nf8Ac20Morq/IEeLi
-         HZNDCkpilOoqmPVEk/N5paMQG+RjNO9OhPzIDtVn6k+5pNMY8rSlnV+zGCrptyxwBw8i
-         uHdMwH/Pby0zhrQLCKl2b6izfUmExSZrUoQCnWP4NFP78u9vhGGyVwUcvE3no1VAV9ln
-         DDlxdlg3j7mlBLcF1wQFzdXfstbmRKgVspXMjOajtHMeg5NsSNAba7k+RMZ1HFntU+s+
-         8A0g==
+        bh=iGZ2JImQ8AaSp09QdDpLN1PoylGc+Kk+7WphF44IQ4E=;
+        b=EFPX8Vuf7iz+NzEUQG+pPgjK/MbrESqv3n9ATmra3Zopp4tpstszPHFfE2sR6EI1XH
+         /MuIqTxoWkMXSLrvcYnqUGQvNVGY6YndEf7Smwels/t/G0PiJAqa5YTB3/XSR2c5vF/4
+         5S685rADCuM7kD+KTHsn5xD0Bbvj+kfNJN7h3Eeu6Tgpz77cxc6E5ixV5T0A3r/KAOuP
+         +pclbSVYUTOzYQ2RRiRVVs4C5Z7y/NhXCRc6Of4Q0fL8jD/Em4FfidsaQN0h6TdkChBo
+         DufH5bn8tmF4fp27j4WWCE7M7sjar8yCORXmuz1wFPQxfWworU2xHCWyEC/YN83R4E+t
+         3i9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794904108; x=1795508908;
+        d=1e100.net; s=20260707; t=1794904343; x=1795509143;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-        b=q61aFynggIVGhUxCFozEYak+afJVOfD45z3GJELaFj3np2oaCwQN9FW/ApukzimD6T
-         /aBOuD5M902bFYLbo51Nwm8UyvUMEjHRWwFOF15HBLOT8JpIhou6byClzDa73gb0+BaD
-         Df6h2bt1qvm4sxqhI8nOpF5hUZ6UbRsIb6Jbe/2RoK5NnLMXfODxcSPYeeHYCJOB20ha
-         UsxsEUtM6QarLX6Fg6gF+sEFG3gXwli3IZs7BzO/pSWNeJh1EkS4eBIWNTboG2cztOmH
-         e8RQYMv3igylApmppjNnFzOwFd8iLrb6GLmUBEsb7LpAKO3wPxgHt7t7WU+1RhZTQXtv
-         lHDA==
-X-Forwarded-Encrypted: i=1; AL+hErHh9kkDT6K9K4yN/nNkyiFbZs1z8UgUV7ed4Qz6RhTLFLqlRmrZPialvVQNLSYAeCGOs/WvMuyh@vger.kernel.org
-X-Gm-Message-State: APuU4Z+BNATxJb4EEV0iFeR8hB8cTQXjHjcEzmVns62bsTL5v3gb4vWZ
-	Jv5d6cJJp52LtWtb4o2y1XgPNLtsvXEfhlM03ba4ZUaholwbMYPwt4yWa/n5W54gXGJp
-X-Gm-Gg: AYBFou3j67uM9+w2eEFm50Wb4byHPUzXPCsS06i7fqR3VrXJuFzn66lB0j12kW6TuLU
-	ojakxJMUMyBYfXJObSF7EKaCQ7xZXuUYozhWqfPctY0fXMZl5tlUck0fLlOuEJn7OgqadtgQ0gq
-	DGW8jpPVcz/2JyZVuykuLMNG57b3Hn5eGct7GVWzKvdyFptgo6VEvpJFxIoxHshmZA1PkR4TX2k
-	RO4l9o55Q/R2nXZwkG4TfRazUjN9VZ1byZ92Yd3+Kfasq9yOTdYo94r1Tv4/TTs8rqJXVE+M8L7
-	9281DqSAxj7GsrCqmsVwWBR0QXHawOePgK5ijap3qUc4S8tUxs9TN9zNrQxojNhBwuAeTC/HDlA
-	og0caw81Ja5lLnoudBMg0chGeMYniiBeUbcj/M2rqgcg50MFmjYTpDLk+WnnxPvPVWXa5h6CNJX
-	7xh7uZGLOV4zNeXHCUbmXhgl68PxxZli2dBq/WtI4Z6B3kNkDk8Z7u4ALQfR+ugESSszr02x+Sa
-	xJAUWXT4oaR5IznfqNAQGukoOmGD12+yUOuFW23NyP7MN/LPZK0ivv/CjyPng5wYINZJhs9/Mhr
-	nm8mRHo9KFkmBE3gtfdCk3vrBy+vAs4jQyl6RsDwYJlNzMImS8x4yJgkS6DLbIGriNe8nhV9IVv
-	OeTB93nZD+FDRmse14EohLNZrK+lmR1R/CZJXK7JYotWdq4qn0U/H1pVL
-X-Received: by 2002:a05:600c:6286:b0:4a1:7e77:c382 with SMTP id 5b1f17b1804b1-4bb55a5d634mr255399085e9.5.1794904108278;
-        Tue, 17 Nov 2026 00:28:28 -0800 (PST)
+        bh=iGZ2JImQ8AaSp09QdDpLN1PoylGc+Kk+7WphF44IQ4E=;
+        b=jtOnooNzidPY84CjVWhlIn3p5eOoZE/4aheNy+vtRkCzscWI0gyR51LUDXMOaKi0WF
+         G2guSDsfAvm6yCxY1+vpSfTzZEi6AxEuKAr7iHy+vj/utw8eiqs+/PrB/RBZVV6vs2/z
+         p0jktG4ySgmiI8w4Ek77pry+tnHQu64dacQy9AeyAHCfFG9AgPGogEJaRrDHsm/9Ue41
+         xPJGJLMtK56Lj5ZPNsHgOSIYaCfcxtw9Xj3A28EUxIBZ0zLlV2n1SmD8yGDh0GgI5MTb
+         dKeJ8C8gXeGkLzUV6x3BFRyna2dY9d5yAOB7AXWyrf36O0/zpbffsujKmmye4Vsb62Ot
+         RNOg==
+X-Forwarded-Encrypted: i=1; AL+hErE8ZIE6VGK+EjjlcYwlBDG5carS/jk6nKIIOWtZg+0orgoJFkjxXuIrBCGORSTX6RHNRwYTV55y@vger.kernel.org
+X-Gm-Message-State: APuU4Z8jlfAuAr35uRB7bIiL4to3XFjt0Cq4VBLUrM9YwmSZ/FKNjCCf
+	RFEpa4rOBtFtK+OeXu//24gJRPMffdMohABwVtmzl9kLqaCP0JzAA7pU6ghZhNJlGeZl
+X-Gm-Gg: AZFdTZf0mZ99mt1MrVwPnraPjbJpv0lWKGVzU1+RYTC/jXoxyaZdCCTuUgKvhgRvy06
+	49KZXLlDq39UpQZAMWfGWSwSuljSddGJnI9hMVvgc0LJ4w7jCX9EDY0dooXopEEoRWn8VLh8m/u
+	5tjJy4AiGc5v03TqgYvDorwBcWETw2T97cb6PvB/hCUwY9hoNfzUoiaEleBMHaVrRseieHGzEjA
+	aASz2kBBdRKtdaEbnu7rhjx1vfS3/kAdFtpGNvivYHNIRQlm16On4t/qIOlaYWdSOQdIAn5nyRt
+	OPkykMoyBbjDLmzZ3+Uz6KR67wmn5i82bigqVkyyi0+6icqBwqBtOD+vBMpH9yEmY2hs3RMih7c
+	v8c7afogGSbOzrlAgjeuMtlHQ1QcTNMdEccfUpfN+ghjByv4d0RFsak5Dk/p3bQHWneVfrRvK1e
+	JdpBBrNzYu95oEPob7xKykZ1XxsD0XBNP+XH1pcZtuy3C6lmOQqi08+vm/mXhtxPCzvl9ZC5x8b
+	Ni8DNkWgmjrLHrzsFu75A78EQBMFEW0Nr+0/TJf4zqe4MSqTwwjFc50DlKYR39BnUx/vZ2UyXx6
+	AIiVE5v92UtqMciz4iNdHQalQRISmE+F/7qXzBWKgqRYGMjIQ6c40ZCTxBD1shD3pHRjmAbSMbL
+	M31eESm7FP1yIW++dZ4+M3PwkKsrI8nNN+O9PprYpiKzY7T+aziBLAVHK
+X-Received: by 2002:a05:6000:3108:b0:48d:f9dd:e3de with SMTP id ffacd0b85a97d-49c7353c415mr27089117f8f.45.1794904343236;
+        Tue, 17 Nov 2026 00:32:23 -0800 (PST)
 Received: from ?IPv6:2003:cf:572c:2800:de4c:6789:33ce:97c2? (p200300cf572c2800de4c678933ce97c2.dip0.t-ipconnect.de. [2003:cf:572c:2800:de4c:6789:33ce:97c2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb78422d2dsm75197335e9.10.2026.11.17.00.28.26
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c608d10b2sm43646659f8f.44.2026.11.17.00.32.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 00:28:27 -0800 (PST)
-Message-ID: <afc070a816e3ae5eb3c9e2d62d4f25c59ee61df2.camel@amutable.com>
-Subject: Re: [PATCH RFC v3 26/44] xenfs: use fc_init_pseudo()
+        Tue, 17 Nov 2026 00:32:22 -0800 (PST)
+Message-ID: <fd39200976086130cc82d59699a988fc3e0689cf.camel@amutable.com>
+Subject: Re: [PATCH RFC v3 27/44] openpromfs: use fc_init_pseudo()
 From: Alexander Mikhalitsyn <alex@amutable.com>
 To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
 Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
@@ -98,11 +98,11 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
  ocfs2-devel@lists.linux.dev, 	linux-s390@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, 	linux-usb@vger.kernel.org, Amir Goldstein
  <amir73il@gmail.com>, 	linux-erofs@lists.ozlabs.org,
- linux-kselftest@vger.kernel.org, Chris Down	 <chris@chrisdown.name>
-Date: Tue, 17 Nov 2026 09:28:26 +0100
-In-Reply-To: <20261116-work-loop-pseudo-v3-26-8cbbea1cf34f@kernel.org>
+ linux-kselftest@vger.kernel.org
+Date: Tue, 17 Nov 2026 09:32:20 +0100
+In-Reply-To: <20261116-work-loop-pseudo-v3-27-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
-	 <20261116-work-loop-pseudo-v3-26-8cbbea1cf34f@kernel.org>
+	 <20261116-work-loop-pseudo-v3-27-8cbbea1cf34f@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.56.2-0+deb13u1 
@@ -116,41 +116,39 @@ List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 
-On Mon, 2026-11-16 at 12:04 +0100, Christian Brauner wrote:
-> Initialize xenfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. xenfs never holds executables or
+On Mon, 2026-11-16 at 12:05 +0100, Christian Brauner wrote:
+> Initialize openpromfs as a pseudo filesystem. This raises SB_I_PSEUDO
+> and
+> also SB_I_NOEXEC and SB_I_NODEV. openpromfs never holds executables
+> or
 > device nodes.
 >=20
-> SB_I_NOEXEC also refuses PROT_EXEC mappings. xenfs maps the xenstore
-> page and guest memory through privcmd, both data.
->=20
-> Reviewed-by: Chris Down <chris@chrisdown.name>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 > ---
-> =C2=A0drivers/xen/xenfs/super.c | 2 ++
+> =C2=A0fs/openpromfs/inode.c | 2 ++
 > =C2=A01 file changed, 2 insertions(+)
 >=20
-> diff --git a/drivers/xen/xenfs/super.c b/drivers/xen/xenfs/super.c
-> index 37ea7c5c03469..aba7d038ed735 100644
-> --- a/drivers/xen/xenfs/super.c
-> +++ b/drivers/xen/xenfs/super.c
-> @@ -15,6 +15,7 @@
-> =C2=A0#include <linux/module.h>
+> diff --git a/fs/openpromfs/inode.c b/fs/openpromfs/inode.c
+> index fb8d84bdedfb2..6cd02d456bac9 100644
+> --- a/fs/openpromfs/inode.c
+> +++ b/fs/openpromfs/inode.c
+> @@ -10,6 +10,7 @@
+> =C2=A0#include <linux/string.h>
 > =C2=A0#include <linux/fs.h>
 > =C2=A0#include <linux/fs_context.h>
 > +#include <linux/pseudo_fs.h>
-> =C2=A0#include <linux/magic.h>
+> =C2=A0#include <linux/init.h>
+> =C2=A0#include <linux/slab.h>
+> =C2=A0#include <linux/seq_file.h>
+> @@ -419,6 +420,7 @@ static const struct fs_context_operations
+> openpromfs_context_ops =3D {
 > =C2=A0
-> =C2=A0#include <xen/xen.h>
-> @@ -80,6 +81,7 @@ static const struct fs_context_operations
-> xenfs_context_ops =3D {
-> =C2=A0
-> =C2=A0static int xenfs_init_fs_context(struct fs_context *fc)
+> =C2=A0static int openpromfs_init_fs_context(struct fs_context *fc)
 > =C2=A0{
 > +	fc_init_pseudo(fc);
-> =C2=A0	fc->ops =3D &xenfs_context_ops;
+> =C2=A0	fc->ops =3D &openpromfs_context_ops;
 > =C2=A0	return 0;
 > =C2=A0}
