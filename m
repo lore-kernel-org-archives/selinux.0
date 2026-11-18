@@ -1,87 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=62.89.141.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794958486;
-	b=MbILcdrHYldgCPNW14ieQXc7iBJlOZ6QVZ0Jru2YQOQHnCj+/tDntgx5V7lC+xUvG6HA
-	 BvsKTe6xYTTS3rwgKka2G7HNPZJk7wmRkvj10cghnXS0ZVndcg+sSjPSBzPVbbffEXzE6
-	 X5Cx1SEJdS7gQ1nHiDNIhuZ7kHukfUtEESSb6GCUhUhDXKnBqwRO9iUo7GE1uelTx9VW4
-	 7zdt+q8V+I9l2KBOfCFjbQhrMrkoSj7lZUxeSOe0zQQFeSheWem31jfVnZjiCRu1hCE9b
-	 KbFkw8MD54idNXBpE5hyaqDpe+Qm+qxVqY74S0WWGsgayCIzPv9OGGieRM0CBpWKcZQ==
+	t=1794961022;
+	b=OAqjhafzEdE99D+pQR6x4+7LWi0EwfWZ3lVM18LnzwnLQDr7QRhfNAKrWYn2QGTQ15uv
+	 Xv6VEqVQ9PXkzt/u1MDPHJyoe1TruJEdDSW83DUGHiXI1AwqPTb+fZBcs4MJ7+1DY8qgI
+	 HzvyAcEX7ImnDDiCqIrSD6plxMArjM0b8ka2ij2JNABkM6IPmwtcLLCQwYlwEYVnfxhmC
+	 W+OZv3Nrk/vm4CytQt3OocY1I83afGV260EoOgTGS/cDmN5HrXUYAgmAy3umgNkx/8qNn
+	 b0NYizs6p4+e2FHmBaCEsbw0jHTRXrzLsQCpVbp5N/9kp+xMS8elus1Wql1pmAkNxkQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794958486;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer:From:To:Cc:Subject:References:In-Reply-To;
-	bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-	b=PC9ns5xeY7MTQbserDVG8EZvkl3lSwHWAXkfiY+6Wg+yHZvAP5ekHg844nB7GvEwoic5
-	 rxVdRI5u4TvAvGNUa4Ti7o1hEhX62782nX2EVDDU5TJQ2Lp/+IsLF0b+Es7/VtYvo74L6
-	 1CI4Yas3UOm52kQ1k498CjblvWqMVLkNJ+ewHpPd927IcH3HHMZyXDP2PU7h68S+2DN4G
-	 0Qp/ykgZzL8Yewd9mcmBKdWk/bZaVh22JrkLLTjF9XwRYZVoJexbcgwh/NgcueQ9fMhND
-	 vzrREj66HgS346+dvMjpPxeI81jjFfp+sK27FFxD+JlpsrHfmmbNDhJdxWvySJkkWUw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794961022;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:Sender;
+	bh=7Cn7kvyEpPF81PEysHmt35Ci8fEqAoER3KXkfxx0oq8=;
+	b=vluiF4KKqBji1epkz8wi0C5Zr1RD/UccLBmYVBvzjHMW0Rsb1jsfIuYs9Jleglh/6LDE
+	 66ry5GQuO0QVghEvmWVwTCTLIJOQSKA/HBlIsRj1NQkPO/loIBLA54Qx2RyQASc+A8T52
+	 wStDvwk66otjeQCarZ+Lb8dXyHlxk3nKAhFDEQevcCGkZ0hdOhqhdo7PbM5+16/OP0ejm
+	 pgRcjI85jjBFbIQn6aIDoBFwiEv0RXHPDgHKSX5HlnV4aT+8NAlegfS1x/y6v74IR9/KM
+	 OEP5Jx/xx10fKSlWzSZFhazn+dpplMSUvlFsg9dXqB+XWrz2EY2CCIukPbO6xSeOThg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=PRr5dLBj;
-	arc=none smtp.remote-ip=209.85.222.174
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=zeniv.linux.org.uk;
+	spf=none smtp.mailfrom=ftp.linux.org.uk;
+	dkim=pass header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=CHOH2EIm;
+	arc=none smtp.remote-ip=62.89.141.173
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 411BA606A31C
-	for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 23:34:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 411BA606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D3C606A31C;
+	Wed, 18 Nov 2026 00:17:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14D3C606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=PRr5dLBj
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-93f22a8515eso37986985a.2
-        for <selinux@vger.kernel.org>; Tue, 17 Nov 2026 15:34:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1794958484; x=1795563284; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-        b=PRr5dLBjAs05ylRi2AXLL0lTt2IRquA8ljp3pqeJPErlk/8PgAPrbJeb5L3wCfYpa4
-         XDYg/SSGs1hy4t8K+/Pp2PiFQx3NJhZscZFEkHYDBy/vZZXIK8wPt1b8bU/aiP11Aror
-         r2GnSzAJl8YAMrvOZ9zn1J7tRliIlMrZCaSyvO1BKafTr1o5vnDRkuheZbUs3qaGJKbw
-         GZZ0QuyXsQLRhhKtgXaxoG43vf79JCmBRlf2ehljTRfDruOrXulaw85CZqHDE9ak195A
-         eJ6eF8rJUuh1V7SM65zr4OBPFIDmlixPlsEtIh2VtMq10Xt4Rwuc5EzZPn5JnzwasjJF
-         zOlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794958484; x=1795563284;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-        b=YbNdhxm9eOvXKgujNALzZiwov0BxTXEOAA4QmZfs73wq/6g0MUunwC45NFSDn5FXBF
-         5ynMSnBbNoQPLdFlp008qF9QvK9vDotuJy5aUIx5uMK3txJ2wEs64qzcUN+Bgy0h8VRP
-         ahttUr7kHSBD97pfY/L5ztC4LMdFcYNxMBey4enxRro4Yc3qZyzb6Ml0dYFNG9EUEdMn
-         An3xQQ+lWka1RFnb0rLHq+aYElJCFh7p1/mzNmXuMzSva4XbUphImqX4P+DFLLB0l/V5
-         17I8T9kVXHIGFXVsdbOC54/bvYfRl9PmzptgMiPzQScZubqzcUJ90pizidvXZ362MzB+
-         QCkw==
-X-Forwarded-Encrypted: i=1; AL+hErF9b26baKdKCVnFpcR61LbJjKxMhExzqTYHGlmLuq/MEBBj3BpupRkGrckqWN24wv57Z/OMn+8Y@vger.kernel.org
-X-Gm-Message-State: APuU4Z8rXkSFBdsuQzzWym69YNVt/jW1JaeKx1baIQbvt+oRMyqKI6uj
-	a9uyrqVx6qflBZ6Sm3eSxxLm/NT/kbkFVOxXTjLLiYagr5nXDp1+qe3khTaQcY1ctQ==
-X-Gm-Gg: AYBFou02DHX8Yyu0u0NEsx4IDYfR6269KIOTrczF6oWd3ugXNQGHVZBR23/5rNo8AcE
-	8ec/cJXk5hmU5irKi53z3lCWKCRQmwtWqzYwu9TP9camh5zYzO4qaxWTCsItewy/iOYNZ3I3rSq
-	fGOzflOS5dpM6PbLacS/P970uHbI8Jl5Uifk6IQk8LBMzl65RY6T6w7WpZaArGD3xYBIu3OhwPg
-	eTIqZN7bAPDijmKHAElsPwW/Yx7qVbhJVoR7cu9Tr7USo8qjGEWoQ6u+YVhCPmrBw6Sa4zpcLY8
-	dtxWAv9q8P7fDkVkvsLeulvAPT/77Bg8aNEpMWBVulqa6qtGIjLsKp/g159du8umBCj4Mgco7i/
-	kW4sTQwWH+V+0vS3QsZwYfZYUnnC5wIu1yIsTUwSSsiX70BAwPsBYgdjhhlWnwRVeLBrNHER1xN
-	68TFvBpoisWaanQYaXDms+ZtULgbD7bA4zRX8Z7JUO4GpMODbTUpe9Ziz9Gy4s9Duz3B60kWy7G
-	M7EYrJqYKBozU96Y0CHeCzngXsz1t/eH+Swvn5FPZbSU6pZz0W8sL3l+Hcdiac7GYu2mNYcJ9UH
-	M4NZVwDgjafkEflk3UFwSFXjBe6ei+M/IN7j6rS7Y5dOX21eKO7FwYFlGKOgOm+WUsraryTRI7I
-	qDUDhEFFP1oq1ApuBIHAeuE32x/KdVZ4=
-X-Received: by 2002:a05:620a:2906:b0:944:dbd:8253 with SMTP id af79cd13be357-949995ee428mr247457685a.59.1794958484257;
-        Tue, 17 Nov 2026 15:34:44 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b7c9a65sm41585085a.34.2026.11.17.15.34.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 15:34:42 -0800 (PST)
-Date: Tue, 17 Nov 2026 18:34:41 -0500
-Message-ID: <7a012ff555beb43b389ba5ab96e25ba3@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=CHOH2EIm
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=7Cn7kvyEpPF81PEysHmt35Ci8fEqAoER3KXkfxx0oq8=; b=CHOH2EImE32MCKC26QN/24GUrd
+	FBPcI8h/GIcU5ew7o/3rkJXl0BLdIeW7EOEQtMJdSJPzYII29UlVG2JTS5LXEJMYNgr1FvxHbgpd0
+	wrs3m/Xk7A7WTFbuCZuerSAToP2t1LgF0RJCQ1l4R5X2F8IxOGOhv0wJjpZ72x7SvOPqh8bMSNxFM
+	Q1x1tZUC1HinlKerwu2CcDccLmVm8IDK8gfVV57Chx/qlWsowc8nemFxbIXaBkhIjYmr72boTXSUL
+	GuwNXIlWTYrsD2IP9qolOSmjGc0P8Whak/ciC2rL8MnPtzJtyKRrxH3G3ntipwi7x8qAZ5yTkvBLb
+	NA4Y86WQ==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xTTLt-00000007BaR-1POq;
+	Wed, 18 Nov 2026 00:16:41 +0000
+Date: Wed, 18 Nov 2026 00:16:41 +0000
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: Cai Xinchen <caixinchen1@huawei.com>
+Cc: mic@digikod.net, gnoack@google.com, paul@paul-moore.com,
+	brauner@kernel.org, jack@suse.cz, amir73il@gmail.com,
+	andrii@kernel.org, apparmor@lists.ubuntu.com, ast@kernel.org,
+	axboe@kernel.dk, bpf@vger.kernel.org, casey@schaufler-ca.com,
+	cel@kernel.org, cem@kernel.org, chenxiaosong@chenxiaosong.com,
+	code@tyhicks.com, corbet@lwn.net, Dai.Ngo@oracle.com,
+	dakr@kernel.org, daniel@iogearbox.net, dhowells@redhat.com,
+	dlemoal@kernel.org, dmitry.kasatkin@gmail.com,
+	driver-core@lists.linux.dev, dsterba@suse.com,
+	ecryptfs@vger.kernel.org, eddyz87@gmail.com, emil@etsalapatis.com,
+	eric.snowberg@oracle.com, exfat@lists.linux.dev,
+	georgia.garcia@canonical.com, gregkh@linuxfoundation.org,
+	hch@lst.de, hirofumi@mail.parknet.co.jp, hyc.lee@gmail.com,
+	ihor.solodrai@linux.dev, jlayton@kernel.org, jmorris@namei.org,
+	johan@kernel.org, john.fastabend@gmail.com,
+	john.johansen@canonical.com, jolsa@kernel.org, kpsingh@kernel.org,
+	linkinjeon@kernel.org, linux-api@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-cifs@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-unionfs@vger.kernel.org,
+	linux-xfs@vger.kernel.org, liubaolin12138@163.com,
+	martin.lau@linux.dev, mason@kernel.org,
+	mathieu.desnoyers@efficios.com, matt@bobrowski.net,
+	memxor@gmail.com, mhiramat@kernel.org, miklos@szeredi.hu,
+	neil@brown.name, netfs@lists.linux.dev, ntfs@lists.linux.dev,
+	okorniev@redhat.com, omosnacek@gmail.com,
+	penguin-kernel@i-love.sakura.ne.jp, rafael@kernel.org,
+	rdunlap@infradead.org, roberto.sassu@huawei.com,
+	rostedt@goodmis.org, selinux@vger.kernel.org,
+	senozhatsky@chromium.org, serge@hallyn.com, sj1557.seo@samsung.com,
+	skhan@linuxfoundation.org, song@kernel.org,
+	stephen.smalley.work@gmail.com, takedakn@nttdata.co.jp,
+	tom@talpey.com, yonghong.song@linux.dev, yuezhang.mo@sony.com,
+	zohar@linux.ibm.com, utilityemal77@gmail.com, lujialin4@huawei.com
+Subject: Re: [PATCH -next -v4 02/17] LSM: pass struct path to the
+ inode_setsecctx hook
+Message-ID: <20261118001641.GA1669148@ZenIV>
+References: <20261117150542.1169451-1-caixinchen1@huawei.com>
+ <20261117150542.1169451-3-caixinchen1@huawei.com>
+ <20261117184342.GR989762@ZenIV>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -90,79 +100,53 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20261117_1552/pstg-lib:20261117_1552/pstg-pwork:20261117_1552
-From: Paul Moore <paul@paul-moore.com>
-To: sashiko-bot@kernel.org, "Christian Brauner" <brauner@kernel.org>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-Subject: Re: [PATCH RFC v3 18/44] selinux: use fc_init_pseudo() for selinuxfs
-References: <20261116-work-loop-pseudo-v3-18-8cbbea1cf34f@kernel.org>
-In-Reply-To: <20261116-work-loop-pseudo-v3-18-8cbbea1cf34f@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261117184342.GR989762@ZenIV>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-On Nov 16, 2026 sashiko-bot@kernel.org wrote:
+On Tue, Nov 17, 2026 at 06:43:42PM +0000, Al Viro wrote:
+> On Tue, Nov 17, 2026 at 11:05:27PM +0800, Cai Xinchen wrote:
+> > The inode_setsecctx hook and its security_inode_setsecctx() caller in
+> > fs/nfsd operate on a dentry even though both have a struct path
+> > available.  Pass a const struct path so that the coming conversion of the
+> > xattr helpers can be reflected in the implementations; for now SELinux
+> > and Smack keep passing path->dentry and &nop_mnt_idmap to
+> > __vfs_setxattr_locked().
+> > 
+> > Also document in lsm_hook_defs.h what a struct path argument may be used
+> > for: it can be passed to VFS helpers taking a struct path, but nothing is
+> > guaranteed about path->mnt.
 > 
-> Initialize selinuxfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> SB_I_NOEXEC. selinuxfs never holds executables. SB_I_NOEXEC also
-> refuses PROT_EXEC mappings but the status and policy files are only
-> ever mapped for reading.
+> No, with the side of Hell, No.
 > 
-> But selinuxfs needs device nodes. The kernel replaces file descriptors
-> with /sys/fs/selinux/null on exec via dentry_open() which doesn't care
-> about SB_I_NODEV. Android init however opens /sys/fs/selinux/null by
-> path as /dev/null doesn't exist yet at that point. So clear SB_I_NODEV
-> again in sel_fill_super().
+> > + * Hooks that take a struct path argument: the VFS only sanctions passing
+> > + * the path to VFS helpers that take a struct path (e.g. notify_change());
+> > + * it makes no guarantees with regard to path->mnt, whose layout and
+> > + * implementation details are subject to change.  Implementations must
+> > + * not rely on its properties.
 > 
-> Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
-> Reviewed-by: Chris Down <chris@chrisdown.name>
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> Tested-by: Chris Down <chris@chrisdown.name>
-> ---
->  security/selinux/selinuxfs.c | 5 +++++
->  1 file changed, 5 insertions(+)
+> NAKed-by: Al Viro <viro@zeniv.linux.org.uk>
 > 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 310e19efff1d0..d7ae853b6d685 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -18,6 +18,7 @@
->  #include <linux/vmalloc.h>
->  #include <linux/fs.h>
->  #include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
->  #include <linux/hex.h>
->  #include <linux/mount.h>
->  #include <linux/mutex.h>
-> @@ -1852,6 +1853,9 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
->  		/* last one */ {"", NULL, 0}
->  	};
->  
-> +	/* Android init opens the null device below by path. */
-> +	sb->s_iflags &= ~SB_I_NODEV;
-
-See my comment in patch 17/44, this is also used internally in the
-flush_unauthorized_files() function.  Once again I would prefer the
-comment to be changed to the following:
-
-  /* allow for the /sys/fs/selinux/null device node */
-
-Acked-by: Paul Moore <paul@paul-moore.com>
-
->  	ret = selinux_fs_info_create(sb);
->  	if (ret)
->  		goto err;
-> @@ -1955,6 +1959,7 @@ static const struct fs_context_operations sel_context_ops = {
->  
->  static int sel_init_fs_context(struct fs_context *fc)
->  {
-> +	fc_init_pseudo(fc);
->  	fc->ops = &sel_context_ops;
->  	return 0;
->  }
+> If that kind of stuff actually does get passed to any existing hooks, we need
+> to fix that ASAP.  If not, consider that a blanket NAK on any patch series
+> that would introduce such.
 > 
-> -- 
-> 2.53.0
+> We are not going there.  At all.  "Must not rely on its properties" ==
+> "must make sure that no existing functions with struct path * arguments
+> ever have such malformed instances passed to them".  Which is not going
+> to be feasible to enforce.  And yes, that very much includes any VFS helpers.
 
---
-paul-moore.com
+To elaborate a bit: correctness of quite a few places does depend upon the
+following invaraint:
+	path->mnt->mnt_sb == path->dentry->d_sb		(1)
+for all struct path pointers they might possibly run into.  _Some_
+functions might _currently_ be safe to call with that constraint violated;
+there's neither a list of such functions nor any promise whatsoever that
+call that is currently safe in such conditions will remain safe at any
+later point.
+
+_IF_ you can guarantee that (1) is not violated, we have something to
+talk about; otherwise, don't call your object struct path and don't
+pass it to anything that expects to deal with struct path.
