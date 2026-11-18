@@ -1,120 +1,120 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.133.124
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795009127;
-	b=Bj0ievcjVyNtuOxwnHsHBS4PUdTjn+X4lGMUrIOKyy1FMrOqzjzah7L3R6dSrbmPhaEB
-	 wZizPwDule1jcYn7ODrzqdHMZXijvmpJ+gJ/ZJPimK8D8ytkmPvRIPo78RaysT9xG+jdf
-	 00g2+FdyPXkigveoo+km894K4GBQ9r/HQW9JopINRkjE+UKFTJtd6yjiwmOE6giWCUfK3
-	 BYDpVOALbmpXf8hjka0gMiUoMmDKMXs5+yUbnZZTIh185COkzpq8f8opXndsjCxpfQMGQ
-	 uikTJQ8q+grYf/qZZjWh6RegRGMeh7/wAFseBJT8LdwO90Q8go8bVcw6i58l74B3DmA==
+	t=1795010139;
+	b=hRaLjPkmWbrNINwibaB4CN/UTGZL8eTM/MtTLm40jo2tQMxA3KjYF161jSJXRv8FqC94
+	 4pEnLm9aENcn06Tb/VhBkDnum4dluV6L/jO+004KZq6DwVf82x1xsACADgjGKVgC2adx1
+	 +Kh1aVAiaTneF5mnKupG07ciBbCvfV/vs6tW10YXP7PeTBAzBEMlvyE7AVVw6n0kTImgV
+	 0vAGsxdXbiNCPuk/QBtOxp3Gv+l474E5SIN2jtWL2zVbx5PLcsvBtE3vMRj2qmwze7bb/
+	 lf9hwK6kFDhH2iUiVEd6lPmmCzrPIOuVvXP9RdsDvevLZWos78eMBIQTnOWAgosvrjw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795009127;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795010139;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
 	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=h50xYCZDbBstrT/18dKKndyJ3XtJH6sY5/J/QnXGpDQ=;
-	b=pNWgBwPA6M3Ko4bRkvsbfUgjMdC+oZ1uE+ev9J+54JKnoALZSGS/y6yOsrZec53JCxp1
-	 x41xAfigDbzcMNOzTajKbKsh/YwLKrK74ADG7fTj76uilnWbtI3W4GSuJWZte/tjdJYK/
-	 n70IQXNTmiDdPX5m+VmpohUaDisZH0b1jZwrV2dhRsFjk/O1OOQfkUWvOQznIA1dvZFik
-	 7zZy7KasWNYlF+RadlHoyeNH3tRSH39wxlSVm9yPLUbSRqbqpXBv3zBBfFG/4ssHZjPwt
-	 nz4wqHvs8d2JbEUzxaFfsPqb6OMaZ3cyH+ikKppGQH5AQbpwHDKKjGRLhEG9E3VGPaA==
+	bh=Q93IOK+81L655tUS3XT9KzQ8Uws4KOL15ej2huBrpiw=;
+	b=qERBu5k2ry8T9kqTh5nWy4KOwqDrde/Amx9B5s0ffza/K+lseRsFYzWQcoQemzpNHliW
+	 xJ8onThjJlYoSs6S4UvSVb96bJoF0hE2Mx2x7aPv+dNdtvZT+wgCVrrGO5LEuYcE4IV42
+	 2xu2kNgAYtgSXTkZX+lnKPxSck9l5bex/2j2bgo+82dQwOvQWytiXWNIjBJyEDdTq+lJw
+	 4G3U5GdSmnZg+B66kkRumBtfY1nAhfsu41rRvTGjrE9CT+SCGw/3HYlTKC6IJ7lsrkb35
+	 rR6eSxOrLBgNZhAiF2C+yqx9TqzbJvlECOhux+g/I5HbXeoxKGQIXntU+JEFzjadRSQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V7jLsO7j;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=MiHGt89R;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QXfsJqiv;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b="YdeGXNs/";
 	arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.133.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD2260A2608
-	for <selinux@vger.kernel.org>; Wed, 18 Nov 2026 13:38:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFD2260A2608
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6EB4606A331
+	for <selinux@vger.kernel.org>; Wed, 18 Nov 2026 13:55:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C6EB4606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V7jLsO7j;
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=MiHGt89R
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QXfsJqiv;
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=YdeGXNs/
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795009125;
+	s=mimecast20190719; t=1795010137;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=h50xYCZDbBstrT/18dKKndyJ3XtJH6sY5/J/QnXGpDQ=;
-	b=V7jLsO7jo0wHH8sN8zK7RcmF7NZ5CN/dPSzoGDt8zGqju9Az31BcfCPoqbDBuHpWKRlRyS
-	Tfa/ceL/jMEqwnDwpP4mHqm5WiU6KJhG5kjI2NHq/vHYJqGxYPG3wIILZ3dIvqG+bUKiNJ
-	xGZyqy/3nMHLoinS7ooK67DrlERPj6U=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Q93IOK+81L655tUS3XT9KzQ8Uws4KOL15ej2huBrpiw=;
+	b=QXfsJqivqBNqfL8AggaLxuMEBU7EfXUwQ79yX9mkY0DsyoJKv14Jj/OiqP17IwmtwHUvtm
+	hDttkoYGz0xiCc9jOMzkOF5g6m+QAdI/wa8hDJ5BtVIpXff4tFeOjBu8nPrel8lbwUuT3W
+	PR8WTtsSxNEPBpbDUz0KfAdFrL/sUoM=
+Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
+ [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-204-qwiI_cGXPzWNmHI3lhLFEg-1; Wed, 18 Nov 2026 08:38:44 -0500
-X-MC-Unique: qwiI_cGXPzWNmHI3lhLFEg-1
-X-Mimecast-MFC-AGG-ID: qwiI_cGXPzWNmHI3lhLFEg_1795009124
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-8b4d09fefd7so8992997b3.1
-        for <selinux@vger.kernel.org>; Wed, 18 Nov 2026 05:38:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795009124; cv=none;
+ us-mta-414-BfH89V6iMoi2qsKX1lduAA-1; Wed, 18 Nov 2026 08:55:36 -0500
+X-MC-Unique: BfH89V6iMoi2qsKX1lduAA-1
+X-Mimecast-MFC-AGG-ID: BfH89V6iMoi2qsKX1lduAA_1795010136
+Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-677c4ca22c5so1264913d50.3
+        for <selinux@vger.kernel.org>; Wed, 18 Nov 2026 05:55:36 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795010136; cv=none;
         d=google.com; s=arc-20260327;
-        b=AJTs8SksllijG1ZohglEGMd5zdXA2/rasprkAGn7PsfgfNO7k2L4OvEXvdb25Tot3f
-         pnRFvzBCsCvnHR2PXfdmjRYpALK4LwSXBLGL299IsbDKBIVPlsCvz+3jlzdCGNm5HwTY
-         kfupbpr/vDNQ2/vp0/bVTjkCgq+jEnTk8/lX+xmZyioTc7V8E/zwYrwZsWDHxBlBiQLh
-         Bhg8jc1BNDeQ6DUcW9oD/bcJT7VNn5UCaPmLZ1jRfNMJVCK736T0DjvN9ZcyJWDWb+Dh
-         bo8zzgAEBQhyHFN2G2pj0Fso6uYP2GxClM9M3YFDNpN9S8AbhpSDM27MWrX9CJ9Kj0AX
-         0iUg==
+        b=Mx4DwTd/D/3iEoOl9bgLNcX8l1wHq6ZN4MafTo7Sy5HaLSyhdL9SOC73vn1EYQ0WM3
+         ISJFDews0OdLz5NFbLpFgISG1UosPxFPIfQ6opNbbRB7bcr0gZjuoBEAnmRE0LRl6lyZ
+         5IOn9cUgSUdvxRE0BzOBWCMlAm0C4lnQPx13Pg0+/vUxzUaTCxrLsEDzUE8sjtKk1sPf
+         zilPqK7Fx54NEaJlmll1QoxQXUxEGeFysI3hEK0omizuOL7OO6UR3LNekqzQOSYAeu5o
+         bz+dEUBSEqnWAI6mv7HI2KRKW7PQ318nTvWbdJ7V8hXuOnKSVc/jqj5tcJuHH8UA1h2b
+         1InA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=h50xYCZDbBstrT/18dKKndyJ3XtJH6sY5/J/QnXGpDQ=;
-        fh=n47UPB33gG90D8YWxe7q86Uu0kPj0R0f6JW3wk45Tks=;
-        b=HaPdAMQQoEG/MrllXYKq0prhKP6P8EOs+e/XP8Um202MYIwnRAcvFvY975q3QVdB/O
-         dnC2eiwKErSo/Xd9MwLBUNG/CYDOSi/cgZcrU5aX10tOrvVnQzZasiireAS24cNnRAWb
-         yDsyWQUhCXVOr3cluPZbLNJ6SQaGnaGGGN+ETLeWuTROFREPqRfL09jOlxXwGKZuhn2R
-         9TQSx6QJVhus6xbkSVsGumvR10exg93YC7LELwQEOvwaDMMIHoUtD3bvmmlHDJlYah7j
-         uSUC5wEwnEBLZkNBx+bPVQ8lE7EqWndwrh34W/jn1Lh6otXTmdJKH5eal8AxzwSeIYkU
-         zJig==;
+        bh=Q93IOK+81L655tUS3XT9KzQ8Uws4KOL15ej2huBrpiw=;
+        fh=Kokkkb8vIXOSphqjqff3EwTRb866SfMbBp/gvx81WgM=;
+        b=aiLQp5W8XQ9G/iccV401dFDYZMSKuK1Nq4elq1Gj1aSmAEqLhIpMxXIy32+7EbTj9J
+         geoKZXAlHLCeWLjnXrqSxBc4nfh6U1fpkk7/oxului9YihIv8PLutxMU1VTXbiYtIsuE
+         kYbAViQy9qlNREJ53EjxZHU8fl3NXHjv/HdlgwTm/X1ismqi6vre8ec7QaVs6sr5pBNo
+         B8LsVNT3H3l6FnJFXOsj3kI471G2czIFk8mPtowRPAZEvp1RCmRZ5iYjMz0tkwe5m4CF
+         DDaF40K8a3/r7gRN3KK1z2ejB6ZdxczgZTrDHjXwv3jBIyoW5YYrTini+ujI4oBQeoDe
+         Yvrw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1795009124; x=1795613924; darn=vger.kernel.org;
+        d=redhat.com; s=google; t=1795010136; x=1795614936; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=h50xYCZDbBstrT/18dKKndyJ3XtJH6sY5/J/QnXGpDQ=;
-        b=MiHGt89RGmOWwRF6HBuKiQQx1CCrlWNI1Hr3n1UYVhcdLz+4P047hbjYrlp6yHpTPE
-         FsLfA4qY1TU+nApiWX+7zvZFahR/TIAC+EWuUFGE5I9UP3bImMt/V3vq6csp0U5nNkL0
-         9jaB7lgEgQHKTNbeNYZ6jQu4fKFOkbqyma/PNoT0dpl1aSManfDXteYD/MYkZMX2LdyE
-         1bWH5jU7D55SuKphsqvPku41buZGHsV7637AIfVPAdZoNikkmE4+U2F3TsUXwWPw5Pk/
-         kc+cfm9qUAZ8KDzTkyLSwoVfeMcxAwqHnYXkHKeFF+deLbRBs4m8EWXD6D4sSfTCMZaQ
-         EEWg==
+        bh=Q93IOK+81L655tUS3XT9KzQ8Uws4KOL15ej2huBrpiw=;
+        b=YdeGXNs/g+hxp03HRbQSUUfYwpG+Q463Psgnm5pI6nowFTE0GT/AT+9Eba8UqJXu2F
+         Rjm7s6KZtfcTE+jLnJqY9Yha9DiDRbhjBVk9n/zG7Tl/p4QVD4cOVryiVPrvuioWjJ2V
+         kC4s94SucOy//FSYm1394CoCF5UK5zXU1gxH2PfPcfRIkd2mTJdDSJhVy7FSL4lT5EZc
+         m+HBczANYjijzYP43BM9ZWyF2lkON43QQgIwWQhgllRW+41fvFVuY2rQaXLV1H9y0Dqo
+         Sq+5Nt2E0oRySNF5RHc6s28Fs0dEBL+ug6DeSjIEnvBqVwZGg+FdASv6oArpfSCSBBSS
+         kWvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795009124; x=1795613924;
+        d=1e100.net; s=20260707; t=1795010136; x=1795614936;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=h50xYCZDbBstrT/18dKKndyJ3XtJH6sY5/J/QnXGpDQ=;
-        b=QX8cIT3xS/uBVJ1lh65hENn5eK6UBzbK0zqStg/j3L/v8OAHBauEtFzqX+bcBdV89s
-         Fdw2VxB2PShrYNOcVE5+zwAy4ig8oK5tFxx90wgWyf/z7/euCufWqwQQg1YygzqduP2Y
-         zVo86ZXYmIbitxLNgOXh4NTqV6bQZ/R/AwidcH0LTWm/dhdXvA56vzbyqYOr7Vwe0SnO
-         eov8bDmN4M5F6UwGMGcQOVFOToMGq8YyMtbI1EgDlQCwdNec49rIHIySPVDtCnjZMXHw
-         Ob+c0BFzZ1zpEbSSKrno390llWhsm1zyQymWCCi4KuBWS2wungAMLBSo4VVmvW4vl//8
-         skMQ==
-X-Forwarded-Encrypted: i=1; AL+hErEI5j799FWC8X53zP6Mx+NglReq7GgTp811pGFRgPvvimio+ZfGZFg3sgA9ZP0kUw0H8cv1KtKk@vger.kernel.org
-X-Gm-Message-State: APuU4Z8wkV+O+MFeSoS4h/ylI30eD7xI/JAhkq8t+8z50pCe5Xopy+G5
-	P8EUDDK3AG4Xu1rkYfn/0C6p02Rmuo7YNozrNBQCJbZi6Ft48ruhR9GFlA+uI6cSEde89Yk9N89
-	51szJfglHUkFqWdunOJ8tE1e/HhshY4Crug0OxyrvPfN2TRd2BMxqAAjWpbWQuiw4PyAGG40PLt
-	tiBUDNv532CNEr+iZ2ev2RLJ9ej8513v5T+Q==
-X-Gm-Gg: AZFdTZdy57VsXaxWelOkWNl1VUhAZyqZYfdi6b63ocydlz+XroQytxUh8Oh7Bmh/asQ
-	oYUgCZJ1rnrXnFVU6b02b7Gj1M3i+Pp67s8nkV9Djf2Jl8Zdexdy7QMrxm/gjjiQpaxTYR7DOP0
-	krpAxYCjio/9cMaXH4UD8Tm07Fs1YtCGbDdm4DBOg3LZzpy+AUmeROZxDe
-X-Received: by 2002:a05:690c:368a:b0:873:5bb2:6bfd with SMTP id 00721157ae682-8b4fed83351mr10017967b3.39.1795009120675;
-        Wed, 18 Nov 2026 05:38:40 -0800 (PST)
-X-Received: by 2002:a05:690c:368a:b0:873:5bb2:6bfd with SMTP id
- 00721157ae682-8b4fed83351mr10017817b3.39.1795009119849; Wed, 18 Nov 2026
- 05:38:39 -0800 (PST)
+        bh=Q93IOK+81L655tUS3XT9KzQ8Uws4KOL15ej2huBrpiw=;
+        b=UnTbmKIuv4OhfqIxXrX2QVHyvR99JttwKnXaUjovhKiexqVOpk9nQBCNIsKBfk81Nw
+         QHR7lY+6dG7NtLYqBJ4ed5jgT2vakCTi5XSeBkOqpd69Vmc/b1IBfjkMf2lxdZA2pN0D
+         GO8VT/7yMUI0d9lfVQ/k58w5CgTiUcufseeEfywwlcOKNhzmIofFNfzGvoxP/mXKBFEy
+         yMMpoX98TefCGzxwGO4+rDqjNW92D04luEd1bgSwC2FjITCQstUp2CMx2O+c3F0DFktg
+         u1ouGb4e/UoUPC3y+aHc61YzbFpnaKMFk/sEGJzx8TywrH5wmORvQ+nj717dUxlFixkC
+         B2BA==
+X-Forwarded-Encrypted: i=1; AL+hErGZ8udVdi5CldSi/dQU3puX6a8DNDgiZaVm6qef31SAfOif5ffvCxmYNVE+6bv4/6ieIJ11QakK@vger.kernel.org
+X-Gm-Message-State: APuU4Z/6eR1rauE363L3hFALWWG6/lhSEW2slHxVJyWMMRX7lVruNsOQ
+	DjGAYDArfZVGabCpSz3KVWzlkZIxl8zOimWv7DJwp7QLTJHp6ak1CnZFx6bRRZmCrlsJJRewG0l
+	+XFnJEBr6MdgmphOggC7Edm/3QIpfFZ8idHqWipavMn23ZGQ78CqwIagDhed6Zv6K0gaQdT53+j
+	LuWOuSXzymm13MubvxfDS4F+IASqJ3oz2U2A==
+X-Gm-Gg: AZFdTZd1MC0OoN2CMp5J0NjpuWJuDVKo476OAfM4kjU5f+uU1CJL09cEx2CtATvK/Lz
+	Onx2ILBlim8qpGzEjuVagBgUvevTapyB4H61JnHuj5VysQrIpw5FFj3KS5wRjJDyZF14o1LucgU
+	RJZxEikfuH60ssh+O1ypnr1ncjV+Noq+mWpAdiKm9QLYcLkR5amr6qeEtv
+X-Received: by 2002:a05:690e:1387:b0:67b:f249:5b16 with SMTP id 956f58d0204a3-67dd3fdee8amr1338605d50.55.1795010135882;
+        Wed, 18 Nov 2026 05:55:35 -0800 (PST)
+X-Received: by 2002:a05:690e:1387:b0:67b:f249:5b16 with SMTP id
+ 956f58d0204a3-67dd3fdee8amr1338592d50.55.1795010135440; Wed, 18 Nov 2026
+ 05:55:35 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -124,14 +124,14 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261117-v2_20230123_tjmercier_google_com-v5-0-1ce975f2a9ad@redhat.com>
- <4356992ac4fb7876fb5759189ba4b492@paul-moore.com>
-In-Reply-To: <4356992ac4fb7876fb5759189ba4b492@paul-moore.com>
+References: <20261117-v2_20230123_tjmercier_google_com-v5-4-1ce975f2a9ad@redhat.com>
+ <44c0c45c0e2f47ed77bc45be47ebb3fb@paul-moore.com>
+In-Reply-To: <44c0c45c0e2f47ed77bc45be47ebb3fb@paul-moore.com>
 From: Albert Esteve <aesteve@redhat.com>
-Date: Wed, 18 Nov 2026 14:38:28 +0100
-X-Gm-Features: Aa3M54php6hihR6Ihi3l34Ri9nQdKaLYB3Ss2kJeRmi5f3v9ab0vBjDa0q2nnvI
-Message-ID: <CADSE00JyTwrbNh4r8PZWLqOHWpepyHkaL+9fkc+AbVRmCc-f-g@mail.gmail.com>
-Subject: Re: [PATCH v5 0/8] memcg: dma-buf cgroup accounting and charge transfer
+Date: Wed, 18 Nov 2026 14:55:24 +0100
+X-Gm-Features: Aa3M54okPSWfJ_g3ixS3iw1yy5owTDFGTKhnOXZ64bND8Gaqu8R-9XYtSNGyOOw
+Message-ID: <CADSE00LVsFVOmezzLgPrPWDd+L+SSGzGvqKTiX25waxRnVPh9Q@mail.gmail.com>
+Subject: Re: [PATCH v5 4/8] lsm: Add memcg_charge_task LSM hook
 To: Paul Moore <paul@paul-moore.com>
 Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
 	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
@@ -162,200 +162,101 @@ rote:
 >
 > On Nov 17, 2026 Albert Esteve <aesteve@redhat.com> wrote:
 > >
-> > Shared-memory allocator services (e.g., Android's gralloc)
-> > allocate dma-bufs on behalf of client processes in different
-> > cgroups. Today those allocations are charged to the allocator's
-> > own cgroup, leaving client cgroups with no visibility into their
-> > actual memory consumption and defeating resource limits.
+> > Both DMA_HEAP_IOCTL_ALLOC and the new DMA_BUF_IOCTL_XFER_CHARGE ioctl
+> > accept a charge_fd field that, when set, causes the allocation to be
+> > charged to an arbitrary process's cgroup rather than the caller's.
 > >
-> > This series adds memory cgroup accounting for dma-buf allocations,
-> > building on T.J. Mercier's earlier series [1] and incorporating
-> > feedback from previous versions and LPC discussions [2].
+> > Charging is currently limited to the caller's own memcg subtree unless
+> > the caller holds CAP_SYS_RESOURCE. But the capability is all-or-nothing=
+.
+> > A process holding it, along with a dma-heap device node or a dma-buf
+> > fd can charge unlimited memory to any other process's cgroup, potential=
+ly
+> > exhausting that cgroup's limit and triggering OOM kills independent of
+> > the victim's own activity or privileges.
 > >
-> > Patch 1 introduces the MEMCG_DMABUF stat and the
-> > obj_cgroup_reserve_dmabuf()/obj_cgroup_cancel_dmabuf() and
-> > mem_cgroup_commit_dmabuf()/mem_cgroup_uncharge_dmabuf() helpers
-> > in mm/memcontrol.c
+> > Add security_memcg_charge_task(), called in get_obj_cgroup_from_fd()
+> > when charge_fd refers to another process. The hook receives
+> > the credentials of the allocating process (from) and the credentials
+> > of the process whose cgroup will be charged (to), giving security
+> > modules a controlled enforcement point for cross-cgroup objcg
+> > attribution policy.
 > >
-> > Patch 2 wires up the charging policy: dma_buf_export() stores
-> > exp_info.objcg and updates the stat, a new charge_fd field in
-> > DMA_HEAP_IOCTL_ALLOC accepts a pidfd or cgroupfd to identify
-> > the target cgroup, and __GFP_ACCOUNT is removed from system-heap
-> > allocations to avoid double counting.
-> >
-> > Patch 3 adds DMA_BUF_IOCTL_XFER_CHARGE, a general ioctl on any
-> > dma-buf fd to transfer charges post-allocation. This covers the
-> > double-hop allocator case (SurfaceFlinger -> gralloc -> kernel)
-> > and works for buffers from any exporter that opts in. Charging
-> > is gated by dmabuf->objcg being set at export time, ensuring that
-> > transfer is only applied for buffers backed by system memory where
-> > size reflects actual bytes. If the receiving cgroup lacks capacity
-> > for the charge, the ioctl returns -ENOMEM and the original charge
-> > is preserved.
-> >
-> > Patches 4-7 add access control for cross-cgroup charging. Letting
-> > userspace decide who to charge needs to be a privileged operation
-> > because it has material impact on OOM decision and resource limits.
-> > Charging outside the caller's own memcg subtree requires
-> > CAP_SYS_RESOURCE. On top of that, LSM hooks gate the two charge_fd
-> > flavours: security_memcg_charge_task() gates the pidfd path (target
-> > identified by task credentials) and security_memcg_charge_cgroup()
-> > gates the cgroupfd path (target identified by cgroup directory label),
-> > with SELinux implementations using process2:charge_to and
-> > cgroup:charge_to permissions.
->
-> I'm probably misunderstanding the description here, but in both cases
-> (the pidfd or cgroupfd case), ultimately the cgroup is charged, yes?  In
-> the cgroupfd case it is more direct, but in the pidfd case it is still
-> the cgroup associated with the process identified by pidfd, yes?
-
-Your understanding is correct here.
-
->
-> If that's the case - and it very well may not be (!) - it probably makes
-> more sense to combine the two SELinux access controls into one.  Yes, the
-> LSM hooks and callbacks would likely need to be different due to the
-> mechanics of it, but the permission check "cgroup/charge" could be the
-> same.
-
-Combining SELinux access controls makes sense to me. I kept them split
-because I wanted to preserve granularity between the two flavours, and
-process2 seemed like a natural fit for the pidfd path, but I guess it
-can still be achieved with a single permission through the target
-types.
-
-I'll rework for v6. So, in the pidfd case the check target would
-remain the process's domain:
-
-   allow allocator_t client_t:cgroup charge_to;
-
-where allocator_t is the domain requesting the charge (i.e., the
-central allocator), and client_t is the domain of the process the
-pidfd refers to. The groupfd path would check the cgroup directory
-label like so:
-
-  allow allocator_t cgroup_t:cgroup charge_to;
-
-Would that be ok?
-
->
-> > Patch 8 adds selftests. The tests and vmtest script were mostly
-> > written by an LLM, closely following the style of the surrounding
-> > tests and the virtme-ng setup. All code has been reviewed and tested.
->
-> I think we need to have selinux-testsuite tests to go along with
-> this, especially as this would be the first patchset to add cgroup
-> controls.  Historically I've pushed back on piecemeal cgroup additions,
-> pushing for some basic design of how to manage access controls for
-> resource management first, but since evidently no one wants to do that,
-> we really do need tests.
->
-> https://github.com/SELinuxProject/selinux-testsuite
-
-Agreed! I was already playing with it between the last version and
-this one. I have some tests drafted, more or less. I was unfamiliar
-with the testsuite, so instead of offloading the work to an LLM, I
-tried to follow along and proceeded too slowly.
-
-I will link a PR when sending the next version.
-
->
-> > Known limitations:
-> >
-> > - Single-owner model: a dma-buf carries one memcg charge regardless
-> >   of how many processes share it.
->
-> Once again, I'm sure I'm misunderstanding things, but are you saying
-> that multiple cgroups can end up sharing the same dma-buf despite
-> only one of the cgroups taking the accounting hit?
-
-Yes, you are correct. A dma-buf (its fd) can be shared by multiple
-processes from multiple cgroups, but only one holds the charge. With
-this series it can be transferred, but never shared.
-
-Sharing could be a follow-up series. Perhaps splitting the charge
-equally? But sharing is a big problem on its own, so I preferred to
-keep it out of this series.
-
->
-> Hopefully the charged cgroup is deterministic?
-
-Yes, the charged cgroup is deterministic: it is set at allocation, and
-only moves via an explicit ioctl.
-
->
-> > - Only memcg accounting. CMA heaps would additionally need dmem
-> >   controller integration.
->
-> Do you have a rough idea of how that would work?  I ask only because I'm
-> interested in seeing if that would require an additional LSM hook or if
-> there is some way we could leverage the same hook(s) used here.
-
-Rough idea, yes. Today, no dma-buf allocation charges dmem at all, and
-of course no target charging either. The first goal for CMA is simply
-getting those heaps accounted. In that regard, Eric Chanudet has a
-series making CMA allocations memcg-accountable with per-area counter
-[1], and is working on extending that approach to dmem. It's a bit on
-hold waiting for the feedback on this series.
-
-But afaik the cross-cgroup charging and central allocator problem is
-mainly a system-memory one. Whether dmem ever needs the same
-cross-cgroup attribution (e.g., DRM central allocator wanting to
-charge clients' dmem budgets) is not clear to me.
-
-Nonetheless, if it does, the internals should be mostly the same;
-everything, including the permission checks is controller-agnostic.
-Only the controller performing the charge changes. I expect no
-additional hook is required.
-
-[1] https://lore.kernel.org/all/20260821-cma-memcg-regions-v1-0-d21b165b844=
-0@redhat.com/
-
->
-> > - If a transfer of an uncharged buffer fails, the buffer remains
-> >   charged to the original cgroup. The allocator (userspace) is
-> >   expected to handle this (retry, free, ...).
-> > - The LSM hooks are intentionally narrow. Broader cgroup access control=
-s
-> >   (e.g. for the memfd/kexec handover case [2]) could be a separate effo=
-rt
-> >   reusing the same pattern.
-> > - Only system heap sets exp_info.objcg today. Other exporters
-> >   (DRM, V4L2, etc.) can opt in by setting it, but are not
-> >   covered by this series.
-> > - Related to the above: lazy backing-store allocation is not supported.
-> >   This can be extended later, e.g., by adding a flag on the dma-buf
-> >   struct for explicitly marking when memory is committed.
->
-> Similar to the CMA case, any rough ideas on what this would look like?
-
-Yes, again I have a rough idea. We already separate reserve and commit
-operations, so the idea is to delay when a charge is committed. For
-that we can use a flag in the dma-buf struct to mark when the memory
-is committed. The limit is still enforced up front (so a lazy exporter
-cannot overcommit), and the stat reflects the actual allocation.
-
-The permission model is also unchanged for this case. The flag only
-affects when the stat will reflect the charge.
-
-Thanks!
-Albert.
-
->
-> > Note on TTM/GPU accounting [3]: that effort charges system memory
-> > allocated for GPU buffers per page, with its own stats (gpu_active
-> > and gpu_reclaim). This series charges at the dma-buf level, for
-> > memory with no memory.stat category of its own; exporters whose
-> > memory is already charged by their allocator must not opt in, so
-> > the two do not overlap.
-> >
-> > [1] https://lore.kernel.org/cgroups/20230109213809.418135-1-tjmercier@g=
-oogle.com/
-> > [2] https://lpc.events/event/20/contributions/2416/
-> > [3] https://lore.kernel.org/all/20260706052330.1110909-1-airlied@gmail.=
-com/
+> > When CONFIG_SECURITY is not set the hook compiles to an inline
+> > returning 0, adding no overhead to the fast path.
 > >
 > > Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> > ---
+> >  include/linux/lsm_hook_defs.h |  1 +
+> >  include/linux/security.h      |  7 +++++++
+> >  mm/memcontrol.c               | 11 +++++++++++
+> >  security/security.c           | 15 +++++++++++++++
+> >  4 files changed, 34 insertions(+)
+>
+> ...
+>
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index 03cd90d5e623..2e6fcbe14d43 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -60,6 +60,7 @@
+> >  #include <linux/lockdep.h>
+> >  #include <linux/resume_user_mode.h>
+> >  #include <linux/psi.h>
+> > +#include <linux/security.h>
+> >  #include <linux/seq_buf.h>
+> >  #include <linux/sched/isolation.h>
+> >  #include <linux/kmemleak.h>
+> > @@ -3198,10 +3199,12 @@ static bool mem_cgroup_may_charge(struct mem_cg=
+roup *memcg)
+> >  struct obj_cgroup *get_obj_cgroup_from_fd(int fd)
+> >  {
+> >       struct cgroup_subsys_state *css;
+> > +     const struct cred *tcred;
+> >       struct obj_cgroup *objcg;
+> >       struct mem_cgroup *memcg;
+> >       struct task_struct *task;
+> >       unsigned int pidfd_flags;
+> > +     int ret;
+> >
+> >       if (mem_cgroup_disabled())
+> >               return ERR_PTR(-EOPNOTSUPP);
+> > @@ -3226,6 +3229,14 @@ struct obj_cgroup *get_obj_cgroup_from_fd(int fd=
+)
+> >               if (IS_ERR(task))
+> >                       return ERR_CAST(task);
+> >
+> > +             tcred =3D get_task_cred(task);
+> > +             ret =3D security_memcg_charge_task(current_cred(), tcred)=
+;
+>
+> Do you ever envision this "from" cred being something other than
+> current_cred()?
+
+Good point. No, I do not.
+
+> If the answer is "no", we might want to consider changing
+> the LSM hook slightly to help prevent misuse in the future:
+>
+>   int security_current_memcg_charge_task(const struct cred *tcred);
+
+Agreed. I'll apply the same to the cgroupfd variant for symmetry (its
+"from" is also always current_cred()).
+
+BR,
+Albert.
+
+
+>
+> > +             put_cred(tcred);
+> > +             if (ret) {
+> > +                     put_task_struct(task);
+> > +                     return ERR_PTR(ret);
+> > +             }
+> > +
+> >               rcu_read_lock();
+> >               css =3D task_css(task, memory_cgrp_id);
+> >               put_task_struct(task);
 >
 > --
 > paul-moore.com
