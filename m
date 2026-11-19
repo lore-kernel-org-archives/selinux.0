@@ -1,76 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795095528;
-	b=YhqIJaf1UHkaIq0931TQlkoS66wn8Q1K0tYCAJtAN7X9ogtBnkJHhM3rWjb7VYnrCLK9
-	 SNhBXwDGkhaowHTU57G/cf2y8wyW1jxPvvnuBdvQzvfNG3BIocc/tlyqG37SUSRP/v8r4
-	 oL1qgi0UWdwLXnqPgxhrTvAzYJ9hASa2wBpIDEWrGlxOQZEYVA8RV8LsYDXKCnEA+dlu0
-	 H3sNAZcOT/vIDCP6X4YWxtsuEpaw8Jdmusw5rn4Cjod0o9oSQsLcKzPAKICnAn7hhfYWw
-	 +yafyFisfcSE3CgfGjyaVLvGy8ZLX6eHw3d+j4y2ENyW1QjpYDR+o/tJLz2YNtOm0vw==
+	t=1795095752;
+	b=ea3qSvyAFYwepomgb6SgX04EKsGgGDflT6xYcy6umJzRtfIHS1aFeQBVFekRSME5q7Ea
+	 fYzytYQDHeHzDhcE6vAFcmhTQdInZbHmXPrW6YL4LL2+m+0ty377Q74Z0/+93C9j4HcqD
+	 pY7aXZiMYp6xpkGv0fpxzG6T95b01U93Xw4VKvONEnr/UElot3o7q2H01gIhrY53rL2K+
+	 lqC+8LijkDOf5GNz7S6bk7lPzIGe6X4efPUxHmmQtt3SAa8UBMZ/WAg9wK06/lVugHOFR
+	 V1ruiM79L1iKxmiw5I/fmRWoXAquPFDFtehQac97b08+LicFYPymjX+8hmtOcGVQ80Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795095528;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795095752;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:
 	 In-Reply-To:References:Date:Message-ID:MIME-Version:Content-Type:
 	 X-Scanned-By;
-	bh=1P7ztO1zUocWJRxSnrgPM5pBBmDXKWfiZrOQoqh2Un8=;
-	b=Ewk6FnXBdnAgtfhqoYp+SxqHm6n8szdGB/5rDAQBoU/nwaf8PsS0HbigrXElQlMqcAUW
-	 QRFXgo8xCN4Xk7cARXOtA4gy+7m3JJ7cls0r+P0oLe3sr2gbdXpjiumASA7cgZMqmIzVE
-	 heGOAfwhmVEijy/vh/TLgpN34weI71kcFg6Lz2LtnmEfKQv0uXqhRgqC0p3I2YnnjYuMX
-	 vpW4hkBjvpv/GF/vZozyPaeldklpZibgb0cE11BBhXDAyE2WUeoV+xnNuRhCj9uKHsXO7
-	 DMSYTrKSY/V+OHMgDwdTLiiCljCEziMdtCv7W0N6YnMMPnIj89GsDwPxwzxNg1927mA==
+	bh=ZODH7Vg2TOJZ+U7pETCwIgdTbcMundJk34kCW2v0vdU=;
+	b=MV0OAVn7+L0fyh0Ob56tW7M2dMfnVOzwiuDeiDZVJMMO4KTDrAdBAssskifNv1Ms+7Rz
+	 ligVPyzWWV0m8oOHSZc02XFfrElc05Ir8jQEhVdm4g+u6fLMijWndyvC9LjeXkMOPabM1
+	 sr2r7UoYb946fxtta4E7tUzdrouEe5USGNXnW9Qjidk2H1cjLPVCMX2hA+WgAITAyC/cV
+	 bsD5yvUmYTlwtP7+6CNzsxAx46AJx7AQwww08GKBQLaOkRW2Ixut5dEtm4keg+yNAUjT0
+	 2ZSWUEt6mOhEFLXcg/HPvcTZ0W7cwOA9vK77YdQvONGIEZreIcIZ64atlRVis8rI6ow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HCxEwyI4;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HCUEYItq;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17AF606A324
-	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:38:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E17AF606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C13460A261E
+	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:42:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8C13460A261E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HCxEwyI4
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HCUEYItq
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795095526;
+	s=mimecast20190719; t=1795095750;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1P7ztO1zUocWJRxSnrgPM5pBBmDXKWfiZrOQoqh2Un8=;
-	b=HCxEwyI4b+M3ofobUL/ursEEWbpF4Y5h4wN20OcgQucce68zwLqmm7+DC7z18uq8vfGzzP
-	ux6j6VDk0k15LY8jChtOg5bEciy4Jp2bImq1MiYOZsKYbCU+UCnyhjJfkdDX3Qs9Uhx69+
-	aw7wHplQ8LKFDf3Qd+HRGK2D6sx8774=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=ZODH7Vg2TOJZ+U7pETCwIgdTbcMundJk34kCW2v0vdU=;
+	b=HCUEYItqIkx8kJxrE/ZODuiqtU5yp/0XqJt6uWVXAlDwmSR/O7TKbi1mpWraG80b8AqYoH
+	DFWiAjiGrDJag+g5Kum9L4ysW6zuHGgJ7WIBHN4CqNAKxUIyxT6WqYfH3AhdpC5U6BkeWe
+	YmvnPlPKR9KjT/TbccEPuP/MLddoIvc=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-311-SAO-vODPOAmIUXOxNeddBw-1; Thu,
- 19 Nov 2026 08:38:41 -0500
-X-MC-Unique: SAO-vODPOAmIUXOxNeddBw-1
-X-Mimecast-MFC-AGG-ID: SAO-vODPOAmIUXOxNeddBw_1795095520
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-86-bYaVwIieNtiLcwVUoygWdw-1; Thu,
+ 19 Nov 2026 08:42:29 -0500
+X-MC-Unique: bYaVwIieNtiLcwVUoygWdw-1
+X-Mimecast-MFC-AGG-ID: bYaVwIieNtiLcwVUoygWdw_1795095747
 Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 59061195606B;
-	Thu, 19 Nov 2026 13:38:40 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 40A4B180054E;
+	Thu, 19 Nov 2026 13:42:27 +0000 (UTC)
 Received: from plautrba-thinkpadp16vgen1.rmtcz.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B3D531956041;
-	Thu, 19 Nov 2026 13:38:37 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5BE6B1956041;
+	Thu, 19 Nov 2026 13:42:24 +0000 (UTC)
 From: Petr Lautrbach <lautrbach@redhat.com>
 To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
 Cc: omosnacek@gmail.com, jwcart2@gmail.com, paul@paul-moore.com,
  jason@perfinion.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com,
  Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH 3/3] sandbox/seunshare: run the sandbox in its own PID
- namespace
-In-Reply-To: <20261119130355.707-3-stephen.smalley.work@gmail.com>
-References: <20261119130355.707-1-stephen.smalley.work@gmail.com>
- <20261119130355.707-3-stephen.smalley.work@gmail.com>
-Date: Thu, 19 Nov 2026 14:38:35 +0100
-Message-ID: <pjdcxs1vt44.fsf@plautrba-thinkpadp16vgen1.rmtcz.csb>
+Subject: Re: [PATCH] libselinux: prevent path traversal via crafted username
+ in getseuser()
+In-Reply-To: <20261119130718.783-1-stephen.smalley.work@gmail.com>
+References: <20261119130718.783-1-stephen.smalley.work@gmail.com>
+Date: Thu, 19 Nov 2026 14:42:21 +0100
+Message-ID: <pjda4n5vsxu.fsf@plautrba-thinkpadp16vgen1.rmtcz.csb>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -85,119 +84,44 @@ X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
 Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-> The SIGKILL sweep after waitpid() only reaches the child process
-> group; a sandbox descendant that has called setsid() or setpgid()
-> escapes it and can still be running while sandbox(1) walks the sandbox
-> directories. The fd-based shred in sandbox is safe against that, but
-> leaving the escapee alive at all is avoidable.
+> getseuser() builds "<policy_root>/logins/<username>" and reads the
+> per-user seuser mapping from that file. The username is whatever NSS
+> resolved for the login and is passed straight through by pam_selinux;
+> Linux imposes no character-set restriction on NSS names, and directory
+> backends (LDAP/AD) can serve names containing "/".
 >
-> Give the sandbox its own PID namespace so the sandboxed command is its
-> init: when it exits the kernel SIGKILLs every remaining descendant and
-> waits for the namespace to drain before the exit completes, so by the
-> time the outer waitpid() returns nothing from the sandbox is running.
->
-> unshare(CLONE_NEWPID) affects children only, so this needs an
-> intermediate process between the parent and the sandbox init. That
-> process takes the new session so the parent's kill(-child, ...) still
-> addresses the sandbox process group, ignores forwarded signals so it
-> outlives the sandbox, and relays its exit status. The setsid() before
-> execv() is dropped so the sandbox stays in that group.
->
-> /proc is left as-is; the sandbox process still has a PID in the outer
-> namespace so /proc/self and the /proc/self/fd/N mount helpers keep
-> working.
+> A crafted username can make a root-running PAM stack read a file the
+> user controls and take that user's SELinux user and MLS range from it,
+> i.e. the confinement decision is delegated to whoever named the account.
+> Fall through to the ordinary seusers lookup for such names instead.
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Acked-by: Petr Lautrbach <lautrbach@redhat.com>
 
 > ---
->  sandbox/seunshare.c | 58 ++++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 55 insertions(+), 3 deletions(-)
+>  libselinux/src/seusers.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 >
-> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index b39ca010..528eefd4 100644
-> --- a/sandbox/seunshare.c
-> +++ b/sandbox/seunshare.c
-> @@ -1009,6 +1009,57 @@ int main(int argc, char **argv)
->  		int fd_runuserdir_s = -1, fd_runtime_dir = -1;
->  		int fd_tmpdir_r = -1, fd_tmp = -1, fd_var_tmp = -1;
->  		struct stat sb;
-> +		pid_t sandbox;
+> diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+> index ea542392..df9385eb 100644
+> --- a/libselinux/src/seusers.c
+> +++ b/libselinux/src/seusers.c
+> @@ -293,6 +293,14 @@ int getseuser(const char *username, const char *service, char **r_seuser,
+>  	char *rec = NULL;
+>  	char *path = NULL;
+>  	FILE *fp = NULL;
 > +
-> +		/*
-> +		 * Put the sandbox in its own PID namespace so that when its
-> +		 * init (the sandboxed command) exits, the kernel SIGKILLs
-> +		 * every remaining descendant regardless of process group,
-> +		 * and does so before the parent's waitpid() can return.
-> +		 * This closes the setsid()/setpgid() escape the post-wait
-> +		 * SIGKILL sweep cannot cover.
-> +		 *
-> +		 * unshare(CLONE_NEWPID) affects subsequent children only,
-> +		 * so fork once more; this intermediate process is what the
-> +		 * parent waits on and just relays the sandbox exit status.
-> +		 * Take a new session first so the parent's kill(-child, ...)
-> +		 * addresses this process group, which the sandbox and its
-> +		 * well-behaved descendants stay in.
-> +		 */
-> +		if (setsid() == (pid_t)-1) {
-> +			perror(_("setsid"));
-> +			exit(-1);
-> +		}
-> +		if (unshare(CLONE_NEWPID) < 0) {
-> +			perror(_("Failed to create PID namespace"));
-> +			exit(-1);
-> +		}
-> +		sandbox = fork();
-> +		if (sandbox == -1) {
-> +			perror(_("Unable to fork"));
-> +			exit(-1);
-> +		}
-> +		if (sandbox > 0) {
-> +			int st;
+> +	/*
+> +	 * Prevent path traversal via crafted username; no valid username
+> +	 * should be NULL, start with ".", or contain a '/'.
+> +	 */
+> +	if (!username || username[0] == '.' || strchr(username, '/'))
+> +		goto err;
 > +
-> +			/*
-> +			 * Ignore forwarded signals so this process outlives
-> +			 * the sandbox and the PID namespace guarantee holds;
-> +			 * the process-group signal reaches the sandbox
-> +			 * directly.
-> +			 */
-> +			signal(SIGINT, SIG_IGN);
-> +			signal(SIGHUP, SIG_IGN);
-> +			signal(SIGTERM, SIG_IGN);
-> +			signal(SIGQUIT, SIG_IGN);
-> +
-> +			if (waitpid(sandbox, &st, 0) < 0)
-> +				exit(-1);
-> +			status_to_retval(st, st);
-> +			exit(st);
-> +		}
-> +
-> +		/* PID 1 in the new namespace from here on. */
->  
->  		if (unshare(CLONE_NEWNS) < 0) {
->  			perror(_("Failed to unshare"));
-> @@ -1225,7 +1276,6 @@ int main(int argc, char **argv)
->  			perror(_("Failed to change dir to homedir"));
->  			goto childerr;
->  		}
-> -		setsid();
->  
->  		/* selinux context */
->  		if (execcon) {
-> @@ -1283,8 +1333,10 @@ childerr:
->  	 * budget; with the fd-based shred in sandbox(1), timing out here
->  	 * only leaves a straggler alongside a race-free cleanup.
->  	 *
-> -	 * This does not cover a descendant that left the process group via
-> -	 * setsid()/setpgid(); a PID namespace is the complete answer.
-> +	 * With the PID namespace above, waitpid() returning implies the
-> +	 * namespace has been torn down and no sandbox descendant is
-> +	 * running, so this sweep breaks on the first iteration; kept as
-> +	 * a cheap safety belt.
->  	 */
->  	for (int i = 0; i < 400; i++) {
->  		struct timespec ts = { .tv_sec = 0,
+>  	if (asprintf(&path, "%s/logins/%s", selinux_policy_root(), username) <
+>  	    0)
+>  		goto err;
 > -- 
 > 2.47.3
 
