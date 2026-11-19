@@ -1,82 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795093657;
-	b=wZzKcHyZapHEEUcvmwAzmAxMlTnOQrcB9mG4bc1Jl8pUNGWa3dBS0InN37xyNtnhAxs8
-	 dKAil4EAjJeXvezT6PVPe89pfjTZ3o05OKtO/NEXjpdB8lg3W9sNlWoz3iqogI+1qq6p1
-	 AuLvTPSjR7sU5E/izSxPhl22eHQxnbu0b6RITP33z35BTZfiHVDz1+xywJSvPw1nsnKud
-	 OooRdy3/wbYnbKEKLr0O9pwuBlyH5HBicW53bPn13QTlrD31EUi4IRFoezG16hyGGwSK/
-	 qy62twWcDq5CKjrPWtbLr15IUnIuK5eMh0gnXgYOZupc54/S3uc532N299AdqF5LOLA==
+	t=1795093751;
+	b=FOHjJMXZtbl8GaHkW8QPECl0IjgRWRH9VsLq8yRSA4PVQbtXz0OIYD7ouA9l4nk+KSpZ
+	 BV7GdbdGw9GlinfeDrgATRSXbZIunHHqBpFv9+X653sCUqCSc/v8OhqR+WPCvhsyix6uY
+	 fS25BVRlvGg1g2CDC2a/jMXP0SFXjuZT6OlMi1rM2mUsKMu7fqaG+1/aSJSdmdKM5iHJN
+	 kUEppa4ZhdCNKLwJ7bTn42eJxwp27bdN+Ts+Pv8gFdZk/PX3RWLzK6yD0LHAUScucVxPc
+	 skLur2Z9vZwraTdKk0n9zZu8eo4RbkrDn34HI5Ea768PQ/d24EAxM7l/x1SsxpfhZHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795093657;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795093751;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=YUQEfrybYNwjd4K1V8vGFto1xdTnl7ExPmG6thJlkik=;
-	b=fWhc71LwOk78fITq1PfXWUH9r2RiFXuTewS+lToj+2xR/NljNkYQKX1i/G4/bZLvG3Ka
-	 NesZOZ/045Wx29MBWlq4I+jBoAccnWM5GzMOBQQZSZ9+PLXbp2sjOSsfEEpUv6p5ybCkW
-	 IOdAveFSLL0eAgYZyXo5+hCfjVrGUY0eeKo5hpFbqS7Df+lcaZwbOYjCNVIqwbhxUCZTD
-	 +xWUULJKz2ixQjpiTkHH7GGJvnwHQcJ51GGbCwRNr9JyvYDQ7Hy9QZgCQBSz2shZx7J4U
-	 F+UQAnvdn07P0YOS6wOZK1imHUudHaM25n16irtMuM4D7FYXC+WP4KCQjuaX4GlGtkg==
+	bh=MJLVRMeQBU4kDeFk1q4zrMc/hbBiWG2Gsse+qRAO4Hg=;
+	b=bdChPLvgCUcyDmi3tj/8GOpXE8IKht/WdbJQceongraZXCvSAMtwmMghz6NZweM9l6Ri
+	 FOG6D/iQi8OATSVVaICxJzB6qYrnDnniQ0ECh0lJy2ibXnZkT82kuZf6ZbBmG2bAgAUif
+	 IONkt0lZA4GcdNxvP9cQ3jbApYDsfepegkMZSVPEA6wuEZa6rj8NAJxr+D8i5qUuO1wfT
+	 y0NqNlY764TxZ16OgeK809U1XOzcf5BL8Jf5wDH2Aj+DUCdmFpS4wIxAGt9BQaK3HHXkN
+	 SynnuYEpzLhuUyV45NyVJzR1iMvVWSGwYpL3i3IV0KK0aBl04no+QW1T4kcGBGH4Zzg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tSyWFWH9;
-	arc=none smtp.remote-ip=209.85.222.176
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wOsAfh2v;
+	arc=none smtp.remote-ip=209.85.219.48
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 604D2606A320
-	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:07:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 604D2606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3765C606A324
+	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:09:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3765C606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tSyWFWH9
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-9495e8ae23aso188414085a.2
-        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:07:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wOsAfh2v
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-921318b2eb8so1394786d6.1
+        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:09:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795093656; x=1795698456; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795093750; x=1795698550; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YUQEfrybYNwjd4K1V8vGFto1xdTnl7ExPmG6thJlkik=;
-        b=tSyWFWH9vH1MCGKQX/lGTwEO7m9sW1lQJLBMe1Vm3V4DGq6BrhZ6CHk+cyNwh9xv3L
-         Wgt2W6xPBKEa6S4hzYfsOASTUmr+3Sjp7ejlUCe77eW+uzUkPER99qTzxKHZwpZvOTuP
-         cQjttxsRKTBGN1PaFHc1+BXBcTjC8CJi7gylIKOEY9OvloP3rK6yCheh5o9aTCpGCZ4V
-         DJ8IPqHGU2fKdYebUXrJquX9HUjlWp4eeXth0vGveR+L2t6gGCLnLCFNDoFSKTR7qVVb
-         HtujgqUmFzmUHm312PXqK2OYV4KzrFqVScNP0Y8SWZV/L+9QzxytlsohvhhcZOWqnsSd
-         D4DA==
+        bh=MJLVRMeQBU4kDeFk1q4zrMc/hbBiWG2Gsse+qRAO4Hg=;
+        b=wOsAfh2v25uvifE+SF0+Jv+peO2o0ZVTHfCRSzpodBrzgJo4yy75zouTXx+L40nXT1
+         yRF7XcdpcnbIjKeg8w6KuMP1MqYfkIMU7Vy3HohzzHP33Z7wTXawaOGLnTmOlUe1WV+X
+         D6uAyiEUcVeI/xwgmK31bYja/bzIy3t5ytcjtm6o54cEbzNbP0N+4PB8BCzHUpjIEy9V
+         5WPv3kDp+8AUScbVk0FaCQ8KwEXQWVPPdnIMSSxeBree4BO26SOl9TDy+YZoiTnG31WB
+         o9PSJV3jyxW2odueZUlj41feIkvhyWKVbWh4rulA5smqBtljW5ErYZUQH79O5KPCyCL4
+         3rKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795093656; x=1795698456;
+        d=1e100.net; s=20260707; t=1795093750; x=1795698550;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=YUQEfrybYNwjd4K1V8vGFto1xdTnl7ExPmG6thJlkik=;
-        b=grAIojoksmAqxjwQwOfZf+qr48Mr2UXhBNIWiPppIpy65NkTBuvlv+/ZpTRnzre0LG
-         VtfD1AQHUMJ9Pgmb71J/eqqTACSACoxXbeOxeEHJuuyP/XJwb/yghU1+axZCptLAyEsn
-         z9Wc0pdHXzwRh4ovqqDzKE4+L4RzSpEbZsEBpu9g1ce+uxgSRK2kUEPyzQ8gMoPy83/p
-         FaF0eh4OGhZ6XeAh+7OoOnpInIV4K98bR20lTWtlXI1HUbqRAxQ639RqDETUQdKu73LC
-         XpbXmngk3DMtMvLXKjyp3pK+lVSMs8YpPtDjWe88flYuKEy4qJA9gZBQK13dJjZCmZ6P
-         3FRg==
-X-Gm-Message-State: APuU4Z/VoIRs11yRI7/AgYtESH95rP6sAVeZjSYMjYpBVHMZLB2EZhj0
-	w27IucNNQLR0OI0AMVPoa9UdzcOXi7xE9GTpbmfBQww3vfu/2jAYauEQ+ECkXw==
-X-Gm-Gg: AYBFou2i2ehU1sMrBaXflGiYl4dIxgTEQ8Iy0JGKoIfKTRZABfBC7POM19yydg9lrcF
-	VJMYSgJFp6jq8xzkL/H12323VoBwnP1DZqB23sDoOy3T4qBq2EzbGGZzJRd+OmZSwO4gxJ5x3vr
-	UhtwaOcubuUKduavQAL8Vj20UrKR+NJpMHD/1dcOROC+A5Ow4XgYuUJHy2AUqnamdJRVQzPLS9+
-	6p8YNcw5TOU+N/osi5BRV2fWTDJh3ifpZpy4APagIvRUCfZHZHWuUmgqEW6pDI9Y8qiXKvhOonx
-	ikZCnAOUjCh4o9h79O/azW1Kwte1uSpkI/M2b688Oc+CLczjjqTdzVa7/2IG5HEHEYDxul5zwGo
-	Jm6jhTVPhzJFn+Cdeab5vFYlRa+c1LsC+2Lx5DUE0xYz1bkfu8Nj9Ah/8w5c7STvpQ0jgtVMvdu
-	a26gabeUSDRba63kmySaGHnOaScfIlaHh5TLvmH0qzOMD/RKnaJ4jYW0VB/btfd7wyIn3w//9BX
-	iM+N5jSqazB48bypB7/5k8bQqswXnk5Kum4sXiEote9z8nApV8nCtxlvl3RQSERP5JXVwtHhdNd
-	ZcTfYiOAEmdtxcHGHqC/cET789i6TnrDlnz5ZaoVClUMb4jdsibZViV6jFg2NzH3iQzypGs5Tu/
-	+wjPbwIuqoknykGZ54Racy74hvH3+XgL819oh2EWNY+6P1ZCPqkjbSOYLzfOrYJdOCOw6YJYyap
-	Ytm3TUMEg9Z6A8OuzsK9qMJSJv6rh/CxKa
-X-Received: by 2002:a05:620a:1a22:b0:93e:c12c:43f9 with SMTP id af79cd13be357-94999605c74mr989600885a.70.1795093656157;
-        Thu, 19 Nov 2026 05:07:36 -0800 (PST)
+        bh=MJLVRMeQBU4kDeFk1q4zrMc/hbBiWG2Gsse+qRAO4Hg=;
+        b=cyXmoDfotyXa6bjXmD3j/mLUAqDiL3F4sD6gInIq3nqy8KzMUbBz69mu2t07tmjl/B
+         7pIIt78YWVurt0xkb09yy6HckT7tjvJHooe1SQ0YVjURPrNBcla/JK1uX+8g2revWw8J
+         4SU3vB9w1TV4mBD4seOf/nn78hfhe6ItI1SVj/AakJAkYTs5oMdsSY4hDWsdRyxOTZx1
+         BRjt75ec47vcBgsr+yC0W7rj1ZPEwqvqdfXDm0EpT8+j6fWBQ8OKjygHyv90Of6j+8mR
+         RdXuskpiimEMzo3wUR3yMsoiLM52aIbvuZ/10cHMGi+2KpRzIeBQNo3HiQD2TgwmI8iU
+         CbQg==
+X-Gm-Message-State: APuU4Z+DMp7D48SwGqBE42TCmeGHPNe6imVdT7FKqo7lVdctmVZ8HfD+
+	tymT8ktgcvWMi1MdHm20nSHchSqTXJ9KxgNgKqWlsfvG85b/vSAY6YYyObj3cA==
+X-Gm-Gg: AZFdTZdTD5AnMt/QX2QNonfBNcF3JT3KlXDwp1LWqei8zAagsIH0P/wezOOhJDnmhUR
+	S6isIoxFOI05ty7/Z5d/ihmLe/CcnBtsJBnUsMrnddmnQLFFrQIpp8InSHgKpkmqgAVWg6YWDqi
+	wGTLuIA57u7tNuzb2Wu2jPjqhdPPz+W4AAnmOMN5bbDoSVa8Dexn6HuQ5w74EQYAa+4wito/eTj
+	XppaXktyuWlyq6thGWnDUlqznyqrGOmdgBXsRGbi0d9TKaGMW9rv6o4laB0ckdH4RwqCZ4Ap6IU
+	VmwRAs1CGp+ONJw4+QIlnIRrpxw/+Myd21J17NYip1oGNJ7YvJ5sXd6lVTwq32v5wmERoeIX617
+	bbKIyqsZMVBVwW8f86SW6hMmZNI1o+4PPp6B0ehfLhhtOm0NCCuYGyVaxEM7sT7cAwWfHVmY3AF
+	aqpe2+6b1BLFER5+JzAchJChqVilzSAiqVaOMsI94xvhHGjWr450cuRnOWMxsOUTXHt6y70ql3C
+	9TVYzXn8Ga4PcH9D1Q3VI3RrBXmJS4xdfT0Z0ZavZZe2ZPWtuHrO8k6AO6ZaLWQTL0rL9EqXtSZ
+	tqlH4ARAvQZeyYOKwJhKvYU7CCkf+hsWTJ/GhxNBhGMIMKqC7QKH7E3VU1RMtYc6IhCyla2gh6+
+	A9GBNLjBCiVkLp90O/R0jfWx7I/DZxXSw6Psx+jjem2nZWCBy/o9VLR79q/wdrAYjccsUsASo+T
+	YIopK4jXMHsa+twNQ4icmaA9lT0h2W1Zkv
+X-Received: by 2002:a05:6214:1c49:b0:91f:19ef:9ac3 with SMTP id 6a1803df08f44-92114e52ad6mr88960616d6.43.1795093750061;
+        Thu, 19 Nov 2026 05:09:10 -0800 (PST)
 Received: from debian.. (pool-96-244-147-163.bltmmd.fios.verizon.net. [96.244.147.163])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b721ccbsm438971785a.10.2026.11.19.05.07.35
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-92114a00ad2sm48981206d6.3.2026.11.19.05.09.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 05:07:35 -0800 (PST)
+        Thu, 19 Nov 2026 05:09:09 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -88,9 +88,9 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: prevent path traversal via crafted username in getseuser()
-Date: Thu, 19 Nov 2026 13:07:17 +0000
-Message-ID: <20261119130718.783-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/2] libsemanage: prevent file-context injection via crafted NSS strings
+Date: Thu, 19 Nov 2026 13:08:52 +0000
+Message-ID: <20261119130853.858-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.47.3
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -103,41 +103,105 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-getseuser() builds "<policy_root>/logins/<username>" and reads the
-per-user seuser mapping from that file. The username is whatever NSS
-resolved for the login and is passed straight through by pam_selinux;
-Linux imposes no character-set restriction on NSS names, and directory
-backends (LDAP/AD) can serve names containing "/".
+genhomedircon substitutes NSS-supplied strings verbatim into
+file_contexts.homedirs: pw_dir for the HOME_ROOT and HOME_DIR
+templates, and on the %group login mapping path gr_mem[i] / pw_name
+for the "# Home Context for user %s" comment and the USER /
+%{USERNAME} templates. check_line() only validates that the last
+whitespace-separated token is a valid context, so a crafted home
+directory or username can inject file-context lines that will be used
+by subsequent restorecon/setfiles invocations and other labeling
+operations. In directory-backed deployments (LDAP/AD/FreeIPA) the
+passwd/group source is not root-equivalent, and every libsemanage
+commit regenerates this file if semanage.conf does not contain
+usepasswd=False.
 
-A crafted username can make a root-running PAM stack read a file the
-user controls and take that user's SELinux user and MLS range from it,
-i.e. the confinement decision is delegated to whoever named the account.
-Fall through to the ordinary seusers lookup for such names instead.
+Reject values containing whitespace or control characters at both
+pw_dir entry points and for the user name in add_user(), and while
+here also apply the existing absolute-path check to the HOME_ROOT
+enumeration. Regex metacharacters still over-match ("john.smith"
+matches "johnXsmith") but escaping those is left as follow-on work
+since it changes existing behavior.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/seusers.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ libsemanage/src/genhomedircon.c | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
-index ea542392..df9385eb 100644
---- a/libselinux/src/seusers.c
-+++ b/libselinux/src/seusers.c
-@@ -293,6 +293,14 @@ int getseuser(const char *username, const char *service, char **r_seuser,
- 	char *rec = NULL;
- 	char *path = NULL;
- 	FILE *fp = NULL;
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index b0482f0e..2ef923ce 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -43,6 +43,7 @@
+ #include <assert.h>
+ #include <ctype.h>
+ #include <limits.h>
++#include <stdbool.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -313,6 +314,15 @@ out:
+ 	return rc;
+ }
+ 
++static bool is_fc_safe(const char *str)
++{
++	for (const unsigned char *p = (const unsigned char *)str; *p; p++) {
++		if (isspace(*p) || iscntrl(*p))
++			return false;
++	}
++	return true;
++}
 +
-+	/*
-+	 * Prevent path traversal via crafted username; no valid username
-+	 * should be NULL, start with ".", or contain a '/'.
-+	 */
-+	if (!username || username[0] == '.' || strchr(username, '/'))
-+		goto err;
+ static int prefix_is_homedir_role(const semanage_user_t *user,
+ 				  const char *prefix)
+ {
+@@ -576,6 +586,12 @@ static int get_home_dirs(genhomedircon_settings_t *s, semanage_list_t **out)
+ 			continue;
+ 		if (!semanage_list_find(shells, pwbuf->pw_shell))
+ 			continue;
++		if (pwbuf->pw_dir[0] != '/' || !is_fc_safe(pwbuf->pw_dir)) {
++			WARN(s->h_semanage,
++			     "user %s has an invalid home directory, ignoring",
++			     pwbuf->pw_name);
++			continue;
++		}
+ 		int len = strlen(pwbuf->pw_dir) - 1;
+ 		for (; len > 0 && pwbuf->pw_dir[len] == '/'; len--) {
+ 			pwbuf->pw_dir[len] = '\0';
+@@ -1201,6 +1217,17 @@ static int add_user(genhomedircon_settings_t *s,
+ 		}
+ 	}
+ 
++	if (!is_fc_safe(name)) {
++		/*
++		 * On the %group path this is gr_mem[i] or pw_name from NSS
++		 * and reaches a comment line and the USER / %{USERNAME}
++		 * substitutions unquoted; skip rather than let it inject
++		 * file-context lines.
++		 */
++		WARN(s->h_semanage, "invalid user name \"%s\", ignoring", name);
++		return STATUS_SUCCESS;
++	}
 +
- 	if (asprintf(&path, "%s/logins/%s", selinux_policy_root(), username) <
- 	    0)
- 		goto err;
+ 	int retval = STATUS_ERR;
+ 
+ 	char *rbuf = NULL;
+@@ -1263,10 +1290,12 @@ retry:
+ 		pwent->pw_dir[len] = '\0';
+ 	}
+ 
+-	if (pwent->pw_dir[0] != '/') {
++	if (pwent->pw_dir[0] != '/' || !is_fc_safe(pwent->pw_dir)) {
+ 		/* an empty (or otherwise relative) home directory would
+ 		 * turn the HOME_DIR template into a regex that matches
+-		 * everything, e.g. "/.+", so refuse to use it */
++		 * everything, e.g. "/.+", and whitespace or control
++		 * characters would let the passwd entry inject additional
++		 * file-context lines, so refuse to use it */
+ 		WARN(s->h_semanage,
+ 		     "user %s has an invalid home directory \"%s\", ignoring",
+ 		     name, pwent->pw_dir);
 -- 
 2.47.3
 
