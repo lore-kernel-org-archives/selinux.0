@@ -1,95 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795095144;
-	b=VhMC+xQCLMxfXxBgqM1/hiMrZ3JCZcyIHndtZzXgPmTR7zLQASt7m+fyBljgT0ss2GCh
-	 V9EskiABgnwpFEF1vv1UUMYqbLTeR0Aev78eKH5i7XDlvYv51lqqAlMdanMvmxN6QVC8w
-	 dq//OzOuabBM1xkQASdmEmo65HUXft67tgp01cmhtIgGUUByocyI1KgjQApYULNe9GNTw
-	 iAhbVArKBQydcueOy1ptOddc3ihajGY1IG8pHx1dTmXCAS+YEpi2grHzXAINtlQCLhZzN
-	 fodVqMimN3fm+yVo3M+yBLPZMWc2C4U6tzGG4+0WVAg2f/EGbPl0uPpDVHQ7qYquq3w==
+	t=1795095479;
+	b=UyqvmVXIfMwLtohd1I9/qHW3t9cfSP8oYA6AlJpDHu4dxU2mFk1D3rmb7coIhMhkiRul
+	 Beob57J03ynwScGocKu43wOb+XQ6Jf3iBKIDvwX63E4+DCQeUo3X0a6Wu50u/LO+M1Noz
+	 jqQwPnrVOSnFtFMCn0KRW9Lgqx9eQ6vgv9uc8JUG7PfWNtXW2LXvXqqZUnUyKPbIcKnLw
+	 +pYd4kHPyluKjNbR4N2GV37fhleeY3DZ0oDCSA51bjSqikhmnIn6TPVPLXRI7hZwD7Nj3
+	 Br2ISHaSvNvowUuDP8ooCjns4ZSWeogRwloP+0rDFbrb2DLg7oWndXDHiov54DStX5w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795095144;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=uEqyZefyJBQRZx3iLN3O0kesNXrXkwjOPt2xmvh0HrY=;
-	b=QZo1kqXu0Bbcz9YZB0PrLR6ikfydERM+l/LlH4WQJMUi/aH62CxzJYQ3Mlkcj4oFfPia
-	 c/v52k8BNAgBH0bCseR0c/9I8wGk9+GP5pLcUJp9SiIpZpO7QuvU5DPUya+Gv4TH/QJoF
-	 AMLin9nHHHHKaCxuxUfDpKPoDxn4lFRUE2ic2rfxSl+nUcgJRlILEdb0/MEJJLG/37Zo0
-	 FJ0qDYrlIh/E6o6DIgMog0rwAJtCajHIIKOhTYmw8mtUOzm0L0Dh3Yc18Lj15TmMwissY
-	 Wgc7wUrb0iX/HR9W9wxA+78h7fWMLIkR5X7J/HikgRMMHtJtqopqEOZvIAQN5+s7bHQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795095479;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:
+	 In-Reply-To:References:Date:Message-ID:MIME-Version:Content-Type:
+	 X-Scanned-By;
+	bh=2UEQVnHAQhIv2JvokPBkjPiCQ1YQ8NAYQRcspoaguhc=;
+	b=YtBtgpyIIHOVVIfsvff5PMCD3YxIvUkz8v6K8l12lHNqqJP8QPS0Am8I31+drBWvS4+R
+	 Gqp9r+cVOA28JuJNGDuxOhGSwYG9Wwv5od3VXuTTmWgYLHy+eeRIjYoKWekmP5RmnwzlU
+	 TMmRxWw1WYP127pLr2QXqQlLqcWT4ClGER818bmUA1PWviyPflVWp7BBb2G/oqrKUlHHe
+	 uCiSUiEbBie37V4egTipVjljQgtgBmRi2ZcTFd6mWmVFa6Xafj/oi9mxZ8NvTzKzCq6RT
+	 Da1yewYbQrXa3gtFelR0LiysxA+yUBT1kFsrjyn8v55uBcVhJxhwNuXS3anFaZ1Asow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GN2a3Z25;
-	arc=none smtp.remote-ip=209.85.219.51
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=R4RWXq1S;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D7A3606A32A
-	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:32:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1D7A3606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819AE606A320
+	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:37:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 819AE606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GN2a3Z25
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-921276742e3so7352716d6.2
-        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:32:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795095143; x=1795699943; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uEqyZefyJBQRZx3iLN3O0kesNXrXkwjOPt2xmvh0HrY=;
-        b=GN2a3Z25DG7gHOWRUQBi4GkLE+nrwCB9egc6EGFVyniE6GQxyxKGbVNceQ/H9EEURP
-         ph5+qWk98XpmfpyV0T2WMpq42aKHc49MBJ59VVpf5uBiSY71GvXiv30LKlDY/AK4lM0L
-         x7poy4KMyA5jFMo5ZEDnWdJ4QSHGsVfcCHX4YrsA0+7ahDI9edZSM2d2iIFji4dDtV0t
-         1KiDM9vgElcRFIcKrUbU9ojh10q2Ymtxmo/vlNkDnEcZdqfnNPb/7rsftcQ5ggIM95gL
-         nMCZGvyKDGggAYidUAM7c9hEtLQ7xR5LL0Ud/CDKzBk3X/UDQznjWjTqsuD3un57lTzf
-         zZPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795095143; x=1795699943;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uEqyZefyJBQRZx3iLN3O0kesNXrXkwjOPt2xmvh0HrY=;
-        b=ihdh3F4I2uiceGh2VrDi3go4Qvcr1/aiaduYTYW0lPRb7WMLBIc2iwRgt09ZREkd89
-         YRyUUmqFnwFTndlwrKBAUCnjYhEKe10mc3VQXLnl5oplBmFEQPZfelJ7pKHkjfVst0SU
-         EmqN7BeRruE9iBva0vp20WUbzkINVSbkL9fxlAPXPMfUANzRoQhgraPQYl3Zy+nqZrS9
-         LTexITe8+odsuQUVh8SbKsnjYunB2Mk4nxdKTIV7FkzLfQwgtZjQhgzP/esvNM7Z/YQU
-         sxFBJ1wGtxu2MkT0uDa7nUsYp7EImb4+5qF99G3YGTllrmksGfLAYzpZy7sRxmWA1zgV
-         IPlQ==
-X-Gm-Message-State: APuU4Z+yr+QtENaMmQI+JE6m7g+714SHeq9nSGDkOdzHuOxxaKLziRlA
-	7KTioI+a6aRKrsBjpLneCtkaT6r9V8hA2dvoDLVHyUdUXGK87UdLO0N7qz61NQ==
-X-Gm-Gg: AZFdTZfloX3AuuEXEGjlK0Uf0dkrMTAhApvmxxys25W308Cemj7CbrO0zvWXEjVS8Ki
-	pUuK2z3r439kVtbUXu/tFtrUl4BEFMpciwv42syGCNngksspzjmJ5emFlh5W0FD7UkLTkUuFaid
-	dy8vuZ5Kj4VB/2HCFLpnZisP3t6yGgHCkYRGnU9yaCZGkhc8wCacuUBKaXBMIxwpUC8BJKAl0og
-	21l8iVC+q3OGfNCO9LUZ1si98UHOQM6tXtER9AsVPemYiWRM6SfF5DbPR60aTNDIYPj2dnfA5pI
-	v+QdAbq//9xx52PxwYAVfOPGP9hjQKlSUYYiLyVWtEFPepyhJkob2hSAkuUGxtvJzlfy3ZdI9jG
-	TqJXY0YzunDhjuEXT1EtORqftwwTMPoH318XVQNCblnZtiQvA07rO6VxFIVI/kbG5jJlfYZKCvg
-	jv7emldxlImjh1bqagJGGSx9X+foL5x9+L3MvMv7DvEMbRjcKIUtQcZah+8irM2YLdw/L9+z+G6
-	invLvZ+jmQjeIxirDN0EZaBYhNgjO5zkVUCHAs++AWIKK3smL8aybvUEwwV1YKVFy2SNpoaFhNL
-	ixOvaxSvLd2g3uteY2HI6RIpVipAKTdxY9rxrKvMQv++C6mJhP5A4XN26/YKO18yHzsZn8uJjYp
-	Tuyt456AzzBBSNXoK3TGZnwkHsqFNUNfZXrVNeqEQTdGwI7fQoV/05hfqaEARhYAYRVF93H4H4L
-	VeYA/O9uvebD9j6LLeBtP8wdJLLIYjt+02
-X-Received: by 2002:ad4:5cae:0:b0:921:2a6:c6d9 with SMTP id 6a1803df08f44-92114e938b1mr99650046d6.51.1795095142878;
-        Thu, 19 Nov 2026 05:32:22 -0800 (PST)
-Received: from debian.. (pool-96-244-147-163.bltmmd.fios.verizon.net. [96.244.147.163])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-92114d10f89sm50094936d6.13.2026.11.19.05.32.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 05:32:22 -0800 (PST)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: omosnacek@gmail.com,
-	paul@paul-moore.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/2] Reapply "tests/nfs_filesystem: comment out failing mount"
-Date: Thu, 19 Nov 2026 13:32:01 +0000
-Message-ID: <20261119133201.2185-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261119133201.2185-1-stephen.smalley.work@gmail.com>
-References: <20261119133201.2185-1-stephen.smalley.work@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=R4RWXq1S
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795095477;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2UEQVnHAQhIv2JvokPBkjPiCQ1YQ8NAYQRcspoaguhc=;
+	b=R4RWXq1Sft3n/ByI3ay96v4AL8rOEdWDs+i98w9ZuV9IqN7tYVp8LemEEkvj4fba5BhJN5
+	2S7TUeyHeYxoHynQ5ROvcLzKGeTVNET0Jzh/IJk81NtmhLGA1edu9lSbcYI6nPwgzinIga
+	aJoXG8TubAB2G6/lAzbsieBFe/RuQjM=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-654-ugOI97GDPD61dSvUnE8_WA-1; Thu,
+ 19 Nov 2026 08:37:54 -0500
+X-MC-Unique: ugOI97GDPD61dSvUnE8_WA-1
+X-Mimecast-MFC-AGG-ID: ugOI97GDPD61dSvUnE8_WA_1795095472
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 02ABF195608D;
+	Thu, 19 Nov 2026 13:37:52 +0000 (UTC)
+Received: from plautrba-thinkpadp16vgen1.rmtcz.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3D7A6195B3C7;
+	Thu, 19 Nov 2026 13:37:48 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnacek@gmail.com, jwcart2@gmail.com, paul@paul-moore.com,
+ jason@perfinion.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com,
+ Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH 1/3] sandbox/sandbox: do not follow symlinks when
+ shredding sandbox directories
+In-Reply-To: <20261119130355.707-1-stephen.smalley.work@gmail.com>
+References: <20261119130355.707-1-stephen.smalley.work@gmail.com>
+Date: Thu, 19 Nov 2026 14:37:45 +0100
+Message-ID: <pjdjym9vt5i.fsf@plautrba-thinkpadp16vgen1.rmtcz.csb>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -99,62 +79,76 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-This reverts commit 58ec49b227f8c825e4a46d2dd97786df894ba0ba.
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- tests/nfs_filesystem/test | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+> sandbox --shred walks the sandbox home/tmp/runuser directories after
+> the sandboxed process has exited and passes each file to
+> /usr/bin/shred.  os.walk() reports symbolic links to files in its
+> "files" list, and shred opens its operand following symlinks and
+> overwrites the target file in place.
+>
+> The walk runs in the invoking user's domain, not in the sandbox
+> domain, so a symlink planted by the sandboxed process lets it destroy
+> files it could not otherwise reach. Further, a child of the sandboxed
+> process can survive and race with the walk to swap a file with a
+> symlink to a file it could not otherwise reach.
+>
+> Fix by replacing the use of /usr/bin/shred with an inline fd-based
+> walk using os.fwalk(follow_symlinks=False) that pins each directory by
+> fd and rejects a directory that was replaced by a symlink after lstat
+> and open; open each leaf O_WRONLY|O_NOFOLLOW|O_NONBLOCK so that we do
+> not follow symlinks and cannot be blocked by a planted fifo; refuse to
+> act on anything that is not a regular file after open; then zero and
+> fsync.
+>
+> Fixing seunshare to ensure that no sandbox descendant survives is left
+> to a future change but is not necessary to close this issue.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-diff --git a/tests/nfs_filesystem/test b/tests/nfs_filesystem/test
-index fc8d525..f765ab7 100755
---- a/tests/nfs_filesystem/test
-+++ b/tests/nfs_filesystem/test
-@@ -38,7 +38,11 @@ BEGIN {
-         $v = " ";
-     }
- 
--    plan tests => 56;
-+    # A test (called twice) is commented out because it does not work
-+    # for any known kernel.
-+    # See https://github.com/SELinuxProject/selinux-testsuite/issues/92
-+    #plan tests => 56;
-+    plan tests => 54;
- }
- 
- # Set for testing mount(2) on first run
-@@ -100,16 +104,19 @@ while ( $i < 2 ) {
-     );
-     ok( $result eq 0, $test_msg );
- 
--    # First mount(2) ok, second currently fails with EBUSY
--    $result = system(
--"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
--    );
--    if ( $i eq 0 and $result >> 8 eq 16 ) {
--        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
--    }
--    else {
--        ok( $result eq 0 );
--    }
-+# The following test is commented out because it does not work
-+# for any known kernel.
-+# See https://github.com/SELinuxProject/selinux-testsuite/issues/92
-+# First mount(2) ok, second currently fails with EBUSY
-+#    $result = system(
-+# "runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+#    );
-+#    if ( $i eq 0 and $result >> 8 eq 16 ) {
-+#        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
-+#    }
-+#    else {
-+#        ok( $result eq 0 );
-+#    }
- 
-     # Create file and change context via type_transition rule, check ok:
-     $result = system(
--- 
-2.47.3
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+
+> ---
+>  sandbox/sandbox | 22 +++++++++++++++++++---
+>  1 file changed, 19 insertions(+), 3 deletions(-)
+>
+> diff --git a/sandbox/sandbox b/sandbox/sandbox
+> index 6a18b660..cfcc0b61 100644
+> --- a/sandbox/sandbox
+> +++ b/sandbox/sandbox
+> @@ -540,10 +540,26 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+>                  shutil.rmtree(self.__runuserdir)
+>  
+>      def shred(self, path):
+> -        for root, dirs, files in os.walk(path):
+> +        for root, dirs, files, dirfd in os.fwalk(path, follow_symlinks=False):
+>              for f in files:
+> -                dest = root + "/" + f
+> -                subprocess.Popen(["/usr/bin/shred", dest]).wait()
+> +                try:
+> +                    fd = os.open(f, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+> +                                 dir_fd=dirfd)
+> +                except OSError:
+> +                    continue
+> +                try:
+> +                    st = os.fstat(fd)
+> +                    if not stat.S_ISREG(st.st_mode):
+> +                        continue
+> +                    remaining = st.st_size
+> +                    while remaining > 0:
+> +                        chunk = b"\x00" * min(remaining, 1 << 20)
+> +                        remaining -= os.write(fd, chunk)
+> +                    os.fsync(fd)
+> +                except OSError:
+> +                    pass
+> +                finally:
+> +                    os.close(fd)
+>  
+>      def main(self):
+>          try:
+> -- 
+> 2.47.3
 
