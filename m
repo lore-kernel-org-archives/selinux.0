@@ -1,82 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.180
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795093460;
-	b=1Q9fN/Rf6qJkNk9HoNTS9/Du+pRwpV+lJbbnuynG42EAkJ3uxngQX2VCQQk3Pxx0c1Qr
-	 ZdDVm/etflEWj3Xs6+igHDmBqjsvsHPMqoS5fkD38F7EfV2S7144DZd9tFIgkDZhCZoSP
-	 +wIwmLMQAHY/zkFItFwtw/jX9VxQg00LKah2RsFpORrzeLmL6Xky2EUENUnlbrvcbbSGg
-	 8NDvzw6dEwgAeOoke2WyiFvaYNqyMPLz4tnhQT8mTCM0hHctq7vG43kYXFluKY+noTqUG
-	 jmjQpASJORBrBU14ge81FmPsn1DXIh2noFAxVIaMdJDPMAFhKv1H87k4RNXuTc6BkwA==
+	t=1795093461;
+	b=MuZXpWMoOgutv+FRAUjKkOCQVCn9OXdReny7hQj2jhcRrXuQke3G11u/zKamBNZbFbHH
+	 Tb1Wa1BRIeyfxucOgyYmogwZsY9fYJRzzawO9Ig3kjHOcVDnRtQ1I1wfMjCQ39dOJaO85
+	 zWc9kdvaeBVEu0TTyICPyVO8Dpjz/BFOCIVKP0wxleh3X1PAPh3Urssnd3XclubPx8fMF
+	 JNN8gVDGZl66wcJMep84IzLo3xGqAhX6xZ4NPPhSOknIFqLFG2EycWCqLwyzL5jIMSzX7
+	 mkxZ1L6gklSRBuYLShpuOKFTjLV90ZkiGBqRb9wVZ7zXOeWq0g6hr8krnZKg5fBxylQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795093460;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795093461;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
-	b=NNgcIjMJ7V0NZILBYAYRylgaFs1mSuCnPaoG8vsxdW444GkM2ZaNeKPn/Jjaa9smgYlA
-	 q3kXxWM0lv0bzEfUzBXnmd3FPABfurAapM6uEXoBIYny9qAvt5qBkSg2YmQhbKCt+zYQ6
-	 8fWkHF53C4Z0rU768wK68Bx/97v6i6tjJdAFjGovZCo0ystV5LOtDZRIFmX7wk5fKrtz5
-	 qzCwTXreHipvbG6sNsnFpGkiHc32mCXiRMAI6Q9gXaY0lkxdfaTUADxQEMcgjggWWc/ap
-	 M7DrNCZoY/YwWfjELJH35w3rELrplqJi7DdRpR/N8bRq6UuDLXxzl4lRg23ZtuEfzhA==
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=xwXtj1swHscgimwkHdxovizDVcdSYp34iNc06Z4fmUU=;
+	b=nByRe1E1htlz3LkIR5qZkUA/JeNJ4epB7zf05KkoBVMqSN5KTUKVTG81SE7BQQ0NAd+L
+	 qrq0RHsiMkX9fyK441emBoYnB4dYIMCpfucsWFB3DIIGS9SDh3K4a+x8SkxNsl/JLwnG9
+	 t9fVTU0GYbUF+BbMqKpLlbyw6WUgSD7sSHfdRGflZ+q3zdcl8tTREoSXOuOUkKXhbzBVp
+	 WZ6MRc5bElNFWypNJ7OAosKbdvxC+V1TJQydIA+kfo7sOM0Rh5uap1/jXGiTtTaO6MxUA
+	 lpgUiG+yCisOBbc1yEUL/4vOhkCWmZHZ81LTNGNdaSZy0Op14dXc6obN3/ueRGw04xg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zfHt8orL;
-	arc=none smtp.remote-ip=209.85.222.180
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=luEZxc4W;
+	arc=none smtp.remote-ip=209.85.222.174
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DDB606A32F
-	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:04:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F0DDB606A32F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6D2606A32F
+	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:04:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8C6D2606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zfHt8orL
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93f22a8515eso207808085a.2
-        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:04:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=luEZxc4W
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-9495d543c42so213698285a.3
+        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:04:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795093459; x=1795698259; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
-        b=zfHt8orLL5n1QSFYKhVxiBw+PER56xPJKJwmvgszWS/BWfG5jgd0ECmBntP8su0HH7
-         F401/PTw7kmwDnD9GP0AiMB0jdk4bf+ifD4QUp5F6ZDRFNunaCVNXr1JFZ7mtHE9S1mG
-         /qIxlvxLE+0r5NVi2A/Vsob5YC+M0+2N3TO0DmtpbUEL6a4qCTvAqKszTJYOE3+mzbg0
-         eRHSPJ5PwelNokVSE3cck7w+Bg8hJtMcq3HKLM5ObitdsyBJfQD8yK3tjQh4Hy0pa+b8
-         DuYHIl95okdtapbGd4llRqXZfcQVvzGZQnOEIew9smNAO4Vpy25bJWujW77471w46Xz9
-         6uYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795093459; x=1795698259;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1795093460; x=1795698260; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
-        b=nDtptk66bjaWjxlcsi7hYjgD7Lq6iNEBdYCNsrHPHo5KkE/zL990HrKxAAX3JKDx0W
-         C+nm+X/3WpnI6BZmZjsLdmPcax9Fq12T+9ixev+0cwZUFxmt2ojjwPpdh+rI3IOp0r4a
-         kK9gftMf1CINPZeEJlYeJ1G4VMqOif8JjiuG5na6Nck7G3NX6CvtJbP6k3p0ENwLX8WX
-         SAHNpETTdyQklJIWRkvBupCc4eP8YIwHW5Kbem8LajWzQj78CAjULfcpMASpoDejTx+h
-         W3kERm8OC3HYJI9Lhkf+tXZVbf6YeI+fhswuDClneSYVnNcUG8ePWYjI88Z3uNW6eoUF
-         yLYQ==
-X-Gm-Message-State: APuU4Z9M16KnPvLX8rj1hiXEkbrqofu/baybN13jrIGL5tyGuCjsXWRG
-	E+37aCmPkoT/eQlvGdLqqzPNDa5xRyfwVALL+Hrq/JPtt/uat3OMfiSO6Xeh2w==
-X-Gm-Gg: AYBFou1Ggr+Q0Z+1i+lPJelg5H3HpXvjAqfkJMXXxrhtiS+URcFcbycbcYM/LBP3PMQ
-	txUPZAM0/MpA7EudQkcUosG36dyYHrT02dqk6s+aFGaQzZxXOyn6YaVivJa344m01bkrck8SdM6
-	NawlGGltXV/EE7vOYuIgZn6oRq+vsH1NEOlsS6H5YS/ipd/p6tRQpJDaujTuiPnecf1XduQRIYy
-	uhFq6DYnqQgr0caREwPM7L/h8LwPfJ5gj/V56BLAsLKugBJ1bw8rdsw28lknmyigaoHRRC4M9kB
-	C1Uxw9o/+Gv6rVBOWZz1RkzCJFN3jcZGYfvgxsyCOZgOewaQlP0CRqcjQ2dSWi9Q5MvMDdaF3wz
-	CP0zn+y2D94EDPl49NHMrKydntx3zuuLuuKKFUEF0gderHDDlofx5QBomFMglQFQANaOfaexaGC
-	zAjDAtL/UO4umjcmJJy2kbNOyvZkKUPssCU1o9eU96GaNsNyf9RGa0iosg92l0PR2qd7+nKYifq
-	3fTTW1JlqFsDFIXADfW18BYb3bbHcdeDO+bLLFtphEaPoR/aOUm3A3dRU3fSctott2qOTRn5fwB
-	q36ZiqWmToyb4Lu1fW7bA/iM0GPp4iGEkNPLODs3QAd8vxlC52Flf83LgKgumftChz7zIEAe5Gp
-	P+UgHJIrv1Kwj8PIuofwXqmY6PgCUST2Ztw/6m2PSwAeg6ut8B1EoHzg049xWAPHy0eQgvgW7Xv
-	d4ACIS0Zh+UnezEtFEU97YCxDwgMihH7IK
-X-Received: by 2002:a05:620a:2585:b0:93f:2aa8:c555 with SMTP id af79cd13be357-949995e7f02mr1021204085a.57.1795093458636;
-        Thu, 19 Nov 2026 05:04:18 -0800 (PST)
+        bh=xwXtj1swHscgimwkHdxovizDVcdSYp34iNc06Z4fmUU=;
+        b=luEZxc4WPZF3sip6DwlP+dPOD/zn/DgwU/CzA4tNtyOslqrS1SwtugcQcawifEOMuf
+         eRXw9YpNLfDudbeIGqTrdGJ+bEf5AB1mgju8fQ0s/xbVM2gsdkM8+EW9SJ2crcZz6HPo
+         OdrKvIGjkTEZ2smL69ElqV/sx5Jz50Wq6z9WU/YJmcx2hvUcTccHUpi9pJvNNf0aX71M
+         aG2EisAxftSDH5z5aNLu6p0xFRWhk+RFahYur8XQl3rEdou1Xe6sTPMQ0LxzN3O/Tobq
+         DX7Tsf4T+N2xnPAhgJJbec8HvRau9ttgELpwnpGzMn1lzr1UaIjMbJwfhqUBaS6p0fXd
+         jUPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795093460; x=1795698260;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xwXtj1swHscgimwkHdxovizDVcdSYp34iNc06Z4fmUU=;
+        b=AByKDiKXr8EdcAmA3acbzRZKNtvLi3swkfWVqDlc0bVsFwPbyWQbUasQn8tq/RdcRF
+         NRTLJr+ar8SGxXPRnS7vWX4Ny4me7ECCsYNSHFAUcsQyyQCJMrrb8wJcGEixew9tccAX
+         pAyUXI/5J0RZ3FaOmasO3rS3zu3QzgUDyL/Y4IVmY+2B/xPzx8Z/4ptciWKMzkbphrYA
+         SzJSNbzbV4xv2yWDTv/IcjoTjkmbQGdqY0NAxKWQJrJKmjf2sIFx9SpIU5dz7+rt83o0
+         AIaQogPP97aYROVLz2mNXsZ0ARHxJTRzqhFMSK+/3oX6Yev1G6jOwV5cMDlBQ3kazPDK
+         oRaQ==
+X-Gm-Message-State: APuU4Z/eq09Jqt0kVqYdj8H6YOIWDkNQJeKRvjJKdoqlHQ0V4rDqdhGG
+	c3tucvNEOOmZudtsGH2vFnUmZylFNTXNCve9qTvAxyW8jG1As47FBHlL5atNGg==
+X-Gm-Gg: AYBFou0M29K5+9w6J88R6A0thBw6qH7SfjqzrFIGIECFQFHlU5XtdDW1OU7qhKNqasi
+	AvYYVXxHlUdkwlMZKf/p2cYeJ+9UnvSVIPWavz6fhpAoU2ZN/vsw5trBIJKidyQXwtEoNLxFPVS
+	PmTeZhMF4OuL+ziUUBXmTZ3I9PyKwJn7ONh/264EGKPEjWqtAI4e15cw2lhOPEhDy+zT3tA6pZP
+	f6o9Vu7ownaGknGRmCxBp1IYD3N06q89MQ6woLSyx4ZC5XlPOiST4jhgW3XpddPKQbxdI2gk3t9
+	VQNOtRhIT7GkHCsaBYlUqw2xiefmBTjMx2eVqW0vMA3TPtvxvQdO1L/YX3sdJSRvvztypEjCGrL
+	7D9FEqo4TfJneG36KYVYtWVIXOfG3GaSVEIWW0Hs4hGtVtrXgxJ7r2Y1g8SIuYrICv0VyxRjZfT
+	ailjrK6I7D8+uXW8zP4NXEi+ldqEs/sN20VRzl7QETtSLbvoHzLk5h/5MkrUWSxVKsrbZzlPWVN
+	KwkkUmhMpuh+/3ha0A1LbfYIpyADV6eg6A33jsYDlUZmHRpK5oK7k8PJvm1h8fip6vpk7DGw+Eu
+	uZsCeHLWft62vU0pO3vpjBaJxeAjYMGW4dKxj7AE3v+4NJMP9AeIAJRjh6aI7eGH1H72rt78E9b
+	PqZIueFGHjilp3iF2uFfw3DxwHNHQj5j3wAt4FxEw3KrEMCZPf4r3NwHevGPZLEiMXVxlIXPJk+
+	S4CdrEBmNQ2AhSgxkgzFzlP89WVWD5xJf7ng==
+X-Received: by 2002:a05:620a:2a02:b0:939:6de9:4cff with SMTP id af79cd13be357-94999755c00mr1028520385a.45.1795093460231;
+        Thu, 19 Nov 2026 05:04:20 -0800 (PST)
 Received: from debian.. (pool-96-244-147-163.bltmmd.fios.verizon.net. [96.244.147.163])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b7c7c46sm437154385a.33.2026.11.19.05.04.17
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b7c7c46sm437154385a.33.2026.11.19.05.04.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 05:04:18 -0800 (PST)
+        Thu, 19 Nov 2026 05:04:19 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: plautrba@redhat.com,
@@ -88,10 +90,12 @@ Cc: plautrba@redhat.com,
 	jsegitz@suse.de,
 	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/3] sandbox/sandbox: do not follow symlinks when shredding sandbox directories
-Date: Thu, 19 Nov 2026 13:03:53 +0000
-Message-ID: <20261119130355.707-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 2/3] sandbox/seunshare: SIGKILL and drain the child process group
+Date: Thu, 19 Nov 2026 13:03:54 +0000
+Message-ID: <20261119130355.707-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261119130355.707-1-stephen.smalley.work@gmail.com>
+References: <20261119130355.707-1-stephen.smalley.work@gmail.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -103,68 +107,72 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-sandbox --shred walks the sandbox home/tmp/runuser directories after
-the sandboxed process has exited and passes each file to
-/usr/bin/shred.  os.walk() reports symbolic links to files in its
-"files" list, and shred opens its operand following symlinks and
-overwrites the target file in place.
+After the sandboxed process exits, seunshare sends SIGTERM to its
+process group and returns; sandbox(1) then walks the sandbox
+directories. A descendant that ignores SIGTERM, or that is stll
+draining, is still alive during that walk.
 
-The walk runs in the invoking user's domain, not in the sandbox
-domain, so a symlink planted by the sandboxed process lets it destroy
-files it could not otherwise reach. Further, a child of the sandboxed
-process can survive and race with the walk to swap a file with a
-symlink to a file it could not otherwise reach.
+Send SIGKILL instead and loop until kill(-child, SIGKILL) reports
+ESRCH, re-sending each pass so a process that fork()s between our
+signal and its own exit is caught the next time. Bound the loop at 2s:
+a grandchild stuck in uninterruptible sleep, or a zombie not yet
+reaped by init, holds the pgid alive, and with the fd-based shred in
+the previous commit, sandbox is safe against a survivor anyway.
 
-Fix by replacing the use of /usr/bin/shred with an inline fd-based
-walk using os.fwalk(follow_symlinks=False) that pins each directory by
-fd and rejects a directory that was replaced by a symlink after lstat
-and open; open each leaf O_WRONLY|O_NOFOLLOW|O_NONBLOCK so that we do
-not follow symlinks and cannot be blocked by a planted fifo; refuse to
-act on anything that is not a regular file after open; then zero and
-fsync.
+The SIGINT/SIGHUP forwarder in handler() is left forwarding the
+received signal so ^C still reaches the sandboxed application; the
+post-wait SIGKILL sweep runs afterwards.
 
-Fixing seunshare to ensure that no sandbox descendant survives is left
-to a future change but is not necessary to close this issue.
+This does not cover a descendant that left the process group via
+setsid()/setpgid() before the sweep. Placing the child in its own PID
+namespace would make waitpid() returning imply no descendant exists;
+that is left to a future change.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- sandbox/sandbox | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ sandbox/seunshare.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/sandbox/sandbox b/sandbox/sandbox
-index 6a18b660..cfcc0b61 100644
---- a/sandbox/sandbox
-+++ b/sandbox/sandbox
-@@ -540,10 +540,26 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
-                 shutil.rmtree(self.__runuserdir)
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index 9f7e49da..b39ca010 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -7,6 +7,7 @@
+ #include <stdbool.h>
+ #include <signal.h>
+ #include <sys/fsuid.h>
++#include <time.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+@@ -1274,8 +1275,25 @@ childerr:
+ 	waitpid(child, &status, 0);
+ 	status_to_retval(status, status);
  
-     def shred(self, path):
--        for root, dirs, files in os.walk(path):
-+        for root, dirs, files, dirfd in os.fwalk(path, follow_symlinks=False):
-             for f in files:
--                dest = root + "/" + f
--                subprocess.Popen(["/usr/bin/shred", dest]).wait()
-+                try:
-+                    fd = os.open(f, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-+                                 dir_fd=dirfd)
-+                except OSError:
-+                    continue
-+                try:
-+                    st = os.fstat(fd)
-+                    if not stat.S_ISREG(st.st_mode):
-+                        continue
-+                    remaining = st.st_size
-+                    while remaining > 0:
-+                        chunk = b"\x00" * min(remaining, 1 << 20)
-+                        remaining -= os.write(fd, chunk)
-+                    os.fsync(fd)
-+                except OSError:
-+                    pass
-+                finally:
-+                    os.close(fd)
+-	/* Make sure all child processes exit */
+-	kill(-child, SIGTERM);
++	/*
++	 * Make sure the child process group is gone before cleanup runs.
++	 * SIGKILL each iteration so a descendant that fork()s between our
++	 * signal and its own exit is caught on the next pass. Zombies keep
++	 * the pgid alive until init reaps them, so give this a bounded
++	 * budget; with the fd-based shred in sandbox(1), timing out here
++	 * only leaves a straggler alongside a race-free cleanup.
++	 *
++	 * This does not cover a descendant that left the process group via
++	 * setsid()/setpgid(); a PID namespace is the complete answer.
++	 */
++	for (int i = 0; i < 400; i++) {
++		struct timespec ts = { .tv_sec = 0,
++				       .tv_nsec = 5 * 1000 * 1000 };
++
++		if (kill(-child, SIGKILL) < 0 && errno == ESRCH)
++			break;
++		nanosleep(&ts, NULL);
++	}
  
-     def main(self):
-         try:
+ 	if (execcon && kill_all)
+ 		fprintf(stderr,
 -- 
 2.47.3
 
