@@ -1,99 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=62.89.141.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795067497;
-	b=PizJrPiRdacQOivJN1glKJiYPuAYyuMqqTZl3wR6SZDQCrGB0x8rOMA9QkgdTaT0uV/1
-	 bgLOd87vA/SwIr+H+68jWMEIOv5B4NGuBQ+p7yO9tZmKcyqE8vVdCqqAKSihHDS0K7yDP
-	 7O8b5P+to3XynZpyLjO5JJjiL8lXNU7SReH3SYW6tM7daU8vm4G6OJm+/TaXmJmMg1gyL
-	 Yfxr+8of5GKNaxXhphnWFrQHUHf8SnYjbFzm5o9OfJIDiolqN8uORqfvKszlLXISCHMvK
-	 2be/9YMNQdXf5MwcfuM4NkEwLIA2LOfWAAHBXC1JS/fmxCNDNh8KH2VXQLN9kHFF89Q==
+	t=1795093460;
+	b=1Q9fN/Rf6qJkNk9HoNTS9/Du+pRwpV+lJbbnuynG42EAkJ3uxngQX2VCQQk3Pxx0c1Qr
+	 ZdDVm/etflEWj3Xs6+igHDmBqjsvsHPMqoS5fkD38F7EfV2S7144DZd9tFIgkDZhCZoSP
+	 +wIwmLMQAHY/zkFItFwtw/jX9VxQg00LKah2RsFpORrzeLmL6Xky2EUENUnlbrvcbbSGg
+	 8NDvzw6dEwgAeOoke2WyiFvaYNqyMPLz4tnhQT8mTCM0hHctq7vG43kYXFluKY+noTqUG
+	 jmjQpASJORBrBU14ge81FmPsn1DXIh2noFAxVIaMdJDPMAFhKv1H87k4RNXuTc6BkwA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795067497;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:Sender;
-	bh=z8G4571aUTPFuGlDRih4WtoT+MR1zWs5KxPfHLJ0IoQ=;
-	b=K438CdbgINAZblCj2Vo8NMPTupp/jd8A3pokleOc9gKBuaVvr8hgSpT7r+t88U3xpw4R
-	 8lCEgPXLikVJak4pUOOjA4WHRs43tG8gXxCkodM9lU1qGFg3zzn8+XP2CxxHooy1Gayd0
-	 juO8N3HMQBBckyCNTsdUDRwj9NuzbHC90rRyc7Aa3H108FuG2cE5256WaeqxJlJN+wkEj
-	 takEtrZqw7IUaVDHq3aUOrY1e0ps3JpvqlCFmg12LpqYohT5bh1QbKRiHNRdaq2adobsE
-	 vYFosqm6szMv6srf4rGaa0Vd5nVeEHcEzwuULrG4gu1btRDDdAOfuAPwdULTADdmyPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795093460;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
+	b=NNgcIjMJ7V0NZILBYAYRylgaFs1mSuCnPaoG8vsxdW444GkM2ZaNeKPn/Jjaa9smgYlA
+	 q3kXxWM0lv0bzEfUzBXnmd3FPABfurAapM6uEXoBIYny9qAvt5qBkSg2YmQhbKCt+zYQ6
+	 8fWkHF53C4Z0rU768wK68Bx/97v6i6tjJdAFjGovZCo0ystV5LOtDZRIFmX7wk5fKrtz5
+	 qzCwTXreHipvbG6sNsnFpGkiHc32mCXiRMAI6Q9gXaY0lkxdfaTUADxQEMcgjggWWc/ap
+	 M7DrNCZoY/YwWfjELJH35w3rELrplqJi7DdRpR/N8bRq6UuDLXxzl4lRg23ZtuEfzhA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=zeniv.linux.org.uk;
-	spf=none smtp.mailfrom=ftp.linux.org.uk;
-	dkim=pass header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=HUmq9V2f;
-	arc=none smtp.remote-ip=62.89.141.173
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zfHt8orL;
+	arc=none smtp.remote-ip=209.85.222.180
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFD1F606A325;
-	Thu, 19 Nov 2026 05:51:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EFD1F606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DDB606A32F
+	for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 13:04:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F0DDB606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=HUmq9V2f
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=z8G4571aUTPFuGlDRih4WtoT+MR1zWs5KxPfHLJ0IoQ=; b=HUmq9V2fqWZniya7o9nBaVPeDZ
-	hdLnNqA0+VaoySgEJuKHB41/nmyLaGptpyplTvFZpj9ZsUfvW/Uacb0EujAyxoatj/wEjrTHUy1Y8
-	Jf/0+dvEia8oYQhTDJ2QTEjT6TZu9xP6N/is4httLR57O2jb4I7x7sybjo+/cFqRcKEnzzz9PN71w
-	Fs3s4nF5yw1DIdzaYMKdWCNazNDVu5/+7GdnX+s8wkC+dHul4l8kAJetHVgTfI7IM42m1/kFkA0V+
-	e5cVGVGh3fNAY2bVKP02Pyi9IdxpjMoQwmhSMxh71ivIpbruqUDwYbd4JXLlMVMx0hkbK2WWTq4Oa
-	k2qmfFmA==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xTv3O-000000063G7-3IJX;
-	Thu, 19 Nov 2026 05:51:26 +0000
-Date: Thu, 19 Nov 2026 05:51:26 +0000
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Cai Xinchen <caixinchen1@huawei.com>, mic@digikod.net,
-	gnoack@google.com, paul@paul-moore.com, jack@suse.cz,
-	amir73il@gmail.com, andrii@kernel.org, apparmor@lists.ubuntu.com,
-	ast@kernel.org, axboe@kernel.dk, bpf@vger.kernel.org,
-	casey@schaufler-ca.com, cel@kernel.org, cem@kernel.org,
-	chenxiaosong@chenxiaosong.com, code@tyhicks.com, corbet@lwn.net,
-	Dai.Ngo@oracle.com, dakr@kernel.org, daniel@iogearbox.net,
-	dhowells@redhat.com, dlemoal@kernel.org, dmitry.kasatkin@gmail.com,
-	driver-core@lists.linux.dev, dsterba@suse.com,
-	ecryptfs@vger.kernel.org, eddyz87@gmail.com, emil@etsalapatis.com,
-	eric.snowberg@oracle.com, exfat@lists.linux.dev,
-	georgia.garcia@canonical.com, gregkh@linuxfoundation.org,
-	hch@lst.de, hirofumi@mail.parknet.co.jp, hyc.lee@gmail.com,
-	ihor.solodrai@linux.dev, jlayton@kernel.org, jmorris@namei.org,
-	johan@kernel.org, john.fastabend@gmail.com,
-	john.johansen@canonical.com, jolsa@kernel.org, kpsingh@kernel.org,
-	linkinjeon@kernel.org, linux-api@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-cifs@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, linux-unionfs@vger.kernel.org,
-	linux-xfs@vger.kernel.org, liubaolin12138@163.com,
-	martin.lau@linux.dev, mason@kernel.org,
-	mathieu.desnoyers@efficios.com, matt@bobrowski.net,
-	memxor@gmail.com, mhiramat@kernel.org, miklos@szeredi.hu,
-	neil@brown.name, netfs@lists.linux.dev, ntfs@lists.linux.dev,
-	okorniev@redhat.com, omosnacek@gmail.com,
-	penguin-kernel@i-love.sakura.ne.jp, rafael@kernel.org,
-	rdunlap@infradead.org, roberto.sassu@huawei.com,
-	rostedt@goodmis.org, selinux@vger.kernel.org,
-	senozhatsky@chromium.org, serge@hallyn.com, sj1557.seo@samsung.com,
-	skhan@linuxfoundation.org, song@kernel.org,
-	stephen.smalley.work@gmail.com, takedakn@nttdata.co.jp,
-	tom@talpey.com, yonghong.song@linux.dev, yuezhang.mo@sony.com,
-	zohar@linux.ibm.com, utilityemal77@gmail.com, lujialin4@huawei.com
-Subject: Re: [PATCH -next -v4 02/17] LSM: pass struct path to the
- inode_setsecctx hook
-Message-ID: <20261119055126.GU989762@ZenIV>
-References: <20261117150542.1169451-1-caixinchen1@huawei.com>
- <20261117150542.1169451-3-caixinchen1@huawei.com>
- <20261117184342.GR989762@ZenIV>
- <20261118001641.GA1669148@ZenIV>
- <20261118-woher-duften-bejubeln-7a8a2099f89f@brauner>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zfHt8orL
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93f22a8515eso207808085a.2
+        for <selinux@vger.kernel.org>; Thu, 19 Nov 2026 05:04:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795093459; x=1795698259; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
+        b=zfHt8orLL5n1QSFYKhVxiBw+PER56xPJKJwmvgszWS/BWfG5jgd0ECmBntP8su0HH7
+         F401/PTw7kmwDnD9GP0AiMB0jdk4bf+ifD4QUp5F6ZDRFNunaCVNXr1JFZ7mtHE9S1mG
+         /qIxlvxLE+0r5NVi2A/Vsob5YC+M0+2N3TO0DmtpbUEL6a4qCTvAqKszTJYOE3+mzbg0
+         eRHSPJ5PwelNokVSE3cck7w+Bg8hJtMcq3HKLM5ObitdsyBJfQD8yK3tjQh4Hy0pa+b8
+         DuYHIl95okdtapbGd4llRqXZfcQVvzGZQnOEIew9smNAO4Vpy25bJWujW77471w46Xz9
+         6uYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795093459; x=1795698259;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bIRQTcDLVn9MTr3/MFGsacalhJQbU2b6v2hdGeBduzE=;
+        b=nDtptk66bjaWjxlcsi7hYjgD7Lq6iNEBdYCNsrHPHo5KkE/zL990HrKxAAX3JKDx0W
+         C+nm+X/3WpnI6BZmZjsLdmPcax9Fq12T+9ixev+0cwZUFxmt2ojjwPpdh+rI3IOp0r4a
+         kK9gftMf1CINPZeEJlYeJ1G4VMqOif8JjiuG5na6Nck7G3NX6CvtJbP6k3p0ENwLX8WX
+         SAHNpETTdyQklJIWRkvBupCc4eP8YIwHW5Kbem8LajWzQj78CAjULfcpMASpoDejTx+h
+         W3kERm8OC3HYJI9Lhkf+tXZVbf6YeI+fhswuDClneSYVnNcUG8ePWYjI88Z3uNW6eoUF
+         yLYQ==
+X-Gm-Message-State: APuU4Z9M16KnPvLX8rj1hiXEkbrqofu/baybN13jrIGL5tyGuCjsXWRG
+	E+37aCmPkoT/eQlvGdLqqzPNDa5xRyfwVALL+Hrq/JPtt/uat3OMfiSO6Xeh2w==
+X-Gm-Gg: AYBFou1Ggr+Q0Z+1i+lPJelg5H3HpXvjAqfkJMXXxrhtiS+URcFcbycbcYM/LBP3PMQ
+	txUPZAM0/MpA7EudQkcUosG36dyYHrT02dqk6s+aFGaQzZxXOyn6YaVivJa344m01bkrck8SdM6
+	NawlGGltXV/EE7vOYuIgZn6oRq+vsH1NEOlsS6H5YS/ipd/p6tRQpJDaujTuiPnecf1XduQRIYy
+	uhFq6DYnqQgr0caREwPM7L/h8LwPfJ5gj/V56BLAsLKugBJ1bw8rdsw28lknmyigaoHRRC4M9kB
+	C1Uxw9o/+Gv6rVBOWZz1RkzCJFN3jcZGYfvgxsyCOZgOewaQlP0CRqcjQ2dSWi9Q5MvMDdaF3wz
+	CP0zn+y2D94EDPl49NHMrKydntx3zuuLuuKKFUEF0gderHDDlofx5QBomFMglQFQANaOfaexaGC
+	zAjDAtL/UO4umjcmJJy2kbNOyvZkKUPssCU1o9eU96GaNsNyf9RGa0iosg92l0PR2qd7+nKYifq
+	3fTTW1JlqFsDFIXADfW18BYb3bbHcdeDO+bLLFtphEaPoR/aOUm3A3dRU3fSctott2qOTRn5fwB
+	q36ZiqWmToyb4Lu1fW7bA/iM0GPp4iGEkNPLODs3QAd8vxlC52Flf83LgKgumftChz7zIEAe5Gp
+	P+UgHJIrv1Kwj8PIuofwXqmY6PgCUST2Ztw/6m2PSwAeg6ut8B1EoHzg049xWAPHy0eQgvgW7Xv
+	d4ACIS0Zh+UnezEtFEU97YCxDwgMihH7IK
+X-Received: by 2002:a05:620a:2585:b0:93f:2aa8:c555 with SMTP id af79cd13be357-949995e7f02mr1021204085a.57.1795093458636;
+        Thu, 19 Nov 2026 05:04:18 -0800 (PST)
+Received: from debian.. (pool-96-244-147-163.bltmmd.fios.verizon.net. [96.244.147.163])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b7c7c46sm437154385a.33.2026.11.19.05.04.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Nov 2026 05:04:18 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jwcart2@gmail.com,
+	paul@paul-moore.com,
+	jason@perfinion.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/3] sandbox/sandbox: do not follow symlinks when shredding sandbox directories
+Date: Thu, 19 Nov 2026 13:03:53 +0000
+Message-ID: <20261119130355.707-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -103,123 +101,70 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261118-woher-duften-bejubeln-7a8a2099f89f@brauner>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 18, 2026 at 09:51:27AM +0100, Christian Brauner wrote:
-> On Wed, Nov 18, 2026 at 12:16:41AM +0000, Al Viro wrote:
-> > On Tue, Nov 17, 2026 at 06:43:42PM +0000, Al Viro wrote:
-> > > > + * Hooks that take a struct path argument: the VFS only sanctions passing
-> > > > + * the path to VFS helpers that take a struct path (e.g. notify_change());
-> > > > + * it makes no guarantees with regard to path->mnt, whose layout and
-> > > > + * implementation details are subject to change.  Implementations must
-> > > > + * not rely on its properties.
-> 
-> That comment is a garbled version of an earlier review. It meant that
-> LSMs get no guarantees about struct vfsmount internals and don't get to
-> poke at them. I'm not sure how this can be read as path->mnt being a
-> random mount.
+sandbox --shred walks the sandbox home/tmp/runuser directories after
+the sandboxed process has exited and passes each file to
+/usr/bin/shred.  os.walk() reports symbolic links to files in its
+"files" list, and shred opens its operand following symlinks and
+overwrites the target file in place.
 
-"no guarantees with regard to path->mnt" is easy to parse that way when one
-is stuck with a caller that needs to be converted to new API with no relevant
-mount reference in sight.
+The walk runs in the invoking user's domain, not in the sandbox
+domain, so a symlink planted by the sandboxed process lets it destroy
+files it could not otherwise reach. Further, a child of the sandboxed
+process can survive and race with the walk to swap a file with a
+symlink to a file it could not otherwise reach.
 
-> > > If that kind of stuff actually does get passed to any existing hooks, we need
-> > > to fix that ASAP.
-> 
-> Of course there is one...
-> 
->   dent = lookup_one_unlocked(idmap, &QSTR_LEN(...),
->                              priv->dir_fp->filp->f_path.dentry);
->   [...].
->   rc = ksmbd_vfs_fill_dentry_attrs(priv->work, idmap, dent, &ksmbd_kstat);
-> 
-> It passes only the bare dentry, and ksmbd_vfs_fill_dentry_attrs() then
-> makes up a path from the share's root mount:
-> 
->   struct path path = {
->           .mnt = share_conf->vfs_path.mnt,   /* mount the share is exported from */
->           .dentry = dentry,                  /* entry inside the listed dir */
->   };
->   rc = vfs_getattr(&path, ...);
-> 
-> since 5614c8c487f6 ("ksmbd: replace generic_fillattr with vfs_getattr").
-> 
-> So a client that lists a directory on a submount below the share then
-> that dentry belongs to another superblock. So security_inode_getattr()
-> and ->getattr() get a mixed path.
+Fix by replacing the use of /usr/bin/shred with an inline fd-based
+walk using os.fwalk(follow_symlinks=False) that pins each directory by
+fd and rejects a directory that was replaced by a symlink after lstat
+and open; open each leaf O_WRONLY|O_NOFOLLOW|O_NONBLOCK so that we do
+not follow symlinks and cannot be blocked by a planted fifo; refuse to
+act on anything that is not a regular file after open; then zero and
+fsync.
 
-So e.g. apparmor hits
-        vfsuid_t vfsuid = i_uid_into_vfsuid(mnt_idmap(path->mnt),
-					    d_backing_inode(path->dentry));
-with path->mnt having nothing to do with path->dentry there?  Fun...
+Fixing seunshare to ensure that no sandbox descendant survives is left
+to a future change but is not necessary to close this issue.
 
-> The third patch in this series fixes this. But we should make this a
-> Fixes: patch really... Something like [1].
-> 
-> > To elaborate a bit: correctness of quite a few places does depend upon the
-> > following invaraint:
-> > 	path->mnt->mnt_sb == path->dentry->d_sb		(1)
-> > for all struct path pointers they might possibly run into.
-> >
-> > _IF_ you can guarantee that (1) is not violated, we have something to
-> > talk about; otherwise, don't call your object struct path and don't
-> > pass it to anything that expects to deal with struct path.
-> 
-> Every struct path the series constructs:
-> 
->   - devtmpfs
->   - nfsd
->   - cachefiles
->   - ecryptfs
->   - overlayfs
->   - ksmbd
-> 
-> doesn't have this bug.
-> 
-> [1]:
-> 
->   --- a/fs/smb/server/smb2pdu.c
->   +++ b/fs/smb/server/smb2pdu.c
->   @@ -6375,13 +6375,14 @@ static int process_query_dir_entries(struct smb2_query_dir_private *priv)
->                           continue;
->                   }
-> 
->   +               path.mnt = priv->dir_fp->filp->f_path.mnt;
->   +               path.dentry = dent;
->   +
->                   if (test_share_config_flag(priv->work->tcon->share_conf,
->                                              KSMBD_SHARE_FLAG_HIDE_UNREADABLE)) {
->                           __le32 daccess = FILE_READ_DATA_LE | FILE_READ_EA_LE |
->                                   FILE_READ_ATTRIBUTES_LE;
-> 
->   -                       path.mnt = priv->dir_fp->filp->f_path.mnt;
->   -                       path.dentry = dent;
->                           rc = smb_check_perm_dacl(priv->work->conn, &path,
->                                                    &daccess, daccess,
->                                                    priv->work->sess->user->uid,
->   @@ -6397,7 +6398,7 @@ static int process_query_dir_entries(struct smb2_query_dir_private *priv)
->   @@ -6397,7 +6398,7 @@ static int process_query_dir_entries(struct smb2_query_dir_private *priv)
->                   if (priv->info_level != FILE_NAMES_INFORMATION) {
->                           rc = ksmbd_vfs_fill_dentry_attrs(priv->work,
->                                                            idmap,
->   -                                                        dent,
->   +                                                        &path,
->                                                            &ksmbd_kstat);
->                           if (rc) {
->                                   dput(dent);
->   --- a/fs/smb/server/smb_common.c
->   +++ b/fs/smb/server/smb_common.c
->   @@ -472,32 +472,36 @@ int ksmbd_populate_dot_dotdot_entries(struct ksmbd_work *work, int info_level,
->           for (i = 0; i < 2; i++) {
->                   struct kstat kstat;
->                   struct ksmbd_kstat ksmbd_kstat;
->   -               struct dentry *dentry;
->   +               struct path path = { .mnt = dir->filp->f_path.mnt };
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ sandbox/sandbox | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-That's just asking for breakage down the road.  Just pass it
-the address of ->f_path for "." and
-	&(struct path){.mnt = dir->filp->f_path.mnt, .dentry = dentry}
-for ".." (and sod the dentry = dget(...) for "." - just have it NULL there)
+diff --git a/sandbox/sandbox b/sandbox/sandbox
+index 6a18b660..cfcc0b61 100644
+--- a/sandbox/sandbox
++++ b/sandbox/sandbox
+@@ -540,10 +540,26 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+                 shutil.rmtree(self.__runuserdir)
+ 
+     def shred(self, path):
+-        for root, dirs, files in os.walk(path):
++        for root, dirs, files, dirfd in os.fwalk(path, follow_symlinks=False):
+             for f in files:
+-                dest = root + "/" + f
+-                subprocess.Popen(["/usr/bin/shred", dest]).wait()
++                try:
++                    fd = os.open(f, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++                                 dir_fd=dirfd)
++                except OSError:
++                    continue
++                try:
++                    st = os.fstat(fd)
++                    if not stat.S_ISREG(st.st_mode):
++                        continue
++                    remaining = st.st_size
++                    while remaining > 0:
++                        chunk = b"\x00" * min(remaining, 1 << 20)
++                        remaining -= os.write(fd, chunk)
++                    os.fsync(fd)
++                except OSError:
++                    pass
++                finally:
++                    os.close(fd)
+ 
+     def main(self):
+         try:
+-- 
+2.47.3
+
