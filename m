@@ -1,100 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795198657;
-	b=iGx7Euywd2L/5aLV1p+6njLspvUXnQb18w9/DrSIj1GuUXkR8kIuhMmfmgW8qyEmoXLQ
-	 sP+yUXWByD+kQy4Wif5p+x8HBXBFsNAATX2TbGcwQpxYqwB+kvUOTMPH7NXBohCDBz6Ru
-	 oc7TkUsC8OsWNdqTRnyrW5XDwjsymh92h4aMu0VqMxCL877Pkb9W75o1XmdKKaPKf9gTX
-	 r8MUKU6QLbxkwhnOfz5OiDMHEKMsDlr+cLcVxBIKGiRvCf48OJMvJnx0Fxf9gaFXNszJ7
-	 ZnxAtDU3RWDWr8TuZa9C5ABzocsGVWoCEK1fQgtp/GanXfi6HLz9E3S9fgi4CKd/JzQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795198657;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795199302;
+	b=WRZY1w2NMtBDyap4/eWB5WpcPysw0zrycykaa1/zvWJO5ATQ9f62pFKJZHhDUq2E9VeG
+	 8wWvTWFFlwvRL6g4FnYPqhcm8Lfs530W5JVshRF45A1xn6eu36F8OXi9vHmPalG8Eqlt7
+	 c/Zo1pa87VUBCUjhKzFK69GPApkfOsVmGwRRM4R4eLqlsZMZTh7tEWqRso8wo7wM1gEB/
+	 5T/1DKt54n4VxZAfROv5+XTzwL3+RcV/dRoW5CQJAm8UjNiDFZppIPHJbVPc13i1Cll6i
+	 EcsHROUVLfZOZxPU5QWqneADfbXP6YJCVur5jXLX0anadfDT3XHOFY/BynhbWu/p9uQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795199302;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=xRnaKYuXJq3EWEQcGbrkE3rcTWW+PCNPpH2/XRTsC7Q=;
-	b=1Jl+p3BAIPl5+PXvubiZpwBkuHVLNrCt50pM6EUu6FhyrW8/CEGXrcWy3W/iIJwoLCBR
-	 58lTDTg/ZevExB6fyBBXsd3XMy8+uMwKuj4jqBnQg6vI7aTXz/84Hp+ztaS0f2RjPlLts
-	 rK29wdQp9aAYHN7C52gqbSLA9uaVY5GBNuNWG8ek5/nR6/nC2uxRRwgbGJYl3Nm7m/wYL
-	 /w0HNces3u0od4zqCupah7eeuxc67yJH8vK+1752+oGHu4+sb81VEapaIrL/SFPQfk9ND
-	 cojGo5V7l4V6Q8ltbnalSX6Y5riVH9EROTp623p2R8tx59EFFY/wCLdHkgFNSYtGriQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=KYw0NCKSZ05SYydlW50g24YuI59V91jMDIB9dMNtfj0=;
+	b=FNdjil0nJWPq1PuFFBTRFE3AWq3oyYHzk08BGylBcPQR+VUe1QR0bKA3PXqvQlWVzf5T
+	 NxhPnedPuWWp4ELJAcQwqUNbdESAfa/d492CIrXMVQBx8QBqBLIZSGnDsieB8xBVlx5Tg
+	 +vnXJ5x4gtz5lJNsv9hEmayvxBhBjw4xpnsTm0H3oYj2E7t1x3fL3iNOPaU/Zb3pm79Nx
+	 oAGhei/OCeUFMtlSUxKlvNm2Izi2IfC5fZeEk+p8GYJlJGFOdWWwf1bsZPlaL/yu7v/xb
+	 ZSjKGCZjO6960h78Dmhq8o628aSl116kfPr4X5vYhmysn9Ul6yvaBCMwIaFa9W8V8Nw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="AO/a2gwp";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oXdm42TM;
+	arc=none smtp.remote-ip=209.85.160.175
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81F66607635F
-	for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 18:17:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81F66607635F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBDFB606A320
+	for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 18:28:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EBDFB606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AO/a2gwp
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8b51389f58cso13091567b3.3
-        for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 10:17:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795198652; cv=none;
-        d=google.com; s=arc-20260327;
-        b=OC3EXoxnLgko/ttroi+5uW9RlG/G9SNOWe7JJ23v1buZoRFxtCEpcMkR5c5uUdtlUU
-         JpKhnumwG1FI/DGnBLUou5hDDtCzQdlwNVCbChj1/PaZY4NQGE3XsD48bj64JiNUS+fP
-         TfjF8k7plLAOknHVnhzC7M9HIcb3FxsqkEx0MRUtN2p23S6v6LdEzhbAe8tycPhlX+/R
-         G1MQgE9C853XBeHB7NeZF+HEs/nb+Z9v+hloL20D1U4Ia7ET6Z6137Vd7HrkDbjCqGva
-         kBxqtEsmCJ7U3qfOLxvGxvteDYdgxwjWkNZybFFGYWwmrED5wXinwHEGQvI1Jq+3Udu7
-         Y5oQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=xRnaKYuXJq3EWEQcGbrkE3rcTWW+PCNPpH2/XRTsC7Q=;
-        fh=3bY8Q6qSUFOwupAktnJ48slZmV8g0SJ1Z5g5jHiCyAU=;
-        b=DAOytzEixyGdZhnAMSv+NNL52bpJ69hjPPzqFZIRlLvKdF8pI1olJLYan+LN04HnHR
-         g13tJgNHjdaA1I5+YF0szJq6Ak6WUHkwMzfWla6vYB1RIxiBQwOUH0pRbzjLsBSvkdOX
-         lRXoR+m2AreiVazlpnB0k/uNGaZ5+3cz1omLRakUxZcF434jIIq4cNVIc3tycRp8OEDr
-         NV7Tel3z+Dect1oq2nx9DWQkzgwV38Ik3jsNjazYBjF8kbvfRaTjgD7rby0Gct8SCx6h
-         +XcaNRap57fM/Y9btths43mNnYMI2TtrQaBhlN+nvhmVuXJQKEnD/X/4y47g7wnY7v4G
-         kkvA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oXdm42TM
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-55bd96affd2so29721701cf.1
+        for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 10:28:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795198652; x=1795803452; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=xRnaKYuXJq3EWEQcGbrkE3rcTWW+PCNPpH2/XRTsC7Q=;
-        b=AO/a2gwpMpRcQLu+qT//vKIn6K/IPwXAZ+Fhjqcswy3bslC5PjnkM0GGWeGVeuiDGd
-         N2GXcMyxdtUj7riEp3LrvOlcjWWzZfGGETYABM745vdFmeotPC+FWEySxdfYXV3EazEN
-         HMcVll7PVFc2HisH9Q+t+GuSPUo8hM4hEhgbHM/uLM6SIZ04Evb+/FfJsHP6tHee5ejg
-         AIGGZMFba3QWtMwvm6yWdu3q/qBoHB5rcYIBikhhVdij574/bHAiR8RrjTv94XzS6VwF
-         z7ny8xrAX1vtbizUhR8++UHjdtRymCGtv2sXa03i2LXasDbg8ap42z4rUG1qj0FiMHnL
-         qxKA==
+        d=gmail.com; s=20260707; t=1795199301; x=1795804101; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KYw0NCKSZ05SYydlW50g24YuI59V91jMDIB9dMNtfj0=;
+        b=oXdm42TMH+42psCRifGy7uJnAxzF52B15JK3e8Q2liBX7dkR3WguwZN+WXs27SfQQX
+         IrvjGgrxabgudluTGC9NyVBgbYVrvXqpDMeChzwugC5D52/nW+iBRQe4LlD7mLlI4J6X
+         xX84O0Lu4GZ2NV7hwlRJNSU6mkgRHiK+S+G/PVuu8q6EIIlMRc9jq+bG4rt4h9AidDFF
+         IuDVDHM0wEr3yvl32njXoawLkEHChANBaic0caRGqaUkV/O4Th8G0AwBqR8/SbqGef6D
+         7tUDAgq7FWAab0qRsB8g99ytHIs+MhC0f1GBpYooUnWN3nV7c4zFJsMD29x8JyhUqXIR
+         vOdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795198652; x=1795803452;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xRnaKYuXJq3EWEQcGbrkE3rcTWW+PCNPpH2/XRTsC7Q=;
-        b=Yq+GEm1ToUKu2sIrfccFbKQk9tECoQt4FVVb/dNYzkAatxk22krjWxAArgpfSgHHtC
-         EvzVEELb20xkN2Dew05wMkws0eiztgmXJdaicakXMBaj5fvzofvTBnfFqwQ1UeY7gj8a
-         5g47AZOD5yDv7I7M5p6PZqqgPGHJeKxTrbunhDzQJNMNJhchW5QttvkvM43nWjeMQFB9
-         MYTX42yZCYf87BUC3YHJyvhxADLfFC8yEKacxjVkRo39hbPs03KBy2vilcvLvPqn65la
-         8xCtJpX2AvRtOcZvrifecTlFrvvkjwm/6kEvhssCXxcPpu8kx+2s6VVf79QtcU6CkCbj
-         7w2w==
-X-Gm-Message-State: APuU4Z+Y4sy2REU+dC9P+LgIOMkz2vtPIAWiUKetHiiv2UNLbftt8y9K
-	4YLOWkbsM5x9e9WWkN7c/skUyHmOE2w712dNrotRtRDCkGXihCq1VPvCcy8KZkfHAYlpfBstgRq
-	/dYcabebNbQ2me/g3qGbC3sEB6EQaoYBY1D6+
-X-Gm-Gg: AZFdTZcrOBVWUXytVLuJBztjkoPNlyWdnYf/l4H6Qg7qMcoR6xpVAlVgoVHy0xS8mvP
-	G9+vyoawlOWJF97ipPZU9tkVAD8lQCppas1YBfFz/e0EtRSpbsOuseOXtUsiKVAbjl3XYoLcjKi
-	PdX4kkWp1ggqN3g3nT1S6wDNsOrqwkNXI1Uh9Co0y315OFIFmqp10ur22tf9rTjfn/TY3x4laU0
-	yZjycU8rSMjybjj1TQHDB6c6QJNrlQCnuDYWfeBSDvk0Ymu5qXgSYIwvWoOkfb52IsGAz+ZnYE3
-	M+1go3HfrergTSuYcy4uXkF2Uezk43tcz2T0PRafQE+AMJFCVNYafZldiAMcjj/Pr8bUVjFmeIy
-	6kZe20Jl5f5AWRt7j3u9c0Vl/ks0LRFT6641peldDXAUlR4soUPKuYKqf9ixzrKBoM2HU56PI6E
-	/0lbnG7Pthkhm1PR3sfHosqqgkxTAi2VryQRzcU8j6Rcs2ICqvM5f7hdLY+Pg=
-X-Received: by 2002:a05:690c:3505:b0:8b4:d8f1:cc92 with SMTP id
- 00721157ae682-8b5204bb88bmr15637757b3.60.1795198652509; Fri, 20 Nov 2026
- 10:17:32 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795199301; x=1795804101;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KYw0NCKSZ05SYydlW50g24YuI59V91jMDIB9dMNtfj0=;
+        b=vjyCGcs41y4Xd7ZDlRr2+GZXKnHk3VkQXm4c5uBbPXNHI9+Hzj9kH2o+JXpy42PaL4
+         ObplDEN5Ku5hWm01ahDPhMvB9tvI1wAteHGJQ6iOtEVzBOYmG3PrAsoF1JQkblipMdOc
+         jA3LZOMEf+wmgpu9tHgj6TpNJRqwh6y7hjWhegoQkh2E5mgL8k7Zhf9VZP2QgzHltj5L
+         W3Dd14AqAyZ4EkYpqzuYUjU2MZ02+lYae6YGrhVnSL+lNlTF2ZJao5qONXvcMjyh1q7r
+         PlFeSKVVFz2FkM6u1FpcMvyjFOzKizBr/ng3qMsYN7z3lUqHxWCIQ/6q3U1Fypfcas49
+         YAEg==
+X-Gm-Message-State: APuU4Z+FVOSpPFqxISwZR30IBWXum0Q5jcTY2N8Vsc7xtgfczwJqaQ18
+	7GUycu+VwJEKIj27OR8V2SCpvveI0ilimpqDXIyseW5glgAcKo8bG37UYuY6cJVA
+X-Gm-Gg: AYBFou2BdG8sbrLsdcyxvGgHGARH8XjJrGhEpTOE94lOS5h9Z0UoAfxxBBcQWJdmEe3
+	G9ieFaALKizfgy2W3zaXuuuhJgHd5HAxZ4wNvPhYT2YZrdYxj9migDzA43/kwymF8w7yLa5m8Z9
+	e9B7Qx4P8NrZvAMfG6qxxMknoSQxThYW4LFVf0nJltAUBR5/3ybEvLro/bjjuAGc1w7C6K3hgxE
+	ryc1VOQO0o1ScErjGtZ6iz+zXub7bwIJ1rPRHv1ctRSU3Jp6x8Rpv6wTKg2ys3uZOL+T0SK4+PS
+	QUS3dRoNUK+6Hrwc+cBRO1MCcuRnJyvvroIgVTh8xo9pGNDfLofShGKqXiOr01YHd2dQs3L4FNx
+	N5O/cGZzV9DBBzQNbVLrxGNw47CF45YTh0oDzxnp/bZwzazwvPw0rRH8opFQH/Y4Lr2f5gEZ9rU
+	z6BR7asAyrYy5lFMtE+UI9sodwxoR7bEKCbxDPW29wVhs88EnaYNrXAE+sr2iDetj4J87LnDlWj
+	Osy9ILADLHnGZYh+7v6BFF4v1zKil9eJTfKTa6Gc8EUf8xTNPQk4ZcAN62jzaqSA6rSxwY6quHe
+	Di8XXcBlPGCUNvQUmjMO6M/B/3PKazMovFNoICn5YDUaQ+kUQsMI9IlKt9VWWLCgwU7pHIk96gB
+	8nYsNXcLZg5Si35DK+9mxOp/tIfNgFA8vhrScNwLzT0rP696uZuyoF7FgCMATajRorhcqRBZW81
+	xYRFl3ftPRgkeyKQc1PRhIYsa1dvbB4PvXwac3VZ2syUvTZQ==
+X-Received: by 2002:a05:622a:8c6:b0:545:c5ec:fa50 with SMTP id d75a77b69052e-55d76a02015mr59962571cf.20.1795199300245;
+        Fri, 20 Nov 2026 10:28:20 -0800 (PST)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55d7887b610sm28733251cf.23.2026.11.20.10.28.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 10:28:19 -0800 (PST)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: plautrba@redhat.com,
+	omosnacek@gmail.com,
+	jason@perfinion.com,
+	jwcart2@gmail.com,
+	cahu@suse.de,
+	jsegitz@suse.de,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/3] .github/workflows: update python and ruby versions for ubuntu-26.04
+Date: Fri, 20 Nov 2026 13:27:56 -0500
+Message-ID: <20261120182758.38923-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,29 +100,70 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261119195022.1554-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261119195022.1554-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 20 Nov 2026 13:17:21 -0500
-X-Gm-Features: AclHuK9VdJY8HrqeV3TxrTyECCuOLzcD1iU-oUgSDzqfxRZ9N7mRQY_E3_o4jP8
-Message-ID: <CAEjxPJ4FSryeXGvjPkjBzfcJ4Egzbq2-PnZ+GiCMTSNg+40Luw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] .github/workflows: pin run_tests to ubuntu 24.04
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jwcart2@gmail.com, 
-	paul@paul-moore.com, jason@perfinion.com, cahu@suse.de, jsegitz@suse.de, 
-	tweek@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 19, 2026 at 2:51=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> ubuntu-latest has been updated to 26.04
-> but this breaks the CI test matrix. Pin
-> to 24.04 until we can resolve the
-> breakage.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The CI fails on ubuntu-latest because it has moved to 26.04 and the
+matrix referenced python and ruby versions that are no longer
+available in 26.04. Update to the latest version and drop old ones.
 
-This series was merged and restored the CI to green but I have a new
-series coming up to restore support on ubuntu-latest.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ .github/workflows/run_tests.yml | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
+
+diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
+index 445ccd2c..3313ccf7 100644
+--- a/.github/workflows/run_tests.yml
++++ b/.github/workflows/run_tests.yml
+@@ -5,38 +5,29 @@ on: [push, pull_request]
+ jobs:
+   build:
+ 
+-    runs-on: ubuntu-24.04
++    runs-on: ubuntu-latest
+     strategy:
+       matrix:
+         compiler: [gcc, clang]
+         python-ruby-version:
+-          - {python: '3.13', ruby: '3.3'}
+-          - {python: '3.13', ruby: '3.3', other: 'test-flags-override'}
+-          - {python: '3.13', ruby: '3.3', other: 'test-debug'}
+-          - {python: '3.13', ruby: '3.3', other: 'linker-bfd'}
+-          - {python: '3.13', ruby: '3.3', other: 'linker-gold'}
++          - {python: '3.14', ruby: '3.3'}
++          - {python: '3.14', ruby: '3.3', other: 'test-flags-override'}
++          - {python: '3.14', ruby: '3.3', other: 'test-debug'}
++          - {python: '3.14', ruby: '3.3', other: 'linker-bfd'}
++          - {python: '3.14', ruby: '3.3', other: 'linker-gold'}
+           # Test several Python versions with the latest Ruby version
++          - {python: '3.13', ruby: '3.3'}
+           - {python: '3.12', ruby: '3.3'}
+           - {python: '3.11', ruby: '3.3'}
+           - {python: '3.10', ruby: '3.3'}
+-          - {python: '3.9', ruby: '3.3'}
+-          - {python: '3.8', ruby: '3.3'}
+-          - {python: 'pypy3.7', ruby: '3.3'}
+-          # Test several Ruby versions with the latest Python version
+-          - {python: '3.13', ruby: '3.2'}
+-          - {python: '3.13', ruby: '3.1'}
+-          - {python: '3.13', ruby: '3.0'}
+-          - {python: '3.13', ruby: '2.7'}
+-          - {python: '3.13', ruby: '2.6'}
+-          - {python: '3.13', ruby: '2.5'}
+         exclude:
+           - compiler: clang
+-            python-ruby-version: {python: '3.13', ruby: '3.3', other: 'linker-bfd'}
++            python-ruby-version: {python: '3.14', ruby: '3.3', other: 'linker-bfd'}
+           - compiler: clang
+-            python-ruby-version: {python: '3.13', ruby: '3.3', other: 'linker-gold'}
++            python-ruby-version: {python: '3.14', ruby: '3.3', other: 'linker-gold'}
+         include:
+           - compiler: gcc
+-            python-ruby-version: {python: '3.13', ruby: '3.3', other: 'sanitizers'}
++            python-ruby-version: {python: '3.14', ruby: '3.3', other: 'sanitizers'}
+ 
+     steps:
+     - uses: actions/checkout@v7
+-- 
+2.56.1
+
