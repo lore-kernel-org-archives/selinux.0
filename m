@@ -1,100 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.52
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.100.97
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795204613;
-	b=EQ25mhFrHfUypqj5TshumrXkqDt794IyWPZTa9m9pV8IaBpkpfd3QFTVPZ1R8JUgaJqN
-	 d9VTqcqDFwJ7aYX8FE+MzWOm2MtPCjlu+2I9Ar3shOHF7zviCQpyi8FSdWgVRyrIBjQaK
-	 Hx17QkUvStavOHHcaj+MUbtQ56i4YDAdyvrvJQ+zQmHFp9DtrX02CANcbxWvtbsOytfeu
-	 5X1w/pZV+IEtd98fo5phqT9jKQKLz77kbbojpLFRXbs2sPAPv5i9vKYRdigVqwHf5Cjwl
-	 70WvcizjH8SB0m9U3bigsJLh4pCKvpLEEdMiJSaoyMbYN1kWgmh+ooY+vrtDR4ja2Lw==
+	t=1795290430;
+	b=V6BQk0rOnjx4TzDIx56qBV6m9oo+9Et6ToXzRg2RAwDHWzL+u+Dw6J/3WCcoztzqonSU
+	 mBDCt1kP3r8he7HGIperlm+UrQ8gDkGm9zaYMELwe6Y/Rh8QEICDGE7vKTiU7I3yUf9VY
+	 wLZn/J3uJuu4e534Jp+fN7HXLsuKGJVQRSuJCv8yvXDGcplu5D426dKsOZczNsRVpY0/U
+	 oVqahNMSxHQV5wualiI+srdqB2fg1/hLDb0+gy8Ff5saTEW9eNub28bxC+R8V/QQc2J9z
+	 GKDxncGD1UeClXeIyCNr0k25oL3MsyOVp0UU7H2uiOIqSv8YMZvEjA6NSHsvzMBdj0g==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795204613;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=aSosBsG7ty7J4fi90dtruity4nSABeBguBYAZvCKnCY=;
-	b=1wUt0MGsv9o7inWdLu11FjHsljpl1rMNX3IqnBuDgFVUc6JcSFE0WgZuHSIk1/YGI77g
-	 l4725/20YEaOODB+6mQDmYkG2uv4r/zAXOqVlk9EVW0LrbsC1yzvg7Bw4J4q8cYyaORET
-	 qJRZ9EWqzzeKM/KBuGmVlvT/wS6o1U30C9BVIU4jUGD1TUGXkU31KyfMXy69P4yZXdd1t
-	 tn1A0HKND4pCTEgEzIBx/5ecuz6cNy5gNxJuJ+zvjRBYaJvtGXkGIa+Hnl4SdwB7J1ApA
-	 KAk4gJ7JymjmZ3g9lITvCdxNRsUwzQ+pOTvekc6f3AtTxavlc11UwdY6I4gFgP5Fl2w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795290430;
+	h=DMARC-Filter:Received:Received:Date:From:To:Cc:Subject:Message-ID:
+	 References:Content-Type:Content-Disposition:In-Reply-To:
+	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=lQ2kfgj2cqEW41SjRFJ8z3F2mWTze5/8rB7va5fc+to=;
+	b=sXKt01JLruVDqVp5bFLgqrFcftoJuIkAt4x4N57Cua7fwL4oEnUFuINyEHnqsVLdQZuK
+	 l2qIOoTag4T2l0JQ0X0Qy/DRhzxTohmjF9vcAzZg8v/Ng5Bqme7PoWyarfuLkfRTybSjD
+	 XEBufls8USLxts9NoCUGnTIXau5W3pPIZKPElWkPZuyWqs89Dy6D1itlrjtK3a2GCCbIH
+	 GawSUeKhYfPlq150QLpSmyQ5PNGfZTiaKHPpA2rpVMqhg6cVsVH1ZUwcuOJ2sM0fHoCIQ
+	 PqCdK1Ygo1Erbc5K5xweBTeThas8XBbxsLi4b/FWHRiMvH4JAVc3nuyhl39/1inZhvw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AMz0+Evu;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.52
-Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=atomlin.com;
+	spf=pass smtp.mailfrom=atomlin.com;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.100.97
+Received: from CWXP265CU009.outbound.protection.outlook.com (mail-ukwestazon11021097.outbound.protection.outlook.com [52.101.100.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8936B606A338
-	for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 19:56:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8936B606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AMz0+Evu
-Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-67583c777abso1367385d50.1
-        for <selinux@vger.kernel.org>; Fri, 20 Nov 2026 11:56:50 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795204610; cv=none;
-        d=google.com; s=arc-20260327;
-        b=WZYEusJ0E6zHx/ika0oMbO/qqXc3FBdc7/YjGJdUFdFFzTVZ9Wzv6276VEaFvyXM2+
-         DG6hS0umRbjlAJDigx6MStfx00tiK2aD601PUI+Q0RTaDLj3sIVgWi7WZnuh9izkmO21
-         Y1KWUxmg397rt8qHb1e6DCKJoOstToyZWHwHQAzDEbUcRgL5eTNjQRK2dM/HOk8m5O6E
-         zmuF4+BlwFiuClwEeg8at97mMPFpsqVUDZ/LxmRwckt/TZj7eVZ1krKHW95N2BlUdDkU
-         XDDXbpY8Ui0s3kVr3DiiE/rZtKzijTW7bNUxBOzV0yGOvywAw+fvEjOfjEPmA611L/NO
-         DaZQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=aSosBsG7ty7J4fi90dtruity4nSABeBguBYAZvCKnCY=;
-        fh=QFKa48eN4AZKFIyrSiZk3FCE4nUKAEfyzhRYxfFXB60=;
-        b=iiJz//cUD16dut2TEW4Ff4WeU1mYHLPXVSY1aDzL/xZHfMBGwVpjzHnqYBPmiRipsf
-         6KH2/0OuBEBW6//Ci9A+Z3aKV5jWkjqX41qmyrQaAm3s5Eng+J0j1AgPW+/Ru13I4+Kf
-         t973w8dDcw0M7Llj2GsoT9f1VRIlv0FOf3lEOS66Z8CvDz84ZphEG6zNACT54AAddmUG
-         lEjsvQeBUJdJ5vO3mnKXr8PeSgApPGW/EW3QqjGabt0tl/+8RbNiHG5frL0d4uRK8XiY
-         Ql4Mhil1Ay+ZSu4vw8CBEPwXDnr2UJsSNumEJ+I5KJbHQ/Z7LFrAqdcZjx3yuUfnMHw/
-         LpTA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795204610; x=1795809410; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=aSosBsG7ty7J4fi90dtruity4nSABeBguBYAZvCKnCY=;
-        b=AMz0+EvuMFiTVGDtTgTT5SQAg8AEq7Iw2Fyb8cSfbRa8sTV5S/UST1JldAQkN/7mMZ
-         OiQ696nyS/BVN+dbuhPDJK3KRHirfQaxdJGKVrrB+I1nmJZyBdN38tOshdJcy7EqBjiA
-         TdIrAqwGGqMDaqu2dfzmFea4UQ6kMWfgNG0joGWT9r5BNksZkM/CJq3sBioYDRmmq0mc
-         ZQlHj1pLausIwxiQLeVq8hNoHCzEMLxBbtnhGf7tX3cuydiwMfPYSlrtVm0ZpcqWrBId
-         gsrzFuf6xMxv164UbxAIfdyF9zWc+mwBVWnpGag027TJx7FthhFnkZbrvZ9YTElcpf08
-         yPvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795204610; x=1795809410;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=aSosBsG7ty7J4fi90dtruity4nSABeBguBYAZvCKnCY=;
-        b=BGf8w1u8lXmWeGVliepBWPWm16aKVI8fxo6PFqyzqiT+s4BdblExaP9ynGjm7gpN7Q
-         e6edcXRmyFw8pRAXHbd7p33OEvITk+GKGdTmnNMhx17seAkwA4XQljkyuqObuI9YxG0M
-         faYiBbQtlu3557gx4q58g27PDSkgBEoWwu3C41fJOLFbep5U8ndTehGJ/tLd9GavS55K
-         w8np4g04lcUNJ+73EIW8rKCy1A+27JIUxm5H0uISzMPcrFZuplwmBf8wTawaBmYDXNSJ
-         QaS9jL4umKpSELcrJSKImDyUrim4YHux9vemCZjra9hJXE40K+P5+JTPHOa/Jbljmo0e
-         87YQ==
-X-Gm-Message-State: APuU4Z8aO3ZPDon4li3bnXLBdd1d+yv/3YLaix7xD/QR7ThpmpBBlGFh
-	S0K1tvbdwdW/8xnMtCjneBrinMMM9wk3chTFf7rANexdZjUjuiQjwatndVISXjZau6iFoG0Zdl8
-	fqincmuBcTRh2t2mU8GebX4pYEmIiPBLXWyJ5hZk=
-X-Gm-Gg: AZFdTZe9Gshxk3kAuyJrQfybOnK2bzfiPjEydG2ZoFXV+mal8PLuzLlU9JKq9vbKPXF
-	w0HezKBmNqNJ4QXHQHB1ItxgvHCkodmaYLs/z5T4XksDCDTignP3MKkwzBcWffD92/q0aoXqJlx
-	oQK1D55wb/djZk8lmzrIm/tBmOKKr5z2XAlNQv5WzJhj4MC7wcqArQD9AeIrjn73xVBwzfexI2W
-	Hfko08RfqQdPugv6nQU9D6JH4ylRXl2GNCR4kkSVjbg8S32q1pHR+8UbSrDdjrWUI/bnNZysDSs
-	AIXms57pVQg07Xcxr+BLK2o+GujJO6a9izMw/X10zShZPA1nL052eKzygAgsHOPXrWIPvcNKx1x
-	77p9pCzLubF2E/3ax4Ki/p5zQMzV4+a1sFW+d8Sb2I2dPq80Geq2x87CkCDTUvos+GHrLaY2kFT
-	rBsQ6t5swZmmHS9kRSp1jvX8zTBUTybkz0JLmbEwWV5UCfyymeQwxRmBcm3A==
-X-Received: by 2002:a05:690e:c86:b0:67d:bcce:d615 with SMTP id
- 956f58d0204a3-67dec41f405mr2539469d50.10.1795204609499; Fri, 20 Nov 2026
- 11:56:49 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28083606A320;
+	Sat, 21 Nov 2026 19:47:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28083606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=CUR82kiE51EzdwzXV1viFNrcmpuaoIxtRhRBGE9F+aAcciiLgIVCw+RWDUrq4jFI6YzqA//pfUdmUXLUyXK58EzH0rtKxS+v61beZlUA4/VSItsWmV3DoBei/60+oLRPniV0Dgbc6gjfIoz+aGrRFl/wmHTmzN+jrUwxCrALbSjGDOlPdUaJqh7CD/hwP3BFUrkQbn0xgZyMIQrzNKYlQxXIcrdwUtL+LzQwMJoHGV3QPTKhuTN2VxztSE+5/dy/bZaMPmUsvSEFNoTohDuPaq1ShMGVVvXDWeXlm1WaxixgCtE29V8odJ7V+t/5400z2M7KTR0SrUr4BfGrQMEc3Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
+ bh=lQ2kfgj2cqEW41SjRFJ8z3F2mWTze5/8rB7va5fc+to=;
+ b=qP83j0FyqOfR4gMnZZcPrieItft9zGZZ1QH7vp5cglETqbiRmfrs8d0uwyeHXUppB8aSk0aeYqlEKwfk44j+zqD9fIn3nmYOBHuO5ZWpRMGpz/Kbnfj8jpu1fx1OdMKEm9r2Xo1iBCn2SUVkitjpvs7cPttgWFkmuXylzmKTU771bab9Gpkb50I+bIiplNA5FAci7kj9GbdTr2QM+Wr3DHaejEDogxQWr1IjKjkynVoXSZQtTEgiuF2C+jGZi+PTyTxg/tKeHSmUg5g7OdSVlGU03zplf4Bqo4b7aOytXFnaU/GAPt6v8p2ZMO+V8dx/JP7z9sWDF9+G9GhiV3hxCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:163::8)
+ by LO6P123MB6456.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:2a6::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.12; Sat, 21 Nov
+ 2026 19:47:05 +0000
+Received: from LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::f71f:a9f:c4de:687a]) by LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::f71f:a9f:c4de:687a%5]) with mapi id 15.21.0639.012; Sat, 21 Nov 2026
+ 19:47:05 +0000
+Date: Sat, 21 Nov 2026 14:47:01 -0500
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, 
+	serge@hallyn.com, andrii@kernel.org, ast@kernel.org, daniel@iogearbox.net, 
+	eddyz87@gmail.com, memxor@gmail.com, mingo@redhat.com, peterz@infradead.org, 
+	juri.lelli@redhat.com, vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, 
+	casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, 
+	mkoutny@suse.com
+Cc: ihor.solodrai@linux.dev, martin.lau@linux.dev, song@kernel.org, 
+	yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, 
+	chenridong@huaweicloud.com, dietmar.eggemann@arm.com, rostedt@goodmis.org, 
+	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, 
+	omosnace@redhat.com, kees@kernel.org, kpsingh@kernel.org, matt@bobrowski.net, 
+	chris@chrisdown.name, neelx@suse.com, sean@ashe.io, chjohnst@gmail.com, steve@abita.co, 
+	mproche@gmail.com, nick.lange@gmail.com, cgroups@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 0/2] security: Expand task_setscheduler LSM hook
+Message-ID: <oa7e3wzdkq6vvdgast5eohbrvtcvfz4mhqexisdxztq3g3l2ys@pxii4gqdgozp>
+References: <20261119040705.684987-1-atomlin@atomlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261119040705.684987-1-atomlin@atomlin.com>
+X-ClientProxiedBy: BN9P220CA0018.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:408:13e::23) To LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:163::8)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,91 +99,94 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261120165005.37638-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20261120165005.37638-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 20 Nov 2026 14:56:37 -0500
-X-Gm-Features: AclHuK-CY4ru_UgtV0iKHLvNwpGtwGwy3efIXegd77w55s9s1P1G9cNW3PSjHpA
-Message-ID: <CAEjxPJ6ekXG8t0ub0ojN3zvY5rRLCsd_0+AXkMgn6gEhkZg+Yw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/tests: clear loader environment without env -i
-To: selinux@vger.kernel.org
-Cc: plautrba@redhat.com, omosnacek@gmail.com, jason@perfinion.com, 
-	jwcart2@gmail.com, cahu@suse.de, jsegitz@suse.de, tweek@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LO2P123MB4190:EE_|LO6P123MB6456:EE_
+X-MS-Office365-Filtering-Correlation-Id: 78d79859-b496-449d-09f8-08df48083864
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|23010399003|6133799003|18002099003|22082099003|261009223027099003|261021121427099003|261022105027099003|261022075727099003|921020|261028144727099003|261022113327099003|261026140227099003|261026121527099003|56012099006|10067099003|261102125427099003|261102123227099003;
+X-Microsoft-Antispam-Message-Info:
+	McI+X4GoyEQib46nSsEWZ4HrRHq7BVf1imMA20bfdtFZt3rQybjXqTDZ5ubjNnmDvujrJBDs0L1tEUcRca1JuGHldPIQZ0u19tbyCd24rs4aAEs77Jj2MzgCTCOG3w41bBCJs79DhNnj3C+YZJ8o4/8tQrqDwsr4MiFymo98GytVDL7MbysweXdwSXJq1/U/DtPya+SN5gfk3NJut08pm4XKSNQiwtYcEqjgg17fe4jixmyOmpfNqpwH7Bbzkt9Z0wpqGO9f6WJYw3S+/8MruK/PJlUmLGjlJdWfcw+LySHXZaCvQ1jogoa2YTQOX7kZayiwlnGkEifwnSYAcvT3DU0bd79N2kIrS9M5j24wpBah3PKzIRpDICzt0QvQbYiqoFAZhYmIhW2n0+/xe3h6fH8qYqLqB7nquXVY6/BF3+Jif6JX9koNFC8Yi3zW1y+DfqyU8rO/dm3GGW7Cahl8nuJ4GovYgFaXyhUub3Ia9ELTWDf4OMspLOKXn3iscn38r/9ENULnmNKVB6flgGr+ihyGLPJfzXoTbZtXPaoZR2Xy4TPOp8eTr1XMHQEGSXBr5vHG4ZvFaPGR094XkZeZ0SyZVUHMXmLV+heYJa4R5McXXYQw23sOhDikh2/LA1gEHrdQpexP7jnaVcL7Jwkwd52fGUpMYvei+TRMGE/EuhWfptc668ATSOqGS3ClcTNXVhSlygOHQF7QrbDi4iHgZg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(23010399003)(6133799003)(18002099003)(22082099003)(261009223027099003)(261021121427099003)(261022105027099003)(261022075727099003)(921020)(261028144727099003)(261022113327099003)(261026140227099003)(261026121527099003)(56012099006)(10067099003)(261102125427099003)(261102123227099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UDU5aHptNjcyTi9TMGZabVdNL0l1VGNkeVBvWmI0MDFyN0MvNXdWdEx5NFpm?=
+ =?utf-8?B?NkVRdk1pMjUxQW9oQkxOMFpTTllGVTRjRUpvUmQzbTZzQnJQbVU3MWtmYS8x?=
+ =?utf-8?B?aXVvMnd6ekxaMlIwNkNJWDIzOXROS2tJQVlHRGlKYTFkNDJ4ZzVNVytPcDcz?=
+ =?utf-8?B?RUpHaUxnSlFpZ3BjQWxuaGg5d1U1SFlIUW1jZk5rUFRaTzEzODhPa0hYb0Nt?=
+ =?utf-8?B?eXZHODlVWUtXNzI5WTU3Yk9zamN0RndFclhxcEJtejFyZHJyYWJlYjh4RWVG?=
+ =?utf-8?B?TzE2cklJbXhCR2x1UksvSFNYazh1M0RONHpXY0QwWkk0NEtDcU1GMVpOaktQ?=
+ =?utf-8?B?SDRoenZ1enNWczhIN0FjMGZXWWFQazMxcll3U1o1TzZHM2x4d2R0Q2ZVNzF0?=
+ =?utf-8?B?MzF1VzRBUnhQNk9lZUVUYWMzQndKd2xrcmxkSnBkSXczUVYzaUtiVVNVMk8x?=
+ =?utf-8?B?b2poa24xRkNUa3l3RmZnZ0FGVTFZWktkNWxTcmdPTVNIQkU0b1dOZTFXMEVH?=
+ =?utf-8?B?aVBqUTU3dFhLQWE0enNnY3U4OFZmZ0dJTWNiNndtcEltZWlhSldIQ3JkZVRM?=
+ =?utf-8?B?ajZPa0NScTNXM3U3dExLTGJQQXh0eTY4QkZESWlSdndtQkRkeEtZbmhGcGlJ?=
+ =?utf-8?B?TFl4TGdHVU9HVVV1KzdCMEl1Um1sTkZEUjBWNmt5SE1jajN1N2lkMDBCeisv?=
+ =?utf-8?B?VzhJSzl4ZC92YmJXdE54dDQrendpS2dqRHRVY3lEa3dOcEJMMFFpazkvSjVF?=
+ =?utf-8?B?Y0wzWmpLSjZiRVVBalZvWXpGTnJncVMvUDBWcGs5eEoxazhaUndmak9GZjh3?=
+ =?utf-8?B?b2R6YnhGdnpybGpaUjBYdG5NT0I2TWlRSlQrcHVyVStGTXhvbVpvbEg0b21M?=
+ =?utf-8?B?cktiUU1wYTNRVHlpSWRCMFk5Z2trRFVlVnhGeXlpZktBODVmYktTcE1sOXhz?=
+ =?utf-8?B?YkRxUDd2OWd2cSszeG1uSmtrOU13cHMwRmZKMjBkdkp0emF2TWIybU5OU2ZU?=
+ =?utf-8?B?ek45cmVPVkdSZGlwdjBZTjRyRWF5eXhkRDVKTnZScWl0MEZuY3pmdklPakpJ?=
+ =?utf-8?B?MDJhUlIyT2RLYnlWTFNRUENVWDA2Sk5qOHlUSE4vZ3NLN3Z2SkRsSTJTcW9S?=
+ =?utf-8?B?eGlRcldSRXRmTTVwcFJCSDlRcnlWN0pFazY2QjRFVitoaVp5andXcmh2SzQz?=
+ =?utf-8?B?M2xUQWRvUkhpSGEzMkNjODlZVTRjQU9VTzlWcXlPWmQ0NzR2R3JRaklhSW5S?=
+ =?utf-8?B?WW8vMUc0eHZneC8rWjUraWRlY1Z0ZFNTaXZtUEFlVHNLL3ZCMUl4Wm53dVdi?=
+ =?utf-8?B?QWpVZllYaWx3T0xXVDd4Z0hIQnpDU3hBYjMwRjBxVWxOdllyM3dTeHl2MkRN?=
+ =?utf-8?B?Qjk3NWVmd1plaCtMM0RuRFYwUU9kM051eDNsNmpaMVl3Z05zaU83ZXQ4WUFm?=
+ =?utf-8?B?Z0h6NUlBdTVOYlJ2bUdEdkFkZUZyR3I1NXdSa1lEZ2E1LzhFM2RGcThSWUYz?=
+ =?utf-8?B?R1VZZDBhTDIxd24yUS9ic25XOVlnWnUzL0N5NkdCSmVxS2wvRDJKZWpMWXJ5?=
+ =?utf-8?B?RmtmSHBWZmdPZzh1YTZ3L0FpK0lqVHo0SHFIcllCT0lGdWRlMXdpWXRpOFh1?=
+ =?utf-8?B?OVc4VkNWQkR2UmpDem9ZYWFqMFM0U1B2UWZ2c0Fmc2dyT3p5UUdqanRkZktU?=
+ =?utf-8?B?cU9yUFBpWGwwWjZKbkE2UW13SDNiK0UzdGpUZjZueUt5ZjBwamJzbk1FYWh5?=
+ =?utf-8?B?M0dnNVE5ZUtMUmtFbmd5YU56WHl4b09ESHF6V2d3WURad3hmV3VrZmVBRHNZ?=
+ =?utf-8?B?T1hZRjVDWkNaTHNkL2RLRTRGZVk0VnN0TStKd1kzT2VZb3FpRU9kb09CUlh3?=
+ =?utf-8?B?bk5lbWpKMW5XTVNkd0JvUEo0cmhpUlpyTUhSRlhWZC9GdDVpQ01xNXNJeGhI?=
+ =?utf-8?B?ME55ekpjelhocGhjVWo5R1BWRVBBazErNTY1ZTFBQWw5UGJjRXpUQWwxVHR0?=
+ =?utf-8?B?bFBiZGU5WExhdU43VWMxWHBqUS9OS1lHRmE4OFREcGtad2s5QjBvclFUa2tK?=
+ =?utf-8?B?TTNOL28rMUxJaThzUHRraWdUNlRHZzdtU2dxZnIwZC9hRFFyODNuTFBna1VI?=
+ =?utf-8?B?ZkdsMURHNnZuRHFzWlJqLytyRjYzem5RaHVBNjJiYXM0S0oyM1JyM3psYnpS?=
+ =?utf-8?B?ZVZzeTg5alo4TDNJUkl6eFdROWZLU1ZLdVJxWmsxZTFBTTNTZ1daRTRCSlFi?=
+ =?utf-8?B?aUhGNE9Dd3kxK0xyOXBCbDIyWUxiSGwxaTBuS0FPcU1pZVV5bm42eU83WnFI?=
+ =?utf-8?B?MHl1Szl4WXpwbk4yTFczNjR5S3FlRFhOcXl5cjZrUUFINUtPQkY2UT09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 78d79859-b496-449d-09f8-08df48083864
+X-MS-Exchange-CrossTenant-AuthSource: LO2P123MB4190.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Nov 2026 19:47:05.4456
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 5zYUVIqSSNZdp/htLIxtgBS9nfKMuWt1KybSl5WnjQzZphWOa7SVDEtixf0Zpt0buzu7C1YlnjlpKKj5Nd8ElA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO6P123MB6456
 
-On Fri, Nov 20, 2026 at 11:50=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> The test-downgrade mkdir was run under env -i so that a host mkdir
-> linked against libselinux does not abort under Asan when
-> LD_LIBRARY_PATH points at the freshly built, instrumented
-> libselinux. On hosts where coreutils is a single multi-call binary
-> linked against libselinux (e.g. Ubuntu 26.04), env itself now loads
-> the instrumented libselinux and fails the same way before it can clear
-> the environment for mkdir.
->
-> Clear LD_LIBRARY_PATH and LD_PRELOAD with shell assignments on the
-> mkdir command instead; the shell links against neither. Drop the
-> now-unused ENV variable.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Wed, Nov 18, 2026 at 11:07:03PM -0500, Aaron Tomlin wrote:
+> This series expands the task_setscheduler LSM hook to accept nullable
+> pointers to the requested sched_attr and cpumask alongside the target
+> task_struct. For sched_setaffinity(), passing the raw user-supplied
+> affinity mask allows LSMs such as the BPF LSM to audit or filter the
+> mask as requested by userspace before __sched_setaffinity() intersects
+> it with the task's allowed cpuset CPUs, which seccomp filters cannot
+> inspect behind user pointers and scheduler tracepoints only observe
+> post-intersection. Similarly, __sched_setscheduler() passes a local
+> sched_attr populated with the resolved scheduling policy and effective
+> SCHED_FLAG_RESET_ON_FORK state so parameter-only updates expose the
+> effective values rather than internal sentinels or caller defaults, and
+> cpuset task migrations and CLONE_INTO_CGROUP pass the destination
+> cpuset's effective_cpus mask (note that direct writes to cpuset.cpus
+> update task affinity via cpuset_update_tasks_cpumask() without invoking
+> this hook).
 
-This change is unnecessary given this change to the build-userspace action:
-https://lore.kernel.org/selinux/20261120182758.38923-3-stephen.smalley.work=
-@gmail.com/T/#u
-so I won't bother applying this one.
-We can drop this hackery from the Makefiles entirely with the
-build-userspace action change but that can come as a follow up change
-after 3.12 is released.
+Adding KP Singh, Matt Bobrowski, and Chris Down to Cc.
 
+KP, Matt: I would particularly appreciate your thoughts from the BPF LSM
+side on expanding task_setscheduler (which shifts the trailing ret context
+slot from slot 1 to slot 3 for existing two-argument lsm/task_setscheduler
+programs).
 
-> ---
->  libsepol/tests/Makefile | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
-> index a47b452d..45e094ce 100644
-> --- a/libsepol/tests/Makefile
-> +++ b/libsepol/tests/Makefile
-> @@ -1,4 +1,3 @@
-> -ENV ?=3D env
->  M4 ?=3D m4 -E -E
->  MKDIR ?=3D mkdir
->  EXE ?=3D libsepol-tests
-> @@ -61,14 +60,19 @@ clean:
->         rm -f $(policies)
->         rm -f policies/test-downgrade/policy.hi policies/test-downgrade/p=
-olicy.lo
->
-> -# mkdir is run in a clean environment created by env -i to avoid failing=
- under ASan with:
-> +# mkdir is run with the dynamic loader environment variables cleared to =
-avoid
-> +# failing under ASan with:
->  #
->  #   ASan runtime does not come first in initial library list;
->  #   you should either link runtime to your application or manually prelo=
-ad it with LD_PRELOAD
->  #
-> -# when the source code is built with ASan
-> +# when the just-built, instrumented libselinux is in LD_LIBRARY_PATH and=
- the
-> +# host mkdir links against libselinux. Shell assignments are used instea=
-d of
-> +# env -i because env may itself link against libselinux (e.g. single-bin=
-ary
-> +# coreutils implementations) and then fails the same way before it can c=
-lear
-> +# the environment.
->  test: $(EXE) $(policies) test-conditional-count
-> -       $(ENV) -i $(MKDIR) -p policies/test-downgrade
-> +       LD_LIBRARY_PATH=3D LD_PRELOAD=3D $(MKDIR) -p policies/test-downgr=
-ade
->         ../../checkpolicy/checkpolicy -M policies/test-cond/refpolicy-bas=
-e.conf -o policies/test-downgrade/policy.hi
->         ./$(EXE)
->
-> --
-> 2.56.1
->
+Kind regards,
+-- 
+Aaron Tomlin
