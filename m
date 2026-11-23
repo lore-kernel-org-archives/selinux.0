@@ -1,101 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795459653;
-	b=LVlxR7PBg6vSaymG1LTz+tA+Nb8ja+2ERLVPHYJwNOfD8WkxGzeIUG3w9+A0qKTBBv+W
-	 iUak/GBA70fDA/gXWiT8lCtgv4whJh0px6jmXrbl/nRGmaH3o/Uxt83WCzAliK/zKKNMX
-	 erRhB5lHryCQsF1gFJwam/LwAymgstw58Ev7rwTMqEZ5wI6kNvfdBMf3pjMhMWceN74GL
-	 G3pGTPjGJnnFZi9Eq5UhX6ZPrT21dRgnjaifOIxDCL1sg66zLaqfda52JXhOQ4caH/KOh
-	 RAsjFpuGiF5B6ESv7Jf5H99hiWjMFF77VrgOvJ3OlJdxtPUNsfZ+s98MluSJsYGfW/g==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795459653;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.224.50
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795473054;
+	b=sy6FKOlSM+EOSqB/faHs399+YvbjLh4C4fKCAuzgTsE7IbWArB5veHCYk/gSqwsCuSu0
+	 UNON9RdnFJ41XMSpCF1Gmijjo9p6ld1eJ9gdPj4tLMoVUNoXIQXAw8f3kV2eR5UFswVzD
+	 qv6A88LWRh1eIqbOhYEqHj1WZByVAWVes7ked8GfMG3ezS/+wmgZcp4Ty5UOQ7aRNH5W4
+	 ShIRhttTmapB41XYlFmHrRqNTFjLDeVUYVzRP6ghrO9QTGhnJH61i8PiKECPsByZ28RAb
+	 3z5hyZomoFNK0eXtGql19tBnStVwnIxa5TnWpKPF41Sgiml4zscRX448uamhEjzusTw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795473054;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=Oz/ub/KRgJipXG7VD+du6b/6xOBrJo+ZAuG0ng0Hb3Q=;
-	b=3v0NzfMbw2vOrNifCzCxXDQ1zHj4Am8wgNv5oNrpwy4XBDo06mQwWxTX1ZTL1NymM4Jd
-	 bgcvJi9hcw7edPuu+gLoZUgwTy9lg7MHhfsSGmtOuHfVVscg06+it0k4OtrR8F+ktuo+A
-	 St4i2a87l1ZVYYDSeLC1xTbxl5OGxB5ZPwyu76So5qFQ7uoc4I6WpJVnQxNwlKSCcY0Hs
-	 ojzMaz4p+47VweeEMcxN7o0dhVpPdghiaSMZA8jA40WHgRzRVPe/lF8VWBMZpnKv9K3kP
-	 lXqIlzc8pVUJgS0aWpehjGfwVefsOpv4gRNPXJFhh7OsALRggwr8Q1PuOg02qgby3vg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MhI2n2TC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.47
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-Mailer:From:To:Cc:Subject:References:In-Reply-To;
+	bh=oODydi93NQ+fgEUmV6NqimJSqpMLIfkaExo4urVZ1L8=;
+	b=dewjLJkOY1u316v/S9rdPXau0OIAxtyxUs85UJt8PcZfFY+s7GktKJN+1Ua0zEh0Bdh2
+	 Z5nRkW0/AE4TKy0PT7jU9Shqamh5cWPmdXa3Qze4kWm7FdTTAgzXv7/aKhAQBNMCUQtUn
+	 E6U+U2zUl/uCJJpr9br79Ik+zA+A1NfzI5NeO+VVh3Lqm4Cso4KLxwNdKUInMLYXgU+b2
+	 XJngVVvo7m16GLvuFCYzxaNAKApRpaRyVHgmicaUD6dd8ZETCXz7WR+Q4Ea8MWvXQHQef
+	 Ig4/3QMGJSnZnblbCiJ0PR6O5DYoF0xcnJfzTF0WOVLdCJiQZO2jSOtvm3ASxEqNrjg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=paul-moore.com;
+	spf=pass smtp.mailfrom=paul-moore.com;
+	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=a7MvHckH;
+	arc=none smtp.remote-ip=74.125.224.50
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA33606A330
-	for <selinux@vger.kernel.org>; Mon, 23 Nov 2026 18:47:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6EA33606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD405606A31E
+	for <selinux@vger.kernel.org>; Mon, 23 Nov 2026 22:30:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD405606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MhI2n2TC
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-67da3d03263so3746446d50.1
-        for <selinux@vger.kernel.org>; Mon, 23 Nov 2026 10:47:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795459652; cv=none;
-        d=google.com; s=arc-20260327;
-        b=nAzamJxz8Gql44HPFukkj8+QcdPo7BMQ7piWi8z+k0ledPTJ8HPR3GvvKlA3gcogsu
-         MOv1mavyOI691rKryZCUIkcJsAQPHOaacVL94wCFw888Z9VsgG01L9dO3tfKzdMq+qRD
-         FGNX/oWW8AIbFsVqEUGy5j4ODCvBZFKZyg8FV9q4VkyQPTSDlb8gwsPE7rnSRKmsQ2Ri
-         hy9ZcTOQWdHXEfE1zHSwoeCDNIRGFnQMd0sp5sQz1UvnNUSdiUBG67eomF+rH/xBIkwn
-         QRd/M8PiKfrTOdufgxRDF/bJoFe02z3GB/XRhqYMutI39xY/aRxRAosVNBpnMguXKC7S
-         aHPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Oz/ub/KRgJipXG7VD+du6b/6xOBrJo+ZAuG0ng0Hb3Q=;
-        fh=T+nQmGXxBvh2/C75KPUndd8vhmFJIzVGt/r1NrguuBM=;
-        b=m37CE3TnJMqDHrtAoH7Iw5TO1ExoqSmlvqVarDm8xfDri1GhtREfSLYOocQaBu4JBq
-         g/KN5Q35qb8SpihbO3rl6rpXICPCYemM6uxizv1ZQGMb2l2T4d81fqrmTiGJPxYopCol
-         YhrUiKIkWipwxj4FAK115LocdYOQ1PDaTB7ZSWGQhp0f+r/RchtCkJ7Nexjogb52g4pc
-         XLT7gSk7QOzwyZxz/wWysLDzv13lPyv17npiBUsPedEVi5HdO8Wtgv8b6qyQI2c8S4f/
-         JcvsCqoPmDWpB4HWiLno6H+fgLbB2/P8z4R2XcR5yLU2qZO53VhtzRQ4P0UWNmlKR2F7
-         g89A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=a7MvHckH
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-67da62357acso5111041d50.0
+        for <selinux@vger.kernel.org>; Mon, 23 Nov 2026 14:30:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795459652; x=1796064452; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Oz/ub/KRgJipXG7VD+du6b/6xOBrJo+ZAuG0ng0Hb3Q=;
-        b=MhI2n2TCIsCCvmxvLTktwXpdWXd/lQ5Btt2UxFFlZkRHrZA8gERCED6F+fb1Ts3dZ4
-         0IrZpXibYZr9bykB9aGGkpeOJK5kgVi3qxKiIyzianP+YcI5GSJBvc8OF8F3gbwW/yZK
-         4t5k/CziaOhDWMbCEWEZwHk6xldlPblFyw22cFVzsNvNCVfczotQ7EXssH9tmg4XSMnm
-         cbRnJnBFdQs1zSgnTiDMTKTkHvTzHQvBf4hD5Nqai6RtBH4BoRbGMVuyZIWadwuig5QV
-         ezgxGxJZP61dfI2HNk3TaR1+N0/QnP/AOEZ9rtHPRMW8We0YV9aGHkH0iOhdGj1gex+b
-         2ewg==
+        d=paul-moore.com; s=google; t=1795473053; x=1796077853; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oODydi93NQ+fgEUmV6NqimJSqpMLIfkaExo4urVZ1L8=;
+        b=a7MvHckH7GXPRbAhOihzELw8KMPY7uwwnbx3s0SVq4zm++TWoTZOqhwByy8RJUFj2L
+         xbdC8dTFtGgOkbhzfRhEe2kAacfozhwN+oB3nAPlJoi8v8eTaNofE2QizrlRsK4vtlxG
+         +/whljmInWZSFiyan+Wj94WVK8as1lcGaL6fvNqzI9PZe46iR+RDiockj0TBUfNLkszI
+         VRuAZhOsW1m69Ca6n5ANZNHP5n8YO4objinbJ6LS2CZbRhau44cb2hmA9BiyNzOFwvjl
+         dpvYhj2rOrzGtGg9VLl4igLpyt5S4GVvs0FxAfuur9GTd1iEiBGScOboYVWYH4PNPHSk
+         UzbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795459652; x=1796064452;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1795473053; x=1796077853;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Oz/ub/KRgJipXG7VD+du6b/6xOBrJo+ZAuG0ng0Hb3Q=;
-        b=OII9RTd3frjEt/EkZwAiAE99cwBOlxHykA5lz+83ZOmLkKIhDjVI1RLJzUXZtflN33
-         MIXTT6kpEF0Y21RBHv1q6y2q1O/xCUcsJ9XEyvLAzwFD9DxapbtwHNOoarEoniEYqwxO
-         pF+FlxCmJy5Hrb3M5ABX9j49rsAnTNiFC+S62jHoKMGfQQFSRde08qXE/VhMozoTTIUF
-         9EZ6G7d30XzeXb8nNjbqEVqb4owyXsq7XNwNa5RPSqNUJKWZwk9irZBMbQO/XumJMEZe
-         CrUin3WoiDKZMWx0484oavHSXw7hcFM4RuM+vgaeg9c6gZoBX1S6kE5+NKtYTmDdh2Nu
-         zf/w==
-X-Forwarded-Encrypted: i=1; AL+hErF9ug461XeE0+0s2aT/NA1PWQf4J3hrytaf5F7mQTT8zmwfzl8xaJBUAzFBGuWZqV2bfm0+Rc8C@vger.kernel.org
-X-Gm-Message-State: APuU4Z/x9nf7j83yIJ+QwJIwv6GpOtlD2hEVNMapXH4CimcltOcV5fXm
-	FW4IPZIHwKE2ieZX7LEC/VnNyTqfyIqZgdHiC+GZJK2vAmPG4NF8NlhXnRDEl++zDhQcoiQk9PD
-	b9GUhnz8OgAoTWyaN4Mr6Qp/y7NprKJQ=
-X-Gm-Gg: AZFdTZczCKSGC/smljRH+4GxOsjVFeQil4TFXzv3ra3U7G38ru2XxLhLDr7jJS62CIk
-	/fEx8EfeQI5ztsgG5GBE+joF9X7+eLeKVEAGnsJVTJU6tgPIK7f+vkQCDuznmqlMEGHKtoiETYt
-	NZmRUDw3GbXHyrUJkyH0Vk/pkSJSJPkweZvSlJWg8qzF9rN+2KWgHKzgObZq76IJSGJzdcm/tvU
-	iJZJy10CsUCFbGeWMp4u/KJczvc8uCr7+Xm+ypP40PL0rZ9mP+5HENjb01qDQL2aF7CF+VUl4g+
-	dUncQgLEZKg+Pr0GXp7nRuANsOfxApQ/vvrdNIAj1NWVJzqfI3bl4zuwsGRvk99GNF1VQAQyF9n
-	Fd+JDDri7X/hZd7ontqio2Fgm0zRn1CA3+jKRNlQ8WlH2MpuebTsDxHpAugJy0rUtZoGkajTXkm
-	uA9kc6oVoDYvNbdS5/uKBp+xhF7LQPK9DRnxAGjQly+0fOL4xHeJe+MDrqWg==
-X-Received: by 2002:a05:690e:440c:b0:67d:994d:3923 with SMTP id
- 956f58d0204a3-67df44251d6mr2512259d50.70.1795459652387; Mon, 23 Nov 2026
- 10:47:32 -0800 (PST)
+        bh=oODydi93NQ+fgEUmV6NqimJSqpMLIfkaExo4urVZ1L8=;
+        b=IHyRhusMAUBIU1Ogszdbz4m+75nPfl6yk+8BO1YZLRuI+0wHKesEKup1ShqvoTsznR
+         mv0aXt7PcXEhD5rpLQKKYypwJU7SyGD3NIbiDK3t5qQ4utEjzqGB40Pobo4Q/r+xX3/d
+         ROGHmwVKrdhiEWSgcqawBYN5GOgPTCHgLNFF2BOEAhnozEhl6ux0aCqxQx13HPDpCspU
+         gigHjflA09lGEx8yMZaXwUB7I1s4Akqz6gbbhuJB1FLgcy1BtxPJ+xyxt94qeEid+cTS
+         lIHvVj3m5iuA9F0x0hH7a+PdFqiWt8dL3GVrUpH69TjQudwyMr4yhPqX/0/FW2velLz/
+         TuiA==
+X-Forwarded-Encrypted: i=1; AL+hErHUvC8DWPJKedNcCjIjzARyUrmPJZhzcaQZsHtCASEdSCCVv5LSD6GFOiYWmi/mPtb1vfsIpKFU@vger.kernel.org
+X-Gm-Message-State: APuU4Z+kA9k5UnV1CC2OIgnhXtMcZi/Pvqjoo0mqBR0ig2bg75/CaO27
+	YWfI/QFhohoDpODPjQVkntEE1ovj1Oh7lY4YUNyHiK0hlK7p1T4kyTsfHAeuFqLhEQ==
+X-Gm-Gg: AZFdTZfXIZ90pM8tYkf/WGO1KhjgRtgNtFpMyATxtVPi6ZsrhbYQdlaf7iTYw6iPTKp
+	rsGLFbDfHtHQTDSr4xahA/PULnYnKM6uXLPzVU+f+WkEoj2X+4Gg2y3Nmp2SbYJmO7mays3lCWF
+	Bqz7i7ZMOyMkr5L0bVnQBTceKFShW93ACCA55/a7Hz4tRolBlRmnqezzp6wcC1wbCwLANT/EeeH
+	CfPCDC+HX384ZppKTuMYDZ3nXVqod1IR+Pi9Dl9FZLcECpovr1VqhB7Bfl19txkpBB0ksfGmoJG
+	cV4GvnS/og7Psr/dGeptJ3ltxC7pDUhamxIXJcrxeYfVOIbLwNcJ7exBeJUnab2E4dQecS5giGd
+	k3F2RhqB1UwgW+1ggFIte+rMXbA/2F5iYUI8uA6ISt7QGUncYZcekD6dtFWZbuHZt0xlzVOS2Lu
+	Rqe8tqqCQyGhSttfxlfF+iZAtbDioEchTFtcZ0tETqFrurvd8t6XXmNWR/S2bePQpAeTeOSCNDy
+	LGO9iDJeRHakFiZRyuQ6R/9p56t9WivtArf5jfAjI0We5Z1/f4Oc5plWXZ2NPgZkEOsyv8z9VL4
+	2lZpQZhoLCJwpK9F5+H1eXJlc67WJcOYyLer3ENNX9/eL/Io/3g+TqHSzfGT+vffWld9BvO16uw
+	6Cf8ZgVed3jR4QnU4IRgbASx+xL4uiaEam6IVX230yr1UKLklinA=
+X-Received: by 2002:a05:690e:4084:b0:67c:2674:ec88 with SMTP id 956f58d0204a3-67df44e46e0mr6456005d50.93.1795473052767;
+        Mon, 23 Nov 2026 14:30:52 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-92134a24e91sm116781976d6.43.2026.11.23.14.30.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 14:30:52 -0800 (PST)
+Date: Mon, 23 Nov 2026 17:30:51 -0500
+Message-ID: <cb0b141881f7e5ceb7de8b407bcc691d@paul-moore.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -104,23 +90,19 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20261123_1724/pstg-lib:20261123_1443/pstg-pwork:20261123_1724
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, Eduard Orehov <e.orehov@ideco.ru>
+Cc: Ondrej Mosnacek <omosnacek@gmail.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org, lvc-project@linuxtesting.org
+Subject: Re: [PATCH] selinux: initialize sport/dport in __ad_net_init()
 References: <20261123113724.35381-1-e.orehov@ideco.ru>
 In-Reply-To: <20261123113724.35381-1-e.orehov@ideco.ru>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 23 Nov 2026 13:47:19 -0500
-X-Gm-Features: Aa3M54qSJVO5SPOzXonVwB6Z2Ni_CZoGzBv_8yrEDt3wp6MaU3FTeXqJ9I5Vl3A
-Message-ID: <CAEjxPJ5SnP_LO6EieAkSuN18TGguov0KCA9EcufhMikgLYc17w@mail.gmail.com>
-Subject: Re: [PATCH] selinux: initialize sport/dport in __ad_net_init()
-To: Eduard Orehov <e.orehov@ideco.ru>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnacek@gmail.com>, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, lvc-project@linuxtesting.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 23, 2026 at 6:38=E2=80=AFAM Eduard Orehov <e.orehov@ideco.ru> w=
-rote:
->
+On Nov 23, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+> 
 > Since commit dd51fcd42fd6 ("selinux: introduce and use lsm_ad_net_init*()
 > helpers") the struct lsm_network_audit used by the SELinux network hooks
 > is no longer zeroed; __ad_net_init() sets only netif, sk and family.
@@ -129,13 +111,13 @@ rote:
 > only for TCP, UDP and SCTP. For any other protocol (e.g. a raw
 > socket with IPPROTO_IGMP, UDP-Lite) and for non-first fragments they
 > are left uninitialized.
->
+> 
 > When such a packet hits an AVC denial (e.g. with NetLabel or secmark
 > peer labeling enabled), dump_common_audit_data() passes the garbage
 > ports to print_ipv4_addr()/print_ipv6_addr(), which leaks up to four
-> bytes of kernel stack into the audit log as "src=3D" / "dest=3D" and is
+> bytes of kernel stack into the audit log as "src=" / "dest=" and is
 > reported by KMSAN:
->
+> 
 >   BUG: KMSAN: uninit-value in common_lsm_audit+0x2196/0x2ff0
 >    print_ipv6_addr security/lsm_audit.c:178 [inline]
 >    dump_common_audit_data security/lsm_audit.c:373 [inline]
@@ -151,16 +133,28 @@ rote:
 >    ...
 >   Local variable net created at:
 >    selinux_socket_sock_rcv_skb+0x118/0x1270 security/selinux/hooks.c
->
+> 
 > Initialize sport and dport in __ad_net_init(). Zeroing only these two
 > fields keeps the cost low, which was the point of dd51fcd42fd6.
->
+> 
 > Found by Ideco on behalf of Linux Verification Center
 > (linuxtesting.org) with Syzkaller.
->
-> Fixes: dd51fcd42fd6 ("selinux: introduce and use lsm_ad_net_init*() helpe=
-rs")
+> 
+> Fixes: dd51fcd42fd6 ("selinux: introduce and use lsm_ad_net_init*() helpers")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Eduard Orehov <e.orehov@ideco.ru>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> Tested on a 6.12.114-based kernel with KMSAN: the reproducer (NetLabel
+> static default label + raw IPv4/IPv6 socket with protocol 2, and UDP-Lite
+> over IPv6) triggers the report on the unpatched kernel and no longer does
+> with the fix. Mainline was not booted; the affected code there is
+> identical.
+> 
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Merged into selinux/stable-7.4, thanks!
+
+--
+paul-moore.com
