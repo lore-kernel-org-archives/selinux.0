@@ -1,49 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.77.154.182
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795476504;
-	b=JPpw3+mYuFa37gMhOfUqBUoRdIf5HMfgsz+REPFRHm7Ans5e1JaLUwTMs8VGfcOnsQUI
-	 oCrWiLmDAP5IKnqefhTXc22t1E2jwT6ugWVPAwaNF5A9mgwLv+Qg0xsAYcYt62FQi4Tmh
-	 kdq32hhdpcSND2lr/AwFmey1fk2MUXWiEvrMOcxMVrJweQit0kJQY+yGxxuPQAwFcQxds
-	 tf7pVLmOVon3gZcmQyBNVtNypsEl6ETwcw2jygiXtAa85aO0cPb5sQC9xmFVergvnadNt
-	 Jnsn1nJl1Cg+RIS1cRqGvrO/amHHfcvijUvMopnC4s5lg5N6amyOC89gS0gK/DIRPQw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795476504;
-	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Message-ID:Date:
-	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
-	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spam-Status:
-	 X-Spam-Checker-Version;
-	bh=Z4q2lcvDeMyQnvMma/TSV0pjEr8kXRVVL/7uiZixGfQ=;
-	b=GmXV8TMZsQxCfITlv+MzVcNL5bYgDgcrpAx9d2SDpNcfhsJ10XCAVR6BILs2Rgp9Tlx1
-	 PrM+HPWkP73i1Y8BXm8y5RBaTkojVzAA7xz1H9zA8wdabtAj6+L7qysVlnRh1bb1o8jXG
-	 qk6Jv6bqNgrv6MIcUrmbuUQVbHpKGwWdxWaTLsTsrDF9WlTUbyombohma9mAoSDFoUW+0
-	 NozGRttGAp5H6lGCeImiwrD7p1dH3rPtGzosojCh2aINF9oI3xLGAiv1eiRFZcLF8F1PK
-	 t+T5/gVLABB68iyJDojqdCZaKgrbZNgJsptukIFfuDusf9x+1PxSSj15IrWd2JeMXbQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.microsoft.com;
-	spf=pass smtp.mailfrom=linux.microsoft.com;
-	dkim=pass header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=GBCBOGHy;
-	arc=none smtp.remote-ip=13.77.154.182
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E976E606A321;
-	Mon, 23 Nov 2026 23:28:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E976E606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795477128;
+	b=Dj8tDbuFvmRxy2V+IzC+tpanoM0Xlq0salW2mtI3aHdHtf1k2B8h13m2hF4jbRuKp8e7
+	 T1asZKKdsvcxevzV+6/G5ZUeZK8ji2OAT0puv1U37qhaKvR1Fqe6qlId3/6gUSJDMX270
+	 UIw1DmjJuo7tE35hPQ4rMcUJ8mWIdMJhZPGbBSslvhlFcY+z+t7fQHO2MGK05vZZ0+h3U
+	 gI43mxtjMjgep1SF5tZWDSktUyp5P3ckCpvHRSo+EpHpXjUU1HOhUluF8qZkDMW6of5Io
+	 OaOqrogo15xTLMKWIB0pr3EDqqp05tlupDk/6mWa0YwDwDIZo4dL8S7ETb5tXdWNnmA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795477128;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=ViCuzC29eFKJ8ML9lwnxCCTUFjkhP+S+d0AfhX4Jfo4=;
+	b=G/NGd6tCmvkg7PLK/vPfHAXUBx+w4+OGfXhlf3JR60PQhTCIH45VaBFVoihyFzmKQmPB
+	 FGdIEdfBoLsYjX2gU045IhlG07x1WKrvg7ftYMAMmiHnJdUOxNjRj8RA/DIuwGxt3LNq6
+	 u8/zzoYtbJaCqW6DuBQIj6A0wxVg8IQ5RDecfXadp+Mvr6evzjUdrYJWrmRoMJqQr6wgA
+	 ep5GGowbg9rkWXY0sEVSv+leyIO+fc6S+lB+dolNcbNTNbXFD1nyuIl5clBWwWX0dH4Rz
+	 ztY6tlTb/pUHbAq27f6VVmLNEiPQRntwnQDb4bP3OwiRsW0MEZjhy3ETGd5/QhVusuQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wxf4IhsA;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8474606A321;
+	Mon, 23 Nov 2026 23:38:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=GBCBOGHy
-Received: from [192.168.159.19] (unknown [4.194.122.136])
-	by linux.microsoft.com (Postfix) with ESMTPSA id DCBAB20B7167;
-	Mon, 23 Nov 2026 15:27:54 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com DCBAB20B7167
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1795476499;
-	bh=Z4q2lcvDeMyQnvMma/TSV0pjEr8kXRVVL/7uiZixGfQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=GBCBOGHyS/woweuMXp/5IiE28nI/q/RWX2fOSyY1oqRdeq6mlJhA0Uy5CY+vntB9X
-	 OBTSWMmuYPNMyZOn37AlljwgO2+M5LQQTDHUqK0know9vyyT8rD60yDr0IBXlfgUHN
-	 T50QratbJQPYi89ozm+6Qtlk7+5eXdmnoqz5Vvmg=
-Message-ID: <ba8c4cdb-ba60-4166-8d0f-812db13ee90a@linux.microsoft.com>
-Date: Mon, 23 Nov 2026 15:27:55 -0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wxf4IhsA
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795477128;
+	b=MTiKCHBYdDnerQR7KVaOcegIOxVRy/FDgYSn5qGO5wj4HyHQz47cQHc1GYnd5AAJ0W92
+	 6dVson2rt659QmtlXeTj+TLVAw1ZU6znu8FUMEr0xdW5zEUK0uUQ9XLIkm66eMhtP6cAm
+	 V83DYJ76vtdhWRiabqNac1FNsFNZIUCb1YcICSRTuCDcEGhJyfpItK/8e8qYL39KTCb64
+	 M0rTWQfFIek+zg2WPgUxqw1hne8Vu62WmtL7rq3aYNaLvRUQ49rSWGiYgeRHbQLXcCKQt
+	 Q9ryfUxy/EvhxIZyH26cyglu+WBzM7Asn4HXNdzlUgz2ipYxrhB2bOYoQDkM1f9L6Bw==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795477128;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=ViCuzC29eFKJ8ML9lwnxCCTUFjkhP+S+d0AfhX4Jfo4=;
+	b=f28d5EQNOGBvJJCQqifzwgVHqnvjgB0pp8b3cNp+1N09XIUrkXJSfwOmolymr9acHOHr
+	 JAO36qa27sWQ6is0WkjLxUng50njG1tVoHejWVyZJuE3RAHeIIOBpIQJeVUFKtjRVC7mC
+	 +gaw2G3T3+uIf7yVYlrgPyMSckMJwFIu2qCsCRvoP2wbo3CgNX1c80fOjLgAf0f32gfW1
+	 S3cnf5HmMscBZj+aDbBSTtVuYb9HlBltRRuFS6mP9SHwL3NB1W2DVgfEjaI3SKqeE26FP
+	 3ZjvX6bo4bzvq06CKhxuupTTmg8I4aE0PGfhhWw7WFApRgtlB7m3+9k+KMdzN7eNTkw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 41A471F000C0;
+	Mon, 23 Nov 2026 23:38:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795477128;
+	bh=ViCuzC29eFKJ8ML9lwnxCCTUFjkhP+S+d0AfhX4Jfo4=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=Wxf4IhsA9YVrVfJVyWFVjDLKsFFQrHxqmUYfW/hjK6AgpSCeo4QdAJmWQWsZ5Xa6W
+	 Eh1E8zyuSoYy1RSXUjHDjN5s8dNM+rFbejaxmLKWr5nQAWxROl9UGE6Lx5mXJWeT4F
+	 gH9NfW8BxGS5qC8xqM8JP+s9NN3cLPPHuViIGeEmc3ihZx6MxY4LwRAfA3mplZ+L1F
+	 52fok10VVEhU4XsonC/87BVDGHupClvyLiERWteM9rzgK1a5D63tnoSyBbE7sHEX8w
+	 oUVo1HFpgmCB/gPM5ovXHbeOGzBG6McAj+Ik8n/QP9Vvd0LFcyHRX/+ivUIM64VcQe
+	 wZZX91U8cwDTg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 94FC24C7CC;
+	Mon, 23 Nov 2026 23:38:39 +0000 (UTC)
+From: Arina Kharlamova via B4 Relay <devnull+arina.kharlamova.mbzuai.ac.ae@kernel.org>
+Date: Tue, 24 Nov 2026 03:37:45 +0400
+Subject: [PATCH] selinux: reject a 65535-byte xfrm context that ctx_len
+ cannot hold
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -53,126 +83,97 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/14] mshv_vtl: convert mmap hooks to mmap_prepare
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- linux-sgx@vger.kernel.org, selinux@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
- linux-arm-msm@vger.kernel.org, op-tee@lists.trustedfirmware.org,
- netdev@vger.kernel.org, Juergen Gross <jgross@suse.com>,
- Stefano Stabellini <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
- Shrikanth Hegde <sshegde@linux.ibm.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Jarkko Sakkinen <jarkko@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, Thomas Gleixner
- <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>,
- Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>,
- Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
- Ryan Chen <ryan_chen@aspeedtech.com>, Billy Tsai
- <billy_tsai@aspeedtech.com>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>,
- Scott Branden <scott.branden@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Richard Cochran <richardcochran@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
- <20261105-late-2026-mmap_prepare-v1-3-c56aadfbab8a@kernel.org>
-Content-Language: en-US
-From: Kameron Carr <kameroncarr@linux.microsoft.com>
-In-Reply-To: <20261105-late-2026-mmap_prepare-v1-3-c56aadfbab8a@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261124-dev-v1-1-00b99ee684ec@mbzuai.ac.ae>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzNDQyMT3ZTUMl1jIzNz4+RkC2MzUzMloMqCotS0zAqwKdGxEH5xaVJWanI
+ JSKtSbS0AjuyniWcAAAA=
+X-Change-ID: 20261124-dev-32673cc83656
+To: Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: selinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-hardening@vger.kernel.org, stable@vger.kernel.org, 
+ Arina Kharlamova <arina.kharlamova@mbzuai.ac.ae>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795477118; l=2642;
+ i=arina.kharlamova@mbzuai.ac.ae; s=20261123; h=from:subject:message-id;
+ bh=Z7AJMpvi6SLYbFT+owIrY8vSwJq5AGT0uGxXNqbrlAE=;
+ b=Ar6QmklyIzqD+a5uCiu5IjDZKs7GTVmt6UryLLGPxeHsXub11JIu7vvJo8WDXBtpbHA9LBn3B
+ 5m9am+0ZMXsDbMhnvdQPkyZt+lMZLvvHY//Z1rLqhVLarbTzka0VtzK
+X-Developer-Key: i=arina.kharlamova@mbzuai.ac.ae; a=ed25519;
+ pk=DzQWwMpUtJvSDuzprqvRdbrC72n4Sq8dW6cq3NRt2Mk=
+X-Endpoint-Received: by B4 Relay for arina.kharlamova@mbzuai.ac.ae/20261123
+ with auth_id=1625
+X-Original-From: Arina Kharlamova <arina.kharlamova@mbzuai.ac.ae>
+Reply-To: arina.kharlamova@mbzuai.ac.ae
 Content-Transfer-Encoding: 7bit
 
-On 11/5/2026 1:05 PM, Lorenzo Stoakes (ARM) wrote:
-> Move from the deprecated mmap hook to the new mmap_prepare hook for both
-> the mshv_vtl and mshv_vtl_low devices. These only set VMA operations and
-> flags.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+From: Arina Kharlamova <arina.kharlamova@mbzuai.ac.ae>
 
-I don't see this causing any functional changes, but quickly ran basic
-regression testing on it anyway. I couldn't find b61fa14ce; I tested
-based on v7.4-rc1.
+Commit 86c8db86af43 ("selinux: fix selinux_xfrm_alloc_user() to set
+correct ctx_len") made ctx_len count the terminating NUL. ctx_len is a
+__u16 and selinux_xfrm_alloc_user() only rejects str_len >= PAGE_SIZE.
+With 64K pages, str_len = 65535 passes, and ctx_len = str_len + 1 wraps
+to 0 (kmalloc_flex() stores the same truncated value first).
 
-No issues seen.
+ctx_str[] is __counted_by(ctx_len), so the following memcpy() of
+str_len bytes is checked against a buffer of size 0. With
+CONFIG_FORTIFY_SOURCE this ends in __fortify_panic():
 
-Tested-by: Kameron Carr <kameroncarr@linux.microsoft.com>
-Reviewed-by: Kameron Carr <kameroncarr@linux.microsoft.com>
+  memcpy: detected buffer overflow: 65535 byte write of buffer size 0
+  kernel BUG at lib/string_helpers.c:1044!
+  ...
+   selinux_xfrm_state_alloc+0x18/0x24
+   security_xfrm_state_alloc+0x3c/0x6c
 
--- 
-Regards,
-Kameron
+The memory written stays inside the allocation (65536 bytes for the
+string); without FORTIFY_SOURCE the context is stored with ctx_len 0.
 
-> ---
->  drivers/hv/mshv_vtl_main.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/hv/mshv_vtl_main.c b/drivers/hv/mshv_vtl_main.c
-> index d8225242c73f..e372d4c0188d 100644
-> --- a/drivers/hv/mshv_vtl_main.c
-> +++ b/drivers/hv/mshv_vtl_main.c
-> @@ -832,9 +832,9 @@ static const struct vm_operations_struct mshv_vtl_vm_ops = {
->  	.fault = mshv_vtl_fault,
->  };
->  
-> -static int mshv_vtl_mmap(struct file *filp, struct vm_area_struct *vma)
-> +static int mshv_vtl_mmap_prepare(struct vm_area_desc *desc)
->  {
-> -	vma->vm_ops = &mshv_vtl_vm_ops;
-> +	desc->vm_ops = &mshv_vtl_vm_ops;
->  
->  	return 0;
->  }
-> @@ -852,7 +852,7 @@ static const struct file_operations mshv_vtl_fops = {
->  	.owner = THIS_MODULE,
->  	.unlocked_ioctl = mshv_vtl_ioctl,
->  	.release = mshv_vtl_release,
-> -	.mmap = mshv_vtl_mmap,
-> +	.mmap_prepare = mshv_vtl_mmap_prepare,
->  };
->  
->  static void mshv_vtl_synic_mask_vmbus_sint(void *info)
-> @@ -1283,10 +1283,10 @@ static const struct vm_operations_struct mshv_vtl_low_vm_ops = {
->  	.huge_fault = mshv_vtl_low_huge_fault,
->  };
->  
-> -static int mshv_vtl_low_mmap(struct file *filp, struct vm_area_struct *vma)
-> +static int mshv_vtl_low_mmap_prepare(struct vm_area_desc *desc)
->  {
-> -	vma->vm_ops = &mshv_vtl_low_vm_ops;
-> -	vm_flags_set(vma, VM_HUGEPAGE | VM_MIXEDMAP);
-> +	desc->vm_ops = &mshv_vtl_low_vm_ops;
-> +	vma_desc_set_flags(desc, VMA_HUGEPAGE_BIT, VMA_MIXEDMAP_BIT);
->  
->  	return 0;
->  }
-> @@ -1294,7 +1294,7 @@ static int mshv_vtl_low_mmap(struct file *filp, struct vm_area_struct *vma)
->  static const struct file_operations mshv_vtl_low_file_ops = {
->  	.owner		= THIS_MODULE,
->  	.open		= mshv_vtl_low_open,
-> -	.mmap		= mshv_vtl_low_mmap,
-> +	.mmap_prepare	= mshv_vtl_low_mmap_prepare,
->  };
->  
->  static struct miscdevice mshv_vtl_low = {
-> 
+A user context of 65535 bytes can reach this hook through PF_KEY
+(af_key.c only limits sadb_x_ctx_len to PAGE_SIZE); the xfrm netlink
+path cannot, because there uctx->len (a __u16) includes the header.
+
+Reject a str_len that does not leave room for the NUL in ctx_len.
+
+Found while surveying callers of kmalloc_flex() whose __counted_by()
+counter is narrower than the count, with the help of an AI coding
+assistant (Claude); I reviewed the analysis and the fix. Tested on
+v7.4-rc2, arm64 with ARM64_64K_PAGES, FORTIFY_SOURCE and SELinux, under
+QEMU (GCC 15.2.0), with a KUnit case that passes a 65535-byte context to
+security_xfrm_state_alloc(): the unpatched kernel hits the BUG above,
+the patched one returns -ENOMEM. The PF_KEY path itself was not
+exercised.
+
+Fixes: 86c8db86af43 ("selinux: fix selinux_xfrm_alloc_user() to set correct ctx_len")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arina Kharlamova <arina.kharlamova@mbzuai.ac.ae>
+---
+ security/selinux/xfrm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 8e00b3306574..181748bb5eb3 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -85,7 +85,8 @@ static int selinux_xfrm_alloc_user(struct xfrm_sec_ctx **ctxp,
+ 		return -EINVAL;
+ 
+ 	str_len = uctx->ctx_len;
+-	if (str_len >= PAGE_SIZE)
++	/* ctx->ctx_len below includes the NUL and has to fit its type. */
++	if (str_len >= PAGE_SIZE || str_len >= type_max(ctx->ctx_len))
+ 		return -ENOMEM;
+ 
+ 	ctx = kmalloc_flex(*ctx, ctx_str, str_len + 1, gfp);
+
+---
+base-commit: 347b0c5bacbe94bc99f7683e3c9269c77a0b9c92
+change-id: 20261124-dev-32673cc83656
+
+Best regards,
+--  
+Arina Kharlamova <arina.kharlamova@mbzuai.ac.ae>
+
+
