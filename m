@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795561234;
-	b=oBeZX0bxtCvhwGe3VE7iNXViLx+kSFo0WLoqG0AU9H9g9l1HeNEIyHmAny7rI6i2UrNN
-	 BLvQFpo3cj2Cy/aRf77pors0ebd4FlxHlTDpiAPaibbUfsxd61Q+TMnLrxg1o5NsFewXf
-	 H3we6alvunGmZfjoI2J1af1Cn7qCAAkJxaMQ7BdW6r0z/D8HtS422FVA+dl73xn7VygXh
-	 IqOpSKTD6CzVpTRhKKr5llYVPscUWMC8+SImbq40Qvghfjw/FOzSMyAOrGgvbW4zX7dCH
-	 m7Ob6SfKRloDSt0iCg9x4RUtlHIBmMFe4tnpvfers+6dpDMIxOd7Ql46WhVyMw4shmQ==
+	t=1795561238;
+	b=fodkV9DDMSNcalglBrMFxiSnQS6rfb96a8ohlTUS+bq/MM+WgcjULR4SAtEbTXDz2sse
+	 qmBB/g8edef+K9oUriEulgz1E/HxeaeE3dZ5f4nd5fSN8AemXef/5E/Ysg9qtv99MrTIZ
+	 H5Y7zSF1gP5naz8g3AzJ9cljP7/alyvjxJKOOlEOVVhFgK4EddYnX+K3bt+aFvJWWfybc
+	 8I6J22Q5NRY9BSZEhyJdYMYAsar1YrgwwdvxCwO8gOvYwotqRXJo0T9MdXJr8obhQV9fb
+	 7+2kz/V1SJ6/SBvmu48pxXMMHUNFe56p0UH9yQZJaADzo0paT1tgFgy0tJkN/u9HIPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795561234;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795561238;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=eNV8rJH4Kk9+o13rpAbYwrbNyiuK+XJchQZ6VUpEriQ=;
-	b=5XTO05vrcmyoZ/2LWR62r9MdH02+i9QtUQQkiFcl2XoSp5GdTBb/oJxVnS33lWr8T1MA
-	 WVG1aei/Q7qnvYWB5j/OgF7yDRn5wPsn3AJmIdwXv5VtkfoXHhKbaShRDnZOF3U9ZQPvI
-	 1+kKatCl454OTf8xv32wIRZalcvbfr0Q49MvwXugtH9KGjQDEoAEUQzgAkv6Khe12x/lM
-	 nPotDqCTGwfHDE+7P+8rk2Qeegk7CMMy2vz/4ihZc19EW6ly9BVkj0+eD5JLDNRxO2yg6
-	 3oxL4zfbJ6v7WE+FElq6wUMh3rWEC/exMOXUSj8mRtF7fil+aRv6ISjC3DUJG3ww9+w==
+	bh=oKDDkm8rP0JSk+MZa8V9KUoNn40877PhwS+AzzAJOBo=;
+	b=h4Ezt0GHEOFWvU7vt2o+jJ5ywZfAB7oq308HbQMZSI1LFpWh/QT2698d7h2yi0XJDazk
+	 WncgKiKF9pAV7bJDGsbBfFDpatHQkTiNYAV4CVLsKmRXf+E6SS5zclkEEH1xD1j2FEh84
+	 U42znCQmQFu022icbfB6UgFX5Qv3pMQIvj+zl3iuSDsL72wnx3zZpDIj8UBzzeUeyCooA
+	 kqmZ9427NSk2cV99EBPiVHEKFBKz7OU/0/36AUtrqMH8ym1fGujBaLaicZD006HY3wk7y
+	 2lR0ftW8CR+Oo1migjzJpR2Q2IAX4/Ychn18uUzhzrcdpdl++xjMEw0Igz5V3MS1aNg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GIkuXiXe;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F6B6I81R;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E4B606A321;
-	Tue, 24 Nov 2026 23:00:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11179606A329;
+	Tue, 24 Nov 2026 23:00:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GIkuXiXe
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2405E1F0156C;
-	Tue, 24 Nov 2026 23:00:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F6B6I81R
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01FAB1F00AD3;
+	Tue, 24 Nov 2026 23:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795561233;
-	bh=eNV8rJH4Kk9+o13rpAbYwrbNyiuK+XJchQZ6VUpEriQ=;
+	s=k20260515; t=1795561237;
+	bh=oKDDkm8rP0JSk+MZa8V9KUoNn40877PhwS+AzzAJOBo=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=GIkuXiXeLvYf1n/C5+5N/d5eZjBkiqNux/gyQkp/+9VmYKXhbEjjLjdnxAFAi95mt
-	 hNn98Mxho2aVW4wsAkYiZ14NHRv08FXyDzzobCk9qc2EXsfb/h6AQJ8uGTV0ZQ4ghV
-	 IKw715rUHNztCMHH6uurR1xfSDlUD6L/nhhl/98PicsPX4oNyfChyzlLmijosxr4oU
-	 V6MHG9ejkFn8lg114adbkEN9bbOLz4QwR76VVRfLCzCiHwcn9+v1eXUYfAbCqpBoFF
-	 t0QamGt2Sp51vUsfBWuK2ROeTXyuYafbdeW1UHWGzr43WrBMX9tZCuJUYuNKpmpwNr
-	 1mM63G/Fr6H6Q==
+	b=F6B6I81RFcocB+Pb6JEPh24PHgiZAGwC8jsAylcSgfaJE4/8XQPGDk5SqsUeoKc7R
+	 IqzduO9jSUwHfnDeJPl4rzQp2I9Ap0J91IQksFiR9J2648aOXMWsK1MxrAIle0upVS
+	 NPNg2FGQcfCzrvqiDfKlSzCu/E856ce2H//tE2mf/K+Z2F882N3RYEGB+5Hk6BgBAv
+	 LkONKr8DOc4vXivY9vAb1ydnZV5wa5K6E1tkMr+9sl2N4+r9J/SHY+mUBc2TqILLRs
+	 R3IrRcHZUYUVTHLOydF0i/iApaqTqdHQrM0pndOJWN0Yc+yL+vESwVTArLI+KZ3n1W
+	 OsaVm6mXvFwsQ==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 24 Nov 2026 23:58:40 +0100
-Subject: [PATCH RFC 17/19] proc: look up map_files vma without
- exec_update_lock held
+Date: Tue, 24 Nov 2026 23:58:41 +0100
+Subject: [PATCH RFC 18/19] vfork: wake up the parent once the child has
+ left the mm
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261124-work-exec-update_lock-v1-17-e489035395b8@kernel.org>
+Message-Id: <20261124-work-exec-update_lock-v1-18-e489035395b8@kernel.org>
 References: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 In-Reply-To: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 To: Jann Horn <jannh@google.com>
@@ -67,157 +67,158 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  David Hildenbrand <david@kernel.org>, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-04696
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4361; i=brauner@kernel.org;
- h=from:subject:message-id; bh=cECZa0eQtjLytpPlR2SBCNYBSmdlP+dulEopZzDPwU8=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziZ38aPZaYe2ujs2Lvi0+foDN9Mb8v8p/Rb+kPJhlo
- M70fUnKpI5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJNGkz/I95dT/wwE3Hks9r
- FiyIXfTs1blSaT7OZxcPpZ24mbxqd1ECw/+sO1WZodnqt+P0nshFpbAc92RaceuQgcafZwue3Vn
- IuoADAA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5246; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=kKS/ga5cKveEWXaeubsSO0J9YWxV3URvRGlj1COQm9I=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziZ0ylFNgjttf9WN2t4xg62OGKU7ir45+v7bO3Jnrw
+ xLB9jfLO0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACZS/I6R4S7jHm6TW4/6v7n8
+ uVusFeX1lN8xXW9yZZ6E0HX19UecxBn+pz1auop5c4FjoKhdadThKz2ndhcafhc4fOGg+ZH1ni9
+ vsQEA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Since commit 6255da28d4bb ("proc: protect ptrace_may_access() with
-exec_update_lock (FD links)") the links in /proc/<pid>/map_files are
-resolved with exec_update_lock of the task held. To find the file
-map_files_get_link() looks up the vma and for that it waits for the mmap
-lock of the mm.
+A task that called vfork() sleeps until the child has released the mm in
+mm_release(). But exec_mmap() releases the old mm, then waits for
+exec_update_lock and only then switches to the new mm. And exit_mm()
+releases the mm and only then drops it. So the parent is woken up while
+the child is still on its mm.
 
-So whoever reads such a link makes an exec of the task wait for the mmap
-lock of its old mm although exec_mmap() doesn't take that lock anymore.
-And everyone else who wants to look at the task queues up behind the
-exec.
+It wasn't meant to be that way. When mm_release() was added in 2.2 it
+was called after the task had been switched away from the mm. exec only
+moved it in front of the switch in 2.5.56 because deactivate_mm() and
+the write to the child tid address need the old mm (cf. [1]).
 
-The lock is only needed for the access check and to get at the mm the
-check was made for. So only do that with the lock held and look up the
-vma afterwards.
+The release has to stay where it is as it can sleep in a page fault for
+as long as userspace likes. So take the wakeup out of mm_release(). Wake
+up the parent in exec_mmap() once the task has switched to its new mm
+and in exit_mm() once it has dropped the mm.
 
-The links don't go through call_proc_get_link() anymore so they don't
-need ->proc_get_link().
+While at it, fix the comment above mm_release(). It hasn't been called
+after the mm was removed from the task since 2.5.56.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/proc/base.c | 68 ++++++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 52 insertions(+), 16 deletions(-)
+ fs/exec.c                |  3 ++-
+ include/linux/sched/mm.h |  4 +++-
+ kernel/exit.c            |  7 ++++++-
+ kernel/fork.c            | 24 ++++++++++++++----------
+ 4 files changed, 25 insertions(+), 13 deletions(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 7685660c36241..b28bd6c57e1d8 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2228,18 +2228,40 @@ static const struct dentry_operations tid_map_files_dentry_operations = {
- 	.d_delete	= pid_delete_dentry,
- };
+diff --git a/fs/exec.c b/fs/exec.c
+index 78046ed839646..4d3f78ea0b0e6 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -854,7 +854,6 @@ static int exec_mmap(struct linux_binprm *bprm)
+ 	if (!exec_state)
+ 		return -ENOMEM;
  
--static int map_files_get_link(struct dentry *dentry, struct path *path,
--			      struct task_struct *task)
-+/* Check the access and pin the mm with exec_update_lock held. */
-+static struct mm_struct *map_files_mm(struct inode *inode)
-+{
-+	struct task_struct *task __free(put_task) = NULL;
-+	struct mm_struct *mm;
-+	int err;
-+
-+	task = get_proc_task(inode);
-+	if (!task)
-+		return ERR_PTR(-ENOENT);
-+
-+	err = down_read_killable(&task->signal->exec_update_lock);
-+	if (err)
-+		return ERR_PTR(err);
-+	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-+		mm = get_task_mm(task) ?: ERR_PTR(-ENOENT);
-+	else
-+		mm = ERR_PTR(-EACCES);
-+	up_read(&task->signal->exec_update_lock);
-+	return mm;
-+}
-+
-+/* The vma lookup waits for the mmap lock so do it without exec_update_lock. */
-+static int map_files_get_link(struct dentry *dentry, struct inode *inode,
-+			      struct path *path)
- {
- 	unsigned long vm_start, vm_end;
- 	struct vm_area_struct *vma;
- 	struct mm_struct *mm;
- 	int rc;
+-	/* Notify parent that we're no longer interested in the old VM */
+ 	tsk = current;
+ 	old_mm = current->mm;
+ 	/* Clean up futexes and release the mm */
+@@ -897,6 +896,8 @@ static int exec_mmap(struct linux_binprm *bprm)
+ 		mmdrop_lazy_tlb(active_mm);
+ 	}
+ 	futex_exec_done(tsk);
++	/* We've left the old mm so a vfork() parent can run again. */
++	complete_vfork_done(tsk);
+ 	return 0;
+ }
  
--	rc = -ENOENT;
--	mm = get_task_mm(task);
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index d7c6a942aa7e0..2adfba6217133 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -158,9 +158,11 @@ extern struct mm_struct *mm_access(struct task_struct *task, unsigned int mode);
+ 
+ /*
+  * Remove the current tasks stale references to the old mm_struct on exit() and
+- * exec(). Cleans up futexes as well.
++ * exec(). Cleans up futexes as well. A parent that sleeps in vfork() is only
++ * woken up by complete_vfork_done() once the task has left the mm.
+  */
+ extern void mm_exit_exec_release(struct task_struct *, struct mm_struct *);
++void complete_vfork_done(struct task_struct *tsk);
+ 
+ #ifdef CONFIG_MEMCG
+ extern void mm_update_next_owner(struct mm_struct *mm);
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 38de318a07aaa..6120f0dc3b17d 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -554,8 +554,11 @@ static void exit_mm(void)
+ 	struct mm_struct *mm = current->mm;
+ 
+ 	mm_exit_exec_release(current, mm);
 -	if (!mm)
--		goto out;
-+	mm = map_files_mm(inode);
-+	if (IS_ERR(mm))
-+		return PTR_ERR(mm);
- 
- 	rc = dname_to_vma_addr(dentry, &vm_start, &vm_end);
- 	if (rc)
-@@ -2260,7 +2282,6 @@ static int map_files_get_link(struct dentry *dentry, struct path *path,
- 
- out_mmput:
- 	mmput(mm);
--out:
- 	return rc;
- }
- 
-@@ -2280,17 +2301,36 @@ proc_map_files_get_link(struct dentry *dentry,
- 			struct inode *inode,
- 		        struct delayed_call *done)
- {
-+	struct path path;
-+	int error;
-+
- 	if (!checkpoint_restore_ns_capable(&init_user_ns))
- 		return ERR_PTR(-EPERM);
- 
--	return proc_pid_get_link(dentry, inode, done);
-+	if (!dentry)
-+		return ERR_PTR(-ECHILD);
-+	error = map_files_get_link(dentry, inode, &path);
-+	if (!error)
-+		error = nd_jump_link(&path);
-+	return ERR_PTR(error);
-+}
-+
-+static int proc_map_files_readlink(struct dentry *dentry, char __user *buffer,
-+				   int buflen)
-+{
-+	struct path path;
-+	int error;
-+
-+	error = map_files_get_link(dentry, d_inode(dentry), &path);
-+	if (!error) {
-+		error = do_proc_readlink(&path, buffer, buflen);
-+		path_put(&path);
++	if (!mm) {
++		/* kthread_stop() waits for this. */
++		complete_vfork_done(current);
+ 		return;
 +	}
-+	return error;
+ 
+ 	sched_cache_exit_mm(current);
+ 
+@@ -579,6 +582,8 @@ static void exit_mm(void)
+ 	enter_lazy_tlb(mm, current);
+ 	local_irq_enable();
+ 	task_unlock(current);
++	/* We've left the mm so a vfork() parent can run again. */
++	complete_vfork_done(current);
+ 	mm_update_next_owner(mm);
+ 	mmput(mm);
+ 	if (test_thread_flag(TIF_MEMDIE))
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 5efceb8d58a78..f63133b9e6faf 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1428,10 +1428,21 @@ struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
+ 	return mm;
  }
  
--/*
-- * Identical to proc_pid_link_inode_operations except for get_link()
-- */
- static const struct inode_operations proc_map_files_link_inode_operations = {
--	.readlink	= proc_pid_readlink,
-+	.readlink	= proc_map_files_readlink,
- 	.get_link	= proc_map_files_get_link,
- 	.setattr	= proc_nochmod_setattr,
- };
-@@ -2300,7 +2340,6 @@ proc_map_files_instantiate(struct dentry *dentry,
- 			   struct task_struct *task, const void *ptr)
+-static void complete_vfork_done(struct task_struct *tsk)
++/**
++ * complete_vfork_done - wake up whoever waits for @tsk in vfork()
++ * @tsk: task that execs or exits
++ *
++ * A parent that sleeps in vfork() must not run before the child is off its
++ * mm. So this is called once @tsk has switched to its new mm in exec or has
++ * dropped its mm in exit. kthread_stop() uses this completion as well.
++ */
++void complete_vfork_done(struct task_struct *tsk)
  {
- 	fmode_t mode = (fmode_t)(unsigned long)ptr;
--	struct proc_inode *ei;
- 	struct inode *inode;
+ 	struct completion *vfork;
  
- 	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK |
-@@ -2309,9 +2348,6 @@ proc_map_files_instantiate(struct dentry *dentry,
- 	if (!inode)
- 		return ERR_PTR(-ENOENT);
- 
--	ei = PROC_I(inode);
--	ei->op.proc_get_link = map_files_get_link;
++	if (!tsk->vfork_done)
++		return;
++
+ 	task_lock(tsk);
+ 	vfork = tsk->vfork_done;
+ 	if (likely(vfork)) {
+@@ -1465,8 +1476,8 @@ static int wait_for_vfork_done(struct task_struct *child,
+  * mmput is called whenever we stop holding onto a mm_struct,
+  * error success whatever.
+  *
+- * mm_release is called after a mm_struct has been removed
+- * from the current process.
++ * mm_release is called when the current process is about to
++ * leave a mm_struct in exec or in exit. It's still on it.
+  *
+  * This difference is important for error handling, when we
+  * only half set up a mm_struct for a new process and need to restore
+@@ -1498,13 +1509,6 @@ static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ 		}
+ 		tsk->clear_child_tid = NULL;
+ 	}
 -
- 	inode->i_op = &proc_map_files_link_inode_operations;
- 	inode->i_size = 64;
+-	/*
+-	 * All done, finally we can wake up parent and return this mm to him.
+-	 * Also kthread_stop() uses this completion for synchronization.
+-	 */
+-	if (tsk->vfork_done)
+-		complete_vfork_done(tsk);
+ }
  
+ void mm_exit_exec_release(struct task_struct *tsk, struct mm_struct *mm)
 
 -- 
 2.53.0
