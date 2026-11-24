@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795540291;
-	b=KnCywj08WO8sLMNbFWGOaiNj1p3ASSkGkD/Dklj/9VFEptAkOZaSWqGkVwjHzGLWeeGt
-	 CWeOeWN5hAo+AooP8gDP1dNoonJq2djb8XhKYzvcbQKxRt76Kw61C0SfUROjXbBkjyeIi
-	 IWGVX5jWSLGIxKNc8NKtIP7gC2QwRVkAMFqiQsVHADvtx4OvP2oG50vmQZDszYGoj1gSA
-	 Zah6OzsQ9WTo6mAd/GnTgv3BcT0eahdotWv9V8fVZDeQgKAx5y5LAAHF8OWUifUFDFTIO
-	 GT6q+ZM5tbysE64MNCCQgCYtnW/XHCbU91Kf0dUkwk1Z1CZxsKIDRcZFJt/JyTddDjA==
+	t=1795540311;
+	b=TPlZZFSJtQANcjQQZsgyhxCUmSljBUiz6oO+8Hu8uLviS10VtF8WY+P+P4YGX9SQXrn1
+	 ImL5puTxlOXNruW8yP9O8bu1Zlp7JnbLNWsXgaxukwPU8DTus/SrSr1+N62qZ7dyahazn
+	 xccCh+8rWZirKttn3OIeAEiSKgrvk6ogJ3GWxM5yfn5jkxR6ErqFhSFcf07xNUmlifEPw
+	 Uk00GJO8ne/0lssYWWeBU66EoXepNzNmvwuJgpgNBgazYop35z/MGr+NeOSIwv0bAuDxv
+	 DLKVTvgbqnggEodx895J66Er3gLcCuNk7hUdBnPMFHqc9teeeyxnhV5jtr8A3XMg2nQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795540291;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795540311;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=QldWE4w0TVdbt2gDvBD2hdwiIfOJOYra+WZwlAsjtw8=;
-	b=QydzaNmJi6HVoGCnVtNCmwx0o8k3vLDa69R/x3zNnaB+r6MhqGj5mysyvMdqXMGHBink
-	 bp0lOP1wOvpRxQOP1yrl2tuIlGkVeNLZByUA0S/ezgRbSyKuDxqFIVswWain0QuyzBrbx
-	 nTIW7IhmUynW6CRY2tk/VWEn92XciBzlpiQsUyCpe8boNRhXtynlz5cBHKil2vk8fzZTY
-	 rJnzayjLRsP9qMLJXy2aUtqIFqKPGeZX9CavWkUEnweOw/ebh/Fh7iFMqBgQ3AmgNV/1Y
-	 vSdwTZsoznrOeO4eWXZt4ZUcYpB6zzwu+xA3BuHykiJXE5wDIU75Q1NsujLhDrg6DfQ==
+	bh=YinBgxbv9k9aPLLClvg1TQtKuAgAUMd8VM3evMe5Yvw=;
+	b=3zorhNlerCZ577DUswqhBA5xebvdWc/BlBZ54Rf4ddTLOyxUDFjqLF6VvxWp2Y4F+pTy
+	 WW46eUH3Kv8wFcDk6A4MnPYXAVvNndjjMxdIYolwzGojKXnTT59wFlgsjABXJ2bsvCatB
+	 9LyXbZgXGyUOuCp4qpQZVlbIgl7ylPKrwllpFaMkUdao+tsoEJbTBXjuBxfuITOg4tV60
+	 3K9OYDFAApMZ4nzoA74UNBagtEF8OCtPzLCTr0KeTS+KHIhPVVcD1h86pBbJ+ijlao4Ww
+	 Z2l/3ozkcIzD5bqj+s6EZVkaoOJddrOKZMcG+froKcFdnX9dOyI9tyReIRLV/H1N/JA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FAWDg5Vd;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=flOieDI7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7EDD606A6B9;
-	Tue, 24 Nov 2026 17:11:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74FE606A326;
+	Tue, 24 Nov 2026 17:11:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FAWDg5Vd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0571F00A01;
-	Tue, 24 Nov 2026 17:11:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=flOieDI7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6D5F1F000E0;
+	Tue, 24 Nov 2026 17:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795540290;
-	bh=QldWE4w0TVdbt2gDvBD2hdwiIfOJOYra+WZwlAsjtw8=;
+	s=k20260515; t=1795540311;
+	bh=YinBgxbv9k9aPLLClvg1TQtKuAgAUMd8VM3evMe5Yvw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=FAWDg5VdpmSx8rQ4lXebaV7SUMn+/W07Xst8eBB+3X2tL8rSRKmUXHCIMftwFSPK1
-	 goeF2p68x4zrFVqN7xqOVkVerTS4zXG+4wTxWabsWpEHq49685dHDsGi1uixY9oNEF
-	 yw1zPDt3FpEF4KEpItK8x54ojy5MOVI2n3NR48J8lK+HvY3W2yz5ioRrupk/rL/gsw
-	 JnWTskNHr9Jv8Q4/CtMgZye6VMx5Qdrm165YtlCl9x7rSsx1acUmvoIxrlN3N+Jtxs
-	 QVVD0egk+QCVnvxAMlVDhkBS8CqDmQHE2ldeU1c9PlzXCKOKpXgrqszLMrksKwsM2j
-	 jQ/sEhDIaDEQA==
+	b=flOieDI7Kh9vBBXOWVO8o7dM5nAz0R25xYTttwaLOe1IgLSs+iCwxBl30zbtS91+e
+	 7Ww6lGfLE/r00fATsd8UbPhsgVKdXh9IPRnBx7aDCttrF3Eq4tuu4nWV68e/NXeJwq
+	 iq81YOM5gmYaLG/bTwDv4R7VdMn3Onx3AL4S4iQeRg6Xr+y5byFWOKLdb7ZD17Cnjq
+	 JGbfrS406KNlKaHM6I0WZK8Ri9sMIFsZlVto4U1ksd1BYhR3qwL/HMinuol32TWlcW
+	 RZzpRJIdaGGA9zlrVWHylQIiwI5rcm3cGov3Vpum4WR2ir63Blo7v/VTl959Pubgc6
+	 XZL6aIka5+n2Q==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Tue, 24 Nov 2026 17:08:01 +0000
-Subject: [PATCH v2 09/11] apparmor: convert VMA flag tests to use
- vma_flags_t
+Date: Tue, 24 Nov 2026 17:08:02 +0000
+Subject: [PATCH v2 10/11] ima: convert VMA flag tests to use vma_flags_t
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -55,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261124-late-2026-vma-flags-v2-9-bf3fade93064@kernel.org>
+Message-Id: <20261124-late-2026-vma-flags-v2-10-bf3fade93064@kernel.org>
 References: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
 In-Reply-To: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -115,39 +114,39 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
  "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=852; i=ljs@kernel.org;
- h=from:subject:message-id; bh=Fq9T8hwtRsQLwO0WpGmIyYpdIofCGHG7KaF/EUohnCo=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJZj+SVzZ+tY/pliVFg7/PJFXOrpYolpPnfcfUpLJ9Xq
- Hrm/5JjHaUsDGJcDLJiiizPv4jvDxIJm9d5wd8NZg4rE8gQBi5OAZjIlT2MDH/Ubjy1mjJp2/eW
- Zf+bX7xfEBQ0kWFv7ptlrTMschv3y6YxMtyfM+G4ub3U1Evcyzr+7Ar/vXfCg2O9KeJfXsm9Cjp
- dw8EKAA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=956; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=aZXr2zSVB/rJfER5dUYjqts6E/Nx59tdty75BvHwYEY=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJZj+QVSnUuXe77Y1vJhJirX5l9E+6nP6q7dXchw+r7m
+ ecWq+3S7yhlYRDjYpAVU2R5/kV8f5BI2LzOC/5uMHNYmUCGMHBxCsBEgl4wMvwRCfuxt4eRa8oH
+ Dkd31cpd004ad9q16nh8Fa7ct/b9wheMDAcdmsP65A5c+PmtRm+uXv88sSVfT2w4W5NV/tTU6mm
+ 5CC8A
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
 Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
-AppArmor mprotect LSM hook.
+IMA mprotect LSM hook.
 
 No functional change intended.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 Reviewed-by: Lance Yang <lance.yang@linux.dev>
 ---
- security/apparmor/lsm.c | 2 +-
+ security/integrity/ima/ima_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index eaebc3c60c5a..9ff9096b6199 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -591,7 +591,7 @@ static int apparmor_file_mprotect(struct vm_area_struct *vma,
- 				  unsigned long reqprot, unsigned long prot)
- {
- 	return common_mmap(OP_FMPROT, vma->vm_file, prot,
--			   !(vma->vm_flags & VM_SHARED) ? MAP_PRIVATE : 0);
-+			   !vma_test(vma, VMA_SHARED_BIT) ? MAP_PRIVATE : 0);
- }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index fed80da3ee09..92032afe4cd1 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -556,7 +556,7 @@ static int ima_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
  
- #ifdef CONFIG_IO_URING
+ 	/* Is mprotect making an mmap'ed file executable? */
+ 	if (!(ima_policy_flag & IMA_APPRAISE) || !vma->vm_file ||
+-	    !(prot & PROT_EXEC) || (vma->vm_flags & VM_EXEC))
++	    !(prot & PROT_EXEC) || vma_test(vma, VMA_EXEC_BIT))
+ 		return 0;
+ 
+ 	security_current_getlsmprop_subj(&prop);
 
 -- 
 2.56.1
