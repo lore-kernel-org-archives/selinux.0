@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795561227;
-	b=kJ+6dTM1LoFqF3dGYrViepAV4dGt4cDYrULDsx7U3BektW67pnIer2eBWCqSiauWCJZy
-	 F55mAMh0vxIGt359sIhwCg/YIuSxBS/ZAdo3DwFwbxwYYMRiKN5DOa4/S9qSWGZOjShaf
-	 +C2eNGJ91CwkvO0AFQTdNema0belfUZjXMMvy9haPtxuWHQ7pM6ZM6jG4S7olOCyr+h+T
-	 /i0vc5M4gbYuqp+4a9/vPFvMjva69dHKlzlE70dddL4lCOQvN6Kk5RBvSHyDn4j1B2jJD
-	 BQ5rttCRXExCahj8i4GtyeoFbJ6GuOKeHvBxcp2gMUS8jScP5PMQFp/7a0X7v/MeTXA==
+	t=1795561223;
+	b=FsN+QQAJQd8UU7yWfEm0rE6iDjl8BF0ybQqE6DVSxSPWMvXe6BXdM1ttqC8oinSDJkNo
+	 0vcY/U9Gd4CGQvpsQwtiN5s8GqHVud6Y5timSiUpIbp2DP+tKiFrJckHVEGcX2fcIkjD/
+	 WkkbxFnmovWUCprqlIMvSoB2GpVUmk6/RzZnfihUMlt4Hdpal8lrCnrs6P+qahSmu8en/
+	 zPRQGCcPD9NI0WFXEAulHGRO09aMvczG94lfLtvwbTAEEw7Yjc0q0LiWv1o9ZesRl5KJR
+	 p6VAvLUPRHhs5RJhV+g9+KnYcGeC0izhdsUghNsNGhctJlk2ff26cafUoDWHy5g6p8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795561227;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795561223;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=WThBmHMF1JHqTiDTsb9DdVdc8rlMyonCV9j9R+vsC04=;
-	b=fiXkOkswqbaNkmRil0oHdDlISj9DLNMrxjGH7T0Gf9uR1aj91UvZRoypOAg3tfl6+2wm
-	 lW2fmbCLP6POShA3GmW2Rur3BR2G2NL021IhbBdwvxq5KIOf8tlvxPEnOUdfse5c3KdgV
-	 WLS53KSfexhgXHeR8J0bonGv8CqWFu8XZo7ONMwykc9dsGlxgPUEBKh3gEIgX+vuf30NG
-	 C1n1Hkgoq2DV79mTC0KMMnZsZMmLruPJyiCp8ZqqIqkOPxw2Gun3hkSQ+9M4C8DltPrp7
-	 Pl7KEoSxn/yu8cbGkU8lmFtgF5sf1zlZveRvQaOYpA0zpGOACGLXat9X/MSnALvqPrQ==
+	bh=5wcVGG20arn5AtILXYsS1QLVQzh9zzWUG/JVb/Qxc/E=;
+	b=AcalDLRlfHpuSF8v9gT+hBHw81Y2fPzPaqoWCBFsxpra/Xn57EGASBcSixnKd2iGoTFs
+	 1imrI21XuRwPU1CNwyVOKXg/yENaPvwluQObf6RgHZMOr9J7Lig6f2qE4zf9pTsX+BQkI
+	 YNVeypa4o8/Eh0oRkmLX745PGBAJ5dg19A4FoTip9qSYctI6ObRm0BaKf3d3x6JMOgXvv
+	 hklagHH63KY5yD/IsP1Gff/xiXh+PajObDKtmbSV1GVRBVNjBTi0ddik5POhWNCMXuMtx
+	 9iiCZ+rOcrJDPWYP5zqZhbdGXkr8caawCyHGbGjkgo0l3DLXc7ckFUJXfIATrLrKD5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ma/kTwrb";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=drQoINnV;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E78C606A32A;
-	Tue, 24 Nov 2026 23:00:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ma/kTwrb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F36191F000EE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CBF0606A31E;
 	Tue, 24 Nov 2026 23:00:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=drQoINnV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E861F01566;
+	Tue, 24 Nov 2026 23:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795561226;
-	bh=WThBmHMF1JHqTiDTsb9DdVdc8rlMyonCV9j9R+vsC04=;
+	s=k20260515; t=1795561222;
+	bh=5wcVGG20arn5AtILXYsS1QLVQzh9zzWUG/JVb/Qxc/E=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ma/kTwrbgGWzl6OUDPxm2b1uvUfXED6heMx8/GAQ+TmwPMgDj7YeoL/vAd9wCP14m
-	 YUZbBVmtGEuPOEoshmuDdvOrDNpUVZQhBQB2aMYPssgViwryjxnFVE/Q/zmeaDwIs2
-	 wod02cIxg6wwY1IVnd4xkMfiSKIfktKeUdlwtuNVDi8LXMENXJ4d9qrgKf9pbivd2v
-	 QUK0rdG9zH+Z8iDtQ7zGZ3WIiBpe67f31nO3orUxPKFV5klrVIWWtYsM7fTwsAtWJ0
-	 PZI5K5UuFXnRY7B/k+vfb0knWfUlCHh89/lspfwvzMI2hwae6n/TPZqvq+Dz87Hqb6
-	 kK1SWsuobrxAg==
+	b=drQoINnVOrBqHfexqbEvYA54mjyKAoEib0sv0wCWzg9cPAvIlkExX4lM5E1KU+9aq
+	 M1AzvH+frea1crPg9+BkhsXbcfSqtdfSloQ5tC1Eehb2nRGZt2hCnKWbtgSo6T67qK
+	 8TdqUvBVFpLZwGUDWZZBYXsc6FxFN06J+vaBCCJayEHtDub5XbRQ6JcBFmRZOAQSeg
+	 WF1rGIqF0xfM/ZUTJPATESch5gxdicfwjVz7sd0RCtFhNNhsBNQUG1qnLwcFzgXUBS
+	 kR7+Z1Dp1AfpjXNXa8EQzR4x4Mcv6VS8pfFYYj1NhGglz6CapdjxBOrSqkhrOXGnTM
+	 TOh4E+95DiKTg==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 24 Nov 2026 23:58:38 +0100
-Subject: [PATCH RFC 15/19] exec: don't take the mmap lock of the old mm
+Date: Tue, 24 Nov 2026 23:58:37 +0100
+Subject: [PATCH RFC 14/19] exec: switch time namespace after dropping
+ exec_update_lock
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261124-work-exec-update_lock-v1-15-e489035395b8@kernel.org>
+Message-Id: <20261124-work-exec-update_lock-v1-14-e489035395b8@kernel.org>
 References: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 In-Reply-To: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 To: Jann Horn <jannh@google.com>
@@ -66,72 +67,59 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  David Hildenbrand <david@kernel.org>, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-04696
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2065; i=brauner@kernel.org;
- h=from:subject:message-id; bh=114ewuP1qi1vzBdxjYYmwU6Ys2yZO4jjwhrnzG8rjnM=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziR1LinzlUrRMoahenMHOausTpuyoszPeB6+/Kb5T9
- k7UlIrbHaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABORjmRkaP3H8G67EPe8xgN7
- b2mlpDUdzKqfLFSR/bojZvIrJ/6Z6xgZZtttOBW4e2XAT3fdoECryuVGT6obVnlFfViRseDT0h3
- 3+QE=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1623; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=6xDuRr9GOZ8Vkh8V9ig2bxnMakSdmbVhjN6OQ6k3qL8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziR0t47uSNEV/4vY3n17blxnJV5slJVYWTC5IWcrBZ
+ PLqXmhKRykLgxgXg6yYIotDu0m43HKeis1GmRowc1iZQIYwcHEKwES0tRj+Sh+PS/DKebHpq55C
+ mPFXZn7jk1of7TJnqB4zbcgKzrTawfDfvfHbukx2Wds58mU3Ar/fKLh16brBrXdqRxcl3bpw43A
+ tFwA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-exec_mmap() takes the mmap lock of the old mm for reading while it
-switches the task over to the new mm. And it does that with
-exec_update_lock held for writing.
+If the task has unshared its time namespace then exec moves it into the
+new time namespace as it's getting a new mm. That allocates a new
+nsproxy, may take the timens offset mutex and the mmap lock of the new
+mm to switch the vdso data and may drop the last reference to the old
+nsproxy. Currently, all of that happens with exec_update_lock held.
 
-That lock was only ever needed for coredumps. The coredump code used to
-take the mmap lock for writing and then killed every task using the mm.
-So exec had to check for a coredump in progress under the mmap lock
-before it left the mm. Commit 7e3c4fb7fc19 ("exec: Check for a pending
-fatal signal instead of core_state") replaced that check with
-mmap_read_lock_killable(). And since commit 0258b5fd7c71 ("coredump:
-Limit coredumps to a single thread group") a coredump doesn't kill
-anything outside of its own thread-group and doesn't take the mmap lock
-to find tasks anymore. An exec in the same thread-group is serialized
-against the coredump in de_thread().
-
-Nothing else relies on the mmap lock to keep a task from leaving its mm.
-
-exit_mm() takes the mmap lock for the same historical reason. The next
-patch removes that one.
+The time namespace switch isn't tied to the credentials changing. So do
+it after exec_update_lock has been dropped. It still happens before the
+vdso is mapped. Call it after security_bprm_committed_creds() so there's
+no failure between committing the credentials and telling the LSMs about
+it.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/exec.c | 14 --------------
- 1 file changed, 14 deletions(-)
+ fs/exec.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/fs/exec.c b/fs/exec.c
-index 6120310f3fbab..78046ed839646 100644
+index 7b261b0a5f33c..6120310f3fbab 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -864,19 +864,6 @@ static int exec_mmap(struct linux_binprm *bprm)
- 	if (ret)
- 		return ret;
+@@ -1232,10 +1232,6 @@ int begin_new_exec(struct linux_binprm * bprm)
  
--	if (old_mm) {
--		/*
--		 * If there is a pending fatal signal perhaps a signal
--		 * whose default action is to create a coredump get
--		 * out and die instead of going through with the exec.
--		 */
--		ret = mmap_read_lock_killable(old_mm);
--		if (ret) {
--			up_write(&tsk->signal->exec_update_lock);
--			return ret;
--		}
--	}
+ 	bprm->mm = NULL;
+ 
+-	retval = exec_task_namespaces();
+-	if (retval)
+-		goto out_unlock_exec_update;
 -
- 	task_lock(tsk);
- 	membarrier_exec_mmap(mm);
+ 	me->flags &= ~(PF_RANDOMIZE | PF_FORKNOEXEC |
+ 					PF_NOFREEZE | PF_NO_SETAFFINITY);
+ 	flush_thread();
+@@ -1334,6 +1330,11 @@ int begin_new_exec(struct linux_binprm * bprm)
+ 	 */
+ 	security_bprm_committed_creds(bprm);
  
-@@ -903,7 +890,6 @@ static int exec_mmap(struct linux_binprm *bprm)
- 	task_unlock(tsk);
- 	lru_gen_use_mm(mm);
- 	if (old_mm) {
--		mmap_read_unlock(old_mm);
- 		BUG_ON(active_mm != old_mm);
- 		/* Defer teardown to setup_new_exec(), outside the exec locks. */
- 		bprm->old_mm = old_mm;
++	/* Switch time namespace now that the task has a new mm. */
++	retval = exec_task_namespaces();
++	if (retval)
++		goto out_unlock_cred_guard;
++
+ 	/* Pass the opened binary to the interpreter. */
+ 	if (bprm->have_execfd) {
+ 		struct file *executable = bprm->executable;
 
 -- 
 2.53.0
