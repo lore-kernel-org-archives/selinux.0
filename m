@@ -1,56 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.156
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795544998;
-	b=Ou11JK/7gLdGGEiFyD73dPvAK575tksw4KngIHQ0zncwlRyj52XEnHxEjYjcr6Vvpu7E
-	 00Lp2+XRlHtOvBdKM9DHuUCoB94F+Jt0hh+2T2tE8Jw711jo4V07Ht3k6BhUJaT5OPpee
-	 eIXGz5cbFsOklSUjYHCuM3cUpKyZajNR2iiO4C4Qm8mfL2+xi4aubqLv8toflVQkUz297
-	 q0u42W2GbJLF6ZDKsi1rgX0VEmnXgkSRCWJXwUPKhY+vVyHsD3kGgnTRSejEnHrqrgD6s
-	 1NNh48aOlPiLwegYt7gQSTREdcuuGwOENUvXBV9UReMxHlL0TVZhfgcCWlK7CUoJFdA==
+	t=1795546431;
+	b=2MNcO8RQvC9q23UDCEgTLq3nJJ3Df93rdwJoNXS0HSdeMcnKx1g2l43qFNGh5V88ItUW
+	 /NTbJFCgIIHiJ84swYq0roCfgxX4vy/f1lRYqX8SpvG2gk1loHdo8zsZoULCBHT/7Fn0d
+	 JEBNVmM+4ze2fEs3Qw4cv5oTEFOMcj1opHa1cNtOIXjS4BXZUZqn/TLwd5gUAYvI7Lj6H
+	 A/V7jdGk6C/TOhYB2FkJtw5gA0KT0/ufMKlUv4H0H9v/txIyTT3mS3iiZMks/+2yTI0Eh
+	 2TsoqAz3kgU4wCPxIVmfQ6mtnwKuOwBCFLeoSLXm22R+WWp28o5sYskR+r3PX0PZ+OQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795544998;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=DJ89V8ldjYH8b/Pph9AQiNAGIDVX10Hu0LD7fuQ9ZUM=;
-	b=Q/Lbf4p1vnW/nikgwrNWGMWyHl11r6iVDLAbw65U9lFSL6sW+mY/X/YEQKMCS4+fDnCP
-	 oI9Z1hqdimRthAHv3ThgeAo2ienF3CYPBc6fFdMNjvoiMFlcuf6a0UW2HiYTQsE8eR/bt
-	 tha6WndLso6qOsWX9Qa2WG6xm0/T9AojfZJA3bZei34rSuEGde1fbjrFG5djuAI60pAxa
-	 fZ5Yq3mvvsVNbWdQm4wcQ//YMd5YlG5HC99kU4raV6gJaJmWM3M775FGJAeB1L3Ls9anN
-	 NmDJN4XcpzeS/fI00jzHWrr/vV7w0SNocw6pTtp4GCmdw4nt2IkNIQWkp95aJSwWl8w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795546431;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=iJ0bZtF+M32WhmItWYj3FSa2ZiQSpvoOogcaFVHVH5I=;
+	b=o77qSxPmqlLRM73MRI7KSFfE3lrOVRwPvlav1bV9QsAyToYlqtsRa1XC/Q1Hw8zsiF8+
+	 a7zOYZFM95pO11QK7uiOIkIJrgW+OtoR+sTo4nMkGJ87ttOzq/keep8JBLJfdz3Mdzpom
+	 D8mrVl+V90zm6PwHB8E/8MPf3XYfbgAkVj1fpWwZYEEawg1TkAdNNGyP975Dn+7wKcAOk
+	 3qOeRggFAV17FCzSu1e6cJHlK3Qr08gSC+wEZccdAIOmpLYvDTVm3yFrgIXSKVigqI2MR
+	 PuI1vGQHK2vBZPBdE43Tkaufp8kT3eyiUUp97GQVi0bp8tedv7CgmuXyS2uXcD5pgpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JEKvt3Rr;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b="fGXI/q/Y";
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=huROl1+l;
+	arc=none smtp.remote-ip=103.168.172.156
+Received: from fhigh-a5-smtp.messagingengine.com (fhigh-a5-smtp.messagingengine.com [103.168.172.156])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFD2606A327;
-	Tue, 24 Nov 2026 18:29:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F2E4606A339
+	for <selinux@vger.kernel.org>; Tue, 24 Nov 2026 18:53:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F2E4606A339
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JEKvt3Rr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACECD1F000CA;
-	Tue, 24 Nov 2026 18:29:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795544997;
-	bh=DJ89V8ldjYH8b/Pph9AQiNAGIDVX10Hu0LD7fuQ9ZUM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JEKvt3RrZNmqHKfNEeIqkRUzFYuVxu8FvOYhVkdGebFGOP1hin66iL5n2JO7l2825
-	 kj+hq3BdXMaK3+PbIGm0GOCrOArAh1sVfJyaIpjBXdrThkH6pIEzovDMxmLcWEao7D
-	 G7g/Xc5i0sGZXzKYs6tUNGy/UPB8qNSII3FaLXZk+eXbfb4sGEMAXB5AabP3VekYVx
-	 GFZC2Fs4YMBVomeeB8KOKOzx4fwEs1+2tgqjdVUTKouQSWqBOkc7X12WZZ/oX15Xw3
-	 NGj09DExgq5NGzlLkRx5S//Xn7Kkxa5+3z+wwXi/sDghw9ChAm+X8l4HXEK3ovepWg
-	 7xUGQl8nhHViw==
-Message-ID: <sashiko-outbox-231824@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/1] LSM: infrastructure management of mount options
-Reply-To: sashiko-reviews@lists.linux.dev
-To: linux-security-module@vger.kernel.org
-Cc: selinux@vger.kernel.org
-In-Reply-To: <20261124181522.30415-2-casey@schaufler-ca.com>
-References: <20261124181522.30415-1-casey@schaufler-ca.com>
- <20261124181522.30415-2-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 18:29:55 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=fGXI/q/Y;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=huROl1+l
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id ACF151400098
+	for <selinux@vger.kernel.org>; Tue, 24 Nov 2026 13:53:49 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Tue, 24 Nov 2026 13:53:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1795546424;
+	 x=1795632824; bh=iJ0bZtF+M32WhmItWYj3FSa2ZiQSpvoOogcaFVHVH5I=; b=
+	fGXI/q/YJJHPRt+gPRHUOreFU8JCB/tfsdHtsBhf3X18rgt21ZbX+26No5IKTAyj
+	AgCv1KdKfbX+I2Pn0iSzwyBZk/aTQmKDh3dYxkQQL/J3WM2z84vb6vO7x4DW8EGZ
+	sS/Wz7MJP+BtoLKLQr++7Yye1Hsyu2ULf9M/Y/cIxiPBp83DUaCzMY/wHmvrh3HQ
+	z0r0HeF0cnvWAkVDWpNLHekIzdnkWlD1MFqa+H5YTnUhFB6PA6aA1HC0BYrnek2G
+	nxpAYgIinmvsD/fk1yNzG29c7eKf94wnqayGmqr0U9/LtCL0vr89WbcpVgVwSl8H
+	4qYzW/d7q4DzqRxNHb/J/w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1795546424; x=
+	1795632824; bh=iJ0bZtF+M32WhmItWYj3FSa2ZiQSpvoOogcaFVHVH5I=; b=h
+	uROl1+lk1kz0AnE8Bzw9moeUjMay7vJ5VuuqfueaPUl4m/AI84UJOgAisOoaqFn/
+	yCBo+vSL4a5lisI4l5/Z7saj2VUfqomUlV+2KVyBVQmUCOe3jgRYI6qYr4Y8R8jl
+	LJRf+DSl7GQbE5lW+g+FmCFL/3myijCtekiyTHImxIeNkj8OLVv/bdsJJh85iU2r
+	kJL7uUdjE61XSRiNNPNUtgWPIDQt/CfqMCs9Y72c8jKv8clrGSuuWvjDW+ZxoYRm
+	lUNq6g0Cq11j4GRLpY9a5Fciy4M+OD5s4ikjAzA6YUPUcczieH5Iq3irJUrRl+0o
+	JIyX3BUC16aX/QKYzqm+Q==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1795546424; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PHNlbGludXhAdmdlci5rZXJuZWwub3JnPg==;
+	s=fm2:rsa-sha256:MLSiVm0glYBJ+1BZ3PCWNGOnT6LUK56X5OWFyMjJtNGRU24
+	HfAUFqxkWi+gog14QdNUa50jjLZz7IoLXP5ZQgg/b1WPOzTc8ox7ysJnpdjZ7Cvx
+	7lqUVGKtOEk22PXhAKKvGptDAa8J0VxTpWBU2yRClmKTc5bymg8BLmoBgLmKSEba
+	kakPMBPGDk6qe/kE/3J9KDZnStEH+J1U3O3reTiBplyuq/srYhvxRooevZ869Zc6
+	W+A//wL7yhXIf/lmUk5wI2vyJbQg6mEKd8sSEQSu5IZhlva1o+pp0k1X+nDzPtc3
+	kkqJSbzx4UQu+HCbcFISh88f6kaW6pGtkIEMG/g==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:JE9Pf+dIuvBMDyw467eQ/Tr4tyY4SBvJ9vbnWlDmBbU=:iJ0bZtF+M32WhmItWYj3FSa2ZiQSpvoOogcaFVHVH5I=;
+X-ME-Sender: <xms:NN0Fa5lZfMH0GpBjo4FIFqOt82WeXvEcO71uXdjmCA-N2thUNBatiw>
+    <xme:NN0Fa_pvDD3LDB1hOkMvebnpeZhjQXIK0f9ynC0uvxvma-6WyPByvi9RrkBtXqg9y
+    e_gVWNjeonSUqLlGosp6V90-QYv-zweVwSgzUpAtHBmrbfHPTWWgCM>
+X-ME-Proxy-Cause: dmFkZTGa89Pla2pwx0UHvBE2KEVG1Wwjhw7C4B1uLpGYODU+3QVMsGx/6XmpkdoJQ4Wdng
+    HJTQ5P6n+mDkd8Vd2SQqD6fTHTLkP7Wuqcj4e4FsRmjjuwJVAvdIAMxwY7PgDDXvm7pBQb
+    V+0M7Ws/ERhpYm8SiiloduyrTQZspJvg6qB1K46OCCPXGc+eEW+Hddr+7C00h0r6ZEOFYl
+    AEnzqIf48e5UMJEtOynuealgFc8qv49e4alT0/cDtM0pgI+fA63AVgOKJjxR0/XZ5jCWkf
+    ckqnEAFz7mzjehKRip86Ki3aHb//QV7agR0ciNvsOQftXZwZGwrw1biaGXQM2h508lVilu
+    dX1Rs8y5CwzC5NJ/X0naYSrSH/L5OxpOwwf5dMWqDQZcTdKTK/2PBgPmihT/fQy1TuHY6j
+    6M64lDHfRNX+gNElC1DL1ODauxSmwduu+m13I/SkB7IYOCXjuB2jqg7U4sW3fILD4Xxxix
+    /zzH26H2NJT/sw+csOTXwQOv0Ri5PI/gUUSUcz2DmXFV+dyZ2fG3dvBz4DLITo/r44riPy
+    Wkq3g4kLNXDJfPLtgJRoV3tB0JzWzIZNdWxrQK2e5XaTmoTp8JRX1v76d2nM+qmgUUFhFc
+    nvxsvy7PpPJFKIOSP8JO3v1DBFfZIowhnT7qZYA23jX7CcPrraaLXwRUkr+A
+X-ME-Proxy: <xmx:Nt0Fa2g9uImOLqunkhPoWGl1ltxY8JqHe77aesgUgd62JLxGu-1Ofw>
+    <xmx:Nt0Fa8Pc_Sbu-G_3abCwqPB7HUsT9kKEIkC0CdR_sFWt4SE3pgeVEw>
+    <xmx:Nt0Faxe5nGuWdBNu6u7jyT24MgZMbK0VdAI8O7B5j3SfiCxKfSR2AQ>
+    <xmx:Nt0Fa-y3V9ESX_COIXxaEavSOJ21EMmGaPaOG4nz8Qt9gqswRMc_CQ>
+    <xmx:ON0Fa2FN0OUPrjWXja9RK6szCLu_hXTZd05XGyCHHDqNdf-Ig_ZmCfL3>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 4968232A0099; Tue, 24 Nov 2026 13:53:40 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -59,291 +114,75 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+X-ThreadId: Ai76fMdDSoMo
+Date: Tue, 24 Nov 2026 19:53:19 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Lorenzo Stoakes" <ljs@kernel.org>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Juergen Gross" <jgross@suse.com>,
+ "Stefano Stabellini" <sstabellini@kernel.org>,
+ "Oleksandr Tyshchenko" <oleksandr_tyshchenko@epam.com>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Christophe Leroy" <chleroy@kernel.org>,
+ "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+ "Shrikanth Hegde" <sshegde@linux.ibm.com>,
+ "Haiyang Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>,
+ "Dexuan Cui" <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "Jason Wang" <jasowangio@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+ "Jarkko Sakkinen" <jarkko@kernel.org>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
+ "Borislav Petkov" <bp@alien8.de>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, "Jan Kara" <jack@suse.com>,
+ "Paul Moore" <paul@paul-moore.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ =?UTF-8?Q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>,
+ "Joel Stanley" <joel@jms.id.au>,
+ "Andrew Jeffery" <andrew@codeconstruct.com.au>,
+ "Ryan Chen" <ryan_chen@aspeedtech.com>,
+ "'billy_tsai@aspeedtech.com'" <billy_tsai@aspeedtech.com>,
+ "Bjorn Andersson" <andersson@kernel.org>,
+ "Konrad Dybcio" <konradybcio@kernel.org>, "Abel Vesa" <abelvesa@kernel.org>,
+ "Jens Wiklander" <jenswi@kernel.org>, "Sumit Garg" <sumit.garg@kernel.org>,
+ "Scott Branden" <scott.branden@broadcom.com>,
+ "Broadcom internal kernel review list" <bcm-kernel-feedback-list@broadcom.com>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Richard Cochran" <richardcochran@gmail.com>,
+ "David Woodhouse" <dwmw2@infradead.org>,
+ "Andrew Lunn" <andrew+netdev@lunn.ch>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Eric Dumazet" <edumazet@kernel.org>, "Jakub Kicinski" <kuba@kernel.org>,
+ "Paolo Abeni" <pabeni@redhat.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-sgx@vger.kernel.org, selinux@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
+ linux-arm-msm@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+ Netdev <netdev@vger.kernel.org>, linux-mm@kvack.org
+Message-Id: <3208cde3-c5cf-4888-88f7-c77d7b0e5940@app.fastmail.com>
+In-Reply-To: <20261124-late-2026-mmap_prepare-v2-8-0b0d99d655f9@kernel.org>
+References: <20261124-late-2026-mmap_prepare-v2-0-0b0d99d655f9@kernel.org>
+ <20261124-late-2026-mmap_prepare-v2-8-0b0d99d655f9@kernel.org>
+Subject: Re: [PATCH v2 08/13] soc: aspeed: convert LPC and P2A control mmap hooks to
+ mmap_prepare
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issues to consider:
-- [High] selinux: uninitialized opts dereference in
-  selinux_fs_context_submount()
-- [High] smack: false -EPERM in smack_set_mnt_opts() when mnt_opts is
-  shared
-- [Medium] selinux: missing opts->initialized check in
-  selinux_sb_mnt_opts_compat()
-- [Medium] selinux: premature opts->initialized in selinux_add_opt() and
-  stale SIDs
-- [Low] smack: smack_add_opt() returns -EINVAL instead of -ENOMEM on
-  NULL string
---
+On Tue, Nov 24, 2026, at 15:02, Lorenzo Stoakes (ARM) wrote:
+> Move from the deprecated mmap hook to the new mmap_prepare hook for both
+> the LPC control and P2A control drivers.
+>
+> Both remap a range of their reserved memory region, so use the PFN remap
+> mmap action to do so, retaining the -EAGAIN error on failure via the action
+> error override.
+>
+> Acked-by: Andrew Jeffery <andrew@codeconstruct.com.au>
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-commit 594cf0fb23bd823b404b83bdc2ae2e3211731aa5
-Author: Casey Schaufler <casey@schaufler-ca.com>
-
-LSM: infrastructure management of mount options
-
-This commit moves LSM mount option blob allocation, duplication, and freeing
-into the LSM infrastructure using a shared `lbs_mnt_opts` blob size and a n=
-ew
-`lsm_mnt_opts_alloc()` helper.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 30776b0107f29..d150b448423b2 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -381,6 +381,7 @@ static void inode_free_security(struct inode *inode)
->  }
-> =20
->  struct selinux_mnt_opts {
-> +	bool initialized;
->  	u32 fscontext_sid;
->  	u32 context_sid;
->  	u32 rootcontext_sid;
-> @@ -389,7 +390,12 @@ struct selinux_mnt_opts {
-> =20
->  static void selinux_free_mnt_opts(void *mnt_opts)
->  {
-> -	kfree(mnt_opts);
-> +	struct selinux_mnt_opts *opts;
-> +
-> +	if (mnt_opts) {
-> +		opts =3D selinux_mnt_opts(mnt_opts);
-> +		opts->initialized =3D false;
-> +	}
->  }
-
-[ ... ]
-
-> @@ -1023,7 +1034,7 @@ static int selinux_sb_clone_mnt_opts(const struct s=
-uper_block *oldsb,
->   */
->  static int selinux_add_opt(int token, const char *s, void **mnt_opts)
->  {
-> -	struct selinux_mnt_opts *opts =3D *mnt_opts;
-> +	struct selinux_mnt_opts *opts;
->  	u32 *dst_sid;
->  	int rc;
-> =20
-> @@ -1038,12 +1049,13 @@ static int selinux_add_opt(int token, const char =
-*s, void **mnt_opts)
->  		return -EINVAL;
->  	}
-> =20
-> -	if (!opts) {
-> -		opts =3D kzalloc_obj(*opts);
-> -		if (!opts)
-> +	if (!*mnt_opts) {
-> +		rc =3D lsm_mnt_opts_alloc(mnt_opts);
-> +		if (rc)
->  			return -ENOMEM;
-> -		*mnt_opts =3D opts;
->  	}
-> +	opts =3D selinux_mnt_opts(*mnt_opts);
-> +	opts->initialized =3D true;
-
-[Severity: Medium]
-Can setting opts->initialized =3D true before validating the option leave
-fc->security marked initialized with all SID fields equal to zero when
-selinux_add_opt() fails?
-
-If the first SELinux option passed via fsconfig(FSCONFIG_SET_STRING) fails
-in security_context_str_to_sid(), opts->initialized remains true while all
-four SIDs in *opts are 0.  A subsequent mount or superblock comparison
-against an existing superblock mounted with SELinux options (sbsec->flags &
-SE_MNTMASK) then sees opts && opts->initialized as true in
-selinux_sb_mnt_opts_compat() and selinux_set_mnt_opts(), skips every
-per-SID bad_option() check, and bypasses the SE_MNTMASK double-mount check.
-
-Also, when selinux_sb_eat_lsm_opts() fails after parsing a valid option
-followed by an invalid one, selinux_free_mnt_opts() clears
-opts->initialized without zeroing the SID fields in *opts, so a later
-selinux_add_opt() call on the same context will re-enable stale SIDs.
-
-[ ... ]
-
-> @@ -2703,18 +2715,20 @@ static int selinux_sb_eat_lsm_opts(char *options,=
- void **mnt_opts)
-
-[ ... ]
-
->  static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_=
-opts)
->  {
-> -	struct selinux_mnt_opts *opts =3D mnt_opts;
-> +	struct selinux_mnt_opts *opts;
->  	struct superblock_security_struct *sbsec =3D selinux_superblock(sb);
-> =20
-> +	if (mnt_opts)
-> +		opts =3D selinux_mnt_opts(mnt_opts);
-> +	else
-> +		opts =3D NULL;
->  	/*
->  	 * Superblock not initialized (i.e. no options) - reject if any
->  	 * options specified, otherwise accept.
->  	 */
->  	if (!(sbsec->flags & SE_SBINITIALIZED))
->  		return opts ? 1 : 0;
-> =20
->  	/*
->  	 * Superblock initialized and no options specified - reject if
->  	 * superblock has any options set, otherwise accept.
->  	 */
-> -	if (!opts)
-> +	if (!opts || !opts->initialized)
->  		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
-
-[Severity: Medium]
-Should the !(sbsec->flags & SE_SBINITIALIZED) check in
-selinux_sb_mnt_opts_compat() also test opts->initialized?
-
-When another LSM allocates the shared mnt_opts blob (or after
-selinux_free_mnt_opts() clears opts->initialized), selinux_mnt_opts() still
-returns a non-NULL offset into the blob even though no SELinux options were
-specified, causing selinux_sb_mnt_opts_compat() to return 1 for an
-uninitialized superblock.
-
-[ ... ]
-
-> @@ -2861,9 +2880,15 @@ static int selinux_fs_context_submount(struct fs_c=
-ontext *fc,
->  	if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
->  		return 0;
-> =20
-> -	opts =3D kzalloc_obj(*opts);
-> -	if (!opts)
-> -		return -ENOMEM;
-> +	if (!fc->security) {
-> +		int rc;
-> +
-> +		rc =3D lsm_mnt_opts_alloc(&fc->security);
-> +		if (rc)
-> +			return rc;
-> +		opts =3D selinux_mnt_opts(fc->security);
-> +		opts->initialized =3D true;
-> +	}
-> =20
->  	if (sbsec->flags & FSCONTEXT_MNT)
->  		opts->fscontext_sid =3D sbsec->sid;
-> @@ -2871,22 +2896,10 @@ static int selinux_fs_context_submount(struct fs_=
-context *fc,
->  		opts->context_sid =3D sbsec->mntpoint_sid;
->  	if (sbsec->flags & DEFCONTEXT_MNT)
->  		opts->defcontext_sid =3D sbsec->def_sid;
-> -	fc->security =3D opts;
-> +	opts->initialized =3D true;
->  	return 0;
->  }
-
-[Severity: High]
-Does selinux_fs_context_submount() dereference opts uninitialized when an
-earlier LSM has already allocated fc->security?
-
-opts is declared without initialization and is only assigned inside the
-if (!fc->security) block.  When Smack is ordered before SELinux,
-smack_fs_context_submount() unconditionally allocates fc->security via
-lsm_mnt_opts_alloc(), so selinux_fs_context_submount() skips the
-if (!fc->security) block and writes the SID fields and opts->initialized =3D
-true through the uninitialized stack pointer opts.
-
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 8e88ac65fd7fc..e3a5da343aa85 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -560,24 +561,22 @@ struct smack_mnt_opts {
->  	const char *fstransmute;
->  };
-> =20
-> -static void smack_free_mnt_opts(void *mnt_opts)
-> -{
-> -	kfree(mnt_opts);
-> -}
-> -
->  static int smack_add_opt(int token, const char *s, void **mnt_opts)
->  {
-> -	struct smack_mnt_opts *opts =3D *mnt_opts;
-> +	struct smack_mnt_opts *opts;
->  	struct smack_known *skp;
-> =20
-> -	if (!opts) {
-> -		opts =3D kzalloc_obj(struct smack_mnt_opts);
-> -		if (!opts)
-> +	if (!s)
-> +		return -EINVAL;
-> +
-> +	if (!*mnt_opts) {
-> +		int rc;
-> +
-> +		rc =3D lsm_mnt_opts_alloc(mnt_opts);
-> +		if (rc)
->  			return -ENOMEM;
-> -		*mnt_opts =3D opts;
->  	}
-> -	if (!s)
-> -		return -ENOMEM;
-> +	opts =3D smack_mnt_opts(*mnt_opts);
-
-[Severity: Low]
-Does changing if (!s) in smack_add_opt() from -ENOMEM to -EINVAL return the
-wrong error code on allocation failure?
-
-In smack_sb_eat_lsm_opts(), match_opt_prefix() only matches when an '=3D' is
-present, and the result of kmemdup_nul() is passed directly to
-smack_add_opt() without a NULL check, so s is NULL only when kmemdup_nul()
-runs out of memory.
-
-[ ... ]
-
-> @@ -750,12 +726,8 @@ static int smack_sb_eat_lsm_opts(char *options, void=
- **mnt_opts)
->  			arg =3D kmemdup_nul(arg, from + len - arg, GFP_KERNEL);
->  			rc =3D smack_add_opt(token, arg, mnt_opts);
->  			kfree(arg);
-> -			if (unlikely(rc)) {
-> -				if (*mnt_opts)
-> -					smack_free_mnt_opts(*mnt_opts);
-> -				*mnt_opts =3D NULL;
-> +			if (unlikely(rc))
->  				return rc;
-> -			}
->  		} else {
->  			if (!first) {	// copy with preceding comma
->  				from--;
-> @@ -802,6 +774,11 @@ static int smack_set_mnt_opts(struct super_block *sb,
->  	if (sp->smk_flags & SMK_SB_INITIALIZED)
->  		return 0;
-> =20
-> +	if (mnt_opts)
-> +		opts =3D smack_mnt_opts(mnt_opts);
-> +	else
-> +		opts =3D NULL;
-> +
->  	if (!smack_privileged(CAP_MAC_ADMIN)) {
->  		/*
->  		 * Unprivileged mounts don't get to specify Smack values.
-
-[Severity: High]
-Does smack_set_mnt_opts() reject unprivileged mounts with -EPERM whenever
-another LSM allocates the shared mnt_opts blob?
-
-Immediately below this hunk, smack_set_mnt_opts() checks:
-
-security/smack/smack_lsm.c:smack_set_mnt_opts() {
-    ...
-	if (!smack_privileged(CAP_MAC_ADMIN)) {
-		/*
-		 * Unprivileged mounts don't get to specify Smack values.
-		 */
-		if (opts)
-			return -EPERM;
-    ...
-}
-
-Because smack_mnt_opts(mnt_opts) returns mnt_opts +
-smack_blob_sizes.lbs_mnt_opts whenever mnt_opts is non-NULL, opts is
-non-NULL even when Smack has not set any mount options in the blob.  Any
-mount or submount by a task without CAP_MAC_ADMIN where SELinux allocated
-fc->security (or where an earlier smack_add_opt() call failed after
-allocating *mnt_opts) will now fail with -EPERM.  In addition, if
-smack_sb_eat_lsm_opts() fails after parsing one Smack option, the already
-populated fields in *opts are no longer cleared on error.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124181522.3041=
-5-1-casey@schaufler-ca.com?part=3D1
+Acked-by: Arnd Bergmann <arnd@arndb.de>
