@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795540100;
-	b=FsocQdSgYBIhkNgfhQSFsLAJlmvM4CmIz7YytcUorNTV7bmmTGemOnUmqe3tvSei0NHb
-	 IGiZXofQ8lkEELFxWAYkCWC1M9pCfK0HpdPM+7t2uDjOsgYaabUzt39Q7vL59netablsq
-	 Smu5j/MB9aEuyZtdpCXZRArY2WMqvsC2mYguILF1STYdLrs25n3HCfquAX1o4CO6+5TMx
-	 H/5oL55pDq5NFJd1e/xPia0Wo6rm5AmJmbSWNFaG1WswyGvAqj4wnMRom/1eF6wjzBgEx
-	 MJtsSrpuNErFiXbbouf9uLzzQDUlZiTCWjxxDcAYtNb9eHTAkhPF0Fd/H+HJZqyfTlg==
+	t=1795540121;
+	b=JXfez3QSEaZnLI98NQGKA5N+3BLVhQqBS2ZbjyYJ/dhyrI6Nnm4KcJPOQqT3U44iiE+x
+	 McztW6tkniwQte5zzbhqCDWyan26ugwVPhxS26xt2LK8b7SYNnnATsVvG+jbsmPuaH95i
+	 p15ThDG7MGNj8mYwolPXWjbIcqDNSY6JZ6TTs7qd5gz7dRgu2Y4yYETfwkYfzmgVcrqbP
+	 +KZTgQ3RSSUX1pCoPx7iF0o8hL3J8uFHFyWHt4XP0spioJoHubxuQNadx2EQ/j9OylhLo
+	 EEycoDAad7KJ+foH7ZQ/SDtz25bQkeBmFAcJ51EjqSRVkS2Synu2Usf3SHtxV7AZoAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795540100;
-	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=aqZtH0oPe0w0iyR81y6Fx2M9m70KmY8puMtxeRbq+2o=;
-	b=eN3mvG51YrPXYxCwEsUdFDQhRvKF5RUCAPwz3xUajZT9AlaSP7ytZR7LeVe03XrAHqNB
-	 JCL3TXPq2NuQEz2/iuVdVq3q83+202AnXLpZI10E5BRjaaO1iGFUQhE2irB65D1DDP0rD
-	 PMD8Cplg2lc6yLeWg9GIvV+8GcDA6oqio3v3sTt37iYIYiaGFSxuFxa9ebHS07kKwU1Ph
-	 yHoknUI3+8CCbMqdUjain/Z9LcMP2GZ1LrEG1kRhLLnfL6TMmtSWr4m44SZ4HuJe8qmbe
-	 yk/zX0Q6OFjcgyXx0ze7yUD/11+lIh0WmCeokTuJWWajOxQWMtPs6G6SykJWG8jLD+A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795540121;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=djZgOn9VBYR+Q9AtYg7HKx7q4q8fX2B7R8qd2HdvUdc=;
+	b=YjnVHuMkTro1RrJkTNagLMNJJKkMvG5TROD05qAgTARkHRlbAoE7iAgDRfqEq1kBj6ks
+	 qLAz+gpC+Ek0KyW8lZG3QA1USzTsfUqsa5VhEqTw4IabzzeJJTEmRe7lJNQfbTK8sJKvP
+	 k/iKdrsNpMkQD8YnbSy7dda6QGVbBiQl9Yv289A+fKfK0b0x1u0QVuTycp+4/w2lgyv6T
+	 Epv4TCDS7ZGrxykio8vucarwbe2ealVtJj30AD47qpG5lnRoQrJfBFX8V0rHgqyv+uG23
+	 XHuXM3l4cSGlZxHGKG3KrBAmRb9FtaL+RV0mwW/xI7fjo+EWxbQT+gAtLdj3ij6SYxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VCuJxO6J;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="J/2Gr8yD";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0B7F606A69D;
-	Tue, 24 Nov 2026 17:08:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A28260A261C;
+	Tue, 24 Nov 2026 17:08:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VCuJxO6J
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B29B1F000D1;
-	Tue, 24 Nov 2026 17:07:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J/2Gr8yD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0AE71F0156C;
+	Tue, 24 Nov 2026 17:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795540099;
-	bh=aqZtH0oPe0w0iyR81y6Fx2M9m70KmY8puMtxeRbq+2o=;
-	h=From:Subject:Date:To:Cc;
-	b=VCuJxO6Jjypj5DbUmhoytQziZJ5vLJGTNMNo3cqRxIUYh8Jzq3skhseCD0u5fRyjP
-	 C/2WEanKtLteavWso/oU3UJ6UtR3j3y9fK26/Wq6ytkGMpgt3chyo6ZXZEhXOKNaw5
-	 OJMyuJjnDYiBEsWgq3CJ337r7u+4G0BQSS+X4PEGurGZ29cGJXvYGBp2B0mKK810FW
-	 ftHg7joprB1aheUbxHOLTyL6VRQThAY1CflxS92AdC+zCo1MDGX49CRqEYciw8D45w
-	 OC/jVpT6VeMvEyweIbi7je9qiB2n4OB0NEcoB8q+V0O4UJwKh+CmIRZljhTIuC+2Js
-	 dix6TOTy+6I+w==
+	s=k20260515; t=1795540120;
+	bh=djZgOn9VBYR+Q9AtYg7HKx7q4q8fX2B7R8qd2HdvUdc=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=J/2Gr8yDo5beGxFwzhPsmkWc4NBWJPrU08XjePkaBs9Hev/Kfag2cTQiiupKETbne
+	 sK2Hk/HEfq342+hSoO20KxjzaHGGZtCtKDFx2njJXQxKLWo6eb9o/MNZai5TGz+zVG
+	 NXxD4OKJooIbeXWwkqP28zJ2Z/0ErhXpF/LqtsPTqg1djJDTpDfSsDCEVovFG8KRu5
+	 E7PO2GK8pYj2ygIZuW4q1HzpQ4o64Zxe8BwmSIG28UAnMis7Euu8fzZJH8pa6PpWRf
+	 kdm1dFW3slkoOoxAmG+5AARVEl41dtLS/gSImzOMtJ7LklBNoaMy9QgBaOH+bZLxKo
+	 Uv/E9pi2T3Rfg==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Subject: [PATCH v2 00/11] mm: continue vma_flags_t conversion
-Date: Tue, 24 Nov 2026 17:07:52 +0000
-Message-Id: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
+Date: Tue, 24 Nov 2026 17:07:53 +0000
+Subject: [PATCH v2 01/11] mm/filemap: convert fault and readahead logic to
+ use vma_flags_t
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -55,11 +55,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAA/23NQQqDMBCF4auEWTslY2oEV71HcZHqGEPTRBIJL
- eLdi0J3Xb5/8b0NMifHGTqxQeLisosBOlFXAobZBMvoRugE1LLWRJLQm5XxWFheBidvbMarpla
- R0UoPCioBS+LJvU/13lcCZpfXmD7nSaGj/rzmr1cIJcpRDSM15tE20+3JKbC/xGSh3/f9CwLCI
- fm3AAAA
-X-Change-ID: 20261101-late-2026-vma-flags-461731a636c3
+Message-Id: <20261124-late-2026-vma-flags-v2-1-bf3fade93064@kernel.org>
+References: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
+In-Reply-To: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
  David Hildenbrand <david@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
  John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
@@ -117,100 +115,143 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
  "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3964; i=ljs@kernel.org;
- h=from:subject:message-id; bh=AxeX6Zqxak7Ff0FGtjI8UQufUYyumqYNiaGRAt4jiII=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJZj+RGMUybXCrDUp937eOZY1FXjoUfd2jjdDu7MHppi
- 7fD9B0hHaUsDGJcDLJiiizPv4jvDxIJm9d5wd8NZg4rE8gQBi5OAZiI6VSGf6by2nvdT2svNv3G
- a5Ie3p2yXP+50sy7123nv02taTp4R4yRoVPqlDxHDnfXbUEO7UKVGzOvXZxuWuvsdc7h0sMltT1
- /uAE=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4980; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=WlizbylF+gqp9MHD4jo2N4UTW7koXv3iwuSfjXWzIJY=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJZj+R+ZRBYYpfZ891l0lXZSTubBRJj/6yfoe0q8GxNL
+ MM/b9OajlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAEyk+CkjwyqrhY71jw3YvxTv
+ Oimnds3z7cSlRe11WT+3bLmbJaQ+05KRYbXBe7Ofjzf0Wk73y7byfqtX6nuhzHpLH9e+C5G5it8
+ nMwEA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Continue the conversion of legacy vm_flags_t flags to the new vma_flags_t
-bitmap type.
-
-Do some more core mm conversion (we really should be the first to
-completely move to the new scheme :), but also update some mm-adjacent and
-otherwise straightforward cases - /proc/$pid/maps and friends, the coredump
-VMA dump size logic, uprobes, perf and LSM mmap/mprotect hooks.
-
-This series only makes strictly mechanical changes to keep things gentle
-during this very busy cycle.
+Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
+file fault and mmap readahead logic.
 
 No functional change intended.
 
-Build tested on x86-64 (allmodconfig, each patch individually), i386,
-arm64, riscv nommu and ppc64le.
-
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Reviewed-by: Barry Song <baohua@kernel.org>
 ---
-v2:
-* Dropped what were 1/13, 3/13, 4/13, 5/13 and 6/13, as David has taken
-  these through mm/core.git.
-* Rebased on mm-new.
-* Updated 1/11 (was 2/13) to read VMA_RAND_READ_BIT before
-  maybe_unlock_mmap_for_io() can release the fault lock, avoiding a
-  use-after-free of the VMA, and to remove the now-shadowing inner VMA
-  declaration, as per Sashiko and Andrew.
-* Updated 2/11 (was 7/13) to drop an unrelated whitespace change in
-  mm/ksm.c and to fix up the indentation of touched lines, as per David.
-* Updated 3/11 (was 8/13) to retain the shadow stack check since added to
-  hmm_vma_walk_test().
-* Updated 4/11 (was 9/13) commit message to note that the soft-dirty
-  assert in vm_flags_clear() is intentionally dropped, as per Lance.
-* Split what was 13/13 into per-LSM patches 8/11 to 11/11, as per Paul.
-* Propagated tags, thanks everyone!
+ mm/filemap.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-v1:
-https://lore.kernel.org/r/20261105-late-2026-vma-flags-v1-0-0d3cd15ab75f@kernel.org
+diff --git a/mm/filemap.c b/mm/filemap.c
+index acf5e562b732..ce720c4c55f0 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -3359,13 +3359,14 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 	struct address_space *mapping = file->f_mapping;
+ 	DEFINE_READAHEAD(ractl, file, ra, mapping, vmf->pgoff);
+ 	struct file *fpin = NULL;
+-	vm_flags_t vm_flags = vmf->vma->vm_flags;
++	struct vm_area_struct *vma = vmf->vma;
+ 	bool force_thp_readahead = false;
+ 	unsigned int thp_order = 0;
+ 	unsigned short mmap_miss;
+ 
+ 	/* Use the readahead code, even if readahead is disabled */
+-	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && (vm_flags & VM_HUGEPAGE)) {
++	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
++	    vma_test(vma, VMA_HUGEPAGE_BIT)) {
+ 		/*
+ 		 * Cap max THP order at 2MB: this is the common PMD-sized
+ 		 * hugepage size, and it avoids memory pressure from very
+@@ -3385,20 +3386,21 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 		 * If we don't want any read-ahead, don't bother.
+ 		 * VM_EXEC case below is already intended for random access.
+ 		 */
+-		if ((vm_flags & (VM_RAND_READ | VM_EXEC)) == VM_RAND_READ)
++		if (vma_test(vma, VMA_RAND_READ_BIT) &&
++		    !vma_test(vma, VMA_EXEC_BIT))
+ 			return fpin;
+ 
+ 		if (!ra->ra_pages)
+ 			return fpin;
+ 
+-		if (vm_flags & VM_SEQ_READ) {
++		if (vma_test(vma, VMA_SEQ_READ_BIT)) {
+ 			fpin = maybe_unlock_mmap_for_io(vmf, fpin);
+ 			page_cache_sync_ra(&ractl, ra->ra_pages);
+ 			return fpin;
+ 		}
+ 	}
+ 
+-	if (!(vm_flags & (VM_SEQ_READ | VM_EXEC))) {
++	if (!vma_test_any(vma, VMA_SEQ_READ_BIT, VMA_EXEC_BIT)) {
+ 		/* Avoid banging the cache line if not needed */
+ 		mmap_miss = READ_ONCE(ra->mmap_miss);
+ 		if (mmap_miss < MMAP_LOTSAMISS * 10)
+@@ -3414,6 +3416,7 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 
+ 	if (force_thp_readahead) {
+ 		unsigned long folio_nr_pages = 1UL << thp_order;
++		const bool random_read = vma_test(vma, VMA_RAND_READ_BIT);
+ 
+ 		fpin = maybe_unlock_mmap_for_io(vmf, fpin);
+ 		ractl._index &= ~(folio_nr_pages - 1);
+@@ -3422,7 +3425,7 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 		 * Fetch two folios so we get the chance to actually
+ 		 * readahead, unless we've been told not to.
+ 		 */
+-		if (!(vm_flags & VM_RAND_READ))
++		if (!random_read)
+ 			ra->size *= 2;
+ 		ra->async_size = folio_nr_pages;
+ 		ra->order = thp_order;
+@@ -3430,7 +3433,7 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 		return fpin;
+ 	}
+ 
+-	if (vm_flags & VM_EXEC) {
++	if (vma_test(vma, VMA_EXEC_BIT)) {
+ 		/*
+ 		 * Allow arch to request a preferred minimum folio order for
+ 		 * executable memory. This can often be beneficial to
+@@ -3442,7 +3445,6 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
+ 		 * pad that might exist between sections, which would be a waste
+ 		 * of memory.
+ 		 */
+-		struct vm_area_struct *vma = vmf->vma;
+ 		const unsigned long start = vma_start_pgoff(vma);
+ 		const unsigned long end = vma_end_pgoff(vma);
+ 		unsigned long ra_end;
+@@ -3485,7 +3487,7 @@ static struct file *do_async_mmap_readahead(struct vm_fault *vmf,
+ 	unsigned short mmap_miss;
+ 
+ 	/* If we don't want any read-ahead, don't bother */
+-	if (vmf->vma->vm_flags & VM_RAND_READ || !ra->ra_pages)
++	if (vma_test(vmf->vma, VMA_RAND_READ_BIT) || !ra->ra_pages)
+ 		return fpin;
+ 
+ 	/*
+@@ -3499,7 +3501,7 @@ static struct file *do_async_mmap_readahead(struct vm_fault *vmf,
+ 	 * keep the counter symmetric.
+ 	 */
+ 	if (likely(!folio_test_locked(folio)) &&
+-	    !(vmf->vma->vm_flags & (VM_SEQ_READ | VM_EXEC))) {
++	    !vma_test_any(vmf->vma, VMA_SEQ_READ_BIT, VMA_EXEC_BIT)) {
+ 		mmap_miss = READ_ONCE(ra->mmap_miss);
+ 		if (mmap_miss)
+ 			WRITE_ONCE(ra->mmap_miss, --mmap_miss);
+@@ -3532,7 +3534,7 @@ static vm_fault_t filemap_fault_recheck_pte_none(struct vm_fault *vmf)
+ 	 * scenarios. Recheck the PTE without PT lock firstly, thereby reducing
+ 	 * the number of times we hold PT lock.
+ 	 */
+-	if (!(vma->vm_flags & VM_LOCKED))
++	if (!vma_test(vma, VMA_LOCKED_BIT))
+ 		return 0;
+ 
+ 	if (!(vmf->flags & FAULT_FLAG_ORIG_PTE_VALID))
+@@ -4018,7 +4020,7 @@ vm_fault_t filemap_map_pages(struct vm_fault *vmf,
+ 		if ((map_ret & VM_FAULT_NOPAGE) &&
+ 		    !(vmf->flags & FAULT_FLAG_TRIED) &&
+ 		    !folio_test_workingset(folio) &&
+-		    !(vma->vm_flags & (VM_SEQ_READ | VM_EXEC))) {
++		    !vma_test_any(vma, VMA_SEQ_READ_BIT, VMA_EXEC_BIT)) {
+ 			unsigned short mmap_miss;
+ 
+ 			mmap_miss = READ_ONCE(file->f_ra.mmap_miss);
 
----
-Lorenzo Stoakes (ARM) (11):
-      mm/filemap: convert fault and readahead logic to use vma_flags_t
-      mm/madvise: convert madvise_vma_behavior() to use vma_flags_t
-      mm: convert miscellaneous VMA flag tests to use vma_flags_t
-      fs/proc/task_mmu: convert VMA flag tests to use vma_flags_t
-      fs/coredump: convert vma_dump_size() to use vma_flags_t
-      uprobes: convert VMA flag tests to use vma_flags_t
-      perf: convert VMA flag tests to use vma_flags_t
-      selinux: convert VMA flag tests to use vma_flags_t
-      apparmor: convert VMA flag tests to use vma_flags_t
-      ima: convert VMA flag tests to use vma_flags_t
-      ipe: convert VMA flag tests to use vma_flags_t
-
- arch/powerpc/kvm/book3s_hv_uvmem.c | 10 ++++----
- fs/coredump.c                      | 16 ++++++-------
- fs/proc/task_mmu.c                 | 43 +++++++++++++++++----------------
- include/linux/huge_mm.h            |  4 ++--
- include/linux/ksm.h                |  4 ++--
- include/linux/mm_inline.h          |  2 +-
- kernel/events/core.c               | 26 ++++++++++----------
- kernel/events/uprobes.c            | 12 ++++++----
- lib/test_hmm.c                     |  4 ++--
- mm/damon/vaddr.c                   |  2 +-
- mm/filemap.c                       | 26 ++++++++++----------
- mm/hmm.c                           |  6 ++---
- mm/internal.h                      |  2 +-
- mm/khugepaged.c                    | 10 ++++----
- mm/ksm.c                           |  8 +++----
- mm/madvise.c                       | 49 ++++++++++++++++++++------------------
- mm/mempolicy.c                     |  4 ++--
- mm/mmap_lock.c                     |  4 ++--
- mm/mremap.c                        |  2 +-
- mm/msync.c                         |  4 ++--
- mm/oom_kill.c                      |  4 ++--
- mm/pagewalk.c                      |  2 +-
- mm/vma.h                           |  4 ++--
- security/apparmor/lsm.c            |  2 +-
- security/integrity/ima/ima_main.c  |  2 +-
- security/ipe/hooks.c               |  2 +-
- security/selinux/hooks.c           | 14 +++++------
- 27 files changed, 139 insertions(+), 129 deletions(-)
----
-base-commit: 5bd93e4b0b357e9d0a13199887aacbf04d1ce216
-change-id: 20261101-late-2026-vma-flags-461731a636c3
-
-Cheers,
 -- 
-Lorenzo Stoakes (ARM) <ljs@kernel.org>
+2.56.1
 
