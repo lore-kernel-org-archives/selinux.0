@@ -1,99 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.54
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795528212;
-	b=BGln9+qQ3BVVASeRMMGGDyLLjgezLowkDgMd10cXBcodqgcn0uTOlLPRExIxdrdFKpUS
-	 rspDCxl16/hTcZeiw3ZMPU6wwyl2Mu1oO0vCj0i13PZGzLdpLy7FaECGCgCp+i8IYxYjt
-	 y1tQ4Og48bpiDwxDbcYcaj2/nsEuCSa6ngTa9qvDn/J9Nop2NOX5OUcmmoD+oT3h3CvL0
-	 XsA2kIQCb3w+XDpCh7txG3moIcUyuPMGcAnDCvoPpvD8kc0zfXwYVp2BwMGYiQIbunw6r
-	 opFWuP+SgietPy+jIUcJrABxDmLjyP4AStNGTkBKTHjBaLP3PhoH71aLZMOl18qJRUw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795528212;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=XTPCHg4unEN6vtUDvCIgxfYMZVabwQIC4dv3+3CL15w=;
-	b=p0Uiz+IMFlP2znLrmWMLiu8hYAhOeD/2LTW8Xf6UpIDr+VDVF+S0RG2TWwN4KH10IbEk
-	 8mLVjjvCfbv0Tlaoq0PbBv5gwWlhsP9hfz246XcuKugRcrwEEpDFNd4UVnY//kP855V4v
-	 /G7U3BR58K2XxMxrZmyQ/9/nbxGQeoZPTrxu5gg+D58JghvGZv3sED1wGvlYvyaKms8ux
-	 V7J2CCiVGDnkSVx1oRrtnCBJp+IOEARW0GEIMwisyWsbUYbUjY7pvGLEZR9QyOSQimdnT
-	 aBSDtU7KLWJsKrGm/3CyeJMXSQIviNiMRAHfx0yOlfT0fAB+ioDv1elzMFMUy32GCXQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=googlemail.com;
-	spf=pass smtp.mailfrom=googlemail.com;
-	dkim=pass header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=A8I4Yhd3;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.54
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795529001;
+	b=KjIsdqHtLKBVUHtIMlodUJf5QhJ+6FsyghcOz6j5s9sRk9sxozItb7hAGlx9eR2u+ur1
+	 QvcZ3JzKB2YmOvM1q8sG8yYi4LTIodKAxZbnVvbX6zpEJ4qIYxOLTR+c+Jxed3+RI8zoH
+	 rbLECathytVGxGH1cDl+187UOAcPBcs7MkaUij/JP4C4CyF6Li07jXYFiI/Gw2zwNsWDF
+	 DtlUAIlHxOq6wOEQvc0xviZkuM0YcbP2oQiyILdZqwfP+UggwB3jjjsL9IvGcw/5TU9YA
+	 nQYZz3PRMEjMr8yMIU2P7izbW9kSeooc32ZBt9oiyiAD80IwTMFCJFeCP0UehKmqhWg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795529001;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=Pcp6KuvRcMiXfM74bIVPa/vEkoJOU8lTqnsRQrOb5o4=;
+	b=v8qzabu8kzB+0i3zrTUauqt7incO0C89B5xYYbzjRfxIvXVtlZ4zBDCE0ku7HkWTQjoa
+	 2fFE547UxWlh809/ArnczO3cfWb8TyxbS+0k2CDqpHGIMFFA6U4MZ0g0bp5zydTVOG5LY
+	 J4lPOfFxMKYprX/rLkNuk8aDRnXr2aQOwQJ2aGFm5bnWTYAtNBsBBNxt1mkkbu6CSP8ob
+	 v4K/71DJkE7bf5Cp7tdsA6UZ94fHhTINBOYW2Jr2edYoHGIUHt/GtvjetvOgeuwufL+h4
+	 f9jLvpQ+uwn5jwA2El4StWQDZrYN2WjWsbn+ZvGam/NjB9UMKyyi6kt3NXh2oF7vJHQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m5RF+lzm;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C52606A322
-	for <selinux@vger.kernel.org>; Tue, 24 Nov 2026 13:50:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86C52606A322
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD67606A321;
+	Tue, 24 Nov 2026 14:03:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=A8I4Yhd3
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-490d59c3f0aso2106468f8f.1
-        for <selinux@vger.kernel.org>; Tue, 24 Nov 2026 05:50:12 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795528211; cv=none;
-        d=google.com; s=arc-20260327;
-        b=eAnOB74QvJcdseDEVQZyukdz4u6J6LWzId1S3OUWONBVvR7L4mqVcculzxtKkROLO7
-         jYaybnNK88jgdpKHTuLPPrR5mzJqsXpz1BHzQFwnepb7MqNmeBF6EZGSosHjh6B8dSYm
-         vF3cFQh00sWZIfPyB8kO0mPaO/3yn51+sVjBowQoJsA4mR+pwsLS/FcyHbQ5+AjZZSn4
-         TLVVEm0oIaP6QmGtFvh8rdHtdZL5EmI6RSdpFzAh+R1oI13HFPnrppLxApXOtZzfHqTM
-         reiqS0nduhJTPcL+YffI1VOHk0c2w6oQiDx45gfQg/Kz8Ykwm5yz3SLdTiOZCEpQea5f
-         z5Bg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=XTPCHg4unEN6vtUDvCIgxfYMZVabwQIC4dv3+3CL15w=;
-        fh=sBIn0bfDIFDd2yLO6A5PSzBaKOc6WO2LR3fHdn8gvDM=;
-        b=VjiHxf+XihBNmcljHT2LDXsZw78JDrIWqjGnyQujI27pr+28FVzOtb+SCJ7VNJjC8D
-         c7JQ/KRu96bduV/EYyEJeLCcLKNLkNJe6svFbeltiQs7AYAZGxgs/mzh8ej89WOi9kvK
-         GxhAoRaQx/R58VNauu7Cd8lSAQoHWPDzYuDV7GOXfwQ+G75FNL75hwvGCH702PMKj2E4
-         mVl3UP1RYbVcxgB0XisRrmTn9FXX85gQP76+Rte/FzloH3wQkP9+Mni3opWbxKHAwbc1
-         cPv9RMY7OCZWltjswoq8yiK9n13zLfE+9ra79iDQiJ/yaP3CdICcm289xqrbkdiJP9Zj
-         xpGA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20260707; t=1795528211; x=1796133011; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XTPCHg4unEN6vtUDvCIgxfYMZVabwQIC4dv3+3CL15w=;
-        b=A8I4Yhd3hz3WrVqqp6QMzsDrRJ3HJpUPxahpoSPUafEcj3SFymXcsAZEIf+a8ALG0Y
-         V6s6xA+Ay4lWI9NhS7nxfL6F29mbmiE0uOfCYQxnOZUS20qgiOGqYoApJy9HRpK68tu/
-         HSDE3IpIQJQ4GKB5Z7mVIff3PBnaum/E2gzkgJ+jFNG6YlWz7P5hX0VEOjoFbkoF1lDn
-         8Ndrqr7MabRwOciYR7MGfzUJA7NWdJsl6TU8hPnym7YlbmO7JaMnO34+0kr0IDyXTgzd
-         2RYMtv2kGAXDO2iT8hQ8hVHgIcSefON4ja9k6LVugyoh7mCZfqIgxnZvX+r5RFBAMb5n
-         NOnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795528211; x=1796133011;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=XTPCHg4unEN6vtUDvCIgxfYMZVabwQIC4dv3+3CL15w=;
-        b=LEZJLrrJDhMWbwT5OHiWuFHHoqypoYLP5K7sHWyY/b8+TjWvsfF3kMthJSxJT2I0v2
-         GeoNErQ4L6Z3DwrkD9H/+mCWz56HsavqILSKthswPU579d+rAMc8giSwz3Ln1/sUiVG8
-         Njy072RKjpHjYbS4WIRKm9BuITj7Q9tnJ/rpCNdOW6p/Vix7royC6fGEJEEIWvxw4tFW
-         UcEpD3hzLvncTdTROmN68cqJdTw+7mu3AGSdJR0O6yvyoMTQMWnDHCtKqEUpbJOovAil
-         OjrOQZ58jSlwRCWSpSwYgMyqcLJJZnV+DFAj51RQwvksQQwEjss3lGrLW/ae3DeiJQP+
-         w+jw==
-X-Forwarded-Encrypted: i=1; AL+hErEtjBha4SiYIXzHrS4xYUA3yRePXs3WcbOYE+GIpohGKZLVMCJMS/sooH9ROGa9BOT8i+mpveL/@vger.kernel.org
-X-Gm-Message-State: APuU4Z92ApwwJ/lRDvmzinBh54N4rqQSk0gZL+VjxH+mvl+G/obnlI8x
-	8pKtlBFCPM4ugbI3+dnoeCW3+LDKA0U9P+hc/twCF9zXpnthQThkJI4yqlD0cbSHbSQGaSz7y32
-	dc9oprMrCrofZ/1q7yNtjl/IX043ieM0=
-X-Gm-Gg: AZFdTZdS96rJ7csbkHEX4bLukFqcyH0fKffTbzrEPKjmup5Tq5leIPoHSAbKjHRdi+r
-	Spoj+SbQVGLYsLL+1dpH2J4RQPCykKFARxY900SktESfHVjzAMwTw2v3uohvc89W7g0/5DbAoyB
-	FCtGOsG4+1F/e4xv/i4BKn+Htl2ZsDV2XJ0K7WE+oxnNhHBqWZRTy9Ry4/9BeyLNvWJRu51qVu3
-	s7XyH1bPvBsFcCEpu0CTqKBbGB28m4LqldHPWcQ9LBaGvKK64GIznlR78+x7gJvr3EU4kYhqPbn
-	71APX+n5+eCvRKXO9WPg6fuh/SglUrJKzdJpfq5jZ5l6XoxS5bxLdk9SteVcsu8RNH5SeoFQghn
-	O1Pn6sMYOAd+EANp3dHDw/qtAM+tRvf17yXRgyXn5UV7sG7CPc/+r
-X-Received: by 2002:a05:600c:800e:b0:4bb:7757:fe58 with SMTP id
- 5b1f17b1804b1-4bb8881b9d7mr305306125e9.19.1795528210579; Tue, 24 Nov 2026
- 05:50:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m5RF+lzm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9741F000CF;
+	Tue, 24 Nov 2026 14:03:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795529001;
+	bh=Pcp6KuvRcMiXfM74bIVPa/vEkoJOU8lTqnsRQrOb5o4=;
+	h=From:Subject:Date:To:Cc;
+	b=m5RF+lzmoV0KlfOio0Dl2o69dI4rgtq9fEDM529z18h4bvXVByTYYPIrO3nfq66Al
+	 S7b0xt4Isk2RZvdXlVCnJO2H9ApRMebR+cuuc1Mh6rszX9Zhla035nI0F5C6x/MHLD
+	 XeitIh3tzBgM7PxhrmmkTyrk505660hD/3k2opBfr2SrNPC1Zqxuz4rugypmvl0YHv
+	 L7i+BrNOy0yloakdV4vIbbD9MhDsYIvWUGxQp/CF8ICGFRPZrqEcGhx7b//ugJyzLI
+	 jvC7NpeW/ds4v/oSUDD3cFClNVL2B4axAeKCDrEKLPDhequ6MiNoo2JytLwjxnVOOr
+	 e+11WXxZ6coOA==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH v2 00/13] mm: convert further simple mmap hooks to
+ mmap_prepare
+Date: Tue, 24 Nov 2026 14:02:43 +0000
+Message-Id: <20261124-late-2026-mmap_prepare-v2-0-0b0d99d655f9@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -103,133 +54,132 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
- <20261124-v2_20230123_tjmercier_google_com-v6-6-dce12fa03ad6@redhat.com>
-In-Reply-To: <20261124-v2_20230123_tjmercier_google_com-v6-6-dce12fa03ad6@redhat.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Tue, 24 Nov 2026 14:49:55 +0100
-X-Gm-Features: Aa3M54qkPJ8C4GRzLQzCC_QtBShd4rpGnT89RPbtOkkrzzkAiMVQPjTTZfQmmls
-Message-ID: <CAJ2a_DeDF+9pbLKS9pcX4Tot4xZZ-K7HydKnDjW6TWC5bvREzQ@mail.gmail.com>
-Subject: Re: [PATCH v6 6/7] selinux: Restrict cross-cgroup memcg charging
-To: Albert Esteve <aesteve@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
-	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
-	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
-	Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Shuah Khan <shuah@kernel.org>, 
-	Randy Dunlap <rdunlap@infradead.org>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
-	Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
-	Philipp Stanner <phasta@kernel.org>, airlied@gmail.com, cgroups@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, op-tee@lists.trustedfirmware.org, 
-	echanude@redhat.com, mripard@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/3XNywqDQAyF4VcZsjZlMkUrrvoeRUrUqEO9DBmRF
+ vHdi0KXXZ5/8Z0NoqiXCIXZQGX10c8TFMYlBuqep07QN1AYcNZlRJZw4EXwWDiOHJ5BJbAKWlf
+ nt8ZdyZJAYiCotP59wo8yMdD7uMz6OX9WOuqPTP+RK6HFOs2Ym7biKuf7S3SS4TJrB+W+71+eu
+ Pr9vQAAAA==
+X-Change-ID: 20261101-late-2026-mmap_prepare-02c87d23101e
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ Juergen Gross <jgross@suse.com>, 
+ Stefano Stabellini <sstabellini@kernel.org>, 
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
+ Shrikanth Hegde <sshegde@linux.ibm.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
+ Ryan Chen <ryan_chen@aspeedtech.com>, 
+ Billy Tsai <billy_tsai@aspeedtech.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
+ Scott Branden <scott.branden@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Richard Cochran <richardcochran@gmail.com>, 
+ David Woodhouse <dwmw2@infradead.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: ljs@kernel.org, xen-devel@lists.xenproject.org, 
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+ virtualization@lists.linux.dev, linux-sgx@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-aspeed@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, 
+ op-tee@lists.trustedfirmware.org, netdev@vger.kernel.org, 
+ linux-mm@kvack.org, Kameron Carr <kameroncarr@linux.microsoft.com>, 
+ Michael Kelley <mhklinux@outlook.com>, Jan Kara <jack@suse.cz>, 
+ Abel Vesa <abel.vesa@oss.qualcomm.com>, 
+ Jens Wiklander <jens.wiklander@oss.qualcomm.com>, 
+ David Woodhouse <dwmw@amazon.co.uk>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2820; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=cNcQh1oes+NuXX/SLhNhorMmsomyqOJdE2nbt8XExvk=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLJZZ4rIHtHcwB4V8Hin/yxTxk7PB9MvbI3XXNtvsWVPh
+ GZ0tPrsjlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAEykXpmR4T6L/n7RH25zgz5/
+ uKz5oG9xyJmgPXZrlS4HfLedtXeZAz8jw9ZDvbcNpRcv4J5c+V/n8+cDm1NbX87R834vLWG3KFv
+ 2OzMA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On Tue, 24 Nov 2026 at 14:05, Albert Esteve <aesteve@redhat.com> wrote:
->
-> The security_current_memcg_charge_task() and
-> security_current_memcg_charge_cgroup() hooks allow security modules to
-> control which processes may charge or transfer memcg memory to another
-> process's cgroup, named by a pidfd, or to an arbitrary cgroup named by
-> a cgroupfd, both passed in charge_fd. Without a policy implementation,
-> either hook is a no-op and the restriction is not enforced.
->
-> On SELinux-managed systems the only limit is CAP_SYS_RESOURCE. A
-> domain that holds both dma-heap access (today's only exporter that
-> opts-in) and that capability, can charge memory to any cgroup outside
-> its own subtree. Since the capability is all-or-nothing, SELinux
-> policy cannot express which targets such a domain may charge to.
->
-> Implement both selinux_memcg_charge_task() and
-> selinux_memcg_charge_cgroup() using avc_has_perm() with a new cgroup
-> object class and a new charge_to permission. Both charge_fd flavours
-> ultimately charge a cgroup, so one permission covers them and the
-> target type keeps the distinction: for the pidfd path the target is
-> the referred task's SID, as there is no cgroup object to take a label
-> from; for the cgroupfd path it is the cgroup directory's inode SID,
-> which comes from the genfscon entry for cgroupfs unless the directory
-> is relabeled.
->
-> The checks run when the charge target is resolved, before the
-> CAP_SYS_RESOURCE baseline is evaluated, and apply to every explicit
-> charge_fd target, including the caller's own subtree, so policy needs
-> a rule even for self-charging. Policy authors can then grant
-> cross-cgroup charging selectively, for example:
->
->   allow allocator_app_t client_app_t:cgroup charge_to;
->   allow allocator_app_t cgroup_t:cgroup charge_to;
->
-> Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> ---
->  security/selinux/hooks.c            | 19 +++++++++++++++++++
->  security/selinux/include/classmap.h |  1 +
->  2 files changed, 20 insertions(+)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 6c4c64d6e904..76a714107ae4 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2204,6 +2204,23 @@ static int selinux_capable(const struct cred *cred, struct user_namespace *ns,
->         return cred_has_capability(cred, cap, opts, ns == &init_user_ns);
->  }
->
-> +static int selinux_memcg_charge_task(const struct cred *to)
-> +{
-> +       const struct cred *cred = current_cred();
-> +
-> +       return avc_has_perm(cred_sid(cred), cred_sid(to),
+Continue the conversion of users of the deprecated f_op->mmap callback to
+f_op->mmap_prepare. Keep things gentle this cycle by targeting simple
+cases.
 
-Small nit:
-`cred_sid(current_cred())` could be simplified using `current_sid()`
+No functional change intended.
 
-> +                           SECCLASS_CGROUP, CGROUP__CHARGE_TO, NULL);
-> +}
-> +
-> +static int selinux_memcg_charge_cgroup(const struct file *file)
-> +{
-> +       const struct cred *cred = current_cred();
-> +       struct inode_security_struct *isec = inode_security(file_inode(file));
-> +
-> +       return avc_has_perm(cred_sid(cred), isec->sid, SECCLASS_CGROUP,
-> +                           CGROUP__CHARGE_TO, NULL);
-> +}
-> +
->  static int selinux_quotactl(int cmds, int type, int id, const struct super_block *sb)
->  {
->         const struct cred *cred = current_cred();
-> @@ -7683,6 +7700,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->         LSM_HOOK_INIT(capget, selinux_capget),
->         LSM_HOOK_INIT(capset, selinux_capset),
->         LSM_HOOK_INIT(capable, selinux_capable),
-> +       LSM_HOOK_INIT(memcg_charge_task, selinux_memcg_charge_task),
-> +       LSM_HOOK_INIT(memcg_charge_cgroup, selinux_memcg_charge_cgroup),
->         LSM_HOOK_INIT(quotactl, selinux_quotactl),
->         LSM_HOOK_INIT(quota_on, selinux_quota_on),
->         LSM_HOOK_INIT(syslog, selinux_syslog),
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index 90cb61b16425..1f1f2fc4d35d 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -181,6 +181,7 @@ const struct security_class_mapping secclass_map[] = {
->         { "user_namespace", { "create", NULL } },
->         { "memfd_file",
->           { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
-> +       { "cgroup", { "charge_to", NULL } },
->         /* last one */ { NULL, {} }
->  };
->
->
-> --
-> 2.55.0
->
->
+Build tested on x86-64 (allmodconfig, each patch individually), i386,
+arm64 and ppc64le.
+
+Andrew - could you take this through your tree as it's a kernel-wide
+change?  Thanks!
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+v2:
+* Added tags, thanks everybody!
+* cc'd linux-mm, Andrew.
+* Dropped the vduse patch (was 4/14), as commit bb2e6f166547 ("vduse: fix
+  VA/PA confusion in the coherent page fault path") completely broke the
+  driver and was merged without testing as a hotfix. Conversion can wait
+  for that to get fixed.
+
+v1:
+https://lore.kernel.org/r/20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org
+
+---
+Lorenzo Stoakes (ARM) (13):
+      xen/privcmd: convert mmap hook to mmap_prepare
+      KVM: PPC: Book3S: convert spapr TCE mmap hook to mmap_prepare
+      mshv_vtl: convert mmap hooks to mmap_prepare
+      x86/sgx: convert vepc mmap hook to mmap_prepare
+      udf: convert mmap hook to mmap_prepare
+      selinuxfs: convert mmap hooks to mmap_prepare
+      xen: convert xenstore interface mmap hooks to mmap_prepare
+      soc: aspeed: convert LPC and P2A control mmap hooks to mmap_prepare
+      soc: qcom: rmtfs_mem: convert mmap hook to mmap_prepare
+      tee: convert shm mmap hook to mmap_prepare
+      misc: bcm-vk: convert mmap hook to mmap_prepare
+      ptp: vmclock: convert mmap hook to mmap_prepare
+      vhost-vdpa: convert mmap hook to mmap_prepare
+
+ arch/powerpc/kvm/book3s_64_vio.c        |  6 +++---
+ arch/x86/kernel/cpu/sgx/virt.c          | 15 ++++++++-------
+ drivers/hv/mshv_vtl_main.c              | 14 +++++++-------
+ drivers/misc/bcm-vk/bcm_vk_dev.c        | 20 ++++++++++----------
+ drivers/ptp/ptp_vmclock.c               | 19 +++++++++----------
+ drivers/soc/aspeed/aspeed-lpc-ctrl.c    | 20 +++++++++-----------
+ drivers/soc/aspeed/aspeed-p2a-ctrl.c    | 22 ++++++++--------------
+ drivers/soc/qcom/rmtfs_mem.c            | 22 ++++++++++------------
+ drivers/tee/tee_shm.c                   | 14 +++++++-------
+ drivers/vhost/vdpa.c                    | 23 ++++++++++++-----------
+ drivers/xen/privcmd.c                   | 11 +++++------
+ drivers/xen/xenbus/xenbus_dev_backend.c | 14 ++++++--------
+ drivers/xen/xenfs/xenstored.c           | 14 ++++++--------
+ fs/udf/file.c                           |  8 ++++----
+ security/selinux/selinuxfs.c            | 24 +++++++++++-------------
+ 15 files changed, 115 insertions(+), 131 deletions(-)
+---
+base-commit: 5bd93e4b0b357e9d0a13199887aacbf04d1ce216
+change-id: 20261101-late-2026-mmap_prepare-02c87d23101e
+
+Cheers,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
