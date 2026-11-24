@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795561223;
-	b=FsN+QQAJQd8UU7yWfEm0rE6iDjl8BF0ybQqE6DVSxSPWMvXe6BXdM1ttqC8oinSDJkNo
-	 0vcY/U9Gd4CGQvpsQwtiN5s8GqHVud6Y5timSiUpIbp2DP+tKiFrJckHVEGcX2fcIkjD/
-	 WkkbxFnmovWUCprqlIMvSoB2GpVUmk6/RzZnfihUMlt4Hdpal8lrCnrs6P+qahSmu8en/
-	 zPRQGCcPD9NI0WFXEAulHGRO09aMvczG94lfLtvwbTAEEw7Yjc0q0LiWv1o9ZesRl5KJR
-	 p6VAvLUPRHhs5RJhV+g9+KnYcGeC0izhdsUghNsNGhctJlk2ff26cafUoDWHy5g6p8Q==
+	t=1795561230;
+	b=sBaWEw4by1OETMETIPkjwMyHoa8aPhZMWSfvhIvFX65QBQog6ojnLIIfpOwLjUtA/7QE
+	 RQmGvmglppupEN/MRLudH0j1YIsAbk6XSIRsFen22XzUmiJolCrdHOLfo9gHSCGSdvJ6T
+	 kPFJT4Vvo6azOdkp10z7TVlb7sh99JPDkS03KGqoSl1PaEDkzVify6jJYQJvstH8bONpX
+	 fVvPEv415quE3TWgskgbpxm/4cW85RamMi6xpGevhTuUADF9oYLYoQKT2rqbBc1slXcID
+	 v70ADBVJJfOXVtAEMx5VB2p/BOiu6Xb7YLlpOrVi/84rRoisfFtu9v/EivDd9ZJf79Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795561223;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795561230;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=5wcVGG20arn5AtILXYsS1QLVQzh9zzWUG/JVb/Qxc/E=;
-	b=AcalDLRlfHpuSF8v9gT+hBHw81Y2fPzPaqoWCBFsxpra/Xn57EGASBcSixnKd2iGoTFs
-	 1imrI21XuRwPU1CNwyVOKXg/yENaPvwluQObf6RgHZMOr9J7Lig6f2qE4zf9pTsX+BQkI
-	 YNVeypa4o8/Eh0oRkmLX745PGBAJ5dg19A4FoTip9qSYctI6ObRm0BaKf3d3x6JMOgXvv
-	 hklagHH63KY5yD/IsP1Gff/xiXh+PajObDKtmbSV1GVRBVNjBTi0ddik5POhWNCMXuMtx
-	 9iiCZ+rOcrJDPWYP5zqZhbdGXkr8caawCyHGbGjkgo0l3DLXc7ckFUJXfIATrLrKD5A==
+	bh=EHvZLsq7hnOdbwruvamY5wZBBT+mrqtWqcUuR58rX6E=;
+	b=2nD+YpbMJEX1JVkstmXp5ih/XQ1+hiP8P007cAPXjB78gBTegLcz+ZBrVHwRny5EHX6V
+	 r8P2/etypHctXEEXGuuuz5eygdWMH9AZBTDZq5QLXYRgeOcwaqvlrTvhE/ui8qF42OT/3
+	 qlGAN2HPvAOFZ4SewMLmPYEVCnA3VrTo84JJfz9RiEMj3nLQwb/Cljw2/jY7EiyZVKx64
+	 IdZKRtqzeqWQDuXl8z/KA4ibLSdClENiFl4AiwoXnxw+zfsRxjI7R0VgjMpKo2vi/McIu
+	 tVzCYVGKex2McimcEnNgjLjP+4KNbBezCZnxC4WntaGQm9aE+XdAl+Md1SPS8AuPi+Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=drQoINnV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YiRvZG6T;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CBF0606A31E;
-	Tue, 24 Nov 2026 23:00:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81BD9606A31E;
+	Tue, 24 Nov 2026 23:00:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=drQoINnV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E861F01566;
-	Tue, 24 Nov 2026 23:00:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YiRvZG6T
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85EC01F00A3E;
+	Tue, 24 Nov 2026 23:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795561222;
-	bh=5wcVGG20arn5AtILXYsS1QLVQzh9zzWUG/JVb/Qxc/E=;
+	s=k20260515; t=1795561230;
+	bh=EHvZLsq7hnOdbwruvamY5wZBBT+mrqtWqcUuR58rX6E=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=drQoINnVOrBqHfexqbEvYA54mjyKAoEib0sv0wCWzg9cPAvIlkExX4lM5E1KU+9aq
-	 M1AzvH+frea1crPg9+BkhsXbcfSqtdfSloQ5tC1Eehb2nRGZt2hCnKWbtgSo6T67qK
-	 8TdqUvBVFpLZwGUDWZZBYXsc6FxFN06J+vaBCCJayEHtDub5XbRQ6JcBFmRZOAQSeg
-	 WF1rGIqF0xfM/ZUTJPATESch5gxdicfwjVz7sd0RCtFhNNhsBNQUG1qnLwcFzgXUBS
-	 kR7+Z1Dp1AfpjXNXa8EQzR4x4Mcv6VS8pfFYYj1NhGglz6CapdjxBOrSqkhrOXGnTM
-	 TOh4E+95DiKTg==
+	b=YiRvZG6TgJBgOXVrxFjDs+ksGEIcjXpNrKPbX13/mo9kua/NCHghksmb/JUm1k15y
+	 vH7u1PKWjrZpU+jtK4RA7TvKUAFYbLHNWXX5TvHdyjnSkKkqJ+ut45fLwud0Sug3oY
+	 ep3NQ9Om33EWI7Or/2aZLvcYosHjEP0aexLZ6d6rmQIukr4zngnndFJNNNMRU1gEJU
+	 S+9w/cyBRvtn0zc67zXpCOPcrxc2Mb4lCY8txBTkdiXkZT6Wg3isd/PA9tANYZ0cmp
+	 YUNXw8jKMtfJjFE5wiEO8mDECdcEwURpQHbOTNfyWleaNutC0Au6RlWJmUvVps1ZSy
+	 Tzj/SNfCtk7zw==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 24 Nov 2026 23:58:37 +0100
-Subject: [PATCH RFC 14/19] exec: switch time namespace after dropping
- exec_update_lock
+Date: Tue, 24 Nov 2026 23:58:39 +0100
+Subject: [PATCH RFC 16/19] exit: don't take the mmap lock in exit_mm()
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -55,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261124-work-exec-update_lock-v1-14-e489035395b8@kernel.org>
+Message-Id: <20261124-work-exec-update_lock-v1-16-e489035395b8@kernel.org>
 References: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 In-Reply-To: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 To: Jann Horn <jannh@google.com>
@@ -67,59 +66,64 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  David Hildenbrand <david@kernel.org>, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-04696
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1623; i=brauner@kernel.org;
- h=from:subject:message-id; bh=6xDuRr9GOZ8Vkh8V9ig2bxnMakSdmbVhjN6OQ6k3qL8=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziR0t47uSNEV/4vY3n17blxnJV5slJVYWTC5IWcrBZ
- PLqXmhKRykLgxgXg6yYIotDu0m43HKeis1GmRowc1iZQIYwcHEKwES0tRj+Sh+PS/DKebHpq55C
- mPFXZn7jk1of7TJnqB4zbcgKzrTawfDfvfHbukx2Wds58mU3Ar/fKLh16brBrXdqRxcl3bpw43A
- tFwA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1832; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=Bhh6F2ZX7wE8WDQ567dVS5J6fGn2WThh0ZTBWQRLCj8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziZ1oNb4f4PPk/bPlDfIW195V3LnaGpSntOCxun/6o
+ UAlyUtTO0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACayoYLhnyUjyzGJIuWK2ovq
+ ym0u02R7FtXkvNxjc/p875QPElc3WTMy7GxgmnVfIuBISsfFXWd5bGb2XWkWZ/k1fULguhlBMb/
+ 82AE=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-If the task has unshared its time namespace then exec moves it into the
-new time namespace as it's getting a new mm. That allocates a new
-nsproxy, may take the timens offset mutex and the mmap lock of the new
-mm to switch the vdso data and may drop the last reference to the old
-nsproxy. Currently, all of that happens with exec_update_lock held.
+exit_mm() takes the mmap lock for reading around clearing current->mm.
+That goes back to 2003 (cf. [1]). A coredump took the lock for writing
+and counted every thread that had an mm in mm->core_waiters. An exiting
+thread had to look at core_waiters and clear its mm without the dumping
+thread getting in between.
 
-The time namespace switch isn't tied to the credentials changing. So do
-it after exec_update_lock has been dropped. It still happens before the
-vdso is mapped. Call it after security_bprm_committed_creds() so there's
-no failure between committing the credentials and telling the LSMs about
-it.
+Commit 92307383082d ("coredump:  Don't perform any cleanups before
+dumping core") moved that check into coredump_task_exit() which runs
+before exit_mm(). And commit 0258b5fd7c71 ("coredump: Limit coredumps to
+a single thread group") moved core_state into signal_struct and the
+check under siglock. Since then the lock in exit_mm() doesn't protect
+anything a coredump looks at.
+
+So don't take it.
+
+While at it, drop the comment that calls task_lock() more a memory
+barrier than a real lock. It's the only lock that's left around clearing
+current->mm.
+
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/history/history.git/commit/?id=99365bd4725d431255ff4bdd51fb3dca60c47322
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/exec.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ kernel/exit.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 7b261b0a5f33c..6120310f3fbab 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1232,10 +1232,6 @@ int begin_new_exec(struct linux_binprm * bprm)
+diff --git a/kernel/exit.c b/kernel/exit.c
+index d5e7bc2af804a..38de318a07aaa 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -559,10 +559,8 @@ static void exit_mm(void)
  
- 	bprm->mm = NULL;
+ 	sched_cache_exit_mm(current);
  
--	retval = exec_task_namespaces();
--	if (retval)
--		goto out_unlock_exec_update;
--
- 	me->flags &= ~(PF_RANDOMIZE | PF_FORKNOEXEC |
- 					PF_NOFREEZE | PF_NO_SETAFFINITY);
- 	flush_thread();
-@@ -1334,6 +1330,11 @@ int begin_new_exec(struct linux_binprm * bprm)
- 	 */
- 	security_bprm_committed_creds(bprm);
- 
-+	/* Switch time namespace now that the task has a new mm. */
-+	retval = exec_task_namespaces();
-+	if (retval)
-+		goto out_unlock_cred_guard;
-+
- 	/* Pass the opened binary to the interpreter. */
- 	if (bprm->have_execfd) {
- 		struct file *executable = bprm->executable;
+-	mmap_read_lock(mm);
+ 	mmgrab_lazy_tlb(mm);
+ 	BUG_ON(mm != current->active_mm);
+-	/* more a memory barrier than a real lock */
+ 	task_lock(current);
+ 	/*
+ 	 * When a thread stops operating on an address space, the loop
+@@ -581,7 +579,6 @@ static void exit_mm(void)
+ 	enter_lazy_tlb(mm, current);
+ 	local_irq_enable();
+ 	task_unlock(current);
+-	mmap_read_unlock(mm);
+ 	mm_update_next_owner(mm);
+ 	mmput(mm);
+ 	if (test_thread_flag(TIF_MEMDIE))
 
 -- 
 2.53.0
