@@ -1,184 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795560351;
-	b=bLuuliCOoElgYkO5yWhMh+p/Dmt7hAuOOot84RYbhmBq5XEmX0NtXxJv8p8d0G3PYc/x
-	 cK/uvsUwS7Y/mQpt3T5cTr4JIY6AJ3fhSOlRDBSNVVh62H5u53D8c9ldYYiuf7vOolVK3
-	 uLiKHckPlDZACt4/V9fzpHritlQnn5zKholKHncuHNVGpdkiTgVVoZF4Q+sNhzuuo5tov
-	 +1ZNANJBLRnqvm/K2DdQvYT5dzTdfarkJKQ1T9Inb99OuQleBIraqlwHVDGkgXNz89WFl
-	 nuROW6dEKnpSlGYXZ1dEdAMlEHztLVBGpTcxpUjS1vWLRKG5Nlvc3ZFa7hekOCOhc+Q==
+	t=1795561170;
+	b=huUuWVPRAPty5VNqjvxixdQgGu6z/gxPolq9QA+2qajg6C5WZeLkda00Juvm2kwITMLg
+	 pf6WQvIpygri7GICSq2fg6TP/zMq77YdL5EP/bW+0xNj9bIVvND/ZzPJ6KGhDyrsS81ix
+	 kXQD2kyPnRfPtYCEGRAla8dbz/AF3Fd53+6DAQPIyfKKYb+jM3o1jZmm7jCSzVpPgqShF
+	 cgoaOsik0JRgmOeUSWqC3bNk6pJE8HJaAwmlkMz9O8BSeAecxpCSFPS8vNHtlgO2GWFgz
+	 1t4MaqJH1k2/jpc1Vny9qQ6nKWdFnnA3LE3U0smPx4CHXzZwVAWg9mHVvo7+EYqb/3w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795560351;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Subject:From:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
-	 MIME-Version:User-Agent:X-TM-AS-GCONF:X-Proofpoint-Reinject:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=ZGiGop5d+F8Rtl4gJM+e51darej3tvaxLWXElW4mntw=;
-	b=WTmCkFA9uBWlOnaJqJGM8YlwMiV9gg6kHMAsZkktwzouEhWW4ETMUFfQivtzUBden8Sl
-	 oQ7bzd9qd29qFaidO2ExDO6wM1gtOYjXDeg5QGtl08UVANyYjoUFuqZ2B8e8FXcJnOf4d
-	 AkkOcpkcOhTiBkT4s407SQ0f5sv2oc8gXNIiK7gDKAzecREINtGVOiumGeBab6aq6vr93
-	 3c1BZSrhhV4vr4JuWKNCO/ECfuAmrF2Au/iOcgJ+l3rpHI0cto540g0QbXAZDvPqYn3oq
-	 EGAkm2svUjGn6IxR9VsMhMg8xyZQ2chDW9KJhU4ugp86zlegVryNmbSpDmccNKJmnbQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795561170;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=rmQ2mWQe1HLwl5h32XWTPmN+b/bN2UGjG7wxAGIsjRg=;
+	b=ro/Yg1v2y5MfUsg5mctkdlkZjSCSy4DT28/v4oZAhtYWnY4b0i+RFDU/p+avFyCGRPxa
+	 Cci3rZlqf8HiYzN36xZ5IvsDt32413l8pfz/9+5zHspzBp4Gl1yfLGq1P+JyptdS5CXMW
+	 MjEzdP+aT6XzlQ08D+dVXd4pIYwyGkH2pAe8OF4GmvJ0W195LNZxlHiN0bN55DsNtWAKu
+	 Cu/L9kruHiGy6PGg6C4RYiu2rbN6DTJONAVruLNICadjngWJc7WpchMPHOeUak5Weu3I6
+	 n+OykrL7UFQeRi5EEkM9Z1W+M5OYoUDU7vzBvFUppH7GsJQOm8YTEitpyVyJMCEOmVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=nTvh+C8v;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Fx6VAKSQ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BEE5606A32D;
-	Tue, 24 Nov 2026 22:45:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7BEE5606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BB08606A321;
+	Tue, 24 Nov 2026 22:59:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=nTvh+C8v
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOMZaJD3653444;
-	Tue, 24 Nov 2026 22:43:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ZGiGop
-	5d+F8Rtl4gJM+e51darej3tvaxLWXElW4mntw=; b=nTvh+C8vIj7OYYIXDe5d2R
-	kjD5qV3PLuWeVi06lfK7L2UJEji/0Y0NTNorE2sOm+OZV0abykWH0eDGNBghYJ0X
-	rq2iLVPK+mHk5L80j6FsTx3l+8sZ//o+V5DQlP8WI3upQAwt3HFFUd/psna68+YU
-	1f0SS6s2B0uwnUx5Fbet+kOp1fhhomrUiRev86n5oFeFHEaCz89bG2qaXYanxHkt
-	72GhPgk0UkvUIrOg6jofFdrKRCxRn1TnFQHCx3alMAUuJk8ditj+psJO5dju10fP
-	ZVp+oTdmh2KXNvrOZYqQt4KSurp9qFLtHQQTRoz7RDiHEaL6YTVCV5sjlgTsfu+A
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gv9hk6-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 22:43:47 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOMZNrm2939889;
-	Tue, 24 Nov 2026 22:43:46 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j5kfa00u5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 22:43:46 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AOMhiTQ17891842
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Nov 2026 22:43:44 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2BF575805C;
-	Tue, 24 Nov 2026 22:43:44 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5736D58051;
-	Tue, 24 Nov 2026 22:43:39 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.169.243])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Nov 2026 22:43:39 +0000 (GMT)
-Message-ID: <dfc8eada26ec70fdb802d71d4ade50e52917af26.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 10/11] ima: convert VMA flag tests to use vma_flags_t
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
-        Andrew Morton	
- <akpm@linux-foundation.org>,
-        David Hildenbrand <david@kernel.org>, Jason
- Gunthorpe <jgg@ziepe.ca>,
-        John Hubbard <jhubbard@nvidia.com>, Peter Xu
- <peterx@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jan
- Kara <jack@suse.cz>, Rik van Riel <riel@surriel.com>,
-        "Liam R. Howlett"	
- <liam@infradead.org>,
-        Vlastimil Babka <vbabka@kernel.org>, Harry Yoo	
- <harry@kernel.org>,
-        Jann Horn <jannh@google.com>, Lance Yang	
- <lance.yang@linux.dev>,
-        Zi Yan <ziy@nvidia.com>, Matthew Brost	
- <matthew.brost@intel.com>,
-        Joshua Hahn <joshua.hahnjy@gmail.com>,
-        Byungchul
- Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
-        Ying Huang	
- <ying.huang@linux.alibaba.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Nico Pache
- <nico.pache@linux.dev>,
-        Ryan Roberts	 <ryan.roberts@arm.com>, Dev Jain
- <dev.jain@arm.com>,
-        Barry Song	 <baohua@kernel.org>, Usama Arif
- <usama.arif@linux.dev>,
-        Kiryl Shutsemau	 <kas@kernel.org>, Xu Xin
- <xu.xin@linux.dev>,
-        Chengming Zhou	 <chengming.zhou@linux.dev>,
-        Madhavan
- Srinivasan <maddy@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Christophe Leroy (CS GROUP)"	
- <chleroy@kernel.org>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>,
-        Pedro Falcato <pfalcato@suse.de>, Kairui Song <kasong@tencent.com>,
-        Qi Zheng <qi.zheng@linux.dev>, Shakeel
- Butt <shakeel.butt@linux.dev>,
-        Axel Rasmussen	 <axelrasmussen@google.com>,
-        Yuanchu Xie <yuanchu@google.com>, Wei Xu	 <weixugc@google.com>,
-        Baoquan He
- <baoquan.he@linux.dev>, Mike Rapoport	 <rppt@kernel.org>,
-        Suren
- Baghdasaryan <surenb@google.com>,
-        Michal Hocko	 <mhocko@suse.com>, Leon
- Romanovsky <leon@kernel.org>,
-        SJ Park <sj@kernel.org>, Rakie Kim
- <rakie.kim@sk.com>,
-        David Rientjes <rientjes@google.com>,
-        Alexander Viro	
- <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter
- Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-        Arnaldo
- Carvalho de Melo	 <acme@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Mark Rutland	 <mark.rutland@arm.com>,
-        Alexander Shishkin
- <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ian
- Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        James Clark <james.clark@linaro.org>,
-        Masami Hiramatsu
- <mhiramat@kernel.org>,
-        Oleg Nesterov	 <oleg@redhat.com>,
-        John Johansen
- <john.johansen@canonical.com>,
-        Georgia Garcia	
- <georgia.garcia@canonical.com>,
-        Paul Moore <paul@paul-moore.com>, James
- Morris	 <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Roberto
- Sassu	 <roberto.sassu@huawei.com>,
-        Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>,
-        Eric Snowberg <eric.snowberg@oracle.com>, Fan
- Wu <wufan@kernel.org>,
-        Stephen Smalley	 <stephen.smalley.work@gmail.com>,
-        Ondrej =?UTF-8?Q?Mosn=C3=A1=C4=8Dek?=	 <omosnacek@gmail.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm@vger.kernel.org, damon@lists.linux.dev,
-        linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20261124-late-2026-vma-flags-v2-10-bf3fade93064@kernel.org>
-References: <20261124-late-2026-vma-flags-v2-0-bf3fade93064@kernel.org>
-	 <20261124-late-2026-vma-flags-v2-10-bf3fade93064@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 17:43:38 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Fx6VAKSQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEF01F000C0;
+	Tue, 24 Nov 2026 22:59:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795561170;
+	bh=rmQ2mWQe1HLwl5h32XWTPmN+b/bN2UGjG7wxAGIsjRg=;
+	h=From:Subject:Date:To:Cc;
+	b=Fx6VAKSQToO9Z1hdram1YUO1lEL5Vt1A4K83I+U5OyaiTgBQfNTEQxUXsyJ1IQxgb
+	 IHT6YjJaea2BovBd5acGXlTUQQ88026Z7JTWJutZbpMdWKSogu0RT/hkkScA6kVoST
+	 pbnUMIe93GcaSsv9oGFgEDwvPwdJPJ/+KU1mOJGE/SgQCjMJFP8sC+TgqwMgM5DSR1
+	 tdmU77sDqmOfYcUfn8MJr03VXNILpuzNXB60i30QWHBikWocqq36zaeVcag741ONXD
+	 cm9I9GJyDeMz8vFUV6FnN4fRRA/uDEUJ6ibotoWcsRjrxbxQC0fRL6erYnbH9jHGz1
+	 Yk93YFfq3nxBw==
+From: Christian Brauner <brauner@kernel.org>
+Subject: [PATCH RFC 00/19] exec: move sleeping work out of exec_update_lock
+Date: Tue, 24 Nov 2026 23:58:23 +0100
+Message-Id: <20261124-work-exec-update_lock-v1-0-e489035395b8@kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -188,44 +53,135 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Evolution 3.58.3 (3.58.3-2.fc43) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b061323 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=TGgUVIJ8l62jgltsAYIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDA4OSBTYWx0ZWRfXwDA9Nt+nzQXw
- 9KrWXP5B8HLKCLWjlN02XC/5HPXZXxZsTDWoRUxxxW6lQ3FZ8mC11QweKx47A+E9TdWAwk1cOug
- sFMAIkU09NA25vt8l/0xpra1E7Xg8fo=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDA4OSBTYWx0ZWRfX4lLDXZnSTgup
- AU6qwfIygRxvBGLVJ3VZuQ2vQEBroYM2OKsmMQ6snD+HV9RnWCzLaKuCqDXutrOsby4RCqqg8UJ
- SsfKlMMH8F6LVUCaD8RR7BbuIv+XPhpBSBnxZCeknTuXXJDVTvAR7Bw2DoNd6JzHNA2XjuKWSrp
- iL316AsRfmGY6o+l/cAaLYZIXE7x6iJkdIeU9Xa9YYSKxK4wx5aTChW46MaOuudWvgAZYAVQihK
- hcYBFyGorat/+d6x133HD2fjjxCW3NKbBTBFkPlIA6ogQ5ppIKZJ8DQQSBJSbHsjOktIZZ+Cj7X
- mzfjG7/063RQmfm4E4SrHYYm3CQqMMeMfyQ5SdtF17YNLbsI9YFOWCzWTVlt2R0isDZVBVmjkpQ
- UMBNWVaSYOQFsWxeiCTAouBAmMoQAuODDconbgEa0DcV6dCu4ZFfBblcKeOY2QAAEdZQXJKIinC
- 3AkZuP9U1m6cGZIvVNw==
-X-Proofpoint-ORIG-GUID: TZok2wQxCK2m2X0K2LNljqKg3jP9hqoK
-X-Proofpoint-GUID: JKZjqjFSjC84u0cIzqrZZyhq1-jp0JkF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-24_06,2026-11-23_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1011 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611240089
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/03MzQrCMBAE4Fcpe3ZDEoqKV8EH8Coi+dnaWGlK0
+ mqh9N3N6sXjDDPfAplSoAyHaoFEr5BD7EtQmwpca/o7YfAlg5Z6q5SW+I6pQ5rJ4TR4M9LtGV2
+ Hu6a25GRt/V5B+Q6JmjB/3QucT0e4/so82Qe5kUWeWZMJbTK9a7liW7At/mzBI1jXD6SXPUOrA
+ AAA
+X-Change-ID: 20261120-work-exec-update_lock-7f4bec04bd81
+To: Jann Horn <jannh@google.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
+ linux-fsdevel@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ linux-perf-users@vger.kernel.org, bpf@vger.kernel.org, 
+ selinux@vger.kernel.org, Kees Cook <kees@kernel.org>, linux-mm@kvack.org, 
+ linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com, 
+ David Hildenbrand <david@kernel.org>, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, stable@vger.kernel.org
+X-Mailer: b4 0.17-dev-04696
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5297; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=iICEnBMyaYbDfJP4wFkUJlvvreRE2YBrucPLrqy5+d4=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSziW3dMkEwIPUaF2OUU+SUnyK7/xpU2F6fv9C7YM0VF
+ a3Hb/+wdZSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEzE4gsjw4rwP3OWSQvXC4qV
+ 38qqd9RquDKj/eVhNo6onCmJJVO71zMyzI0te2gQqm3dH74xld1aVE1pzS+r+h87GQT9HObxmPS
+ yAQA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Tue, 2026-11-24 at 17:08 +0000, Lorenzo Stoakes (ARM) wrote:
-> Replace use of the legacy vm_flags_t flags with vma_flags_t values in the
-> IMA mprotect LSM hook.
->=20
-> No functional change intended.
->=20
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> Reviewed-by: Lance Yang <lance.yang@linux.dev>
+I've been massaging exec quite a bit to move a bunch of stuff around
+and get rid of a lot of sleeping work out of that path or at least move
+it out from precious locks that are used for access checks.
 
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+This is another round I plan to upstream. The gist is that we're relying
+on exec_update_lock in a bunch more places now and we've been
+willy-nilly moving stuff beneath that lock for a while. That's not
+sustainable. We need to clean that up and really only do the absolute
+minimum of work under that lock to avoid stalling tasks indefinitely
+just because stalls an exec. It's also just good hygiene because it's
+getting really hard to understand what that lock really protects.
+
+I've spent some time playing with various patches. Some of them went out
+independently. This is another core chunk:
+
+* proc_ns_readlink() copies the link to userspace with the lock held.
+
+* kcmp(KCMP_EPOLL_TFD) copies the epoll slot from userspace with the
+  lock of both tasks held and then waits for the epoll mutex which
+  epoll_wait() holds across a page fault.
+
+* perf_read() and perf_ioctl() copy to and from userspace with the mutex
+  of the perf context held. perf_event_exec() takes that mutex with
+  exec_update_lock held.
+
+* SELinux ignores a failing replace_fd() when it revokes inherited files
+  during exec.
+
+* A vfork() parent is woken up in exec_mmap() but a child that shares
+  its signal table with the parent only gets a private one after that.
+
+* SELinux and AppArmor revalidate the inherited files from the
+  bprm_committing_creds hook, i.e., with the lock held.
+
+* Move the time namespace switch out of the lock. It doesn't need it.
+
+* Drop the lock right after the new credentials are committed instead of
+  in setup_new_exec().
+
+* Don't take the mmap lock of the old mm in exec_mmap().
+
+* Look up the vma for a link in /proc/<pid>/map_files without
+  exec_update_lock held.
+
+While at it, don't take the mmap lock in exit_mm() either. It's the same
+leftover. A vfork() child that exits without having exec'ed waits on the
+mmap lock of the parent it has just woken up.
+
+* A vfork() parent is woken up before the child has left the mm, in exec
+  as well as in exit.
+
+What's left under the lock that can block is the hardware breakpoint
+flush in flush_thread(), perf_event_exec(), perf_event_exit_task(), the
+allocation in set_cred_ucounts() and a sleepable bpf lsm program on the
+bprm_committing_creds hook.
+
+The perf ones still take the mutex of the perf context but perf_read()
+and perf_ioctl() don't sleep in a page fault with it held anymore.
+
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+Christian Brauner (19):
+      proc: copy namespace link after dropping exec_update_lock
+      kcmp: look up epoll target without exec_update_lock held
+      perf: copy counter values after dropping ctx->mutex
+      perf: copy ioctl arguments without ctx->mutex held
+      selinux: close inherited files that can't be replaced
+      exec: move unshare_sighand() before exec_mmap()
+      selftests/exec: test exec with a task sleeping in a page fault
+      selftests/exec: test exec with a shared signal table
+      lsm: add security_bprm_revalidate_files()
+      bpf: mark bprm_revalidate_files as sleepable
+      selinux: revalidate inherited files before taking exec_update_lock
+      apparmor: revalidate inherited files before taking exec_update_lock
+      exec: drop exec_update_lock after the credentials are committed
+      exec: switch time namespace after dropping exec_update_lock
+      exec: don't take the mmap lock of the old mm
+      exit: don't take the mmap lock in exit_mm()
+      proc: look up map_files vma without exec_update_lock held
+      vfork: wake up the parent once the child has left the mm
+      selftests/exec: test when a vfork() parent is woken up
+
+ fs/exec.c                                        |  81 ++--
+ fs/proc/base.c                                   |  68 ++-
+ fs/proc/namespaces.c                             |   7 +-
+ include/linux/lsm_hook_defs.h                    |   1 +
+ include/linux/sched/mm.h                         |   4 +-
+ include/linux/security.h                         |   5 +
+ kernel/bpf/bpf_lsm.c                             |   1 +
+ kernel/events/core.c                             | 138 +++---
+ kernel/exit.c                                    |  10 +-
+ kernel/fork.c                                    |  24 +-
+ kernel/kcmp.c                                    |  72 ++-
+ security/apparmor/lsm.c                          |  23 +-
+ security/security.c                              |  27 +-
+ security/selinux/hooks.c                         |  22 +-
+ tools/testing/selftests/exec/.gitignore          |   3 +
+ tools/testing/selftests/exec/Makefile            |   6 +
+ tools/testing/selftests/exec/config              |   3 +
+ tools/testing/selftests/exec/unshare-sighand.c   | 236 ++++++++++
+ tools/testing/selftests/exec/update-lock-fault.c | 547 +++++++++++++++++++++++
+ tools/testing/selftests/exec/vfork-mm.c          | 363 +++++++++++++++
+ 20 files changed, 1480 insertions(+), 161 deletions(-)
+---
+base-commit: 666539eecdf4db623f5e3c3e55cf9f2dfad24aa4
+change-id: 20261120-work-exec-update_lock-7f4bec04bd81
+
