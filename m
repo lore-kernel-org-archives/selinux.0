@@ -1,70 +1,120 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795611929;
-	b=Swfw724AGlse4zh5uUkeb7e3/BfrFjegftowpqPntJiTX+pJ+snXvrXzZZHDrnJ/1zNM
-	 rfbs7zMEW14BP1mQzZSCDnMtwKAGthFgQa82pvVE3VOqCDWhF+PbgpbrPKDCRi+BCIdVV
-	 yN9nbvp2WlBk+SufIe7kERxwBMd7LpKIiPdytTrCiwidlKC1AZNKwWOyfNXzqxr4rykTc
-	 ckkTJCQq4OOIM39pEeExIojx73kXLnces6pcXT9FmTd02OKd9KzkLBeNphZ4h/GLTQtW7
-	 hQvTGr2AqBKLbDa//Tk21G9U+gkLlPO22/U+53pkgX0esDFr3KnORCcEQ3k3iNgAR2g==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795611929;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=yVX4Z3Av7ryf3LrYZitag57whdLEpy0ywu2taML45gM=;
-	b=r2UJCqQckgxTezQFQlYbBV6zA9Mrr18xyqtPl7cOYVB6iinlv0MoibNiXFhf3kSK85Z/
-	 Fkuy7Et6tIgtC5arI9CUB7f8KQS/nnOONmPTN1HG30MQMHI6BHAeGaKIyGFhNoKfMnSgM
-	 lbhdnGp+BGfw3Xei9qd5Vf/IuopKWUTTqW3AzqiUeiGATl78p8V7HDf9HIhlb4+PFdvUT
-	 Ww2DOzjt1+woZ3bWUC0lWVni3wsfIJqaZbk6ENPqjbIoNQCKziNn2XmKBv0vqci9uAhkb
-	 /e6MDcu9pV2iPKeMKleeiCSbT4t8qgPw7W40VVQI/H0bym6Eyhr9GQUSCXbgTAUi1tw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ktH/Sfpu";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795623257;
+	b=ysaLRMpl54ZQWGnu4ZAFVt4LpIzm99sZiQc38HVHuCckHpS+0nQPdmkCyEph5ZSDrEyb
+	 P2RwwUfjQfZ3YZB0zCGfSS35uAEnbk4KJTR1QfihhNhZ1RRk9HmIwrrG+VvzXT0WU9KA2
+	 4tbJrUOGC99+hwYrlSS+tkJq25E5c2YLEkRCMKW4fUHh/7zZ4Lco7aCshg2jpq81Ji7dy
+	 HNImzWBfGV8B5bBUXEbKoTMX+SDZ+2sdRFvcvk4+fmhBENT/4J/nFsbn3RP8FyqzMqFUX
+	 qvB57dm+bpEZ32mX/DOOMBVd5hH3XUk/zRWnInAweK3loELXQ3zra4wqrLxGlJ3ApOQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795623257;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=LdER2mkFO0wbjr2+rc/aRUmp4/Sc5QyLtaG22Ye9JSE=;
+	b=Pzo7PAtxTFaNip47iPzp3II3bp2GwMx7L3I7vB0FhlxDGYgW8Uu6qQIs/ZEQ0L7sDDs5
+	 fBy6UeqDGIFXgCAudPVObDTMtggDmEUYpdYKCW6ew5cEngOZznKUfU7+jO/ZdH2qe1X+E
+	 /p7YOTB3Kawa3Wgp+MnN+Yy/GbxmBRTaX1qXlS8TbWvJjr8KS8CfI0jpyDNUyBUsNbLVG
+	 ipIP4gQogU9KmxIq943LJ7zKauPzYFuN2hsknJCJa/C6oSL4LV8h4ywSTTmBAmyrUg3u4
+	 XuXJDlfsnu1RI19Q4t18r29FaPPduibRwMYDJiwvK1fxIicxTOZgTIc7MoXUHJyRwrg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtOFRBsC;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=UxmZrKKV;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239C8606A329;
-	Wed, 25 Nov 2026 13:05:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B5F606A327
+	for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 16:14:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60B5F606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ktH/Sfpu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C071F000C0;
-	Wed, 25 Nov 2026 13:05:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795611928;
-	bh=yVX4Z3Av7ryf3LrYZitag57whdLEpy0ywu2taML45gM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ktH/SfpunRXeT5zhR2dhHk+SUijyNgYhqdbNDA+/vCr1uelXzxHG/fKzVW7++5xli
-	 fWf6Rhvy9ACSMIP779/1E8qr4WQ8w4gP+yrpgkFlySmBtoX0zZtbRjpBf+l+AHsZfp
-	 okwt56Uy+bQaMXe5mhRcR355F+5I2VD/cjGyWTlB5ACAfJx/LEIx2qBxWsThIlI9P5
-	 Hk1U+jfVMg3rtLglt7jY56D43XFWBdlUW/ORxoA6GY/wFSzTuuqdNNKApUTGkW+ijQ
-	 7eRaPy/29Q3q3qbWQnQ1cqDPJr6mjeSR8FIrFbJ/XdVB4f6WZyvhYfNqbmm4u4++mq
-	 SgSVN16/1gUPA==
-Message-ID: <sashiko-outbox-233449@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 7/7] selftests/dmabuf-heaps: Add dma-buf memcg
- accounting tests
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
- Weiner" <hannes@cmpxchg.org>, =?utf-8?b?TWljaGFsIEtvdXRuw70=?= <mkoutny@suse.com>, "Jonathan
- Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>, "Sumit
- Semwal" <sumit.semwal@linaro.org>, =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Michal
- Hocko" <mhocko@kernel.org>, "Roman Gushchin" <roman.gushchin@linux.dev>, "Shakeel
- Butt" <shakeel.butt@linux.dev>, "Muchun Song" <muchun.song@linux.dev>, "Andrew
- Morton" <akpm@linux-foundation.org>, "Benjamin Gaignard" <benjamin.gaignard@collabora.com>, "Brian
- Starkey" <Brian.Starkey@arm.com>, "John Stultz" <jstultz@google.com>, "T.J.
- Mercier" <tjmercier@google.com>, "Christian Brauner" <brauner@kernel.org>, "Paul
- Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>, "Serge E.
- Hallyn" <serge@hallyn.com>, "Stephen Smalley" <stephen.smalley.work@gmail.com>, "Shuah
- Khan" <shuah@kernel.org>, "Randy Dunlap" <rdunlap@infradead.org>,
- =?utf-8?b?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, "Jens Wiklander" <jenswi@kernel.org>, "Sumit
- Garg" <sumit.garg@kernel.org>, "Philipp Stanner" <phasta@kernel.org>
-Cc: airlied@gmail.com, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, echanude@redhat.com, mripard@kernel.org, media-ci@linuxtv.org
-In-Reply-To: <20261124-v2_20230123_tjmercier_google_com-v6-7-dce12fa03ad6@redhat.com>
-References: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
- <20261124-v2_20230123_tjmercier_google_com-v6-7-dce12fa03ad6@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 13:05:26 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtOFRBsC;
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=UxmZrKKV
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795623256;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LdER2mkFO0wbjr2+rc/aRUmp4/Sc5QyLtaG22Ye9JSE=;
+	b=UtOFRBsCKAK3E8Bsu3A8rziiu4/aqAhE/qioSN+enl9xu6asu7MYmZxBpWnwgM6JAJ10eH
+	GeuaMt0x+rQF7dmkSzy8byorSs4CqhqwSkdzDKJ4NU36OhlMRXg42v6WqTsD7ri9JlJGwU
+	zmrSWBx/pnkzJtxscC6RhgstvSiYf98=
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
+ [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-427-ZrcFP-qtMqOcH4pkTfkgbA-1; Wed, 25 Nov 2026 16:14:14 +0000
+X-MC-Unique: ZrcFP-qtMqOcH4pkTfkgbA-1
+X-Mimecast-MFC-AGG-ID: ZrcFP-qtMqOcH4pkTfkgbA_1795623253
+Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-466d41a1d9aso4653790fac.0
+        for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 08:14:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795623253; cv=none;
+        d=google.com; s=arc-20260327;
+        b=USbVfHfuoW48XiHNW5fSxm76p64iRYOnSGuL/kG04s/65LkPaA+X1StuGx5VWRAaRE
+         anN0oyJMQevMiXQa4kX+m5Y6iFd1IEbySGYyV/12au0J/t8jG7sJtjxFBQwGYDPxHTs9
+         EYEJSxTMnITfKf6spZONY16In/0stc5xAb2VTqsXLbj7FV4nKAnksB7tIcGVIAETHcus
+         ImlsT2X7cclhAFPCrgL1qN3wBjJ5cY7v9WIx6kz7V66s3sBF45aq9Xz6m4gLVBcvb3sD
+         wzKpbeL4c2AzhjT7MQT7J6/LB5+LmFdiKAgc8LCBe2yrSSViPgjKrOgMW5acaKjyrzfA
+         79DA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=LdER2mkFO0wbjr2+rc/aRUmp4/Sc5QyLtaG22Ye9JSE=;
+        fh=EWTv21nbt5uYfCQquaG6h6y6mMCiZLg/oxgMTxIWjvg=;
+        b=cj0/txR840M99iEGc/3we+FqkWTHg/uckBtWTMOmdp4X45oMmVI//roq6irQAxl9Yl
+         l+V8h5jwRuB2wdFPUz8Hy8Vg1hEKm+KgX1cwfyJfgJdNc2ZkcnXAE8e/BHKU8s+JpNWn
+         qwUtRy63fBYLiPfAhBJrvaudJj5vY1lxMlDmwj0mNRLwYDYIP/9tGvy58wH2cDFRWBbj
+         6aw+exngvYP9jRK1/Fgv0n4lK5JUyteALJGQsBPUOf1ePRULKR68K+VlV30SmUkuCUUi
+         tCRffeRlWCKzn5t/32KlboZqOBkihtZYd6h4mFmPcdThKza2BTvq2dPp/7EHCEBme2yf
+         dZjg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1795623253; x=1796228053; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=LdER2mkFO0wbjr2+rc/aRUmp4/Sc5QyLtaG22Ye9JSE=;
+        b=UxmZrKKVwpc7Ifjhgcwfbnh74jhK+FA6wb827H5B4BYFClrIb6lbtCSfI8ljBfL9xP
+         Jfx2oEuiRXCVKfXG5qi7+8tVko8Q0uLSMqzNK57H3+tORohI7SxdmLBl3E/6fp6+AsDh
+         OubKdx3VNOQgN5svXB9Rg/A+gS+IHr7PL5sE/V3shAThkfa6L/NUOeFQnh99irSkM7Mu
+         0pbtfh5yxX2ahRmdtOOarw28CBOPyHnZBXs+hdyY6rPUGLeguSNMJ6kq6oXS6VDIR4xE
+         d3+HFlG6vePkGLUZjBUMjZgx/JpwvxG0GBYP7XSY45OOntUhRBFa8XTpk0fbv35m1x1H
+         QrqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795623253; x=1796228053;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=LdER2mkFO0wbjr2+rc/aRUmp4/Sc5QyLtaG22Ye9JSE=;
+        b=atknsISMeSL9vnoKdKMPbsq+VYMY4JaASKzH+E5g6Ii7qrclIPQNg82wlv9uQh7dJ/
+         K0dj8r79aQQdEMXsHFozBaFX0KSxS+YV8bLCis688KcmWJ3ZerqYqpQvos6DfCsEI1Mr
+         zkjHW8AU5jy4IpxwfS0R94gVviPU6g7w1PxaO7IiOu/i3Vxll3byySdajA3hyJbyrRvl
+         X5WpAWEMnsKMozsednfZdJZXyQXPNAR/TkFkSstd0mgda0GPXV0Qz+Hn+STuUAIywsTU
+         bmBinWFWQy9Jx6E4aTbxs5JI+J+bu839hpHBDP+++coqte4xAec0Vdx8yOyi6TiYX92R
+         5nzQ==
+X-Forwarded-Encrypted: i=1; AL+hErEmPggnlaJaaYgXp3+MIcmB+GcehleZtrQlXrAkpdJ/FFm3OeUDsvGapewV2mh0Bo8WXhcvK0XK@vger.kernel.org
+X-Gm-Message-State: APuU4Z9uUAgdg6oIr5FiKVVJr7w5zWoEaA3U4ta78zuThhVQDOMPL6uC
+	1COBpcn6j6EHM5bXIG5Yrqh2qHkj95FcJTg2EmKImam5dpgwvYwukuikMs4Qbf/WCnslquwbpHx
+	AFM9thWCI2jN3SVhdQWKmCkLun9e0Rv7OqoIqxvzubqC32rFzH+F3NTEJOGmybeVMgfEa9Gl4uR
+	Z3s9A2jxdvLtaqQp28YX2+BAEKcEECMKt83Q==
+X-Gm-Gg: AZFdTZerfDJFIXGv1Rre9aa7IZIJK9X7NxLVWo3oiB1xbkfRLEoGfZIPKrYD7Xe45N/
+	v8rD7bZK3Y4Xj1Ap0quB6Nb9vYrDh5YSBAtn5OLb3b0U41O4fjOFRU3pIYYXiaeyBEf0etlq2Tu
+	jjIUvacy4Z1uVWhRxQciU070IHMZmXJlv4ld5gxyoH7ZQUDFWMf9+CCMYk
+X-Received: by 2002:a05:6808:c3cb:b0:577:2888:47b3 with SMTP id 5614622812f47-57a0ac33d63mr20058847b6e.44.1795623253365;
+        Wed, 25 Nov 2026 08:14:13 -0800 (PST)
+X-Received: by 2002:a05:6808:c3cb:b0:577:2888:47b3 with SMTP id
+ 5614622812f47-57a0ac33d63mr20058815b6e.44.1795623252854; Wed, 25 Nov 2026
+ 08:14:12 -0800 (PST)
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -73,277 +123,147 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
+ <20261124-v2_20230123_tjmercier_google_com-v6-2-dce12fa03ad6@redhat.com> <sashiko-outbox-233444@kernel.org>
+In-Reply-To: <sashiko-outbox-233444@kernel.org>
+From: Albert Esteve <aesteve@redhat.com>
+Date: Wed, 25 Nov 2026 17:13:58 +0100
+X-Gm-Features: Aa3M54qC4BhV46Zvi5xNNVUyWvQwOqnECHDuj67-iKiUZ4P0AUQ6JhGMrN001Kw
+Message-ID: <CADSE00KEAYZ+saAoTY81VNhNyevsWFD_nSDNgsPVfvvLBsE5vQ@mail.gmail.com>
+Subject: Re: [PATCH v6 2/7] dma-heap: charge dma-buf memory via explicit memcg
+To: sashiko-reviews@lists.linux.dev
+Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+	Andrew Morton <akpm@linux-foundation.org>, 
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
+	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
+	Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Shuah Khan <shuah@kernel.org>, 
+	Randy Dunlap <rdunlap@infradead.org>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
+	Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
+	Philipp Stanner <phasta@kernel.org>, airlied@gmail.com, dri-devel@lists.freedesktop.org, 
+	linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, 
+	echanude@redhat.com, mripard@kernel.org, media-ci@linuxtv.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 9 potential
-issues to consider:
-- [Medium] selftests/cgroup: test_memcg_dmabuf_xfer_at_limit() misses
-  skip checks
-- [Medium] selftests/cgroup: dmabuf tests read memory.stat below rstat
-  flush threshold
-- [Medium] selftests/dmabuf-heaps: pidfd_alloc_supported() mishandles
-  disabled memcg
-- [Medium] selftests/dmabuf-heaps: open_self_cgroupfd() misses memory
-  controller check
-- [Medium] selftests/dmabuf-heaps: check_deps() runs before
-  handle_build() in vmtest.sh
-- [Low] selftests/cgroup: child_cg leak on cg_create() error in
-  test_memcg_dmabuf()
-- [Low] selftests/cgroup: unused MEMCG_SOCKSTAT_WAIT_RETRIES macro in
-  test_memcontrol
-- [Low] selftests/dmabuf-heaps: make_runner() omits
-  test_memcg_dmabuf_dead_cgroup
-- [Low] selftests/dmabuf-heaps: vmtest.sh creates TMP_DIR before setting
-  EXIT trap
---
+On Wed, Nov 25, 2026 at 2:05=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Low] mm: memcontrol: task_css() race with migration in
+>   get_obj_cgroup_from_fd()
+> --
+>
+> commit 62e5304eba9bb9d84f6229eddf1a9273649483b8
+> Author: Albert Esteve <aesteve@redhat.com>
+>
+> dma-heap: charge dma-buf memory via explicit memcg
+>
+> This commit adds a charge_fd field to struct dma_heap_allocation_data so
+> DMA_HEAP_IOCTL_ALLOC can resolve a target cgroupfd or pidfd via
+> get_obj_cgroup_from_fd() and charge system heap allocations to that
+> cgroup.
+>
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index e4a9af2fdaa3b..7826bc21bea9e 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> [ ... ]
+> > @@ -3171,6 +3172,88 @@ struct obj_cgroup *get_obj_cgroup_from_folio(con=
+st struct folio *folio)
+> >       return objcg;
+> >  }
+> >
+> [ ... ]
+> > +struct obj_cgroup *get_obj_cgroup_from_fd(int fd)
+> > +{
+> > +     struct cgroup_subsys_state *css;
+> > +     struct obj_cgroup *objcg;
+> > +     struct mem_cgroup *memcg;
+> > +     struct task_struct *task;
+> > +     unsigned int pidfd_flags;
+> > +
+> > +     if (mem_cgroup_disabled())
+> > +             return ERR_PTR(-EOPNOTSUPP);
+> > +
+> > +     CLASS(fd_raw, f)(fd);
+> > +     if (fd_empty(f))
+> > +             return ERR_PTR(-EBADF);
+> > +
+> > +     css =3D css_tryget_online_from_dir(fd_file(f)->f_path.dentry,
+> > +                                      &memory_cgrp_subsys);
+> > +     if (!IS_ERR(css) && !cgroup_on_dfl(css->cgroup)) {
+> > +             css_put(css);
+> > +             css =3D ERR_PTR(-EBADF);
+> > +     }
+> > +
+> > +     if (IS_ERR(css)) {
+> > +             if (PTR_ERR(css) !=3D -EBADF)
+> > +                     return ERR_CAST(css);
+> > +
+> > +             /* fd is a pidfd */
+> > +             task =3D pidfd_get_task(fd, &pidfd_flags);
+> > +             if (IS_ERR(task))
+> > +                     return ERR_CAST(task);
+> > +
+> > +             rcu_read_lock();
+> > +             css =3D task_css(task, memory_cgrp_id);
+> > +             put_task_struct(task);
+> > +             if (!css || !css_tryget_online(css)) {
+> > +                     rcu_read_unlock();
+> > +                     return ERR_PTR(-ENOENT);
+> > +             }
+> > +             rcu_read_unlock();
+> > +     }
+>
+> [Severity: Low]
+> Can the pidfd lookup in get_obj_cgroup_from_fd() spuriously fail with
+> -ENOENT when the target task is concurrently migrated or has an exited
+> thread-group leader?
+>
+> Between task_css() and css_tryget_online(), the task can be migrated to
+> another cgroup and its previous cgroup offlined, causing the one-shot
+> css_tryget_online() on the stale css to fail.  Also, pidfd_get_task() on
+> a process pidfd returns the thread-group leader, which in a
+> multi-threaded process may already have PF_EXITING set and remain
+> attached to an offline css even while its obj_cgroup has been reparented
+> to an online ancestor that get_obj_cgroup_from_memcg() walks up to:
+>
+> include/linux/cgroup.h:task_get_css() {
+>         rcu_read_lock();
+>         while (true) {
+>                 css =3D task_css(task, subsys_id);
+>                 /*
+>                  * Can't use css_tryget_online() here.  A task which has
+>                  * PF_EXITING set may stay associated with an offline css=
+.
+>                  * If such task calls this function, css_tryget_online()
+>                  * will keep failing.
+>                  */
+>                 if (likely(css_tryget(css)))
+>                         break;
+>                 cpu_relax();
+>         }
+>         rcu_read_unlock();
+>         return css;
+> }
 
-commit 65b17f139f560196804a32a9dffe9eb0a344be15
-Author: Albert Esteve <aesteve@redhat.com>
+Valid. I will apply this for the next version.
 
-selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+>
+> Using task_get_css(task, memory_cgrp_id) before put_task_struct(task)
+> would avoid both failure modes.
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-v2_20230=
+123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com?part=3D2
+>
 
-This commit adds selftests for dma-buf memcg accounting via charge_fd and
-DMA_BUF_IOCTL_XFER_CHARGE in dmabuf-heaps and cgroup/test_memcontrol, along
-with a virtme-ng test runner script and config fragment.
-
-> diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/tes=
-ting/selftests/cgroup/test_memcontrol.c
-> index bb673012dcf08..f612726bd9af7 100644
-> --- a/tools/testing/selftests/cgroup/test_memcontrol.c
-> +++ b/tools/testing/selftests/cgroup/test_memcontrol.c
-> @@ -27,6 +34,13 @@
->  #define MEMCG_FLUSH_BYTES	\
->  	(2 * sysconf(_SC_PAGESIZE) * MEMCG_CHARGE_BATCH * get_nprocs())
-> =20
-> +#define DMA_HEAP_SYSTEM		"/dev/dma_heap/system"
-> +#define ONE_MEG			(1024 * 1024)
-> +
-> +#define MEMCG_SOCKSTAT_WAIT_RETRIES        30
-
-[Severity: Low]
-MEMCG_SOCKSTAT_WAIT_RETRIES was removed by eb69e955de7b ("selftests:
-cgroup: make test_memcg_sock check flushed sock stats") and has no users.
-Was it re-added here by mistake during a rebase?
-
-> +#define MEMCG_DMABUF_WAIT_RETRIES          30
-> +#define MEMCG_DMABUF_DEAD_WAIT_RETRIES     80
-> +
->  static bool has_localevents;
->  static bool has_recursiveprot;
->  static int page_size;
-> @@ -1797,6 +1811,417 @@ static int test_memcg_inotify_delete_dir(const ch=
-ar *root)
->  	return ret;
->  }
-> =20
-[ ... ]
-> +static int test_memcg_dmabuf(const char *root)
-> +{
-> +	char *parent =3D NULL, *child_cg =3D NULL;
-> +	int ret =3D KSFT_FAIL;
-[ ... ]
-> +	child_cg =3D cg_name(parent, "child");
-> +	if (!child_cg)
-> +		goto cleanup_parent;
-> +
-> +	if (cg_create(child_cg))
-> +		goto cleanup_parent;
-
-[Severity: Low]
-Does this leak child_cg when cg_create(child_cg) fails?  Jumping to
-cleanup_parent skips free(child_cg) in cleanup_child.
-
-[ ... ]
-> +	dmabuf_stat =3D cg_read_key_long(child_cg, "memory.stat", "dmabuf ");
-> +	if (dmabuf_stat =3D=3D -1) {
-> +		ret =3D KSFT_SKIP;
-> +		goto cleanup_dmabuf;
-> +	}
-> +	if (dmabuf_stat !=3D ONE_MEG)
-> +		dmabuf_stat =3D cg_read_key_long_poll(child_cg, "memory.stat",
-> +						    "dmabuf ", ONE_MEG,
-> +						    MEMCG_DMABUF_WAIT_RETRIES,
-> +						    DEFAULT_WAIT_INTERVAL_US);
-
-[Severity: Medium]
-Can polling memory.stat for ONE_MEG miss the rstat flush threshold in
-test_memcg_dmabuf(), test_memcg_dmabuf_xfer_at_limit(), and
-test_memcg_dmabuf_dead_cgroup()?
-
-Reading memory.stat only flushes rstat synchronously when pending updates
-exceed MEMCG_CHARGE_BATCH * num_online_cpus() pages.  On systems with 4 or
-more CPUs (or 64 KB pages), a 1 MB charge or uncharge is below that
-threshold, so cg_read_key_long_poll() relies on the periodic 2s deferrable
-stats_flush_dwork running within the 3s poll window (the same issue fixed
-for test_memcg_sock by eb69e955de7b ("selftests: cgroup: make
-test_memcg_sock check flushed sock stats") using MEMCG_FLUSH_BYTES).
-
-In addition, when test_memcg_dmabuf_xfer_at_limit() polls cg_a for ONE_MEG
-after DMA_BUF_IOCTL_XFER_CHARGE fails with ENOMEM, cg_read_key_long_poll()
-immediately matches the pre-existing cached ONE_MEG value on its first read
-without flushing rstat after the ioctl.
-
-[ ... ]
-> +static int test_memcg_dmabuf_xfer_at_limit(const char *root)
-> +{
-[ ... ]
-> +	if (ioctl(heap_fd, DMA_HEAP_IOCTL_ALLOC, &alloc) < 0) {
-> +		close(alloc.charge_fd);
-> +		goto cleanup_heap;
-> +	}
-> +	close(alloc.charge_fd);
-> +	dmabuf_fd =3D (int)alloc.fd;
-[ ... ]
-> +	xfer.charge_fd =3D (__u32)cg_b_fd;
-> +	if (ioctl(dmabuf_fd, DMA_BUF_IOCTL_XFER_CHARGE, &xfer) =3D=3D 0) {
-> +		fprintf(stderr, "xfer_charge should have failed at limit\n");
-> +		goto cleanup_cgfd;
-> +	}
-> +	if (errno !=3D ENOMEM) {
-> +		fprintf(stderr, "Expected ENOMEM, got %s\n", strerror(errno));
-> +		goto cleanup_cgfd;
-> +	}
-
-[Severity: Medium]
-Should test_memcg_dmabuf_xfer_at_limit() set ret =3D KSFT_SKIP when
-DMA_HEAP_IOCTL_ALLOC or DMA_BUF_IOCTL_XFER_CHARGE fails with EINVAL,
-ENOTTY, or EOPNOTSUPP?
-
-Unlike test_memcg_dmabuf() and test_memcg_dmabuf_dead_cgroup(), neither
-ioctl failure path sets ret =3D KSFT_SKIP, so this test fails instead of
-skipping on unpatched kernels or when dma_heap.mem_accounting=3D0.
-
-> diff --git a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c b/tools/t=
-esting/selftests/dmabuf-heaps/dmabuf-heap.c
-> index 1d49df6719198..44e3f33acf877 100644
-> --- a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
-> +++ b/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
-[ ... ]
-> +static bool pidfd_alloc_supported(int heap_fd)
-> +{
-> +	int devnull_fd, dmabuf_fd =3D -1, ret;
-> +
-> +	devnull_fd =3D open("/dev/null", O_RDONLY);
-> +	if (devnull_fd < 0)
-> +		return false;
-> +
-> +	ret =3D dmabuf_heap_alloc_pidfd(heap_fd, ONE_MEG, 0, devnull_fd, &dmabu=
-f_fd);
-> +	if (dmabuf_fd >=3D 0) {
-> +		close(dmabuf_fd);
-> +		dmabuf_fd =3D -1;
-> +	}
-> +	close(devnull_fd);
-> +	return ret < 0;
-> +}
-
-[Severity: Medium]
-Does pidfd_alloc_supported() return true when memory cgroups are disabled?
-
-When CONFIG_MEMCG=3Dn or cgroup_disable=3Dmemory is passed at boot,
-get_obj_cgroup_from_fd() returns ERR_PTR(-EOPNOTSUPP) before inspecting the
-fd.  Because ret < 0 is true, pidfd_alloc_supported() reports charge_fd as
-supported (whereas active memcg rejects /dev/null with EBADF), and
-test_alloc_pidfd_self(), test_alloc_pidfd_child(), and
-test_alloc_cgroupfd_self() then fail with EOPNOTSUPP instead of skipping.
-
-[ ... ]
-> +static int open_self_cgroupfd(void)
-> +{
-> +	char cgroup_path[PATH_MAX];
-> +	char line[PATH_MAX];
-> +	int ret =3D -1;
-> +	FILE *f;
-> +
-> +	f =3D fopen("/proc/self/cgroup", "r");
-> +	if (!f)
-> +		return -1;
-> +	while (fgets(line, sizeof(line), f)) {
-> +		if (strncmp(line, "0::", 3))
-> +			continue;
-> +		line[strcspn(line, "\n")] =3D '\0';
-> +		if (snprintf(cgroup_path, sizeof(cgroup_path),
-> +			     "/sys/fs/cgroup%s", line + 3) < PATH_MAX)
-> +			ret =3D 0;
-> +		break;
-> +	}
-> +	fclose(f);
-> +
-> +	if (ret)
-> +		return -1;
-> +
-> +	return open(cgroup_path, O_RDONLY | O_DIRECTORY);
-> +}
-
-[Severity: Medium]
-What happens in test_alloc_cgroupfd_self() and
-test_xfer_charge_cgroupfd_self() if the calling process runs in a cgroup
-where the memory controller is not enabled?
-
-Unlike the pidfd path in get_obj_cgroup_from_fd(), which resolves the
-effective ancestor CSS via task_css(), the cgroup directory fd path calls
-css_tryget_online_from_dir() directly on that directory and fails with
-ENOENT when +memory is not enabled in its parent's cgroup.subtree_control,
-causing both tests to fail instead of skipping.
-
-> diff --git a/tools/testing/selftests/dmabuf-heaps/vmtest.sh b/tools/testi=
-ng/selftests/dmabuf-heaps/vmtest.sh
-> new file mode 100755
-> index 0000000000000..3574b71ca83e8
-> --- /dev/null
-> +++ b/tools/testing/selftests/dmabuf-heaps/vmtest.sh
-> @@ -0,0 +1,226 @@
-[ ... ]
-> +readonly DMABUF_HEAP_TEST=3D"${SCRIPT_DIR}"/dmabuf-heap
-> +readonly MEMCONTROL_TEST=3D"${CGROUP_DIR}"/test_memcontrol
-> +readonly TMP_DIR=3D$(mktemp -d /tmp/dmabuf-vmtest.XXXXXXXX)
-
-[Severity: Low]
-Does creating TMP_DIR before getopts leak /tmp/dmabuf-vmtest.XXXXXXXX when
-usage() exits on -h or an invalid option before trap cleanup EXIT is
-installed?
-
-[ ... ]
-> +check_deps() {
-> +	for dep in vng make; do
-> +		if [[ ! -x $(command -v "${dep}") ]]; then
-> +			echo -e "skip:    dependency ${dep} not found!\n"
-> +			exit "${KSFT_SKIP}"
-> +		fi
-> +	done
-> +
-> +	if ${SHELL_MODE}; then
-> +		return
-> +	fi
-> +
-> +	if [[ ! -x "${DMABUF_HEAP_TEST}" ]]; then
-> +		printf "skip:    %s not found!" "${DMABUF_HEAP_TEST}"
-> +		printf " Please build the kselftest dmabuf-heaps target (or use -b).\n"
-> +		exit "${KSFT_SKIP}"
-> +	fi
-> +
-> +	if [[ ! -x "${MEMCONTROL_TEST}" ]]; then
-> +		printf "skip:    %s not found!" "${MEMCONTROL_TEST}"
-> +		printf " Please build the kselftest cgroup target (or use -b).\n"
-> +		exit "${KSFT_SKIP}"
-> +	fi
-> +}
-
-[Severity: Medium]
-Does check_deps() exit with KSFT_SKIP when vmtest.sh -b is run on an
-unbuilt tree?
-
-check_deps() runs before handle_build() compiles DMABUF_HEAP_TEST and
-MEMCONTROL_TEST, and it only returns early for SHELL_MODE, not BUILD.
-
-[ ... ]
-> +	run "dmabuf-heap charge_fd ioctl"	${DMABUF_HEAP_TEST}
-> +	run "memcontrol dma-buf memcg"	${MEMCONTROL_TEST} test_memcg_dmabuf
-> +	run "memcontrol dma-buf xfer limit" \
-> +		${MEMCONTROL_TEST} test_memcg_dmabuf_xfer_at_limit
-
-[Severity: Low]
-Should make_runner() also run test_memcg_dmabuf_dead_cgroup here?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-v2_2023012=
-3_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com?part=3D7
