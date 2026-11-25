@@ -1,55 +1,70 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795611931;
-	b=LkaeRSrKK/1urwTOzz4xVsOOwGyA7AwPT4+JwXg1E8yz9cR/0DwTzBJTfVNmCluYtW1P
-	 p/0v5vYrierCr/2udF6hs1lXd9ZYNSty6QgJeer7UMS9qqI2Dt07RnvN0x0zyjewjq0fB
-	 KkAsKZiMC3mYCbBuYCWXY8iY66doOVEANTmazl0LClF1sh1/Ogy99XawGxYuWPD1gi/kg
-	 qiorLTBzr099WiJSFs9QHZHyts253X4HIEhAcql8OfvYLqmXfUB/SqSu/QjTgyLYk5xT9
-	 EYjLvyS2SxRZpqkEziNUSgEYS6tOEThpQTbpS7VETgdg0+H2BzD7o37JFSV7F2MhEWg==
+	t=1795611929;
+	b=Swfw724AGlse4zh5uUkeb7e3/BfrFjegftowpqPntJiTX+pJ+snXvrXzZZHDrnJ/1zNM
+	 rfbs7zMEW14BP1mQzZSCDnMtwKAGthFgQa82pvVE3VOqCDWhF+PbgpbrPKDCRi+BCIdVV
+	 yN9nbvp2WlBk+SufIe7kERxwBMd7LpKIiPdytTrCiwidlKC1AZNKwWOyfNXzqxr4rykTc
+	 ckkTJCQq4OOIM39pEeExIojx73kXLnces6pcXT9FmTd02OKd9KzkLBeNphZ4h/GLTQtW7
+	 hQvTGr2AqBKLbDa//Tk21G9U+gkLlPO22/U+53pkgX0esDFr3KnORCcEQ3k3iNgAR2g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795611931;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:Cc:
+	a=rsa-sha256; c=relaxed/relaxed; t=1795611929;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=EV9Qw4kJbToqsC3BI2e9QXVVVw7xTBo0QCTBy4lyGc0=;
-	b=jgmEJgnao9zSQBeyblqUD5dj+MoWqPlsJKPdRhttpxsICqrOmHEEh2BLvZBqBog2jA8a
-	 +V0DR3VY0DeCZLoQs5bAFQk2UJtQvoVI3YL9OaS/rt2Bdv9tzPF5uN+8/n1wP9yXFYM4S
-	 L/GYwc5UhEIssLLz6eK2tx434cZXmpH0s5jk+cR8EbzNZnhiAG1DEgXNENzlUBEf1bYXd
-	 xCeWfZ5Yv/XoSA0Wm9CzBabeXHMum75ttm5VQ27eJJJe4kpWIjaUrBDaMwAqKtqZJu4mi
-	 Ms1OG2c8a871s98PjctlaemRHbXb/HPzLJNBGHxTEqv4F/B0JtmXuaw57N9LrPA9IZA==
+	bh=yVX4Z3Av7ryf3LrYZitag57whdLEpy0ywu2taML45gM=;
+	b=r2UJCqQckgxTezQFQlYbBV6zA9Mrr18xyqtPl7cOYVB6iinlv0MoibNiXFhf3kSK85Z/
+	 Fkuy7Et6tIgtC5arI9CUB7f8KQS/nnOONmPTN1HG30MQMHI6BHAeGaKIyGFhNoKfMnSgM
+	 lbhdnGp+BGfw3Xei9qd5Vf/IuopKWUTTqW3AzqiUeiGATl78p8V7HDf9HIhlb4+PFdvUT
+	 Ww2DOzjt1+woZ3bWUC0lWVni3wsfIJqaZbk6ENPqjbIoNQCKziNn2XmKBv0vqci9uAhkb
+	 /e6MDcu9pV2iPKeMKleeiCSbT4t8qgPw7W40VVQI/H0bym6Eyhr9GQUSCXbgTAUi1tw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DnJXl0CV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ktH/Sfpu";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2349606A331;
-	Wed, 25 Nov 2026 13:05:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239C8606A329;
+	Wed, 25 Nov 2026 13:05:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DnJXl0CV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DCE1F000CF;
-	Wed, 25 Nov 2026 13:05:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ktH/Sfpu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C071F000C0;
+	Wed, 25 Nov 2026 13:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795611930;
-	bh=EV9Qw4kJbToqsC3BI2e9QXVVVw7xTBo0QCTBy4lyGc0=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=DnJXl0CVV/0U02UEI3Nh09jlveQkBtheFz3b60NQ83BoxRRzfHTBmD7HDiL1ZDATX
-	 BquEgTY22H0GXqc3oCRKd7iYlfpvpIqD6Dc49vG29m2lZpq5JhXlywjumyWWNTUVsP
-	 R26IvRlV75WzAFI9NexaHAgvyq3S76EYzPHt+HYo4WGwWri5PQG7RWmf02as15p4x8
-	 PgKrXyWp0Gibsxyb317VaWI2RJdJ0Pjcv4UkX4E8Zjej+obyK8p9nDXZg8I3BpY7uE
-	 9HtxLB0A9TpmtcqxPOFqOHWBdJRgJKED0bt0/vaV47E2Lk1LssLuSnO5cgpW4g9J1U
-	 Q4aWHWL6crnyw==
-Message-ID: <sashiko-outbox-233450@kernel.org>
+	s=k20260515; t=1795611928;
+	bh=yVX4Z3Av7ryf3LrYZitag57whdLEpy0ywu2taML45gM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ktH/SfpunRXeT5zhR2dhHk+SUijyNgYhqdbNDA+/vCr1uelXzxHG/fKzVW7++5xli
+	 fWf6Rhvy9ACSMIP779/1E8qr4WQ8w4gP+yrpgkFlySmBtoX0zZtbRjpBf+l+AHsZfp
+	 okwt56Uy+bQaMXe5mhRcR355F+5I2VD/cjGyWTlB5ACAfJx/LEIx2qBxWsThIlI9P5
+	 Hk1U+jfVMg3rtLglt7jY56D43XFWBdlUW/ORxoA6GY/wFSzTuuqdNNKApUTGkW+ijQ
+	 7eRaPy/29Q3q3qbWQnQ1cqDPJr6mjeSR8FIrFbJ/XdVB4f6WZyvhYfNqbmm4u4++mq
+	 SgSVN16/1gUPA==
+Message-ID: <sashiko-outbox-233449@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 0/7] memcg: dma-buf cgroup accounting and charge
- transfer
+Subject: Re: [PATCH v6 7/7] selftests/dmabuf-heaps: Add dma-buf memcg
+ accounting tests
 Reply-To: sashiko-reviews@lists.linux.dev
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
+To: "Albert Esteve" <aesteve@redhat.com>, "Tejun Heo" <tj@kernel.org>, "Johannes
+ Weiner" <hannes@cmpxchg.org>, =?utf-8?b?TWljaGFsIEtvdXRuw70=?= <mkoutny@suse.com>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>, "Sumit
+ Semwal" <sumit.semwal@linaro.org>, =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Michal
+ Hocko" <mhocko@kernel.org>, "Roman Gushchin" <roman.gushchin@linux.dev>, "Shakeel
+ Butt" <shakeel.butt@linux.dev>, "Muchun Song" <muchun.song@linux.dev>, "Andrew
+ Morton" <akpm@linux-foundation.org>, "Benjamin Gaignard" <benjamin.gaignard@collabora.com>, "Brian
+ Starkey" <Brian.Starkey@arm.com>, "John Stultz" <jstultz@google.com>, "T.J.
+ Mercier" <tjmercier@google.com>, "Christian Brauner" <brauner@kernel.org>, "Paul
+ Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>, "Serge E.
+ Hallyn" <serge@hallyn.com>, "Stephen Smalley" <stephen.smalley.work@gmail.com>, "Shuah
+ Khan" <shuah@kernel.org>, "Randy Dunlap" <rdunlap@infradead.org>,
+ =?utf-8?b?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, "Jens Wiklander" <jenswi@kernel.org>, "Sumit
+ Garg" <sumit.garg@kernel.org>, "Philipp Stanner" <phasta@kernel.org>
+Cc: airlied@gmail.com, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, op-tee@lists.trustedfirmware.org, echanude@redhat.com, mripard@kernel.org, media-ci@linuxtv.org
+In-Reply-To: <20261124-v2_20230123_tjmercier_google_com-v6-7-dce12fa03ad6@redhat.com>
 References: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
+ <20261124-v2_20230123_tjmercier_google_com-v6-7-dce12fa03ad6@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 13:05:29 +0000
+Date: Wed, 25 Nov 2026 13:05:26 +0000
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -59,16 +74,276 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 
-Sashiko has finished reviewing this 7-patch series:
+Thank you for your contribution! Sashiko AI review found 9 potential
+issues to consider:
+- [Medium] selftests/cgroup: test_memcg_dmabuf_xfer_at_limit() misses
+  skip checks
+- [Medium] selftests/cgroup: dmabuf tests read memory.stat below rstat
+  flush threshold
+- [Medium] selftests/dmabuf-heaps: pidfd_alloc_supported() mishandles
+  disabled memcg
+- [Medium] selftests/dmabuf-heaps: open_self_cgroupfd() misses memory
+  controller check
+- [Medium] selftests/dmabuf-heaps: check_deps() runs before
+  handle_build() in vmtest.sh
+- [Low] selftests/cgroup: child_cg leak on cg_create() error in
+  test_memcg_dmabuf()
+- [Low] selftests/cgroup: unused MEMCG_SOCKSTAT_WAIT_RETRIES macro in
+  test_memcontrol
+- [Low] selftests/dmabuf-heaps: make_runner() omits
+  test_memcg_dmabuf_dead_cgroup
+- [Low] selftests/dmabuf-heaps: vmtest.sh creates TMP_DIR before setting
+  EXIT trap
+--
 
-- Patches 1 and 3-6: no issues found.
-- Patch 2 ("dma-heap: charge dma-buf memory via explicit memcg"): 1
-  potential issue (1 Low)
-- Patch 7 ("selftests/dmabuf-heaps: Add dma-buf memcg accounting..."): 9
-  potential issues (5 Medium, 4 Low)
+commit 65b17f139f560196804a32a9dffe9eb0a344be15
+Author: Albert Esteve <aesteve@redhat.com>
 
-Detailed reviews have been sent as separate replies to patches 2 and 7.
+selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+
+This commit adds selftests for dma-buf memcg accounting via charge_fd and
+DMA_BUF_IOCTL_XFER_CHARGE in dmabuf-heaps and cgroup/test_memcontrol, along
+with a virtme-ng test runner script and config fragment.
+
+> diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/tes=
+ting/selftests/cgroup/test_memcontrol.c
+> index bb673012dcf08..f612726bd9af7 100644
+> --- a/tools/testing/selftests/cgroup/test_memcontrol.c
+> +++ b/tools/testing/selftests/cgroup/test_memcontrol.c
+> @@ -27,6 +34,13 @@
+>  #define MEMCG_FLUSH_BYTES	\
+>  	(2 * sysconf(_SC_PAGESIZE) * MEMCG_CHARGE_BATCH * get_nprocs())
+> =20
+> +#define DMA_HEAP_SYSTEM		"/dev/dma_heap/system"
+> +#define ONE_MEG			(1024 * 1024)
+> +
+> +#define MEMCG_SOCKSTAT_WAIT_RETRIES        30
+
+[Severity: Low]
+MEMCG_SOCKSTAT_WAIT_RETRIES was removed by eb69e955de7b ("selftests:
+cgroup: make test_memcg_sock check flushed sock stats") and has no users.
+Was it re-added here by mistake during a rebase?
+
+> +#define MEMCG_DMABUF_WAIT_RETRIES          30
+> +#define MEMCG_DMABUF_DEAD_WAIT_RETRIES     80
+> +
+>  static bool has_localevents;
+>  static bool has_recursiveprot;
+>  static int page_size;
+> @@ -1797,6 +1811,417 @@ static int test_memcg_inotify_delete_dir(const ch=
+ar *root)
+>  	return ret;
+>  }
+> =20
+[ ... ]
+> +static int test_memcg_dmabuf(const char *root)
+> +{
+> +	char *parent =3D NULL, *child_cg =3D NULL;
+> +	int ret =3D KSFT_FAIL;
+[ ... ]
+> +	child_cg =3D cg_name(parent, "child");
+> +	if (!child_cg)
+> +		goto cleanup_parent;
+> +
+> +	if (cg_create(child_cg))
+> +		goto cleanup_parent;
+
+[Severity: Low]
+Does this leak child_cg when cg_create(child_cg) fails?  Jumping to
+cleanup_parent skips free(child_cg) in cleanup_child.
+
+[ ... ]
+> +	dmabuf_stat =3D cg_read_key_long(child_cg, "memory.stat", "dmabuf ");
+> +	if (dmabuf_stat =3D=3D -1) {
+> +		ret =3D KSFT_SKIP;
+> +		goto cleanup_dmabuf;
+> +	}
+> +	if (dmabuf_stat !=3D ONE_MEG)
+> +		dmabuf_stat =3D cg_read_key_long_poll(child_cg, "memory.stat",
+> +						    "dmabuf ", ONE_MEG,
+> +						    MEMCG_DMABUF_WAIT_RETRIES,
+> +						    DEFAULT_WAIT_INTERVAL_US);
+
+[Severity: Medium]
+Can polling memory.stat for ONE_MEG miss the rstat flush threshold in
+test_memcg_dmabuf(), test_memcg_dmabuf_xfer_at_limit(), and
+test_memcg_dmabuf_dead_cgroup()?
+
+Reading memory.stat only flushes rstat synchronously when pending updates
+exceed MEMCG_CHARGE_BATCH * num_online_cpus() pages.  On systems with 4 or
+more CPUs (or 64 KB pages), a 1 MB charge or uncharge is below that
+threshold, so cg_read_key_long_poll() relies on the periodic 2s deferrable
+stats_flush_dwork running within the 3s poll window (the same issue fixed
+for test_memcg_sock by eb69e955de7b ("selftests: cgroup: make
+test_memcg_sock check flushed sock stats") using MEMCG_FLUSH_BYTES).
+
+In addition, when test_memcg_dmabuf_xfer_at_limit() polls cg_a for ONE_MEG
+after DMA_BUF_IOCTL_XFER_CHARGE fails with ENOMEM, cg_read_key_long_poll()
+immediately matches the pre-existing cached ONE_MEG value on its first read
+without flushing rstat after the ioctl.
+
+[ ... ]
+> +static int test_memcg_dmabuf_xfer_at_limit(const char *root)
+> +{
+[ ... ]
+> +	if (ioctl(heap_fd, DMA_HEAP_IOCTL_ALLOC, &alloc) < 0) {
+> +		close(alloc.charge_fd);
+> +		goto cleanup_heap;
+> +	}
+> +	close(alloc.charge_fd);
+> +	dmabuf_fd =3D (int)alloc.fd;
+[ ... ]
+> +	xfer.charge_fd =3D (__u32)cg_b_fd;
+> +	if (ioctl(dmabuf_fd, DMA_BUF_IOCTL_XFER_CHARGE, &xfer) =3D=3D 0) {
+> +		fprintf(stderr, "xfer_charge should have failed at limit\n");
+> +		goto cleanup_cgfd;
+> +	}
+> +	if (errno !=3D ENOMEM) {
+> +		fprintf(stderr, "Expected ENOMEM, got %s\n", strerror(errno));
+> +		goto cleanup_cgfd;
+> +	}
+
+[Severity: Medium]
+Should test_memcg_dmabuf_xfer_at_limit() set ret =3D KSFT_SKIP when
+DMA_HEAP_IOCTL_ALLOC or DMA_BUF_IOCTL_XFER_CHARGE fails with EINVAL,
+ENOTTY, or EOPNOTSUPP?
+
+Unlike test_memcg_dmabuf() and test_memcg_dmabuf_dead_cgroup(), neither
+ioctl failure path sets ret =3D KSFT_SKIP, so this test fails instead of
+skipping on unpatched kernels or when dma_heap.mem_accounting=3D0.
+
+> diff --git a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c b/tools/t=
+esting/selftests/dmabuf-heaps/dmabuf-heap.c
+> index 1d49df6719198..44e3f33acf877 100644
+> --- a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
+> +++ b/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
+[ ... ]
+> +static bool pidfd_alloc_supported(int heap_fd)
+> +{
+> +	int devnull_fd, dmabuf_fd =3D -1, ret;
+> +
+> +	devnull_fd =3D open("/dev/null", O_RDONLY);
+> +	if (devnull_fd < 0)
+> +		return false;
+> +
+> +	ret =3D dmabuf_heap_alloc_pidfd(heap_fd, ONE_MEG, 0, devnull_fd, &dmabu=
+f_fd);
+> +	if (dmabuf_fd >=3D 0) {
+> +		close(dmabuf_fd);
+> +		dmabuf_fd =3D -1;
+> +	}
+> +	close(devnull_fd);
+> +	return ret < 0;
+> +}
+
+[Severity: Medium]
+Does pidfd_alloc_supported() return true when memory cgroups are disabled?
+
+When CONFIG_MEMCG=3Dn or cgroup_disable=3Dmemory is passed at boot,
+get_obj_cgroup_from_fd() returns ERR_PTR(-EOPNOTSUPP) before inspecting the
+fd.  Because ret < 0 is true, pidfd_alloc_supported() reports charge_fd as
+supported (whereas active memcg rejects /dev/null with EBADF), and
+test_alloc_pidfd_self(), test_alloc_pidfd_child(), and
+test_alloc_cgroupfd_self() then fail with EOPNOTSUPP instead of skipping.
+
+[ ... ]
+> +static int open_self_cgroupfd(void)
+> +{
+> +	char cgroup_path[PATH_MAX];
+> +	char line[PATH_MAX];
+> +	int ret =3D -1;
+> +	FILE *f;
+> +
+> +	f =3D fopen("/proc/self/cgroup", "r");
+> +	if (!f)
+> +		return -1;
+> +	while (fgets(line, sizeof(line), f)) {
+> +		if (strncmp(line, "0::", 3))
+> +			continue;
+> +		line[strcspn(line, "\n")] =3D '\0';
+> +		if (snprintf(cgroup_path, sizeof(cgroup_path),
+> +			     "/sys/fs/cgroup%s", line + 3) < PATH_MAX)
+> +			ret =3D 0;
+> +		break;
+> +	}
+> +	fclose(f);
+> +
+> +	if (ret)
+> +		return -1;
+> +
+> +	return open(cgroup_path, O_RDONLY | O_DIRECTORY);
+> +}
+
+[Severity: Medium]
+What happens in test_alloc_cgroupfd_self() and
+test_xfer_charge_cgroupfd_self() if the calling process runs in a cgroup
+where the memory controller is not enabled?
+
+Unlike the pidfd path in get_obj_cgroup_from_fd(), which resolves the
+effective ancestor CSS via task_css(), the cgroup directory fd path calls
+css_tryget_online_from_dir() directly on that directory and fails with
+ENOENT when +memory is not enabled in its parent's cgroup.subtree_control,
+causing both tests to fail instead of skipping.
+
+> diff --git a/tools/testing/selftests/dmabuf-heaps/vmtest.sh b/tools/testi=
+ng/selftests/dmabuf-heaps/vmtest.sh
+> new file mode 100755
+> index 0000000000000..3574b71ca83e8
+> --- /dev/null
+> +++ b/tools/testing/selftests/dmabuf-heaps/vmtest.sh
+> @@ -0,0 +1,226 @@
+[ ... ]
+> +readonly DMABUF_HEAP_TEST=3D"${SCRIPT_DIR}"/dmabuf-heap
+> +readonly MEMCONTROL_TEST=3D"${CGROUP_DIR}"/test_memcontrol
+> +readonly TMP_DIR=3D$(mktemp -d /tmp/dmabuf-vmtest.XXXXXXXX)
+
+[Severity: Low]
+Does creating TMP_DIR before getopts leak /tmp/dmabuf-vmtest.XXXXXXXX when
+usage() exits on -h or an invalid option before trap cleanup EXIT is
+installed?
+
+[ ... ]
+> +check_deps() {
+> +	for dep in vng make; do
+> +		if [[ ! -x $(command -v "${dep}") ]]; then
+> +			echo -e "skip:    dependency ${dep} not found!\n"
+> +			exit "${KSFT_SKIP}"
+> +		fi
+> +	done
+> +
+> +	if ${SHELL_MODE}; then
+> +		return
+> +	fi
+> +
+> +	if [[ ! -x "${DMABUF_HEAP_TEST}" ]]; then
+> +		printf "skip:    %s not found!" "${DMABUF_HEAP_TEST}"
+> +		printf " Please build the kselftest dmabuf-heaps target (or use -b).\n"
+> +		exit "${KSFT_SKIP}"
+> +	fi
+> +
+> +	if [[ ! -x "${MEMCONTROL_TEST}" ]]; then
+> +		printf "skip:    %s not found!" "${MEMCONTROL_TEST}"
+> +		printf " Please build the kselftest cgroup target (or use -b).\n"
+> +		exit "${KSFT_SKIP}"
+> +	fi
+> +}
+
+[Severity: Medium]
+Does check_deps() exit with KSFT_SKIP when vmtest.sh -b is run on an
+unbuilt tree?
+
+check_deps() runs before handle_build() compiles DMABUF_HEAP_TEST and
+MEMCONTROL_TEST, and it only returns early for SHELL_MODE, not BUILD.
+
+[ ... ]
+> +	run "dmabuf-heap charge_fd ioctl"	${DMABUF_HEAP_TEST}
+> +	run "memcontrol dma-buf memcg"	${MEMCONTROL_TEST} test_memcg_dmabuf
+> +	run "memcontrol dma-buf xfer limit" \
+> +		${MEMCONTROL_TEST} test_memcg_dmabuf_xfer_at_limit
+
+[Severity: Low]
+Should make_runner() also run test_memcg_dmabuf_dead_cgroup here?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-v2_2023012=
-3_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com
+3_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com?part=3D7
