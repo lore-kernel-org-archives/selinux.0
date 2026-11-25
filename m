@@ -1,82 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795575019;
-	b=RQGNNk2rZHMv68uuW5m5YRHzkCcsKneP0FXqSCUB3I9RiHL+WBfwQOUVqquJ6TyMpZ7j
-	 xV17nJ3QQ19rAE/qrVk7BQ3mWd/JhID2cwPqr//hUZftVovlgOMdmh0STcG8gsVuvHT/x
-	 /LodffQVV0tLXDr/qF8ySanoFISwW4hcNv2f/cKo3/+/o/w4I77bmnAQC497jNnq5ANLc
-	 GOO7EsAzXnxHgKezdCxCmX0l1zOYVUEoS3F6/rkCsahSoPK9/XC3ckzQOHxhqlWjB7wLg
-	 8X2bW7WnRG6budCG4NYxFk8Vak3uS0MJaQLdnZqNjv8QsNggI5cEkz2PYTcpG5+fzxA==
+	t=1795596549;
+	b=HnRaktRHCCj6FHUaftiymHnW4Pg0n+0e6QoOtlEWfBBsERq+OQAUbIBaAwUTBDHmZh6C
+	 ILFPIZq2mU3vj9R4Hj0jYlwFpWCvfLunSZGmMoAczyhxeOeOlYB4+ZAXI9TJ6zL2AWaOs
+	 91yMuy5jZ3qJ1K0HYJgL6bWYTsu0wrFgKo3I6nEWhYbqsa9JVuSN08Pm07PiHFgXI75ME
+	 Pi60W4F0vKgpW4i/XarKTfxJ2M/ikP+T521lAv9tbo+SvpOemDXHrOvWVdHvnIcNotmb8
+	 3GHs5Iq4wZPI9yBIsaJallp/y8ryT+O5rB0535ULWv4ByW69L6SSrOIBjTXpVLe0a3Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795575019;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=hjTsEiHsB3scrTtDDV5jrh4xR7hyZtuQPmXQXJ4G5oA=;
-	b=o7gf6AXiI5IH7UkVZMkv2Glhpq1xjG+rB5lF42iefZ8fjBsu5PtBBz2BeGr+Vj1ydPMJ
-	 spgzMCEtOFoHDKtTdVD0JzdF6HKdM2QG7jkEVYaqP1tiLG1LxV5XsjcIDabmZIblV/brP
-	 sG7j6PwiE2Ha9hESSTop48DAkSi3xA2tSkitEgPtbL+uvA3vlO6Hksk55o21Us96Cn771
-	 C6OYLIyEgm4WICIyWqYVLtS87oS3lXeAiYl3k5/XDWMChNQkChXXIMlMRYETlCYKdm1ju
-	 qWOWug8kGBunYw3b2orVrTOovdR8mlioBMryhqC+awzd3gFTvU6ogw6mdyjVe9sENfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795596549;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:Date:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Developer-Signature:X-Developer-Key:
+	 X-Scanned-By;
+	bh=RA8e29v2UfOX+j0RunaRG7R7vpt/VitAFtYaEN+ZJyA=;
+	b=JmztxJeld9Injan20NkjqdcG2GDMtIHcVn/nLOXz9XSSFX9QwnIi66PaGVEGiWZNLHbh
+	 zftkx2og3HiH7InLh4LUzBqjBtIk9HLP5ltlrWWMqbWilVuyg+KVvjitIEkznDi92zyJ+
+	 iQBO9d3/IFjquiGqgDOXrtRsyqfLkjtKn8fA8Ym8mopwstt0dftvI37oBn7E+NgdxwF+Z
+	 o83mru/paVW90LDmrce4ghvqYfRDDpvQZUDGWXE7OLzcO3X5PNqVss6a32z6AK3MibWuF
+	 8IKmkOI8AaS3hmwlOS0769F9DM0zwCYHFGFKu8G0qsu6Gc+70nzLoz47IP6clCRk4aQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YqFq14zg;
-	arc=none smtp.remote-ip=198.175.65.9
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lun7m7FM;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 129FD606A69C;
-	Wed, 25 Nov 2026 02:50:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 129FD606A69C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239CC606A338
+	for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 08:49:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 239CC606A338
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YqFq14zg
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795575019; x=1827111019;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=FMJRwqJHxhDPXVt+DDIaX5xHOfNnwmDVihBZyK76jyw=;
-  b=YqFq14zgaQoW6sdIxFjmKVUmQswP7w+TU8pTEbz3pZhnes5nPpCXmeR3
-   pcErAriQhH/ZFTUq7iNqtGQzKLjiWgxjJNN+CYTT4RzLi12tKQigk8Xpr
-   0WeY4dLoOOPNh5Bf/apH9xSdy2umM2tBL+Lfr5CV3gxl1bPyrdOVl28Y2
-   95qVxPVMSrxfAz5vqpTtzntXZtu5CZWVJk6wgOFmBzJdp0tPunAxFB8uv
-   dszJb4UeKCo8ZYHU6/0WvSTn7IAXDo8DTFn76a1EJOrxNyOMyx4DhPJff
-   TSvhqNuyZvdS4kMB177DwZBX0GyxJuir1U7ouIr3NDc5o9tDDtLQSvaMQ
-   w==;
-X-CSE-ConnectionGUID: 37lm8xUBRpuuj/ice43MqA==
-X-CSE-MsgGUID: r3QSZk2wS86oRl4Zmhloig==
-X-IronPort-AV: E=McAfee;i="6800,10657,11976"; a="4312484"
-X-IronPort-AV: E=Sophos;i="6.27,232,1787036400"; 
-   d="scan'208";a="4312484"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2026 18:50:18 -0800
-X-CSE-ConnectionGUID: LGuQYm+xS0WWm+/cuAibYA==
-X-CSE-MsgGUID: BbyHB66dR1+vA+YgeLPFng==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,232,1787036400"; 
-   d="scan'208";a="11851290"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa001.jf.intel.com with ESMTP; 24 Nov 2026 18:50:16 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xW35I-00000001Qio-3vrh;
-	Wed, 25 Nov 2026 02:50:12 +0000
-Date: Wed, 25 Nov 2026 10:49:39 +0800
-From: kernel test robot <lkp@intel.com>
-To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
-	linux-security-module@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-kernel@vger.kernel.org, jmorris@namei.org, serge@hallyn.com,
-	keescook@chromium.org, john.johansen@canonical.com,
-	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH 1/1] LSM: infrastructure management of mount options
-Message-ID: <20261125104210.ICeMgnNL-lkp@intel.com>
-References: <20261124181522.30415-2-casey@schaufler-ca.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lun7m7FM
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795596548;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=RA8e29v2UfOX+j0RunaRG7R7vpt/VitAFtYaEN+ZJyA=;
+	b=Lun7m7FMhulgy3wbJ48+U4dhIZSFPL0c76Xdcmbmi1dni9QIsM5yvisV8ViJW1HfwgFNNC
+	4p3yfliNp+qnBfoFXNs2BmPczlwdkdOYPH3SgQDVqBxv0ZYF/e2Bx9yvcIMUqCUfdW38rr
+	EASq4e2Z4oAZauGbBhyBvl/HD5Rz0qg=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-645-8ogqmfRiNQGvr3AWRp9XFw-1; Wed,
+ 25 Nov 2026 08:49:04 +0000
+X-MC-Unique: 8ogqmfRiNQGvr3AWRp9XFw-1
+X-Mimecast-MFC-AGG-ID: 8ogqmfRiNQGvr3AWRp9XFw_1795596543
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1057018004FE;
+	Wed, 25 Nov 2026 08:49:03 +0000 (UTC)
+Received: from aesteve-thinkpadp1gen8.rmtes.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C1B191800550;
+	Wed, 25 Nov 2026 08:49:01 +0000 (UTC)
+From: Albert Esteve <aesteve@redhat.com>
+Date: Wed, 25 Nov 2026 09:48:59 +0100
+Subject: [PATCH] policy,tests: add tests for cgroup charge_to
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -86,88 +72,380 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261124181522.30415-2-casey@schaufler-ca.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261125-cgroup-transfer-test-v1-1-91f58dc62073@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMMQ6DMAxA0asgz7VEQolQr1J1IImhZgjIDggJc
+ XdCO77h/wOUhEnhVR0gtLHynArMo4Lw7dNIyLEYbG2dMbbFMMq8LpilTzqQYCbN6HzrusbHWLs
+ nlHQRGnj/bd+fv3X1E4V8v+A8L6qmZpN4AAAA
+X-Change-ID: 20261125-cgroup-transfer-test-6b5683bdd064
+To: selinux@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>, Albert Esteve <aesteve@redhat.com>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795596539; l=10600;
+ i=aesteve@redhat.com; s=20260827; h=from:subject:message-id;
+ bh=YXDrG9jxDZPQPTfkHUdGjpXOcjorsRyHTwIBM77ZpLs=;
+ b=7xzhrsNikiTh+rU+QETK69v+yTAKx1Je8GMgZyc3I4IJ0RQI8TGcXXt0uxAQ958XHErSVfUmP
+ T+wTfE2lEDvB2/wPGbF4M2x0XT+w+KwUwNnSvlZ7TgjWblvVvSF1bFU
+X-Developer-Key: i=aesteve@redhat.com; a=ed25519;
+ pk=zI2RBeZgocwYm3AkJW4CtjoJnKoDZrfBl1xe5Ed6h+U=
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Hi Casey,
+Test the cgroup:charge_to permission added by the dma-buf memcg
+accounting series [1], for both charge_fd flavours (pidfd and cgroupfd),
+negative and positive tests, including a default-labeled (genfscon) and
+an xattr-relabeled cgroup.
 
-kernel test robot noticed the following build warnings:
+The class is new, so the base policy has to be taught about it first:
 
-[auto build test WARNING on pcmoore-selinux/next]
-[also build test WARNING on linus/master v7.4-rc4 next-20261124]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+  semodule -c -E base
+  echo '(class cgroup (charge_to))' >> base.cil
+  perl -0pi -e \
+    's/\(classorder\s*\((.*?)\)\)/(classorder ($1 cgroup))/s' base.cil
+  semodule -X 456 -i base.cil
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/LSM-infrastructure-management-of-mount-options/20261124-101522
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-patch link:    https://lore.kernel.org/r/20261124181522.30415-2-casey%40schaufler-ca.com
-patch subject: [PATCH 1/1] LSM: infrastructure management of mount options
-config: loongarch-defconfig (https://download.01.org/0day-ci/archive/20261125/20261125104210.ICeMgnNL-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 2012344e5da8e03ea4b8283ecd6fad6e13f09d64)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261125/20261125104210.ICeMgnNL-lkp@intel.com/reproduce)
+AI agent helped with policy file and reviews.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/20261125104210.ICeMgnNL-lkp@intel.com/
+[1] https://lore.kernel.org/all/20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com
 
-All warnings (new ones prefixed by >>):
+Assisted-by: Claude Code:deepseek-v4.1-flash
+Signed-off-by: Albert Esteve <aesteve@redhat.com>
+---
+ defconfig                     |   6 +++
+ policy/Makefile               |   6 +++
+ policy/test_memcg_charge.te   |  50 ++++++++++++++++++++
+ tests/Makefile                |   5 ++
+ tests/memcg_charge/.gitignore |   1 +
+ tests/memcg_charge/Makefile   |   5 ++
+ tests/memcg_charge/charge.c   | 106 ++++++++++++++++++++++++++++++++++++++++++
+ tests/memcg_charge/test       |  76 ++++++++++++++++++++++++++++++
+ 8 files changed, 255 insertions(+)
 
->> security/selinux/hooks.c:2887:6: warning: variable 'opts' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-    2887 |         if (!fc->security) {
-         |             ^~~~~~~~~~~~~
-   security/selinux/hooks.c:2903:2: note: uninitialized use occurs here
-    2903 |         opts->initialized = true;
-         |         ^~~~
-   security/selinux/hooks.c:2887:2: note: remove the 'if' if its condition is always true
-    2887 |         if (!fc->security) {
-         |         ^~~~~~~~~~~~~~~~~~
-   security/selinux/hooks.c:2878:31: note: initialize the variable 'opts' to silence this warning
-    2878 |         struct selinux_mnt_opts *opts;
-         |                                      ^
-         |                                       = NULL
-   1 warning generated.
+diff --git a/defconfig b/defconfig
+index 3dcf710..67f3515 100644
+--- a/defconfig
++++ b/defconfig
+@@ -94,6 +94,12 @@ CONFIG_NET_KEY=m
+ # This is not required for SELinux operation itself.
+ CONFIG_TUN=m
+ 
++# Test the cgroup charge_to checks
++# They are not required for SELinux operation itself.
++CONFIG_MEMCG=y
++CONFIG_DMABUF_HEAPS=y
++CONFIG_DMABUF_HEAPS_SYSTEM=y
++
+ # Test perf events.
+ # This is not required for SELinux operation itself.
+ CONFIG_HAVE_PERF_EVENTS=y
+diff --git a/policy/Makefile b/policy/Makefile
+index 012199a..262fb7c 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -212,6 +212,12 @@ export M4PARAM += -Dio_uring_allowed_defined
+ endif
+ endif
+ 
++# memcg_charge test dependencies: charge_to on the cgroup class, in the
++# loaded policy (or the policy headers when building without selinuxfs).
++ifeq ($(shell if [ -e $(SELINUXFS)/policyvers ]; then [ -f $(SELINUXFS)/class/cgroup/perms/charge_to ]; else grep -q all_cgroup_perms.*charge_to $(POLDEV)/include/support/all_perms.spt; fi && grep -q dev_rw_dma_dev $(POLDEV)/include/kernel/devices.if && echo true),true)
++TARGETS += test_memcg_charge.te
++endif
++
+ .PHONY: all build clean expand_check load unload
+ 
+ all: build
+diff --git a/policy/test_memcg_charge.te b/policy/test_memcg_charge.te
+new file mode 100644
+index 0000000..a0614dc
+--- /dev/null
++++ b/policy/test_memcg_charge.te
+@@ -0,0 +1,50 @@
++########################################
++#
++# Policy for testing the dma-buf memcg charge controls.
++
++attribute memcg_chargetestdomain;
++
++# Label of the xattr-relabeled cgroup directory.
++type test_memcg_cgroup_t;
++files_type(test_memcg_cgroup_t)
++fs_associate_cgroupfs(test_memcg_cgroup_t)
++
++require {
++	type cgroup_t;
++	class cgroup { charge_to };
++}
++
++#
++# memcg_charge_test_domain(domain)
++#
++# Generate a test domain that can open the dma-heap and reach the
++# cgroup directories, but is not allowed charge_to.
++#
++define(`memcg_charge_test_domain', `
++type $1;
++testsuite_domain_type($1)
++typeattribute $1 memcg_chargetestdomain;
++')
++
++dev_rw_dma_dev(memcg_chargetestdomain)
++fs_search_cgroup_dirs(memcg_chargetestdomain)
++
++# Reaching the cgroup directories is not what is being tested.
++allow memcg_chargetestdomain cgroup_t:dir list_dir_perms;
++allow memcg_chargetestdomain test_memcg_cgroup_t:dir list_dir_perms;
++
++# pidfd: checked against the target process SID.
++memcg_charge_test_domain(test_memcg_charge_task_t)
++allow test_memcg_charge_task_t self:cgroup charge_to;
++
++memcg_charge_test_domain(test_memcg_nocharge_task_t)
++
++# cgroupfd: checked against the cgroup label.
++memcg_charge_test_domain(test_memcg_charge_cgroup_t)
++allow test_memcg_charge_cgroup_t cgroup_t:cgroup charge_to;
++
++memcg_charge_test_domain(test_memcg_nocharge_cgroup_t)
++
++# Same, with the label in the security.selinux xattr.
++memcg_charge_test_domain(test_memcg_charge_xattr_t)
++allow test_memcg_charge_xattr_t test_memcg_cgroup_t:cgroup charge_to;
+diff --git a/tests/Makefile b/tests/Makefile
+index 4c8e82b..e9da52b 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -186,6 +186,11 @@ SUBDIRS += io_uring
+ endif
+ endif
+ 
++# memcg_charge test dependencies: charge_to on the cgroup class in the loaded policy
++ifeq ($(shell [ -f $(SELINUXFS)/class/cgroup/perms/charge_to ] && grep -qs charge_fd $(INCLUDEDIR)/linux/dma-heap.h && echo true),true)
++SUBDIRS += memcg_charge
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/memcg_charge/.gitignore b/tests/memcg_charge/.gitignore
+new file mode 100644
+index 0000000..e78f0d8
+--- /dev/null
++++ b/tests/memcg_charge/.gitignore
+@@ -0,0 +1 @@
++charge
+diff --git a/tests/memcg_charge/Makefile b/tests/memcg_charge/Makefile
+new file mode 100644
+index 0000000..0b48692
+--- /dev/null
++++ b/tests/memcg_charge/Makefile
+@@ -0,0 +1,5 @@
++TARGETS=charge
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/memcg_charge/charge.c b/tests/memcg_charge/charge.c
+new file mode 100644
+index 0000000..dd6d027
+--- /dev/null
++++ b/tests/memcg_charge/charge.c
+@@ -0,0 +1,106 @@
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <errno.h>
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/ioctl.h>
++#include <sys/syscall.h>
++#include <linux/dma-heap.h>
++
++#define HEAP "/dev/dma_heap/system"
++
++#ifndef __NR_pidfd_open
++#define __NR_pidfd_open 434
++#endif
++
++/*
++ * Returns 0 on success, -1 if the heap cannot be opened, otherwise
++ * the errno of the failing ioctl.
++ */
++static int alloc_charged(int charge_fd)
++{
++	struct dma_heap_allocation_data data = {
++		.len = 4096,
++		.fd_flags = O_RDWR | O_CLOEXEC,
++		.charge_fd = charge_fd,
++	};
++	int heap_fd, err;
++
++	heap_fd = open(HEAP, O_RDWR | O_CLOEXEC);
++	if (heap_fd < 0) {
++		perror("open " HEAP);
++		return -1;
++	}
++
++	if (ioctl(heap_fd, DMA_HEAP_IOCTL_ALLOC, &data) < 0) {
++		err = errno;
++		perror("DMA_HEAP_IOCTL_ALLOC");
++		close(heap_fd);
++		return err;
++	}
++
++	close(data.fd);
++	close(heap_fd);
++	return 0;
++}
++
++/* Returns 0 if allowed, 2 if denied (EACCES), 1 otherwise. */
++static int status(int err)
++{
++	if (!err)
++		return 0;
++	return err == EACCES ? 2 : 1;
++}
++
++static void print_usage(char *progname)
++{
++	fprintf(stderr, "Usage: %s probe | pid | cgroup <dir>\n", progname);
++	exit(1);
++}
++
++int main(int argc, char *argv[])
++{
++	int fd, err;
++
++	if (argc < 2 || argc > 3) {
++		print_usage(argv[0]);
++	}
++
++	if (argc == 2 && strcmp(argv[1], "probe") == 0) {
++		/*
++		 * A kernel without charge_fd support ignores the field and the
++		 * allocation succeeds. One that has it rejects an fd that is
++		 * neither a pidfd nor a cgroupfd.
++		 */
++		fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
++		if (fd < 0) {
++			perror("/dev/null");
++			exit(1);
++		}
++		exit(alloc_charged(fd) == EBADF ? 0 : 1);
++	}
++
++	if (argc == 2 && strcmp(argv[1], "pid") == 0) {
++		fd = syscall(__NR_pidfd_open, getpid(), 0);
++		if (fd < 0) {
++			perror("pidfd_open");
++			exit(1);
++		}
++	} else if (argc == 3 && strcmp(argv[1], "cgroup") == 0) {
++		fd = open(argv[2], O_RDONLY | O_DIRECTORY | O_CLOEXEC);
++		if (fd < 0) {
++			perror(argv[2]);
++			exit(1);
++		}
++	} else {
++		print_usage(argv[0]);
++	}
++
++	err = alloc_charged(fd);
++	close(fd);
++	exit(status(err));
++}
+diff --git a/tests/memcg_charge/test b/tests/memcg_charge/test
+new file mode 100755
+index 0000000..205e353
+--- /dev/null
++++ b/tests/memcg_charge/test
+@@ -0,0 +1,76 @@
++#!/usr/bin/perl
++
++use Test::More;
++
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    if ( !-e "/sys/fs/cgroup/cgroup.controllers" ) {
++        plan skip_all => "cgroup v2 unified hierarchy not mounted";
++    }
++    elsif ( system("$basedir/charge probe >/dev/null 2>&1") != 0 ) {
++        plan skip_all => "kernel does not validate dma-heap charge_fd";
++    }
++    elsif (
++        system(
++            "echo +memory > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null")
++        != 0
++      )
++    {
++        plan skip_all => "memory controller not enabled in the cgroup root";
++    }
++    else {
++        plan tests => 6;
++    }
++}
++
++my $root  = "/sys/fs/cgroup";
++my $dflt  = "$root/selinuxtest_memcg_default";
++my $xattr = "$root/selinuxtest_memcg_xattr";
++
++# Charge to our own process (pidfd): checked with cgroup:charge_to on the
++# target process SID.
++sub charge_pid {
++    my ($domain) = @_;
++    return system("runcon -t $domain -- $basedir/charge pid 2>&1") >> 8;
++}
++
++# Charge to a cgroup (cgroupfd): checked with cgroup:charge_to on its label.
++sub charge_cgroup {
++    my ( $domain, $cg ) = @_;
++    my $join = "echo \$\$ > $cg/cgroup.procs";
++    my $run  = "exec runcon -t $domain -- $basedir/charge cgroup $cg";
++    return system("sh -c '$join && $run' 2>&1") >> 8;
++}
++
++# One cgroup keeps the default label (genfscon), the other is relabeled
++# through the security.selinux xattr.
++mkdir($dflt);
++mkdir($xattr);
++system("chcon -t test_memcg_cgroup_t $xattr");
++
++$result = charge_pid("test_memcg_charge_task_t");
++ok( $result eq 0, "charge to a pidfd with cgroup:charge_to" );
++
++$result = charge_pid("test_memcg_nocharge_task_t");
++ok( $result eq 2, "charge to a pidfd without cgroup:charge_to" );
++
++$result = charge_cgroup( "test_memcg_charge_cgroup_t", $dflt );
++ok( $result eq 0, "charge to a default-labeled cgroup with cgroup:charge_to" );
++
++$result = charge_cgroup( "test_memcg_nocharge_cgroup_t", $dflt );
++ok( $result eq 2,
++    "charge to a default-labeled cgroup without cgroup:charge_to" );
++
++$result = charge_cgroup( "test_memcg_charge_xattr_t", $xattr );
++ok( $result eq 0, "charge to a relabeled cgroup with cgroup:charge_to" );
++
++$result = charge_cgroup( "test_memcg_charge_cgroup_t", $xattr );
++ok( $result eq 2, "charge to a relabeled cgroup allowed for another label" );
++
++# Cleanup.
++rmdir($xattr);
++rmdir($dflt);
++
++exit;
 
+---
+base-commit: 459fc1c7f460a712d7aa4ee19ff31d4d3ae193c9
+change-id: 20261125-cgroup-transfer-test-6b5683bdd064
 
-vim +2887 security/selinux/hooks.c
+Best regards,
+--  
+Albert Esteve <aesteve@redhat.com>
 
-  2873	
-  2874	static int selinux_fs_context_submount(struct fs_context *fc,
-  2875					   struct super_block *reference)
-  2876	{
-  2877		const struct superblock_security_struct *sbsec = selinux_superblock(reference);
-  2878		struct selinux_mnt_opts *opts;
-  2879	
-  2880		/*
-  2881		 * Ensure that fc->security remains NULL when no options are set
-  2882		 * as expected by selinux_set_mnt_opts().
-  2883		 */
-  2884		if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
-  2885			return 0;
-  2886	
-> 2887		if (!fc->security) {
-  2888			int rc;
-  2889	
-  2890			rc = lsm_mnt_opts_alloc(&fc->security);
-  2891			if (rc)
-  2892				return rc;
-  2893			opts = selinux_mnt_opts(fc->security);
-  2894			opts->initialized = true;
-  2895		}
-  2896	
-  2897		if (sbsec->flags & FSCONTEXT_MNT)
-  2898			opts->fscontext_sid = sbsec->sid;
-  2899		if (sbsec->flags & CONTEXT_MNT)
-  2900			opts->context_sid = sbsec->mntpoint_sid;
-  2901		if (sbsec->flags & DEFCONTEXT_MNT)
-  2902			opts->defcontext_sid = sbsec->def_sid;
-  2903		opts->initialized = true;
-  2904		return 0;
-  2905	}
-  2906	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
