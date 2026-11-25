@@ -1,45 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795564154;
-	b=zJfUN+utyZ25t/g4BwQHq7Eu2c1TMiQqtfVKl3WG27eqF8xj8DtUrl94DarX7wbgt5Xz
-	 sR688ZfN37Vu+Yj8UlkeUDIxD6frKsM02oAkmfRefuyjSdGRiMulBVScInVz7IYthdxYW
-	 qzk+/MwA2z+gdxOfpcMdwJc31ImE+2xA28/sZrCeKB8Zb63m6Erze9DSX/+GclaceY5xw
-	 8A0Q0irXi8fXnQBqaTVimUgLa24//Nj/i+DaCzLS0CUn6c8rxTp/9UhR3g07tzSsplo/8
-	 gYyS89w3ooH96KyvFKQmwGaA0b1tA87O7HIXe58rETRjtoiEFkiLkVq0QJFMbXM3QUA==
+	t=1795575019;
+	b=RQGNNk2rZHMv68uuW5m5YRHzkCcsKneP0FXqSCUB3I9RiHL+WBfwQOUVqquJ6TyMpZ7j
+	 xV17nJ3QQ19rAE/qrVk7BQ3mWd/JhID2cwPqr//hUZftVovlgOMdmh0STcG8gsVuvHT/x
+	 /LodffQVV0tLXDr/qF8ySanoFISwW4hcNv2f/cKo3/+/o/w4I77bmnAQC497jNnq5ANLc
+	 GOO7EsAzXnxHgKezdCxCmX0l1zOYVUEoS3F6/rkCsahSoPK9/XC3ckzQOHxhqlWjB7wLg
+	 8X2bW7WnRG6budCG4NYxFk8Vak3uS0MJaQLdnZqNjv8QsNggI5cEkz2PYTcpG5+fzxA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795564154;
-	h=Received:DKIM-Signature:Content-Type:MIME-Version:Message-Id:
-	 In-Reply-To:References:Subject:From:To:Cc:Date;
-	bh=DzVCyim1+gn9POglvsFKaOvJSiB4wTMgOv/rH14HWB0=;
-	b=DWYpRpsDShe8tBEbYZKzpwX1+aTSI425Lxm/efWeH44bjjJhkexeMSXrDxG308NdA884
-	 A7geQ9UYyqeUFSHZUHYIpOmbX6jenZEQjwIl687mhTAyDU9dAfOG1WViOQ56lYcfflrGV
-	 lKbpyGLsPhxHCKjdYOJfN/2LexFtwH2fZhsX6x37z61y1G/lwNVuSHzcyCffYIagZ5TAF
-	 rH6EcP3C2TPUHKICQ8ZbMqQrGuCruYE2nBkD3lhMj89S7LHEarVl27Rbyy27npdqqUmqb
-	 ECQ78HAN3kxnqhRzR2958QD5jew3NRJLzDDJQAIiLe51yulZqU+twQaAbC/t9lxEy7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795575019;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=hjTsEiHsB3scrTtDDV5jrh4xR7hyZtuQPmXQXJ4G5oA=;
+	b=o7gf6AXiI5IH7UkVZMkv2Glhpq1xjG+rB5lF42iefZ8fjBsu5PtBBz2BeGr+Vj1ydPMJ
+	 spgzMCEtOFoHDKtTdVD0JzdF6HKdM2QG7jkEVYaqP1tiLG1LxV5XsjcIDabmZIblV/brP
+	 sG7j6PwiE2Ha9hESSTop48DAkSi3xA2tSkitEgPtbL+uvA3vlO6Hksk55o21Us96Cn771
+	 C6OYLIyEgm4WICIyWqYVLtS87oS3lXeAiYl3k5/XDWMChNQkChXXIMlMRYETlCYKdm1ju
+	 qWOWug8kGBunYw3b2orVrTOovdR8mlioBMryhqC+awzd3gFTvU6ogw6mdyjVe9sENfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JWH0qSAZ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YqFq14zg;
+	arc=none smtp.remote-ip=198.175.65.9
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E33F2606A327;
-	Tue, 24 Nov 2026 23:49:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 129FD606A69C;
+	Wed, 25 Nov 2026 02:50:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 129FD606A69C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JWH0qSAZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878B41F000D0;
-	Tue, 24 Nov 2026 23:49:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795564153;
-	bh=DzVCyim1+gn9POglvsFKaOvJSiB4wTMgOv/rH14HWB0=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=JWH0qSAZTjFl6LjnHlO8g82S70LK9uxvihtFlxNyDhhs5nY326gdIHYnixSjHmfaj
-	 8Vd+Cbxr1IGXcnzxBME7sk4u4ky3aYbDxOzVkOdcqxsDaymjVYRqMXQadD05pB9kV8
-	 2ez1Axbs/sYM180DOmkFOSY5XTSgMglcfSs+Qnaevf7h+kmZZW2hTEuMBPTaTumHht
-	 fat1cYvsxmv5C8j+TzgeGNHb/kcNZ138P5eZgLX+3d5UTChnqU1MS6oNG03z1vZDy+
-	 OIZK4tk7e015n63m+Nb2xcSnz6tIcKV+EQisMwZYd7Tkc39xqCcfnYhcpXU/NrC7uP
-	 PVSxLH3y9+AEg==
-Content-Type: multipart/mixed; boundary="===============4896982406480640730=="
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YqFq14zg
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795575019; x=1827111019;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=FMJRwqJHxhDPXVt+DDIaX5xHOfNnwmDVihBZyK76jyw=;
+  b=YqFq14zgaQoW6sdIxFjmKVUmQswP7w+TU8pTEbz3pZhnes5nPpCXmeR3
+   pcErAriQhH/ZFTUq7iNqtGQzKLjiWgxjJNN+CYTT4RzLi12tKQigk8Xpr
+   0WeY4dLoOOPNh5Bf/apH9xSdy2umM2tBL+Lfr5CV3gxl1bPyrdOVl28Y2
+   95qVxPVMSrxfAz5vqpTtzntXZtu5CZWVJk6wgOFmBzJdp0tPunAxFB8uv
+   dszJb4UeKCo8ZYHU6/0WvSTn7IAXDo8DTFn76a1EJOrxNyOMyx4DhPJff
+   TSvhqNuyZvdS4kMB177DwZBX0GyxJuir1U7ouIr3NDc5o9tDDtLQSvaMQ
+   w==;
+X-CSE-ConnectionGUID: 37lm8xUBRpuuj/ice43MqA==
+X-CSE-MsgGUID: r3QSZk2wS86oRl4Zmhloig==
+X-IronPort-AV: E=McAfee;i="6800,10657,11976"; a="4312484"
+X-IronPort-AV: E=Sophos;i="6.27,232,1787036400"; 
+   d="scan'208";a="4312484"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2026 18:50:18 -0800
+X-CSE-ConnectionGUID: LGuQYm+xS0WWm+/cuAibYA==
+X-CSE-MsgGUID: BbyHB66dR1+vA+YgeLPFng==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,232,1787036400"; 
+   d="scan'208";a="11851290"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 24 Nov 2026 18:50:16 -0800
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xW35I-00000001Qio-3vrh;
+	Wed, 25 Nov 2026 02:50:12 +0000
+Date: Wed, 25 Nov 2026 10:49:39 +0800
+From: kernel test robot <lkp@intel.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
+	linux-security-module@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-kernel@vger.kernel.org, jmorris@namei.org, serge@hallyn.com,
+	keescook@chromium.org, john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH 1/1] LSM: infrastructure management of mount options
+Message-ID: <20261125104210.ICeMgnNL-lkp@intel.com>
+References: <20261124181522.30415-2-casey@schaufler-ca.com>
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -49,71 +86,88 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Message-Id: <cd715ed46deb14d0a7becc6defb029b6862024758c2392d1cd203e806446fdca@mail.kernel.org>
-In-Reply-To: <20261124-work-exec-update_lock-v1-11-e489035395b8@kernel.org>
-References: <20261124-work-exec-update_lock-v1-11-e489035395b8@kernel.org>
-Subject: Re: [PATCH RFC 11/19] selinux: revalidate inherited files before taking exec_update_lock
-From: bot+bpf-ci@kernel.org
-To: brauner@kernel.org,jannh@google.com
-Cc: torvalds@linux-foundation.org,linux-fsdevel@vger.kernel.org,acme@kernel.org,linux-perf-users@vger.kernel.org,bpf@vger.kernel.org,selinux@vger.kernel.org,kees@kernel.org,linux-mm@kvack.org,linux-security-module@vger.kernel.org,apparmor@lists.ubuntu.com,david@kernel.org,brauner@kernel.org,stable@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,mason@kernel.org,ihor.solodrai@linux.dev
-Date: Tue, 24 Nov 2026 23:49:11 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261124181522.30415-2-casey@schaufler-ca.com>
 
---===============4896982406480640730==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Hi Casey,
 
-> selinux: revalidate inherited files before taking exec_update_lock
+kernel test robot noticed the following build warnings:
 
-TL;DR: Moving flush_unauthorized_files() earlier changes the comm logged in
-SELinux AVC denials to the pre-exec name instead of the new program's; asks
-whether that is intended and, if so, to note it in the commit message.
+[auto build test WARNING on pcmoore-selinux/next]
+[also build test WARNING on linus/master v7.4-rc4 next-20261124]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
+url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/LSM-infrastructure-management-of-mount-options/20261124-101522
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+patch link:    https://lore.kernel.org/r/20261124181522.30415-2-casey%40schaufler-ca.com
+patch subject: [PATCH 1/1] LSM: infrastructure management of mount options
+config: loongarch-defconfig (https://download.01.org/0day-ci/archive/20261125/20261125104210.ICeMgnNL-lkp@intel.com/config)
+compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 2012344e5da8e03ea4b8283ecd6fad6e13f09d64)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261125/20261125104210.ICeMgnNL-lkp@intel.com/reproduce)
 
-[ ... ]
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/20261125104210.ICeMgnNL-lkp@intel.com/
 
-> +/*
-> + * Close files for which the new task SID is not authorized. Called before
-> + * exec_update_lock is taken as closing files may block in the filesystem.
-> + */
-> +static void selinux_bprm_revalidate_files(const struct linux_binprm *bprm)
-> +{
-> +	const struct cred_security_struct *new_crsec = selinux_cred(bprm->cred);
-> +
-> +	if (new_crsec->sid == new_crsec->osid)
-> +		return;
-> +
-> +	flush_unauthorized_files(bprm->cred, current->files);
-> +}
+All warnings (new ones prefixed by >>):
 
-Moving this call changes what the resulting AVC denial records contain.
-Denials from flush_unauthorized_files() go through match_file() ->
-file_has_perm() -> avc_has_perm() and are formatted by
-dump_common_audit_data(), which logs the program name from current->comm:
-
-    audit_log_format(ab, " pid=%d comm=", task_tgid_nr(current));
-    audit_log_untrustedstring(ab, get_task_comm(comm, current));
-
-Previously this ran from selinux_bprm_committing_creds() in
-begin_new_exec(), after __set_task_comm(me, kbasename(bprm->filename), true),
-so the record carried the new program's comm together with the new
-scontext.
-
-The new hook is called right after close_cloexec_files(), well before
-__set_task_comm(), so a denial for a revoked fd or controlling tty now
-reports the pre-exec comm (for a fork+exec, the parent's name such as "sh")
-while scontext is already the new domain.
-
-Is this change in the logged comm intended?  The commit message does not
-mention it.  If it is acceptable, could it be noted in the changelog?
+>> security/selinux/hooks.c:2887:6: warning: variable 'opts' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    2887 |         if (!fc->security) {
+         |             ^~~~~~~~~~~~~
+   security/selinux/hooks.c:2903:2: note: uninitialized use occurs here
+    2903 |         opts->initialized = true;
+         |         ^~~~
+   security/selinux/hooks.c:2887:2: note: remove the 'if' if its condition is always true
+    2887 |         if (!fc->security) {
+         |         ^~~~~~~~~~~~~~~~~~
+   security/selinux/hooks.c:2878:31: note: initialize the variable 'opts' to silence this warning
+    2878 |         struct selinux_mnt_opts *opts;
+         |                                      ^
+         |                                       = NULL
+   1 warning generated.
 
 
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+vim +2887 security/selinux/hooks.c
 
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/45508356147
---===============4896982406480640730==--
+  2873	
+  2874	static int selinux_fs_context_submount(struct fs_context *fc,
+  2875					   struct super_block *reference)
+  2876	{
+  2877		const struct superblock_security_struct *sbsec = selinux_superblock(reference);
+  2878		struct selinux_mnt_opts *opts;
+  2879	
+  2880		/*
+  2881		 * Ensure that fc->security remains NULL when no options are set
+  2882		 * as expected by selinux_set_mnt_opts().
+  2883		 */
+  2884		if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
+  2885			return 0;
+  2886	
+> 2887		if (!fc->security) {
+  2888			int rc;
+  2889	
+  2890			rc = lsm_mnt_opts_alloc(&fc->security);
+  2891			if (rc)
+  2892				return rc;
+  2893			opts = selinux_mnt_opts(fc->security);
+  2894			opts->initialized = true;
+  2895		}
+  2896	
+  2897		if (sbsec->flags & FSCONTEXT_MNT)
+  2898			opts->fscontext_sid = sbsec->sid;
+  2899		if (sbsec->flags & CONTEXT_MNT)
+  2900			opts->context_sid = sbsec->mntpoint_sid;
+  2901		if (sbsec->flags & DEFCONTEXT_MNT)
+  2902			opts->defcontext_sid = sbsec->def_sid;
+  2903		opts->initialized = true;
+  2904		return 0;
+  2905	}
+  2906	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
