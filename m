@@ -1,120 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795623317;
-	b=bR9cmFTAXoYAhr1iND3K8kXHvn8bmNSJSV5yOaCpTnFxC/MC5PbJci1trulkg0fGun22
-	 9yBxShykQAn/CUqlQIOV85W2XTHqbvC0H7WcpV0CHhPzKfrkK/BR0Zu3wTfeLgZ7h8/th
-	 zyeYqDG1wr4x5KhbvZf9Jkr0AS8KaA5nRZ49WsoSB5CIxPqqeJrY7WhDIAmba4eCYdRdu
-	 5UV6jn0l4jH56S5iQ85Lr9dxHIvT+DOiE3bMcs7Y5leZhh0lDkI5kiOVn7vJfjlS8Rkyw
-	 YjRPm9BZ0tgEgsBzGKx3XQhjmkXy34ek6QwtgXfIydQ6fO6KujCsgNOlBvty26ppq7A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795623317;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=ikIAQDWUd4oIdUiwPTrXqLa3Yct6IL/NQnfK5N4xiCQ=;
-	b=TPVHTEfjKk1C0Ud9zJCmqDZfjYKFMvsZTTHGE8J4vN3EPOQADyFUIsixbcq/AINDCY9o
-	 kuUaHQiYWiWrWj9TFA01Pm/LbLGEUTEXCiPhOE/VrWEFYes3MEc2Uf0Ksu1AC2C7w3EMX
-	 ZV6DkYrcR1Ylbrpjal2MgyVvDvhtc17LUmirzDqfa8IH+ah0yLrbqlDFnIH4US1Q3/lpt
-	 EuGjGZWzFzBm2O1htmboSIwbJIYzmpydLdddYltOCzjHHdcqw1eaAcnXjRYxC0FrKOXJw
-	 UwBvaF1bRacf+4agDegKfQQKx90EaUPuWr4L9e2oJFjqoa8VctlnGLYMBKdHbV65ySA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="i/sjixNX";
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=Oaboe2PV;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.69
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795663784;
+	b=xXCS9iR6eCixUg/U1G6MjBmdo6AlCUaZrxn5HvGRaBeFjK5nqSY+kiU2MMKl4DkFb5VD
+	 YcbpGG+VywMx/wOuPFzkKWm1j/jb7DxHZRxdF4Vla+1dN+t12kQZ7vTV2cmwsOVcM17bN
+	 z8m339Ziw+qhJNwIPFCgT6Zat4f0jT6yersUHDQIJcIijRmYxB/cokw1JHULjmEuzLgW6
+	 fKW7m6TXIqAGaXfkoxFLl2mnFUBG3BonATk3RIWgyPTRKArNdB7iSd2Wob8KrGbBqExT/
+	 M9zYoMlgIiKrsd9jpOOlpZcjJ/6bQ3vCQxDd0ASn/lRQF+D3kCJfAiM9WV+N68SPTIw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795663784;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Received:Date:Mime-Version:X-Mailer:Message-ID:
+	 Subject:From:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=j7NqusiEFK6IUlUhXnJ16u/VJ0Y4iKcO8c2TbfNbZjc=;
+	b=Fj4q+dPEUkLpwWAL6CCb1QyoUE0Ed9KzzMDx6d1uR/cm9bSO/6wzGVYYMRQ9wPHSmSIZ
+	 2jyWzcPMEpc7nxj52k/VP9RC3ryMHkS3ui2U5hKg/xAuiwULuydxVLPx78ZkVvTz9iO76
+	 JY3TZYhxruJqnED1XbmbKROxFP0mgNj2jQ7b6jzHZyOFKdSYqvZOha/2noNPQTinT5UV9
+	 WGo5WoMojHGjdxwKr8dgv2BOjCY6iDXtQcvI4RQzzq1bg4OUzdP9IkwC3i1EW7JadnTAG
+	 if4OF1S/OIIctWqhaKY/JIng3greU1eIWPt39SyxXE85lmH0EqWpgWgM9VPYm8nX+EA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--tweek.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=FhFNDoX6;
+	arc=none smtp.remote-ip=209.85.160.69
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com [209.85.160.69])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9910606A321
-	for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 16:15:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9910606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11CE8606A31E
+	for <selinux@vger.kernel.org>; Thu, 26 Nov 2026 03:29:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 11CE8606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i/sjixNX;
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=Oaboe2PV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795623315;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ikIAQDWUd4oIdUiwPTrXqLa3Yct6IL/NQnfK5N4xiCQ=;
-	b=i/sjixNXl3r5GPHHEFkXv16gfjzbESzfNVL+ELEJP8IXgC4d6JItv2XIW99mQrRl1Ae7EN
-	JpqjHWOAZU4a5Fjkiq1+rNwD7BhIuQYI6HNj5I8e93fBjbpdisUya3eIamMnAxo9zgMC4z
-	OdS6ezqPxtWPhICnw+5EVyI9KbcLxNk=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-125-ANFgUgPbPt-UawUXZAyxxQ-1; Wed, 25 Nov 2026 16:15:08 +0000
-X-MC-Unique: ANFgUgPbPt-UawUXZAyxxQ-1
-X-Mimecast-MFC-AGG-ID: ANFgUgPbPt-UawUXZAyxxQ_1795623308
-Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-4cbf700ddccso4379037b6e.0
-        for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 08:15:08 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795623308; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UTpNskcITBRTaZz9Jk87LwtOI/LRC4i+I305wQAB4w774uWSA+N1qxMMjkI2jU7+8o
-         3JbANT3SSCQ2q4pvE17Ofb1VpIEGkgkEHcYKBNa+8+wfDVXFesuq7TLcwO1y2UEvHmaQ
-         2DWsUKSuPbsTFvDpese/TUDHfW/rHKfso+sXIFa47Kts+T4l12Ka2UQi/RS2lGvfniGy
-         2/dlJzoLLcKQ0m9WgceorWEStxKh8zQx+fisc0hxzv5pBtkdHE5umQcC2y9OnbRsP6NK
-         vxIzRkPsinIz5nm/1vZUUDW96xwXfEb7Yh4QiMtI8Xfir+548LobQ+qon47ve49mKHqj
-         hIXA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ikIAQDWUd4oIdUiwPTrXqLa3Yct6IL/NQnfK5N4xiCQ=;
-        fh=y++hWClzj1+DIIf+DUKEEfrfMOGzuU1MnBpPCCmXp44=;
-        b=W+yLjpJdUqeKUg8+s5zk1i96u+MH42/1EFKhJ9tHDaM7iVgH/VJ4Z+gSZ5kopZYFoT
-         YG0j8rf2H9VvDofPESZLGQT5NUfsdjilgrb62RmBHwjGnIbgwFQgNpOMjDqzgVZGEpYt
-         OORUPouipk7/89mpmGTvrv2czQAKCMXDOBBxEo8PDKka3sbV3i3Z/HURcLBNOfm/ZYkn
-         v5SPIdFQ5zmF9E0tc0pJsfuBaA+F6hOqYzPhgjqwkWGtOxb4F3b+2ig5K9b9WqDwWqXa
-         G4dL725Wf9nFTKFn3cN5oQU9H4SEgPtcBi75RmvMExtBeZjKWw5+tRCdLGYCdJO3IaZM
-         QwUg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=FhFNDoX6
+Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-451d80641efso6918298fac.2
+        for <selinux@vger.kernel.org>; Wed, 25 Nov 2026 19:29:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1795623308; x=1796228108; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ikIAQDWUd4oIdUiwPTrXqLa3Yct6IL/NQnfK5N4xiCQ=;
-        b=Oaboe2PViWEq0So+RnJIvBpWv2oUca7oKSNLSN5zUE12qFEh9X86SM5/OLsXeOXi+6
-         RWkCRzvujLvMNWJImzFyaBBUfHz1maUpS0OWk2uzBZDHGMlpdEYjbxXJ2/ub48Gcp5EN
-         woInw3NN9bnwKGBS9YGiETO6kydhsqpStsdrKsuPAIGandvGDLJdMi2WiWkDptm0ykgn
-         nQTgHVDIisjPhEXWyy8MXTwdSBHfelPMk+Z0oAPzgzbQCKQbhYIA++VXiZ5yBcE/NYl0
-         PGAVVsQAVIC5XVK6XfJv3BPY0hpI6cDWN+S2bBdFA3W9MQ73CncOjT+pWt4x5GVmWR4j
-         6P3Q==
+        d=google.com; s=20260707; t=1795663783; x=1796268583; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=j7NqusiEFK6IUlUhXnJ16u/VJ0Y4iKcO8c2TbfNbZjc=;
+        b=FhFNDoX6SmUa/Tr+js5GlODQFtrSKf97UZidFsxg+NQrMX0v5Nte7N6ZmYwcb9Xxi6
+         +Oj4iIw/NFAakIhi23p5Nq92GIVj+iPnVAb2dipHPimNhZ4+AZw/F0pVtJFjC/SyLXJH
+         nCL+2bLRGqrLmEIjWUqrBNINpl0jyYZuwrB5P8tbLoPoQRUAYzz3zuztQq68rs00q4/5
+         fhsOHMzJr9+Vrdc1m0yJ0kpsBeMP5s9jqdMggjItFergKFRGWmpgV7AnsYyFCUMCwVXr
+         TdYVWuvoUp4O5ARBT/njkN1d04/LJO96TED4IvxeLkCzdA8tuZmu1jI4VlgY+ZGbj9aY
+         9TOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795623308; x=1796228108;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ikIAQDWUd4oIdUiwPTrXqLa3Yct6IL/NQnfK5N4xiCQ=;
-        b=bGyasExSyp6Y3J+CGsps1rw4UzcNG/k4Nfp+ab6CRyO4KCNQxV93AuwOCOVDJYvYk6
-         wCAspqoabW/9wrfEw2WKDCCiKnFYjFvCGkRYFEFVesTey829lZfnlMDpPK7vZTbmErV2
-         uJJA4CVTQ/reRssYmmhvrFXE0hOjr6CI5aM1FvHN6S7Koaotj835JyV4VglASoHm7P9p
-         pnY92ZFnO8gcvCyIdVFFUpjgJSpvYBOSlyvqpHdzD4HUWJ5eLLAoV5o8j4WN9sIRsX/O
-         kQGVOpDUdLde9QlBaULJeGO5rgqbyahUr//uo2ySMwIW9hhRJcbeksvxCBSpOOGoFZZb
-         YDuA==
-X-Forwarded-Encrypted: i=1; AL+hErEOT5Y1z5hL2fgcz7DVRNNEw4D1nA32acO31XajrgRttEFEE2yAQeCj2ZJiUvMYhtM2FJgSYq05@vger.kernel.org
-X-Gm-Message-State: APuU4Z/Gq/hZ3/DaRm3SuyYViRjoGTha9foFJgAtzK13WWy43Bs5bU2E
-	/Gq8HJ6upX6qHfNKrDq3jNa6Op7jQ7i5pejsnnV7XVYuaOuN9iYGytD9I25IUb+JIZB7hVBWs+9
-	EaJosomQBt8fJQkRnxm4rHcQyIAT9PUefZJJNJiNJsb40njrkcL62p4j0rZ4BP+bDPduxWnww0p
-	ZY2BhAVA7Yt8p0d18pIXPfySu/roXgVugf9Q==
-X-Gm-Gg: AZFdTZfCHZxWPUZl0o8MxKbnaAxXTkzfYYgG8tJ7nDkrzfXmisch6ZpiGH/yq/hrtIA
-	U8aDGPn2tJey+KbRKgA3mFRJ7uj839IqqgcJqEld4POZk7a9vtunDS5LV84A+5+Pr6gHlKbBFLG
-	ve7x+NVGvwZd+/99Gg5IHIWDEeFl6/SEusRep43lMeb4Y+cDoLH3dYc+u/
-X-Received: by 2002:a05:6808:1a10:b0:564:48f3:dfa8 with SMTP id 5614622812f47-57a0a111c93mr20349885b6e.11.1795623307704;
-        Wed, 25 Nov 2026 08:15:07 -0800 (PST)
-X-Received: by 2002:a05:6808:1a10:b0:564:48f3:dfa8 with SMTP id
- 5614622812f47-57a0a111c93mr20349798b6e.11.1795623307221; Wed, 25 Nov 2026
- 08:15:07 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795663783; x=1796268583;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=j7NqusiEFK6IUlUhXnJ16u/VJ0Y4iKcO8c2TbfNbZjc=;
+        b=1AcLb2czv5ErnDo1jax0/P/y39haqfoQZ5qmh6dt1I+uUUiViFcTxtxY1UAg3VQeJn
+         PgEzjIvfnWCSV5xmGEHCB6CJ7rBFM5+HIf+jMwb6a3MpUqZi4CGQ5Gh6btR0Njsn3Tpn
+         3J1YKOvjQ0IHVYzwEyL61uRqYfyl6nUqVHBEfsFwJ/P3d21hNmp8jwH88wrFIAvm4w5Q
+         AD9s6NNpoHA5IRGc7cRVsyD/cE6wVphPdcIuPJIaZXVXdrvq1cjEWvD9jyX5TkLFScuY
+         wfP95ADrOvR9kbTDrkG/3LpUDuGi+RG3tg7Y6rBtz9s2jBVqGEFOdCI5eb204Rpw8of5
+         t08w==
+X-Gm-Message-State: APuU4Z+i0gh0fuWd0GQoDQhePIgXPk9YY42C8HpYeS3kJGjZWEtayJ6U
+	tLHp5irGLKdEzUbiVuWAC3kIg21bjcNSnanLRYaf9gUqwY2ueRgsAzD5mzC0GcVxW6VlpNEk41C
+	5BdYgd9jKjOL0njtwQc6P/3aO2vp6O3FXfs1VtDtmYVJH6N7VBL0t909OKEeBgrrzU0OzqEzuGR
+	YNHFnG3AbF38rURtZu5dcs/fys14TMwNuj
+X-Received: from oasv20-n2.prod.google.com ([2002:a05:6871:c654:20b0:4a6:98a5:8dea])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6808:50a7:b0:571:846e:6f06
+ with SMTP id 5614622812f47-57a0a60f070mr22352532b6e.21.1795663782270; Wed, 25
+ Nov 2026 19:29:42 -0800 (PST)
+Date: Thu, 26 Nov 2026 14:29:21 +1100
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Post: <mailto:selinux@vger.kernel.org>
@@ -123,152 +76,155 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:selinux+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261124-v2_20230123_tjmercier_google_com-v6-0-dce12fa03ad6@redhat.com>
- <20261124-v2_20230123_tjmercier_google_com-v6-6-dce12fa03ad6@redhat.com> <CAJ2a_DeDF+9pbLKS9pcX4Tot4xZZ-K7HydKnDjW6TWC5bvREzQ@mail.gmail.com>
-In-Reply-To: <CAJ2a_DeDF+9pbLKS9pcX4Tot4xZZ-K7HydKnDjW6TWC5bvREzQ@mail.gmail.com>
-From: Albert Esteve <aesteve@redhat.com>
-Date: Wed, 25 Nov 2026 17:14:55 +0100
-X-Gm-Features: Aa3M54qg8B1tVY9MI_hj21-3fP47U-BOsj1Lrj8qIxJDIaifgpgCHqLTs9bOP0k
-Message-ID: <CADSE00JMSXm4Vi5aH=k3VgLL__EsdEZgg_PqkSkK0LQumj1SUQ@mail.gmail.com>
-Subject: Re: [PATCH v6 6/7] selinux: Restrict cross-cgroup memcg charging
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
-	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
-	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
-	Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Shuah Khan <shuah@kernel.org>, 
-	Randy Dunlap <rdunlap@infradead.org>, =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>, 
-	Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
-	Philipp Stanner <phasta@kernel.org>, airlied@gmail.com, cgroups@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, op-tee@lists.trustedfirmware.org, 
-	echanude@redhat.com, mripard@kernel.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
+Message-ID: <20261126032924.1868720-1-tweek@google.com>
+Subject: [PATCH userspace 0/2] Fix and warn on negative-only type sets
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	James Carter <jwcart2@gmail.com>, Petr Lautrbach <lautrbach@redhat.com>, 
+	"=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, Inseob Kim <inseob@google.com>, 
+	Jeff Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 24, 2026 at 2:50=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> On Tue, 24 Nov 2026 at 14:05, Albert Esteve <aesteve@redhat.com> wrote:
-> >
-> > The security_current_memcg_charge_task() and
-> > security_current_memcg_charge_cgroup() hooks allow security modules to
-> > control which processes may charge or transfer memcg memory to another
-> > process's cgroup, named by a pidfd, or to an arbitrary cgroup named by
-> > a cgroupfd, both passed in charge_fd. Without a policy implementation,
-> > either hook is a no-op and the restriction is not enforced.
-> >
-> > On SELinux-managed systems the only limit is CAP_SYS_RESOURCE. A
-> > domain that holds both dma-heap access (today's only exporter that
-> > opts-in) and that capability, can charge memory to any cgroup outside
-> > its own subtree. Since the capability is all-or-nothing, SELinux
-> > policy cannot express which targets such a domain may charge to.
-> >
-> > Implement both selinux_memcg_charge_task() and
-> > selinux_memcg_charge_cgroup() using avc_has_perm() with a new cgroup
-> > object class and a new charge_to permission. Both charge_fd flavours
-> > ultimately charge a cgroup, so one permission covers them and the
-> > target type keeps the distinction: for the pidfd path the target is
-> > the referred task's SID, as there is no cgroup object to take a label
-> > from; for the cgroupfd path it is the cgroup directory's inode SID,
-> > which comes from the genfscon entry for cgroupfs unless the directory
-> > is relabeled.
-> >
-> > The checks run when the charge target is resolved, before the
-> > CAP_SYS_RESOURCE baseline is evaluated, and apply to every explicit
-> > charge_fd target, including the caller's own subtree, so policy needs
-> > a rule even for self-charging. Policy authors can then grant
-> > cross-cgroup charging selectively, for example:
-> >
-> >   allow allocator_app_t client_app_t:cgroup charge_to;
-> >   allow allocator_app_t cgroup_t:cgroup charge_to;
-> >
-> > Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> > ---
-> >  security/selinux/hooks.c            | 19 +++++++++++++++++++
-> >  security/selinux/include/classmap.h |  1 +
-> >  2 files changed, 20 insertions(+)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 6c4c64d6e904..76a714107ae4 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -2204,6 +2204,23 @@ static int selinux_capable(const struct cred *cr=
-ed, struct user_namespace *ns,
-> >         return cred_has_capability(cred, cap, opts, ns =3D=3D &init_use=
-r_ns);
-> >  }
-> >
-> > +static int selinux_memcg_charge_task(const struct cred *to)
-> > +{
-> > +       const struct cred *cred =3D current_cred();
-> > +
-> > +       return avc_has_perm(cred_sid(cred), cred_sid(to),
->
-> Small nit:
-> `cred_sid(current_cred())` could be simplified using `current_sid()`
+This series addresses two related issues with negative-only type sets
+such as "{ -TYPE1 }" (and "~{ -TYPE1 }"): a semantic divergence between
+libsepol's expansion and CIL conversion paths, and a silent pitfall for
+policy authors.
 
-Nice, thanks! I will apply that for the next version.
+1. Divergence between expand.c and module_to_cil.c
+--------------------------------------------------
 
->
-> > +                           SECCLASS_CGROUP, CGROUP__CHARGE_TO, NULL);
-> > +}
-> > +
-> > +static int selinux_memcg_charge_cgroup(const struct file *file)
-> > +{
-> > +       const struct cred *cred =3D current_cred();
-> > +       struct inode_security_struct *isec =3D inode_security(file_inod=
-e(file));
-> > +
-> > +       return avc_has_perm(cred_sid(cred), isec->sid, SECCLASS_CGROUP,
-> > +                           CGROUP__CHARGE_TO, NULL);
-> > +}
-> > +
-> >  static int selinux_quotactl(int cmds, int type, int id, const struct s=
-uper_block *sb)
-> >  {
-> >         const struct cred *cred =3D current_cred();
-> > @@ -7683,6 +7700,8 @@ static struct security_hook_list selinux_hooks[] =
-__ro_after_init =3D {
-> >         LSM_HOOK_INIT(capget, selinux_capget),
-> >         LSM_HOOK_INIT(capset, selinux_capset),
-> >         LSM_HOOK_INIT(capable, selinux_capable),
-> > +       LSM_HOOK_INIT(memcg_charge_task, selinux_memcg_charge_task),
-> > +       LSM_HOOK_INIT(memcg_charge_cgroup, selinux_memcg_charge_cgroup)=
-,
-> >         LSM_HOOK_INIT(quotactl, selinux_quotactl),
-> >         LSM_HOOK_INIT(quota_on, selinux_quota_on),
-> >         LSM_HOOK_INIT(syslog, selinux_syslog),
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/inc=
-lude/classmap.h
-> > index 90cb61b16425..1f1f2fc4d35d 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -181,6 +181,7 @@ const struct security_class_mapping secclass_map[] =
-=3D {
-> >         { "user_namespace", { "create", NULL } },
-> >         { "memfd_file",
-> >           { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL }=
- },
-> > +       { "cgroup", { "charge_to", NULL } },
-> >         /* last one */ { NULL, {} }
-> >  };
-> >
-> >
-> > --
-> > 2.55.0
-> >
-> >
->
+In SELinux policy language, "-" performs set subtraction from the
+positive types listed in the same set, rather than set complement ("~").
+Currently, libsepol's monolithic expansion path (expand.c) and CIL
+conversion path (module_to_cil.c) disagree on how negative-only type
+sets are evaluated:
+
+- libsepol/src/expand.c:type_set_expand() computes (empty \ {TYPE1}) =3D
+  empty, so the rule is a no-op.
+- libsepol/src/module_to_cil.c:cil_print_attr_strs() omits the
+  "(and ...)" wrapper when the positive set is empty and emits
+  "(typeattributeset base_typeattr_1 (not (TYPE1 )))", treating
+  "{ -TYPE1 }" as "~TYPE1" (all types except TYPE1).
+
+Beyond causing monolithic checkpolicy and checkpolicy -C / semodule to
+disagree on the same policy, this also undermines checkpolicy's ban on
+complemented allow rules: checkpolicy rejects "allow ~TYPE1 ...", yet
+accepts "allow { -TYPE1 } ...", which grants nothing under expand.c but
+grants access to every type except TYPE1 when converted to CIL.
+
+Two related edge cases in cil_print_attr_strs() also diverge from
+expand.c: "~{ -TYPE1 }" emits "(not (not (TYPE1 )))" instead of "(all)",
+and TYPE_STAR with a non-empty negset emits invalid "(all)(not (...))"
+instead of "(not (...))".
+
+2. Silent pitfall for policy authors
+------------------------------------
+
+Because "{ attr -foo }" is a common idiom in SELinux policy, authors
+occasionally omit the positive set and write "{ -foo }" when they intend
+the set complement "~foo" (all types other than foo).  This mistake is
+easy to miss in code review and has surprising, silent consequences:
+
+- Checkpolicy accepts "{ -foo }" without any warning or error.
+- Under expand.c (and under CIL once patch 1 aligns the two paths),
+  "{ -foo }" evaluates to the empty set.  In a neverallow rule (e.g.
+  "neverallow { -domain } ..."), the assertion silently becomes a no-op
+  and provides no protection, while still looking like a valid invariant
+  to readers.
+- Previously, the bug in module_to_cil.c masked the mistake whenever
+  policies were checked through CIL, while monolithic checkpolicy (and
+  tools built on expand.c) silently ignored the rule.
+- Similarly, "~{ -foo }" silently expands to all types rather than foo.
+
+Warning when a parsed type set has a non-empty negative set without any
+positive types (and without "*") catches this mistake at compile time,
+while leaving standard cases that legitimately expand to an empty set
+(such as "{ empty_attr -foo }", "{ foo -foo }", or "{ -self }")
+unaffected.
+
+Series overview
+---------------
+
+1. libsepol: align module_to_cil type/role set handling with expand.c
+   Updates cil_print_attr_strs() to match type_set_expand() and
+   role_set_expand() for empty/negative-only, complemented empty, and
+   star-with-negset sets, and adds CUnit regression tests.
+
+2. checkpolicy: warn on negative-only type sets
+   Emits a warning via yywarn() when a type set has no positive types
+   (and no "*") alongside a non-empty negative set, with regression
+   tests.  yywarn() is used rather than yyerror() to avoid breaking
+   existing/frozen policies on upgrade while still failing builds that
+   pass -E / --werror (happy to switch to yyerror() if preferred).
+
+Tested with `make test` across libsepol, checkpolicy, and secilc under
+gcc, clang, and gcc with ASan/UBSan, as well as `make check-format`.
+
+Minimal reproducer (expand.c vs module_to_cil.c divergence)
+-----------------------------------------------------------
+
+Given the following 11-line policy (poc.conf):
+
+    class CLASS1
+    sid kernel
+    class CLASS1 { PERM1 }
+    type TYPE1;
+    type TYPE2;
+    allow TYPE2 self:CLASS1 PERM1;
+    neverallow { -TYPE1 } self:CLASS1 PERM1;
+    role ROLE1;
+    role ROLE1 types { TYPE1 TYPE2 };
+    user USER1 roles ROLE1;
+    sid kernel USER1:ROLE1:TYPE1
+
+Before this series, compiling directly with checkpolicy (expand.c)
+succeeds silently because the neverallow expands to the empty set:
+
+    $ checkpolicy -o policy_mono.bin poc.conf
+    $ echo $?
+    0
+
+Converting to CIL and compiling with secilc (module_to_cil.c) fails the
+neverallow assertion because module_to_cil emitted "(not (TYPE1 ))":
+
+    $ checkpolicy -C -o poc.cil poc.conf && \
+      secilc -M false -f /dev/null -o policy_cil.bin poc.cil
+    neverallow check failed at poc.cil:30 from poc.conf:7
+      (neverallow base_typeattr_1 self (CLASS1 (PERM1)))
+        <root>
+        allow at poc.cil:27
+          (allow TYPE2 self (CLASS1 (PERM1)))
+
+    Failed to generate binary
+    Failed to build policydb
+    $ echo $?
+    255
+
+Thi=C3=A9baud Weksteen (2):
+  libsepol: align module_to_cil type/role set handling with expand.c
+  checkpolicy: warn on negative-only type sets
+
+ checkpolicy/Makefile                          |   1 +
+ checkpolicy/policy_define.c                   |  24 ++
+ checkpolicy/tests/test_negative_typeset.sh    | 245 ++++++++++++++++
+ libsepol/src/module_to_cil.c                  |  69 +++--
+ libsepol/tests/libsepol-tests.c               |   2 +
+ .../test-module-to-cil/typeset-comp.conf      |  24 ++
+ .../policies/test-module-to-cil/typeset.conf  |  34 +++
+ libsepol/tests/test-module-to-cil.c           | 268 ++++++++++++++++++
+ libsepol/tests/test-module-to-cil.h           |  10 +
+ 9 files changed, 653 insertions(+), 24 deletions(-)
+ create mode 100644 checkpolicy/tests/test_negative_typeset.sh
+ create mode 100644 libsepol/tests/policies/test-module-to-cil/typeset-comp=
+.conf
+ create mode 100644 libsepol/tests/policies/test-module-to-cil/typeset.conf
+ create mode 100644 libsepol/tests/test-module-to-cil.c
+ create mode 100644 libsepol/tests/test-module-to-cil.h
+
+--=20
+2.56.1.839.g22a8290db9-goog
 
